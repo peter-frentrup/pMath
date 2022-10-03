@@ -918,10 +918,7 @@ void SectionList::paint_section(Context &context, int i) {
     
     context.canvas().move_to(x - scroll_cor_x, y);
     
-    Expr expr;
-    context.stylesheet->get(style, TextShadow, &expr);
-    context.draw_with_text_shadows(_sections[i], expr);
-    
+    _sections[i]->paint(context);
   }
   context.canvas().restore();
   paint_section_brackets(context, i, x + _scrollx + _window_width, y);
