@@ -533,7 +533,7 @@ void MathSequence::paint(Context &context) {
   
   Impl::PaintHookHandler(context, p0, context.pre_paint_hooks, true).run(*this);
   
-  if(has_text_shadow_span()) {
+  if(has_text_shadow_span() && !context.canvas().show_only_text) {
     RleArray<Expr> text_shadows;
     auto text_shadows_iter = text_shadows.begin();
     
@@ -563,7 +563,7 @@ void MathSequence::paint(Context &context) {
           run_end.move_to_glyph(glyphs.length());
         
         rects.length(0);
-        Impl(*this).selection_rectangles(rects, &context, context.canvas(), run_start, run_end);
+        Impl(*this).selection_rectangles(rects, nullptr/*&context*/, context.canvas(), run_start, run_end);
         
         for(auto &rect : rects) {
           context.draw_text_shadows(
