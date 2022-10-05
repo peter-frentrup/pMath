@@ -425,6 +425,8 @@
 {"Plot", {"ArgumentCount" -> 2, "LocalVariables" -> {"Table", 2..2}}},
 {"Plus", {"ArgumentCount" -> 2..}},
 {"PlusMinus", {"ArgumentCount" -> 1..2}},
+{"Point", {"ArgumentCount" -> 1}},
+{"PointSize", {"ArgumentCount" -> 1}},
 {"PolyGamma", {"ArgumentCount" -> 1..2}},
 {"Position", {"ArgumentCount" -> 2..4}},
 {"PostDecrement", {"ArgumentCount" -> 1..2}},

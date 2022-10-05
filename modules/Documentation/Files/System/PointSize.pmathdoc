@@ -1,0 +1,735 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("PointSize", "ObjectName"), 
+      Section(BoxData(TemplateBox({"PointSize"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({
+           "The absolute diameter is measured in printer\[HighNineQuote]s \
+           points. One printer\[HighNineQuote]s point equals ", 
+           BoxData(FractionBox("1", "72")), 
+           " inch. One pixel on a typical low resolution (96 dpi) screen \
+           equals 0.75 printer\[HighNineQuote]s points."}), "Notes"), 
+        Section(TextData({"The following symbolic forms for ", 
+           StyleBox("d", "Arg"), " can be used: ", 
+           TemplateBox({"Tiny"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Small"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Medium"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Large"}, "ReferenceHyperlink"), ", and ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"A diameter ", StyleBox("d", "Arg"), 
+           " of the form ", TemplateBox({"Scaled"}, "ReferenceHyperlink"), 
+           "(", StyleBox("s", "Arg"), ") uses a fraction ", 
+           StyleBox("s", "Arg"), 
+           " of the overall plot range width (excluding graphics frame \
+           margins) for the diameter."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Specify the point size in printer\[HighNineQuote]s points:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Graphics", "(", {
+                {"{", {{"PointSize", "(", "s", ")"}, ",", {
+                   "Point", "(", {"{", {"0", ",", "0"}, "}"}, ")"}}, "}"}, 
+                ",", {"ImageSize", "\[Rule]", "30"}}, ")"}, ",", {
+               "s", "\[Rule]", {"{", {"0.75", ",", "3", ",", "7.5", ",", 
+                 "15"}, "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {GraphicsBox({PointSize(0.75`), PointBox({0, 0})}, 
+               ImageSize -> NCache(30, 30.0`)), ",", 
+              GraphicsBox({PointSize(3), PointBox({0, 0})}, 
+               ImageSize -> NCache(30, 30.0`)), ",", 
+              GraphicsBox({PointSize(7.5`), PointBox({0, 0})}, 
+               ImageSize -> NCache(30, 30.0`)), ",", 
+              GraphicsBox({PointSize(15), PointBox({0, 0})}, 
+               ImageSize -> NCache(30, 30.0`))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Symbolic values for predefined point sizes:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Graphics", "(", {
+                  {"{", {{"PointSize", "(", "s", ")"}, ",", {
+                     "Point", "(", {"{", {"0", ",", "0"}, "}"}, ")"}}, "}"}, 
+                  ",", {"ImageSize", "\[Rule]", "30"}}, ")"}, ",", {
+                 "s", "\[Rule]", {"{", {"Automatic", ",", "Tiny", ",", 
+                   "Small", ",", "Medium", ",", "Large"}, "}"}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {GraphicsBox({PointSize(Automatic), PointBox({0, 0})}, 
+                 ImageSize -> NCache(30, 30.0`)), ",", 
+                GraphicsBox({PointSize(Tiny), PointBox({0, 0})}, 
+                 ImageSize -> NCache(30, 30.0`)), ",", 
+                GraphicsBox({PointSize(Small), PointBox({0, 0})}, 
+                 ImageSize -> NCache(30, 30.0`)), ",", 
+                GraphicsBox({PointSize(Medium), PointBox({0, 0})}, 
+                 ImageSize -> NCache(30, 30.0`)), ",", 
+                GraphicsBox({PointSize(Large), PointBox({0, 0})}, 
+                 ImageSize -> NCache(30, 30.0`))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(
+         TextData({"Use ", TemplateBox({"Scaled"}, "ReferenceHyperlink"), 
+           " for fractions of the overall plot range width:"}), 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Graphics", "(", {
+                {"{", {{"PointSize", "(", {"Scaled", "(", "s", ")"}, ")"}, 
+                  ",", {"Point", "(", {"{", {"0", ",", "0"}, "}"}, ")"}}, 
+                 "}"}, ",", {"ImageSize", "\[Rule]", "30"}}, ")"}, ",", {
+               "s", "\[Rule]", {"{", {"0.05", ",", "0.5", ",", "1.0", ",", 
+                 "1.1"}, "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {GraphicsBox({PointSize(Scaled(0.050000000000000003`)), 
+                PointBox({0, 0})}, ImageSize -> NCache(30, 30.0`)), ",", 
+              GraphicsBox({PointSize(Scaled(0.5`)), PointBox({0, 0})}, 
+               ImageSize -> NCache(30, 30.0`)), ",", 
+              GraphicsBox({PointSize(Scaled(1.0`)), PointBox({0, 0})}, 
+               ImageSize -> NCache(30, 30.0`)), ",", 
+              GraphicsBox({PointSize(Scaled(1.1000000000000001`)), 
+                PointBox({0, 0})}, ImageSize -> NCache(30, 30.0`))}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({"Image frame margins are not considered for ", 
+           TemplateBox({{"Scaled", ":", "\n"}}, "ReferenceHyperlink")}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Graphics", "(", {
+              {"{", {{"PointSize", "(", {"Scaled", "(", "1.0", ")"}, ")"}, 
+                ",", {"Point", "(", {"{", {"0", ",", "0"}, "}"}, ")"}}, "}"}, 
+              ",", {"Frame", "\[Rule]", "True"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({PointSize(Scaled(1.0`)), PointBox({0, 0})}, 
+             Frame -> True)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+        Section("Points at random sizes:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Graphics", "(", {
+              "Table", "(", {
+               {"{", {{"Hue", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
+                  "PointSize", "(", {"RandomInteger", "(", {"1", "..", "20"}, 
+                   ")"}, ")"}, ",", {"Point", "(", {
+                   "RandomReal", "(", {"1", ",", {"{", "2", "}"}}, ")"}, 
+                  ")"}}, "}"}, ",", "200"}, ")"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({
+              {Hue(0.15725995297219741`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCNhvzEyW-9h,^#3@&8oU@>;X>Y2yF~~"))}, {
+               Hue(0.90962086041727386`), PointSize(8), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCd9o>>@<8le,vcK$S)DX@+XDbkX9zI~"))}, {
+               Hue(0.60921491603323052`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCncP,lFCO#W-s9x1je;&0?Eyrx2g3~~"))}, {
+               Hue(0.75473766627081207`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCNnsK9jNWtFKBj3yFVChU_5e0a2J8~~"))}, {
+               Hue(0.3761349988971131`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCF?i<bJ?q{(,)lj^@0KllZVv!ZfC;D~"))}, {
+               Hue(0.814543624384512`), PointSize(8), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCnKJ#5@,FE*?H@!NlvF>vV-EmTTM3W~"))}, {
+               Hue(0.22394432064578174`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS>={6+2H6ydj+%H{wYuI+5-SW^aut~"))}, {
+               Hue(0.24009620207779092`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCsd)H$?wzZL>=($gFH92HY!3idI}zd~"))}, {
+               Hue(0.67173720638220458`), PointSize(19), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCc{i11@9pn*?e,o%Z;{=2!5#owcM0A~"))}, {
+               Hue(0.11615509545034752`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCaq3y@f7SYhJ<AiR4x<a#?Eym42fz~~"))}, {
+               Hue(0.2803220584303473`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxf0[d?by}W_C-wRbiZldu?GN8jR>s~"))}, {
+               Hue(0.34986582481815975`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCSv>nf,0DH@_5u5SrskYJU=ILL1_<i~"))}, {
+               Hue(0.85463352382713365`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxgfFAxqQz?,#p7>><_{(*aHAX#Rt9~"))}, {
+               Hue(0.84683222314985873`), PointSize(20), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC,Kf3bVEym4z1#9Y<+id1_5eeV2dM~~"))}, {
+               Hue(0.39171389444313065`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCaX4ml<(uId,=eTH@1O8Ium=E1ya-q~"))}, {
+               Hue(0.17256216394164892`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC@!_8GYnstX,{XmP?c##o+5-SYSqKm~"))}, {
+               Hue(0.82250958095487892`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC$vD*;ba3[E,+,SD}2cYIvIhWDLJ4U~"))}, {
+               Hue(0.63700830893673177`), PointSize(13), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC(c,mqy;^h8{?nq3XC0@!wg&([GzeD~"))}, {
+               Hue(0.56393328978890145`), PointSize(20), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC+2FL]^W_;g>^Br-TmA7lWe)&V8wp4~"))}, {
+               Hue(0.2812557357830584`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCaoU,<UF-LCdyiSs>&[O7u?GN2_y]L~"))}, {
+               Hue(0.19309404198470859`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC>H229}J;dZ_CJmsxZ0xe!X5x##tMJ~"))}, {
+               Hue(0.32267426190392723`), PointSize(20), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCG5XE)Ym?$D,!5_a{nLC-*#iJa8wcJ~"))}, {
+               Hue(0.0035270136182378176`), PointSize(8), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCSrai${5[5@,w4E{CUUnQ+XDbX{RgQ~"))}, {
+               Hue(0.44361077703409713`), PointSize(16), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCnXg_Wmh$eI{hNIjcU-v-*#iJZVh9B~"))}, {
+               Hue(0.84940421677092948`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCnWq)Ge$wFw_8(k+2k#2IWe)&O0SOi~"))}, {
+               Hue(0.78394172258161676`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCNlE=Tp^fL5{hS$TK^aR=+5-Sbga{S~"))}, {
+               Hue(0.11269739833887904`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCk+9tOz]1h#eN#r)i@0-F>;XW{2qO~~"))}, {
+               Hue(0.020292256741551107`), PointSize(18), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS;G{hv-I@?,wQE@RcTnPvIhW1<Oo6~"))}, {
+               Hue(0.88350388066806618`), PointSize(13), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIdJ^JgLc+4_9?UOE-yd##vTA!Ckgi~"))}, {
+               Hue(0.90709319490988127`), PointSize(7), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQRj0oytnDOJ)b^nBvbDddjK%B1;7~~"))}, {
+               Hue(0.29654727950555226`), PointSize(19), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxgyu(Bg*>3zTs1xy6o&#_5eD$2D}~~"))}, {
+               Hue(0.63884496146337999`), PointSize(8), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC@zFf?qigGVdman7$-4c=?Eyr%2Zj~~"))}, {
+               Hue(0.89638195752366279`), PointSize(19), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC3EQN&,<vk#,=hhoJwANsjXeNT_X<4~"))}, {
+               Hue(0.79066144770623814`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCF*wq(^v>op_H5hU7tYDKZw]-aCkZ3~"))}, {
+               Hue(0.26042771659969854`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS=*v29oG2N{)yZ1-TXrL?Eyh}2Yv~~"))}, {
+               Hue(0.83401961951780279`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQQCWF)gFVV_HJ8j71h^1wFdx5!3XR~"))}, {
+               Hue(0.333545903426132`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCkyBgwN5=cD{g0!mtmli5*aHAV90(5~"))}, {
+               Hue(0.34901125941787492`), PointSize(15), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCF,04veDJSJ_9+wl{%zJgWe)&S6$wo~"))}, {
+               Hue(0.68632988947185669`), PointSize(13), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCaa7PUWxM>!J]d#P(V]D?_5d;h27v~~"))}, {
+               Hue(0.8890759600831637`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCNr(=Lx]jgzeuefL#@6l=_5eI_2N(~~"))}, {
+               Hue(0.080455992564693268`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxpjQb_Dg#&+b8&kU3h!zo;?6w0t$5~"))}, {
+               Hue(0.31673267193313204`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCx$NG}>2>P0y_&+z4[bdJ*aHAXiU^M~"))}, {
+               Hue(0.48493305280644838`), PointSize(8), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxu}8mX9Leu,&V]#QYHOv*aHAY%LmQ~"))}, {
+               Hue(0.91484875120935738`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCkqHVh++%jeeu3)E2NAW$>;XCt2X6~~"))}, {
+               Hue(0.58417356106487806`), PointSize(6), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCad,6g*d)cL_6K)zy-Z?$V-EmRGzj7~"))}, {
+               Hue(0.24183049391010714`), PointSize(16), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC,SO5wlEap(_WpWje(!wn#2x@qxe1]~"))}, {
+               Hue(0.37517297712718334`), PointSize(7), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxiEXa;<k+E_6>9Aow<Cz-yQ%,!U>H~"))}, {
+               Hue(0.86932541842629651`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC*&;u8p@jGu,[7?Qr*tcy*aHAPcn2f~"))}, {
+               Hue(0.39692591165305202`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCx$wI?+-l(pd+$vBkfX&f?Ey=d2rU~~"))}, {
+               Hue(0.54826087267221324`), PointSize(16), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC@k$YW#5Ccieax>Z!5KYA>;XRQ2dV~~"))}, {
+               Hue(0.49686319890736608`), PointSize(15), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxl!R=?V$L,-e>Yu#(CNI?Eygb2U,~~"))}, {
+               Hue(0.6228726396069133`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCX%JugxLBdjzSpep!iFEO>;XjH2%r~~"))}, {
+               Hue(0.29945663658267752`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCiO6kqH!0s]e_$Hl<_T[!+5-STln53~"))}, {
+               Hue(0.72901614275248416`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCnf90,eck_e_FY@w7o0zR!yW)u$qGC~"))}, {
+               Hue(0.055237687804840729`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC@l<@{^+EcLy,<vRt)l<m*aHATp9lZ~"))}, {
+               Hue(0.89565973834138946`), PointSize(19), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC,EdTct+m7zdoLE_6FkQr*#iJZ;s=x~"))}, {
+               Hue(0.38393054702608442`), PointSize(6), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQQ74B)#2nb,&^aFd$iuawg&)7M+nF~"))}, {
+               Hue(0.46420436979497537`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC$w>KF@7wg)e%fKym[5s?*#iJdstCa~"))}, {
+               Hue(0.82359265868761378`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC3Ai4nb!)*Y,<Pu@EpFesU=ILFhY0u~"))}, {
+               Hue(0.59179636581450379`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCiHOh3;&OjtKilP(P>kgZdjL5v2GI~~"))}, {
+               Hue(0.70760607443416257`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCY1kCh!pnThK8!0iv]B7YdjL2A28a~~"))}, {
+               Hue(0.2965177453719664`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCN!mDd(lge3_LuZ$HT6BYYYzZT%?T6~"))}, {
+               Hue(0.97503415111203429`), PointSize(19), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC,5]tzdtUgMy{4XA%)+t<_5e3-266~~"))}, {
+               Hue(0.087672604487188943`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCc^Gv3?(W>T_E#0ID82[LW)A>Zw+Wv~"))}, {
+               Hue(0.1385014446441637`), PointSize(1), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5to=[_)_V;eMKvC),h2+?EyMN2af~~"))}, {
+               Hue(0.78375775597319242`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCX%Ly!&%)kqf9q}ziq,fg_5eAW2Oj~~"))}, {
+               Hue(0.96648559938461798`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCSyJYb$SC^W{(5odci}^5>;XS]2l4~~"))}, {
+               Hue(0.32706692590531872`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC$=Ln<oLcjK,<81DjOH31wFdxFhY0i~"))}, {
+               Hue(0.080239378836165054`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIaAE$BJ[ya{gXPst#Z2_*#iJYvj{-~"))}, {
+               Hue(0.021532537239253413`), PointSize(15), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCd2y5X&TH0Z_A6{tQonIuwg&)Fp$Mk~"))}, {
+               Hue(0.40943860703009338`), PointSize(16), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC>C+NEdwb7Ydx0b0lgw34*#iJbMF<l~"))}, {
+               Hue(0.20052309098499943`), PointSize(19), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC(YVhM#I$&uy]4GvvRx0]*aHAMA_sr~"))}, {
+               Hue(0.26809212413767236`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIkfwxcUk;R,(12]VQZAH*aHAeJ_qg~"))}, {
+               Hue(0.7064019372008844`), PointSize(13), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCVfZ%p>85k@?BnKTnN+7=vIhW8{0NB~"))}, {
+               Hue(0.79807195749952331`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC={r>[7*+AyUS,gNV+x1f+XDbb*9dI~"))}, {
+               Hue(0.2984464127105303`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS+REFxkRSD_8ocA74s}a+5-Sd-Uv4~"))}, {
+               Hue(0.93195670948859188`), PointSize(6), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCX[Hq7y=]%KdzWi1i)O]1vj+fEatS;~"))}, {
+               Hue(0.63327821241214388`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIivE%M}b&IdxwX{hSP8Ev<Co32nZY~"))}, {
+               Hue(0.81395607167163719`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIg+Er7*[xJ{>Y54XDx*8*#iJV+6U_~"))}, {
+               Hue(0.5602708768378265`), PointSize(13), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC,F)Y,n8fEd_GN3Tl!c!@wFdxD{s_w~"))}, {
+               Hue(0.02814750187905346`), PointSize(15), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCvCZ)Aur+*PZ+GwDx$P_O*#iJShzMK~"))}, {
+               Hue(0.43418991654460137`), PointSize(6), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCX<)4,kf>Z@zr_28=l5$j?EyVt2p}~~"))}, {
+               Hue(0.32846563741222379`), PointSize(18), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQHZG**S}5v{zuf53p4(}w+8?[Gzg9~"))}, {
+               Hue(0.11845654988652388`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC$<YerzM^>8KIY5v%B8EH*aHAO(g*V~"))}, {
+               Hue(0.60596573676751431`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQNFzQgo^V!d#j*(-*Z>Kum=E1@(9!~"))}, {
+               Hue(0.025691219450645786`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxnnKDC?fI3-b&k1@W<P?_5d(h266~~"))}, {
+               Hue(0.92172072473142586`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5ztJ_sk1n1&+wS7EA0JbdjK+(27U~~"))}, {
+               Hue(0.40430887238758351`), PointSize(1), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCvGnk)QZRgO-@4<cuKKcv_5e6W2Qm~~"))}, {
+               Hue(0.093781425375591643`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC,H?Nd@<i&Kea^i3886P=w+8@54G5Y~"))}, {
+               Hue(0.012020011493817151`), PointSize(1), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC3CK)6b-87w{Y0@0=e4gN+5-SarwCX~"))}, {
+               Hue(0.50236537051869634`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCnbNRgMUBQ&,%gCPBFk6Zwg&)6dI$#~"))}, {
+               Hue(0.86240113372033611`), PointSize(20), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5j}xZJ1OF=y<I_bajwn{djLFE2Lb~~"))}, {
+               Hue(0.5888849119972428`), PointSize(1), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC$zYj%_5Ff3_RbyKKVDq**d72-pb5<~"))}, {
+               Hue(0.63922743755738842`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxwe?SwRzcN,*n[,C#o;IX%7HQz6gx~"))}, {
+               Hue(0.91567548574179769`), PointSize(16), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxxBYOJ1YCBz0D83vZ;-?>;X<v2%!~~"))}, {
+               Hue(0.78355975395690236`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCan1L9=ke>MeV10Q$}KFE_5em02k-~~"))}, {
+               Hue(0.5400410061376173`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS&^&pbDrk],(+{d%LPrJ*aHAZ-3QD~"))}, {
+               Hue(0.0058946934137945606`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5lr[U!tT#I,=<)W+vo5+u?GN7UkKR~"))}, {
+               Hue(0.73596113865702117`), PointSize(6), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5iq^1cl^vT,w8ETHD{L,u?GM{)d%_~"))}, {
+               Hue(0.6699306943540646`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCNtn0x=GI5=?2kE4-+NW-vONG<TM63~"))}, {
+               Hue(0.20220382169303419`), PointSize(19), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCVNjj-w#}N]{o08uxedD?*aHAO_6I=~"))}, {
+               Hue(0.69572292210588749`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS?9!Iz&7=neZp@2DL$vp*#iJL1P2f~"))}, {
+               Hue(0.10020995337275707`), PointSize(15), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCDb8Fv$1CH3{fp<ldmPd)+5-Sg(Fo)~"))}, {
+               Hue(0.76581283817356138`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCVfdon<#aaCzCoMgVD,g#_5eDh2M7~~"))}, {
+               Hue(0.99489628917240136`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxnrZU{7(EK,%ORWZXfvi)E)p(;tAp~"))}, {
+               Hue(0.30696138921788385`), PointSize(19), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCk&STsUNrr&{lB@-Kd9DSw+8@AkqIv~"))}, {
+               Hue(0.57981758411665851`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxpnT*5#EE3?H9XTZhf)ukv#xiS_*3~"))}, {
+               Hue(0.79441222350244489`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC@p<cTtit1jeX{w9!]bQT+XDbeWeAf~"))}, {
+               Hue(0.72591869464099146`), PointSize(18), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIenpaS;(!}_6EDWS}(K;wFdxHJP8E~"))}, {
+               Hue(0.4549857476734035`), PointSize(6), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC,JM8q@Z{A8_5mr}YwXmI*aHAqH3;<~"))}, {
+               Hue(0.084274236927925239`), PointSize(19), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxiPzuZ_c;-_Ve5}K0SARY7YQWCkZG~"))}, {
+               Hue(0.96596607395024148`), PointSize(15), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC*^<n=P[l#k{VPc;nO$ez*#iJQlm]V~"))}, {
+               Hue(0.81914919715640244`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCStYQ4(ZXx*><=i2?5Nql*d72*9}*4~"))}, {
+               Hue(0.65229708827515953`), PointSize(16), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxiI;3pvaHq_M(<Y+nmy0+XDbe?g#_~"))}, {
+               Hue(0.71495942690229541`), PointSize(7), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCY5jF}8{?gq_I]-bi#$?Z*aHAlmk8w~"))}, {
+               Hue(0.84117127403159486`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC$<X+-N4)8rJ&VuQte({u>;Xcp2g(~~"))}, {
+               Hue(0.66186734377221146`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxl;Pz_*30$_9+=96V$@5*aHAlxCov~"))}, {
+               Hue(0.68404415730204904`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCdA9o[XaBQX_5llLsteQ}vj+fFeh8c~"))}, {
+               Hue(0.36260244910731687`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCc,]29u5Q^Id%x<-cPq,G*aHAfatO)~"))}, {
+               Hue(0.41031297190792282`), PointSize(1), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC=[DWWe]a_B{hL]T$z3mA*#iJY1_(C~"))}, {
+               Hue(0.0066841641107852068`), PointSize(15), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5wCKOlw1GYeowdd3}Ysg_5e8!2G;~~"))}, {
+               Hue(0.78892489976668179`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCsj^bmTV3<kzAfSFt$j=H+XDbX%Lug~"))}, {
+               Hue(0.077766027538118787`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCX;[8($LDaL{e;b8Kg[0hv<Co9p9rl~"))}, {
+               Hue(0.31071113660765781`), PointSize(1), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCG5Oi,nP>eidutAN>nEWv>;Xp!2g(~~"))}, {
+               Hue(0.51976099867510461`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCF*a4OJN)&Py{[bY%iq*j_5eOp2l4~~"))}, {
+               Hue(0.99672815071666521`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCnVaP1GBe=4{f[tR2,N1%?Eyo_2kQ~~"))}, {
+               Hue(0.20964780938665106`), PointSize(20), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCskAppaaMd_@3;Al@YN[o?EyKg2XO~~"))}, {
+               Hue(0.11283947404534489`), PointSize(18), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCiCO>Kq}xD_y]D)}+Tl,r?Ey#q2fF~~"))}, {
+               Hue(0.51772141857114917`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC$$6gtO?l@NdzYgJ<nMW$wg&)FQV8}~"))}, {
+               Hue(0.99966957297684844`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIncRv>GorH>^JzVvEcJKV-EmS&IqF~"))}, {
+               Hue(0.16836904498011407`), PointSize(16), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCNibt{=+Hi8uaf!Xhl[Y8djK=J2Ez~~"))}, {
+               Hue(0.84439994426477172`), PointSize(18), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC*,f8-mbLh<{b$!+6{XDA_5ecA2W<~~"))}, {
+               Hue(0.6328815148314203`), PointSize(6), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC30Syp23Oo,,(5RQ,}nM=YYzZPHwfV~"))}, {
+               Hue(0.87042249320409504`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS@Ojo@09*],,KG,TP,eoZVv!YVhI[~"))}, {
+               Hue(0.68334802062974265`), PointSize(7), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQNH}O{pA<0>}d4N3O8PT!5#ox^9m0~"))}, {
+               Hue(0.95610752397720955`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCX;!p;reO5M{_5Mgn{RJ=WDfvFp$Q=~"))}, {
+               Hue(0.73122642605410748`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS!ed$;>5z}_A25U5yplG>;Xh,2Il~~"))}, {
+               Hue(0.76234900120267857`), PointSize(1), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCVUQ?#z;f-SeYEW59G!J<>;XDC2Tu~~"))}, {
+               Hue(0.39706543907264213`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC3D}LcwakRw_9p_@JU-fY)gAy((+Oq~"))}, {
+               Hue(0.53715900988775345`), PointSize(20), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIkLj-XH@KCd#SQBTo1FJ+XDbhun2+~"))}, {
+               Hue(0.97472666825063803`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIVCUqpRx0q{WAUPU?I5&_5eP&2F(~~"))}, {
+               Hue(0.43693061176694148`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC={mH?VCu7*_Rquf8^bwX*aHAi6bOs~"))}, {
+               Hue(0.54157317588689025`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCY01yFOJY4]Z>u)ftGVWZJpeZ{2AT~~"))}, {
+               Hue(0.090704646183437987`), PointSize(6), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC,5b;sW$l5N_KjOVYMzgOZ4UrddI^{~"))}, {
+               Hue(0.18176586169247044`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCDX4kY_[*[py-RbM!{&=;>;X$&2#)~~"))}, {
+               Hue(0.92746771065965239`), PointSize(20), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQ3$xCHskYBdyd;5sy!zivIhV[H3%p~"))}, {
+               Hue(0.66853192996690269`), PointSize(13), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCSy34{WB%J$_CYZwmJeRNw+8@Ce+c;~"))}, {
+               Hue(0.37637331175656719`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS+wHjksA-6*]f_IO%H$cz#afv(Fwc~"))}, {
+               Hue(0.25947806812510033`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCnGwC1cUkLJdy&%({]1MJ+XDbXum^_~"))}, {
+               Hue(0.84160948016323134`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC(P@66f6e]9{hX<7@$zgZ?EypE2U7~~"))}, {
+               Hue(0.14573144313650344`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC30xvoe[wmiy^nOsL*vln_5eI%2KN~~"))}, {
+               Hue(0.35869393254262305`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCF)+6ODtdCQJwwHfuaEEFum=D@u?VI~"))}, {
+               Hue(0.89329485057066382`), PointSize(10), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCVd1_Mf9L8e,xP7Z>fcJ(Y7YQNpa,=~"))}, {
+               Hue(0.031545494713104971`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIlj{5v3=GX,x^!R1sA-}+5-SicnGf~"))}, {
+               Hue(0.79249172904210774`), PointSize(5), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxte^^*!Isu,*o_q&QI3dvj+f7CJ2f~"))}, {
+               Hue(0.79510834462412605`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCX}OE)6aJ*w{)dg@BAccs_5et)2sQ~~"))}, {
+               Hue(0.43918689838934877`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCsS3N2dD{Ax{V&VsUs;wtvIhW8_6aQ~"))}, {
+               Hue(0.58582703166737882`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCkx05e+2Yd<,_yAB{7om{*#iJWR}nz~"))}, {
+               Hue(0.021657721148870213`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQMUMBu(}V<{r(wOZl;^Pu?GN6W(gt~"))}, {
+               Hue(0.23265138279995612`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC+0@J?G4IGD,!$QZl@_x+u?GM}m<Pi~"))}, {
+               Hue(0.76188454236541481`), PointSize(16), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCN&53i;da7f,+0v$rg!bRW)A>Z1_}{~"))}, {
+               Hue(0.38436557210848055`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCxh-?}FOR}_,-)%rSHrelwFdxB,Ux8~"))}, {
+               Hue(0.25702969346331839`), PointSize(13), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS=zV8N],#(J?Edo=!sDe>;Xjh2iy~~"))}, {
+               Hue(0.7390190583365106`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCVc5[hy>x1j{e%tL+XV,)*aHAUc?XC~"))}, {
+               Hue(0.51176173870487918`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCaj#fVG^OCB{plys;jQZ)*aHAcnF!Y~"))}, {
+               Hue(0.33510651970165717`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5s=i]*E#o!y_cR%^>ou,_5d[c29y~~"))}, {
+               Hue(0.32904380396398658`), PointSize(18), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5jnR}{+Rg{,%RBOeV)7crab^nRSBy~"))}, {
+               Hue(0.47506880656628792`), PointSize(1), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCDVG=fb?MA&,&WUBAFNfsZ4UrW{}P}~"))}, {
+               Hue(0.93124853631218618`), PointSize(1), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC37N>o#J2T;J=evD5(}?q+5-SJg9g<~"))}, {
+               Hue(0.40378006346006678`), PointSize(8), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQ9E(rmhjVe_I[R<y<DBI*aHAe9taK~"))}, {
+               Hue(0.1140722762855706`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCVd%^2V%T!ue#+[hTDOirwg&)1jtIQ~"))}, {
+               Hue(0.24543362494404053`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC**Z^C@8P32_8N-}ANFf+w+8@C0SJr~"))}, {
+               Hue(0.95371997989351109`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCQG3en936hc{_x(E;}}@A>;XSs2iy~~"))}, {
+               Hue(0.42731245354195802`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCF*skgE9]QS,-aMzF2<&l_5e#u2t5~~"))}, {
+               Hue(0.71642978992962558`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC*>Wvp!Xx*C_S0&uc(1g-vIhW8$OxP~"))}, {
+               Hue(0.58476966946272768`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIq*_(d$B=>{RW9GI;Ou]*#iJa%m@+~"))}, {
+               Hue(0.7860151257299024`), PointSize(7), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCiS@YjPbBrBeWR7[>zTLT+XDbdD+sU~"))}, {
+               Hue(0.85168300637797822`), PointSize(20), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5uax;%XR5%dj;O7?K><k*aHAOp9fL~"))}, {
+               Hue(0.26953615253301344`), PointSize(9), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCc@ew!)Z@*^?LT*{w!G!>)*b*[r3yR~"))}, {
+               Hue(0.4798154422736155`), PointSize(20), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIkMr+)(Pw<?JveW-<%-&$Q[SzehD[~"))}, {
+               Hue(0.1869756896860012`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCd8@^_c;3]Q_8%s9GQ{nFY!3iUU<l9~"))}, {
+               Hue(0.95566128843706299`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIm1=Iqi^+l,y){^+s,gNYYzZV,3YA~"))}, {
+               Hue(0.43097445860680295`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCVNG0oO1<KpeYFkC%f6bo_5ePR2cQ~~"))}, {
+               Hue(0.92519690692231704`), PointSize(13), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC;ql>nxc==e,+$w#4{t8pU=ILDKnV5~"))}, {
+               Hue(0.8060629668633662`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCiF==s^t}$k{R^>}N4t}Z*#iJl(g{o~"))}, {
+               Hue(0.82678465536254364`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC,Ds(%E9UdeK4<IGLt0v=>;Xt32ow~~"))}, {
+               Hue(0.36095705436354719`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCnf&C[)Z0s**#B_2bdvw%Q+ohnF$$g~"))}, {
+               Hue(0.7495383064919765`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC+2Hpr%%^sZ{rpGjXSfxg*#iJb=m+W~"))}, {
+               Hue(0.89801504874151628`), PointSize(13), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCnIN+Km6hE?,$O5&(!TJ#v<Co37YIc~"))}, {
+               Hue(0.64653587668362189`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCNsI_wJNxE4dv=*{$?4x-+5-SWTL;G~"))}, {
+               Hue(0.15483991646948947`), PointSize(11), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCsm)fh@xT4nUOJR7L%;2TJpedo27L~~"))}, {
+               Hue(0.94164590017627203`), PointSize(6), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCar?L_nM3M<Jx9lyw+CnLw+8@2<Onq~"))}, {
+               Hue(0.42335268779848434`), PointSize(17), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCIp%vk=Fp+n_GRvSReb}4+5-Sj@d#%~"))}, {
+               Hue(0.62425535197542303`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCi8_)!@u}vv,-Yk8^8AmlwFdx98wj5~"))}, {
+               Hue(0.22395409350519369`), PointSize(14), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5xXMw{?VPs_9?19Un0Zq+5-SgiU^J~"))}, {
+               Hue(0.72272508848904282`), PointSize(18), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCx%bQeqR!&i_FGO]UT!P++#Uc]a}we~"))}, {
+               Hue(0.69777815774195096`), PointSize(3), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC@vId6>sa]5UMqXie_xF&_5eWZ2c7~~"))}, {
+               Hue(0.17367585207189806`), PointSize(12), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqC5i1H^v[^KH,#s73k4c!nw+8@6uLyV~"))}, {
+               Hue(0.4027692036101711`), PointSize(4), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCF*x(2n(OQ_d(psCc1H[]*#iJZbO-J~"))}, {
+               Hue(0.2335945515158746`), PointSize(2), 
+               PointBox(CompressedData(
+                 "1:c${NmkYQqCS@VZ=LiN8V_Wd^m<$Rw%vj+fCHwf<~"))}})), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Point"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Scaled"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
