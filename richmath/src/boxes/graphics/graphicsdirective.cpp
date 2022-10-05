@@ -9,6 +9,7 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_Directive;
 extern pmath_symbol_t richmath_System_GrayLevel;
 extern pmath_symbol_t richmath_System_Hue;
+extern pmath_symbol_t richmath_System_PointSize;
 extern pmath_symbol_t richmath_System_RGBColor;
 
 namespace richmath {
@@ -53,6 +54,9 @@ bool GraphicsDirective::is_graphics_directive(Expr expr) {
     return true;
   
   if(expr[0] == richmath_System_GrayLevel)
+    return true;
+  
+  if(expr[0] == richmath_System_PointSize)
     return true;
   
   return false;
@@ -133,6 +137,13 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
     return;
   }
   
+  if(directive[0] == richmath_System_PointSize) {
+    if(Length size = Length::from_pmath(directive[1])) {
+      style.set(PointSize, size);
+    }
+    return;
+  }
+  
   if(directive.is_rule()) {
     style.add_pmath(std::move(directive));
     return;
@@ -149,6 +160,15 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, Context &context,
   if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
     if(Color c = Color::from_pmath(directive)) {
       context.canvas().set_color(c);
+    }
+    return;
+  }
+  
+  if(directive[0] == richmath_System_PointSize) {
+    if(opt_gc) {
+      if(Length len = Length::from_pmath(directive[1])) {
+        opt_gc->point_size = len;
+      }
     }
     return;
   }

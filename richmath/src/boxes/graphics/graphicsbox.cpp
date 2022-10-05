@@ -305,6 +305,7 @@ void GraphicsBox::paint(Context &context) {
         context.canvas().save();
         {
           GraphicsDrawingContext gc{*this, context};
+          gc.plot_range_width = w - margin_left - margin_right;
           
           context.canvas().pixrect(
             x +     margin_left   - 0.75f,
@@ -677,7 +678,9 @@ void GraphicsBox::on_mouse_up(MouseEvent &event) {
 //{ class GraphicsDrawingContext ...
 
 GraphicsDrawingContext::GraphicsDrawingContext(GraphicsBox &owner, Context &context)
-  : _owner{owner},
+  : point_size(SymbolicSize::Automatic),
+    plot_range_width(100),
+    _owner{owner},
     _context{context},
     _initial_matrix{context.canvas().get_matrix()}
 {

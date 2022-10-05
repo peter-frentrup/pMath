@@ -112,6 +112,7 @@ extern pmath_symbol_t richmath_System_PanelBoxOptions;
 extern pmath_symbol_t richmath_System_Placeholder;
 extern pmath_symbol_t richmath_System_Plain;
 extern pmath_symbol_t richmath_System_PlotRange;
+extern pmath_symbol_t richmath_System_PointSize;
 extern pmath_symbol_t richmath_System_PureArgument;
 extern pmath_symbol_t richmath_System_Range;
 extern pmath_symbol_t richmath_System_RemovalConditions;
@@ -2533,6 +2534,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(PatternVariableStyle);
   impl.emit_definition(Placeholder);
   impl.emit_definition(PlotRange);
+  impl.emit_definition(PointSize);
   impl.emit_definition(ReturnCreatesNewSection);
   impl.emit_definition(Saveable);
   impl.emit_definition(ScriptLevel);
@@ -3324,6 +3326,8 @@ void StyleInformation::add_style() {
     // SectionFrameLabelMarginTop
     // SectionFrameLabelMarginBottom
     add(StyleType::Number,          SectionGroupPrecedence,           Symbol( richmath_System_SectionGroupPrecedence));
+    
+    add(StyleType::Length,          PointSize,                        Symbol( richmath_System_PointSize));
     
     add(StyleType::Number,          FillBoxDefaultFillBoxWeight,      List(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_FillBoxWeight)));
     add(StyleType::Bool,            FillBoxDefaultStripOnInput,       List(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_StripOnInput)));

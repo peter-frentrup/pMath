@@ -173,12 +173,46 @@ void PointBox::paint(GraphicsDrawingContext &gc) {
   {
     cairo_matrix_t mat = gc.canvas().get_matrix();
     
-    gc.canvas().reset_matrix();
+    cairo_matrix_t init_mat = gc.initial_matrix();
+    gc.canvas().set_matrix(gc.initial_matrix());
+    //gc.canvas().reset_matrix();
+    cairo_matrix_invert(&init_mat);
+    //cairo_matrix_multiply(&mat, &mat, &init_mat);
+    
+    float radius = 0.5f * gc.point_size.resolve(1.0f, LengthConversionFactors::PointSize, gc.plot_range_width);
+    
+    bool round_to_odd = false;
+    bool round_to_even = false;
+    
+    if(gc.canvas().pixel_device) {
+      double px_x = 0.5;
+      double px_y = 0;
+      
+      cairo_matrix_transform_distance(&init_mat, &px_x, &px_y);
+      double px_diam = radius * pow(px_x * px_x + px_y * px_y, -0.5);
+      
+      if(px_diam >= 1 && px_diam < 20) {
+        int ipx_diam = (int)(px_diam + 0.5);
+        if(ipx_diam & 1)
+          round_to_odd = true;
+        else
+          round_to_even = true;
+      }
+    }
     
     for(size_t i = 0; i < _points.rows(); ++i) {
       DoublePoint pt{ _points.get(i, 0), _points.get(i, 1) };
       
       cairo_matrix_transform_point(&mat, &pt.x, &pt.y);
+      if(round_to_odd) {
+        pt.x = ceil(pt.x) - 0.5f;
+        pt.y = ceil(pt.y) - 0.5f;
+      }
+      else if(round_to_even) {
+        pt.x = round(pt.x);
+        pt.y = round(pt.y);
+      }
+      cairo_matrix_transform_point(&init_mat, &pt.x, &pt.y);
       
       gc.canvas().new_sub_path();
       gc.canvas().arc(

@@ -289,11 +289,13 @@ void GraphicsElementCollection::find_extends(GraphicsBounds &bounds) {
 
 void GraphicsElementCollection::paint(GraphicsDrawingContext &gc) {
   gc.canvas().save();
-  Color old_color = gc.canvas().get_color();
+  Color old_color       = gc.canvas().get_color();
+  Length old_point_size = gc.point_size;
   
   for(int i = 0; i < count(); ++i)
     item(i)->paint(gc);
   
+  gc.point_size = old_point_size;
   gc.canvas().set_color(old_color);
   gc.canvas().restore();
 }

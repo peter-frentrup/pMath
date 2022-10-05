@@ -116,6 +116,10 @@ namespace richmath {
       Canvas               &canvas() { return _context.canvas(); }
       const cairo_matrix_t &initial_matrix() { return _initial_matrix; }
       
+    public:
+      Length point_size;
+      float  plot_range_width;
+      
     private:
       GraphicsBox    &_owner;
       Context        &_context;

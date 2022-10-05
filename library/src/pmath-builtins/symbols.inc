@@ -675,6 +675,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( Plus,                               ASSOCIATIVE | D
 PMATH_DECLARE_SYSTEM_SYMBOL( PlusMinus,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Point,                              0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( PointBox,                           HOLDALL )
+PMATH_DECLARE_SYSTEM_SYMBOL( PointSize,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( PolyGamma,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( Position,                           0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( PostDecrement,                      HOLDFIRST )

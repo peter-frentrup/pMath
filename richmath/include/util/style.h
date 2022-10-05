@@ -260,6 +260,8 @@ namespace richmath {
     SectionFrameLabelMarginTop,    // not yet used
     SectionFrameLabelMarginBottom, // not yet used
     
+    PointSize,
+    
     FrameBoxDefaultFrameMarginLeft   = FrameMarginLeft   + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultFrameMarginRight  = FrameMarginRight  + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultFrameMarginTop    = FrameMarginTop    + (int)DefaultStyleOptionOffsets::FrameBox,
