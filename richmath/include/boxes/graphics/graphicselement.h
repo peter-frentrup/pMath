@@ -9,8 +9,7 @@
 
 
 namespace richmath {
-  class Context;
-  class GraphicsBox;
+  class GraphicsDrawingContext;
   enum class BoxOutputFlags;
   enum class BoxInputFlags;
   
@@ -41,7 +40,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) = 0;
       
       virtual void find_extends(GraphicsBounds &bounds) = 0;
-      virtual void paint(GraphicsBox *owner, Context &context) = 0;
+      virtual void paint(GraphicsDrawingContext &gc) = 0;
       Expr to_pmath(BoxOutputFlags flags);
       
       void request_repaint_all();
@@ -89,7 +88,7 @@ namespace richmath {
       void remove(int i);
       
       virtual void find_extends(GraphicsBounds &bounds) override;
-      virtual void paint(GraphicsBox *owner, Context &context) override;
+      virtual void paint(GraphicsDrawingContext &gc) override;
     
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;

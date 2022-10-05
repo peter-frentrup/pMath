@@ -6,12 +6,15 @@
 #include <eval/partial-dynamic.h>
 
 namespace richmath {
+  class Context;
+  
   class GraphicsDirective final : public GraphicsDirectiveBase {
       using base = GraphicsDirectiveBase;
       class Impl;
     public:
       static bool is_graphics_directive(Expr expr);
       static void apply(Expr directive, Context &context);
+      static void apply(Expr directive, GraphicsDrawingContext &gc);
       
       static GraphicsDirective *try_create(Expr expr, BoxInputFlags opts);
       static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;
@@ -19,7 +22,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual void find_extends(GraphicsBounds &bounds) override {}
-      virtual void paint(GraphicsBox *owner, Context &context) override;
+      virtual void paint(GraphicsDrawingContext &gc) override;
       
       virtual SharedPtr<Style> own_style() final override { return _style; };
       virtual void dynamic_updated() override;

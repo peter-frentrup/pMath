@@ -1,11 +1,12 @@
 #include <boxes/graphics/graphicselement.h>
 
+#include <boxes/graphics/graphicsbox.h>
 #include <boxes/graphics/graphicsdirective.h>
 #include <boxes/graphics/pointbox.h>
 #include <boxes/graphics/linebox.h>
 #include <boxes/box.h>
 
-#include <graphics/context.h>
+#include <graphics/canvas.h>
 
 #include <util/autovaluereset.h>
 
@@ -40,7 +41,7 @@ namespace {
       virtual void find_extends(GraphicsBounds &bounds) override {
       }
       
-      virtual void paint(GraphicsBox *owner, Context &context) override {
+      virtual void paint(GraphicsDrawingContext &gc) override {
       }
       
     protected:
@@ -286,15 +287,15 @@ void GraphicsElementCollection::find_extends(GraphicsBounds &bounds) {
     item(i)->find_extends(bounds);
 }
 
-void GraphicsElementCollection::paint(GraphicsBox *owner, Context &context) {
-  context.canvas().save();
-  Color old_color = context.canvas().get_color();
+void GraphicsElementCollection::paint(GraphicsDrawingContext &gc) {
+  gc.canvas().save();
+  Color old_color = gc.canvas().get_color();
   
   for(int i = 0; i < count(); ++i)
-    item(i)->paint(owner, context);
+    item(i)->paint(gc);
   
-  context.canvas().set_color(old_color);
-  context.canvas().restore();
+  gc.canvas().set_color(old_color);
+  gc.canvas().restore();
 }
 
 Expr GraphicsElementCollection::to_pmath_impl(BoxOutputFlags flags) {

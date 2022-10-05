@@ -1,6 +1,7 @@
 #include <boxes/graphics/pointbox.h>
 
-#include <graphics/context.h>
+#include <boxes/graphics/graphicsbox.h>
+#include <graphics/canvas.h>
 
 #include <cmath>
 #include <limits>
@@ -167,30 +168,30 @@ void PointBox::find_extends(GraphicsBounds &bounds) {
     bounds.add_point(_points.get(i, 0), _points.get(i, 1));
 }
 
-void PointBox::paint(GraphicsBox *owner, Context &context) {
-  context.canvas().save();
+void PointBox::paint(GraphicsDrawingContext &gc) {
+  gc.canvas().save();
   {
-    cairo_matrix_t mat = context.canvas().get_matrix();
+    cairo_matrix_t mat = gc.canvas().get_matrix();
     
-    context.canvas().reset_matrix();
+    gc.canvas().reset_matrix();
     
     for(size_t i = 0; i < _points.rows(); ++i) {
       DoublePoint pt{ _points.get(i, 0), _points.get(i, 1) };
       
       cairo_matrix_transform_point(&mat, &pt.x, &pt.y);
       
-      context.canvas().new_sub_path();
-      context.canvas().arc(
+      gc.canvas().new_sub_path();
+      gc.canvas().arc(
         pt.x, pt.y,
-        2,
+        radius,
         0.0,
         2 * M_PI,
         false);
     }
   }
-  context.canvas().restore();
+  gc.canvas().restore();
   
-  context.canvas().fill();
+  gc.canvas().fill();
 }
 
 Expr PointBox::to_pmath_impl(BoxOutputFlags flags) { 

@@ -304,6 +304,8 @@ void GraphicsBox::paint(Context &context) {
           
         context.canvas().save();
         {
+          GraphicsDrawingContext gc{*this, context};
+          
           context.canvas().pixrect(
             x +     margin_left   - 0.75f,
             y +     margin_top    - 0.75f,
@@ -327,7 +329,7 @@ void GraphicsBox::paint(Context &context) {
           //context.canvas().hair_stroke();
           
           context.canvas().set_color(Color::Black);
-          elements.paint(this, context);
+          elements.paint(gc);
           
           context.canvas().set_color(old_color);
         }
@@ -671,6 +673,17 @@ void GraphicsBox::on_mouse_up(MouseEvent &event) {
 }
 
 //} ... class GraphicsBox
+
+//{ class GraphicsDrawingContext ...
+
+GraphicsDrawingContext::GraphicsDrawingContext(GraphicsBox &owner, Context &context)
+  : _owner{owner},
+    _context{context},
+    _initial_matrix{context.canvas().get_matrix()}
+{
+}
+
+//} ... class GraphicsDrawingContext
 
 //{ class GraphicsBox::Impl ...
 

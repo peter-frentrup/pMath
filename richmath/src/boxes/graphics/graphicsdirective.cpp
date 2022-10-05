@@ -1,4 +1,5 @@
 #include <boxes/graphics/graphicsdirective.h>
+#include <boxes/graphics/graphicsbox.h>
 
 #include <graphics/context.h>
 
@@ -16,6 +17,8 @@ namespace richmath {
       Impl(GraphicsDirective &self) : self{self} {}
       
       static void apply_to_style(Expr directive, Style &style);
+      static void apply_to_context(Expr directive, Context &context, GraphicsDrawingContext *opt_gc);
+      
       bool change_directives(Expr new_directives);
       
     private:
@@ -81,7 +84,7 @@ GraphicsDirective *GraphicsDirective::try_create(Expr expr, BoxInputFlags opts) 
   return box;
 }
 
-void GraphicsDirective::paint(GraphicsBox *owner, Context &context) {
+void GraphicsDirective::paint(GraphicsDrawingContext &gc) {
   if(must_update()) {
     must_update(false);
     
@@ -90,22 +93,15 @@ void GraphicsDirective::paint(GraphicsBox *owner, Context &context) {
       Impl(*this).change_directives(std::move(new_directives));
   }
   
-  apply(_latest_directives, context);
+  apply(_latest_directives, gc);
 }
 
 void GraphicsDirective::apply(Expr directive, Context &context) {
-  if(directive[0] == richmath_System_Directive) {
-    for(auto item : directive.items())
-      apply(item, context);
-    return;
-  }
-  
-  if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
-    if(Color c = Color::from_pmath(directive)) {
-      context.canvas().set_color(c);
-    }
-    return;
-  }
+  Impl::apply_to_context(directive, context, nullptr);
+}
+
+void GraphicsDirective::apply(Expr directive, GraphicsDrawingContext &gc) {
+  Impl::apply_to_context(directive, gc.context(), &gc);
 }
 
 void GraphicsDirective::dynamic_updated() {
@@ -139,6 +135,21 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
   
   if(directive.is_rule()) {
     style.add_pmath(std::move(directive));
+    return;
+  }
+}
+
+void GraphicsDirective::Impl::apply_to_context(Expr directive, Context &context, GraphicsDrawingContext *opt_gc) {
+  if(directive[0] == richmath_System_Directive) {
+    for(auto item : directive.items())
+      apply_to_context(item, context, opt_gc);
+    return;
+  }
+  
+  if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
+    if(Color c = Color::from_pmath(directive)) {
+      context.canvas().set_color(c);
+    }
     return;
   }
 }
