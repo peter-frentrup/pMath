@@ -98,7 +98,7 @@ class GraphicsBox::Impl {
     float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
     
     static float calc_margin_width(float w, float lbl_w, double all_x, double other_x);
-    void calculate_size(const float *optional_expand_width = nullptr);
+    void calculate_size(float max_auto_width, const float *optional_expand_width = nullptr);
     
     void try_get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
     void calculate_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
@@ -234,7 +234,7 @@ bool GraphicsBox::expand(const BoxSize &size) {
   if(seq && seq->length() == 1) {
     if(dynamic_cast<FillBox *>(seq->parent())) {
       BoxSize old_size = _extents;
-      Impl(*this).calculate_size(&size.width);
+      Impl(*this).calculate_size(Infinity, &size.width);
       
       if(old_size != _extents)
         cached_bitmap = nullptr;
@@ -272,7 +272,7 @@ void GraphicsBox::resize(Context &context) {
   margin_top    = 0;
   margin_bottom = 0;
   
-  Impl(*this).calculate_size();
+  Impl(*this).calculate_size(context.width);
   
   is_currently_resizing(false);
 }
@@ -834,7 +834,7 @@ float GraphicsBox::Impl::calc_margin_width(float w, float lbl_w, double all_x, d
   return w - (w - lbl_w) * all_x / other_x;
 }
 
-void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
+void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *optional_expand_width) {
   GraphicsBounds bounds;
   bounds.xmin = self.ticks[AxisIndexX]->start_position;
   bounds.xmax = self.ticks[AxisIndexX]->end_position;
@@ -895,11 +895,14 @@ void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
   if(ratio <= 0)
     ratio = 1.0f; // 0.61803f;
   
+  bool check_max_auto_width = false;
+  
   if(w == SymbolicSize::Automatic && h == SymbolicSize::Automatic) {
     if(optional_expand_width) {
       w = Length::Absolute(*optional_expand_width); // Length::Relative(1.0f)
     }
     else {
+      check_max_auto_width = true;
       enum SyntaxPosition pos = find_syntax_position(self.parent(), self.index());
       
       switch(pos) {
@@ -915,7 +918,11 @@ void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
   if(!w.is_explicit_abs_positive()) {
     if(w != SymbolicSize::Automatic) {
       w = Length::Absolute(w.resolve(self.em, LengthConversionFactors::GraphicsSize, expand_width_or_zero));
-      if(!w.is_explicit_abs_positive())
+      if(w.is_explicit_abs_positive()) {
+        if(check_max_auto_width && isfinite(max_auto_width) && max_auto_width > 0 && w.explicit_abs_value() > max_auto_width)
+          w = Length(max_auto_width);
+      }
+      else
         w = SymbolicSize::Automatic;
     }
   }
