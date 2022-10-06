@@ -995,15 +995,18 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
   self._extents.ascent = ascent;
   self._extents.descent = h.explicit_abs_value() - ascent;
   
+  //float plot_range_height = h.explicit_abs_value() - self.margin_top - self.margin_bottom;
+  float plot_range_width = w.explicit_abs_value() - self.margin_left - self.margin_right;
+  
   self.ticks[AxisIndexLeft ]->start_y            = h.explicit_abs_value() - self.margin_bottom;
   self.ticks[AxisIndexRight]->start_y            = h.explicit_abs_value() - self.margin_bottom;
   self.ticks[AxisIndexY    ]->start_y            = h.explicit_abs_value() - self.margin_bottom;
   self.ticks[AxisIndexLeft ]->end_y              = self.margin_top;
   self.ticks[AxisIndexRight]->end_y              = self.margin_top;
   self.ticks[AxisIndexY    ]->end_y              = self.margin_top;
-  self.ticks[AxisIndexLeft ]->tick_length_factor = w.explicit_abs_value() - self.margin_left - self.margin_right;
-  self.ticks[AxisIndexRight]->tick_length_factor = w.explicit_abs_value() - self.margin_left - self.margin_right;
-  self.ticks[AxisIndexY    ]->tick_length_factor = w.explicit_abs_value() - self.margin_left - self.margin_right;
+  self.ticks[AxisIndexLeft ]->tick_length_factor = plot_range_width;
+  self.ticks[AxisIndexRight]->tick_length_factor = plot_range_width;
+  self.ticks[AxisIndexY    ]->tick_length_factor = plot_range_width;
   
   self.ticks[AxisIndexLeft]->start_x = self.margin_left;
   self.ticks[AxisIndexLeft]->end_x   = self.margin_left;
@@ -1018,9 +1021,9 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
   self.ticks[AxisIndexBottom]->end_x              = w.explicit_abs_value() - self.margin_right;
   self.ticks[AxisIndexTop   ]->end_x              = w.explicit_abs_value() - self.margin_right;
   self.ticks[AxisIndexX     ]->end_x              = w.explicit_abs_value() - self.margin_right;
-  self.ticks[AxisIndexBottom]->tick_length_factor = h.explicit_abs_value() - self.margin_bottom - self.margin_top;
-  self.ticks[AxisIndexTop   ]->tick_length_factor = h.explicit_abs_value() - self.margin_bottom - self.margin_top;
-  self.ticks[AxisIndexX     ]->tick_length_factor = h.explicit_abs_value() - self.margin_bottom - self.margin_top;
+  self.ticks[AxisIndexBottom]->tick_length_factor = plot_range_width;
+  self.ticks[AxisIndexTop   ]->tick_length_factor = plot_range_width;
+  self.ticks[AxisIndexX     ]->tick_length_factor = plot_range_width;
   
   self.ticks[AxisIndexBottom]->start_y = h.explicit_abs_value() - self.margin_bottom;
   self.ticks[AxisIndexBottom]->end_y   = h.explicit_abs_value() - self.margin_bottom;
