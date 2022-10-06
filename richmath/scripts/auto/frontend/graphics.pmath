@@ -47,18 +47,18 @@ DefaultAxesOrigin(~start, ~end)::= (
 DefaultTickBoxes(~start, ~end, True) /? start < end ::=
 	With({range:= snapRange(start .. end)},
 		Join(
-			With({t:= largeTickPositions(range).Map({#, ToBoxes(#), {0.0, 0.02}}&)},
+			With({t:= largeTickPositions(range).Map({#, ToBoxes(#), {0.0, 0.00625}}&)},
 				If(allLabelsAreSmallInt(t),
 					t.Map(makeIntTick),
 					t)), 
-			smallTickPositions(range).Map({#, "", {0.0, 0.01}}&))
+			smallTickPositions(range).Map({#, "", {0.0, 0.00375}}&))
 		)
 
 DefaultTickBoxes(~start, ~end, False) /? start < end ::=
 	With({range:= snapRange(start .. end)},
 		Join(
-			largeTickPositions(range).Map({#, "", {0.0, 0.02}}&), 
-			smallTickPositions(range).Map({#, "", {0.0, 0.01}}&))
+			largeTickPositions(range).Map({#, "", {0.0, 0.00625}}&), 
+			smallTickPositions(range).Map({#, "", {0.0, 0.00375}}&))
 		)
 
 End()
