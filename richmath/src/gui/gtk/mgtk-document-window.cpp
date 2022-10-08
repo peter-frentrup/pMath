@@ -1588,7 +1588,7 @@ gboolean MathGtkDocumentWindowImpl::scrollbar_draw_callback(GtkWidget *scrollbar
 }
 
 void MathGtkDocumentWindowImpl::on_scrollbar_draw(GtkWidget *scrollbar, Canvas &canvas) {
-  cairo_set_line_width(canvas.cairo(), 1);
+  canvas.line_width(1);
   cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_BUTT);
   
   gboolean has_back, has_secondary_forward, has_secondary_back, has_forward;

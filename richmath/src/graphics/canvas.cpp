@@ -221,6 +221,14 @@ void Canvas::set_font_size(float size) {
   cairo_set_font_size(_cr, size); //  * 4/3.
 }
 
+float Canvas::line_width() {
+  return cairo_get_line_width(_cr);
+}
+
+void Canvas::line_width(float w) {
+  cairo_set_line_width(_cr, w);
+}
+
 void Canvas::move_to(double x, double y) {
   cairo_move_to(_cr, x, y);
 }

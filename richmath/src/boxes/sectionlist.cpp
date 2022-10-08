@@ -1105,7 +1105,7 @@ void SectionList::paint_single_section_bracket(
   context.canvas().save();
   Color c = context.canvas().get_color();
   {
-    cairo_set_line_width(context.canvas().cairo(), 1);
+    context.canvas().line_width(1);
     cairo_set_line_cap(context.canvas().cairo(), CAIRO_LINE_CAP_SQUARE);
     cairo_set_line_join(context.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
     
@@ -1188,7 +1188,7 @@ void SectionList::paint_single_section_bracket(
       
       cairo_set_dash(context.canvas().cairo(), dashes, 2, 0.5);
       cairo_set_line_cap(context.canvas().cairo(), CAIRO_LINE_CAP_BUTT);
-      cairo_set_line_width(context.canvas().cairo(), 3.0);
+      context.canvas().line_width(3.0f);
       
       context.canvas().set_color(Color::Black);
       context.canvas().stroke_preserve();
@@ -1196,7 +1196,7 @@ void SectionList::paint_single_section_bracket(
       cairo_set_dash(context.canvas().cairo(), nullptr, 0, 0.0);
     }
     else if(style & BorderEval) {
-      cairo_set_line_width(context.canvas().cairo(), 3.0);
+      context.canvas().line_width(3.0f);
       
       context.canvas().set_color(Color::Black);
       context.canvas().stroke_preserve();
@@ -1204,7 +1204,7 @@ void SectionList::paint_single_section_bracket(
       //col = 0xffffff & ~col;
     }
     
-    cairo_set_line_width(context.canvas().cairo(), 1.0);
+    context.canvas().line_width(1.0f);
     context.canvas().set_color(col);
     context.canvas().stroke();
     

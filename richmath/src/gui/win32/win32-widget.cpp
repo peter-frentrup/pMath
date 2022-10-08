@@ -567,7 +567,7 @@ void Win32Widget::paint_background(Canvas &canvas) {
 }
 
 void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
-  cairo_set_line_width(canvas.cairo(), 1);
+  canvas.line_width(1);
   cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
   canvas.set_font_size(10);// 10 * 4/3.
   

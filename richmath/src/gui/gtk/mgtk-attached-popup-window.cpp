@@ -531,7 +531,7 @@ bool MathGtkAttachedPopupWindow::on_draw(cairo_t *cr) {
         }
         
         canvas.set_color(Color::from_rgb24(0x808080));
-        cairo_set_line_width(canvas.cairo(), 2.0);
+        canvas.line_width(2.0f);
         canvas.stroke();
       } break;
       

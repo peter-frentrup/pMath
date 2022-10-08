@@ -1457,7 +1457,7 @@ void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallp
 
       canvas.clip();
 
-      cairo_set_line_width(canvas.cairo(), 3);
+      canvas.line_width(3);
 
       canvas.move_to(window_rect.left,  window_rect.top);
       canvas.line_to(window_rect.right, window_rect.top);

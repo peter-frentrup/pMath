@@ -142,7 +142,7 @@ void FrameBox::paint(Context &context) {
       cairo_set_line_join(context.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
       context.canvas().reset_matrix();
       
-      cairo_set_line_width(context.canvas().cairo(), thickness_pixels);
+      context.canvas().line_width(thickness_pixels);
       
       if(Color bg = get_own_style(Background)) {
         context.canvas().save();

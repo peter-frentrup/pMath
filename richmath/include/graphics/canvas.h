@@ -71,6 +71,9 @@ namespace richmath {
       void set_font_size(float size);
       float get_font_size() { return _font_size; }
       
+      float line_width();
+      void line_width(float w);
+      
       void move_to(Point pt) { move_to(pt.x, pt.y); }
       void move_to(double x, double y);
       void rel_move_to(Vector2F delta) { rel_move_to(delta.x, delta.y); }

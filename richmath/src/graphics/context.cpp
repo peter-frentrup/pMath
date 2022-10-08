@@ -141,7 +141,7 @@ void Context::draw_selection_path() {
       
       clip_rect.add_rect_path(canvas(), true);
       canvas().clip_preserve();
-      cairo_set_line_width(canvas().cairo(), 2.0);
+      canvas().line_width(2.0f);
       canvas().set_color(active ? SelectionColor : InactiveSelectionColor);
       canvas().stroke();
     }
