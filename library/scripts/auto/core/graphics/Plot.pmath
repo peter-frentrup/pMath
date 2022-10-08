@@ -1,5 +1,5 @@
 
-BeginPackage("System`Graphics`Plot`")
+BeginPackage("System`Graphics`Plot`", {"Developer`"})
 
 System`Plot
 
@@ -24,10 +24,11 @@ Begin("System`Graphics`Plot`Private`")
 $PlotFailed	
 
 Attributes(Plot):= {HoldAll}
-Plot(~~~args)::= With({g:= Catch(tryPlot(args), $PlotFailed)}, g /? Head(g) === Graphics)
+p: Plot(~~~args)::= With({g:= Catch(tryPlot(p, args), $PlotFailed)}, g /? Head(g) === Graphics)
 
 Plot::plld:= "Endpoints for `1` in `2` must have distinct machine-precision numerical values."
-Plot::pllim:= "Range specification `1` is not of the form x -> xmin..xmax."
+Plot::plld1:= "Endpoints in `1` must have distinct machine-precision numerical values."
+Plot::pllim:= "Range specification `1` is not of the form x -> xmin..xmax  or  xmin..xmax."
 
 Protect(Plot)
 
@@ -198,53 +199,58 @@ Function tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot)) {
 	Return(ListLinePlot(xyDatas, gRules))
 }
 
+
+Attributes(makeHoldForm):= {HoldAll}
+makeHoldForm(~x)::= 
+	With({debugMetadata:= GetDebugMetadata(x)},
+		HoldForm(x).SetDebugMetadataAt(debugMetadata))
+
 Attributes(checkRange):= {HoldAll}
-checkRange(spec: (~x:Symbol -> ~range))::= checkRangeRest(Hold(x), range)
-checkRange(~spec)::= (Message(Plot::pllim, HoldForm(spec)); Throw($PlotFailed))
-Function checkRangeRest(Hold(~x), ~xmin..~xmax) {
+checkRange(spec: (~x:Symbol -> ~range))::= checkRangeRest(makeHoldForm(x), range, makeHoldForm(spec))
+checkRange(~range)::= checkRangeRest(None, range, makeHoldForm(range))
+Function checkRangeRest(~holdformx, ~xmin..~xmax, ~) {
 	With(evalxmin:= xmin, evalxmax:= xmax)
 	If((evalxmin < evalxmax) =!= True) {
-		Message(Plot::plld, HoldForm(x), HoldForm(spec));
+		If(holdformx === None) {
+			Message(Plot::plld1, HoldForm(spec));
+		} Else {
+			Message(Plot::plld, holdformx, HoldForm(spec));
+		}
 		Throw($PlotFailed);
 	}
 	Return(evalxmin .. evalxmax);
 }
+checkRangeRest(~, ~, ~heldspec)::= (Message(Plot::pllim, heldspec); Throw($PlotFailed))
 
 
 /* Attributes(makeFunction):= {HoldAll}
 makeFunction(~fx, ~x:Symbol -> ~)::= With({x:= x}, Function(x, fx))
 makeFunction(~, ~)::= (Undefined &) */
 
+makeReal(~y) ::= If(IsNumber(y) && IsReal(y), y, Undefined, Undefined)
+
 Attributes(makeFunctionList):= {HoldAll}
 makeFunctionList(~fx, ~xspec)::= makeFunctionList({fx}, xspec)
-makeFunctionList(~, ~)::= {}
+makeFunctionList({~~~fxs}, ~xspec)::= List @@ Hold(fxs).Map(
+	Function(f, With({f:= f}, Function(makeReal(f(#)) ))))
 makeFunctionList({~~~fxs}, ~x:Symbol -> ~)::= 
 	List @@ Hold(fxs).Map(
-		Function(,
-			With({x::= x}, 
-				Function(x, 
-					With({y:= #}, 
-						If(IsNumber(y) && IsReal(y),
-							y,
-							Undefined,
-							Undefined)
-						)
-					)
-				), 
+		Function(, 
+			With({x::= x}, Function(x, makeReal(#))), 
 			{HoldAllComplete}))
 
 
 Attributes(tryPlot):= {HoldAll}
-tryPlot(~fx, ~xspec, opts: OptionsPattern(Plot))::= 
+tryPlot(~orig, ~fx, ~xspec, opts: OptionsPattern(Plot))::= 
 	tryPlotFunction(
 		makeFunctionList(fx, xspec), 
 		checkRange(xspec), 
 		opts)
 	
-tryPlot()::=  (IsValidArgumentCount(Plot, 0, 2, 2); $Failed)
-tryPlot(~)::= (IsValidArgumentCount(Plot, 1, 2, 2); $Failed)
-tryPlot(args: PatternSequence(~, ~, ~~~, ~err ? isNotHeldOption, ~~~))::=
-	(Message(Plot::optx, HoldForm(err), 2, HoldForm(Plot(args))); $Failed)
+tryPlot(~)::=  (IsValidArgumentCount(Plot, 0, 2, 2); $Failed)
+tryPlot(~, ~)::= (IsValidArgumentCount(Plot, 1, 2, 2); $Failed)
+tryPlot(~orig, PatternSequence(~, ~, ~~~, ~err ? isNotHeldOption, ~~~))::=
+	(Message(Plot::nonopt, makeHoldForm(err), 2, makeHoldForm(orig)); $Failed)
 	
 End()
 
