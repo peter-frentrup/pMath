@@ -135,19 +135,19 @@ GraphicsBox::GraphicsBox()
     adopt(ticks[part], part);
   }
   
-  ticks[AxisIndexX     ]->label_direction_x =  0;
-  ticks[AxisIndexBottom]->label_direction_x =  0;
-  ticks[AxisIndexTop   ]->label_direction_x =  0;
-  ticks[AxisIndexX     ]->label_direction_y =  1;
-  ticks[AxisIndexBottom]->label_direction_y =  1;
-  ticks[AxisIndexTop   ]->label_direction_y = -1;
+  ticks[AxisIndexX     ]->label_direction.x =  0;
+  ticks[AxisIndexBottom]->label_direction.x =  0;
+  ticks[AxisIndexTop   ]->label_direction.x =  0;
+  ticks[AxisIndexX     ]->label_direction.y =  1;
+  ticks[AxisIndexBottom]->label_direction.y =  1;
+  ticks[AxisIndexTop   ]->label_direction.y = -1;
   
-  ticks[AxisIndexY     ]->label_direction_x = -1;
-  ticks[AxisIndexLeft  ]->label_direction_x = -1;
-  ticks[AxisIndexRight ]->label_direction_x =  1;
-  ticks[AxisIndexY     ]->label_direction_y =  0;
-  ticks[AxisIndexLeft  ]->label_direction_y =  0;
-  ticks[AxisIndexRight ]->label_direction_y =  0;
+  ticks[AxisIndexY     ]->label_direction.x = -1;
+  ticks[AxisIndexLeft  ]->label_direction.x = -1;
+  ticks[AxisIndexRight ]->label_direction.x =  1;
+  ticks[AxisIndexY     ]->label_direction.y =  0;
+  ticks[AxisIndexLeft  ]->label_direction.y =  0;
+  ticks[AxisIndexRight ]->label_direction.y =  0;
 }
 
 GraphicsBox::~GraphicsBox() {
@@ -295,12 +295,12 @@ void GraphicsBox::paint(Context &context) {
       ContextState cc(context);
       cc.begin(style);
       {
-        float x, y;
-        context.canvas().current_pos(&x, &y);
-        y -= _extents.ascent;
+        Point p0 = context.canvas().current_pos();
+        p0.y -= _extents.ascent;
+        p0 = context.canvas().align_point(p0, false);
         
         if(error_boxes_expr.is_valid())
-          context.draw_error_rect(x, y, x + w, y + h);
+          context.draw_error_rect({p0, Vector2F{w, h}});
           
         context.canvas().save();
         {
@@ -308,17 +308,17 @@ void GraphicsBox::paint(Context &context) {
           gc.plot_range_width = w - margin_left - margin_right;
           
           context.canvas().pixrect(
-            x +     margin_left   - 0.75f,
-            y +     margin_top    - 0.75f,
-            x + w - margin_right  + 0.75f,
-            y + h - margin_bottom + 0.75f,
+            p0.x +     margin_left   - 0.75f,
+            p0.y +     margin_top    - 0.75f,
+            p0.x + w - margin_right  + 0.75f,
+            p0.y + h - margin_bottom + 0.75f,
             false);
           context.canvas().clip();
           
           cairo_matrix_t m;
           cairo_matrix_init_identity(&m);
           
-          cairo_matrix_translate(&m, x, y + _extents.ascent);
+          cairo_matrix_translate(&m, p0.x, p0.y + _extents.ascent);
           transform_inner_to_outer(&m);
           context.canvas().transform(m);
           
@@ -344,24 +344,21 @@ void GraphicsBox::paint(Context &context) {
           
           for(int axis = 0; axis < 6; ++axis) {
             if(!ticks[axis]->axis_hidden()) {
-              float x1 = ticks[axis]->start_x + x;
-              float y1 = ticks[axis]->start_y + y;
-              float x2 = ticks[axis]->end_x   + x;
-              float y2 = ticks[axis]->end_y   + y;
+              Point p1 = p0 + Vector2F{ticks[axis]->start_pos};
+              Point p2 = p0 + Vector2F{ticks[axis]->end_pos};
               
-              context.canvas().align_point(&x1, &y1, true);
-              context.canvas().align_point(&x2, &y2, true);
+              p1 = context.canvas().align_point(p1, true);
+              p2 = context.canvas().align_point(p2, true);
               
-              context.canvas().move_to(x1, y1);
-              context.canvas().line_to(x2, y2);
+              context.canvas().move_to(p1);
+              context.canvas().line_to(p2);
               context.canvas().hair_stroke();
-              
             }
           }
           
           for(int axis = 0; axis < 6; ++axis) {
             if(!ticks[axis]->axis_hidden()) {
-              context.canvas().move_to(x, y);
+              context.canvas().move_to(p0);
               ticks[axis]->paint(context);
             }
           }
@@ -384,36 +381,35 @@ void GraphicsBox::paint(Context &context) {
     
     has_sel = true;
 
-    float x, y;
-    context.canvas().current_pos(&x, &y);
-    y -= _extents.ascent;
+    Point p = context.canvas().current_pos();
+    p.y -= _extents.ascent;
     
     context.canvas().save();
     
-    context.canvas().pixrect(x, y, x + w, y + h, true);
+    context.canvas().pixrect(p.x, p.y, p.x + w, p.y + h, true);
     
     context.canvas().set_color(Color::from_rgb24(0xFF8000));
     context.canvas().hair_stroke();
     
     context.canvas().pixrect(
-      x + w - 2.25,
-      y + h / 2 - 1.5,
-      x + w,
-      y + h / 2 + 0.75,
+      p.x + w - 2.25,
+      p.y + h / 2 - 1.5,
+      p.x + w,
+      p.y + h / 2 + 0.75,
       false);
       
     context.canvas().pixrect(
-      x + w - 2.25,
-      y + h - 2.25,
-      x + w,
-      y + h,
+      p.x + w - 2.25,
+      p.y + h - 2.25,
+      p.x + w,
+      p.y + h,
       false);
       
     context.canvas().pixrect(
-      x + w / 2 - 1.5,
-      y + h - 2.25,
-      x + w / 2 + 0.75,
-      y + h,
+      p.x + w / 2 - 1.5,
+      p.y + h - 2.25,
+      p.x + w / 2 + 0.75,
+      p.y + h,
       false);
       
     context.canvas().fill();
@@ -772,7 +768,7 @@ float GraphicsBox::Impl::calculate_ascent_for_baseline_position(float em, Expr b
     return 0.5f * height;
   
   if(baseline_pos == richmath_System_Axis) 
-    return self.ticks[AxisIndexX]->start_y;
+    return self.ticks[AxisIndexX]->start_pos.y;
   
   if(baseline_pos[0] == richmath_System_Scaled) {
     double factor = 0.0;
@@ -998,50 +994,48 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
   //float plot_range_height = h.explicit_abs_value() - self.margin_top - self.margin_bottom;
   float plot_range_width = w.explicit_abs_value() - self.margin_left - self.margin_right;
   
-  self.ticks[AxisIndexLeft ]->start_y            = h.explicit_abs_value() - self.margin_bottom;
-  self.ticks[AxisIndexRight]->start_y            = h.explicit_abs_value() - self.margin_bottom;
-  self.ticks[AxisIndexY    ]->start_y            = h.explicit_abs_value() - self.margin_bottom;
-  self.ticks[AxisIndexLeft ]->end_y              = self.margin_top;
-  self.ticks[AxisIndexRight]->end_y              = self.margin_top;
-  self.ticks[AxisIndexY    ]->end_y              = self.margin_top;
+  self.ticks[AxisIndexLeft ]->start_pos.y        = h.explicit_abs_value() - self.margin_bottom;
+  self.ticks[AxisIndexRight]->start_pos.y        = h.explicit_abs_value() - self.margin_bottom;
+  self.ticks[AxisIndexY    ]->start_pos.y        = h.explicit_abs_value() - self.margin_bottom;
+  self.ticks[AxisIndexLeft ]->end_pos.y          = self.margin_top;
+  self.ticks[AxisIndexRight]->end_pos.y          = self.margin_top;
+  self.ticks[AxisIndexY    ]->end_pos.y          = self.margin_top;
   self.ticks[AxisIndexLeft ]->tick_length_factor = plot_range_width;
   self.ticks[AxisIndexRight]->tick_length_factor = plot_range_width;
   self.ticks[AxisIndexY    ]->tick_length_factor = plot_range_width;
   
-  self.ticks[AxisIndexLeft]->start_x = self.margin_left;
-  self.ticks[AxisIndexLeft]->end_x   = self.margin_left;
+  self.ticks[AxisIndexLeft]->start_pos.x = self.margin_left;
+  self.ticks[AxisIndexLeft]->end_pos.x   = self.margin_left;
   
-  self.ticks[AxisIndexRight]->start_x = w.explicit_abs_value() - self.margin_right;
-  self.ticks[AxisIndexRight]->end_x   = w.explicit_abs_value() - self.margin_right;
+  self.ticks[AxisIndexRight]->start_pos.x = w.explicit_abs_value() - self.margin_right;
+  self.ticks[AxisIndexRight]->end_pos.x   = w.explicit_abs_value() - self.margin_right;
   
   
-  self.ticks[AxisIndexBottom]->start_x            = self.margin_left;
-  self.ticks[AxisIndexTop   ]->start_x            = self.margin_left;
-  self.ticks[AxisIndexX     ]->start_x            = self.margin_left;
-  self.ticks[AxisIndexBottom]->end_x              = w.explicit_abs_value() - self.margin_right;
-  self.ticks[AxisIndexTop   ]->end_x              = w.explicit_abs_value() - self.margin_right;
-  self.ticks[AxisIndexX     ]->end_x              = w.explicit_abs_value() - self.margin_right;
+  self.ticks[AxisIndexBottom]->start_pos.x        = self.margin_left;
+  self.ticks[AxisIndexTop   ]->start_pos.x        = self.margin_left;
+  self.ticks[AxisIndexX     ]->start_pos.x        = self.margin_left;
+  self.ticks[AxisIndexBottom]->end_pos.x          = w.explicit_abs_value() - self.margin_right;
+  self.ticks[AxisIndexTop   ]->end_pos.x          = w.explicit_abs_value() - self.margin_right;
+  self.ticks[AxisIndexX     ]->end_pos.x          = w.explicit_abs_value() - self.margin_right;
   self.ticks[AxisIndexBottom]->tick_length_factor = plot_range_width;
   self.ticks[AxisIndexTop   ]->tick_length_factor = plot_range_width;
   self.ticks[AxisIndexX     ]->tick_length_factor = plot_range_width;
   
-  self.ticks[AxisIndexBottom]->start_y = h.explicit_abs_value() - self.margin_bottom;
-  self.ticks[AxisIndexBottom]->end_y   = h.explicit_abs_value() - self.margin_bottom;
+  self.ticks[AxisIndexBottom]->start_pos.y = h.explicit_abs_value() - self.margin_bottom;
+  self.ticks[AxisIndexBottom]->end_pos.y   = h.explicit_abs_value() - self.margin_bottom;
   
-  self.ticks[AxisIndexTop]->start_y = self.margin_top;
-  self.ticks[AxisIndexTop]->end_y   = self.margin_top;
+  self.ticks[AxisIndexTop]->start_pos.y = self.margin_top;
+  self.ticks[AxisIndexTop]->end_pos.y   = self.margin_top;
   
-  float tx = 0;
-  float ty = 0;
-  float dummy;
-  self.ticks[AxisIndexBottom]->get_tick_position(ox, &tx,    &dummy);
-  self.ticks[AxisIndexLeft  ]->get_tick_position(oy, &dummy, &ty);
+  Point origin_pos;
+  origin_pos.x = self.ticks[AxisIndexBottom]->get_tick_position(ox).x;
+  origin_pos.y = self.ticks[AxisIndexLeft  ]->get_tick_position(oy).y;
   
-  self.ticks[AxisIndexY]->start_x     = tx;
-  self.ticks[AxisIndexY]->end_x       = tx;
+  self.ticks[AxisIndexY]->start_pos.x = origin_pos.x;
+  self.ticks[AxisIndexY]->end_pos.x   = origin_pos.x;
   
-  self.ticks[AxisIndexX]->start_y     = ty;
-  self.ticks[AxisIndexX]->end_y       = ty;
+  self.ticks[AxisIndexX]->start_pos.y = origin_pos.y;
+  self.ticks[AxisIndexX]->end_pos.y   = origin_pos.y;
   
   if(valid_ox) {
     self.ticks[AxisIndexX]->ignore_label_position = ox;
@@ -1061,10 +1055,10 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
     self.ticks[AxisIndexX]->axis_hidden(true);
   }
   
-  if(valid_ox && ty >= h.explicit_abs_value() - self.margin_bottom - self.ticks[AxisIndexX]->extra_offset / 2)
+  if(valid_ox && origin_pos.y >= h.explicit_abs_value() - self.margin_bottom - self.ticks[AxisIndexX]->extra_offset / 2)
     self.ticks[AxisIndexX]->ignore_label_position = NAN;
     
-  if(valid_oy && tx <= self.margin_left + self.ticks[AxisIndexY]->extra_offset / 2)
+  if(valid_oy && origin_pos.x <= self.margin_left + self.ticks[AxisIndexY]->extra_offset / 2)
     self.ticks[AxisIndexY]->ignore_label_position = NAN;
     
 }

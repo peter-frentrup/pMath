@@ -25,6 +25,7 @@ namespace richmath {
     public:
       Context();
       
+      void draw_error_rect(const RectangleF &rect) { draw_error_rect(rect.left(), rect.top(), rect.right(), rect.bottom()); }
       void draw_error_rect(
         float x1,
         float y1,

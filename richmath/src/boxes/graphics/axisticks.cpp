@@ -68,12 +68,9 @@ static void get_tick_length(Expr expr, float *plen, float *nlen) {
 
 AxisTicks::AxisTicks()
   : base(),
-    start_x(0),
-    start_y(0),
-    end_x(0),
-    end_y(0),
-    label_direction_x(0),
-    label_direction_y(0),
+    start_pos{0.0f, 0.0f},
+    end_pos{0.0f, 0.0f},
+    label_direction{0.0f, 0.0f},
     label_center_distance_min(0),
     tick_length_factor(0),
     extra_offset(0),
@@ -168,9 +165,7 @@ void AxisTicks::resize(Context &context) {
 }
 
 void AxisTicks::paint(Context &context) {
-  float x, y;
-  
-  context.canvas().current_pos(&x, &y);
+  Point p0 = context.canvas().current_pos();
   
   float old_fs = context.canvas().get_font_size();
   context.canvas().set_font_size(0.8 * old_fs);
@@ -179,77 +174,31 @@ void AxisTicks::paint(Context &context) {
   
   for(int i = 0; i < count(); ++i) {
     if(is_visible(position(i))) {
-      Point p;
-      get_tick_position(position(i), &p.x, &p.y);
+      Point p = p0 + Vector2F(get_tick_position(position(i)));
       
-      draw_tick(context.canvas(), x + p.x, y + p.y,   _rel_tick_pos[i] * tick_length_factor);
-      draw_tick(context.canvas(), x + p.x, y + p.y, - _rel_tick_neg[i] * tick_length_factor);
+      draw_tick(context.canvas(), p,   _rel_tick_pos[i] * tick_length_factor);
+      draw_tick(context.canvas(), p, - _rel_tick_neg[i] * tick_length_factor);
       
-      
-      get_label_position(i, &p.x, &p.y);
+      p = get_label_position(i);
       
       Box *lbl = label(i);
       
       if(have_ilp) {
-        Point ign;
-        
-        get_label_center(
+        Point ign = get_label_center(
           ignore_label_position,
           lbl->extents().width,
-          lbl->extents().height(),
-          &ign.x, &ign.y);
+          lbl->extents().height());
           
         if(lbl->extents().to_rectangle(p).contains(ign))
           continue;
       }
       
-      context.canvas().move_to(x + p.x, y + p.y);
+      context.canvas().move_to(p0 + Vector2F(p));
       lbl->paint(context);
     }
   }
   
   context.canvas().set_font_size(old_fs);
-}
-
-void AxisTicks::calc_bounds(float *x1, float *y1, float *x2, float *y2) {
-  if(start_x < end_x) {
-    *x1 = start_x;
-    *x2 = end_x;
-  }
-  else {
-    *x1 = end_x;
-    *x2 = start_x;
-  }
-  
-  if(start_y < end_y) {
-    *y1 = start_y;
-    *y2 = end_y;
-  }
-  else {
-    *y1 = end_y;
-    *y2 = start_y;
-  }
-  
-  for(int i = 0; i < count(); ++i) {
-    if(is_visible(position(i))) {
-      float lx, ly;
-      get_label_position(i, &lx, &ly);
-      
-      const BoxSize &size = label(i)->extents();
-      
-      if(*x1 > lx)
-        *x1 = lx;
-        
-      if(*x2 < lx + size.width)
-        *x2 = lx + size.width;
-        
-      if(*y1 > ly - size.ascent)
-        *y1 = ly - size.ascent;
-        
-      if(*y2 < ly + size.descent)
-        *y2 = ly + size.descent;
-    }
-  }
 }
 
 BoxSize AxisTicks::all_labels_extents() {
@@ -287,9 +236,7 @@ Expr AxisTicks::to_pmath_impl(BoxOutputFlags flags) {
 
 VolatileSelection AxisTicks::mouse_selection(Point pos, bool *was_inside_start) {
   for(int i = 0; i < count(); ++i) {
-    Vector2F lbl_delta;
-    
-    get_label_position(i, &lbl_delta.x, &lbl_delta.y);
+    Vector2F lbl_delta{get_label_position(i)};
     
     if(label(i)->extents().to_rectangle().contains(pos - lbl_delta))
       return label(i)->mouse_selection(pos - lbl_delta, was_inside_start);
@@ -302,11 +249,9 @@ void AxisTicks::child_transformation(
   int             index,
   cairo_matrix_t *matrix
 ) {
-  float cx, cy;
+  Point label_pos = get_label_position(index);
   
-  get_label_position(index, &cx, &cy);
-  
-  cairo_matrix_translate(matrix, cx, cy);
+  cairo_matrix_translate(matrix, label_pos.x, label_pos.y);
 }
 
 void AxisTicks::set_count(int new_count) {
@@ -331,68 +276,47 @@ void AxisTicks::set_count(int new_count) {
   }
 }
 
-void AxisTicks::draw_tick(Canvas &canvas, float x, float y, float length) {
+void AxisTicks::draw_tick(Canvas &canvas, Point p, float length) {
   if(length == 0)
     return;
     
-  float factor = hypot(label_direction_x, label_direction_y);
+  float factor = label_direction.length();
   if(factor == 0)
     return;
     
   factor = 1 / factor;
   
-  float x1 = x;
-  float y1 = y;
+  Point p1 = p;
+  Point p2 = p + (length * factor) * label_direction;
   
-  float x2 = x + length * label_direction_x * factor;
-  float y2 = y + length * label_direction_y * factor;
-  
-  if(label_direction_x == 0 || label_direction_y == 0) {
-    canvas.align_point(&x1, &y1, true);
-    canvas.align_point(&x2, &y2, true);
+  if(label_direction.x == 0 || label_direction.y == 0) {
+    p1 = canvas.align_point(p1, true);
+    p2 = canvas.align_point(p2, true);
   }
   
   canvas.save();
   {
     cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
     
-    canvas.move_to(x1, y1);
-    canvas.line_to(x2, y2);
+    canvas.move_to(p1);
+    canvas.line_to(p2);
     
     canvas.hair_stroke();
   }
   canvas.restore();
 }
 
-void AxisTicks::get_tick_position(
-  double  t,
-  float  *x,
-  float  *y
-) {
-  if(end_position == start_position) {
-    *x = start_x;
-    *y = start_y;
-    return;
-  }
+Point AxisTicks::get_tick_position(double t) {
+  if(end_position == start_position) 
+    return start_pos;
   
   double relative = (t - start_position) / (end_position - start_position);
   
-  *x = start_x + (end_x - start_x) * relative;
-  *y = start_y + (end_y - start_y) * relative;
+  return start_pos + (end_pos - start_pos) * relative;
 }
 
-void AxisTicks::get_label_center(
-  double  t,
-  float   label_width,
-  float   label_height,
-  float  *x,
-  float  *y
-) {
-  double square_distance = get_square_rect_radius(
-                             label_width,
-                             label_height,
-                             label_direction_x,
-                             label_direction_y);
+Point AxisTicks::get_label_center(double t, float label_width, float label_height) {
+  double square_distance = get_square_rect_radius(label_width, label_height, label_direction);
                              
   double distance = sqrt(square_distance);
   if(distance < label_center_distance_min)
@@ -402,15 +326,15 @@ void AxisTicks::get_label_center(
   square_distance = distance * distance;
   
   double dx, dy;
-  double square_dx = label_direction_x * label_direction_x;
-  double square_dy = label_direction_y * label_direction_y;
+  double square_dx = label_direction.x * label_direction.x;
+  double square_dy = label_direction.y * label_direction.y;
   
   if(square_dx != 0) {
     square_dx = square_distance / (1 + square_dy / square_dx);
     
     dx = sqrt(square_dx);
     
-    if(label_direction_x < 0)
+    if(label_direction.x < 0)
       dx = -dx;
       
     dy = dx * square_dy / square_dx;
@@ -419,44 +343,34 @@ void AxisTicks::get_label_center(
     dx = 0;
     dy = sqrt(square_distance);
     
-    if(label_direction_y < 0)
+    if(label_direction.y < 0)
       dy = -dy;
   }
   
-  get_tick_position(t, x, y);
-  *x += dx;
-  *y += dy;
+  Point p = get_tick_position(t);
+  return Point(p.x + dx, p.y + dy);
 }
 
-void AxisTicks::get_label_position(int i, float *x, float *y) {
+Point AxisTicks::get_label_position(int i) {
   const BoxSize &size = label(i)->extents();
   
-  get_label_center(
-    position(i),
-    size.width,
-    size.height(),
-    x,
-    y);
+  Point p = get_label_center(position(i), size.width, size.height());
     
-  *x -= size.width / 2;
-  *y += size.ascent - size.height() / 2;
+  p.x -= size.width / 2;
+  p.y += size.ascent - size.height() / 2;
+  return p;
 }
 
-double AxisTicks::get_square_rect_radius(
-  float width,
-  float height,
-  float dx,
-  float dy
-) {
+double AxisTicks::get_square_rect_radius(float width, float height, Vector2F offset) {
   if(width == 0) {
-    if(dx == 0)
+    if(offset.x == 0)
       return height / 2;
       
     return 0;
   }
   
   if(height == 0) {
-    if(dy == 0)
+    if(offset.y == 0)
       return width / 2;
       
     return 0;
@@ -464,13 +378,13 @@ double AxisTicks::get_square_rect_radius(
   
   double w, h;
   
-  if(fabs(height * dx) > fabs(width * dy)) {
+  if(fabs(height * offset.x) > fabs(width * offset.y)) {
     w = width / 2;
-    h = w * dy / dx;
+    h = w * offset.y / offset.x;
   }
   else {
     h = height / 2;
-    w = h * dx / dy;
+    w = h * offset.x / offset.y;
   }
   
   return h * h + w * w;

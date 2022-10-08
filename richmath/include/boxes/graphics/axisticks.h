@@ -28,7 +28,6 @@ namespace richmath {
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;
       
-      void calc_bounds(float *x1, float *y1, float *x2, float *y2);
       BoxSize all_labels_extents();
       
       virtual Box *remove(int *index) override;
@@ -43,10 +42,7 @@ namespace richmath {
         
       virtual bool selectable(int i = -1) override { return false; }
       
-      void get_tick_position(
-        double  t,
-        float  *x,
-        float  *y);
+      Point get_tick_position(double t);
         
       bool axis_hidden() {         return get_flag(AxisHiddenBit); }
       void axis_hidden(bool value) {   change_flag(AxisHiddenBit, value); }
@@ -56,22 +52,12 @@ namespace richmath {
       
       void set_count(int new_count);
       
-      void draw_tick(Canvas &canvas, float x, float y, float length);
+      void draw_tick(Canvas &canvas, Point p, float length);
       
-      void get_label_center(
-        double  t,
-        float   label_width,
-        float   label_height,
-        float  *x,
-        float  *y);
-        
-      void get_label_position(int i, float *x, float *y);
+      Point get_label_center(double t, float label_width, float label_height);
+      Point get_label_position(int i);
       
-      static double get_square_rect_radius(
-        float width,
-        float height,
-        float dx,
-        float dy);
+      static double get_square_rect_radius(float width, float height, Vector2F offset);
     
     protected:
       enum {
@@ -89,12 +75,9 @@ namespace richmath {
       float                     _max_rel_tick;
       
     public:
-      float start_x;
-      float start_y;
-      float end_x;
-      float end_y;
-      float label_direction_x;
-      float label_direction_y;
+      Point start_pos;
+      Point end_pos;
+      Vector2F label_direction;
       float label_center_distance_min;
       float tick_length_factor;
       float extra_offset;
