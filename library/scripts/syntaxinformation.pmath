@@ -58,6 +58,7 @@
 {"Button", {"ArgumentCount" -> 1..2}},
 {"ButtonBox", {"ArgumentCount" -> 1}},
 {"ByteCount", {"ArgumentCount" -> 1}},
+{"CapForm", {"ArgumentCount" -> 1}},
 {"Cases", {"ArgumentCount" -> 1..4}},
 {"Catch", {"ArgumentCount" -> 2..}},
 {"Ceiling", {"ArgumentCount" -> 1..2}},
