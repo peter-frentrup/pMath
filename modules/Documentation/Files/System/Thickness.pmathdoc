@@ -41,7 +41,6 @@ Document({
                       "{", {"2", ",", "0"}, "}"}, ",", {
                       "{", {"3", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
                  "ImageSize", "\[Rule]", "50"}, ",", {
-                 "AspectRatio", "\[Rule]", {"3", "/", "5"}}, ",", {
                  "PlotRange", "\[Rule]", {
                   "{", {{{"-", "1"}, "..", "4"}, ",", {
                     {"-", "1"}, "..", "2"}}, "}"}}}, ")"}, ",", {
@@ -52,25 +51,21 @@ Document({
              "{", {
               GraphicsBox({Thickness(0.5`), 
                 LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
-               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
                ImageSize -> NCache(50, 50.0`), 
                PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
                   -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
               GraphicsBox({Thickness(1), 
                 LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
-               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
                ImageSize -> NCache(50, 50.0`), 
                PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
                   -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
               GraphicsBox({Thickness(2), 
                 LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
-               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
                ImageSize -> NCache(50, 50.0`), 
                PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
                   -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
               GraphicsBox({Thickness(4), 
                 LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
-               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
                ImageSize -> NCache(50, 50.0`), 
                PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
                   -1.0` .. 4.0`, -1.0` .. 2.0`}))}, "}"}), "Output", 
@@ -163,7 +158,6 @@ Document({
                       "{", {"2", ",", "0"}, "}"}, ",", {
                       "{", {"3", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
                  "ImageSize", "\[Rule]", "50"}, ",", {
-                 "AspectRatio", "\[Rule]", {"3", "/", "5"}}, ",", {
                  "PlotRange", "\[Rule]", {
                   "{", {{{"-", "1"}, "..", "4"}, ",", {
                     {"-", "1"}, "..", "2"}}, "}"}}}, ")"}, ",", {
@@ -175,31 +169,26 @@ Document({
              "{", {
               GraphicsBox({Thickness(Automatic), 
                 LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
-               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
                ImageSize -> NCache(50, 50.0`), 
                PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
                   -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
               GraphicsBox({Thickness(Tiny), 
                 LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
-               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
                ImageSize -> NCache(50, 50.0`), 
                PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
                   -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
               GraphicsBox({Thickness(Small), 
                 LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
-               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
                ImageSize -> NCache(50, 50.0`), 
                PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
                   -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
               GraphicsBox({Thickness(Medium), 
                 LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
-               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
                ImageSize -> NCache(50, 50.0`), 
                PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
                   -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
               GraphicsBox({Thickness(Large), 
                 LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
-               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
                ImageSize -> NCache(50, 50.0`), 
                PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
                   -1.0` .. 4.0`, -1.0` .. 2.0`}))}, "}"}), "Output", 
@@ -216,22 +205,18 @@ Document({
                 {"{", {"Thin", ",", {
                    "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
                       "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
-                 "ImageSize", "\[Rule]", "100"}, ",", {
-                 "AspectRatio", "\[Rule]", {"1", "/", "2"}}}, ")"}, ",", {
+                 "ImageSize", "\[Rule]", "100"}}, ")"}, ",", {
                "Graphics", "(", {
                 {"{", {"Thick", ",", {
                    "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
                       "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
-                 "ImageSize", "\[Rule]", "100"}, ",", {
-                 "AspectRatio", "\[Rule]", {"1", "/", "2"}}}, ")"}}, "}"}), 
-           "Input", SectionLabel -> "in [1]:"), 
+                 "ImageSize", "\[Rule]", "100"}}, ")"}}, "}"}), "Input", 
+           SectionLabel -> "in [1]:"), 
           Section(
            BoxData({
              "{", {GraphicsBox({Thickness(Tiny), LineBox({{0, 0}, {2, 1}})}, 
-               AspectRatio -> NCache(1/2, 0.5`), 
                ImageSize -> NCache(100, 100.0`)), ",", 
               GraphicsBox({Thickness(Large), LineBox({{0, 0}, {2, 1}})}, 
-               AspectRatio -> NCache(1/2, 0.5`), 
                ImageSize -> NCache(100, 100.0`))}, "}"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       SectionGroup({Section("Neat Examples", "ExampleSection"), 

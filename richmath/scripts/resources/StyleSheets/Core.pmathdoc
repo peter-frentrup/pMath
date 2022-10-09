@@ -52,7 +52,7 @@ Document({
         Dynamic(CurrentValue({"AttachmentSourceBox", Magnification})), 
        Selectable -> False, ShowSectionBracket -> False, Visible -> True)}, 
      All), SectionGroup({Section("Section styles", "Section"), 
-      Section(StyleData("SystemResetStyle"), AspectRatio -> 1, 
+      Section(StyleData("SystemResetStyle"), AspectRatio -> Automatic, 
        AutoDelete -> False, AutoNumberFormating -> True, AutoSpacing -> False, 
        Background -> None, ButtonBoxOptions -> {
          ButtonFunction -> Function(/\/), Method -> "Preemptive"}, 
@@ -148,7 +148,7 @@ Document({
       Section(StyleData("ConditionalExpressionLabel"), 
        FontColor -> GrayLevel(0.502`), ShowStringCharacters -> False), 
       SectionGroup({Section("Default box level styles", "Subsection"), 
-        Section(StyleData("Graphics"), AspectRatio -> 1, 
+        Section(StyleData("Graphics"), AspectRatio -> Automatic, 
          AutoNumberFormating -> True, AutoSpacing -> True, 
          ShowAutoStyles -> False), Section(StyleData("ControlStyle"), 
          FontFamily -> Dynamic(CurrentValue("ControlsFontFamily")), 

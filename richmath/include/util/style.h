@@ -502,6 +502,7 @@ namespace richmath {
     Integer,
     Number,
     Length,
+    AutoPositive,
     Margin,
     Size,
     String,

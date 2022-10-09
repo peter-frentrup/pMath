@@ -14,6 +14,13 @@
 #include <limits>
 
 
+#ifdef _MSC_VER
+#  define isfinite(x)  (_finite(x))
+#endif
+
+using namespace std;
+
+
 extern pmath_symbol_t richmath_System_DollarAborted;
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_AllowScriptLevelChange;
@@ -429,19 +436,20 @@ namespace richmath {
     private:
       bool set_dynamic(StyleOptionName n, Expr value);
       
-      bool set_pmath_bool_auto( StyleOptionName n, Expr obj);
-      bool set_pmath_bool(      StyleOptionName n, Expr obj);
-      bool set_pmath_color(     StyleOptionName n, Expr obj);
-      bool set_pmath_int(       StyleOptionName n, Expr obj);
-      bool set_pmath_float(     StyleOptionName n, Expr obj);
-      bool set_pmath_length(    StyleOptionName n, Expr obj);
-      bool set_pmath_margin(    StyleOptionName n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      bool set_pmath_size(      StyleOptionName n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-      bool set_pmath_string(    StyleOptionName n, Expr obj);
-      bool set_pmath_object(    StyleOptionName n, Expr obj);
-      bool set_pmath_flatlist(  StyleOptionName n, Expr obj);
-      bool set_pmath_enum(      StyleOptionName n, Expr obj);
-      bool set_pmath_ruleset(   StyleOptionName n, Expr obj);
+      bool set_pmath_bool_auto(  StyleOptionName n, Expr obj);
+      bool set_pmath_bool(       StyleOptionName n, Expr obj);
+      bool set_pmath_color(      StyleOptionName n, Expr obj);
+      bool set_pmath_int(        StyleOptionName n, Expr obj);
+      bool set_pmath_float(      StyleOptionName n, Expr obj);
+      bool set_pmath_posnum_auto(StyleOptionName n, Expr obj);
+      bool set_pmath_length(     StyleOptionName n, Expr obj);
+      bool set_pmath_margin(     StyleOptionName n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      bool set_pmath_size(       StyleOptionName n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+      bool set_pmath_string(     StyleOptionName n, Expr obj);
+      bool set_pmath_object(     StyleOptionName n, Expr obj);
+      bool set_pmath_flatlist(   StyleOptionName n, Expr obj);
+      bool set_pmath_enum(       StyleOptionName n, Expr obj);
+      bool set_pmath_ruleset(    StyleOptionName n, Expr obj);
       
       bool set_pmath_by_unknown_key(Expr lhs, Expr rhs, bool amend);
       
@@ -474,19 +482,20 @@ namespace richmath {
       Expr prepare_inherited_size(StyleOptionName n) const;
       Expr prepare_inherited_ruleset(StyleOptionName n) const;
       
-      Expr raw_get_pmath_bool_auto( StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_bool(      StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_color(     StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_int(       StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_float(     StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_length(    StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_margin(    StyleOptionName n, Expr inherited) const; // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      Expr raw_get_pmath_size(      StyleOptionName n, Expr inherited) const; // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-      Expr raw_get_pmath_string(    StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_object(    StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_flatlist(  StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_enum(      StyleOptionName n, Expr inherited) const;
-      Expr raw_get_pmath_ruleset(   StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_bool_auto(  StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_bool(       StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_color(      StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_int(        StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_float(      StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_posnum_auto(StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_length(     StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_margin(     StyleOptionName n, Expr inherited) const; // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      Expr raw_get_pmath_size(       StyleOptionName n, Expr inherited) const; // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+      Expr raw_get_pmath_string(     StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_object(     StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_flatlist(   StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_enum(       StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_ruleset(    StyleOptionName n, Expr inherited) const;
       
     private:
       Style &self;
@@ -709,6 +718,10 @@ bool StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
       any_change = set_pmath_float(n, obj);
       break;
       
+    case StyleType::AutoPositive:
+      any_change = set_pmath_posnum_auto(n, obj);
+      break;
+      
     case StyleType::Length:
       any_change = set_pmath_length(n, obj);
       break;
@@ -898,6 +911,43 @@ bool StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
   
   if(obj[0] == richmath_System_NCache) {
     any_change = raw_set_float(n, obj[2].to_double()) || any_change;
+    
+    if(n.is_literal()) // TODO: do not treat NCache as Dynamic, but as Definition
+      any_change = raw_set_expr(n.to_dynamic(), obj) || any_change;
+    
+    return any_change;
+  }
+  
+  return any_change;
+}
+
+bool StyleImpl::set_pmath_posnum_auto(StyleOptionName n, Expr obj) {
+  RICHMATH_ASSERT(is_for_float(n));
+  
+  bool any_change = false;
+  if(n.is_literal())
+    any_change = remove_dynamic(n);
+  
+  if(obj == richmath_System_Automatic)
+    return raw_set_float(n, 0) || any_change;
+  
+  if(obj.is_number()) {
+    double val = obj.to_double();
+    if(val > 0)
+      return raw_set_float(n, val) || any_change;
+    return any_change;
+  }
+  
+  if(obj == richmath_System_Inherited)
+    return raw_remove_float(n) || any_change;
+  
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
+    return set_dynamic(n, obj) || any_change;
+  
+  if(obj[0] == richmath_System_NCache) {
+    double val = obj[2].to_double();
+    if(val > 0 && isfinite(val))
+      any_change = raw_set_float(n, val) || any_change;
     
     if(n.is_literal()) // TODO: do not treat NCache as Dynamic, but as Definition
       any_change = raw_set_expr(n.to_dynamic(), obj) || any_change;
@@ -1640,6 +1690,9 @@ Expr StyleImpl::raw_get_pmath(StyleOptionName key, Expr inherited) const {
     case StyleType::Number:
       return raw_get_pmath_float(key, std::move(inherited));
       
+    case StyleType::AutoPositive:
+      return raw_get_pmath_posnum_auto(key, std::move(inherited));
+      
     case StyleType::Length:
       return raw_get_pmath_length(key, std::move(inherited));
       
@@ -1730,6 +1783,20 @@ Expr StyleImpl::raw_get_pmath_float(StyleOptionName n, Expr inherited) const {
   if(raw_get_float(n, &f))
     return Number(f);
     
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_posnum_auto(StyleOptionName n, Expr inherited) const {
+  RICHMATH_ASSERT(is_for_float(n));
+  
+  float f;
+  if(raw_get_float(n, &f)) {
+    if(isfinite(f) && f > 0)
+      return Number(f);
+    
+    return Symbol(richmath_System_Automatic);
+  }
+  
   return inherited;
 }
 
@@ -3283,7 +3350,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            ContinuousAction,                 List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_ContinuousAction)));
     add(StyleType::AutoBool,        SliderBoxDefaultEnabled,          List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_Enabled)));
     
-    add(StyleType::Number,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
+    add(StyleType::AutoPositive,    AspectRatio,                      Symbol( richmath_System_AspectRatio));
     add(StyleType::Number,          FillBoxWeight,                    Symbol( richmath_System_FillBoxWeight));
     add(StyleType::Length,          FontSize,                         Symbol( richmath_System_FontSize));
     add(StyleType::Number,          GridBoxColumnSpacing,             Symbol( richmath_System_GridBoxColumnSpacing));
@@ -3478,18 +3545,18 @@ void StyleInformation::add(StyleType type, StyleOptionName key, const Expr &name
   if(type == StyleType::Size) { // {horz, vert} = {key+1, key+2}
     StyleOptionName Horizontal = StyleOptionName((int)key + 1);
     StyleOptionName Vertical   = StyleOptionName((int)key + 2);
-    _key_to_type.set(Horizontal, StyleType::Number);
-    _key_to_type.set(Vertical,   StyleType::Number);
+    _key_to_type.set(Horizontal, StyleType::Length);
+    _key_to_type.set(Vertical,   StyleType::Length);
   }
 //  else if(type == StyleType::Margin) { // {left, right, top, bottom} = {key, key+1, key+2, key+3}
 //    //StyleOptionName Left   = StyleOptionName((int)key + 1);
 //    StyleOptionName Right  = StyleOptionName((int)key + 1);
 //    StyleOptionName Top    = StyleOptionName((int)key + 2);
 //    StyleOptionName Bottom = StyleOptionName((int)key + 3);
-//    //_key_to_type.set(Left,   StyleType::Number);
-//    _key_to_type.set(Right,  StyleType::Number);
-//    _key_to_type.set(Top,    StyleType::Number);
-//    _key_to_type.set(Bottom, StyleType::Number);
+//    //_key_to_type.set(Left,   StyleType::Length);
+//    _key_to_type.set(Right,  StyleType::Length);
+//    _key_to_type.set(Top,    StyleType::Length);
+//    _key_to_type.set(Bottom, StyleType::Length);
 //  }
 
   _key_to_name.set(key, name);

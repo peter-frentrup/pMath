@@ -899,10 +899,14 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
   
   Length w    = self.get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
   Length h    = self.get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
-  float ratio = self.get_own_style(AspectRatio, 1.0f); //0.61803f
+  float ratio = self.get_own_style(AspectRatio, NAN);
   
-  if(ratio <= 0)
-    ratio = 1.0f; // 0.61803f;
+  if(!isfinite(ratio) || ratio <= 0) {
+    ratio = (bounds.ymax - bounds.ymin) / (bounds.xmax - bounds.xmin);
+    
+    if(!isfinite(ratio) || ratio <= 0)
+      ratio = 1.0f; // 0.61803f;
+  }
   
   bool check_max_auto_width = false;
   
