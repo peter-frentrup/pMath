@@ -22,6 +22,7 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_CapForm;
 extern pmath_symbol_t richmath_System_Directive;
 extern pmath_symbol_t richmath_System_GrayLevel;
 extern pmath_symbol_t richmath_System_Hue;
@@ -72,6 +73,9 @@ bool GraphicsDirective::is_graphics_directive(Expr expr) {
     return true;
   
   if(expr[0] == richmath_System_GrayLevel)
+    return true;
+  
+  if(expr[0] == richmath_System_CapForm)
     return true;
   
   if(expr[0] == richmath_System_PointSize)
@@ -158,17 +162,18 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
     return;
   }
   
+  if(directive[0] == richmath_System_CapForm) {
+    style.set_pmath(CapForm, directive[1]);
+    return;
+  }
+  
   if(directive[0] == richmath_System_PointSize) {
-    if(Length size = Length::from_pmath(directive[1])) {
-      style.set(PointSize, size);
-    }
+    style.set_pmath(PointSize, directive[1]);
     return;
   }
   
   if(directive[0] == richmath_System_Thickness) {
-    if(Length thickness = Length::from_pmath(directive[1])) {
-      style.set(Thickness, thickness);
-    }
+    style.set_pmath(Thickness, directive[1]);
     return;
   }
   
@@ -188,6 +193,14 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
   if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
     if(Color c = Color::from_pmath(directive)) {
       gc.canvas().set_color(c);
+    }
+    return;
+  }
+  
+  if(directive[0] == richmath_System_CapForm) {
+    int val = Style::decode_enum(directive[1], CapForm, -1);
+    if(val >= 0) {
+      gc.canvas().cap_form((enum CapForm)val);
     }
     return;
   }

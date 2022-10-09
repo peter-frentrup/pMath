@@ -50,6 +50,7 @@ extern pmath_symbol_t richmath_System_ButtonData;
 extern pmath_symbol_t richmath_System_ButtonFrame;
 extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_ButtonSource;
+extern pmath_symbol_t richmath_System_CapForm;
 extern pmath_symbol_t richmath_System_ContentPadding;
 extern pmath_symbol_t richmath_System_ContextMenu;
 extern pmath_symbol_t richmath_System_ContinuousAction;
@@ -176,6 +177,7 @@ extern pmath_symbol_t richmath_System_WindowFrame;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
 namespace richmath { namespace strings {
+  extern String Butt;
   extern String CharacterNameStyle;
   extern String ClosingAction;
   extern String Color;
@@ -198,7 +200,9 @@ namespace richmath { namespace strings {
   extern String OccurenceHighlightStyle;
   extern String Palette;
   extern String PatternVariableStyle;
+  extern String Round;
   extern String SectionInsertionPointColor;
+  extern String Square;
   extern String StringStyle;
   extern String SymbolShadowingStyle;
   extern String SyntaxErrorStyle;
@@ -276,6 +280,10 @@ namespace {
   
   struct ButtonSourceStyleConverter: public EnumStyleConverter {
     ButtonSourceStyleConverter();
+  };
+  
+  struct CapFormStyleConverter: public EnumStyleConverter {
+    CapFormStyleConverter();
   };
   
   struct ClosingActionStyleConverter: public EnumStyleConverter {
@@ -687,6 +695,37 @@ void StyleImpl::collect_unused_dynamic(Hashtable<StyleOptionName, Expr> &dynamic
       dynamic_styles.set(e.key, e.value);
     }
   }
+}
+
+int Style::decode_enum(Expr expr, IntStyleOptionName n, int def) {
+  StyleType type = StyleInformation::get_type(n);
+  
+  switch(type) {
+//    case StyleType::AutoBool:
+//      if(expr == richmath_System_Automatic) return AutoBoolAutomatic;
+//      if(expr == richmath_System_True)      return AutoBoolTrue;
+//      if(expr == richmath_System_False)     return AutoBoolFalse;
+//      break;
+//      
+//    case StyleType::Bool:
+//      if(expr == richmath_System_True)      return true;
+//      if(expr == richmath_System_False)     return false;
+//      break;
+//      
+//    case StyleType::Integer:
+//      if(expr.is_int32())
+//        return PMATH_AS_INT32(expr.get());
+      
+    case StyleType::Enum: {
+      SharedPtr<EnumStyleConverter> enum_converter = StyleInformation::get_enum_converter(n);
+      RICHMATH_ASSERT(enum_converter.is_valid());
+      
+      if(enum_converter->is_valid_expr(expr))
+        return enum_converter->to_int(expr);
+    } break;
+  }
+  
+  return def;
 }
 
 bool StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
@@ -3243,6 +3282,14 @@ void StyleInformation::add_style() {
     }
     
     {
+      SharedPtr<EnumStyleConverter> converter{new CapFormStyleConverter};
+      add_enum(
+        CapForm, 
+        Symbol(richmath_System_CapForm), 
+        converter);
+    }
+    
+    {
       SharedPtr<EnumStyleConverter> converter{new ImageSizeActionStyleConverter};
       add_enum(
         ImageSizeAction, 
@@ -3756,6 +3803,16 @@ ButtonSourceStyleConverter::ButtonSourceStyleConverter() : EnumStyleConverter() 
   add(ButtonSourceButtonContents, Symbol(richmath_System_ButtonContents));
   add(ButtonSourceButtonData,     Symbol(richmath_System_ButtonData));
   add(ButtonSourceFrontEndObject, Symbol(richmath_System_FrontEndObject));
+}
+
+CapFormStyleConverter::CapFormStyleConverter() : EnumStyleConverter() {
+  _int_to_expr.default_value = Expr();
+  _expr_to_int.default_value = -1;
+  
+  add(CapFormNone,      Symbol(richmath_System_None));
+  add(CapFormButt,      strings::Butt);
+  add(CapFormRound,     strings::Round);
+  add(CapFormSquare,    strings::Square);
 }
 
 ClosingActionStyleConverter::ClosingActionStyleConverter() : EnumStyleConverter() {

@@ -140,13 +140,13 @@ void FrameBox::paint(Context &context) {
         thickness_pixels = round(thickness_pixels);
         bool is_odd = (fmodf(thickness_pixels, 2.0f) == 1.0f);
         rect.pixel_align(gc.canvas(), is_odd, +1);
+        thickness_pixels = gc.canvas().device_to_user_dist(Vector2F(thickness_pixels, 0)).length();
       }
       
       radii.normalize(rect.width, rect.height);
       rect.add_round_rect_path(gc.canvas(), radii);
       
-      gc.canvas().reset_matrix(); // TODO: do not reset matrix and use Thickness directive instead
-      gc.canvas().line_width(thickness_pixels);
+      gc.canvas().line_width(thickness_pixels); // TODO: support Thickness directive
       
       if(Color bg = get_own_style(Background)) {
         gc.canvas().save();

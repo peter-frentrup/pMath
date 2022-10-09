@@ -105,6 +105,7 @@ namespace richmath {
     AutoDelete,
     AutoNumberFormating,
     AutoSpacing,
+    CapForm,       // CapFormXXX
     ClosingAction, // ClosingActionXXX
     ContentPadding,
     ContinuousAction,
@@ -569,6 +570,8 @@ namespace richmath {
       }
       
       unsigned int count() const;
+      
+      static int decode_enum(Expr expr, IntStyleOptionName n, int def);
       
       bool set_pmath(StyleOptionName n, Expr obj);
       

@@ -12,6 +12,13 @@ namespace richmath {
   static const Color SelectionColor         = Color::from_rgb24(0x6699FF); // TODO: use Highlight color for border and HotTrack color with alpha = 0x55 = 85 = 33.3%
   static const Color InactiveSelectionColor = Color::from_rgb24(0x999999);
   
+  enum CapForm {
+    CapFormNone,
+    CapFormButt,
+    CapFormRound,
+    CapFormSquare,
+  };
+  
   class Canvas: public Base {
     public:
       explicit Canvas(cairo_t *cr);
@@ -73,6 +80,9 @@ namespace richmath {
       
       float line_width();
       void line_width(float w);
+      
+      enum CapForm cap_form();
+      void cap_form(enum CapForm cf);
       
       void move_to(Point pt) { move_to(pt.x, pt.y); }
       void move_to(double x, double y);

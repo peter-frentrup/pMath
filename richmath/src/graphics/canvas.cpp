@@ -229,6 +229,24 @@ void Canvas::line_width(float w) {
   cairo_set_line_width(_cr, w);
 }
 
+CapForm Canvas::cap_form() {
+  switch(cairo_get_line_cap(_cr)) {
+    case CAIRO_LINE_CAP_BUTT:   return CapFormButt;
+    case CAIRO_LINE_CAP_ROUND:  return CapFormRound;
+    case CAIRO_LINE_CAP_SQUARE: return CapFormSquare;
+  }
+  return CapFormNone;
+}
+
+void Canvas::cap_form(CapForm cf) {
+  switch(cf) {
+    case CapFormNone:
+    case CapFormButt:   cairo_set_line_cap(_cr, CAIRO_LINE_CAP_BUTT); break;
+    case CapFormRound:  cairo_set_line_cap(_cr, CAIRO_LINE_CAP_ROUND); break;
+    case CapFormSquare: cairo_set_line_cap(_cr, CAIRO_LINE_CAP_SQUARE); break;
+  }
+}
+
 void Canvas::move_to(double x, double y) {
   cairo_move_to(_cr, x, y);
 }
