@@ -1,5 +1,5 @@
 #include <boxes/graphics/graphicsdirective.h>
-#include <boxes/graphics/graphicsbox.h>
+#include <boxes/graphics/graphicsdrawingcontext.h>
 
 #include <graphics/context.h>
 
@@ -35,8 +35,8 @@ namespace richmath {
       Impl(GraphicsDirective &self) : self{self} {}
       
       static void apply_to_style(Expr directive, Style &style);
-      static void apply_to_context(Expr directive, Context &context, GraphicsDrawingContext *opt_gc);
-      static void apply_thickness_to_context(Length thickness, Context &context, GraphicsDrawingContext *opt_gc);
+      static void apply_to_context(Expr directive, GraphicsDrawingContext &gc);
+      static void apply_thickness_to_context(Length thickness, GraphicsDrawingContext &gc);
       
       bool change_directives(Expr new_directives);
       
@@ -121,20 +121,12 @@ void GraphicsDirective::paint(GraphicsDrawingContext &gc) {
   apply(_latest_directives, gc);
 }
 
-void GraphicsDirective::apply(Expr directive, Context &context) {
-  Impl::apply_to_context(directive, context, nullptr);
-}
-
 void GraphicsDirective::apply(Expr directive, GraphicsDrawingContext &gc) {
-  Impl::apply_to_context(directive, gc.context(), &gc);
-}
-
-void GraphicsDirective::apply_thickness(Length thickness, Context &context) {
-  Impl::apply_thickness_to_context(thickness, context, nullptr);
+  Impl::apply_to_context(directive, gc);
 }
 
 void GraphicsDirective::apply_thickness(Length thickness, GraphicsDrawingContext &gc) {
-  Impl::apply_thickness_to_context(thickness, gc.context(), &gc);
+  Impl::apply_thickness_to_context(thickness, gc);
 }
 
 void GraphicsDirective::dynamic_updated() {
@@ -186,47 +178,37 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
   }
 }
 
-void GraphicsDirective::Impl::apply_to_context(Expr directive, Context &context, GraphicsDrawingContext *opt_gc) {
+void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingContext &gc) {
   if(directive[0] == richmath_System_Directive) {
     for(auto item : directive.items())
-      apply_to_context(item, context, opt_gc);
+      apply_to_context(item, gc);
     return;
   }
   
   if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
     if(Color c = Color::from_pmath(directive)) {
-      context.canvas().set_color(c);
+      gc.canvas().set_color(c);
     }
     return;
   }
   
   if(directive[0] == richmath_System_PointSize) {
-    if(opt_gc) {
-      if(Length len = Length::from_pmath(directive[1])) {
-        opt_gc->point_size = len;
-      }
+    if(Length len = Length::from_pmath(directive[1])) {
+      gc.point_size = len;
     }
     return;
   }
   
   if(directive[0] == richmath_System_Thickness) {
     if(Length len = Length::from_pmath(directive[1])) {
-      apply_thickness_to_context(len, context, opt_gc);
+      apply_thickness_to_context(len, gc);
     }
     return;
   }
 }
 
-void GraphicsDirective::Impl::apply_thickness_to_context(Length thickness, Context &context, GraphicsDrawingContext *opt_gc) {
-  float rel_scale;
-  if(opt_gc)
-    rel_scale = opt_gc->plot_range_width;
-  else if(isfinite(context.width))
-    rel_scale = context.width;
-  else
-    rel_scale = 100.0f;
-  
-  context.canvas().line_width(thickness.resolve(1.0f, LengthConversionFactors::ThicknessInPt, rel_scale));
+void GraphicsDirective::Impl::apply_thickness_to_context(Length thickness, GraphicsDrawingContext &gc) {
+  gc.canvas().line_width(thickness.resolve(1.0f, LengthConversionFactors::ThicknessInPt, gc.plot_range_width));
 }
 
 bool GraphicsDirective::Impl::change_directives(Expr new_directives) {

@@ -1,6 +1,8 @@
 #include <boxes/framebox.h>
 
 #include <boxes/graphics/graphicsdirective.h>
+#include <boxes/graphics/graphicsdrawingcontext.h>
+
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
 #include <graphics/rectangle.h>
@@ -113,6 +115,9 @@ void FrameBox::paint(Context &context) {
     {
       bool sot = context.canvas().show_only_text;
       context.canvas().show_only_text = false;
+      
+      GraphicsDrawingContext gc{*this, context};
+      gc.plot_range_width = content()->extents().width;
           
       RectangleF rect = _extents.to_rectangle(p0);
       BoxRadius radii;
@@ -120,38 +125,37 @@ void FrameBox::paint(Context &context) {
       if(Expr expr = get_own_style(BorderRadius)) 
         radii = BoxRadius(expr);
       
+      cairo_set_line_join(gc.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
       if(Expr expr = get_own_style(FrameStyle)) {
-        GraphicsDirective::apply(expr, context);
+        GraphicsDirective::apply(expr, gc);
       }
-      float half_border_thickness = context.canvas().get_font_size() * HalfBorderThicknessFactor;
+      float half_border_thickness = gc.canvas().get_font_size() * HalfBorderThicknessFactor;
     
       rect.normalize();
       rect.grow(-half_border_thickness);
       radii += BoxRadius(-half_border_thickness);
       
-      float thickness_pixels = context.canvas().user_to_device_dist(Vector2F(2 * half_border_thickness, 0)).length();
+      float thickness_pixels = gc.canvas().user_to_device_dist(Vector2F(2 * half_border_thickness, 0)).length();
       if(thickness_pixels > 0.5) {
         thickness_pixels = round(thickness_pixels);
         bool is_odd = (fmodf(thickness_pixels, 2.0f) == 1.0f);
-        rect.pixel_align(context.canvas(), is_odd, +1);
+        rect.pixel_align(gc.canvas(), is_odd, +1);
       }
       
       radii.normalize(rect.width, rect.height);
-      rect.add_round_rect_path(context.canvas(), radii);
+      rect.add_round_rect_path(gc.canvas(), radii);
       
-      cairo_set_line_join(context.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
-      context.canvas().reset_matrix();
-      
-      context.canvas().line_width(thickness_pixels);
+      gc.canvas().reset_matrix(); // TODO: do not reset matrix and use Thickness directive instead
+      gc.canvas().line_width(thickness_pixels);
       
       if(Color bg = get_own_style(Background)) {
-        context.canvas().save();
-        context.canvas().set_color(bg);
-        context.canvas().fill_preserve();
-        context.canvas().restore();
+        gc.canvas().save();
+        gc.canvas().set_color(bg);
+        gc.canvas().fill_preserve();
+        gc.canvas().restore();
       }
       
-      context.canvas().stroke();
+      gc.canvas().stroke();
       
       context.canvas().show_only_text = sot;
     }

@@ -5,7 +5,6 @@
 #include <boxes/graphics/graphicselement.h>
 
 #include <graphics/buffer.h>
-#include <graphics/context.h>
 
 namespace richmath {
   const int GraphicsPartNone            = -1;
@@ -16,7 +15,7 @@ namespace richmath {
   
   class AxisTicks;
   
-  enum AxisIndex{
+  enum AxisIndex {
     AxisIndexX = 0,
     AxisIndexY,
     AxisIndexLeft,
@@ -105,25 +104,6 @@ namespace richmath {
       SharedPtr<Buffer>         cached_bitmap;
       GraphicsElementCollection elements;
       Expr                      error_boxes_expr;
-  };
-  
-  class GraphicsDrawingContext {
-    public:
-      GraphicsDrawingContext(GraphicsBox &owner, Context &context);
-      
-      GraphicsBox          &graphics_box() { return _owner; }
-      Context              &context() { return _context; }
-      Canvas               &canvas() { return _context.canvas(); }
-      const cairo_matrix_t &initial_matrix() { return _initial_matrix; }
-      
-    public:
-      Length point_size;
-      float  plot_range_width;
-      
-    private:
-      GraphicsBox    &_owner;
-      Context        &_context;
-      cairo_matrix_t  _initial_matrix;
   };
 }
 

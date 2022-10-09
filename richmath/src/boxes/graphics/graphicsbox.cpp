@@ -2,6 +2,7 @@
 
 #include <boxes/graphics/axisticks.h>
 #include <boxes/graphics/graphicsdirective.h>
+#include <boxes/graphics/graphicsdrawingcontext.h>
 
 #include <boxes/dynamicbox.h>
 #include <boxes/fillbox.h>
@@ -683,19 +684,6 @@ void GraphicsBox::on_mouse_up(MouseEvent &event) {
 }
 
 //} ... class GraphicsBox
-
-//{ class GraphicsDrawingContext ...
-
-GraphicsDrawingContext::GraphicsDrawingContext(GraphicsBox &owner, Context &context)
-  : point_size(SymbolicSize::Automatic),
-    plot_range_width(100),
-    _owner{owner},
-    _context{context},
-    _initial_matrix{context.canvas().get_matrix()}
-{
-}
-
-//} ... class GraphicsDrawingContext
 
 //{ class GraphicsBox::Impl ...
 

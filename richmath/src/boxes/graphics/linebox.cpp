@@ -1,6 +1,6 @@
 #include <boxes/graphics/linebox.h>
 
-#include <boxes/graphics/graphicsbox.h>
+#include <boxes/graphics/graphicsdrawingcontext.h>
 #include <graphics/canvas.h>
 
 #include <cmath>

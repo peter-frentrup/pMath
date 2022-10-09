@@ -6,16 +6,12 @@
 #include <eval/partial-dynamic.h>
 
 namespace richmath {
-  class Context;
-  
   class GraphicsDirective final : public GraphicsDirectiveBase {
       using base = GraphicsDirectiveBase;
       class Impl;
     public:
       static bool is_graphics_directive(Expr expr);
-      static void apply(Expr directive, Context &context);
       static void apply(Expr directive, GraphicsDrawingContext &gc);
-      static void apply_thickness(Length thickness, Context &context);
       static void apply_thickness(Length thickness, GraphicsDrawingContext &gc);
       
       static GraphicsDirective *try_create(Expr expr, BoxInputFlags opts);

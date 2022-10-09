@@ -1,7 +1,7 @@
 #include <boxes/graphics/graphicselement.h>
 
-#include <boxes/graphics/graphicsbox.h>
 #include <boxes/graphics/graphicsdirective.h>
+#include <boxes/graphics/graphicsdrawingcontext.h>
 #include <boxes/graphics/pointbox.h>
 #include <boxes/graphics/linebox.h>
 #include <boxes/box.h>
