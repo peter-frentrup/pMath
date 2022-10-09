@@ -1426,7 +1426,8 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
     
   if(has(options, BoxInputFlags::AllowTemplateSlots))
     obj = TemplateBoxSlot::prepare_boxes(obj);
-    
+  
+  text_changed(true);
   new_spans = pmath_spans_from_boxes(
                 pmath_ref(obj.get()),
                 &new_string,
