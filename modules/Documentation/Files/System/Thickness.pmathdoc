@@ -1,0 +1,460 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Thickness", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Thickness"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"At 100% ", TemplateBox({"Magnification"}, 
+            "ReferenceHyperlink"), 
+           ", the absolute thickness is measured in printer\[HighNineQuote]s \
+           points. One printer\[HighNineQuote]s point equals ", 
+           BoxData(FractionBox("1", "72")), 
+           " inch. One pixel on a typical low resolution (96 dpi) screen \
+           equals 0.75 printer\[HighNineQuote]s points."}), "Notes"), 
+        Section(TextData({"The following symbolic forms for ", 
+           StyleBox("d", "Arg"), " can be used: ", 
+           TemplateBox({"Tiny"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Small"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Medium"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Large"}, "ReferenceHyperlink"), ", and ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"A diameter ", StyleBox("d", "Arg"), 
+           " of the form ", TemplateBox({"Scaled"}, "ReferenceHyperlink"), 
+           "(", StyleBox("s", "Arg"), ") uses a fraction ", 
+           StyleBox("s", "Arg"), 
+           " of the overall plot range width (excluding graphics frame \
+           margins) for the thickness."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(
+         "Specify the line thickness in printer\[HighNineQuote]s points:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Graphics", "(", {
+                {"{", {{"Thickness", "(", "s", ")"}, ",", {
+                   "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                      "{", {"1", ",", "1"}, "}"}, ",", {
+                      "{", {"2", ",", "0"}, "}"}, ",", {
+                      "{", {"3", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                 "ImageSize", "\[Rule]", "50"}, ",", {
+                 "AspectRatio", "\[Rule]", {"3", "/", "5"}}, ",", {
+                 "PlotRange", "\[Rule]", {
+                  "{", {{{"-", "1"}, "..", "4"}, ",", {
+                    {"-", "1"}, "..", "2"}}, "}"}}}, ")"}, ",", {
+               "s", "\[Rule]", {"{", {"0.5", ",", "1", ",", "2", ",", "4"}, 
+                "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              GraphicsBox({Thickness(0.5`), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
+               ImageSize -> NCache(50, 50.0`), 
+               PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
+                  -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
+              GraphicsBox({Thickness(1), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
+               ImageSize -> NCache(50, 50.0`), 
+               PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
+                  -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
+              GraphicsBox({Thickness(2), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
+               ImageSize -> NCache(50, 50.0`), 
+               PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
+                  -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
+              GraphicsBox({Thickness(4), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
+               ImageSize -> NCache(50, 50.0`), 
+               PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
+                  -1.0` .. 4.0`, -1.0` .. 2.0`}))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Set the line thickness in plots using ", 
+             TemplateBox({"PlotStyle"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({"Plot", "(", {
+                {"{", {{"Sin", "(", "x", ")"}, ",", {"Cos", "(", "x", ")"}}, 
+                 "}"}, ",", {"x", "\[Rule]", {"0", "..", "5"}}, ",", {
+                 "PlotStyle", "\[Rule]", {
+                  "{", {{"Thickness", "(", "3", ")"}, ",", {
+                    "Thickness", "(", "1", ")"}}, "}"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                {Directive(RGBColor(0.75`, 0, 0), Thickness(3)), {
+                  LineBox(CompressedData(
+                    "1:c${67dr*{B7>C)z)q+J9=Rk;v1eA<9$#4lW&Zk(o2<1>F1hWDnmw+W$\
+                    B*ccm5d{KKC=?AtBpL<@q7g-!J}h,[QAiXhFogscR_@4xTzmKIAK#h2*[t\
+                    CWo%6oucg}U)BQ6&qWQ_ET@P}hf$%o=Y{bCf!$iNyQJ)Qr3$Vfx4#rHMD_\
+                    jME75LM0n1Kk9@B-YbISXyWgzX5,6YOQiA_w^HGEL1-wWxaUxkb00HF}C$\
+                    sXu[A>sby)hF(V]GYbm#<%Zw7-I]nDjHabj@gmPLQKS8h}w=>SUR7KD_&F\
+                    b2wQ^fVg!F,u4MhU{Snils>5$s^PCG0C6xFxgtG{Geeb8oZ;juB)<IbB6M\
+                    LvUW,P=WXfaBIr7+kOswhuO+H**HNq%=Ew)-#Oh-+6vs3@,tqXEWz6qibs\
+                    hK69m]&UZh#S6[XT0fKQA+aC^#qX=63Pc5T0xh9?4d6#8ZWCt2yzpfkW<7\
+                    qV0nsb7@4v<9e?Fpb+B!G-cYJzHCVZ(()}eDLK#Ys0^RZxyl[1KwZak<l>\
+                    >{7oi>d4fH2)XQ1VfjbK)TLIilr^;gU5^xtLofiZLl+WD1whG*hayn)(@C\
+                    ]w>U$<%aTTE)eWnPoR#S6eaDR<B,kSq}K,?kf1atio%CQab6;_6<9A>dw2\
+                    n!w*R@R9{Q0M0RKE)pzOx}JmGz;{wEqG<xp?ap=0s06-?^6NBC;O=3OVJC\
+                    BdzsKac1gBEo(w-d+e77cjI%eS#892XKpY09Qmq]4zV8>T3?L0dMcfpTIX\
+                    9Z4Wre68zB=Gl{6o5w;4P+HbfbV5?yGpP$p>cXLAMRiPla3CDjdyM6@mzq\
+                    r{1H<Rye_0U@0b0+KNenui1Xs4AvcupP6C-1A>wdWm;bZBxDkRrVeSax@N\
+                    Jv&D=Cri4nu^OugBH3b(qvTJ}RfP^wj6DiD]AExo;j46e,?H1J3KPzi!v;\
+                    J%YkDRJ+kNocnJVg72NJ=TU@^qA_=oB>SGJ?&VP=la,pnn+y)CJ$?V>QM9\
+                    I7+t8F#+,6l{RrQodpE8-O<#6Xlxhkl5m,8EUe84TQHtuQLtKyMdIHOkJf\
+                    BYG<qoC^<k3JL5LJeHk@>P$nW1]Du5;8R7?q+(b3O0@LC}SrVz>LF14h}v\
+                    mpMa+@uN8RG9ktVI&f,2v72a75@K[S+E2)=(r!i*%+{7iye6#)pkG>G5Tq\
+                    EJIp*%6iU_bD5VSQWR^CQN0=8pi+5K%$baRZ^t+4(8YfjFiWy_y#OAliqn\
+                    TeSZS;<#4q*7S$]fk?v5sx[ZOM8Zr*L8!i01%Lhzh-{H23hn)naIU3p$6Z\
+                    DN=Zb_,tDydpjd}c>HHbWsFzihbWlP(RrYwUvB@(jk24VHVLHuGB#Ay-pc\
+                    Ld^xp[L;P6%d8YuzKbkZf=U6=I23t%?!I9L]%Ucs6PRsSR}Z]GYFp_V=uT\
+                    5fH=pDD+O,2*[^HP1H^e}+)xk?^iN6R8bN%^WSas)oZe)s_zuKHCfj@v,u\
+                    WuriJ2hEm]ksWeA%)-DfR$[a%S8n5FWEDk0U%lR50Uqf=ExAxE*c^qLPNb\
+                    N<VYXwWNPGvv!>S4^u&?um~~~"))}}, {
+                 Directive(RGBColor(0, 0, 0.75`), Thickness(1)), {
+                  LineBox(CompressedData(
+                    "1:c$,(#ZBUd}6bEqjwu,V3Z{d]99HlMAQE>vPFg!POL>DAfFo_^!Ff9VH\
+                    MKJ^h8bAdl1;Sz2#uvnbaY]y6r@<aWUIPvAWvCTalNL]x#c3AD5u]$sKRm\
+                    Z*_S0}g-t)ibo@a@J+c5<pu0-iXw}uF]*pZqT@u@C@IL;$P>F]d20*I5FQ\
+                    b[lIs-Yp(Pzh8Y_HCJU+5$u^_&J]*p>vMjd4lfBeM6ZBKNo@a4u&_@n9<#\
+                    Y^$kEBqE{s(7}[hrYxobEfF3<Ru*K;*x}gueZ$KwvhR16f(7n0a<Fx=?+>\
+                    )&h)T2{j}2ClYD{iZra?pLar[46#Kp*FIUxPUGxkBA;peK,(>#qf(&lBqQ\
+                    0?mK5YxX_EIFR{5-CIB*<mFSVb?6IhU9*?H1I-<@&ik1eh_6ufPoRrBopV\
+                    m=&^1EUyFlIJ_N>$li])IrJ71n^1gbN)eq(tHeX)?{KG4v*sG*pGM?jVcX\
+                    @-Cn_#Zd#,gat_QaOzYBGcDRmo6ItvRp_r3iSF9^DpcOG67j3q!}Oc&7]&\
+                    5;yDE5P1,Q^qK_fV+0W2ZI}w9D-g^?7_8e^aMbiu<$fmFJ#Z!<KR$TT$M3\
+                    +R]<]!fz=a]VTbwZ,@Kin^oV0mW+Q;%3H2RGlB$h$%g!f5dF9Bb>%e<ZS+\
+                    J72xw1x9yw87J#+4oif}ld5DnC54tJXGSFwDx6ZuXvWUq>1QF2B(jz[kLa\
+                    ahH1?11,2I=sbwWn;pDS+}(@&2{WIgwCTh&hVBRR)&(?ZM=(Q?=FIF5}wT\
+                    I$c,}BfCZ-$fq!UcJZmr1j$xiIn^0$gZSp%<O4EjgnIa&0-YX*Ho0xwn${\
+                    NeACJ3k^Z[@RDd2W^aedT-;{VD8GWl<^(uNuV$o}8h3MPlNiw6Cw2bIKu0\
+                    j8hJ3s6zPK>%&SzOwh&_5D-j6M}w0So%j6Xcxx&<B6]J]rh6dZL{3Ec(4m\
+                    ,P$kE^dvcFAG)&E9Mk<2Jz1DkXGR04_a@_W^iSmOFGE+)39B5KLEk06$8q\
+                    ST;XbPNDfG}eoQKghp7BI)MgQE^W&5Q&Gv6[{_s2g(O_T3x2v>KlD!J,yK\
+                    u;HDLCt8Kw$AN*JNg%LN{0T<>6QAB3+NfbjG%9CUvr?P0(]F%%Qmh?-<o7\
+                    xx^^%6eqnad=XO_Jy1EHHOPC!OMlUb)GdDlSX]^cT;Io5X9eXR&T8*A7?{\
+                    7di,D>es{m[Ci!uYr{>QVE)&z0}R2)}Ou@1ZMuFz]eb21PDV$Okav,u8-$\
+                    _0E}%<V6bM-d}+&>*<40QU}^jhZMqvxiLDqv*;&P=tGGV3#A+Ii,MAy_Fo\
+                    G[Byxn8w)e=L^)@!2%{XC_NU2ad)q]Nt$(]u(z,rGOOd<aXc(MqKZ@Dh[F\
+                    Nu_Kwhy,&^Y$]CmULc[NCoE^{=CFGwJGU^i]8U{}880b"))}}}, 
+               AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
+               Axes -> True, PlotRange -> 
+                NCache({0 .. 5, -0.99999670384065387` .. 1.0`}, {
+                  0.0` .. 5.0`, -0.99999670384065387` .. 1.0`}))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Symbolic values for predefined line thickness:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Graphics", "(", {
+                {"{", {{"Thickness", "(", "s", ")"}, ",", {
+                   "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                      "{", {"1", ",", "1"}, "}"}, ",", {
+                      "{", {"2", ",", "0"}, "}"}, ",", {
+                      "{", {"3", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                 "ImageSize", "\[Rule]", "50"}, ",", {
+                 "AspectRatio", "\[Rule]", {"3", "/", "5"}}, ",", {
+                 "PlotRange", "\[Rule]", {
+                  "{", {{{"-", "1"}, "..", "4"}, ",", {
+                    {"-", "1"}, "..", "2"}}, "}"}}}, ")"}, ",", {
+               "s", "\[Rule]", {"{", {"Automatic", ",", "Tiny", ",", "Small", 
+                 ",", "Medium", ",", "Large"}, "}"}}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              GraphicsBox({Thickness(Automatic), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
+               ImageSize -> NCache(50, 50.0`), 
+               PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
+                  -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
+              GraphicsBox({Thickness(Tiny), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
+               ImageSize -> NCache(50, 50.0`), 
+               PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
+                  -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
+              GraphicsBox({Thickness(Small), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
+               ImageSize -> NCache(50, 50.0`), 
+               PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
+                  -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
+              GraphicsBox({Thickness(Medium), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
+               ImageSize -> NCache(50, 50.0`), 
+               PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
+                  -1.0` .. 4.0`, -1.0` .. 2.0`})), ",", 
+              GraphicsBox({Thickness(Large), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               AspectRatio -> NCache(3/5, 0.59999999999999998`), 
+               ImageSize -> NCache(50, 50.0`), 
+               PlotRange -> NCache({-1 .. 4, -1 .. 2}, {
+                  -1.0` .. 4.0`, -1.0` .. 2.0`}))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({"Use ", TemplateBox({"Thin"}, "ReferenceHyperlink"), 
+           " and ", TemplateBox({"Thick"}, "ReferenceHyperlink"), 
+           " for predefined thicknesses:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             "{", {
+              {"Graphics", "(", {
+                {"{", {"Thin", ",", {
+                   "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                      "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                 "ImageSize", "\[Rule]", "100"}, ",", {
+                 "AspectRatio", "\[Rule]", {"1", "/", "2"}}}, ")"}, ",", {
+               "Graphics", "(", {
+                {"{", {"Thick", ",", {
+                   "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                      "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                 "ImageSize", "\[Rule]", "100"}, ",", {
+                 "AspectRatio", "\[Rule]", {"1", "/", "2"}}}, ")"}}, "}"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {GraphicsBox({Thickness(Tiny), LineBox({{0, 0}, {2, 1}})}, 
+               AspectRatio -> NCache(1/2, 0.5`), 
+               ImageSize -> NCache(100, 100.0`)), ",", 
+              GraphicsBox({Thickness(Large), LineBox({{0, 0}, {2, 1}})}, 
+               AspectRatio -> NCache(1/2, 0.5`), 
+               ImageSize -> NCache(100, 100.0`))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+        Section("Lines of random thickness:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Graphics", "(", {
+              "Table", "(", {
+               {"{", {{"Hue", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
+                  "Thickness", "(", {"RandomReal", "(", {"0", "..", "10"}, 
+                   ")"}, ")"}, ",", {"Line", "(", {
+                   "RandomReal", "(", {{"0", "..", "1"}, ",", {
+                     "{", {"2", ",", "2"}, "}"}}, ")"}, ")"}}, "}"}, ",", 
+               "50"}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({
+              {Hue(0.26424536035309953`), Thickness(5.0387532345166637`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O&JQLf3nG?>,{3ejWda;y;}6m+vH^<v(a0ilVwz>pv\
+                 8z5X[~~"))}, {Hue(0.8455678578154644`), 
+               Thickness(0.34507047720583994`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVTtHSJ88G}mA!>y+Kpe4kL($y7uXz>ueNu1,}4AR#UpzF3kw\
+                 iN"))}, {Hue(0.88597235606321811`), 
+               Thickness(5.6980371129496374`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O%=}v7?DE;6GBLgsW2Y;y*N[Bme+>+CR+t$)GNS!ao\
+                 rU5K9~~"))}, {Hue(0.6487636776553044`), 
+               Thickness(3.7562664389602851`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVabtFdbZp7xxGtExY5?PXYJ=NJLy?1{L=nZpe)PL88__#0>2\
+                 NO"))}, {Hue(0.95560895398027834`), 
+               Thickness(7.3775983940317378`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O$7j4g<$v;Xk0nXEcm_r9XIL}IE+v-9H3?;B2Pz*gp\
+                 [T5tR~~"))}, {Hue(0.0666191884695293`), 
+               Thickness(3.5606596229910337`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O%}KqpTB%%}8H28e0S6cR#FZGNrP<**[,80sCRD+CT\
+                 ia54i~~"))}, {Hue(0.091882514937761117`), 
+               Thickness(3.8243723673611574`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVc[UX9Vo;6%szkNZ]h{!r[q0klp8soe{Vl2q%w6*#}wJ^=7b\
+                 Lx"))}, {Hue(0.22478319632996702`), 
+               Thickness(4.6489402390612176`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1Oy!AhUcul<v*6?)$4m8=s)l_N[Ny9z&{6j,y6Wz;Xg\
+                 j,5rq~~"))}, {Hue(0.35436315883294145`), 
+               Thickness(8.4739477733973096`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVaewD)hyxh#Qs$8tFDg?uk4Ku8b&@ZyKjFjch<YcZ<p)=A=?\
+                 sC"))}, {Hue(0.84726822326867723`), 
+               Thickness(0.11919814473057233`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVX--_=+zo{%}6F[r=NDx1^b*?eLFt5p0b]Kp<L!*z-xN}_i+\
+                 !Q"))}, {Hue(0.12854070126846939`), 
+               Thickness(1.7366693702819025`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVYy>d+;UU-v_027O,d7R7wy[n%A;d,J-0vA,;Mn@#!Gtu0aO\
+                 p^"))}, {Hue(0.65576693118116969`), 
+               Thickness(9.6633866705388485`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVTqck{(@,9GkXWY_XTRslkNSUg&sar{nY+Y^M!&P5_jzZ{UZ\
+                 <o"))}, {Hue(0.042822616313980766`), 
+               Thickness(8.2214898191928185`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVd2QO,]GA3JNt&6FFd)$H,uF8H+^<}%SHQy2;Qs=y*2g#4F?\
+                 Y,"))}, {Hue(0.64398277166474027`), 
+               Thickness(2.665460548062569`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O#N9$k8Xs<UcJo(UZJ9=}3(N2q]oT&_5GW(8[3O<v$\
+                 OB5Fr~~"))}, {Hue(0.29484505532082095`), 
+               Thickness(9.4168714322847951`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVd?Fb4qxr_)cyvC?7![{Z}sHKE;zldx@Lc5k--+$Cs*tN35y\
+                 V1"))}, {Hue(0.11197285754350927`), 
+               Thickness(5.4816502389177355`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O%}fqo^9)wm*=e976=vs6RNHyq+Nh**{%)>ib[(?>,\
+                 cu5P<~~"))}, {Hue(0.13381521705527377`), 
+               Thickness(5.1607924096169011`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVc{^-jyq#@$$l<x{_}SKm-f<a<=^*pJ+p7MTobf*,cr!V=*J\
+                 IH"))}, {Hue(0.43583078451859858`), 
+               Thickness(5.0727632840208798`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVOeW@CAgsHjeXz84Qg(@&+Ii!*fLZ54%*i[w-i&1cyA8?{Rs\
+                 }1"))}, {Hue(0.99211947643007925`), 
+               Thickness(3.568874034845666`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1Ozb5ZgBV,;Xk;Qsi7^Swm-sI}5IvB<v*B]C0)N]!9N\
+                 [A5WD~~"))}, {Hue(0.5063272461831736`), 
+               Thickness(4.3079611210691162`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O!0CprMDF*+2V)zOEA%>py3}xqzw};6En4}C1kn-9I\
+                 U35mo~~"))}, {Hue(0.42200158959803558`), 
+               Thickness(8.0455259564375154`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O(uMx?;6hnm@wnQqn;E(LccEB9AxZ#y_x+Xgx(p(my\
+                 %H5vB~~"))}, {Hue(0.23372885592431847`), 
+               Thickness(1.4978247879125028`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVM#i6*D%KSw!K1Eh2,x_OYNB]{SuPpAK5pm9ey9{_Szl*_sI\
+                 ^#"))}, {Hue(0.97123898804978848`), 
+               Thickness(8.4812352096282204`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVF_p4R=BO<wf#KHzG)LKzqH?R*f5SS{h}E]QFSxd#ZT=439t\
+                 ,G"))}, {Hue(0.32557913114460646`), 
+               Thickness(2.0031064946835473`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVc]nbBah}Q9sBqfu@cr#pW8EtabB2rpx%DgmcS}UhL,OD0Xq\
+                 )q"))}, {Hue(0.67217368907399766`), 
+               Thickness(0.80442086741378649`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1OzS9mPXbn;6Gp9JEW1t<UhvJhqUWJ+CSpMP_n0h=}3\
+                 *d637~~"))}, {Hue(0.44681895412677108`), 
+               Thickness(3.7231043733262483`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVPWXHyEL$Ol6}Jc8(ES1SN8VCULJctJh3<8yu*?$b=4jK>W2\
+                 -s"))}, {Hue(0.56276348023044109`), 
+               Thickness(0.37342509987574046`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O&hj$evo8%0DdY3n]2d=Raty@=Dk&&_C3+Tb3=g)ju\
+                 Pi5ta~~"))}, {Hue(0.84678705494291018`), 
+               Thickness(6.2291442638131898`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O&U%&tH<a?>[_L4gNk[%s)CtW[^0H<Ue+t)53j$>OV\
+                 8L5+D~~"))}, {Hue(0.12146220617961478`), 
+               Thickness(1.4420541986517799`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVY!jBUMC{-oxQ,Cv=$GYC-xl<ms=kTY_{(gcwllP^@TkE3TY\
+                 4b"))}, {Hue(0.58037828771179778`), 
+               Thickness(9.4645646933208312`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O!!;<Z{>F<3E8ZOZ;*_=RdGx&gN%n=0CtwL8F%M%}A\
+                 3F5>W~~"))}, {Hue(0.92973954264170933`), 
+               Thickness(1.1165024171049953`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O)KR!&5uP;6D!60im#F>^]^YzwYTO=sz_,IiLXl?ms\
+                 Kx5k&~~"))}, {Hue(0.10323948864067278`), 
+               Thickness(3.4182951439079643`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVNvNy4(t;+W&cOhSNOrXd-gR&XR@y7ys_W0N<=d[e6u}O,aT\
+                 a7"))}, {Hue(0.94765127648178116`), 
+               Thickness(2.6260528670906935`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVY$HZDz?IMw}#Tdluav)pV+V8BIaJr_SoJ#*e5Dv>0^5U1l}\
+                 t<"))}, {Hue(0.27843082211652226`), 
+               Thickness(9.2286215575776573`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVM#l+EQr7AjlEXSx-duk2lhV#?)Hi8KWm>8@+UYc;)Fc_1-[\
+                 o*"))}, {Hue(0.70287089671296021`), 
+               Thickness(7.0346227442701821`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1OyD^v&K?&?mv9Nq9!2B(Lb,D!hw6F+dt$sCKk97**_\
+                 sK5RU~~"))}, {Hue(0.97170700777616348`), 
+               Thickness(5.8006331362654358`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVF_bgyXH]f3;P4tLUOoj-q^bchDeKK9J4>NJY>)F!!PUs1!W\
+                 Kn"))}, {Hue(0.43556500724851677`), 
+               Thickness(4.9758536305893397`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O!N6+&1IAvOlNKjh3K<;XhS,z=k*G=08ZA{Tr^6+&?\
+                 Z$5)A~~"))}, {Hue(0.50927113210121422`), 
+               Thickness(7.6325960053220481`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O&8}NL)2v+CP9eQW6K#wLgIl)f$uG>_7D6--qz!+du\
+                 e)5c>~~"))}, {Hue(0.50217052466987777`), 
+               Thickness(9.3427019296843739`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVG+7!$LAgS$UY;acm2$^SN3_=mM{Kv=BfPwiHlq1;@j;3289\
+                 rJ"))}, {Hue(0.090201355476354661`), 
+               Thickness(9.9238129428382997`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O%uLe;+dh>_3nM;{To7z&[7]kPVX#<Uc[]0o=d;-9P\
+                 W<4{H~~"))}, {Hue(0.34185064431115053`), 
+               Thickness(8.6237740742885212`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1Oy(z99f?6<v;$ZQ6)@(+dshGaqcGWia!A?y3=8z?>,\
+                 wV5c]~~"))}, {Hue(0.15975421645297994`), 
+               Thickness(4.293136046044884`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVKGtmG7BkvX8%Z{,j_0LH[+>%=i7cyJ7(,K*6FhS&m(&P,8y\
+                 B;"))}, {Hue(0.31849207019868642`), 
+               Thickness(0.17978447755425786`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O#vhiz_ve**}{6rG0Ai=067Z<Eq%w)<627Uuz*-;y)\
+                 Gf5oZ~~"))}, {Hue(0.12014214497071229`), 
+               Thickness(9.6084647933161342`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O(EKHnn82+CQv*RrP_*!9N1Nxe*(]>pugVN@iX7<v$\
+                 ,l5Wx~~"))}, {Hue(0.23894814704581724`), 
+               Thickness(2.1246238142307758`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O&b5dG(U<?>]Up<PFUlxIchIH[ugZvOm*VjMoQe;6F\
+                 y{5(@~~"))}, {Hue(0.8580869678479488`), 
+               Thickness(4.8930618157659485`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVR_NCA?hvLE&GZ<wOqa1$L;;DO[d(6,q2I#bI{kK&yVc^8Hy\
+                 1z"))}, {Hue(0.17991284627788118`), 
+               Thickness(3.711179720234028`), 
+               LineBox(CompressedData(
+                 "1:c${NmkYQqBVfmn,8b7z{tbJHW-1#MuPwZ{PeD!C<KeP,nI=M08@f&*p_nQ\
+                 xH"))}, {Hue(0.7709853789262171`), 
+               Thickness(1.8725254596542484`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O#]Q76DV^-#^hYv7D9A;6HR<yWL*](?9Mc#mc${>^]\
+                 hv5kC~~"))}, {Hue(0.62341616858671578`), 
+               Thickness(1.5029846257753954`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1O!X-o[Ii=<3HIo(y{ql=Rd#%yIs%lf<Fd>(dXfO-9J\
+                 9X67]~~"))}, {Hue(0.66037086738027806`), 
+               Thickness(5.5359814408064985`), 
+               LineBox(CompressedData(
+                 "1:c$@(z0NDQm02]4Y1Ox-fqoQG==syiXA2,*_=0EjH?3}*{=08DUXvs-a?mr\
+                 X95X%~~"))}})), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Line"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Thin"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Thick"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"PointSize"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Scaled"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

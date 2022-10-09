@@ -584,6 +584,7 @@
 {"TestPattern", {"ArgumentCount" -> 2}},
 {"Text", {"ArgumentCount" -> 1}},
 {"TextData", {"ArgumentCount" -> 1}},
+{"Thickness", {"ArgumentCount" -> 1}},
 {"Thread", {"ArgumentCount" -> 1..3}},
 {"Through", {"ArgumentCount" -> 1..2}},
 {"Throw", {"ArgumentCount" -> 1}},
