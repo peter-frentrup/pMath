@@ -179,7 +179,7 @@ void PointBox::paint(GraphicsDrawingContext &gc) {
     cairo_matrix_invert(&init_mat);
     //cairo_matrix_multiply(&mat, &mat, &init_mat);
     
-    float radius = 0.5f * gc.point_size.resolve(1.0f, LengthConversionFactors::PointSize, gc.plot_range_width);
+    float radius = 0.5f * gc.point_size.resolve(1.0f, LengthConversionFactors::PointSizeInPt, gc.plot_range_width);
     
     bool round_to_odd = false;
     bool round_to_even = false;

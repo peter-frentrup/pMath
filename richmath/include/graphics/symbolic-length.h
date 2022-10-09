@@ -21,7 +21,7 @@ namespace richmath {
     static const LengthConversionFactors FontSizeInPt;
     static const LengthConversionFactors SectionMargins;
     static const LengthConversionFactors GraphicsSize;
-    static const LengthConversionFactors PointSize;
+    static const LengthConversionFactors PointSizeInPt;
     
     float Automatic;
     float Tiny;
