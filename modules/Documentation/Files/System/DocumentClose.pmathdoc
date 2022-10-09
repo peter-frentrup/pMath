@@ -23,16 +23,14 @@ Document({
            \"ClosingAction\":"}), "Notes"), 
         Section(
          TextData({
-           BoxData(
-            GridBox({{TextData("\"Delete\""), {
-                TextData("effectively calls"), " ", 
-                TemplateBox({"DocumentDelete"}, "ReferenceHyperlink"), " ", {
-                 "(", "default", ")"}}}, {TextData("\"Hide\""), 
-               /\/({"just", " ", "sets", " ", 
-                 BoxData({TemplateBox({"Visible"}, "ReferenceHyperlink"), " ", 
-                   "to", TemplateBox({/\/(" ", "False")}, 
-                    "ReferenceHyperlink")})}, " ")}}))}), 
-         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+           GridBox({
+             {"\"Delete\"", {"effectively calls ", 
+               TemplateBox({"DocumentDelete"}, "ReferenceHyperlink"), 
+               " (default)"}}, {"\"Hide\"", {
+               "just sets ", TemplateBox({"Visible"}, "ReferenceHyperlink"), 
+               " to ", TemplateBox({"False"}, "ReferenceHyperlink"), 
+               " "}}})}), "2ColumnTableNotes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Close the current window:", "ExampleText"), 

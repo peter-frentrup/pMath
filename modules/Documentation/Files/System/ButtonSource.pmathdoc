@@ -12,30 +12,25 @@ Document({
         Section("Possible settings are:", "Notes"), 
         Section(
          TextData({
-           StringBox("\"", 
-            GridBox({{TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
-               /\/({{TemplateBox({"ButtonData"}, "ReferenceHyperlink"), 
-                  "\[NonBreakingSpace]", "if", " ", "set"}, ",", " ", {
-                  "otherwise", " ", TemplateBox({"ButtonContents"}, 
-                   "ReferenceHyperlink")}}, " ")}, {
-               TemplateBox({"ButtonData"}, "ReferenceHyperlink"), {
-                "the", " ", "setting", " ", "for", " ", "the", " ", 
-                TemplateBox({"ButtonData"}, "ReferenceHyperlink"), 
-                "\[NonBreakingSpace]", "option"}}, {
-               TemplateBox({"ButtonContents"}, "ReferenceHyperlink"), {
-                {"the", " ", "first", " ", "argument", " ", "of", " ", 
-                 TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}, ",", " ", {
-                 "wrapped", " ", "in", " ", TemplateBox({"BoxData"}, 
-                  "ReferenceHyperlink")}}}, {
-               TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), {
-                "the", " ", "whole", " ", TemplateBox({"ButtonBox"}, 
-                 "ReferenceHyperlink")}}, {
-               TemplateBox({"FrontEndObject"}, "ReferenceHyperlink"), {
-                {"the", " ", "front"}, "-", {"end", " ", "object", " ", 
-                 "reference", " ", "of", " ", "the", " ", 
-                 TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}}}}))}), 
-         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
-    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+           GridBox({{{TemplateBox({"Automatic"}, "ReferenceHyperlink")}, {
+               TemplateBox({"ButtonData"}, "ReferenceHyperlink"), 
+               "\[NonBreakingSpace]if set, otherwise ", 
+               TemplateBox({"ButtonContents"}, "ReferenceHyperlink"), " "}}, {
+              {TemplateBox({"ButtonData"}, "ReferenceHyperlink")}, {
+               "the setting for the ", TemplateBox({"ButtonData"}, 
+                "ReferenceHyperlink"), "\[NonBreakingSpace]option"}}, {
+              {TemplateBox({"ButtonContents"}, "ReferenceHyperlink")}, {
+               "the first argument of ", TemplateBox({"ButtonBox"}, 
+                "ReferenceHyperlink"), ", wrapped in ", 
+               TemplateBox({"BoxData"}, "ReferenceHyperlink")}}, {
+              {TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}, {
+               "the whole ", TemplateBox({"ButtonBox"}, 
+                "ReferenceHyperlink")}}, {
+              {TemplateBox({"FrontEndObject"}, "ReferenceHyperlink")}, {
+               "the front-end object reference of the ", 
+               TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}}})}), 
+         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 
+     All), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section(TextData({"Create a button that displays its ", 
            TemplateBox({"ButtonData"}, "ReferenceHyperlink"), ":"}), 

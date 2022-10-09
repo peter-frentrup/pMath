@@ -12,14 +12,10 @@ Document({
         Section("Possible settings are:", "Notes"), 
         Section(
          TextData({
-           StringBox("\"", 
-            GridBox({{StringBox("\"\\\"Clip\\\"\""), {
-                "clip", " ", "the", " ", "contents"}}, {
-               StringBox("\"\\\"ShrinkToFit\\\"\""), {
-                "scale", " ", "the", " ", "content", " ", "down", " ", "if", 
-                " ", "necessary"}}, {StringBox("\"\\\"ResizeToFit\\\"\""), {
-                "scale", " ", "the", " ", "content", " ", "down", " ", "or", 
-                " ", "up", " ", "if", " ", "necessary"}}}))}), 
+           GridBox({{"\"Clip\"", "clip the contents"}, {
+              "\"ShrinkToFit\"", "scale the content down if necessary"}, {
+              "\"ResizeToFit\"", 
+              "scale the content down or up if necessary"}})}), 
          "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 

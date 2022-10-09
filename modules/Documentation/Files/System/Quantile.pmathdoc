@@ -50,20 +50,17 @@ Document({
            StyleBox("d", "Arg"), "}} are:"}), "Notes"), 
         Section(
          TextData({
-           StringBox("\"", 
-            GridBox({
-              {{"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
-                  "{", {"1", ",", " ", "0"}, "}"}}, "}"}, {
-                "inverse", " ", "empirical", " ", "CDF", " ", {
-                 "(", "default", ")"}}}, {
-               {"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
-                  "{", {"0", ",", " ", "1"}, "}"}}, "}"}, {
-                "linear", " ", "interpolation"}}, {
-               {"{", {{"{", {{"1", "/", "2"}, ",", " ", "0"}, "}"}, ",", " ", {
-                  "{", {"0", ",", " ", "0"}, "}"}}, "}"}, {
-                "element", " ", "ranked", " ", "nearest", " ", "to", " ", 
-                StyleBox("q", "Arg"), " ", "n"}}}))}), "2ColumnTableNotes")}, 
-       All), Section("", "SectionFooterSpacer")}, 1), 
+           GridBox({
+             {{BoxData({"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
+                   "{", {"1", ",", " ", "0"}, "}"}}, "}"})}, 
+              "inverse empirical CDF (default)"}, {
+              {BoxData({"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
+                   "{", {"0", ",", " ", "1"}, "}"}}, "}"})}, 
+              "linear interpolation"}, {
+              {BoxData({"{", {{"{", {{"1", "/", "2"}, ",", " ", "0"}, "}"}, 
+                  ",", " ", {"{", {"0", ",", " ", "0"}, "}"}}, "}"})}, {
+               "element ranked nearest to ", StyleBox("q", "Arg"), " n"}}})}), 
+         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Get the median of a list of values:", "ExampleText"), 

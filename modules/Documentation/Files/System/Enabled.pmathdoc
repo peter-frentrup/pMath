@@ -12,15 +12,12 @@ Document({
         Section("Possible settings are:", "Notes"), 
         Section(
          TextData({
-           StringBox("\"", 
-            GridBox({{TemplateBox({"Automatic"}, "ReferenceHyperlink"), {
-                "use", " ", "the", " ", "setting", " ", "from", " ", 
-                "containg", " ", "boxes"}}, {
-               TemplateBox({"True"}, "ReferenceHyperlink"), {
-                "allow", " ", "interactive", " ", "manipulation"}}, {
-               TemplateBox({"False"}, "ReferenceHyperlink"), {
-                "suppress", " ", "interactive", " ", "manipulation"}}}))}), 
-         "2ColumnTableNotes"), 
+           GridBox({{{TemplateBox({"Automatic"}, "ReferenceHyperlink")}, 
+              "use the setting from containg boxes"}, {
+              {TemplateBox({"True"}, "ReferenceHyperlink")}, 
+              "allow interactive manipulation"}, {
+              {TemplateBox({"False"}, "ReferenceHyperlink")}, 
+              "suppress interactive manipulation"}})}), "2ColumnTableNotes"), 
         Section(
          TextData({"With ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), 
            " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), 
