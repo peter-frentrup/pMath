@@ -6,9 +6,9 @@ Document({
       Section(BoxData(TemplateBox({"PointSize"}, "UsageReference")), 
        "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section(
-         TextData({
-           "The absolute diameter is measured in printer\[HighNineQuote]s \
+        Section(TextData({"At 100% ", TemplateBox({"Magnification"}, 
+            "ReferenceHyperlink"), 
+           ", the absolute diameter is measured in printer\[HighNineQuote]s \
            points. One printer\[HighNineQuote]s point equals ", 
            BoxData(FractionBox("1", "72")), 
            " inch. One pixel on a typical low resolution (96 dpi) screen \
@@ -119,617 +119,618 @@ Document({
           Section(BoxData({"Graphics", "(", {
               "Table", "(", {
                {"{", {{"Hue", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
-                  "PointSize", "(", {"RandomInteger", "(", {"1", "..", "20"}, 
+                  "PointSize", "(", {"RandomReal", "(", {"0", "..", "20"}, 
                    ")"}, ")"}, ",", {"Point", "(", {
-                   "RandomReal", "(", {"1", ",", {"{", "2", "}"}}, ")"}, 
-                  ")"}}, "}"}, ",", "200"}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
+                   "RandomReal", "(", {{"0", "..", "1"}, ",", {
+                     "{", "2", "}"}}, ")"}, ")"}}, "}"}, ",", "200"}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData(GraphicsBox({
-              {Hue(0.15725995297219741`), PointSize(12), 
+              {Hue(0.5975557194002119`), PointSize(16.823968499113768`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCNhvzEyW-9h,^#3@&8oU@>;X>Y2yF~~"))}, {
-               Hue(0.90962086041727386`), PointSize(8), 
+                 "1:c${NmkYQqC(M#AR;g}lvp3(cwx4<_K>;XJt2ju~~"))}, {
+               Hue(0.43772848099124551`), PointSize(19.044370020123981`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCd9o>>@<8le,vcK$S)DX@+XDbkX9zI~"))}, {
-               Hue(0.60921491603323052`), PointSize(5), 
+                 "1:c${NmkYQqCF<@P<wk!RjeM7Uz^gQ7e_5e5026z~~"))}, {
+               Hue(0.91126952103482561`), PointSize(13.331750201596861`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCncP,lFCO#W-s9x1je;&0?Eyrx2g3~~"))}, {
-               Hue(0.75473766627081207`), PointSize(11), 
+                 "1:c${NmkYQqC,NzD9#Z2P0y)o]Dn,VM9>;XCq2DJ~~"))}, {
+               Hue(0.011496958099786236`), PointSize(3.0793244879346293`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCNnsK9jNWtFKBj3yFVChU_5e0a2J8~~"))}, {
-               Hue(0.3761349988971131`), PointSize(14), 
+                 "1:c${NmkYQqC,O!Ol4%dO5_HJ?VXSb<ew+8@A(Fh]~"))}, {
+               Hue(0.4225125435878716`), PointSize(14.833556375656636`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCF?i<bJ?q{(,)lj^@0KllZVv!ZfC;D~"))}, {
-               Hue(0.814543624384512`), PointSize(8), 
+                 "1:c${NmkYQqC>8N)R;W@O}-ecaRBNl6R*#iJPl?Q1~"))}, {
+               Hue(0.73713494587424477`), PointSize(18.01568685381692`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCnKJ#5@,FE*?H@!NlvF>vV-EmTTM3W~"))}, {
-               Hue(0.22394432064578174`), PointSize(4), 
+                 "1:c${NmkYQqC37Az=6@PKRy=pk0T;BTU_5eR&2Ot~~"))}, {
+               Hue(0.83435524021829555`), PointSize(17.914142447116195`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS>={6+2H6ydj+%H{wYuI+5-SW^aut~"))}, {
-               Hue(0.24009620207779092`), PointSize(17), 
+                 "1:c${NmkYQqCi8yfMi#^}C,-W3<TH?8%*aHAf{RnX~"))}, {
+               Hue(0.94182009519505516`), PointSize(10.77333719208524`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCsd)H$?wzZL>=($gFH92HY!3idI}zd~"))}, {
-               Hue(0.67173720638220458`), PointSize(19), 
+                 "1:c${NmkYQqCF)([,KjYgv,>#tl^iCu{wFdx5%?N7~"))}, {
+               Hue(0.21507221789759634`), PointSize(0.48776301417650103`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCc{i11@9pn*?e,o%Z;{=2!5#owcM0A~"))}, {
-               Hue(0.11615509545034752`), PointSize(3), 
+                 "1:c${NmkYQqCS(81>eu]LGdx@sIC0G9)vj+f2j0nE~"))}, {
+               Hue(0.54191272000215696`), PointSize(11.239860846452071`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCaq3y@f7SYhJ<AiR4x<a#?Eym42fz~~"))}, {
-               Hue(0.2803220584303473`), PointSize(17), 
+                 "1:c${NmkYQqCnPmN[_VVqQ_Jwi>EnjK9wg&)FSP1k~"))}, {
+               Hue(0.70584796746827561`), PointSize(7.8610721239432735`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxf0[d?by}W_C-wRbiZldu?GN8jR>s~"))}, {
-               Hue(0.34986582481815975`), PointSize(3), 
+                 "1:c${NmkYQqCDcNkecHg?o_6n^}skbJ)wFdx7WC)A~"))}, {
+               Hue(0.93771979670713279`), PointSize(18.128369228527173`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCSv>nf,0DH@_5u5SrskYJU=ILL1_<i~"))}, {
-               Hue(0.85463352382713365`), PointSize(17), 
+                 "1:c${NmkYQqC,84&*$[br=?5pIX?%h>?Z4Urka0$H~"))}, {
+               Hue(0.82826838458097862`), PointSize(8.8437510682704357`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxgfFAxqQz?,#p7>><_{(*aHAX#Rt9~"))}, {
-               Hue(0.84683222314985873`), PointSize(20), 
+                 "1:c${NmkYQqCIq+v+h;-Z>,?qR6b{}(fw+8@D!U*L~"))}, {
+               Hue(0.76262262286103311`), PointSize(4.0139320063895534`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC,Kf3bVEym4z1#9Y<+id1_5eeV2dM~~"))}, {
-               Hue(0.39171389444313065`), PointSize(11), 
+                 "1:c${NmkYQqCSsLg0=55kr,wh(ZJ$p,VvIhW9pa[8~"))}, {
+               Hue(0.82406235944908413`), PointSize(13.663935596906565`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCaX4ml<(uId,=eTH@1O8Ium=E1ya-q~"))}, {
-               Hue(0.17256216394164892`), PointSize(2), 
+                 "1:c${NmkYQqCDKj<f,?BV;eRJ,Ve{C<H*#iJfQ3;O~"))}, {
+               Hue(0.81299258661330398`), PointSize(19.529490127885847`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC@!_8GYnstX,{XmP?c##o+5-SYSqKm~"))}, {
-               Hue(0.82250958095487892`), PointSize(12), 
+                 "1:c${NmkYQqCVbFi16LG!8-p_CE*MDNy?EyUn2hI~~"))}, {
+               Hue(0.39791690749968778`), PointSize(15.882410839539894`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC$vD*;ba3[E,+,SD}2cYIvIhWDLJ4U~"))}, {
-               Hue(0.63700830893673177`), PointSize(13), 
+                 "1:c${NmkYQqCQM*!m>%!Y7_6&b_Gs>MgW)A>Ty9od~"))}, {
+               Hue(0.56271133678911112`), PointSize(11.198098420522379`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC(c,mqy;^h8{?nq3XC0@!wg&([GzeD~"))}, {
-               Hue(0.56393328978890145`), PointSize(20), 
+                 "1:c${NmkYQqCnQ%X0!6]7;_FJ](#B7#2V-EmNSqPQ~"))}, {
+               Hue(0.3932742964748791`), PointSize(17.982181384794728`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC+2FL]^W_;g>^Br-TmA7lWe)&V8wp4~"))}, {
-               Hue(0.2812557357830584`), PointSize(14), 
+                 "1:c${NmkYQqCxxQ(0QiJhh,-]sApZ!mJY!3ie!wNz~"))}, {
+               Hue(0.8256803707816841`), PointSize(14.958234826689491`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCaoU,<UF-LCdyiSs>&[O7u?GN2_y]L~"))}, {
-               Hue(0.19309404198470859`), PointSize(12), 
+                 "1:c${NmkYQqCDbrR7)qi{2K4YrJCo,5;_5eCc2Jr~~"))}, {
+               Hue(0.10078664151761219`), PointSize(5.4599754516310046`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC>H229}J;dZ_CJmsxZ0xe!X5x##tMJ~"))}, {
-               Hue(0.32267426190392723`), PointSize(20), 
+                 "1:c${NmkYQqCiMkb+RC@8H{kzi!8vJ$l?Ey>V2t@~~"))}, {
+               Hue(0.55088934014857049`), PointSize(6.6447234477353305`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCG5XE)Ym?$D,!5_a{nLC-*#iJa8wcJ~"))}, {
-               Hue(0.0035270136182378176`), PointSize(8), 
+                 "1:c${NmkYQqCx$#8#v<l[#,v%Q>PZdII?Ey%w2fF~~"))}, {
+               Hue(0.50795006711828095`), PointSize(8.6734064213253141`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCSrai${5[5@,w4E{CUUnQ+XDbX{RgQ~"))}, {
-               Hue(0.44361077703409713`), PointSize(16), 
+                 "1:c${NmkYQqC@woGI*,w2s?9Xveh@NutnLPkoW(oc~"))}, {
+               Hue(0.9851429193325516`), PointSize(10.918804574551359`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCnXg_Wmh$eI{hNIjcU-v-*#iJZVh9B~"))}, {
-               Hue(0.84940421677092948`), PointSize(17), 
+                 "1:c${NmkYQqCF)(R(Rj>cdKKG1r%)ZIb?Eyh@2lo~~"))}, {
+               Hue(0.78072077487946057`), PointSize(9.1915903749653829`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCnWq)Ge$wFw_8(k+2k#2IWe)&O0SOi~"))}, {
-               Hue(0.78394172258161676`), PointSize(12), 
+                 "1:c${NmkYQqCnZ8XTq{sQO{ferGNB?}!ZVv!Uya[x~"))}, {
+               Hue(0.091724525159373682`), PointSize(4.2013873653490048`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCNlE=Tp^fL5{hS$TK^aR=+5-Sbga{S~"))}, {
-               Hue(0.11269739833887904`), PointSize(5), 
+                 "1:c${NmkYQqCxuujksh9DNz4(#0_g>$9V-EmHRta1~"))}, {
+               Hue(0.50588280325211366`), PointSize(14.19301707330288`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCk+9tOz]1h#eN#r)i@0-F>;XW{2qO~~"))}, {
-               Hue(0.020292256741551107`), PointSize(18), 
+                 "1:c${NmkYQqCId)cA_sXtI_Laix-h]Q3vIhW6h6q{~"))}, {
+               Hue(0.36817326947369677`), PointSize(5.6197344104849023`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS;G{hv-I@?,wQE@RcTnPvIhW1<Oo6~"))}, {
-               Hue(0.88350388066806618`), PointSize(13), 
+                 "1:c${NmkYQqC@xHTeq3P@=_LH]WNnWx3kv#xW;t7x~"))}, {
+               Hue(0.62579785041057168`), PointSize(19.291855545706557`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIdJ^JgLc+4_9?UOE-yd##vTA!Ckgi~"))}, {
-               Hue(0.90709319490988127`), PointSize(7), 
+                 "1:c${NmkYQqCxpJYoJ<0KvJqMdo$mQ2>?Ey$L2oC~~"))}, {
+               Hue(0.032523241531872249`), PointSize(14.159325580602491`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQRj0oytnDOJ)b^nBvbDddjK%B1;7~~"))}, {
-               Hue(0.29654727950555226`), PointSize(19), 
+                 "1:c${NmkYQqC3Dubz8]*UEJ<G4fAzTX{*aHATZU?*~"))}, {
+               Hue(0.71178683416874822`), PointSize(8.9643380290648071`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxgyu(Bg*>3zTs1xy6o&#_5eD$2D}~~"))}, {
-               Hue(0.63884496146337999`), PointSize(8), 
+                 "1:c${NmkYQqCdC)24;3l-x{>N{(&-d>?vIhW1h6yn~"))}, {
+               Hue(0.68099338707021762`), PointSize(14.069286423354963`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC@zFf?qigGVdman7$-4c=?Eyr%2Zj~~"))}, {
-               Hue(0.89638195752366279`), PointSize(19), 
+                 "1:c${NmkYQqCIp<xf@]-KQ{fwUe9^Q#(?Ey-52u%~~"))}, {
+               Hue(0.34757042519534964`), PointSize(11.441012338920764`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC3EQN&,<vk#,=hhoJwANsjXeNT_X<4~"))}, {
-               Hue(0.79066144770623814`), PointSize(9), 
+                 "1:c${NmkYQqC,8jLWWYb44>^UwozL2xqW)A>RVhB0~"))}, {
+               Hue(0.62871530076427706`), PointSize(10.317338794319543`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCF*wq(^v>op_H5hU7tYDKZw]-aCkZ3~"))}, {
-               Hue(0.26042771659969854`), PointSize(5), 
+                 "1:c${NmkYQqC;ZZl9P,mV+eak;h72,R#>;X9V2MY~~"))}, {
+               Hue(0.21562081310591386`), PointSize(15.631695545502168`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS=*v29oG2N{)yZ1-TXrL?Eyh}2Yv~~"))}, {
-               Hue(0.83401961951780279`), PointSize(10), 
+                 "1:c${NmkYQqCv8X$?U}HaO,yFn2=DEU$?EyrI2R#~~"))}, {
+               Hue(0.96272318834927806`), PointSize(11.341496944340626`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQQCWF)gFVV_HJ8j71h^1wFdx5!3XR~"))}, {
-               Hue(0.333545903426132`), PointSize(3), 
+                 "1:c${NmkYQqC@%h^oqGfW>UM1!5gsHa2>;XV*2VM~~"))}, {
+               Hue(0.35018667974190243`), PointSize(14.654632547589676`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCkyBgwN5=cD{g0!mtmli5*aHAV90(5~"))}, {
-               Hue(0.34901125941787492`), PointSize(15), 
+                 "1:c${NmkYQqCxs{?G8r1y4{^rYX%nR9,+5-SdNC;y~"))}, {
+               Hue(0.77768653850232372`), PointSize(10.507004791587146`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCF,04veDJSJ_9+wl{%zJgWe)&S6$wo~"))}, {
-               Hue(0.68632988947185669`), PointSize(13), 
+                 "1:c${NmkYQqCDLVLV(w@)<_CLJV{Eoc5%N_t)016-~"))}, {
+               Hue(0.14635713443067733`), PointSize(13.162363547282347`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCaa7PUWxM>!J]d#P(V]D?_5d;h27v~~"))}, {
-               Hue(0.8890759600831637`), PointSize(4), 
+                 "1:c${NmkYQqC$-7=!yeI#*{f,Y(E+4KvXAb]Xl?n9~"))}, {
+               Hue(0.96780993435661855`), PointSize(18.10497036905225`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCNr(=Lx]jgzeuefL#@6l=_5eI_2N(~~"))}, {
-               Hue(0.080455992564693268`), PointSize(10), 
+                 "1:c${NmkYQqC;f,x^-x]bP{z25=y3X<^_5ebY2wn~~"))}, {
+               Hue(0.59117580000055603`), PointSize(15.477289201730995`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxpjQb_Dg#&+b8&kU3h!zo;?6w0t$5~"))}, {
-               Hue(0.31673267193313204`), PointSize(14), 
+                 "1:c${NmkYQqC*,C{c,pWY+_9kBzKI6<fVh;dWQ3<2~"))}, {
+               Hue(0.64135541729961421`), PointSize(16.867420621979331`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCx$NG}>2>P0y_&+z4[bdJ*aHAXiU^M~"))}, {
-               Hue(0.48493305280644838`), PointSize(8), 
+                 "1:c${NmkYQqCQNQNqa_sF>dvAf)voGCyZVv!UA_+V~"))}, {
+               Hue(0.4144517108268555`), PointSize(0.57821102084508968`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxu}8mX9Leu,&V]#QYHOv*aHAY%LmQ~"))}, {
-               Hue(0.91484875120935738`), PointSize(9), 
+                 "1:c${NmkYQqCVK],;fOki,{fXCGV}-b6*aHAY0}(a~"))}, {
+               Hue(0.54125287804227429`), PointSize(10.85880470446833`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCkqHVh++%jeeu3)E2NAW$>;XCt2X6~~"))}, {
-               Hue(0.58417356106487806`), PointSize(6), 
+                 "1:c${NmkYQqCVQ>_5ULSeS-sF>a?]G?J?Ey9N2Za~~"))}, {
+               Hue(0.36803997512592612`), PointSize(6.7377412211491672`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCad,6g*d)cL_6K)zy-Z?$V-EmRGzj7~"))}, {
-               Hue(0.24183049391010714`), PointSize(16), 
+                 "1:c${NmkYQqCITY_yZRc^vKI{EgwJiNB_5ef72gU~~"))}, {
+               Hue(0.81377817433520527`), PointSize(3.8258363249631344`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC,SO5wlEap(_WpWje(!wn#2x@qxe1]~"))}, {
-               Hue(0.37517297712718334`), PointSize(7), 
+                 "1:c${NmkYQqCaXA*f@W9b$_8}@yO&^}Jvj+f8LJ1H~"))}, {
+               Hue(0.57518890007926171`), PointSize(9.478276056617748`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxiEXa;<k+E_6>9Aow<Cz-yQ%,!U>H~"))}, {
-               Hue(0.86932541842629651`), PointSize(10), 
+                 "1:c${NmkYQqC=,!OCy][;c{z-J?_LD15*#iJS5eNt~"))}, {
+               Hue(0.15691130803012632`), PointSize(12.518405894786298`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC*&;u8p@jGu,[7?Qr*tcy*aHAPcn2f~"))}, {
-               Hue(0.39692591165305202`), PointSize(3), 
+                 "1:c${NmkYQqC;qj1i@w<7_ep15Tb?@&zvj+e>NeEW~"))}, {
+               Hue(0.90205283051599816`), PointSize(19.698271183451631`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCx$wI?+-l(pd+$vBkfX&f?Ey=d2rU~~"))}, {
-               Hue(0.54826087267221324`), PointSize(16), 
+                 "1:c${NmkYQqCvAL7Z8EtagUhBZr6A#-T+5-SU5C}s~"))}, {
+               Hue(0.52396788096185398`), PointSize(13.331924476756534`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC@k$YW#5Ccieax>Z!5KYA>;XRQ2dV~~"))}, {
-               Hue(0.49686319890736608`), PointSize(15), 
+                 "1:c${NmkYQqCVNi*-Yq{obpZWLKGDeeE_5e4V2Pg~~"))}, {
+               Hue(0.036673213222373158`), PointSize(15.016601334960678`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxl!R=?V$L,-e>Yu#(CNI?Eygb2U,~~"))}, {
-               Hue(0.6228726396069133`), PointSize(11), 
+                 "1:c${NmkYQqCxnWm-d(*RL_G{#J7M(FZXb%8Y><LH~"))}, {
+               Hue(0.39132336501474307`), PointSize(1.770603382772955`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCX%JugxLBdjzSpep!iFEO>;XjH2%r~~"))}, {
-               Hue(0.29945663658267752`), PointSize(10), 
+                 "1:c${NmkYQqC31Tka+gE<mzIW-7{hW^<*#iJX><Et~"))}, {
+               Hue(0.44493784353869825`), PointSize(13.937287163710252`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCiO6kqH!0s]e_$Hl<_T[!+5-STln53~"))}, {
-               Hue(0.72901614275248416`), PointSize(3), 
+                 "1:c${NmkYQqCS;W${nS=eY{q4Wz=^xI%vj+e[69[6~"))}, {
+               Hue(0.99808071648962582`), PointSize(10.535063393377476`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCnf90,eck_e_FY@w7o0zR!yW)u$qGC~"))}, {
-               Hue(0.055237687804840729`), PointSize(5), 
+                 "1:c${NmkYQqC*}z<K<M&hV?6*8xscW_Np*;Xza0(s~"))}, {
+               Hue(0.46644909045790184`), PointSize(2.2446037620087633`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC@l<@{^+EcLy,<vRt)l<m*aHATp9lZ~"))}, {
-               Hue(0.89565973834138946`), PointSize(19), 
+                 "1:c${NmkYQqCv6-0lLhRxN,$uVWCtlor&mI6w,UzV~"))}, {
+               Hue(0.9239024406934877`), PointSize(14.766513537117303`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC,EdTct+m7zdoLE_6FkQr*#iJZ;s=x~"))}, {
-               Hue(0.38393054702608442`), PointSize(6), 
+                 "1:c${NmkYQqC(PBEL5LfWXes_9^vG}4O_5e2S2Hp~~"))}, {
+               Hue(0.22640903367801224`), PointSize(10.974982253879737`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQQ74B)#2nb,&^aFd$iuawg&)7M+nF~"))}, {
-               Hue(0.46420436979497537`), PointSize(4), 
+                 "1:c${NmkYQqC>EHe2=?l%*_6=)%_cq$zv<CoL<q3f~"))}, {
+               Hue(0.58620745815456587`), PointSize(6.2266512433049819`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC$w>KF@7wg)e%fKym[5s?*#iJdstCa~"))}, {
-               Hue(0.82359265868761378`), PointSize(12), 
+                 "1:c${NmkYQqC,4J&fer?}yd%nW*DSmM;>;Xyw2p#~~"))}, {
+               Hue(0.7796606251391861`), PointSize(14.597622002470001`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC3Ai4nb!)*Y,<Pu@EpFesU=ILFhY0u~"))}, {
-               Hue(0.59179636581450379`), PointSize(9), 
+                 "1:c${NmkYQqCnY;DQl8>^F?F)JjZ+nn*%pL$)Qwin~"))}, {
+               Hue(0.092385568750600888`), PointSize(12.362822509274327`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCiHOh3;&OjtKilP(P>kgZdjL5v2GI~~"))}, {
-               Hue(0.70760607443416257`), PointSize(11), 
+                 "1:c${NmkYQqCIm&mI,Ka4t,[Lo1sVJ{,X%7HNU<i%~"))}, {
+               Hue(0.29004650672374843`), PointSize(3.6315132069282163`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCY1kCh!pnThK8!0iv]B7YdjL2A28a~~"))}, {
-               Hue(0.2965177453719664`), PointSize(2), 
+                 "1:c${NmkYQqC2{_Z6^Z)LBdoGcXX<D2Y?Ey*b2Y]~~"))}, {
+               Hue(0.17670740373972493`), PointSize(10.842519341170192`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCN!mDd(lge3_LuZ$HT6BYYYzZT%?T6~"))}, {
-               Hue(0.97503415111203429`), PointSize(19), 
+                 "1:c${NmkYQqCv7B<Mtzg4b,x)=JO[g23*#iJchzHj~"))}, {
+               Hue(0.8263769014949901`), PointSize(2.4571510322995094`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC,5]tzdtUgMy{4XA%)+t<_5e3-266~~"))}, {
-               Hue(0.087672604487188943`), PointSize(10), 
+                 "1:c${NmkYQqC=]%wt_Gb2X_6M[mq*c;a*aHAc!3UK~"))}, {
+               Hue(0.18553919855879264`), PointSize(3.1554128753895072`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCc^Gv3?(W>T_E#0ID82[LW)A>Zw+Wv~"))}, {
-               Hue(0.1385014446441637`), PointSize(1), 
+                 "1:c${NmkYQqCxo{zHtHYHW_G>?%yRm=f8+!m;i3-6~"))}, {
+               Hue(0.36340128519603077`), PointSize(10.159766556366494`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5to=[_)_V;eMKvC),h2+?EyMN2af~~"))}, {
-               Hue(0.78375775597319242`), PointSize(11), 
+                 "1:c${NmkYQqCahTy8lQ?ym{eq+dCS#w8_5e9e20Q~~"))}, {
+               Hue(0.27095818212039269`), PointSize(8.9219270708933074`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCX%Ly!&%)kqf9q}ziq,fg_5eAW2Oj~~"))}, {
-               Hue(0.96648559938461798`), PointSize(5), 
+                 "1:c${NmkYQqCnbfm3F)!+cz0)$;$yX$w+5-Sa&j;%~"))}, {
+               Hue(0.054350646002842229`), PointSize(16.38785248059034`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCSyJYb$SC^W{(5odci}^5>;XS]2l4~~"))}, {
-               Hue(0.32706692590531872`), PointSize(2), 
+                 "1:c${NmkYQqCnKt?9$,e!X+aGC3yBl,=hCKjU*$Nl~"))}, {
+               Hue(0.085056344192176891`), PointSize(0.2823847278636693`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC$=Ln<oLcjK,<81DjOH31wFdxFhY0i~"))}, {
-               Hue(0.080239378836165054`), PointSize(9), 
+                 "1:c${NmkYQqCabLOcjN_k&_P3($GhE+w(;fg*T?w5~"))}, {
+               Hue(0.41072328370439148`), PointSize(2.8782959961952259`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIaAE$BJ[ya{gXPst#Z2_*#iJYvj{-~"))}, {
-               Hue(0.021532537239253413`), PointSize(15), 
+                 "1:c${NmkYQqCsXrH<p[_aZKK+z_f<^K[djLK22K@~~"))}, {
+               Hue(0.18428436272596183`), PointSize(11.526272673726156`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCd2y5X&TH0Z_A6{tQonIuwg&)Fp$Mk~"))}, {
-               Hue(0.40943860703009338`), PointSize(16), 
+                 "1:c${NmkYQqC,O$Ue^qQcJ_7]2HSuq&Dwg&)JItY0~"))}, {
+               Hue(0.89823030240744417`), PointSize(17.433398939550816`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC>C+NEdwb7Ydx0b0lgw34*#iJbMF<l~"))}, {
-               Hue(0.20052309098499943`), PointSize(19), 
+                 "1:c${NmkYQqCam-ilKY8l4{pTqYH@4Y5um=E3jR^7~"))}, {
+               Hue(0.85857145347395747`), PointSize(2.3520463327226659`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC(YVhM#I$&uy]4GvvRx0]*aHAMA_sr~"))}, {
-               Hue(0.26809212413767236`), PointSize(17), 
+                 "1:c${NmkYQqC,L@Kr_0hS<_Se>GzTr9g#2x@!842?~"))}, {
+               Hue(0.58456839804952065`), PointSize(10.338247409402479`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIkfwxcUk;R,(12]VQZAH*aHAeJ_qg~"))}, {
-               Hue(0.7064019372008844`), PointSize(13), 
+                 "1:c${NmkYQqCaq;X6_%,p9{TBPf?$f$1*#iJZ?+9H~"))}, {
+               Hue(0.20630952831673854`), PointSize(9.7986650550856886`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCVfZ%p>85k@?BnKTnN+7=vIhW8{0NB~"))}, {
-               Hue(0.79807195749952331`), PointSize(10), 
+                 "1:c${NmkYQqCx&6=Ju3p;<,w0uSXA3DUwg&)G5C]8~"))}, {
+               Hue(0.52691187498516279`), PointSize(19.826113477374314`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC={r>[7*+AyUS,gNV+x1f+XDbb*9dI~"))}, {
-               Hue(0.2984464127105303`), PointSize(12), 
+                 "1:c${NmkYQqCxt%1WQxy8tzHO<xj%NQ&djLF%2HO~~"))}, {
+               Hue(0.26167817588765752`), PointSize(18.698867848081132`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS+REFxkRSD_8ocA74s}a+5-Sd-Uv4~"))}, {
-               Hue(0.93195670948859188`), PointSize(6), 
+                 "1:c${NmkYQqCxgqt{aGUc{d)?rVDz;q@>;Xm72e$~~"))}, {
+               Hue(0.55677153521425415`), PointSize(7.9017419729219096`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCX[Hq7y=]%KdzWi1i)O]1vj+fEatS;~"))}, {
-               Hue(0.63327821241214388`), PointSize(17), 
+                 "1:c${NmkYQqCdGK%j{r1GY_6{kB?R]Q6+XDbsRtT]~"))}, {
+               Hue(0.59834924434084258`), PointSize(15.086034145358475`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIivE%M}b&IdxwX{hSP8Ev<Co32nZY~"))}, {
-               Hue(0.81395607167163719`), PointSize(14), 
+                 "1:c${NmkYQqCNq=zH?!};B_N$7VYBuUUwFdxGxCsF~"))}, {
+               Hue(0.29027203636374976`), PointSize(0.37779701615775485`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIg+Er7*[xJ{>Y54XDx*8*#iJV+6U_~"))}, {
-               Hue(0.5602708768378265`), PointSize(13), 
+                 "1:c${NmkYQqC,LWw2?S=79dx@4S3,_oPwg&)BU<jK~"))}, {
+               Hue(0.058534006596156374`), PointSize(3.8737048179045419`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC,F)Y,n8fEd_GN3Tl!c!@wFdxD{s_w~"))}, {
-               Hue(0.02814750187905346`), PointSize(15), 
+                 "1:c${NmkYQqC$rKY<J1^_CeNBXO_rJ_D_5eM32dM~~"))}, {
+               Hue(0.83804558220357495`), PointSize(4.8954681542385909`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCvCZ)Aur+*PZ+GwDx$P_O*#iJShzMK~"))}, {
-               Hue(0.43418991654460137`), PointSize(6), 
+                 "1:c${NmkYQqCv5vRt<tcq=-*ctYGe-S{Jpeh)2Il~~"))}, {
+               Hue(0.84402251151884111`), PointSize(10.080580908030573`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCX<)4,kf>Z@zr_28=l5$j?EyVt2p}~~"))}, {
-               Hue(0.32846563741222379`), PointSize(18), 
+                 "1:c${NmkYQqCX?k_qBCPnOy]IAH-DUTW*aHAdvj]y~"))}, {
+               Hue(0.46611488686413327`), PointSize(6.7052285834270879`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQHZG**S}5v{zuf53p4(}w+8?[Gzg9~"))}, {
-               Hue(0.11845654988652388`), PointSize(11), 
+                 "1:c${NmkYQqC2}F^a-_!Sky{xaOU)PqG_5eS@2R;~~"))}, {
+               Hue(0.33062562880527302`), PointSize(9.3681576038855692`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC$<YerzM^>8KIY5v%B8EH*aHAO(g*V~"))}, {
-               Hue(0.60596573676751431`), PointSize(9), 
+                 "1:c${NmkYQqC(cpW0,tz1s_SeNN_<#R=XAb]O%n2a~"))}, {
+               Hue(0.52902371430730477`), PointSize(11.523804544311924`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQNFzQgo^V!d#j*(-*Z>Kum=E1@(9!~"))}, {
-               Hue(0.025691219450645786`), PointSize(14), 
+                 "1:c${NmkYQqCDP{Wk@%GZU_MLh;zYkq_ZVv!en+gg~"))}, {
+               Hue(0.49744558111099424`), PointSize(4.734842378075184`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxnnKDC?fI3-b&k1@W<P?_5d(h266~~"))}, {
-               Hue(0.92172072473142586`), PointSize(9), 
+                 "1:c${NmkYQqC2}IUK>2C2}dxermXO=(PWDfvOVF_F~"))}, {
+               Hue(0.29352181688146284`), PointSize(6.0963650320762568`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5ztJ_sk1n1&+wS7EA0JbdjK+(27U~~"))}, {
-               Hue(0.40430887238758351`), PointSize(1), 
+                 "1:c${NmkYQqC*<#uFx=QYey?{ik+}j=G_5ea,2Zs~~"))}, {
+               Hue(0.39435528059307123`), PointSize(0.043602674241454142`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCvGnk)QZRgO-@4<cuKKcv_5e6W2Qm~~"))}, {
-               Hue(0.093781425375591643`), PointSize(12), 
+                 "1:c${NmkYQqC,6nlR*M$A4eZ;gaN4SfQ*aHATY6pM~"))}, {
+               Hue(0.1214490415570918`), PointSize(16.810261438745762`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC,H?Nd@<i&Kea^i3886P=w+8@54G5Y~"))}, {
-               Hue(0.012020011493817151`), PointSize(1), 
+                 "1:c${NmkYQqCac3;AWn1>jenqOvt<Or=>;XDi2W<~~"))}, {
+               Hue(0.32484970433453964`), PointSize(9.3535131651715488`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC3CK)6b-87w{Y0@0=e4gN+5-SarwCX~"))}, {
-               Hue(0.50236537051869634`), PointSize(2), 
+                 "1:c${NmkYQqCdGysig{AVfJx7js3#-[=djLVe27v~~"))}, {
+               Hue(0.39044726156355791`), PointSize(4.1236347567382996`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCnbNRgMUBQ&,%gCPBFk6Zwg&)6dI$#~"))}, {
-               Hue(0.86240113372033611`), PointSize(20), 
+                 "1:c${NmkYQqC,T2akz_S&P><yx#tyXayv<CoFK?p_~"))}, {
+               Hue(0.45248663880663653`), PointSize(17.467930266195651`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5j}xZJ1OF=y<I_bajwn{djLFE2Lb~~"))}, {
-               Hue(0.5888849119972428`), PointSize(1), 
+                 "1:c${NmkYQqC*);pJpS9g(,v(;Vd{6AXZ4UrX?FmE~"))}, {
+               Hue(0.52255059946198712`), PointSize(12.818501953103469`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC$zYj%_5Ff3_RbyKKVDq**d72-pb5<~"))}, {
-               Hue(0.63922743755738842`), PointSize(10), 
+                 "1:c${NmkYQqCIr049![U+E*^98$c^8Xcvj+fJ#R#D~"))}, {
+               Hue(0.71811343254732407`), PointSize(7.116573051448829`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxwe?SwRzcN,*n[,C#o;IX%7HQz6gx~"))}, {
-               Hue(0.91567548574179769`), PointSize(16), 
+                 "1:c${NmkYQqC,A}Dk?WExW,zgHh?@#7@Xb%8NRR}{~"))}, {
+               Hue(0.46869173212854076`), PointSize(18.755783336531664`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxxBYOJ1YCBz0D83vZ;-?>;X<v2%!~~"))}, {
-               Hue(0.78355975395690236`), PointSize(4), 
+                 "1:c${NmkYQqC*=JtN*RtWc{euuTi%<58>;Xci2YU~~"))}, {
+               Hue(0.034674254244835612`), PointSize(0.32103645451015739`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCan1L9=ke>MeV10Q$}KFE_5em02k-~~"))}, {
-               Hue(0.5400410061376173`), PointSize(4), 
+                 "1:c${NmkYQqCiP1[nd$91b{f^M>_1i+8+XDbbEeLl~"))}, {
+               Hue(0.65775789197981593`), PointSize(5.7023473499731292`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS&^&pbDrk],(+{d%LPrJ*aHAZ-3QD~"))}, {
-               Hue(0.0058946934137945606`), PointSize(14), 
+                 "1:c${NmkYQqC>6m>mZB6tmdxgy#?<e-(vj+fAHwh5~"))}, {
+               Hue(0.69403265099173694`), PointSize(17.606646631988202`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5lr[U!tT#I,=<)W+vo5+u?GN7UkKR~"))}, {
-               Hue(0.73596113865702117`), PointSize(6), 
+                 "1:c${NmkYQqCQL>(Lp}SY2{oZ@e)J[eSX%7HP#tD!~"))}, {
+               Hue(0.61040194158901184`), PointSize(6.3079666881305174`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5iq^1cl^vT,w8ETHD{L,u?GM{)d%_~"))}, {
-               Hue(0.6699306943540646`), PointSize(4), 
+                 "1:c${NmkYQqCY4{_pSi0(}{f86M6XRNs*#iJd9}&#~"))}, {
+               Hue(0.75345750667991507`), PointSize(12.320051494971299`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCNtn0x=GI5=?2kE4-+NW-vONG<TM63~"))}, {
-               Hue(0.20220382169303419`), PointSize(19), 
+                 "1:c${NmkYQqCsb1bYd86YKdq4lW4a+lM*#iJd!w7-~"))}, {
+               Hue(0.57613646002636443`), PointSize(3.1384190192969341`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCVNjj-w#}N]{o08uxedD?*aHAO_6I=~"))}, {
-               Hue(0.69572292210588749`), PointSize(14), 
+                 "1:c${NmkYQqCQO&+<Gk^AbdpEX#?_$Oe>;XVt2Qv~~"))}, {
+               Hue(0.72893098190138084`), PointSize(5.6575862911405412`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS?9!Iz&7=neZp@2DL$vp*#iJL1P2f~"))}, {
-               Hue(0.10020995337275707`), PointSize(15), 
+                 "1:c${NmkYQqCxe&vraPH4edxdK?Uvva^+XDbb&<Ec~"))}, {
+               Hue(0.2123969057988323`), PointSize(18.70866703882615`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCDb8Fv$1CH3{fp<ldmPd)+5-Sg(Fo)~"))}, {
-               Hue(0.76581283817356138`), PointSize(5), 
+                 "1:c${NmkYQqCna%g]jbHLB,xi;fu9v^<um=E4ehAF~"))}, {
+               Hue(0.79214835520592852`), PointSize(9.1177166669281835`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCVfdon<#aaCzCoMgVD,g#_5eDh2M7~~"))}, {
-               Hue(0.99489628917240136`), PointSize(12), 
+                 "1:c${NmkYQqCal4%JyNLIKeaY^a!wuix*aHAeQVAs~"))}, {
+               Hue(0.61488615860884321`), PointSize(12.960920938288998`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxnrZU{7(EK,%ORWZXfvi)E)p(;tAp~"))}, {
-               Hue(0.30696138921788385`), PointSize(19), 
+                 "1:c${NmkYQqCdC#j[>M!%qzCld2C*VwpJpebZ24D~~"))}, {
+               Hue(0.32020675229333595`), PointSize(9.7421459044289627`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCk&STsUNrr&{lB@-Kd9DSw+8@AkqIv~"))}, {
-               Hue(0.57981758411665851`), PointSize(11), 
+                 "1:c${NmkYQqCajBA?Q[OAby][](3(IUS*#iJX<Oo0~"))}, {
+               Hue(0.46063039399317574`), PointSize(10.348842377029806`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxpnT*5#EE3?H9XTZhf)ukv#xiS_*3~"))}, {
-               Hue(0.79441222350244489`), PointSize(3), 
+                 "1:c${NmkYQqC*]Dd8I9unveMs,dzolHS>;XU52fq~~"))}, {
+               Hue(0.27517084737407649`), PointSize(11.333208834395412`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC@p<cTtit1jeX{w9!]bQT+XDbeWeAf~"))}, {
-               Hue(0.72591869464099146`), PointSize(18), 
+                 "1:c${NmkYQqCNmDi6^ZV]JdrOwbE8_$o+5-Sb<_H!~"))}, {
+               Hue(0.74985159715007399`), PointSize(0.97682227528776977`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIenpaS;(!}_6EDWS}(K;wFdxHJP8E~"))}, {
-               Hue(0.4549857476734035`), PointSize(6), 
+                 "1:c${NmkYQqCc,&6@^UeP)_ND)K?NH-<V-EmV;t6X~"))}, {
+               Hue(0.15921892597568299`), PointSize(11.983256376515738`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC,JM8q@Z{A8_5mr}YwXmI*aHAqH3;<~"))}, {
-               Hue(0.084274236927925239`), PointSize(19), 
+                 "1:c${NmkYQqCS<bLAj,!44dlN%rrzL5Z?EyP+2F?~~"))}, {
+               Hue(0.49326846220698783`), PointSize(16.390346284869537`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxiPzuZ_c;-_Ve5}K0SARY7YQWCkZG~"))}, {
-               Hue(0.96596607395024148`), PointSize(15), 
+                 "1:c${NmkYQqCQTU?cctq!v{kpIAFaAWovj+f2aR]1~"))}, {
+               Hue(0.12801256986729981`), PointSize(18.304277912075779`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC*^<n=P[l#k{VPc;nO$ez*#iJQlm]V~"))}, {
-               Hue(0.81914919715640244`), PointSize(4), 
+                 "1:c${NmkYQqCIiec0c#{58d!F}Hj6Z+ev<Co10SJZ~"))}, {
+               Hue(0.69946648937782163`), PointSize(6.6156522693695985`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCStYQ4(ZXx*><=i2?5Nql*d72*9}*4~"))}, {
-               Hue(0.65229708827515953`), PointSize(16), 
+                 "1:c${NmkYQqC=@ndgta;;8,)Id-11qk*wFdx7pa}y~"))}, {
+               Hue(0.7432369124597592`), PointSize(1.5238689808728667`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxiI;3pvaHq_M(<Y+nmy0+XDbe?g#_~"))}, {
-               Hue(0.71495942690229541`), PointSize(7), 
+                 "1:c${NmkYQqCS#rSR;J>pc?f3B<F?d]h+a3T{-3g-~"))}, {
+               Hue(0.85612894588081734`), PointSize(1.6765490019243723`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCY5jF}8{?gq_I]-bi#$?Z*aHAlmk8w~"))}, {
-               Hue(0.84117127403159486`), PointSize(2), 
+                 "1:c${NmkYQqCdC6b3qjBPEd%5a2_j{}Z*aHAf+6fB~"))}, {
+               Hue(0.25244087631612366`), PointSize(15.6860298260383`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC$<X+-N4)8rJ&VuQte({u>;Xcp2g(~~"))}, {
-               Hue(0.66186734377221146`), PointSize(10), 
+                 "1:c${NmkYQqC*<Nvea+AqZ,!_)a5ryG*?Ey[92z&~~"))}, {
+               Hue(0.95993314365959437`), PointSize(16.836585920792341`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxl;Pz_*30$_9+=96V$@5*aHAlxCov~"))}, {
-               Hue(0.68404415730204904`), PointSize(11), 
+                 "1:c${NmkYQqCQC<5!_k8e6,*[-jR}Li1w+8@CC<v7~"))}, {
+               Hue(0.63412683665206049`), PointSize(2.3707985506101825`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCdA9o[XaBQX_5llLsteQ}vj+fFeh8c~"))}, {
-               Hue(0.36260244910731687`), PointSize(2), 
+                 "1:c${NmkYQqCDO(t}Wp?8Od&3*Mm#IH,Zw]-Y6bUE~"))}, {
+               Hue(0.90589070994489806`), PointSize(0.93955022588529724`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCc,]29u5Q^Id%x<-cPq,G*aHAfatO)~"))}, {
-               Hue(0.41031297190792282`), PointSize(1), 
+                 "1:c${NmkYQqCIbk}M;,P]m_WzufSI>QY-yQ%?NeMO~"))}, {
+               Hue(0.71089082934126824`), PointSize(10.196870563186485`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC=[DWWe]a_B{hL]T$z3mA*#iJY1_(C~"))}, {
-               Hue(0.0066841641107852068`), PointSize(15), 
+                 "1:c${NmkYQqCS@iu@VMom^,!}!X@lN]r)E)p^j}w#~"))}, {
+               Hue(0.55412947228879517`), PointSize(1.0951959523274146`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5wCKOlw1GYeowdd3}Ysg_5e8!2G;~~"))}, {
-               Hue(0.78892489976668179`), PointSize(17), 
+                 "1:c${NmkYQqCY1?*d^ULyA_G?<RnCcTx*#iJp><Iq~"))}, {
+               Hue(0.35243435727242922`), PointSize(8.1738243077465356`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCsj^bmTV3<kzAfSFt$j=H+XDbX%Lug~"))}, {
-               Hue(0.077766027538118787`), PointSize(11), 
+                 "1:c${NmkYQqCIT*cXf!B)1_75hXG28#+g*^aOU<w8~"))}, {
+               Hue(0.24012552632715578`), PointSize(12.637288050736524`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCX;[8($LDaL{e;b8Kg[0hv<Co9p9rl~"))}, {
-               Hue(0.31071113660765781`), PointSize(1), 
+                 "1:c${NmkYQqCS@Ly*{vzJ@_J0CB4o,jXz#afm+X-j~"))}, {
+               Hue(0.45323922460707156`), PointSize(2.6216152753419641`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCG5Oi,nP>eidutAN>nEWv>;Xp!2g(~~"))}, {
-               Hue(0.51976099867510461`), PointSize(4), 
+                 "1:c${NmkYQqCS$b{WN(R?A_T?PYUFxU2wg&)66bJA~"))}, {
+               Hue(0.90859852593294788`), PointSize(12.16207788586452`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCF*a4OJN)&Py{[bY%iq*j_5eOp2l4~~"))}, {
-               Hue(0.99672815071666521`), PointSize(5), 
+                 "1:c${NmkYQqCNjSiHK-poVy]q]17m>V2?EyL;2Ac~~"))}, {
+               Hue(0.3418898696298398`), PointSize(0.61213719687463808`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCnVaP1GBe=4{f[tR2,N1%?Eyo_2kQ~~"))}, {
-               Hue(0.20964780938665106`), PointSize(20), 
+                 "1:c${NmkYQqCdGPH=y@ByA,=t)yYC0N^>;X<R2d4~~"))}, {
+               Hue(0.77660406802031889`), PointSize(0.64535284805212312`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCskAppaaMd_@3;Al@YN[o?EyKg2XO~~"))}, {
-               Hue(0.11283947404534489`), PointSize(18), 
+                 "1:c${NmkYQqCIliKqW#fw1_Vd)dwY<3Q*aHAZS_en~"))}, {
+               Hue(0.26825124359409991`), PointSize(13.968057648972698`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCiCO>Kq}xD_y]D)}+Tl,r?Ey#q2fF~~"))}, {
-               Hue(0.51772141857114917`), PointSize(9), 
+                 "1:c${NmkYQqC>6mrqeZR]J,-,#xA[N_]>;X(U2mk~~"))}, {
+               Hue(0.65007825616011439`), PointSize(5.2536180094994434`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC$$6gtO?l@NdzYgJ<nMW$wg&)FQV8}~"))}, {
-               Hue(0.99966957297684844`), PointSize(12), 
+                 "1:c${NmkYQqC2??oC4};gYev(J&8OC=H?Eyb#2h;~~"))}, {
+               Hue(0.15723187333611077`), PointSize(16.789846848456243`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIncRv>GorH>^JzVvEcJKV-EmS&IqF~"))}, {
-               Hue(0.16836904498011407`), PointSize(16), 
+                 "1:c${NmkYQqC;jvc;*>]WP{er,jW=-#3Xb%8C^#]d~"))}, {
+               Hue(0.46296039725308569`), PointSize(18.337179603082379`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCNibt{=+Hi8uaf!Xhl[Y8djK=J2Ez~~"))}, {
-               Hue(0.84439994426477172`), PointSize(18), 
+                 "1:c${NmkYQqCS+I1E-j1W!><dj)9^Cx;+8zK=cL}9~"))}, {
+               Hue(0.90185070528033906`), PointSize(6.9622410162047466`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC*,f8-mbLh<{b$!+6{XDA_5ecA2W<~~"))}, {
-               Hue(0.6328815148314203`), PointSize(6), 
+                 "1:c${NmkYQqC,C#MTl=$wX{foTUN>lzEwFdxDQVD7~"))}, {
+               Hue(0.90812965561415404`), PointSize(15.800290180647075`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC30Syp23Oo,,(5RQ,}nM=YYzZPHwfV~"))}, {
-               Hue(0.87042249320409504`), PointSize(12), 
+                 "1:c${NmkYQqCVM<?dj(z$id%4U-wkeW#>;XEd2D1~~"))}, {
+               Hue(0.1163304941653045`), PointSize(6.9726510445469714`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS@Ojo@09*],,KG,TP,eoZVv!YVhI[~"))}, {
-               Hue(0.68334802062974265`), PointSize(7), 
+                 "1:c${NmkYQqC$(Y17?@,oM,)$k?oUbG=+5-SUwFf2~"))}, {
+               Hue(0.79446880307898771`), PointSize(15.359484047624303`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQNH}O{pA<0>}d4N3O8PT!5#ox^9m0~"))}, {
-               Hue(0.95610752397720955`), PointSize(17), 
+                 "1:c${NmkYQqCN&EM[F6rnM,+vQs7]U{mwg&)JRS7o~"))}, {
+               Hue(0.16551778910954296`), PointSize(11.011702950624469`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCX;!p;reO5M{_5Mgn{RJ=WDfvFp$Q=~"))}, {
-               Hue(0.73122642605410748`), PointSize(14), 
+                 "1:c${NmkYQqC5no#oQd#%L-qbmPGb!PTJpej}2A=~~"))}, {
+               Hue(0.017506038213789044`), PointSize(15.088803971132021`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS!ed$;>5z}_A25U5yplG>;Xh,2Il~~"))}, {
-               Hue(0.76234900120267857`), PointSize(1), 
+                 "1:c${NmkYQqCxoQ(BY,*WY{ZVyIox3GZ?Eybv2XO~~"))}, {
+               Hue(0.11520311131777661`), PointSize(19.198788507255575`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCVUQ?#z;f-SeYEW59G!J<>;XDC2Tu~~"))}, {
-               Hue(0.39706543907264213`), PointSize(17), 
+                 "1:c${NmkYQqCd2rfb_Vd{F_7;*q-6tn+wg&)C1_($~"))}, {
+               Hue(0.091130105881071288`), PointSize(19.557054755887563`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC3D}LcwakRw_9p_@JU-fY)gAy((+Oq~"))}, {
-               Hue(0.53715900988775345`), PointSize(20), 
+                 "1:c${NmkYQqC;Y(n8xkCSjy@rVRXBES@_5d_a1]m~~"))}, {
+               Hue(0.37858467557260822`), PointSize(16.896790384457155`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIkLj-XH@KCd#SQBTo1FJ+XDbhun2+~"))}, {
-               Hue(0.97472666825063803`), PointSize(3), 
+                 "1:c${NmkYQqC2}0PY<=>vC_EWOFGUS90*aHAlln7w~"))}, {
+               Hue(0.29458443585884675`), PointSize(5.5947487013472657`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIVCUqpRx0q{WAUPU?I5&_5eP&2F(~~"))}, {
-               Hue(0.43693061176694148`), PointSize(10), 
+                 "1:c${NmkYQqCk-gy@wdvS9,)v6md#!z+*#iJZX$Te~"))}, {
+               Hue(0.49201017429156901`), PointSize(10.310589088744962`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC={mH?VCu7*_Rquf8^bwX*aHAi6bOs~"))}, {
-               Hue(0.54157317588689025`), PointSize(5), 
+                 "1:c${NmkYQqC2}t!UG4=Fo,}zf@%li2q+XDbg@CbP~"))}, {
+               Hue(0.5446590138471592`), PointSize(17.466363268396222`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCY01yFOJY4]Z>u)ftGVWZJpeZ{2AT~~"))}, {
-               Hue(0.090704646183437987`), PointSize(6), 
+                 "1:c${NmkYQqCDM^{=f6@HC{VNgkS-&%$+5-Sb7zk?~"))}, {
+               Hue(0.28554214772840703`), PointSize(7.8817046921796567`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC,5b;sW$l5N_KjOVYMzgOZ4UrddI^{~"))}, {
-               Hue(0.18176586169247044`), PointSize(4), 
+                 "1:c${NmkYQqCiJA9%(&YY}_QmpN0@cnvv<CoAu?VX~"))}, {
+               Hue(0.82326402606113391`), PointSize(8.6882652560903821`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCDX4kY_[*[py-RbM!{&=;>;X$&2#)~~"))}, {
-               Hue(0.92746771065965239`), PointSize(20), 
+                 "1:c${NmkYQqCd3=,tL5[rfd$kDDJl_kK>;XuY2i^~~"))}, {
+               Hue(0.90691219678044643`), PointSize(18.882839051620209`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQ3$xCHskYBdyd;5sy!zivIhV[H3%p~"))}, {
-               Hue(0.66853192996690269`), PointSize(13), 
+                 "1:c${NmkYQqCSu?}bj?k3{_P3n7g<Ou,u?GN2ZU{R~"))}, {
+               Hue(0.74318524523371687`), PointSize(16.723857858189685`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCSy34{WB%J$_CYZwmJeRNw+8@Ce+c;~"))}, {
-               Hue(0.37637331175656719`), PointSize(4), 
+                 "1:c${NmkYQqC,O}skm&&i#_J,bmq^;li*d733FAA#~"))}, {
+               Hue(0.60955310029927456`), PointSize(3.1431262236389146`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS+wHjksA-6*]f_IO%H$cz#afv(Fwc~"))}, {
-               Hue(0.25947806812510033`), PointSize(4), 
+                 "1:c${NmkYQqCxnQUr!S-vh{gE=>c>cFX>;XNQ2Qm~~"))}, {
+               Hue(0.75259927484915201`), PointSize(16.995142971660666`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCnGwC1cUkLJdy&%({]1MJ+XDbXum^_~"))}, {
-               Hue(0.84160948016323134`), PointSize(4), 
+                 "1:c${NmkYQqCDQS51jdR%{,>qX[IreOOV-EmP1_?a~"))}, {
+               Hue(0.31672878660276871`), PointSize(13.906752177622238`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC(P@66f6e]9{hX<7@$zgZ?EypE2U7~~"))}, {
-               Hue(0.14573144313650344`), PointSize(9), 
+                 "1:c${NmkYQqC>5x=9Q^fwx{zT9kj;RZe*aHAP0}#R~"))}, {
+               Hue(0.52133837682645678`), PointSize(6.2858381971929127`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC30xvoe[wmiy^nOsL*vln_5eI%2KN~~"))}, {
-               Hue(0.35869393254262305`), PointSize(5), 
+                 "1:c${NmkYQqC5jgiqDW!C;y]?43fi?-Z>;Xaq2a5~~"))}, {
+               Hue(0.041993153681768702`), PointSize(4.0929816644136281`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCF)+6ODtdCQJwwHfuaEEFum=D@u?VI~"))}, {
-               Hue(0.89329485057066382`), PointSize(10), 
+                 "1:c${NmkYQqC,E+8J#q!l[?5EW1bkbXO(;fg<!wE}~"))}, {
+               Hue(0.67052025404337545`), PointSize(2.4508942342942586`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCVd1_Mf9L8e,xP7Z>fcJ(Y7YQNpa,=~"))}, {
-               Hue(0.031545494713104971`), PointSize(11), 
+                 "1:c${NmkYQqC*}zrUmsNUq?E[mrZFBFfu?GNDJ_xx~"))}, {
+               Hue(0.021036115329902016`), PointSize(3.5289687011751747`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIlj{5v3=GX,x^!R1sA-}+5-SicnGf~"))}, {
-               Hue(0.79249172904210774`), PointSize(5), 
+                 "1:c${NmkYQqC*>(2k%wysg?O6n7@0,Bzojm}k1qli~"))}, {
+               Hue(0.092552272159760474`), PointSize(10.27370026031374`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxte^^*!Isu,*o_q&QI3dvj+f7CJ2f~"))}, {
-               Hue(0.79510834462412605`), PointSize(3), 
+                 "1:c${NmkYQqCarC?^7Qf_y{c,!_lj1WT+XDbUdk2X~"))}, {
+               Hue(0.68414517638770533`), PointSize(17.696280380177317`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCX}OE)6aJ*w{)dg@BAccs_5et)2sQ~~"))}, {
-               Hue(0.43918689838934877`), PointSize(11), 
+                 "1:c${NmkYQqCY4HDfMTB#a{S)sqmtx;Mwg&)8EeQD~"))}, {
+               Hue(0.61536154749926009`), PointSize(18.088872337921231`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCsS3N2dD{Ax{V&VsUs;wtvIhW8_6aQ~"))}, {
-               Hue(0.58582703166737882`), PointSize(17), 
+                 "1:c${NmkYQqCdC3&@=Reak,-3l^%h)Y@WDfvQ?Fm2~"))}, {
+               Hue(0.76576299907407819`), PointSize(5.4116954888906061`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCkx05e+2Yd<,_yAB{7om{*#iJWR}nz~"))}, {
-               Hue(0.021657721148870213`), PointSize(9), 
+                 "1:c${NmkYQqC>4^$@@c7dKd$so&8VjCWwFdxEsR>X~"))}, {
+               Hue(0.94811170469709249`), PointSize(9.8400817005976613`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQMUMBu(}V<{r(wOZl;^Pu?GN6W(gt~"))}, {
-               Hue(0.23265138279995612`), PointSize(17), 
+                 "1:c${NmkYQqCc_JFTZ]pdc_Mi3Ep4mA2sXYKv5ecR~"))}, {
+               Hue(0.72140292834813102`), PointSize(0.25608696236287143`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC+0@J?G4IGD,!$QZl@_x+u?GM}m<Pi~"))}, {
-               Hue(0.76188454236541481`), PointSize(16), 
+                 "1:c${NmkYQqCc_VHnv9s{7{f9S36Py3uv<Co3iU,{~"))}, {
+               Hue(0.21810582716039495`), PointSize(1.5602524079252178`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCN&53i;da7f,+0v$rg!bRW)A>Z1_}{~"))}, {
-               Hue(0.38436557210848055`), PointSize(11), 
+                 "1:c${NmkYQqC;XZOUzop[){ekmLtd81G?Eyx*2aE~~"))}, {
+               Hue(0.82476943162821692`), PointSize(2.5641297943220631`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCxh-?}FOR}_,-)%rSHrelwFdxB,Ux8~"))}, {
-               Hue(0.25702969346331839`), PointSize(13), 
+                 "1:c${NmkYQqCsqaha-mvJgJ%fm;L&SzV_5ebK2SW~~"))}, {
+               Hue(0.78185035148442361`), PointSize(2.5978898373272252`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS=zV8N],#(J?Edo=!sDe>;Xjh2iy~~"))}, {
-               Hue(0.7390190583365106`), PointSize(3), 
+                 "1:c${NmkYQqCxo{-#;FF]b>];Q3o5AI9${qk!a0uQ~"))}, {
+               Hue(0.92870646175184712`), PointSize(15.399655072341309`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCVc5[hy>x1j{e%tL+XV,)*aHAUc?XC~"))}, {
-               Hue(0.51176173870487918`), PointSize(17), 
+                 "1:c${NmkYQqC,Oh@BGy3Rzd#)!2tQ(fyv<Co5NeC?~"))}, {
+               Hue(0.046612790116770775`), PointSize(18.928507463299844`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCaj#fVG^OCB{plys;jQZ)*aHAcnF!Y~"))}, {
-               Hue(0.33510651970165717`), PointSize(11), 
+                 "1:c${NmkYQqCVQ5?SPT6yvy^3C2+<Vz]_5eFr2MG~~"))}, {
+               Hue(0.25566651674491148`), PointSize(7.4367837398426362`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5s=i]*E#o!y_cR%^>ou,_5d[c29y~~"))}, {
-               Hue(0.32904380396398658`), PointSize(18), 
+                 "1:c${NmkYQqCY0}wYTQuv2y[}qXcQI>s*aHAY76@}~"))}, {
+               Hue(0.79978283254693305`), PointSize(17.24385534273986`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5jnR}{+Rg{,%RBOeV)7crab^nRSBy~"))}, {
-               Hue(0.47506880656628792`), PointSize(1), 
+                 "1:c${NmkYQqCX_R4G,Zw{leR+NQ3&)zb_5eeP2qg~~"))}, {
+               Hue(0.095243746056021927`), PointSize(14.256321462748417`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCDVG=fb?MA&,&WUBAFNfsZ4UrW{}P}~"))}, {
-               Hue(0.93124853631218618`), PointSize(1), 
+                 "1:c${NmkYQqC@esISapA%fdw+fAl[{ud+XDbW<OiA~"))}, {
+               Hue(0.90470508093272517`), PointSize(16.095476331124527`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC37N>o#J2T;J=evD5(}?q+5-SJg9g<~"))}, {
-               Hue(0.40378006346006678`), PointSize(8), 
+                 "1:c${NmkYQqCnYA$3FWmo,{hqpy_ZlYMu?GN3HVFg~"))}, {
+               Hue(0.53915441643870687`), PointSize(1.0963683208699471`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQ9E(rmhjVe_I[R<y<DBI*aHAe9taK~"))}, {
-               Hue(0.1140722762855706`), PointSize(3), 
+                 "1:c${NmkYQqC39w37?Yi%&{if1;zs+Qx*aHAX^$1u~"))}, {
+               Hue(0.57812324627915102`), PointSize(14.236732962974862`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCVd%^2V%T!ue#+[hTDOirwg&)1jtIQ~"))}, {
-               Hue(0.24543362494404053`), PointSize(11), 
+                 "1:c${NmkYQqC5j^X=B&GO;y@1laq<*]z_5eQC2SN~~"))}, {
+               Hue(0.25728380484161228`), PointSize(14.704256667544319`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC**Z^C@8P32_8N-}ANFf+w+8@C0SJr~"))}, {
-               Hue(0.95371997989351109`), PointSize(4), 
+                 "1:c${NmkYQqCVUf7KSnb$5,xgJrof7LG+5-SUOb5^~"))}, {
+               Hue(0.35402799293931775`), PointSize(11.648722553941823`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCQG3en936hc{_x(E;}}@A>;XSs2iy~~"))}, {
-               Hue(0.42731245354195802`), PointSize(14), 
+                 "1:c${NmkYQqCNvzRvsB?X5zh}<GQP_^l_5eIE2Sf~~"))}, {
+               Hue(0.39761650782625468`), PointSize(16.784769578954005`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCF*skgE9]QS,-aMzF2<&l_5e#u2t5~~"))}, {
-               Hue(0.71642978992962558`), PointSize(2), 
+                 "1:c${NmkYQqCVV,(hZ-&@&,!y]cQGIbw>;XFc2I&~~"))}, {
+               Hue(0.58623327091209043`), PointSize(19.881811943772597`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC*>Wvp!Xx*C_S0&uc(1g-vIhW8$OxP~"))}, {
-               Hue(0.58476966946272768`), PointSize(4), 
+                 "1:c${NmkYQqCadQ(}VjX_d-s6OI>-_U)?EyG(2VD~~"))}, {
+               Hue(0.72875272964428339`), PointSize(9.9109678747488044`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIq*_(d$B=>{RW9GI;Ou]*#iJa%m@+~"))}, {
-               Hue(0.7860151257299024`), PointSize(7), 
+                 "1:c${NmkYQqC={QwZ&c[S&-r%?KUoEAD_5eU42M_~~"))}, {
+               Hue(0.95502979910796082`), PointSize(17.56023323500909`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCiS@YjPbBrBeWR7[>zTLT+XDbdD+sU~"))}, {
-               Hue(0.85168300637797822`), PointSize(20), 
+                 "1:c${NmkYQqC*)a3#ROK1V?OorPblP2dWDfvN$q2d~"))}, {
+               Hue(0.73257827586872282`), PointSize(0.20814697866286869`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5uax;%XR5%dj;O7?K><k*aHAOp9fL~"))}, {
-               Hue(0.26953615253301344`), PointSize(9), 
+                 "1:c${NmkYQqC$+P<B-WqYq{=[b$lX#xou?GN6O9?]~"))}, {
+               Hue(0.66840730682102845`), PointSize(19.202718763132175`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCc@ew!)Z@*^?LT*{w!G!>)*b*[r3yR~"))}, {
-               Hue(0.4798154422736155`), PointSize(20), 
+                 "1:c${NmkYQqC@nAd0_vzFf,zNA>?9cZcwg&)2x(Gf~"))}, {
+               Hue(0.057373750124335099`), PointSize(16.136531329879062`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIkMr+)(Pw<?JveW-<%-&$Q[SzehD[~"))}, {
-               Hue(0.1869756896860012`), PointSize(12), 
+                 "1:c${NmkYQqCS+gK}wcqWN_6y=-K32-!vj+f9kO-&~"))}, {
+               Hue(0.34376599209460923`), PointSize(4.5431045141964503`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCd8@^_c;3]Q_8%s9GQ{nFY!3iUU<l9~"))}, {
-               Hue(0.95566128843706299`), PointSize(2), 
+                 "1:c${NmkYQqCY4AI]<Illm_7e_fr^;r$wg&)Goe1U~"))}, {
+               Hue(0.62980578040642432`), PointSize(1.1349351470776226`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIm1=Iqi^+l,y){^+s,gNYYzZV,3YA~"))}, {
-               Hue(0.43097445860680295`), PointSize(2), 
+                 "1:c${NmkYQqC$!fS%q,-E=UP2]m0)ys7djL1f1@Q~~"))}, {
+               Hue(0.49506443224324659`), PointSize(13.923903628670066`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCVNG0oO1<KpeYFkC%f6bo_5ePR2cQ~~"))}, {
-               Hue(0.92519690692231704`), PointSize(13), 
+                 "1:c${NmkYQqC(fhgjf#jtZ_EEZOkKztKv<Co9zX-V~"))}, {
+               Hue(0.94721590666779465`), PointSize(19.14434039032367`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC;ql>nxc==e,+$w#4{t8pU=ILDKnV5~"))}, {
-               Hue(0.8060629668633662`), PointSize(11), 
+                 "1:c${NmkYQqC,J,dwUpxJ_z02BPn@Zokv<Co5H3=9~"))}, {
+               Hue(0.99148727189313191`), PointSize(5.8998816863810566`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCiF==s^t}$k{R^>}N4t}Z*#iJl(g{o~"))}, {
-               Hue(0.82678465536254364`), PointSize(14), 
+                 "1:c${NmkYQqC@jhTxxParm{aux7J5O7,vIhV]vj[n~"))}, {
+               Hue(0.27239254114142641`), PointSize(17.541883094857379`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC,Ds(%E9UdeK4<IGLt0v=>;Xt32ow~~"))}, {
-               Hue(0.36095705436354719`), PointSize(11), 
+                 "1:c${NmkYQqCS--(%&0UA5_IqyD+Fyx(WDfvR@d;D~"))}, {
+               Hue(0.45984738887259136`), PointSize(9.4308507841240967`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCnf&C[)Z0s**#B_2bdvw%Q+ohnF$$g~"))}, {
-               Hue(0.7495383064919765`), PointSize(4), 
+                 "1:c${NmkYQqCx%+T_@8w+&>}L_V;*2jpvj+fJBMB-~"))}, {
+               Hue(0.55927849999271106`), PointSize(15.503068503395674`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC+2Hpr%%^sZ{rpGjXSfxg*#iJb=m+W~"))}, {
-               Hue(0.89801504874151628`), PointSize(13), 
+                 "1:c${NmkYQqCu{!%<#VYe__HzzAS^oXmS$hCjRSJv~"))}, {
+               Hue(0.81817491042039348`), PointSize(13.057598822661404`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCnIN+Km6hE?,$O5&(!TJ#v<Co37YIc~"))}, {
-               Hue(0.64653587668362189`), PointSize(3), 
+                 "1:c${NmkYQqC;W%(HyJg-h,xV{Wc8b*Qw+8@BWC*7~"))}, {
+               Hue(0.61381583885455104`), PointSize(13.610025444922071`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCNsI_wJNxE4dv=*{$?4x-+5-SWTL;G~"))}, {
-               Hue(0.15483991646948947`), PointSize(11), 
+                 "1:c${NmkYQqCsk1&XadqD-d%y3?4tz*?Zw]-bi3z{~"))}, {
+               Hue(0.094803266158472344`), PointSize(8.7254904775148319`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCsm)fh@xT4nUOJR7L%;2TJpedo27L~~"))}, {
-               Hue(0.94164590017627203`), PointSize(6), 
+                 "1:c${NmkYQqCNr;$w@y_GB_AztsOFz4R&K>}%(Fx@~"))}, {
+               Hue(0.63492293946692413`), PointSize(15.118434875721341`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCar?L_nM3M<Jx9lyw+CnLw+8@2<Onq~"))}, {
-               Hue(0.42335268779848434`), PointSize(17), 
+                 "1:c${NmkYQqCd9Z#LmzdC0,xA2BopKY;*aHARNe1c~"))}, {
+               Hue(0.81797586549753976`), PointSize(7.2838690502537311`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCIp%vk=Fp+n_GRvSReb}4+5-Sj@d#%~"))}, {
-               Hue(0.62425535197542303`), PointSize(4), 
+                 "1:c${NmkYQqCQNN=3QttO-,x-mLm,mGF*aHAY^$11~"))}, {
+               Hue(0.67632306133514486`), PointSize(14.999844012629413`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCi8_)!@u}vv,-Yk8^8AmlwFdx98wj5~"))}, {
-               Hue(0.22395409350519369`), PointSize(14), 
+                 "1:c${NmkYQqCVfgSVdUaQ({ZyXDy>2xx>;Xr72nh~~"))}, {
+               Hue(0.36937039830743146`), PointSize(11.882400817509369`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5xXMw{?VPs_9?19Un0Zq+5-SgiU^J~"))}, {
-               Hue(0.72272508848904282`), PointSize(18), 
+                 "1:c${NmkYQqCF%gs89J[F?y-7B=L3{9BdjK;d1[g~~"))}, {
+               Hue(0.25176741541302727`), PointSize(1.2075669649612486`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCx%bQeqR!&i_FGO]UT!P++#Uc]a}we~"))}, {
-               Hue(0.69777815774195096`), PointSize(3), 
+                 "1:c${NmkYQqCiMjZ]I#27a{k}oBf+[8D>;Xn+2W<~~"))}, {
+               Hue(0.078529911208273129`), PointSize(16.280271680252753`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC@vId6>sa]5UMqXie_xF&_5eWZ2c7~~"))}, {
-               Hue(0.17367585207189806`), PointSize(12), 
+                 "1:c${NmkYQqCSs#-1}L(Q7_EX=ctrg6EW)A>a8VRT~"))}, {
+               Hue(0.89340539137579467`), PointSize(18.624204680890138`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqC5i1H^v[^KH,#s73k4c!nw+8@6uLyV~"))}, {
-               Hue(0.4027692036101711`), PointSize(4), 
+                 "1:c${NmkYQqCnJvEj^p@5)_A[<xwMw{OvIhW6xd>J~"))}, {
+               Hue(0.31092196498268576`), PointSize(10.706081979389477`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCF*x(2n(OQ_d(psCc1H[]*#iJZbO-J~"))}, {
-               Hue(0.2335945515158746`), PointSize(2), 
+                 "1:c${NmkYQqCsZ,RsrseY9{<XGyx!>=H_5eK92b%~~"))}, {
+               Hue(0.37983193723814812`), PointSize(16.40546640376996`), 
                PointBox(CompressedData(
-                 "1:c${NmkYQqCS@VZ=LiN8V_Wd^m<$Rw%vj+fCHwf<~"))}})), "Output", 
+                 "1:c${NmkYQqC5l<3arzP{yUgKng;#8Tf_5d){1^f~~"))}})), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Point"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Scaled"}, 
-          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Thickness"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
