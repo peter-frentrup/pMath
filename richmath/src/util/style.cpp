@@ -155,6 +155,7 @@ extern pmath_symbol_t richmath_System_SynchronousUpdating;
 extern pmath_symbol_t richmath_System_SyntaxForm;
 extern pmath_symbol_t richmath_System_TemplateBoxOptions;
 extern pmath_symbol_t richmath_System_TextShadow;
+extern pmath_symbol_t richmath_System_Thickness;
 extern pmath_symbol_t richmath_System_Ticks;
 extern pmath_symbol_t richmath_System_Tooltip;
 extern pmath_symbol_t richmath_System_Top;
@@ -2570,6 +2571,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(SyntaxForm);
   impl.emit_definition(TemplateBoxOptions);
   impl.emit_definition(TextShadow);
+  impl.emit_definition(Thickness);
   impl.emit_definition(Ticks);
   impl.emit_definition(Tooltip);
   impl.emit_definition(TrackedSymbols);
@@ -3328,6 +3330,7 @@ void StyleInformation::add_style() {
     add(StyleType::Number,          SectionGroupPrecedence,           Symbol( richmath_System_SectionGroupPrecedence));
     
     add(StyleType::Length,          PointSize,                        Symbol( richmath_System_PointSize));
+    add(StyleType::Length,          Thickness,                        Symbol( richmath_System_Thickness));
     
     add(StyleType::Number,          FillBoxDefaultFillBoxWeight,      List(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_FillBoxWeight)));
     add(StyleType::Bool,            FillBoxDefaultStripOnInput,       List(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_StripOnInput)));

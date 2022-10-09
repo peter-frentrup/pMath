@@ -1,5 +1,7 @@
 #include <boxes/graphics/graphicsbox.h>
+
 #include <boxes/graphics/axisticks.h>
+#include <boxes/graphics/graphicsdirective.h>
 
 #include <boxes/dynamicbox.h>
 #include <boxes/fillbox.h>
@@ -306,6 +308,8 @@ void GraphicsBox::paint(Context &context) {
         {
           GraphicsDrawingContext gc{*this, context};
           gc.plot_range_width = w - margin_left - margin_right;
+          
+          GraphicsDirective::apply_thickness(SymbolicSize::Automatic, gc);
           
           context.canvas().pixrect(
             p0.x +     margin_left   - 0.75f,

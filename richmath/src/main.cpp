@@ -479,6 +479,8 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(Magnification,                 1.0);
   
   Stylesheet::Default->base->set(FontSize,                      SymbolicSize::Automatic);
+  Stylesheet::Default->base->set(PointSize,                     SymbolicSize::Automatic);
+  Stylesheet::Default->base->set(Thickness,                     SymbolicSize::Automatic);
   
 //  Stylesheet::Default->base->set(FrameMarginLeft,               SymbolicSize::Automatic);
 //  Stylesheet::Default->base->set(FrameMarginRight,              SymbolicSize::Automatic);

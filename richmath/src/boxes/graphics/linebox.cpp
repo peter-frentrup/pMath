@@ -93,7 +93,10 @@ void LineBox::paint(GraphicsDrawingContext &gc) {
   cairo_line_cap_t cap = cairo_get_line_cap(gc.canvas().cairo());
   cairo_set_line_cap(gc.canvas().cairo(), CAIRO_LINE_CAP_ROUND);
   
-  gc.canvas().hair_stroke();
+  auto mat = gc.canvas().get_matrix();
+  gc.canvas().set_matrix(gc.initial_matrix());
+  gc.canvas().stroke();
+  gc.canvas().set_matrix(mat);
   
   cairo_set_line_cap(gc.canvas().cairo(), cap);
 }

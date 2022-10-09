@@ -17,6 +17,7 @@ const LengthConversionFactors LengthConversionFactors::FontSizeInPt {   12.0f,  
 const LengthConversionFactors LengthConversionFactors::SectionMargins {  0.0f,   0.125,   0.25,   0.5,   1 };
 const LengthConversionFactors LengthConversionFactors::GraphicsSize {    0,        8,    14,     22,    40 };
 const LengthConversionFactors LengthConversionFactors::PointSizeInPt {   2.5,      1,   1.75,    3.0,  5.25 };
+const LengthConversionFactors LengthConversionFactors::ThicknessInPt {   1.5,     0.5,   0.75,   1.5,   3.0 };
 
 //{ class Length ...
 
