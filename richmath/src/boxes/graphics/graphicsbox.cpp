@@ -287,6 +287,17 @@ void GraphicsBox::paint(Context &context) {
   float w = _extents.width;
   float h = _extents.height();
   
+  Point p = context.canvas().current_pos();
+  
+  if(Color bg = get_own_style(Background)) {
+    Color c = context.canvas().get_color();
+    context.canvas().set_color(bg);
+    context.canvas().pixrect(_extents.to_rectangle(p), false);
+    context.canvas().fill();
+    context.canvas().set_color(c);
+    context.canvas().move_to(p);
+  }
+  
   if(!cached_bitmap.is_valid() || !cached_bitmap->is_compatible(context.canvas())) {
     cached_bitmap = new Buffer(context.canvas(), CAIRO_FORMAT_ARGB32, _extents);
     if(!cached_bitmap->canvas()) 
@@ -378,18 +389,16 @@ void GraphicsBox::paint(Context &context) {
   if(cached_bitmap.is_valid())
     cached_bitmap->paint(context.canvas());
   
+  p.y -= _extents.ascent;
+  
   bool has_sel = false;
   context.for_each_selection_at(this, [&](const VolatileSelection &sel) {
     if(has_sel) 
       return;
     
     has_sel = true;
-
-    Point p = context.canvas().current_pos();
-    p.y -= _extents.ascent;
     
     context.canvas().save();
-    
     context.canvas().pixrect(p.x, p.y, p.x + w, p.y + h, true);
     
     context.canvas().set_color(Color::from_rgb24(0xFF8000));

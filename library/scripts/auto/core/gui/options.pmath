@@ -150,6 +150,7 @@ Options(Graphics):= Options(GraphicsBox):= {
     AspectRatio -> Automatic,
     Axes -> False,
     AxesOrigin -> Automatic,
+    Background -> None,
     BaselinePosition -> Automatic,
     BaseStyle -> "Graphics", 
     BoxID -> None,
