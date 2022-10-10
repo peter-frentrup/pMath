@@ -125,7 +125,7 @@ void FrameBox::paint(Context &context) {
       if(Expr expr = get_own_style(BorderRadius)) 
         radii = BoxRadius(expr);
       
-      cairo_set_line_join(gc.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
+      gc.canvas().join_form(JoinFormMiter);
       if(Expr expr = get_own_style(FrameStyle)) {
         GraphicsDirective::apply(expr, gc);
       }

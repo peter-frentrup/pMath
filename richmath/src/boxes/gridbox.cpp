@@ -472,8 +472,8 @@ void GridBox::paint(Context &context) {
       context.canvas().set_color(context.cursor_color);
       context.canvas().reset_matrix();
       context.canvas().line_width(2.0f);
-      cairo_set_line_cap(context.canvas().cairo(), CAIRO_LINE_CAP_BUTT);
-      cairo_set_line_join(context.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
+      context.canvas().cap_form(CapFormButt);
+      context.canvas().join_form(JoinFormMiter);
       const double dashes[] = {1.0, 1.0};
       cairo_set_dash(context.canvas().cairo(), dashes, int(sizeof(dashes)/sizeof(dashes[0])), 0.0);
       context.canvas().clip_preserve();

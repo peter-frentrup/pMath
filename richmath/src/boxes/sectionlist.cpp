@@ -1106,8 +1106,8 @@ void SectionList::paint_single_section_bracket(
   Color c = context.canvas().get_color();
   {
     context.canvas().line_width(1);
-    cairo_set_line_cap(context.canvas().cairo(), CAIRO_LINE_CAP_SQUARE);
-    cairo_set_line_join(context.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
+    context.canvas().cap_form(CapFormSquare);
+    context.canvas().join_form(JoinFormMiter);
     
     context.canvas().user_to_device(&px1, &py1);
     context.canvas().user_to_device(&px2, &py2);

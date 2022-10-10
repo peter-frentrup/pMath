@@ -1110,8 +1110,8 @@ void ControlPainterImpl::paint_checkbox_cross(Canvas &canvas, const RectangleF &
   canvas.line_to(rect.x +     rect.width / 4, rect.y + 3 * rect.height / 4);
   
   canvas.line_width(2.0 * 0.75);
-  cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
-  cairo_set_line_join(canvas.cairo(), CAIRO_LINE_JOIN_MITER);
+  canvas.cap_form(CapFormSquare);
+  canvas.join_form(JoinFormMiter);
   
   canvas.set_color(color);
   canvas.stroke();
@@ -1125,8 +1125,8 @@ void ControlPainterImpl::paint_checkbox_mark(Canvas &canvas, const RectangleF &r
   canvas.line_to(rect.x + 3 * rect.width / 4, rect.y +     rect.height / 4);
   
   canvas.line_width(2.0 * 0.75);
-  cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
-  cairo_set_line_join(canvas.cairo(), CAIRO_LINE_JOIN_MITER);
+  canvas.cap_form(CapFormSquare);
+  canvas.join_form(JoinFormMiter);
   
   canvas.set_color(color);
   canvas.stroke();
