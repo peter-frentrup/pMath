@@ -16,8 +16,8 @@ Document({
               "\"Square\"", "put a half-square at the end point"}, {
               {TemplateBox({"None"}, "ReferenceHyperlink")}, 
               "equivalent to \"Butt\" in 2D graphics"}})}), 
-         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 
-     All), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A rounded line cap:", "ExampleText"), 
         SectionGroup({
@@ -38,35 +38,45 @@ Document({
         Section("Possible line caps:", "ExampleText"), 
         SectionGroup({
           Section(
-           BoxData({"Grid", "(", {
-              "Table", "(", {
-               {"{", {"c", ",", {"Graphics", "(", {
-                   {"{", {{"CapForm", "(", "c", ")"}, ",", {
-                      "Thickness", "(", "20", ")"}, ",", {
-                      "Line", "(", {"{", {{"{", {"1", ",", "1"}, "}"}, ",", {
-                         "{", {"9", ",", "4"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
-                    "PlotRange", "\[Rule]", {
-                     "{", {{"0", "..", "10"}, ",", {"0", "..", "5"}}, "}"}}}, 
-                  ")"}}, "}"}, ",", {"c", "\[Rule]", {
-                 "{", {StringBox("\"Butt\""), ",", StringBox("\"Round\""), 
-                  ",", StringBox("\"Square\"")}, "}"}}}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
+           BoxData({
+             {"With", "(", {"points", "\[Assign]", {
+                "{", {{"{", {"1", ",", "1"}, "}"}, ",", {
+                  "{", {"9", ",", "4"}, "}"}}, "}"}}, ")"}, {
+              "{", {
+               "\n", {
+                {"Grid", "(", {"Table", "(", {
+                   {"{", {"c", ",", {"Graphics", "(", {
+                       {"{", {{"CapForm", "(", "c", ")"}, ",", {
+                          "Thickness", "(", "20", ")"}, ",", {
+                          "Line", "(", "points", ")"}, ",", {"\n", "White"}, 
+                         ",", {"Thickness", "(", "1", ")"}, ",", {
+                          "Line", "(", "points", ")"}}, "}"}, ",", {
+                        "PlotRange", "\[Rule]", {
+                         "{", {{"0", "..", "10"}, ",", {"0", "..", "5"}}, 
+                         "}"}}}, ")"}}, "}"}, ",", {
+                    "c", "\[Rule]", {
+                     "{", {StringBox("\"Butt\""), ",", StringBox("\"Round\""), 
+                      ",", StringBox("\"Square\"")}, "}"}}}, ")"}, ")"}, 
+                "\n"}}, "}"}}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData(
             TagBox(
              GridBox({
                {StringBox("\"Butt\""), 
                 GraphicsBox({CapForm("Butt"), Thickness(20), 
+                  LineBox({{1, 1}, {9, 4}}), GrayLevel(1), Thickness(1), 
                   LineBox({{1, 1}, {9, 4}})}, 
                  PlotRange -> NCache({0 .. 10, 0 .. 5}, {
                     0.0` .. 10.0`, 0.0` .. 5.0`}))}, {
                 StringBox("\"Round\""), 
                 GraphicsBox({CapForm("Round"), Thickness(20), 
+                  LineBox({{1, 1}, {9, 4}}), GrayLevel(1), Thickness(1), 
                   LineBox({{1, 1}, {9, 4}})}, 
                  PlotRange -> NCache({0 .. 10, 0 .. 5}, {
                     0.0` .. 10.0`, 0.0` .. 5.0`}))}, {
                 StringBox("\"Square\""), 
                 GraphicsBox({CapForm("Square"), Thickness(20), 
+                  LineBox({{1, 1}, {9, 4}}), GrayLevel(1), Thickness(1), 
                   LineBox({{1, 1}, {9, 4}})}, 
                  PlotRange -> NCache({0 .. 10, 0 .. 5}, {
                     0.0` .. 10.0`, 0.0` .. 5.0`}))}}), "Grid")), "Output", 
@@ -99,7 +109,9 @@ Document({
                       "{", {"Red", ",", {"CapForm", "(", 
                         StringBox("\"Butt\""), ")"}, ",", {
                         "JoinForm", "(", StringBox("\"Bevel\""), ")"}, ",", {
-                        "Line", "(", "points", ")"}}, "}"}}}, "}"}, ",", {
+                        "Line", "(", "points", ")"}}, "}"}}, ",", {
+                     "\n", {"{", {"White", ",", {"Thickness", "(", "1", ")"}, 
+                       ",", {"Line", "(", "points", ")"}}, "}"}}}, "}"}, ",", {
                    "\n", {"PlotRange", "\[Rule]", {
                      "{", {{{"-", "1"}, "..", "1"}, ",", {
                        {"-", "0.5"}, "..", "0.7"}}, "}"}}}}, ")"}, "\n"}}, 
@@ -113,6 +125,9 @@ Document({
                LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
                   0.29999999999999999`, 0.29999999999999999`}})}, {
                RGBColor(1, 0, 0), CapForm("Butt"), JoinForm("Bevel"), 
+               LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
+                  0.29999999999999999`, 0.29999999999999999`}})}, {
+               GrayLevel(1), Thickness(1), 
                LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
                   0.29999999999999999`, 0.29999999999999999`}})}}, 
              PlotRange -> NCache({-1 .. 1, -0.5` .. 0.69999999999999996`}, {
