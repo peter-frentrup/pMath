@@ -16,8 +16,8 @@ Document({
               "\"Square\"", "put a half-square at the end point"}, {
               {TemplateBox({"None"}, "ReferenceHyperlink")}, 
               "equivalent to \"Butt\" in 2D graphics"}})}), 
-         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
-    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 
+     All), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A rounded line cap:", "ExampleText"), 
         SectionGroup({
@@ -72,7 +72,7 @@ Document({
                     0.0` .. 10.0`, 0.0` .. 5.0`}))}}), "Grid")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       SectionGroup({Section("Neat Examples", "ExampleSection"), 
-        Section("Different line caps:", "ExampleText"), 
+        Section("Different line caps and join forms:", "ExampleText"), 
         SectionGroup({
           Section(
            BoxData({
@@ -89,35 +89,39 @@ Document({
                      "\n", {
                       "{", {"Blue", ",", {"CapForm", "(", 
                         StringBox("\"Square\""), ")"}, ",", {
+                        "JoinForm", "(", StringBox("\"Miter\""), ")"}, ",", {
                         "Line", "(", "points", ")"}}, "}"}}, ",", {
                      "\n", {"{", {"Green", ",", {
                         "CapForm", "(", StringBox("\"Round\""), ")"}, ",", {
+                        "JoinForm", "(", StringBox("\"Round\""), ")"}, ",", {
                         "Line", "(", "points", ")"}}, "}"}}, ",", {
                      "\n", {
                       "{", {"Red", ",", {"CapForm", "(", 
                         StringBox("\"Butt\""), ")"}, ",", {
+                        "JoinForm", "(", StringBox("\"Bevel\""), ")"}, ",", {
                         "Line", "(", "points", ")"}}, "}"}}}, "}"}, ",", {
                    "\n", {"PlotRange", "\[Rule]", {
                      "{", {{{"-", "1"}, "..", "1"}, ",", {
                        {"-", "0.5"}, "..", "0.7"}}, "}"}}}}, ")"}, "\n"}}, 
-              "}"}}), "Input", SectionLabel -> "in [3]:"), 
+              "}"}}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData(GraphicsBox({Thickness(Scaled(0.10000000000000001`)), {
-               RGBColor(0, 0, 1), CapForm("Square"), 
+               RGBColor(0, 0, 1), CapForm("Square"), JoinForm("Miter"), 
                LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
                   0.29999999999999999`, 0.29999999999999999`}})}, {
-               RGBColor(0, 1, 0), CapForm("Round"), 
+               RGBColor(0, 1, 0), CapForm("Round"), JoinForm("Round"), 
                LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
                   0.29999999999999999`, 0.29999999999999999`}})}, {
-               RGBColor(1, 0, 0), CapForm("Butt"), 
+               RGBColor(1, 0, 0), CapForm("Butt"), JoinForm("Bevel"), 
                LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
                   0.29999999999999999`, 0.29999999999999999`}})}}, 
              PlotRange -> NCache({-1 .. 1, -0.5` .. 0.69999999999999996`}, {
                 -1.0` .. 1.0`, -0.5` .. 0.69999999999999996`}))), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section(TextData({TemplateBox({"Line"}, "ReferenceHyperlink"), 
+      Section(TextData({TemplateBox({"JoinForm"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Thickness"}, 
-          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Line"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

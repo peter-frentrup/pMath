@@ -288,6 +288,7 @@
 {"IsVector", {"ArgumentCount" -> 1..2}},
 {"JacobiSymbol", {"ArgumentCount" -> 2}},
 {"Join", {"ArgumentCount" -> 2..}},
+{"JoinForm", {"ArgumentCount" -> 1}},
 {"Key", {"ArgumentCount" -> 1}},
 {"Keys", {"ArgumentCount" -> 1..2}},
 {"KeyValuePattern", {"ArgumentCount" -> 0..1}},
