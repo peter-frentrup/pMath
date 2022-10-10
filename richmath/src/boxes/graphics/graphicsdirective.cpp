@@ -242,8 +242,13 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
     
     if(item[0] == richmath_System_List && item.expr_length() == 2 && item[1] == strings::Miter) {
       gc.canvas().join_form(JoinFormMiter);
-      if(Length miter_limit = Length::from_pmath(item[2])) {
-        gc.canvas().miter_limit(miter_limit.resolve(1.0f, LengthConversionFactors::ThicknessInPt, gc.plot_range_width));
+      
+      Expr miter_limit_obj = item[2];
+      if(miter_limit_obj.is_number()) {
+        float miter_limit = (float)miter_limit_obj.to_double();
+        if(miter_limit >= 0 && isfinite(miter_limit)) {
+          gc.canvas().miter_limit(miter_limit);
+        }
       }
       return;
     }
