@@ -103,6 +103,7 @@ extern pmath_symbol_t richmath_System_InputAutoReplacements;
 extern pmath_symbol_t richmath_System_InputFieldBoxOptions;
 extern pmath_symbol_t richmath_System_InterpretationFunction;
 extern pmath_symbol_t richmath_System_Italic;
+extern pmath_symbol_t richmath_System_JoinForm;
 extern pmath_symbol_t richmath_System_LanguageCategory;
 extern pmath_symbol_t richmath_System_Left;
 extern pmath_symbol_t richmath_System_LineBreakWithin;
@@ -2572,6 +2573,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ButtonFrame);
   impl.emit_definition(ButtonFunction);
   impl.emit_definition(ButtonSource);
+  impl.emit_definition(CapForm);
   impl.emit_definition(CharacterNameStyle);
   impl.emit_definition(ClosingAction);
   //impl.emit_definition(ColorForGraphics);
@@ -2624,6 +2626,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(InputAutoReplacements);
   impl.emit_definition(InputFieldBoxOptions);
   impl.emit_definition(InterpretationFunction);
+  impl.emit_definition(JoinForm);
   impl.emit_definition(KeywordSymbolStyle);
   impl.emit_definition(LanguageCategory);
   impl.emit_definition(LineBreakWithin);
@@ -3481,6 +3484,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
     add(StyleType::Any,             Initialization,                   Symbol( richmath_System_Initialization));
     add(StyleType::Any,             InterpretationFunction,           Symbol( richmath_System_InterpretationFunction));
+    add(StyleType::Any,             JoinForm,                         Symbol( richmath_System_JoinForm));
     add(StyleType::Any,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
     add(StyleType::Any,             PlotRange,                        Symbol( richmath_System_PlotRange));
     add(StyleType::Any,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));

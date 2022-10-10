@@ -383,6 +383,8 @@ namespace richmath {
     UndefinedSymbolStyle,
     UnknownOptionStyle,
     
+    JoinForm,
+    
     ButtonBoxDefaultAppearance               = Appearance             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonData               = ButtonData             + (int)DefaultStyleOptionOffsets::ButtonBox,

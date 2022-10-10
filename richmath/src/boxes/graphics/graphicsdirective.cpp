@@ -26,9 +26,18 @@ extern pmath_symbol_t richmath_System_CapForm;
 extern pmath_symbol_t richmath_System_Directive;
 extern pmath_symbol_t richmath_System_GrayLevel;
 extern pmath_symbol_t richmath_System_Hue;
+extern pmath_symbol_t richmath_System_JoinForm;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_PointSize;
 extern pmath_symbol_t richmath_System_RGBColor;
 extern pmath_symbol_t richmath_System_Thickness;
+
+namespace richmath { namespace strings {
+  extern String Bevel;
+  extern String Miter;
+  extern String Round;
+}}
 
 namespace richmath {
   class GraphicsDirective::Impl {
@@ -76,6 +85,9 @@ bool GraphicsDirective::is_graphics_directive(Expr expr) {
     return true;
   
   if(expr[0] == richmath_System_CapForm)
+    return true;
+  
+  if(expr[0] == richmath_System_JoinForm)
     return true;
   
   if(expr[0] == richmath_System_PointSize)
@@ -167,6 +179,11 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
     return;
   }
   
+  if(directive[0] == richmath_System_JoinForm) {
+    style.set_pmath(JoinForm, directive[1]);
+    return;
+  }
+  
   if(directive[0] == richmath_System_PointSize) {
     style.set_pmath(PointSize, directive[1]);
     return;
@@ -197,11 +214,40 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
     return;
   }
   
+  if(directive[0] == richmath_System_Rule) { // directive -> val  is  like  directive(val) for non-colors
+    directive = Call(directive[1], directive[2]);
+  }
+  
   if(directive[0] == richmath_System_CapForm) {
     int val = Style::decode_enum(directive[1], CapForm, -1);
     if(val >= 0) {
       gc.canvas().cap_form((enum CapForm)val);
     }
+    return;
+  }
+  
+  if(directive[0] == richmath_System_JoinForm) {
+    Expr item = directive[1];
+    if(item.is_string()) {
+      if(item == strings::Bevel) { gc.canvas().join_form(JoinFormBevel); return; }
+      if(item == strings::Miter) { gc.canvas().join_form(JoinFormMiter); return; }
+      if(item == strings::Round) { gc.canvas().join_form(JoinFormRound); return; }
+      return;
+    }
+    
+    if(item == richmath_System_None) {
+      gc.canvas().join_form(JoinFormNone);
+      return;
+    }
+    
+    if(item[0] == richmath_System_List && item.expr_length() == 2 && item[1] == strings::Miter) {
+      gc.canvas().join_form(JoinFormMiter);
+      if(Length miter_limit = Length::from_pmath(item[2])) {
+        gc.canvas().miter_limit(miter_limit.resolve(1.0f, LengthConversionFactors::ThicknessInPt, gc.plot_range_width));
+      }
+      return;
+    }
+
     return;
   }
   

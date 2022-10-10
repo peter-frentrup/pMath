@@ -19,6 +19,13 @@ namespace richmath {
     CapFormSquare,
   };
   
+  enum JoinForm {
+    JoinFormNone,
+    JoinFormBevel,
+    JoinFormMiter,
+    JoinFormRound,
+  };
+  
   class Canvas: public Base {
     public:
       explicit Canvas(cairo_t *cr);
@@ -83,6 +90,11 @@ namespace richmath {
       
       enum CapForm cap_form();
       void cap_form(enum CapForm cf);
+      
+      enum JoinForm join_form();
+      void join_form(enum JoinForm jf);
+      float miter_limit();
+      void miter_limit(float val);
       
       void move_to(Point pt) { move_to(pt.x, pt.y); }
       void move_to(double x, double y);

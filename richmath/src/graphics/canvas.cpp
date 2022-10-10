@@ -247,6 +247,32 @@ void Canvas::cap_form(CapForm cf) {
   }
 }
 
+enum JoinForm Canvas::join_form() {
+  switch(cairo_get_line_join(_cr)) {
+    case CAIRO_LINE_JOIN_BEVEL: return JoinFormBevel;
+    case CAIRO_LINE_JOIN_MITER: return JoinFormMiter;
+    case CAIRO_LINE_JOIN_ROUND: return JoinFormRound;
+  }
+  return JoinFormNone;
+}
+
+void Canvas::join_form(enum JoinForm jf) {
+  switch(jf) {
+    case JoinFormNone:
+    case JoinFormBevel: cairo_set_line_join(_cr, CAIRO_LINE_JOIN_BEVEL); break;
+    case JoinFormMiter: cairo_set_line_join(_cr, CAIRO_LINE_JOIN_MITER); break;
+    case JoinFormRound: cairo_set_line_join(_cr, CAIRO_LINE_JOIN_ROUND); break;
+  }
+}
+
+float Canvas::miter_limit() {
+  return cairo_get_miter_limit(_cr);
+}
+
+void Canvas::miter_limit(float val) {
+  cairo_set_miter_limit(_cr, val);
+}
+
 void Canvas::move_to(double x, double y) {
   cairo_move_to(_cr, x, y);
 }
