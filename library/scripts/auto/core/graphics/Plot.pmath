@@ -94,8 +94,8 @@ Function calcCosines(~xys, ~xmin .. ~xmax) {
 	With(ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin))  % Differences
 	With(tans:= ndys / ndxs)
 	With(tas:= Most(tans), tbs:= Rest(tans))
-	cos2s:= (1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2));
-	cos2s:= cos2s.Replace(Undefined -> -1 /* Cos(180 Degree) */, 1..1);
+	cos2s:= (1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2))
+	cos2s:= cos2s.Replace(Undefined -> 0, 1..1)
 	Return(cos2s)
 }
 
