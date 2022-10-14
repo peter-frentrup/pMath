@@ -25,6 +25,14 @@ static void _pmath_round_arf_to_nearest(arf_t result, const arf_t x) {
     return;
   }
   
+  if(result == x) {
+    arf_t tmp;
+    arf_init(tmp);
+    arf_set(tmp, x);
+    _pmath_round_arf_to_nearest(result, tmp);
+    arf_clear(tmp);
+  }
+  
   if(arf_is_int_2exp_si(x, -1)) { // x is a half integer: round to even
     arf_floor(result, x);
     if(!arf_is_int_2exp_si(x, 1)) { // Floor(x) is odd
