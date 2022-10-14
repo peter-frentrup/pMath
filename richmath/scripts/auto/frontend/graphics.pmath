@@ -9,7 +9,7 @@ Begin("FE`Graphics`Private`")
 
 
 stepSize(~width ? IsPositive)::= 
-	N @ First @ Select(
+	First @ Select(
 		{5,10,20,50} 10^(Round @ Log(10, width) - 2), 
 		width < 8 # &, 
 		1)
