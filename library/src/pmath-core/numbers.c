@@ -1664,236 +1664,6 @@ static void write_raw_latin1_with_prefix(void *_info_prefix, const char *str, in
   _pmath_write_latin1(str, len, info_prefix->info->write, info_prefix->info->user);
 }
 
-static void write_as_machine_float(struct pmath_write_ex_t *info, mpfr_t f) {
-  pmath_thread_t thread = pmath_thread_get_current();
-  int base = 10;
-  char basestr[10];
-  mp_exp_t exp;
-  size_t max_digits, size;
-  char *str;
-  double prec2 = DBL_MANT_DIG;
-  double base_prec;
-  pmath_bool_t allow_round_trip = 0 != (info->options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR));
-  int exact_log2_base; // =0 if base is no power of 2, otherwise = log2(base)
-  
-  if(thread) {
-    base = thread->base_flags & PMATH_BASE_FLAGS_BASE_MASK;
-    if(base < 2 || base > 36)
-      base = 16;
-    
-    if((thread->base_flags & PMATH_BASE_FLAGS_AUTOMATIC) || (info->options & PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS)) {
-      if(base & (base - 1)) // not a power of 2
-        base = 16;
-      
-      allow_round_trip = TRUE;
-    }
-  }
-  
-  if(base == 10) {
-    exact_log2_base = 0;
-    base_prec = LOG10_2 * prec2;
-  }
-  else if(base == 2) {
-    exact_log2_base = 1;
-    base_prec = prec2 / exact_log2_base;
-  }
-  else if(base == 4) {
-    exact_log2_base = 2;
-    base_prec = prec2 / exact_log2_base;
-  }
-  else if(base == 8) {
-    exact_log2_base = 3;
-    base_prec = prec2 / exact_log2_base;
-  }
-  else if(base == 16) {
-    exact_log2_base = 4;
-    base_prec = prec2 / exact_log2_base;
-  }
-  else if(base == 32) {
-    exact_log2_base = 5;
-    base_prec = prec2 / exact_log2_base;
-  }
-  else {
-    exact_log2_base = 0;
-    base_prec = prec2 / log2(base);
-  }
-  
-  if(allow_round_trip) {
-    /* MPFR documentation says:
-       To recover f, we need (in most cases ...) a representation with
-       m = 1 + ceil(precbits * log(2) / log(base)) digits (with precbits
-       replaced by  precbits-1  if base is a power of 2).
-     */
-    
-    if(exact_log2_base > 0)
-      max_digits = (size_t)(1 + ceil( (prec2 - 1) / exact_log2_base ));
-    else
-      max_digits = (size_t)(1 + ceil( base_prec ));
-  }
-  else {
-    max_digits = (size_t)round(base_prec);
-  }
-  
-  if(max_digits < 2)
-    max_digits = 2;
-    
-  size = max_digits + 2;
-  if(size < 7)
-    size = 7;
-    
-  str = (char *)pmath_mem_alloc(size);
-  if(!str) {
-    _pmath_write_cstr("<<out-of-memory>>", info->write, info->user);
-    return;
-  }
-  
-  mpfr_get_str(str, &exp, base, max_digits, f, MPFR_RNDN);
-  
-  if(exp == 0) {
-    if(*str == '-') {
-      delete_trailing_zeros(str + 1);
-      
-      if(base != 10) {
-        snprintf(basestr, sizeof(basestr), "-%d^^0.", base);
-        _pmath_write_cstr(basestr, info->write, info->user);
-      }
-      else
-        _pmath_write_cstr("-0.", info->write, info->user);
-        
-      _pmath_write_cstr(str + 1, info->write, info->user);
-    }
-    else {
-      delete_trailing_zeros(str);
-      
-      if(base != 10) {
-        snprintf(basestr, sizeof(basestr), "%d^^0.", base);
-        _pmath_write_cstr(basestr, info->write, info->user);
-      }
-      else
-        _pmath_write_cstr("0.", info->write, info->user);
-        
-      _pmath_write_cstr(str,    info->write, info->user);
-    }
-    
-    if(allow_round_trip)
-      _pmath_write_cstr("`", info->write, info->user);
-  }
-  else if(exp > 0 && exp <= 6 && (size_t)exp < strlen(str)) {
-    char c;
-    if(*str == '-')
-      ++exp;
-    c = str[exp];
-    str[exp] = '\0';
-    if(base != 10) {
-      if(*str == '-') {
-        snprintf(basestr, sizeof(basestr), "-%d^^", base);
-        _pmath_write_cstr(basestr, info->write, info->user);
-        _pmath_write_cstr(str + 1, info->write, info->user);
-      }
-      else {
-        snprintf(basestr, sizeof(basestr), "%d^^", base);
-        _pmath_write_cstr(basestr, info->write, info->user);
-        _pmath_write_cstr(str,     info->write, info->user);
-      }
-    }
-    else {
-      _pmath_write_cstr(str, info->write, info->user);
-    }
-    _pmath_write_cstr(".", info->write, info->user);
-    str[exp] = c;
-    
-    delete_trailing_zeros(str + exp);
-    _pmath_write_cstr(str + exp, info->write, info->user);
-    
-    if(allow_round_trip)
-      _pmath_write_cstr("`", info->write, info->user);
-  }
-  else if(exp < 0 && exp > -5) {
-    static const uint16_t zero_char = '0';
-    
-    int start;
-    if(*str == '-') {
-      if(base != 10) {
-        snprintf(basestr, sizeof(basestr), "-%d^^0.", base);
-        _pmath_write_cstr(basestr, info->write, info->user);
-      }
-      else
-        _pmath_write_cstr("-0.", info->write, info->user);
-      start = 1;
-    }
-    else {
-      if(base != 10) {
-        snprintf(basestr, sizeof(basestr), "%d^^0.", base);
-        _pmath_write_cstr(basestr, info->write, info->user);
-      }
-      else
-        _pmath_write_cstr("0.", info->write, info->user);
-      start = 0;
-    }
-    
-    do {
-      info->write(info->user, &zero_char, 1);
-    } while(++exp < 0);
-    
-    delete_trailing_zeros(str + start);
-    
-    _pmath_write_cstr(str + start, info->write, info->user);
-    
-    if(allow_round_trip)
-      _pmath_write_cstr("`", info->write, info->user);
-  }
-  else {
-    int start;
-    if(*str == '\0') { // 0.0
-      if(base != 10) {
-        snprintf(basestr, sizeof(basestr), "%d^^0.", base);
-        _pmath_write_cstr(basestr, info->write, info->user);
-      }
-      else
-        _pmath_write_cstr("0.", info->write, info->user);
-      start = 0;
-    }
-    else if(*str == '-') {
-      if(base != 10) {
-        snprintf(basestr, sizeof(basestr), "-%d^^%c.", base, str[1]);
-        _pmath_write_cstr(basestr, info->write, info->user);
-      }
-      else {
-        uint16_t ustr[3] = {UCS2_CHAR('-'), UCS2_CHAR(str[1]), UCS2_CHAR('.')};
-        info->write(info->user, ustr, 3);
-      }
-      
-      start = 2;
-      --exp;
-    }
-    else {
-      uint16_t ustr[2] = {UCS2_CHAR(*str), UCS2_CHAR('.')};
-      
-      if(base != 10) {
-        snprintf(basestr, sizeof(basestr), "%d^^", base);
-        _pmath_write_cstr(basestr, info->write, info->user);
-      }
-      
-      info->write(info->user, ustr, 2);
-      start = 1;
-      --exp;
-    }
-    
-    delete_trailing_zeros(str + start);
-    _pmath_write_cstr(str + start, info->write, info->user);
-    if(allow_round_trip)
-      _pmath_write_cstr("`", info->write, info->user);
-      
-    if(exp != 0) {
-      char s[30];
-      snprintf(s, sizeof(s), "*^%"PRIdMAX, (intmax_t)exp);
-      _pmath_write_cstr(s, info->write, info->user);
-    }
-  }
-  
-  pmath_mem_free(str);
-}
-
 static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
   static const uint16_t u16_plusminus = 0x00B1;
   pmath_thread_t thread = pmath_thread_get_current();
@@ -2017,13 +1787,161 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
 
 PMATH_PRIVATE
 void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
-  mpfr_t mpf;
-  mpfr_init2(mpf, DBL_MANT_DIG);
-  mpfr_set_d(mpf, PMATH_AS_DOUBLE(f), MPFR_RNDN);
+  pmath_thread_t thread = pmath_thread_get_current();
+  struct _pmath_raw_number_parts_t parts;
+  int base = 10;
+  char *orig_mant;
+  char *best_digit_buf = NULL;
+  char *tmp_digit_buf = NULL;
+  pmath_bool_t show_precision = FALSE;
+  pmath_mpfloat_t as_mpfloat = _pmath_create_mp_float_from_d(PMATH_AS_DOUBLE(f));
   
-  write_as_machine_float(info, mpf);
+  if(thread) {
+    base = thread->base_flags & PMATH_BASE_FLAGS_BASE_MASK;
+    if(base < 2 || base > 36)
+      base = 16;
+    
+    if((thread->base_flags & PMATH_BASE_FLAGS_AUTOMATIC) || (info->options & PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS)) {
+//      if(base & (base - 1)) // not a power of two => change base
+//        base = 16;
+      
+      show_precision = TRUE;
+    }
+  }
   
-  mpfr_clear(mpf);
+  if(thread) {
+    base = thread->base_flags & PMATH_BASE_FLAGS_BASE_MASK;
+    if(base < 2 || base > 36)
+      base = 16;
+      
+    if((thread->base_flags & PMATH_BASE_FLAGS_AUTOMATIC) || (info->options & PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS)) {
+    }
+  }
+  
+  _pmath_mpfloat_get_raw_number_parts(&parts, as_mpfloat, base, 1);
+  parts.is_negative = 0 != signbit(PMATH_AS_DOUBLE(f));
+  
+  orig_mant = parts.mid_digits;
+  if(parts.mid_digits && parts.mid_leading_zeros == 0) {
+    int all_digits = strlen(parts.mid_digits);
+    
+    if(parts.total_significant > all_digits)
+      parts.total_significant = all_digits;
+    
+    if(all_digits > 1) {
+      best_digit_buf = pmath_mem_alloc(all_digits + 1);
+      tmp_digit_buf  = pmath_mem_alloc(all_digits + 1);
+      if(best_digit_buf && tmp_digit_buf) {
+        int n;
+        mp_bitcnt_t best_shift = 0;
+        mp_bitcnt_t shift;
+        fmpz_t tmp;
+        fmpz_t tmp_exp;
+        pmath_t tmp_obj;
+        
+        *best_digit_buf = '\0';
+        fmpz_init(tmp);
+        fmpz_init(tmp_exp);
+        
+        n = all_digits - 1;
+        while(n > 1 && parts.mid_digits[n] == '0')
+          --n;
+        for(; n >= 1; --n) {
+          strcpy(tmp_digit_buf, parts.mid_digits);
+          _pmath_number_round_digits_inplace(tmp_digit_buf, &shift, tmp, base, n, ARF_RND_NEAR);
+          
+          fmpz_set_str(tmp, tmp_digit_buf, base);
+          fmpz_add_si(tmp_exp, parts.exponent, shift - all_digits);
+          tmp_obj = _pmath_compose_number(tmp, tmp_exp, base, -HUGE_VAL);
+          
+          if(!pmath_is_double(tmp_obj)) {
+            pmath_unref(tmp_obj);
+            break;
+          }
+          
+          if(parts.is_negative) {
+            if(-PMATH_AS_DOUBLE(tmp_obj) != PMATH_AS_DOUBLE(f))
+              break;
+          }
+          else {
+            if(PMATH_AS_DOUBLE(tmp_obj) != PMATH_AS_DOUBLE(f))
+              break;
+          }
+          
+          parts.total_significant = n;
+          strcpy(best_digit_buf, tmp_digit_buf);
+          best_shift = shift;
+        }
+        
+        if(*best_digit_buf) {
+          parts.mid_digits = best_digit_buf;
+          //fmpz_add_si(parts.exponent, parts.exponent, best_shift - all_digits);
+        }
+        
+        fmpz_clear(tmp_exp);
+        fmpz_clear(tmp);
+      }
+    }
+    
+    while(parts.total_significant > 1 && best_digit_buf[parts.total_significant - 1] == '0')
+      parts.total_significant--;
+  }
+  
+  if(parts.mid_digits) {
+    int relevant_digits = parts.total_significant;
+    if(parts.total_significant < 6)
+      parts.total_significant = 6;
+    
+    _pmath_raw_number_parts_set_decimal_point_automatic(&parts);
+    
+    parts.total_significant = relevant_digits;
+    if(parts.total_significant <= parts.num_integer_digits)
+      parts.total_significant = parts.num_integer_digits + 1;
+  
+    if(parts.is_negative)
+      _pmath_write_cstr("-", info->write, info->user);
+    
+    if(parts.base != 10) {
+      _pmath_write_number_part(&parts, PMATH_NUMBER_PART_BASE, write_raw_latin1, info);
+      _pmath_write_cstr("^^", info->write, info->user);
+    }
+    
+    if(parts.num_integer_digits == parts.total_significant)
+      parts.total_significant++;
+    
+    _pmath_write_number_part(&parts, PMATH_NUMBER_PART_SIGNIFICANT, write_raw_latin1, info);
+
+    if(!show_precision) {
+      double dbl_digits = DBL_MANT_DIG / _pmath_log2_of(base);
+      if(parts.total_significant >= dbl_digits)
+        show_precision = TRUE;
+    }
+    
+    if(show_precision)
+      _pmath_write_cstr("`", info->write, info->user);
+    
+    {
+      struct info_and_prefix_t iap;
+      iap.info = info;
+      iap.prefix = "*^";
+      iap.prefix_len = 2;
+      
+      _pmath_write_number_part(&parts, PMATH_NUMBER_PART_EXPONENT, write_raw_latin1_with_prefix, &iap);
+    }
+  }
+  
+  pmath_mem_free(best_digit_buf);
+  pmath_mem_free(tmp_digit_buf);
+  parts.mid_digits = orig_mant;
+  _pmath_raw_number_parts_clear(&parts);
+  pmath_unref(as_mpfloat);
+//  mpfr_t mpf;
+//  mpfr_init2(mpf, DBL_MANT_DIG);
+//  mpfr_set_d(mpf, PMATH_AS_DOUBLE(f), MPFR_RNDN);
+//  
+//  write_as_machine_float(info, mpf);
+//  
+//  mpfr_clear(mpf);
 }
 
 //} ============================================================================
