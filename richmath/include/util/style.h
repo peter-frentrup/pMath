@@ -12,6 +12,7 @@ namespace richmath {
   class StyledObject;
   
   bool get_factor_of_scaled(Expr expr, double *value);
+  double convert_float_to_nice_double(float f);
   
   enum class DefaultStyleOptionOffsets {
     None = 0,

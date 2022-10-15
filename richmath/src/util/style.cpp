@@ -241,6 +241,24 @@ bool richmath::get_factor_of_scaled(Expr expr, double *value) {
   return false;
 }
 
+double richmath::convert_float_to_nice_double(float f) {
+  char buf[16];
+  
+  if(f == floorf(f))
+    return f;
+    
+  if(!isfinite(f))
+    return f;
+  
+  snprintf(buf, sizeof(buf), "%.6e", f);
+  
+  double val = strtod(buf, nullptr);
+  if((float)val == f)
+    return val;
+  
+  return f;
+}
+
 namespace {
   class EnumStyleConverter: public Shareable {
     public:
@@ -1822,7 +1840,7 @@ Expr StyleImpl::raw_get_pmath_float(StyleOptionName n, Expr inherited) const {
   
   float f;
   if(raw_get_float(n, &f))
-    return Number(f);
+    return Number(convert_float_to_nice_double(f));
     
   return inherited;
 }
@@ -1833,7 +1851,7 @@ Expr StyleImpl::raw_get_pmath_posnum_auto(StyleOptionName n, Expr inherited) con
   float f;
   if(raw_get_float(n, &f)) {
     if(isfinite(f) && f > 0)
-      return Number(f);
+      return Number(convert_float_to_nice_double(f));
     
     return Symbol(richmath_System_Automatic);
   }

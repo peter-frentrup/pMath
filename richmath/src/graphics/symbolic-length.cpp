@@ -1,5 +1,7 @@
 #include <graphics/symbolic-length.h>
 
+#include <util/style.h> // for convert_float_to_nice_double()
+
 
 using namespace richmath;
 
@@ -19,6 +21,8 @@ const LengthConversionFactors LengthConversionFactors::GraphicsSize {     0,    
 const LengthConversionFactors LengthConversionFactors::PointSizeInPt {    2.5,      1,   1.75,    3.0,  5.25 };
 const LengthConversionFactors LengthConversionFactors::ThicknessInPt {    1.5,     0.5,   0.75,   1.5,   3.0 };
 const LengthConversionFactors LengthConversionFactors::PlotRangePadding { 0.04,    0.01,  0.02,   0.04,  0.08 };
+
+static double convert_float_to_nice_double(float f);
 
 //{ class Length ...
 
@@ -84,10 +88,10 @@ Length Length::from_pmath(Expr obj) {
 
 Expr Length::to_pmath() const {
   if(is_explicit_abs())
-    return Number(explicit_abs_value());
+    return Number(convert_float_to_nice_double(explicit_abs_value()));
   
   if(is_explicit_rel())
-    return Call(Symbol(richmath_System_Scaled), Number(explicit_rel_value()));
+    return Call(Symbol(richmath_System_Scaled), Number(convert_float_to_nice_double(explicit_rel_value())));
   
   switch(symblic_value()) {
     case SymbolicSize::Automatic: return Symbol(richmath_System_Automatic);
