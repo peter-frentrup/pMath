@@ -64,7 +64,7 @@ The graphical front-end *richmath* uses the [Cairo][] graphics library together 
 
 ### Building the required libraries from source on Windows ###
 It is recommended to use Visual C++ 2015 (MSVC for short) to build the libraries.
-For MPIR and MPFR there are MSVC projects available at [http://www.github.com/BrianGladman/mpir]() and [http://www.github.com/BrianGladman/mpfr](), respectively.
+For MPIR and MPFR there are MSVC projects available at http://www.github.com/BrianGladman/mpir and http://www.github.com/BrianGladman/mpfr, respectively.
 
 
 [Mathematica]:  https://en.wikipedia.org/wiki/Mathematica
