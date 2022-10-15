@@ -241,6 +241,11 @@ namespace richmath {
     FrameMarginTop,
     FrameMarginBottom,
     
+    PlotRangePaddingLeft,
+    PlotRangePaddingRight,
+    PlotRangePaddingTop,
+    PlotRangePaddingBottom,
+    
     SectionMarginLeft,
     SectionMarginRight,
     SectionMarginTop,

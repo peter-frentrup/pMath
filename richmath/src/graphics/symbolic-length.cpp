@@ -11,13 +11,14 @@ extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Small;
 extern pmath_symbol_t richmath_System_Tiny;
 
-//                                                                    Automatic  Tiny   Small  Medium  Large
-const LengthConversionFactors LengthConversionFactors::Zero {            0,        0,     0,      0,     0 };
-const LengthConversionFactors LengthConversionFactors::FontSizeInPt {   12.0f,     6,     9,     12,    24 };
-const LengthConversionFactors LengthConversionFactors::SectionMargins {  0.0f,   0.125,   0.25,   0.5,   1 };
-const LengthConversionFactors LengthConversionFactors::GraphicsSize {    0,        8,    14,     22,    40 };
-const LengthConversionFactors LengthConversionFactors::PointSizeInPt {   2.5,      1,   1.75,    3.0,  5.25 };
-const LengthConversionFactors LengthConversionFactors::ThicknessInPt {   1.5,     0.5,   0.75,   1.5,   3.0 };
+//                                                                     Automatic  Tiny   Small  Medium  Large
+const LengthConversionFactors LengthConversionFactors::Zero {             0,        0,     0,      0,     0 };
+const LengthConversionFactors LengthConversionFactors::FontSizeInPt {    12.0f,     6,     9,     12,    24 };
+const LengthConversionFactors LengthConversionFactors::SectionMargins {   0.0f,   0.125,   0.25,   0.5,   1 };
+const LengthConversionFactors LengthConversionFactors::GraphicsSize {     0,        8,    14,     22,    40 };
+const LengthConversionFactors LengthConversionFactors::PointSizeInPt {    2.5,      1,   1.75,    3.0,  5.25 };
+const LengthConversionFactors LengthConversionFactors::ThicknessInPt {    1.5,     0.5,   0.75,   1.5,   3.0 };
+const LengthConversionFactors LengthConversionFactors::PlotRangePadding { 0.04,    0.01,  0.02,   0.04,  0.08 };
 
 //{ class Length ...
 
@@ -51,6 +52,7 @@ float Length::resolve(float em, const LengthConversionFactors &factors, float re
       case SymbolicSize::Medium:    return em * factors.Medium;
       case SymbolicSize::Small:     return em * factors.Small;
       case SymbolicSize::Tiny:      return em * factors.Tiny;
+      case SymbolicSize::None:      return 0.0f;
       
       case SymbolicSize::Invalid: break;
     }
@@ -61,6 +63,7 @@ float Length::resolve(float em, const LengthConversionFactors &factors, float re
 
 Length Length::from_pmath(Expr obj) {
   if(obj == richmath_System_Automatic) return SymbolicSize::Automatic;
+  if(obj == richmath_System_None)      return SymbolicSize::None;
   if(obj == richmath_System_Large)     return SymbolicSize::Large;
   if(obj == richmath_System_Medium)    return SymbolicSize::Medium;
   if(obj == richmath_System_Small)     return SymbolicSize::Small;
@@ -88,6 +91,7 @@ Expr Length::to_pmath() const {
   
   switch(symblic_value()) {
     case SymbolicSize::Automatic: return Symbol(richmath_System_Automatic);
+    case SymbolicSize::None:      return Symbol(richmath_System_None);
     case SymbolicSize::Large:     return Symbol(richmath_System_Large);
     case SymbolicSize::Medium:    return Symbol(richmath_System_Medium);
     case SymbolicSize::Small:     return Symbol(richmath_System_Small);

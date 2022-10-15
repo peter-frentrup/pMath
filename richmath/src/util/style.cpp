@@ -121,6 +121,7 @@ extern pmath_symbol_t richmath_System_PanelBoxOptions;
 extern pmath_symbol_t richmath_System_Placeholder;
 extern pmath_symbol_t richmath_System_Plain;
 extern pmath_symbol_t richmath_System_PlotRange;
+extern pmath_symbol_t richmath_System_PlotRangePadding;
 extern pmath_symbol_t richmath_System_PointSize;
 extern pmath_symbol_t richmath_System_PureArgument;
 extern pmath_symbol_t richmath_System_Range;
@@ -2644,6 +2645,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(PatternVariableStyle);
   impl.emit_definition(Placeholder);
   impl.emit_definition(PlotRange);
+  impl.emit_definition(PlotRangePaddingLeft);
   impl.emit_definition(PointSize);
   impl.emit_definition(ReturnCreatesNewSection);
   impl.emit_definition(Saveable);
@@ -3428,6 +3430,10 @@ void StyleInformation::add_style() {
     // FrameBoxDefaultSectionFrameMarginRight
     // FrameBoxDefaultSectionFrameMarginTop
     // FrameBoxDefaultSectionFrameMarginBottom
+    add(StyleType::Margin,          PlotRangePaddingLeft,             Symbol( richmath_System_PlotRangePadding));
+    // PlotRangePaddingRight
+    // PlotRangePaddingTop
+    // PlotRangePaddingBottom
     add(StyleType::Margin,          SectionMarginLeft,                Symbol( richmath_System_SectionMargins));
     // SectionMarginRight
     // SectionMarginTop

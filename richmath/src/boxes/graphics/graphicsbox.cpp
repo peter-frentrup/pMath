@@ -1159,6 +1159,16 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
     }
   }
   
+  Length pad_left   = self.get_own_style(PlotRangePaddingLeft,   SymbolicSize::Automatic);
+  Length pad_right  = self.get_own_style(PlotRangePaddingRight,  SymbolicSize::Automatic);
+  Length pad_top    = self.get_own_style(PlotRangePaddingTop,    SymbolicSize::Automatic);
+  Length pad_bottom = self.get_own_style(PlotRangePaddingBottom, SymbolicSize::Automatic);
+  
+  if(pad_left   == SymbolicSize::Automatic && isfinite(bounds.xmin)) pad_left   = SymbolicSize::None;
+  if(pad_right  == SymbolicSize::Automatic && isfinite(bounds.xmax)) pad_right  = SymbolicSize::None;
+  if(pad_top    == SymbolicSize::Automatic && isfinite(bounds.ymin)) pad_top    = SymbolicSize::None;
+  if(pad_bottom == SymbolicSize::Automatic && isfinite(bounds.ymax)) pad_bottom = SymbolicSize::None;
+  
   if(!bounds.is_finite()) {
     GraphicsBounds auto_bounds;
     self.elements.find_extends(auto_bounds);
@@ -1169,31 +1179,29 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
     
     auto_bounds.add_point(ox, oy);
     
-    /* Add plot range padding of 2% where no explicit range was given
-       TODO: make this controlable trough a PlotRangePadding option, but that
-       would need Scaled({x,y}) coordinate specifications.
-    */
-    if(!isfinite(bounds.xmin)) bounds.xmin = auto_bounds.xmin - 0.02 * (auto_bounds.xmax - auto_bounds.xmin);
-    if(!isfinite(bounds.xmax)) bounds.xmax = auto_bounds.xmax + 0.02 * (auto_bounds.xmax - auto_bounds.xmin);
-    if(!isfinite(bounds.ymin)) bounds.ymin = auto_bounds.ymin - 0.02 * (auto_bounds.ymax - auto_bounds.ymin);
-    if(!isfinite(bounds.ymax)) bounds.ymax = auto_bounds.ymax + 0.02 * (auto_bounds.ymax - auto_bounds.ymin);
+    if(!isfinite(bounds.xmin)) bounds.xmin = auto_bounds.xmin;
+    if(!isfinite(bounds.xmax)) bounds.xmax = auto_bounds.xmax;
+    if(!isfinite(bounds.ymin)) bounds.ymin = auto_bounds.ymin;
+    if(!isfinite(bounds.ymax)) bounds.ymax = auto_bounds.ymax;
   }
   
-  if( !isfinite(bounds.xmin) ||
-      !isfinite(bounds.xmax) ||
-      bounds.xmin > bounds.xmax)
-  {
+  if(!isfinite(bounds.xmin) || !isfinite(bounds.xmax) || bounds.xmin > bounds.xmax) {
     bounds.xmin = -1;
     bounds.xmax = 1;
   }
   
-  if( !isfinite(bounds.ymin) ||
-      !isfinite(bounds.ymax) ||
-      bounds.ymin > bounds.ymax)
-  {
+  if(!isfinite(bounds.ymin) || !isfinite(bounds.ymax) || bounds.ymin > bounds.ymax) {
     bounds.ymin = -1;
     bounds.ymax = 1;
   }
+  
+  float w = bounds.xmax - bounds.xmin;
+  float h = bounds.ymax - bounds.ymin;
+  
+  bounds.xmin-= pad_left.resolve( w, LengthConversionFactors::PlotRangePadding, w);
+  bounds.xmax+= pad_right.resolve(w, LengthConversionFactors::PlotRangePadding, w);
+  bounds.ymin-= pad_bottom.resolve( h, LengthConversionFactors::PlotRangePadding, h);
+  bounds.ymax+= pad_top.resolve(    h, LengthConversionFactors::PlotRangePadding, h);
   
   if(bounds.xmin == bounds.xmax) {
     double dist = 0.5 * max(fabs(bounds.xmin), fabs(0.5 * bounds.ymin + 0.5 * bounds.ymax));

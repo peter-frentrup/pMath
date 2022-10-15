@@ -158,6 +158,7 @@ Options(Graphics):= Options(GraphicsBox):= {
     FrameTicks -> Automatic,
     ImageSize -> Automatic,
     PlotRange -> Automatic,
+    PlotRangePadding -> Automatic,
     Ticks -> Automatic}
 
 Options(Grid):= {

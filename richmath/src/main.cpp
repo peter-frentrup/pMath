@@ -487,6 +487,11 @@ static void init_stylesheet() {
 //  Stylesheet::Default->base->set(FrameMarginTop,                SymbolicSize::Automatic);
 //  Stylesheet::Default->base->set(FrameMarginBottom,             SymbolicSize::Automatic);
 
+//  Stylesheet::Default->base->set(PlotRangePaddingLeft,          SymbolicSize::Automatic);
+//  Stylesheet::Default->base->set(PlotRangePaddingRight,         SymbolicSize::Automatic);
+//  Stylesheet::Default->base->set(PlotRangePaddingTop,           SymbolicSize::Automatic);
+//  Stylesheet::Default->base->set(PlotRangePaddingBottom,        SymbolicSize::Automatic);
+
   Stylesheet::Default->base->set(SectionMarginLeft,             Length(7.0));
   Stylesheet::Default->base->set(SectionMarginRight,            Length(7.0));
   Stylesheet::Default->base->set(SectionMarginTop,              Length(4.0));

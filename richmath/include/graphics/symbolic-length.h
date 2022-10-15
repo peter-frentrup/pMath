@@ -9,6 +9,7 @@ namespace richmath {
     Invalid = 0,
     
     Automatic,
+    None,
     Tiny,
     Small,
     Medium,
@@ -23,6 +24,7 @@ namespace richmath {
     static const LengthConversionFactors GraphicsSize;
     static const LengthConversionFactors PointSizeInPt;
     static const LengthConversionFactors ThicknessInPt;
+    static const LengthConversionFactors PlotRangePadding;
     
     float Automatic;
     float Tiny;
