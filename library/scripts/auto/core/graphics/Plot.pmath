@@ -7,20 +7,6 @@ System`Plot
 Begin("System`Graphics`Plot`Private`")
 
 
-/* Options(Plot):= {
-	AspectRatio -> 1/GoldenRatio, 
-	Axes -> True, 
-	AxesOrigin -> Automatic,
-	Frame -> False,
-	FrameTicks -> Automatic,
-	ImageSize -> Automatic,
-	MaxRecursion -> Automatic,
-	PlotPoints -> Automatic,
-	PlotRange -> Automatic,
-	PlotStyle -> Automatic,
-	Ticks -> Automatic,
-	WorkingPrecision -> MachinePrecision}*/
-
 $PlotFailed	
 
 Attributes(Plot):= {HoldAll}
@@ -159,6 +145,11 @@ Function generateData(~f, ~xrange, ~numPoints, ~prec, ~maxrecurs) {
 joinLists():= {}
 joinLists(~~~args)::= Join(args)
 
+automaticPlotRangePadding(Automatic)::= {None, Scaled(0.04)}
+automaticPlotRangePadding({~xr, Automatic})::= {None, Scaled(0.04)}
+%automaticPlotRangePadding(~pr: Range)::= None
+automaticPlotRangePadding(~)::= None
+
 normalizePlotRange(~xyDatas, ~xrange, ~r: Range)::= {xrange, r}
 normalizePlotRange(~xyDatas, ~xrange, Automatic)::= {xrange, getPlotRange(joinLists @@ xyDatas, xrange)}
 normalizePlotRange(~xyDatas, ~xrange, {~xr, Automatic})::= {xr, getPlotRange(joinLists @@ xyDatas, xrange)}
@@ -168,7 +159,7 @@ Function tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot)) {
 	Local(allRules, plotPoints, workingPrecision, maxRecursion, plotRange, xyDatas, gRules)
 	
 	allRules:= Flatten({opts})
-	allRules:= Join(allRules, FilterRules(Options(Plot), Except(allRules)))
+	allRules:= allRules |> Join(Options(Plot) |> FilterRules(Except(allRules)))
 	
 	plotPoints:= PlotPoints.Replace(allRules)
 	If(plotPoints === Automatic) {
@@ -189,12 +180,17 @@ Function tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot)) {
 		Return($PlotFailed)
 	}
 	
-	xyDatas:= fs.Map(generateData(#, xrange, plotPoints, workingPrecision, maxRecursion) &)
+	xyDatas:= fs.Map(Function(generateData(#, xrange, plotPoints, workingPrecision, maxRecursion)))
 	
-	plotRange:= normalizePlotRange(xyDatas, xrange, PlotRange.Replace(allRules))
-	allRules:= Join(FilterRules(allRules, Except(PlotRange)), {PlotRange -> plotRange})
-	gRules:= FilterRules(allRules, Options(ListLinePlot))
-	gRules:= Complement(gRules, Options(ListLinePlot))
+	plotRange:= Lookup(allRules, PlotRange)
+	If(Lookup(allRules, PlotRangePadding) === Automatic) {
+		allRules:= allRules |> 
+			FilterRules(Except(PlotRangePadding)) |> 
+			Join({PlotRangePadding -> automaticPlotRangePadding(plotRange)})
+	}
+	plotRange:= normalizePlotRange(xyDatas, xrange, plotRange)
+	allRules:= allRules |> FilterRules(Except(PlotRange)) |> Join({PlotRange -> plotRange})
+	gRules:= allRules |> FilterRules(Options(ListLinePlot)) |> Complement(Options(ListLinePlot))
 	
 	Return(ListLinePlot(xyDatas, gRules))
 }
