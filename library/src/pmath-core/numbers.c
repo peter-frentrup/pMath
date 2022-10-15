@@ -1629,15 +1629,6 @@ static unsigned int hash_mp_float(pmath_t f) {
   return h;
 }
 
-static void delete_trailing_zeros(char *s) {
-  char *s2 = s + strlen(s) - 1;
-  
-  while(s2 != s && *s2 == '0')
-    --s2;
-    
-  s2[1] = '\0';
-}
-
 static void write_raw_latin1(void *_info, const char *str, int len) {
   struct pmath_write_ex_t *info = _info;
   
@@ -1867,6 +1858,12 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
             if(PMATH_AS_DOUBLE(tmp_obj) != PMATH_AS_DOUBLE(f))
               break;
           }
+          
+          while(n > 1 && tmp_digit_buf[n-1] == '0') {
+            --n;
+            ++shift;
+          }
+          tmp_digit_buf[n] = '\0';
           
           parts.total_significant = n;
           strcpy(best_digit_buf, tmp_digit_buf);
