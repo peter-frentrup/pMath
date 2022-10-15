@@ -1875,7 +1875,8 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
         
         if(*best_digit_buf) {
           parts.mid_digits = best_digit_buf;
-          //fmpz_add_si(parts.exponent, parts.exponent, best_shift - all_digits);
+          // might shift by 1 when rounding "999" to "100" with implied extra "0":
+          fmpz_add_si(parts.exponent, parts.exponent, parts.total_significant + best_shift - all_digits);
         }
         
         fmpz_clear(tmp_exp);
