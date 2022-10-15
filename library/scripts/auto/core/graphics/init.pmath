@@ -56,7 +56,7 @@ Options(ListLinePlot):= With(newdef:= {
 		PlotStyle -> Automatic,
 		WorkingPrecision -> MachinePrecision
 	}) {
-		FilterRules(Options(Graphics),Except(newdef)).Join(newdef)
+		Options(Graphics) |> FilterRules(Except(newdef)) |> Join(newdef) |> Sort
 	}
 	
 Options(Plot):= With(newdef:= {
@@ -68,7 +68,7 @@ Options(Plot):= With(newdef:= {
 		PlotStyle -> Automatic,
 		WorkingPrecision -> MachinePrecision
 	}) {
-		FilterRules(Options(Graphics),Except(newdef)).Join(newdef)
+		Options(Graphics) |> FilterRules(Except(newdef)) |> Join(newdef) |> Sort
 	}
 	
 AutoLoad(Hold(ListLinePlot),
