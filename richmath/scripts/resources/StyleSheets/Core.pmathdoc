@@ -4,47 +4,34 @@ Document({
   SectionGroup({
     SectionGroup({Section("Document styles", "Section"), 
       Section(StyleData("Document"), "CharacterNameStyle" -> {
-         FontColor -> RGBColor(0.84999999999999998`, 0.32500000000000001`, 
-           0.33300000000000002`)}, "CommentStyle" -> {
-         FontColor -> RGBColor(0, 0.502`, 0)}, 
+         FontColor -> RGBColor(0.85, 0.325, 0.333)}, 
+       "CommentStyle" -> {FontColor -> RGBColor(0, 0.502, 0)}, 
        DefaultNewSectionStyle -> "Input", DefaultReturnCreatedSectionStyle -> 
         DefaultNewSectionStyle, "ExcessOrMissingArgumentStyle" -> {
-         FontColor -> RGBColor(1, 0.20000000000000001`, 
-           0.20000000000000001`)}, FontFeatures -> {"ssty" -> Automatic}, 
+         FontColor -> RGBColor(1, 0.2, 0.2)}, 
+       FontFeatures -> {"ssty" -> Automatic}, 
        "FunctionLocalVariableStyle" -> {
-         FontColor -> RGBColor(0.23499999999999999`, 0.48999999999999999`, 
-           0.56999999999999995`)}, "FunctionNameStyle" -> {
-         FontColor -> RGBColor(0.47499999999999998`, 0.37`, 
-           0.14999999999999999`)}, "ImplicitOperatorStyle" -> {
-         FontColor -> GrayLevel(0.59999999999999998`)}, 
-       "InlineAutoCompletionStyle" -> {Background -> RGBColor(0.502`, 1, 0), 
-         Opacity -> 0.5`}, "InlineSectionEditingStyle" -> {
-         Background -> RGBColor(0.93999999999999995`, 0.88200000000000001`, 
-           0.72499999999999998`), Opacity -> 0.5`}, 
-       "KeywordSymbolStyle" -> {
-         FontColor -> RGBColor(0.68600000000000005`, 0, 
-           0.85999999999999999`)}, "LocalScopeConflictStyle" -> {
-         FontColor -> RGBColor(0.80000000000000004`, 0, 0)}, 
-       "LocalVariableStyle" -> {
-         FontColor -> RGBColor(0.26300000000000001`, 0.53700000000000003`, 
-           0.34499999999999997`)}, Magnification -> 1, 
-       "MatchingBracketHighlightStyle" -> {
-         Background -> RGBColor(1, 1, 0), Opacity -> 0.5`}, 
-       "OccurenceHighlightStyle" -> {
-         Background -> RGBColor(1, 0.59999999999999998`, 
-           0.20000000000000001`), Opacity -> 0.75`}, 
-       "PatternVariableStyle" -> {
-         FontColor -> RGBColor(0.26300000000000001`, 0.53700000000000003`, 
-           0.34499999999999997`)}, "SectionInsertionPointColor" -> 
-        GrayLevel(0.753`), "StringStyle" -> {FontColor -> GrayLevel(0.502`)}, 
-       "SymbolShadowingStyle" -> {
-         FontColor -> RGBColor(1, 0.20000000000000001`, 
-           0.20000000000000001`)}, "SyntaxErrorStyle" -> {
-         FontColor -> RGBColor(1, 0, 0)}, "UndefinedSymbolStyle" -> {
-         FontColor -> RGBColor(0, 0.17299999999999999`, 
-           0.76500000000000001`)}, "UnknownOptionStyle" -> {
-         FontColor -> RGBColor(1, 0.20000000000000001`, 
-           0.20000000000000001`)}, Visible -> True, WindowFrame -> "Normal"), 
+         FontColor -> RGBColor(0.235, 0.49, 0.57)}, 
+       "FunctionNameStyle" -> {FontColor -> RGBColor(0.475, 0.37, 0.15)}, 
+       "ImplicitOperatorStyle" -> {FontColor -> GrayLevel(0.6)}, 
+       "InlineAutoCompletionStyle" -> {Background -> RGBColor(0.502, 1, 0), 
+         Opacity -> 0.5}, "InlineSectionEditingStyle" -> {
+         Background -> RGBColor(0.94, 0.882, 0.725), Opacity -> 0.5}, 
+       "KeywordSymbolStyle" -> {FontColor -> RGBColor(0.686, 0, 0.86)}, 
+       "LocalScopeConflictStyle" -> {FontColor -> RGBColor(0.8, 0, 0)}, 
+       "LocalVariableStyle" -> {FontColor -> RGBColor(0.263, 0.537, 0.345)}, 
+       Magnification -> 1, "MatchingBracketHighlightStyle" -> {
+         Background -> RGBColor(1, 1, 0), Opacity -> 0.5}, 
+       "OccurenceHighlightStyle" -> {Background -> RGBColor(1, 0.6, 0.2), 
+         Opacity -> 0.75}, "PatternVariableStyle" -> {
+         FontColor -> RGBColor(0.263, 0.537, 0.345)}, 
+       "SectionInsertionPointColor" -> GrayLevel(0.753), 
+       "StringStyle" -> {FontColor -> GrayLevel(0.502)}, 
+       "SymbolShadowingStyle" -> {FontColor -> RGBColor(1, 0.2, 0.2)}, 
+       "SyntaxErrorStyle" -> {FontColor -> RGBColor(1, 0, 0)}, 
+       "UndefinedSymbolStyle" -> {FontColor -> RGBColor(0, 0.173, 0.765)}, 
+       "UnknownOptionStyle" -> {FontColor -> RGBColor(1, 0.2, 0.2)}, 
+       Visible -> True, WindowFrame -> "Normal"), 
       Section(StyleData("AttachedPopupWindow"), 
        DefaultNewSectionStyle -> "PopupWindowSection", Editable -> False, 
        FontFeatures -> {"ssty" -> Automatic}, 
@@ -58,8 +45,8 @@ Document({
          ButtonFunction -> Function(/\/), Method -> "Preemptive"}, 
        Editable -> True, Evaluatable -> False, FontColor -> None, 
        FontFamily -> {}, FontSize -> 10, FontSlant -> Plain, 
-       FontWeight -> Plain, GridBoxColumnSpacing -> 0.40000000596046448`, 
-       GridBoxRowSpacing -> 0.5`, LanguageCategory -> "NaturalLanguage", 
+       FontWeight -> Plain, GridBoxColumnSpacing -> 0.4, 
+       GridBoxRowSpacing -> 0.5, LanguageCategory -> "NaturalLanguage", 
        LineBreakWithin -> True, Magnification -> 1, 
        ReturnCreatesNewSection -> False, SectionEditDuplicate -> False, 
        SectionEditDuplicateMakesCopy -> False, 
@@ -78,11 +65,10 @@ Document({
        MenuSortingValue -> 1500, SectionMargins -> {{56, Inherited}, {10, 5}}, 
        SectionLabel -> "in:", ShowAutoStyles -> True, 
        ShowStringCharacters -> True), 
-      SectionGroup({
-        Section(StyleData("Code"), 
-         Background -> GrayLevel(0.80400000000000005`), BaseStyle -> "Input", 
-         LineBreakWithin -> False, MenuCommandKey -> "8", 
-         MenuSortingValue -> 1450, SectionFrameMargins -> 3), 
+      SectionGroup({Section(StyleData("Code"), Background -> GrayLevel(0.804), 
+         BaseStyle -> "Input", LineBreakWithin -> False, 
+         MenuCommandKey -> "8", MenuSortingValue -> 1450, 
+         SectionFrameMargins -> 3), 
         SectionGroup({
           Section(StyleData("Output"), AutoNumberFormating -> True, 
            BaseStyle -> "Input", DefaultDuplicateSectionStyle -> "Input", 
@@ -99,16 +85,14 @@ Document({
            SectionLabel -> "\[RightGuillemet]"), 
           Section(StyleData("Message"), AutoSpacing -> False, 
            BaseStyle -> "ControlStyle", Editable -> False, 
-           FontColor -> RGBColor(0.502`, 0, 0), SectionGroupPrecedence -> 20, 
+           FontColor -> RGBColor(0.502, 0, 0), SectionGroupPrecedence -> 20, 
            SectionMargins -> {{50, Inherited}, Inherited}, 
            ShowAutoStyles -> False, ShowStringCharacters -> False), 
           Section(StyleData("PrintUsage"), AutoSpacing -> False, 
-           Background -> RGBColor(0.93300000000000005`, 1, 
-             0.80000000000000004`), Editable -> False, 
+           Background -> RGBColor(0.933, 1, 0.8), Editable -> False, 
            FontFamily -> Dynamic(CurrentValue("ControlsFontFamily")), 
-           SectionFrame -> 0.75`, SectionFrameColor -> 
-            RGBColor(0.66700000000000004`, 0.80000000000000004`, 
-             0.59999999999999998`), SectionFrameMargins -> 6, 
+           SectionFrame -> 0.75, SectionFrameColor -> 
+            RGBColor(0.667, 0.8, 0.6), SectionFrameMargins -> 6, 
            SectionGroupPrecedence -> 20, 
            SectionMargins -> {{50, Inherited}, Inherited}, 
            ShowAutoStyles -> False, ShowStringCharacters -> False)}, All)}, 
@@ -127,8 +111,8 @@ Document({
       Section(StyleData("Todo"), BaseStyle -> "Text", SectionLabel -> "todo:", 
        SectionLabelAutoDelete -> False), Section(StyleData("Docked"), 
        BaseStyle -> "ControlStyle", 
-       SectionFrame -> {Inherited, {Inherited, 1.0000000116860974`*^-7}}, 
-       SectionFrameColor -> GrayLevel(0.502`), SectionFrameMargins -> 3, 
+       SectionFrame -> {Inherited, {Inherited, 0.1*^-6}}, 
+       SectionFrameColor -> GrayLevel(0.502), SectionFrameMargins -> 3, 
        SectionMargins -> 0, ShowStringCharacters -> False), 
       Section(StyleData("TooltipWindowSection"), AutoNumberFormating -> True, 
        BaseStyle -> "ControlStyle", SectionMargins -> 0), 
@@ -141,12 +125,11 @@ Document({
       Section(StyleData("TT"), 
        FontFamily -> {"Consolas", "Courier New", "mono"}), 
       Section(StyleData("Highlighted"), 
-       Background -> RGBColor(1, 0.92500000000000004`, 0.33000000000000002`), 
+       Background -> RGBColor(1, 0.925, 0.33), 
        FrameBoxOptions -> {BorderRadius -> 6, 
-         FrameStyle -> RGBColor(1, 0.92500000000000004`, 
-           0.33000000000000002`)}), 
+         FrameStyle -> RGBColor(1, 0.925, 0.33)}), 
       Section(StyleData("ConditionalExpressionLabel"), 
-       FontColor -> GrayLevel(0.502`), ShowStringCharacters -> False), 
+       FontColor -> GrayLevel(0.502), ShowStringCharacters -> False), 
       SectionGroup({Section("Default box level styles", "Subsection"), 
         Section(StyleData("Graphics"), AspectRatio -> Automatic, 
          AutoNumberFormating -> True, AutoSpacing -> True, 
@@ -166,8 +149,7 @@ Document({
          PanelBoxOptions -> {ContentPadding -> True}), 
         Section(StyleData("PaneSelector")), 
         Section(StyleData("Placeholder"), 
-         Background -> RGBColor(1, 0.97299999999999998`, 
-           0.80000000000000004`), FontColor -> GrayLevel(0.502`), 
+         Background -> RGBColor(1, 0.973, 0.8), FontColor -> GrayLevel(0.502), 
          FontSize -> 9, Placeholder -> True, ShowAutoStyles -> False, 
          ShowStringCharacters -> False), Section(StyleData("RadioButton")), 
         Section(StyleData("Setter"), BaseStyle -> "ControlStyle", 
@@ -178,7 +160,7 @@ Document({
       SectionGroup({Section("Button styles", "Subsection"), 
         Section(StyleData("Hyperlink"), 
          ButtonBoxOptions -> {ButtonFrame -> "Frameless"}, 
-         FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+         FontColor -> RGBColor(0, 0, 0.8), 
          TemplateBoxOptions -> {
            DisplayFunction -> Function(StyleBox(StringBox("\"", #1, "\""), 
               ShowStringCharacters -> False, ShowAutoStyles -> False))}), 
@@ -189,8 +171,8 @@ Document({
         Section("SummaryBox styles", "Subsection"), 
         Section(StyleData("SummaryItem"), Selectable -> True), 
         Section(StyleData("SummaryItemAnnotation"), 
-         FontColor -> GrayLevel(0.502`), ShowStringCharacters -> False)}, 
-       All), SectionGroup({Section("TemplateBox styles", "Subsection"), 
+         FontColor -> GrayLevel(0.502), ShowStringCharacters -> False)}, All), 
+      SectionGroup({Section("TemplateBox styles", "Subsection"), 
         SectionGroup({Section("Mathematical Functions", "Subsubsection"), 
           Section(StyleData("Binomial"), TemplateBoxOptions -> {
              DisplayFunction -> Function({"(", GridBox({{#1}, {#2}}), ")"}), 
@@ -276,9 +258,8 @@ Document({
                         If(CurrentValue({TemplateSlot, 3}) === True, False, 
                          True)), ButtonFrame -> None), "\[InvisibleSpace]"}}, {
                    "", PaneSelectorBox({
-                     True -> GridBox({{""}, {#2}}, 
-                       GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
-                 BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
+                     True -> GridBox({{""}, {#2}}, GridBoxRowSpacing -> 0.2)}, 
+                    #3)}}, BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
                  GridBoxRowSpacing -> 0)}), InterpretationFunction -> 
               Function({"OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
                  InterpretationBox("", #3)}, ")"})}), 
@@ -321,7 +302,7 @@ Document({
              DisplayFunction -> 
               Function(StyleBox(DynamicLocalBox({}, 
                  SliderBox(Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
-                     True -> 1, False -> 0, ~ -> 0.5`}), {
+                     True -> 1, False -> 0, ~ -> 0.5}), {
                     None, Temporary, 
                     Function(If((0 < #1 < 1) === True, 
                       With({
@@ -330,7 +311,7 @@ Document({
                          FE`Private`state === False, 
                         CurrentValue({TemplateSlot, 1}):= !FE`Private`state, 
                         CurrentValue({TemplateSlot, 1}):= (
-                           #1 >= 0.5`) === True)), 
+                           #1 >= 0.5) === True)), 
                       CurrentValue({TemplateSlot, 1}):= (#1 = 1) === True))}), 
                   0 .. 1, ContinuousAction -> False, 
                   Appearance -> 
@@ -359,7 +340,7 @@ Document({
                     With({
                       FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
                      Replace(FE`Private`state, {FE`Private`values[2] -> 1, 
-                       FE`Private`values[1] -> 0, ~ -> 0.5`}))), {
+                       FE`Private`values[1] -> 0, ~ -> 0.5}))), {
                     None, Temporary, 
                     Function(If((0 < #1 < 1) === True, 
                       With({
@@ -371,7 +352,7 @@ Document({
                           FE`Private`values[2], 
                          If(FE`Private`state === FE`Private`values[2], 
                           CurrentValue({TemplateSlot, 1}):= 
-                           FE`Private`values[1], If((#1 >= 0.5`) === True, 
+                           FE`Private`values[1], If((#1 >= 0.5) === True, 
                            CurrentValue({TemplateSlot, 1}):= 
                             FE`Private`values[2], 
                            CurrentValue({TemplateSlot, 1}):= 
@@ -539,7 +520,7 @@ Document({
               Function(
                FrameBox({#1, StyleBox("\" if \"", 
                   "ConditionalExpressionLabel"), #2}, 
-                FrameStyle -> GrayLevel(0.5`), BorderRadius -> 4))}), 
+                FrameStyle -> GrayLevel(0.5), BorderRadius -> 4))}), 
           Section(StyleData("Highlighted"), 
            TemplateBoxOptions -> {
              DisplayFunction -> 
@@ -559,8 +540,7 @@ Document({
                 ")"})})}, All), SectionGroup({
           Section("Hyperlinks", "Subsubsection"), 
           Section(StyleData("HyperlinkActive"), BaseStyle -> "Hyperlink", 
-           FontColor -> RGBColor(0.80000000000000004`, 0.502`, 
-             0.10199999999999999`), ShowAutoStyles -> False), 
+           FontColor -> RGBColor(0.8, 0.502, 0.102), ShowAutoStyles -> False), 
           Section(StyleData("DirectoryHyperlink"), 
            TemplateBoxOptions :> {
              DisplayFunction -> 
@@ -603,11 +583,11 @@ Document({
                        False))))), BaseStyle -> "Text", 
                  ButtonFrame -> "Frameless"), 
                 FontColor -> Dynamic(If(CurrentValue("MouseOver"), 
-                   RGBColor(1, 0.5`, 0), RGBColor(0, 0, 1))), 
+                   RGBColor(1, 0.5, 0), RGBColor(0, 0, 1))), 
                 ShowAutoStyles -> False)), 
              Tooltip -> "\"Open reference page\""}), 
           Section(StyleData("StylesheetHyperlink"), 
-           FontColor -> RGBColor(0, 0, 0.502`), 
+           FontColor -> RGBColor(0, 0, 0.502), 
            TemplateBoxOptions -> {
              DisplayFunction -> 
               Function(DynamicBox(
@@ -626,7 +606,7 @@ Document({
                     ButtonData -> FE`Private`path), 
                    ToBoxes(FE`Private`path))))))}), 
           Section(StyleData("StyleHyperlink"), 
-           FontColor -> RGBColor(0, 0, 0.502`), 
+           FontColor -> RGBColor(0, 0, 0.502), 
            TemplateBoxOptions -> {
              DisplayFunction -> 
               Function(DynamicBox(
@@ -644,8 +624,8 @@ Document({
              Tooltip -> None})}, All), 
         SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
           Section(StyleData("TemplateBoxErrorDisplayStyle"), 
-           Background -> RGBColor(1, 0.77000000000000002`, 
-             0.77000000000000002`), FontColor -> GrayLevel(0.502`)), 
+           Background -> RGBColor(1, 0.77, 0.77), 
+           FontColor -> GrayLevel(0.502)), 
           Section(StyleData("TemplateBoxErrorDisplayArgumentStyle"), 
            Background -> GrayLevel(1), FontColor -> GrayLevel(0))}, All)}, 
        All)}, All), SectionGroup({
@@ -664,7 +644,7 @@ Document({
           SectionGroup({Section(StyleData("Section"), 
              BaseStyle -> "HeadingText", FontSize -> 16, FontWeight -> Bold, 
              MenuCommandKey -> "4", MenuSortingValue -> 1250, 
-             SectionFrame -> {Inherited, {0.75`, Inherited}}, 
+             SectionFrame -> {Inherited, {0.75, Inherited}}, 
              SectionFrameMargins -> {Inherited, {4, Inherited}}, 
              SectionGroupPrecedence -> -50, 
              SectionMargins -> {{17, Inherited}, {14, 8}}), 

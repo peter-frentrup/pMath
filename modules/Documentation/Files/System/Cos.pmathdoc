@@ -9,17 +9,18 @@ Document({
         Section(
          "Mathematical function suitable for numeric and symbolic \
          computations.", "Notes"), 
-        Section({"The argument of ", TemplateBox({"Cos"}, 
-           "ReferenceHyperlink"), " is taken in radians (multiply by ", 
-          TemplateBox({"Degree"}, "ReferenceHyperlink"), 
-          " to convert from degrees)."}, "Notes"), 
-        Section({"For certain special arguments, ", 
-          TemplateBox({"Cos"}, "ReferenceHyperlink"), 
-          " automatically evaluates to exact values."}, "Notes"), 
-        Section({TemplateBox({"Cos"}, "ReferenceHyperlink"), 
-          " can be evaluated to arbitrary numerical precision."}, "Notes"), 
-        Section({TemplateBox({"Cos"}, "ReferenceHyperlink"), 
-          " automatically threads over lists."}, "Notes")}, All), 
+        Section(TextData({"The argument of ", 
+           TemplateBox({"Cos"}, "ReferenceHyperlink"), 
+           " is taken in radians (multiply by ", 
+           TemplateBox({"Degree"}, "ReferenceHyperlink"), 
+           " to convert from degrees)."}), "Notes"), 
+        Section(TextData({"For certain special arguments, ", 
+           TemplateBox({"Cos"}, "ReferenceHyperlink"), 
+           " automatically evaluates to exact values."}), "Notes"), 
+        Section(TextData({TemplateBox({"Cos"}, "ReferenceHyperlink"), 
+           " can be evaluated to arbitrary numerical precision."}), "Notes"), 
+        Section(TextData({TemplateBox({"Cos"}, "ReferenceHyperlink"), 
+           " automatically threads over lists."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -31,8 +32,8 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section({"To specify an argument in degrees, use ", 
-            TemplateBox({"Degree"}, "ReferenceHyperlink"), ":"}, 
+          Section(TextData({"To specify an argument in degrees, use ", 
+             TemplateBox({"Degree"}, "ReferenceHyperlink"), ":"}), 
            "ExampleText"), SectionGroup({
             Section(BoxData({"Cos", "(", {"30", "\[Degree]"}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
@@ -48,42 +49,43 @@ Document({
              "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {RGBColor(0.75`, 0, 0), {
+                {RGBColor(0.75, 0, 0), {
                   LineBox(CompressedData(
-                    "1:c$,g^dr*[{7{=X]gK}(1MVCXG=9yy5p)yo-)L}C}GE!p@j1Y(vQSpjk\
-                    2wo@$8AMD%D=A{g;bQ0rC^i_xdciT[7+y0+DT_4mf+i-8Vzjg0S<ZX@I,e\
-                    zJ*?qs=_j%qA,nWd}fB}4]p>xtxQWq}dpSdI@75ciHOhEhCfA&8Q7,Q0Tz\
-                    pbA#@^BubUmvR$Z[![0;EH$=ql=EeVm{d},2fWq)Y+C@&Mjj!wIchOcp}w\
-                    wdVU}H@2qG%J-kzL5A^&YMo;e@G0]}_^1<l&21esN6Y@6LBp;&qPeGBJ4}\
-                    X19^hVd2Ir&wRQ?$+rMiVw)h!4z@+@iSUwV;S+qfRke9n;nF<$TFsK<nEW\
-                    UECh!T;wPDaK&qL3qKn*,YfaV4NiOC>+WDM0_[T_(P;jB}0N;$ONw9n&m%\
-                    opTwwIk*g=8T4U$_?J(n2W%wo@mj+gvpRL>PgL$>*]EX[{izz5ZHjnP#x&\
-                    EGX#yvtxTs^>bR3&IcQT_lo^LG[E>Xi&7<,>]cg41CePH{?10=Dg;(shz>\
-                    =Xy0]5ZBsH6i%V,Y7>oA3%jmg#TmLNSY-8Yu*8hjmqkEHQ9cjACU_4s?Uq\
-                    -Wnp)G%%je$Q[r<>7CgA161>hHs;FxC+;8Ldw^J!}YMV5;KhM]%x}e+4*g\
-                    HtG[*fX>;8(@^8R1aQS]UhP=zUS{HSx^WHyrYXMkbnE?xUe27(H_lB!5UO\
-                    8t,#B2;QG88BeS7_L$%Bo15impXr=M3QmaOW_^*ss*ReY+OwQO*u<ekR73\
-                    z(^RW>#TaR-5GZJ,pfm@ng?CtX;$VaXQiHD*<7On^JP(m&[#i-iHFh6%V=\
-                    HQ+##1<W)xB3W!jA%ZF*Lvrb8F?{fij6[SD,G3*GqaP12LQHr]VB[V&AmE\
-                    7(l0nv(woowAzx<+!l?*zmsz9S&=GOd!_?o$DAijRMq}G1@Da=Whu#4G;G\
-                    A=[U,w<NdcfPndmrzN{gnC5KeIyVF)pgxqmNBtyERQ&L*%#_*y{QP3Yqf6\
-                    @xmd,Vz^^+9u{-CSIXRR64vrO@ChK)P-,%W{ee[&@L3n]YO}7=F@yGn7Zt\
-                    95o$KUZ,<s[)c9q%hAv&=s9$s^S$-Jev1pNWM^?}3,[7UYTPaRx5e6zOS{\
-                    4,]KbY*0y_+FVXj#q4<ipwCo<A{-__;D_(P{qbWJQKkA>2ia(l[==4{i<d\
-                    1Z[eN2?#-_#m7_kt9%b%Sm)g!%)v#>pWAxK0,YSp->C3d!06*@kdpdu5%I\
-                    uN&7{BOu2RLN^vpxK%8LU]RHoLx,A{_C,&XJJ)F=AkPruCPluQku;FgGup\
-                    <V5}jrXoSxUd&o_j}MQK[ayA9&>xDJW[f}5cCIXYQ(5)=uZoUYSR^aVkgF\
-                    oe?}b$0C{$oxY&ZP8)(6+!MF+M7BIiU_hl<@9YGr^N*Moc87pgA#&_?j;S\
-                    X1A8}?PM5+;o$#duSzQX#^++fu$m?F*F+=tk!k8BicK5yM)f+wxDhWyf3#\
-                    aq+l-g$q%Xf]Ml0H%jy<=@ZLHS_ejyYIu2vz-er{9UP^ac=v0}X_96c*@7\
-                    TWbgpH+k2^7Ff7rG=EP[rdYURme&y!Di-b-{yz}uDi-eeT4*qY@*PQKHy&\
-                    HK<MX1CpuF+sj_;8phA,vZ@[^=>Z}?YjIYv+tdG{s[,yZ%PP<8~~"))}}}, AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
-               Axes -> True, PlotRange :> NCache({
-                 0 .. 2*Pi, -0.99999999999999989` .. 1.0`}, {
-                 0.0` .. 6.2831853071795862`, -0.99999999999999989` .. 
-                  1.0`}))), "Output", SectionGenerated -> True, 
-             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
-      SectionGroup({Section("Scope", "ExampleSection"), 
+                    "1:c$,(1eNdG[6vlZE7v&-#s4SNx4W=A(s0<Yyb=*aPjL;nX$oPsBQBYI_\
+                    LhyrfkU>Qyw2]r*98g0?P_cm^76HeEYk+9xC[j]QC[?8hC,QZfUEb]e^LN\
+                    hdp7-o}o?WnVtkwYR!C;FPrz9k<ii-@2Nl1iY?f?d>}9uZI*g6^vfXFwMv\
+                    &L6sVf0mPDSdO,J_b95=V7$E?iJ&Oe#Y%Ne^72-cWrkOMu}r=p3x_aJ1Y4\
+                    nFnVWwb%T2^<4#KcS&SNvkDG4Y&iE)LzY3#>(NS63%#4rW{71i]JJ0l<!>\
+                    FV0(&FqA#*wnld5ofVwnqA9F>d1A^qSw2XC4<ZDh=yv,eFs+FDUDqF<R5P\
+                    +$PVPad*zkcISTTF}ipVpDOF)@Ada!7^m#pf>8*0e)1[1{3XtB{_B+DPg^\
+                    m1G[+nLa]tEHN<CLG+KI!P1E(_nvQp1=i]{z0H?7U?#xP;9,=Xqicw<=Ow\
+                    ^di[VVI]?a}@%D!4+9oG{z?>)%=c;Ux>r};ikJ7yp&x#SeJjbNvbn+Vt8H\
+                    IwG$)rthDI-g4-A->$]2=E![(mDClj+;H}9wH%8[<$1kX<zky-uV76HNAD\
+                    r$F?b%z*7<[}K,f-}}6lN%uTM<OX8Wd&@W{agY(kynQFq>yz_L!2k^*RvL\
+                    DC(myN9nFLL4o3bC=kwX-{{%oSY#k*p7?(Xb2(qz(02c!s},UbM87Eb>6P\
+                    0MOLr**@a&}cm7SH(S+>783kvf&fBIQ*biu[9M4lamK+b17covN+X1rINH\
+                    H9F])6#R>)7u%h%m#&poYy{c^6YaTPSA8QOB5DyZb-<Cj9JFGW%eipa]{w\
+                    &kbh%8<0WENDJ<c9*N4e%3obHlnQaQoI5+>&Gqwh7iPQpx<(xY%iVpFf&A\
+                    3H76hb&(bfN7]VG,pOtx*W${J@;0*H8)L7Hv}9;C$-S?8i-wj9au!A(Hc-\
+                    &zfC!-C^9KeF,f$PmZ^pHrK{Tq*qXg8tlFpJ}h}6AEVJcyW&n-LfITOdky\
+                    Cyg_SvRp+;r(SkC)D=sPuGvr(yL9p_(<ozn8#L8DUrdd_d<6psx4$*BD8M\
+                    $SF$JQvmvw^O>aiSwvWa<hDV?UZgNa(?uQQ{%Bz##hPif5ds$hD_twGR8]\
+                    gX>I1*>#u>g_I5KKBTqM#^YszQ83PkWDATZ&^HW!Q>f<9vDATi@^G89^)_\
+                    >+Q{zy*S#]Kg#)VKLAYh{59Ii5R2pz^f2dS-w<k={ZfUDG9MPvYhHXNdgs\
+                    ,-{u1y&Q;i7Ydmo5V$>e+MRqB@R#!1EdonIlixU%?ntD+P{<O2h#5;?O^q\
+                    E%&?PD0eSB+S15V_!)O)tbuU?(Jr^]^apgL&[IhyVd&LmU1$w7{V4]!;Tr\
+                    1gBRDLycUpdX[D9ny5cyO1VnY+q,M;$4P(21A]vNFEXNwlvOsP0=<QavBT\
+                    ;nj&sjCQ50}hxyh*+^%GUbn-$?5jV@9CyoDzrl{MM=r_eN5t#Jinf_t7U5\
+                    D%jL$Rjl-b7HSyo*kVK-}Gevr@*hz}iG&Qd1nkMD*LPR0K*!98S5r+%#l4\
+                    7*1=7SFpfJd7qYvz{4GG<>5IdqF=z@X^M-Oh<;<2Yl@ASh<?R?uPHuaBKn\
+                    )4N(7D^h%M@PY$Ez2qFPfN#*OH&jv5h}}L&3c{LyYif2P!Gy7#zA@4^28-\
+                    O)]#"))}}}, AspectRatio -> NCache(1/GoldenRatio, 
+                 0.6180339887498948`), Axes -> True, 
+               PlotRange :> NCache({0 .. 2*Pi, -0.9999999999999999` .. 1.0}, {
+                  0.0 .. 6.283185307179586`, -0.9999999999999999` .. 1.0}), 
+               PlotRangePadding :> {None, Scaled(0.04)})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Evaluate numerically:", "ExampleText"), 
         SectionGroup({Section(BoxData({"Cos", "(", "1.2", ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
@@ -104,8 +106,8 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section({TemplateBox({"Cos"}, "ReferenceHyperlink"), 
-            " threads over lists and matrices:"}, "ExampleText"), 
+          Section(TextData({TemplateBox({"Cos"}, "ReferenceHyperlink"), 
+             " threads over lists and matrices:"}), "ExampleText"), 
           SectionGroup({
             Section(
              BoxData({"Cos", "(", {
@@ -131,8 +133,8 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section({TemplateBox({"Cos"}, "ReferenceHyperlink"), 
-            " allows complex arguments:"}, "ExampleText"), 
+          Section(TextData({TemplateBox({"Cos"}, "ReferenceHyperlink"), 
+             " allows complex arguments:"}), "ExampleText"), 
           SectionGroup({Section(BoxData({"Cos", "(", {"2.5", "+", "I"}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData({{"-", "1.2362291988563419`"}, "-", {
@@ -191,11 +193,11 @@ Document({
              "8.21898891907023921444802536443255751734[+/-5.54*^-39]`40*^-1"}), "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
          All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"ArcCos"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Sin"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"Cot"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Sec"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"Cosh"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
+      Section(TextData({TemplateBox({"ArcCos"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Sin"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Cot"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Sec"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Cosh"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
    All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

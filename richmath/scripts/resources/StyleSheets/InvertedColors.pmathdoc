@@ -30,29 +30,22 @@ Document({
          SectionGenerated -> True, SectionLabel -> "out [1]:")}, 2), 
       SectionGroup({Section("Document styles", "Section"), 
         Section(StyleData("Document"), Background -> GrayLevel(0), 
-         "CharacterNameStyle" -> {
-           FontColor -> RGBColor(0.14999999999999999`, 0.67500000000000004`, 
-             0.66700000000000004`)}, "CommentStyle" -> {
-           FontColor -> RGBColor(0, 0.70199999999999996`, 0)}, 
+         "CharacterNameStyle" -> {FontColor -> RGBColor(0.15, 0.675, 0.667)}, 
+         "CommentStyle" -> {FontColor -> RGBColor(0, 0.702, 0)}, 
          FontColor -> GrayLevel(1), "FunctionLocalVariableStyle" -> {
-           FontColor -> RGBColor(0.435`, 0.68999999999999995`, 
-             0.67000000000000004`)}, "FunctionNameStyle" -> {
-           FontColor -> RGBColor(0.52500000000000002`, 0.63`, 
-             0.84999999999999998`)}, "KeywordSymbolStyle" -> {
-           FontColor -> RGBColor(1, 0.82699999999999996`, 
-             0.23499999999999999`)}, "LocalVariableStyle" -> {
-           FontColor -> RGBColor(0.46300000000000002`, 0.73699999999999999`, 
-             0.54500000000000004`)}, "PatternVariableStyle" -> {
-           FontColor -> RGBColor(0.46300000000000002`, 0.73699999999999999`, 
-             0.54500000000000004`)}, "StringStyle" -> {
-           FontColor -> GrayLevel(0.60399999999999998`)}, 
-         "UndefinedSymbolStyle" -> {
-           FontColor -> RGBColor(0.314`, 1, 0.14000000000000001`)})}, All), 
-      SectionGroup({Section("Section styles", "Section"), 
+           FontColor -> RGBColor(0.435, 0.69, 0.67)}, 
+         "FunctionNameStyle" -> {FontColor -> RGBColor(0.525, 0.63, 0.85)}, 
+         "KeywordSymbolStyle" -> {FontColor -> RGBColor(1, 0.827, 0.235)}, 
+         "LocalVariableStyle" -> {FontColor -> RGBColor(0.463, 0.737, 0.545)}, 
+         "PatternVariableStyle" -> {
+           FontColor -> RGBColor(0.463, 0.737, 0.545)}, 
+         "StringStyle" -> {FontColor -> GrayLevel(0.604)}, 
+         "UndefinedSymbolStyle" -> {FontColor -> RGBColor(0.314, 1, 0.14)})}, 
+       All), SectionGroup({Section("Section styles", "Section"), 
         Section(StyleData("Edit"), AutoSpacing -> True, 
          FontColor -> GrayLevel(1), LanguageCategory -> "pMath", 
          ShowAutoStyles -> True), Section(StyleData("Input")), 
         Section(StyleData("Text"), SectionFrameColor -> GrayLevel(1))}, All)}, 
-     All)}, All)}, Background -> GrayLevel(0.19`), 
- FontColor -> GrayLevel(0.90200000000000002`), 
- StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
+     All)}, All)}, Background -> GrayLevel(0.19), 
+ FontColor -> GrayLevel(0.902), StyleDefinitions -> "Stylesheets.pmathdoc", 
+ Visible -> True)

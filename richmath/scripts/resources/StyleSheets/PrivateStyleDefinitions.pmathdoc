@@ -23,8 +23,7 @@ Document({
                  ButtonFunction -> 
                   Function(SetSelectedDocument(FE`Private`owner)), 
                  BaseStyle -> "Hyperlink"))), "\[HighNineDoubleQuote]"}), 
-            "Docked", SectionFrame -> {
-              Inherited, {Inherited, 9.9999999999999995`*^-7}})}}, 
+            "Docked", SectionFrame -> {Inherited, {Inherited, 0.000001}})}}, 
        FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
        Saveable -> False, Visible -> True, WindowFrame -> "Normal", 
        WindowTitle -> 
