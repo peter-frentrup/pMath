@@ -186,7 +186,6 @@ AutoLoad(Hold(OpenerView),
 	ToFileName({$BaseDirectory, "auto", "core", "gui"}, "OpenerView.pmath"))
 
 Get(ToFileName({$BaseDirectory, "auto", "core", "Developer"}, "PrintMessageOverload.pmath"))
-Get(ToFileName({$BaseDirectory, "auto", "core"}, "colors.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "rawboxes.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "accents.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "brackets.pmath"));

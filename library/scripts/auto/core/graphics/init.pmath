@@ -71,6 +71,8 @@ Options(Plot):= With(newdef:= {
 		Options(Graphics) |> FilterRules(Except(newdef)) |> Join(newdef) |> Sort
 	}
 	
+Get(ToFileName(DirectoryName($Input), "directives.pmath"));
+
 AutoLoad(Hold(ListLinePlot),
 	ToFileName(DirectoryName($Input), "ListLinePlot.pmath"))
 AutoLoad(Hold(Plot),
