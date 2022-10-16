@@ -1,0 +1,356 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Dashing", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Dashing"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"At 100% ", TemplateBox({"Magnification"}, 
+            "ReferenceHyperlink"), 
+           ", the absolute dash lengths are measured in \
+           printer\[HighNineQuote]s points. One printer\[HighNineQuote]s point \
+           equals ", BoxData(FractionBox("1", "72")), 
+           " inch. One pixel on a typical low resolution (96 dpi) screen \
+           equals 0.75 printer\[HighNineQuote]s points."}), "Notes"), 
+        Section(TextData({"The following symbolic forms for ", 
+           StyleBox({"d", SubscriptBox("i")}, "Arg"), " can be used: ", 
+           TemplateBox({"Tiny"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Small"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Medium"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Large"}, "ReferenceHyperlink"), ", and ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"A length ", StyleBox({"d", SubscriptBox("i")}, 
+            "Arg"), " of the form ", TemplateBox({"Scaled"}, 
+            "ReferenceHyperlink"), "(", StyleBox("s", "Arg"), 
+           ") uses a fraction ", StyleBox("s", "Arg"), 
+           " of the overall plot range width (excluding graphics frame \
+           margins) for the thickness."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(
+         "Specify the dashing of lines as successive segments with lengths in \
+         printer\[HighNineQuote]s points:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Graphics", "(", {
+                {"{", {{"Dashing", "(", {"{", {"d", ",", {"10", "-", "d"}}, 
+                    "}"}, ")"}, ",", {"Line", "(", {
+                    "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                      "{", {"1", ",", "1"}, "}"}, ",", {
+                      "{", {"2", ",", "0"}, "}"}, ",", {
+                      "{", {"3", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                 "ImageSize", "\[Rule]", "50"}}, ")"}, ",", {
+               "d", "\[Rule]", {"{", {"2", ",", "4", ",", "6", ",", "8"}, 
+                "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              GraphicsBox({Dashing({2, 8}), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               ImageSize -> {50, Automatic}), ",", 
+              GraphicsBox({Dashing({4, 6}), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               ImageSize -> {50, Automatic}), ",", 
+              GraphicsBox({Dashing({6, 4}), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               ImageSize -> {50, Automatic}), ",", 
+              GraphicsBox({Dashing({8, 2}), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, 1}})}, 
+               ImageSize -> {50, Automatic})}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Set the line dashing in plots using ", 
+             TemplateBox({"PlotStyle"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({"Plot", "(", {
+                {"{", {{"Sin", "(", "x", ")"}, ",", {"Cos", "(", "x", ")"}}, 
+                 "}"}, ",", {"x", "\[Rule]", {"0", "..", "5"}}, ",", {
+                 "PlotStyle", "\[Rule]", {
+                  "{", {{"Dashing", "(", "Tiny", ")"}, ",", {
+                    "Dashing", "(", "Large", ")"}}, "}"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                {Directive(RGBColor(0.75, 0, 0), Dashing(Tiny)), {
+                  LineBox(CompressedData(
+                    "1:c${67dr*{B7>C)z)q+J9=Rk;v1eA<9$#4lW&Zk(o2<1>F1hWDnmw+W$\
+                    B*ccm5d{KKC=?AtBpL<@q7g-!J}h,[QAiXhFogscR_@4xTzmKIAK#h2*[t\
+                    CWo%6oucg}U)BQ6&qWQ_ET@P}hf$%o=Y{bCf!$iNyQJ)Qr3$Vfx4#rHMD_\
+                    jME75LM0n1Kk9@B-YbISXyWgzX5,6YOQiA_w^HGEL1-wWxaUxkb00HF}C$\
+                    sXu[A>sby)hF(V]GYbm#<%Zw7-I]nDjHabj@gmPLQKS8h}w=>SUR7KD_&F\
+                    b2wQ^fVg!F,u4MhU{Snils>5$s^PCG0C6xFxgtG{Geeb8oZ;juB)<IbB6M\
+                    LvUW,P=WXfaBIr7+kOswhuO+H**HNq%=Ew)-#Oh-+6vs3@,tqXEWz6qibs\
+                    hK69m]&UZh#S6[XT0fKQA+aC^#qX=63Pc5T0xh9?4d6#8ZWCt2yzpfkW<7\
+                    qV0nsb7@4v<9e?Fpb+B!G-cYJzHCVZ(()}eDLK#Ys0^RZxyl[1KwZak<l>\
+                    >{7oi>d4fH2)XQ1VfjbK)TLIilr^;gU5^xtLofiZLl+WD1whG*hayn)(@C\
+                    ]w>U$<%aTTE)eWnPoR#S6eaDR<B,kSq}K,?kf1atio%CQab6;_6<9A>dw2\
+                    n!w*R@R9{Q0M0RKE)pzOx}JmGz;{wEqG<xp?ap=0s06-?^6NBC;O=3OVJC\
+                    BdzsKac1gBEo(w-d+e77cjI%eS#892XKpY09Qmq]4zV8>T3?L0dMcfpTIX\
+                    9Z4Wre68zB=Gl{6o5w;4P+HbfbV5?yGpP$p>cXLAMRiPla3CDjdyM6@mzq\
+                    r{1H<Rye_0U@0b0+KNenui1Xs4AvcupP6C-1A>wdWm;bZBxDkRrVeSax@N\
+                    Jv&D=Cri4nu^OugBH3b(qvTJ}RfP^wj6DiD]AExo;j46e,?H1J3KPzi!v;\
+                    J%YkDRJ+kNocnJVg72NJ=TU@^qA_=oB>SGJ?&VP=la,pnn+y)CJ$?V>QM9\
+                    I7+t8F#+,6l{RrQodpE8-O<#6Xlxhkl5m,8EUe84TQHtuQLtKyMdIHOkJf\
+                    BYG<qoC^<k3JL5LJeHk@>P$nW1]Du5;8R7?q+(b3O0@LC}SrVz>LF14h}v\
+                    mpMa+@uN8RG9ktVI&f,2v72a75@K[S+E2)=(r!i*%+{7iye6#)pkG>G5Tq\
+                    EJIp*%6iU_bD5VSQWR^CQN0=8pi+5K%$baRZ^t+4(8YfjFiWy_y#OAliqn\
+                    TeSZS;<#4q*7S$]fk?v5sx[ZOM8Zr*L8!i01%Lhzh-{H23hn)naIU3p$6Z\
+                    DN=Zb_,tDydpjd}c>HHbWsFzihbWlP(RrYwUvB@(jk24VHVLHuGB#Ay-pc\
+                    Ld^xp[L;P6%d8YuzKbkZf=U6=I23t%?!I9L]%Ucs6PRsSR}Z]GYFp_V=uT\
+                    5fH=pDD+O,2*[^HP1H^e}+)xk?^iN6R8bN%^WSas)oZe)s_zuKHCfj@v,u\
+                    WuriJ2hEm]ksWeA%)-DfR$[a%S8n5FWEDk0U%lR50Uqf=ExAxE*c^qLPNb\
+                    N<VYXwWNPGvv!>S4^u&?um~~~"))}}, {
+                 Directive(RGBColor(0, 0, 0.75), Dashing(Large)), {
+                  LineBox(CompressedData(
+                    "1:c$,(#ZBUd}6bEqjwu,V3Z{d]99HlMAQE>vPFg!POL>DAfFo_^!Ff9VH\
+                    MKJ^h8bAdl1;Sz2#uvnbaY]y6r@<aWUIPvAWvCTalNL]x#c3AD5u]$sKRm\
+                    Z*_S0}g-t)ibo@a@J+c5<pu0-iXw}uF]*pZqT@u@C@IL;$P>F]d20*I5FQ\
+                    b[lIs-Yp(Pzh8Y_HCJU+5$u^_&J]*p>vMjd4lfBeM6ZBKNo@a4u&_@n9<#\
+                    Y^$kEBqE{s(7}[hrYxobEfF3<Ru*K;*x}gueZ$KwvhR16f(7n0a<Fx=?+>\
+                    )&h)T2{j}2ClYD{iZra?pLar[46#Kp*FIUxPUGxkBA;peK,(>#qf(&lBqQ\
+                    0?mK5YxX_EIFR{5-CIB*<mFSVb?6IhU9*?H1I-<@&ik1eh_6ufPoRrBopV\
+                    m=&^1EUyFlIJ_N>$li])IrJ71n^1gbN)eq(tHeX)?{KG4v*sG*pGM?jVcX\
+                    @-Cn_#Zd#,gat_QaOzYBGcDRmo6ItvRp_r3iSF9^DpcOG67j3q!}Oc&7]&\
+                    5;yDE5P1,Q^qK_fV+0W2ZI}w9D-g^?7_8e^aMbiu<$fmFJ#Z!<KR$TT$M3\
+                    +R]<]!fz=a]VTbwZ,@Kin^oV0mW+Q;%3H2RGlB$h$%g!f5dF9Bb>%e<ZS+\
+                    J72xw1x9yw87J#+4oif}ld5DnC54tJXGSFwDx6ZuXvWUq>1QF2B(jz[kLa\
+                    ahH1?11,2I=sbwWn;pDS+}(@&2{WIgwCTh&hVBRR)&(?ZM=(Q?=FIF5}wT\
+                    I$c,}BfCZ-$fq!UcJZmr1j$xiIn^0$gZSp%<O4EjgnIa&0-YX*Ho0xwn${\
+                    NeACJ3k^Z[@RDd2W^aedT-;{VD8GWl<^(uNuV$o}8h3MPlNiw6Cw2bIKu0\
+                    j8hJ3s6zPK>%&SzOwh&_5D-j6M}w0So%j6Xcxx&<B6]J]rh6dZL{3Ec(4m\
+                    ,P$kE^dvcFAG)&E9Mk<2Jz1DkXGR04_a@_W^iSmOFGE+)39B5KLEk06$8q\
+                    ST;XbPNDfG}eoQKghp7BI)MgQE^W&5Q&Gv6[{_s2g(O_T3x2v>KlD!J,yK\
+                    u;HDLCt8Kw$AN*JNg%LN{0T<>6QAB3+NfbjG%9CUvr?P0(]F%%Qmh?-<o7\
+                    xx^^%6eqnad=XO_Jy1EHHOPC!OMlUb)GdDlSX]^cT;Io5X9eXR&T8*A7?{\
+                    7di,D>es{m[Ci!uYr{>QVE)&z0}R2)}Ou@1ZMuFz]eb21PDV$Okav,u8-$\
+                    _0E}%<V6bM-d}+&>*<40QU}^jhZMqvxiLDqv*;&P=tGGV3#A+Ii,MAy_Fo\
+                    G[Byxn8w)e=L^)@!2%{XC_NU2ad)q]Nt$(]u(z,rGOOd<aXc(MqKZ@Dh[F\
+                    Nu_Kwhy,&^Y$]CmULc[NCoE^{=CFGwJGU^i]8U{}880b"))}}}, 
+               AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
+               Axes -> True, PlotRange -> 
+                NCache({0 .. 5, -0.9999967038406539` .. 1.0}, {
+                  0.0 .. 5.0, -0.9999967038406539` .. 1.0}), 
+               PlotRangePadding :> {None, Scaled(0.04)})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("No dashing:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Graphics", "(", {
+              "{", {{"Dashing", "(", {"{", "}"}, ")"}, ",", {
+                "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                   "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({Dashing({}), LineBox({{0, 0}, {2, 1}})})), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"For absolute or scaled ", StyleBox("d", "Arg"), 
+             ", ", TemplateBox({"Dashing"}, "ReferenceHyperlink"), "(", 
+             StyleBox("d", "Arg"), ") is equivalent to ", 
+             TemplateBox({"Dashing"}, "ReferenceHyperlink"), "({", 
+             StyleBox("d", "Arg"), ", ", StyleBox("d", "Arg"), "}):"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Graphics", "(", {
+                  {"{", {{"Dashing", "(", "d", ")"}, ",", {
+                     "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                        "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                   "ImageSize", "\[Rule]", "Tiny"}}, ")"}, ",", {
+                 "d", "\[Rule]", {"{", {"1", ",", "2", ",", "4", ",", "8"}, 
+                  "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {GraphicsBox({Dashing(1), LineBox({{0, 0}, {2, 1}})}, 
+                 ImageSize -> {Tiny, Automatic}), ",", 
+                GraphicsBox({Dashing(2), LineBox({{0, 0}, {2, 1}})}, 
+                 ImageSize -> {Tiny, Automatic}), ",", 
+                GraphicsBox({Dashing(4), LineBox({{0, 0}, {2, 1}})}, 
+                 ImageSize -> {Tiny, Automatic}), ",", 
+                GraphicsBox({Dashing(8), LineBox({{0, 0}, {2, 1}})}, 
+                 ImageSize -> {Tiny, Automatic})}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({"Use ", TemplateBox({"Scaled"}, "ReferenceHyperlink"), 
+             " to scale with the overal plot width:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Graphics", "(", {
+                  {"{", {{"Dashing", "(", {"Scaled", "(", "r", ")"}, ")"}, 
+                    ",", {"Line", "(", {
+                      "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                        "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                   "ImageSize", "\[Rule]", "Tiny"}}, ")"}, ",", {
+                 "r", "\[Rule]", {"{", {"0.01", ",", "0.05", ",", "0.1", ",", 
+                   "0.2"}, "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {
+                GraphicsBox({Dashing(Scaled(0.01)), 
+                  LineBox({{0, 0}, {2, 1}})}, ImageSize -> {Tiny, Automatic}), 
+                ",", GraphicsBox({Dashing(Scaled(0.05)), 
+                  LineBox({{0, 0}, {2, 1}})}, ImageSize -> {Tiny, Automatic}), 
+                ",", GraphicsBox({Dashing(Scaled(0.1)), 
+                  LineBox({{0, 0}, {2, 1}})}, ImageSize -> {Tiny, Automatic}), 
+                ",", GraphicsBox({Dashing(Scaled(0.2)), 
+                  LineBox({{0, 0}, {2, 1}})}, 
+                 ImageSize -> {Tiny, Automatic})}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Specify offsets for the dash segments:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Graphics", "(", {
+                  {"{", {{"{", {"Red", ",", {"Thickness", "(", "5", ")"}, ",", 
+                      {"Dashing", "(", {{"{", {"10", ",", "5"}, "}"}, ",", 
+                        "o"}, ")"}, ",", {"Line", "(", {
+                        "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                          "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", 
+                    {"Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                        "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                   "ImageSize", "\[Rule]", "Tiny"}}, ")"}, ",", {
+                 "o", "\[Rule]", {"{", {{"-", "5"}, ",", "0", ",", "5"}, 
+                  "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {
+                GraphicsBox({{RGBColor(1, 0, 0), Thickness(5), 
+                   Dashing({10, 5}, -5), LineBox({{0, 0}, {2, 1}})}, 
+                  LineBox({{0, 0}, {2, 1}})}, ImageSize -> {Tiny, Automatic}), 
+                ",", GraphicsBox({
+                  {RGBColor(1, 0, 0), Thickness(5), Dashing({10, 5}, 0), 
+                   LineBox({{0, 0}, {2, 1}})}, LineBox({{0, 0}, {2, 1}})}, 
+                 ImageSize -> {Tiny, Automatic}), ",", 
+                GraphicsBox({{RGBColor(1, 0, 0), Thickness(5), 
+                   Dashing({10, 5}, 5), LineBox({{0, 0}, {2, 1}})}, 
+                  LineBox({{0, 0}, {2, 1}})}, 
+                 ImageSize -> {Tiny, Automatic})}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use round cap-forms for the dash segments:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "{", {
+                 {"Dashing", "(", {
+                   {"{", {"0", ",", "20", ",", "10", ",", "20"}, "}"}, ",", 
+                   "0", ",", {"CapForm", "(", StringBox("\"Round\""), ")"}}, 
+                  ")"}, ",", {"{", {"Red", ",", {"Thickness", "(", "10", ")"}, 
+                   ",", {"Line", "(", {
+                     "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                       "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                  "{", {"Black", ",", "Thin", ",", {
+                    "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                       "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}}, "}"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                Dashing({0, 20, 10, 20}, 0, CapForm("Round")), {
+                 RGBColor(1, 0, 0), Thickness(10), LineBox({{0, 0}, {2, 1}})}, 
+                {GrayLevel(0), Thin, LineBox({{0, 0}, {2, 1}})}})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         TextData({"Use ", TemplateBox({"Dashed"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"Dotted"}, "ReferenceHyperlink"), ", or ", 
+           TemplateBox({"DotDashed"}, "ReferenceHyperlink"), 
+           " for predefined dashing patterns:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Graphics", "(", {
+                {"{", {"d", ",", {"Line", "(", {
+                    "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                      "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
+                 "ImageSize", "\[Rule]", "Tiny"}}, ")"}, ",", {
+               "d", "\[Rule]", {"{", {"Dashed", ",", "Dotted", ",", 
+                 "DotDashed"}, "}"}}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              GraphicsBox({Dashing({Small, Small}), 
+                LineBox({{0, 0}, {2, 1}})}, ImageSize -> {Tiny, Automatic}), 
+              ",", GraphicsBox({Dashing({0, Small}), 
+                LineBox({{0, 0}, {2, 1}})}, ImageSize -> {Tiny, Automatic}), 
+              ",", GraphicsBox({Dashing({0, Small, Small, Small}), 
+                LineBox({{0, 0}, {2, 1}})}, ImageSize -> {Tiny, Automatic})}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Dashing"}, "ReferenceHyperlink"), 
+             " overrides the ", TemplateBox({"CapForm"}, 
+              "ReferenceHyperlink"), " directive:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "{", {{"Dashing", "(", {"{", {"20", ",", "15"}, "}"}, ")"}, 
+                 ",", {"CapForm", "(", StringBox("\"Round\""), ")"}, ",", {
+                  "\n", {"Thickness", "(", "10", ")"}}, ",", {
+                  "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                     "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(GraphicsBox({Dashing({20, 15}), CapForm("Round"), 
+                Thickness(10), LineBox({{0, 0}, {2, 1}})})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section(TextData({"Use the third argument of ", 
+             TemplateBox({"Dashing"}, "ReferenceHyperlink"), 
+             " to specify a cap-form for all dashes:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "{", {{"Dashing", "(", {{"{", {"20", ",", "15"}, "}"}, ",", 
+                   "0", ",", StringBox("\"Round\"")}, ")"}, ",", {
+                  "\n", {"Thickness", "(", "10", ")"}}, ",", {
+                  "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                     "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(GraphicsBox({Dashing({20, 15}, 0, "Round"), 
+                Thickness(10), LineBox({{0, 0}, {2, 1}})})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, 1), SectionGroup({
+        Section("Possible Issues", "ExampleSection"), 
+        Section("Line caps add to the length of individual dashes:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Graphics", "(", {
+                "{", {{"Dashing", "(", {{"{", {"20", ",", "8"}, "}"}, ",", 
+                   "0", ",", {"CapForm", "(", "cap", ")"}}, ")"}, ",", {
+                  "Thickness", "(", "10", ")"}, ",", {
+                  "Line", "(", {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                     "{", {"2", ",", "1"}, "}"}}, "}"}, ")"}}, "}"}, ")"}, 
+              ",", {"cap", "\[Rule]", {
+                "{", {"None", ",", StringBox("\"Round\"")}, "}"}}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {GraphicsBox({Dashing({20, 8}, 0, CapForm(None)), 
+                Thickness(10), LineBox({{0, 0}, {2, 1}})}), ",", 
+              GraphicsBox({Dashing({20, 8}, 0, CapForm("Round")), 
+                Thickness(10), LineBox({{0, 0}, {2, 1}})})}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Dashed"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Dotted"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"DotDashed"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Thickness"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"CapForm"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
