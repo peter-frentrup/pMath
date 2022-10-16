@@ -141,10 +141,6 @@ extern pmath_symbol_t pmath_System_Repeated;
 extern pmath_symbol_t pmath_System_Rule;
 extern pmath_symbol_t pmath_System_SingleMatch;
 extern pmath_symbol_t pmath_System_SystemException;
-extern pmath_symbol_t pmath_System_Thick;
-extern pmath_symbol_t pmath_System_Thickness;
-extern pmath_symbol_t pmath_System_Thin;
-extern pmath_symbol_t pmath_System_Tiny;
 extern pmath_symbol_t pmath_System_Underflow;
 
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
@@ -965,9 +961,6 @@ PMATH_API pmath_bool_t pmath_init(void) {
       pmath_symbol_set_value(pmath_System_DollarMinMachineNumber,     PMATH_FROM_DOUBLE(DBL_MIN));
       
       PMATH_RUN("$MessageGroups:={\"Packing\" :> {General::punpack, General::punpack1}}");
-      
-      pmath_symbol_set_value(pmath_System_Thick, pmath_expr_new_extended(pmath_ref(pmath_System_Thickness), 1, pmath_ref(pmath_System_Large)));
-      pmath_symbol_set_value(pmath_System_Thin,  pmath_expr_new_extended(pmath_ref(pmath_System_Thickness), 1, pmath_ref(pmath_System_Tiny)));
       
       init_pagewidth();
       

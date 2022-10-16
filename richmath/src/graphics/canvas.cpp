@@ -238,6 +238,25 @@ CapForm Canvas::cap_form() {
   return CapFormNone;
 }
 
+int Canvas::dash_count() {
+  return cairo_get_dash_count(_cr);
+}
+
+double Canvas::dash_offset() {
+  double offset = 0.0;
+  cairo_get_dash(_cr, nullptr, &offset);
+  return offset;
+}
+
+void Canvas::get_dashes(Array<double> &result) {
+  result.length(cairo_get_dash_count(_cr));
+  cairo_get_dash(_cr, result.items(), nullptr);
+}
+
+void Canvas::set_dashes(const Array<double> &new_dashes, double offset) {
+  cairo_set_dash(_cr, new_dashes.items(), new_dashes.length(), offset);
+}
+
 void Canvas::cap_form(CapForm cf) {
   switch(cf) {
     case CapFormNone:

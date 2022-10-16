@@ -8,19 +8,23 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_Large;
 extern pmath_symbol_t richmath_System_Medium;
+extern pmath_symbol_t richmath_System_NCache;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Small;
 extern pmath_symbol_t richmath_System_Tiny;
 
-//                                                                     Automatic  Tiny   Small  Medium  Large
-const LengthConversionFactors LengthConversionFactors::Zero {             0,        0,     0,      0,     0 };
-const LengthConversionFactors LengthConversionFactors::FontSizeInPt {    12.0f,     6,     9,     12,    24 };
-const LengthConversionFactors LengthConversionFactors::SectionMargins {   0.0f,   0.125,   0.25,   0.5,   1 };
-const LengthConversionFactors LengthConversionFactors::GraphicsSize {     0,        8,    14,     22,    40 };
-const LengthConversionFactors LengthConversionFactors::PointSizeInPt {    2.5,      1,   1.75,    3.0,  5.25 };
-const LengthConversionFactors LengthConversionFactors::ThicknessInPt {    1.5,     0.5,   0.75,   1.5,   3.0 };
-const LengthConversionFactors LengthConversionFactors::PlotRangePadding { 0.04,    0.01,  0.02,   0.04,  0.08 };
+//                                                                           Automatic  Tiny   Small  Medium  Large
+const LengthConversionFactors LengthConversionFactors::Zero {                   0,        0,     0,      0,     0 };
+const LengthConversionFactors LengthConversionFactors::FontSizeInPt {          12.0f,     6,     9,     12,    24 };
+const LengthConversionFactors LengthConversionFactors::SectionMargins {         0.0f,   0.125,   0.25,   0.5,   1 };
+const LengthConversionFactors LengthConversionFactors::GraphicsSize {           0,        8,    14,     22,    40 };
+const LengthConversionFactors LengthConversionFactors::NormalDashingInPt {     3.0,      1.5,   3.0,    6.0,  12.0 };
+const LengthConversionFactors LengthConversionFactors::SimpleDashingOnInPt {   1.75,     0.75,  1.75,   3.75,  7.5 };
+const LengthConversionFactors LengthConversionFactors::SimpleDashingOffInPt {  3.5,      2.25,  3.5,    5.25,  9.75 };
+const LengthConversionFactors LengthConversionFactors::PointSizeInPt {          2.5,      1,   1.75,    3.0,  5.25 };
+const LengthConversionFactors LengthConversionFactors::ThicknessInPt {          1.0,     0.5,   0.75,   1.5,   3.0 };
+const LengthConversionFactors LengthConversionFactors::PlotRangePadding {       0.04,    0.01,  0.02,   0.04,  0.08 };
 
 static double convert_float_to_nice_double(float f);
 
@@ -73,11 +77,17 @@ Length Length::from_pmath(Expr obj) {
   if(obj == richmath_System_Small)     return SymbolicSize::Small;
   if(obj == richmath_System_Tiny)      return SymbolicSize::Tiny;
   
+  if(obj[0] == richmath_System_NCache)
+    obj = obj[2];
+  
   if(obj.is_number())
     return Length::Absolute(obj.to_double());
   
   if(obj[0] == richmath_System_Scaled && obj.expr_length() == 1) {
     Expr scale = obj[1];
+      
+    if(scale[0] == richmath_System_NCache)
+      scale = scale[2];
     
     if(scale.is_number())
       return Length::Relative(scale.to_double());

@@ -55,6 +55,7 @@ extern pmath_symbol_t richmath_System_ContentPadding;
 extern pmath_symbol_t richmath_System_ContextMenu;
 extern pmath_symbol_t richmath_System_ContinuousAction;
 extern pmath_symbol_t richmath_System_ControlPlacement;
+extern pmath_symbol_t richmath_System_Dashing;
 extern pmath_symbol_t richmath_System_DefaultDuplicateSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultReturnCreatedSectionStyle;
@@ -2600,6 +2601,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ContentPadding);
   impl.emit_definition(ContextMenu);
   impl.emit_definition(ContinuousAction);
+  impl.emit_definition(Dashing);
   impl.emit_definition(DefaultDuplicateSectionStyle);
   impl.emit_definition(DefaultNewSectionStyle);
   impl.emit_definition(DefaultReturnCreatedSectionStyle);
@@ -3494,6 +3496,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             BoxTransformation,                Symbol( richmath_System_BoxTransformation));
     add(StyleType::Any,             ButtonData,                       Symbol( richmath_System_ButtonData));
     add(StyleType::Any,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
+    add(StyleType::Any,             Dashing,                          Symbol( richmath_System_Dashing));
     add(StyleType::Any,             DefaultDuplicateSectionStyle,     Symbol( richmath_System_DefaultDuplicateSectionStyle));
     add(StyleType::Any,             DefaultNewSectionStyle,           Symbol( richmath_System_DefaultNewSectionStyle));
     add(StyleType::Any,             DefaultReturnCreatedSectionStyle, Symbol( richmath_System_DefaultReturnCreatedSectionStyle));

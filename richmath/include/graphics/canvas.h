@@ -91,6 +91,11 @@ namespace richmath {
       enum CapForm cap_form();
       void cap_form(enum CapForm cf);
       
+      int dash_count();
+      double dash_offset();
+      void get_dashes(Array<double> &result);
+      void set_dashes(const Array<double> &new_dashes, double offset);
+      
       enum JoinForm join_form();
       void join_form(enum JoinForm jf);
       float miter_limit();

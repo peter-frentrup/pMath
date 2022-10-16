@@ -22,6 +22,9 @@ namespace richmath {
     static const LengthConversionFactors FontSizeInPt;
     static const LengthConversionFactors SectionMargins;
     static const LengthConversionFactors GraphicsSize;
+    static const LengthConversionFactors NormalDashingInPt;
+    static const LengthConversionFactors SimpleDashingOnInPt;
+    static const LengthConversionFactors SimpleDashingOffInPt;
     static const LengthConversionFactors PointSizeInPt;
     static const LengthConversionFactors ThicknessInPt;
     static const LengthConversionFactors PlotRangePadding;

@@ -389,6 +389,7 @@ namespace richmath {
     UndefinedSymbolStyle,
     UnknownOptionStyle,
     
+    Dashing,
     JoinForm,
     
     ButtonBoxDefaultAppearance               = Appearance             + (int)DefaultStyleOptionOffsets::ButtonBox,

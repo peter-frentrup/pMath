@@ -23,14 +23,17 @@ using namespace richmath;
 using namespace std;
 
 extern pmath_symbol_t richmath_System_CapForm;
+extern pmath_symbol_t richmath_System_Dashing;
 extern pmath_symbol_t richmath_System_Directive;
 extern pmath_symbol_t richmath_System_GrayLevel;
 extern pmath_symbol_t richmath_System_Hue;
 extern pmath_symbol_t richmath_System_JoinForm;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_NCache;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_PointSize;
 extern pmath_symbol_t richmath_System_RGBColor;
+extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Thickness;
 
 namespace richmath { namespace strings {
@@ -46,6 +49,9 @@ namespace richmath {
       
       static void apply_to_style(Expr directive, Style &style);
       static void apply_to_context(Expr directive, GraphicsDrawingContext &gc);
+      static bool decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor);
+      static bool decode_dash_offset(double &offset, Expr obj, float scale_factor);
+      static void enlarge_zero_dashes(Array<double> &dash_array);
       static void apply_thickness_to_context(Length thickness, GraphicsDrawingContext &gc);
       
       bool change_directives(Expr new_directives);
@@ -85,6 +91,9 @@ bool GraphicsDirective::is_graphics_directive(Expr expr) {
     return true;
   
   if(expr[0] == richmath_System_CapForm)
+    return true;
+  
+  if(expr[0] == richmath_System_Dashing)
     return true;
   
   if(expr[0] == richmath_System_JoinForm)
@@ -179,6 +188,12 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
     return;
   }
   
+  if(directive[0] == richmath_System_Dashing) {
+    // TODO: support Dashing(dashes, offset, capform)
+    style.set_pmath(Dashing, directive[1]);
+    return;
+  }
+  
   if(directive[0] == richmath_System_JoinForm) {
     style.set_pmath(JoinForm, directive[1]);
     return;
@@ -220,8 +235,34 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
   
   if(directive[0] == richmath_System_CapForm) {
     int val = Style::decode_enum(directive[1], CapForm, -1);
-    if(val >= 0) {
+    if(val >= 0) { // TODO: && gc.canvas().dash_count() == 0
       gc.canvas().cap_form((enum CapForm)val);
+    }
+    return;
+  }
+  
+  if(directive[0] == richmath_System_Dashing) {
+    Array<double> dash_array;
+    double offset = 0.0;
+    if(decode_dash_array(dash_array, directive[1], gc.plot_range_width)) {
+      if(directive.expr_length() < 2 || decode_dash_offset(offset, directive[2], gc.plot_range_width)) {
+        int capform_val = (int)CapFormButt;
+        if(directive.expr_length() == 3) {
+          if(directive[3][0] == richmath_System_CapForm)
+            capform_val = Style::decode_enum(directive[3][1], CapForm, -1);
+          else
+            capform_val = -1;
+        }
+        
+        if(capform_val >= 0) {
+          gc.canvas().cap_form((enum CapForm)capform_val);
+          
+          if(capform_val == (int)CapFormButt)
+            enlarge_zero_dashes(dash_array);
+          
+          gc.canvas().set_dashes(dash_array, offset);
+        }
+      }
     }
     return;
   }
@@ -268,6 +309,90 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
       apply_thickness_to_context(len, gc);
     }
     return;
+  }
+}
+
+bool GraphicsDirective::Impl::decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor) {
+  if(dashes[0] == richmath_System_List && dashes.expr_length() < 1000) {
+    int num_dashes = (int)dashes.expr_length();
+    dash_array.length(num_dashes);
+    for(int i = 0; i < num_dashes; ++i) {
+      if(Length len = Length::from_pmath(dashes[i+1])) {
+        dash_array[i] = len.resolve(1.0f, LengthConversionFactors::NormalDashingInPt,  scale_factor);
+      }
+      else
+        return false;
+    }
+  }
+  else if(Length len = Length::from_pmath(dashes)) {
+    if(len.is_symbolic()) {
+      dash_array.length(2);
+      dash_array[0] = len.resolve(1.0f, LengthConversionFactors::SimpleDashingOnInPt,  scale_factor);
+      dash_array[1] = len.resolve(1.0f, LengthConversionFactors::SimpleDashingOffInPt, scale_factor);
+    }
+    else {
+      dash_array.length(1);
+      dash_array[0] = len.resolve(1.0f, LengthConversionFactors::SimpleDashingOnInPt, scale_factor);
+    }
+  }
+  else
+    return false;
+  
+  if(dash_array.length() > 0) {
+    bool all_zero = true;
+    for(double val : dash_array) {
+      if(!isfinite(val) || val < 0)
+        return false;
+      
+      if(val > 0)
+        all_zero = false;
+    }
+    
+    if(all_zero)
+      return false;
+  }
+  
+  return true;
+}
+
+bool GraphicsDirective::Impl::decode_dash_offset(double &offset, Expr obj, float scale_factor) {
+  if(obj[0] == richmath_System_NCache)
+    obj = obj[2];
+  
+  if(obj.is_number()) {
+    offset = obj.to_double();
+    return true;
+  }
+  
+  if(obj[0] == richmath_System_Scaled && obj.expr_length() == 1) {
+    Expr scale = obj[1];
+    
+    if(scale[0] == richmath_System_NCache)
+      scale = scale[2];
+    
+    if(scale.is_number()) {
+      offset = obj.to_double() * scale_factor;
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+void GraphicsDirective::Impl::enlarge_zero_dashes(Array<double> &dash_array) {
+  const double default_size = 1.0;
+  
+  for(int i = 0; i < dash_array.length(); ++i) {
+    if(dash_array[i] == 0) {
+      dash_array[i] = default_size;
+      
+//      if(i + 1 < dash_array.length()) {
+//        if(dash_array[i+1] > default_size)
+//          dash_array[i+1] -= default_size;
+//        else
+//          dash_array[i+1] = 0;
+//      }
+    }
   }
 }
 
