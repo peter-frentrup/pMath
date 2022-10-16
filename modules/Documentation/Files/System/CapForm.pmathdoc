@@ -26,13 +26,10 @@ Document({
                  "Thickness", "(", "20", ")"}, ",", {
                  "Line", "(", {"{", {{"{", {"1", ",", "1"}, "}"}, ",", {
                     "{", {"4", ",", "2"}, "}"}}, "}"}, ")"}}, "}"}, ",", {
-               "PlotRange", "\[Rule]", {
-                "{", {{"0", "..", "5"}, ",", {"0", "..", "3"}}, "}"}}}, ")"}), 
-           "Input", SectionLabel -> "in [1]:"), 
+               "PlotRangePadding", "\[Rule]", "0.5"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
           Section(BoxData(GraphicsBox({CapForm("Round"), Thickness(20), 
-              LineBox({{1, 1}, {4, 2}})}, 
-             PlotRange -> NCache({0 .. 5, 0 .. 3}, {
-                0.0` .. 5.0`, 0.0` .. 3.0`}))), "Output", 
+              LineBox({{1, 1}, {4, 2}})}, PlotRangePadding -> 0.5)), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
        All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Possible line caps:", "ExampleText"), 
@@ -51,10 +48,8 @@ Document({
                           "Line", "(", "points", ")"}, ",", {"\n", "White"}, 
                          ",", {"Thickness", "(", "1", ")"}, ",", {
                           "Line", "(", "points", ")"}}, "}"}, ",", {
-                        "PlotRange", "\[Rule]", {
-                         "{", {{"0", "..", "10"}, ",", {"0", "..", "5"}}, 
-                         "}"}}}, ")"}}, "}"}, ",", {
-                    "c", "\[Rule]", {
+                        "PlotRangePadding", "\[Rule]", "1"}}, ")"}}, "}"}, 
+                   ",", {"c", "\[Rule]", {
                      "{", {StringBox("\"Butt\""), ",", StringBox("\"Round\""), 
                       ",", StringBox("\"Square\"")}, "}"}}}, ")"}, ")"}, 
                 "\n"}}, "}"}}), "Input", SectionLabel -> "in [1]:"), 
@@ -65,22 +60,17 @@ Document({
                {StringBox("\"Butt\""), 
                 GraphicsBox({CapForm("Butt"), Thickness(20), 
                   LineBox({{1, 1}, {9, 4}}), GrayLevel(1), Thickness(1), 
-                  LineBox({{1, 1}, {9, 4}})}, 
-                 PlotRange -> NCache({0 .. 10, 0 .. 5}, {
-                    0.0` .. 10.0`, 0.0` .. 5.0`}))}, {
+                  LineBox({{1, 1}, {9, 4}})}, PlotRangePadding -> 1)}, {
                 StringBox("\"Round\""), 
                 GraphicsBox({CapForm("Round"), Thickness(20), 
                   LineBox({{1, 1}, {9, 4}}), GrayLevel(1), Thickness(1), 
-                  LineBox({{1, 1}, {9, 4}})}, 
-                 PlotRange -> NCache({0 .. 10, 0 .. 5}, {
-                    0.0` .. 10.0`, 0.0` .. 5.0`}))}, {
+                  LineBox({{1, 1}, {9, 4}})}, PlotRangePadding -> 1)}, {
                 StringBox("\"Square\""), 
                 GraphicsBox({CapForm("Square"), Thickness(20), 
                   LineBox({{1, 1}, {9, 4}}), GrayLevel(1), Thickness(1), 
-                  LineBox({{1, 1}, {9, 4}})}, 
-                 PlotRange -> NCache({0 .. 10, 0 .. 5}, {
-                    0.0` .. 10.0`, 0.0` .. 5.0`}))}}), "Grid")), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+                  LineBox({{1, 1}, {9, 4}})}, PlotRangePadding -> 1)}}), 
+             "Grid")), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
       SectionGroup({Section("Neat Examples", "ExampleSection"), 
         Section("Different line caps and join forms:", "ExampleText"), 
         SectionGroup({
@@ -112,31 +102,26 @@ Document({
                         "Line", "(", "points", ")"}}, "}"}}, ",", {
                      "\n", {"{", {"White", ",", {"Thickness", "(", "1", ")"}, 
                        ",", {"Line", "(", "points", ")"}}, "}"}}}, "}"}, ",", {
-                   "\n", {"PlotRange", "\[Rule]", {
-                     "{", {{{"-", "1"}, "..", "1"}, ",", {
-                       {"-", "0.5"}, "..", "0.7"}}, "}"}}}}, ")"}, "\n"}}, 
-              "}"}}), "Input", SectionLabel -> "in [1]:"), 
+                   "\n", {"PlotRangePadding", "\[Rule]", "0.5"}}}, ")"}, 
+                "\n"}}, "}"}}), "Input", SectionLabel -> "in [1]:"), 
           Section(
-           BoxData(GraphicsBox({Thickness(Scaled(0.10000000000000001`)), {
+           BoxData(GraphicsBox({Thickness(Scaled(0.1)), {
                RGBColor(0, 0, 1), CapForm("Square"), JoinForm("Miter"), 
-               LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
-                  0.29999999999999999`, 0.29999999999999999`}})}, {
+               LineBox({{0, 0.3}, {-0.5, 0}, {0.5, 0}, {0.3, 0.3}})}, {
                RGBColor(0, 1, 0), CapForm("Round"), JoinForm("Round"), 
-               LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
-                  0.29999999999999999`, 0.29999999999999999`}})}, {
+               LineBox({{0, 0.3}, {-0.5, 0}, {0.5, 0}, {0.3, 0.3}})}, {
                RGBColor(1, 0, 0), CapForm("Butt"), JoinForm("Bevel"), 
-               LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
-                  0.29999999999999999`, 0.29999999999999999`}})}, {
+               LineBox({{0, 0.3}, {-0.5, 0}, {0.5, 0}, {0.3, 0.3}})}, {
                GrayLevel(1), Thickness(1), 
-               LineBox({{0, 0.29999999999999999`}, {-0.5`, 0}, {0.5`, 0}, {
-                  0.29999999999999999`, 0.29999999999999999`}})}}, 
-             PlotRange -> NCache({-1 .. 1, -0.5` .. 0.69999999999999996`}, {
-                -1.0` .. 1.0`, -0.5` .. 0.69999999999999996`}))), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+               LineBox({{0, 0.3}, {-0.5, 0}, {0.5, 0}, {0.3, 0.3}})}}, 
+             PlotRangePadding -> 0.5)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"JoinForm"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Thickness"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-         TemplateBox({"Line"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
-   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+         TemplateBox({"Dashing"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Line"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
