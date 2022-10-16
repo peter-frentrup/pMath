@@ -235,7 +235,7 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
   
   if(directive[0] == richmath_System_CapForm) {
     int val = Style::decode_enum(directive[1], CapForm, -1);
-    if(val >= 0) { // TODO: && gc.canvas().dash_count() == 0
+    if(val >= 0 && gc.canvas().dash_count() == 0) {
       gc.canvas().cap_form((enum CapForm)val);
     }
     return;
@@ -251,7 +251,7 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
           if(directive[3][0] == richmath_System_CapForm)
             capform_val = Style::decode_enum(directive[3][1], CapForm, -1);
           else
-            capform_val = -1;
+            capform_val = Style::decode_enum(directive[3], CapForm, -1);
         }
         
         if(capform_val >= 0) {
