@@ -574,6 +574,7 @@ void MathSequence::paint(Context &context) {
       }
     }
   }
+  context.canvas().move_to(p0);
   Impl(*this).paint(context);
   
   Impl::PaintHookHandler(context, p0, context.post_paint_hooks, false).run(*this);
