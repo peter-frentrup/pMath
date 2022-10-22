@@ -2025,7 +2025,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
       case WM_NCRBUTTONUP: {
           if(_themed_frame && (wParam == HTCAPTION || wParam == HTSYSMENU || wParam == HTOBJECT)) {
-            if(HMENU menu = GetSystemMenu(_hwnd, FALSE)) {
+            if(HMENU menu = WIN32report(GetSystemMenu(_hwnd, FALSE))) {
               POINT pt;
               pt.x = (short)LOWORD(lParam);
               pt.y = (short)HIWORD(lParam);
@@ -2044,14 +2044,14 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
                 Win32Menu::use_dark_mode = is_using_dark_mode();
                 
-                cmd = TrackPopupMenu(
+                WIN32report(cmd = TrackPopupMenu(
                         menu,
                         align | TPM_RETURNCMD,
                         pt.x,
                         pt.y,
                         0,
                         _hwnd,
-                        nullptr);
+                        nullptr));
                 
                 exit_info = menu_hook.exit_info;
               }
@@ -2508,13 +2508,13 @@ bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POIN
       {
         Win32AutoMenuHook menu_hook(menu, self._hwnd, nullptr, false, false);
         
-        cmd = TrackPopupMenuEx(
+        WIN32report(cmd = TrackPopupMenuEx(
                 menu,
                 align | TPM_RETURNCMD | TPM_NONOTIFY,
                 x,
                 tpm.rcExclude.bottom,
                 self._hwnd,
-                &tpm);
+                &tpm));
         
         exit_info = menu_hook.exit_info;
       }

@@ -699,7 +699,7 @@ void Win32DocumentWindow::after_construction() {
     this, _hwnd,
     Win32Menu::main_menu);
     
-  HMENU sysmenu = GetSystemMenu(_hwnd, FALSE);
+  HMENU sysmenu = WIN32report(GetSystemMenu(_hwnd, FALSE));
 //  AppendMenuW(sysmenu, MF_SEPARATOR, 0, L"");
   
   {

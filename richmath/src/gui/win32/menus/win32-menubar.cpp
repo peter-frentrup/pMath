@@ -349,17 +349,17 @@ void Win32Menubar::show_menu(int item) {
   if(!current_menubar || current_menubar == this) {
     HMENU tmp_menu = nullptr;
     if(item == overflow_index() + 1) {
-      tmp_menu = CreatePopupMenu();
+      tmp_menu = WIN32report(CreatePopupMenu());
       if(_visible_items < _num_items) {
         for(int i = _visible_items; i < _num_items; ++i) {
           wchar_t text[100];
           GetMenuStringW(_menu->hmenu(), i, text, sizeof(text)/sizeof(text[0]), MF_BYPOSITION);
           text[sizeof(text)/sizeof(text[0]) - 1] = L'\0';
-          AppendMenuW(tmp_menu, MF_POPUP, (UINT_PTR)GetSubMenu(_menu->hmenu(), i), text);
+          WIN32report(AppendMenuW(tmp_menu, MF_POPUP, (UINT_PTR)GetSubMenu(_menu->hmenu(), i), text));
         }
       }
       else {
-        AppendMenuW(tmp_menu, MF_DISABLED, 0, L"(empty)");
+        WIN32report(AppendMenuW(tmp_menu, MF_DISABLED, 0, L"(empty)"));
       }
       
       current_popup = tmp_menu;
@@ -392,13 +392,13 @@ void Win32Menubar::show_menu(int item) {
         flags |= TPM_NOANIMATION;
       
       Win32Menu::use_dark_mode = _use_dark_mode;
-      cmd = TrackPopupMenuEx(
+      WIN32report(cmd = TrackPopupMenuEx(
               current_popup,
               flags,
               pt.x,
               pt.y,
               parent,
-              &tpm);
+              &tpm));
       
       exit_info = menu_hook.exit_info;
     }
@@ -431,9 +431,9 @@ void Win32Menubar::show_menu(int item) {
     current_popup = nullptr;
     if(tmp_menu) {
       for(int i = GetMenuItemCount(tmp_menu)-1; i >= 0; --i) {
-        RemoveMenu(tmp_menu, i, MF_BYPOSITION);
+        WIN32report(RemoveMenu(tmp_menu, i, MF_BYPOSITION));
       }
-      DestroyMenu(tmp_menu);
+      WIN32report(DestroyMenu(tmp_menu));
     }
   }
   
@@ -459,7 +459,7 @@ void Win32Menubar::show_sysmenu() {
   TPMPARAMS tpm;
   memset(&tpm, 0, sizeof(tpm));
   tpm.cbSize = sizeof(tpm);
-  GetWindowRect(parent, &tpm.rcExclude);
+  WIN32report(GetWindowRect(parent, &tpm.rcExclude));
   
   tpm.rcExclude.left += Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi) + Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
   tpm.rcExclude.top +=  Win32HighDpi::get_system_metrics_for_dpi(SM_CYSIZEFRAME, dpi) + Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
@@ -489,13 +489,13 @@ void Win32Menubar::show_sysmenu() {
       flags |= TPM_NOANIMATION;
     
     Win32Menu::use_dark_mode = _use_dark_mode;
-    cmd = TrackPopupMenuEx(
+    WIN32report(cmd = TrackPopupMenuEx(
             menu,
             flags,
             x,
             tpm.rcExclude.bottom,
             parent,
-            &tpm);
+            &tpm));
     
     exit_info = menu_hook.exit_info;
   }

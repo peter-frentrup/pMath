@@ -6,6 +6,7 @@
 #endif
 
 #include <windows.h>
+#include <cstdio>
 
 namespace richmath {
   class Win32Version {
@@ -31,6 +32,30 @@ namespace richmath {
       Win32Version();
       ~Win32Version();
   };
+  
+  #define WIN32report(call)                check_WIN32_nonzero((call), #call, __FILE__, __LINE__)
+  #define WIN32report_errval(call, badres) check_WIN32_errval((call), (badres), #call, __FILE__, __LINE__)
+#ifndef NDEBUG
+  template<typename T>
+  static inline T check_WIN32_nonzero(T res, const char *call, const char *file, int line) {
+    if(!res) {
+      if(DWORD err = GetLastError())
+        fprintf(stderr, "%s:%d: call %s failed with 0x%x\n", file, line, call, err);
+    }
+    return res;
+  }
+  template<typename T>
+  static inline T check_WIN32_errval(T res, T badres, const char *call, const char *file, int line) {
+    if(res == badres) {
+      if(DWORD err = GetLastError())
+        fprintf(stderr, "%s:%d: call %s failed with 0x%x\n", file, line, call, err);
+    }
+    return res;
+  }
+#else
+  #define check_WIN32_nonzero(res,         call, file, line)  (res)
+  #define check_WIN32_errval( res, badres, call, file, line)  (res)
+#endif // NDEBUG
 }
 
 #endif // RICHMATH__GUI__WIN32__API__WIN32_VERSION_H__INCLUDED

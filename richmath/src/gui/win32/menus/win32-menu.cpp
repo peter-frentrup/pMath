@@ -5,6 +5,7 @@
 #include <eval/observable.h>
 
 #include <gui/menus.h>
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu-gutter-slider.h>
 #include <gui/win32/menus/win32-menu-search-overlay.h>
@@ -186,7 +187,7 @@ Win32Menu::Win32Menu(Expr expr, bool is_popup)
 
 Win32Menu::~Win32Menu() {
   MenuItemBuilder::add_remove_menu(-1);
-  DestroyMenu(_hmenu);
+  WIN32report(DestroyMenu(_hmenu));
 }
 
 Expr Win32Menu::id_to_command(DWORD  id) {
@@ -207,8 +208,11 @@ Expr Win32Menu::selected_item_command() {
 }
 
 int Win32Menu::find_hilite_menuitem(HMENU *menu, bool recursive) {
-  for(int i = 0; i < GetMenuItemCount(*menu); ++i) {
-    UINT state = GetMenuState(*menu, i, MF_BYPOSITION);
+  if(!*menu)
+    return -1;
+  
+  for(int i = 0; i < WIN32report_errval(GetMenuItemCount(*menu), -1); ++i) {
+    UINT state = WIN32report_errval(GetMenuState(*menu, i, MF_BYPOSITION), (UINT)(-1));
     
     if(state & MF_HILITE) {
       if(recursive && (state & MF_POPUP)) {
@@ -233,109 +237,111 @@ void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
   UINT item_or_index = LOWORD(wParam);
   UINT flags = HIWORD(wParam);
   
-//  static HWND previous_aero_peak = nullptr;
-//  HWND aero_peak = nullptr;
-  
-  //pmath_debug_print("[WM_MENUSELECT %p %d (%x)]\n", menu, item_or_index, flags);
-  
-  if(flags == 0xFFFF) {
-    MenuItemBuilder::selected_menu_item_id = 0;
-  }
-  else if(!(flags & MF_POPUP)) {
-    MenuItemBuilder::selected_menu_item_id = item_or_index;
+  if(menu) { // NULL when a menu is closed
+//    static HWND previous_aero_peak = nullptr;
+//    HWND aero_peak = nullptr;
     
-//    Expr cmd = Win32Menu::id_to_command(item_or_index);
-//    pmath_debug_print_object("[WM_MENUSELECT ", cmd.get(), "]\n");
-//    
-//    if(cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
-//      auto id = FrontEndReference::from_pmath(cmd[1]);
-//      auto doc = FrontEndObject::find_cast<Document>(id);
-//      if(doc) {
-//        Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
-//        if(wid) {
-//          aero_peak = wid->hwnd();
-//          while(auto parent = GetParent(aero_peak))
-//            aero_peak = parent;
+    //pmath_debug_print("[WM_MENUSELECT %p %d (%x)]\n", menu, item_or_index, flags);
+    
+    if(flags == 0xFFFF) {
+      MenuItemBuilder::selected_menu_item_id = 0;
+    }
+    else if(!(flags & MF_POPUP)) {
+      MenuItemBuilder::selected_menu_item_id = item_or_index;
+      
+//      Expr cmd = Win32Menu::id_to_command(item_or_index);
+//      pmath_debug_print_object("[WM_MENUSELECT ", cmd.get(), "]\n");
+//      
+//      if(cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+//        auto id = FrontEndReference::from_pmath(cmd[1]);
+//        auto doc = FrontEndObject::find_cast<Document>(id);
+//        if(doc) {
+//          Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
+//          if(wid) {
+//            aero_peak = wid->hwnd();
+//            while(auto parent = GetParent(aero_peak))
+//              aero_peak = parent;
+//          }
 //        }
+//      }
+    }
+    else {
+      // popup item selected
+      MenuItemBuilder::selected_menu_item_id = 0;
+    }
+    
+    if(flags & MF_MOUSESELECT) {
+      Expr cmd = Win32Menu::id_to_command(MenuItemBuilder::selected_menu_item_id);
+      Expr subitems_cmd;
+      
+      MENUITEMINFOW info = { sizeof(info) };
+      info.fMask = MIIM_DATA | MIIM_ID;
+      if(WIN32report(GetMenuItemInfoW(menu, item_or_index, 0 != (flags & MF_POPUP), &info))) {
+        subitems_cmd = Win32Menu::id_to_command((DWORD)info.dwItemData);      
+//        pmath_debug_print_object("[on_menuselect ", subitems_cmd.get(), ", ");
+//         pmath_debug_print_object("", cmd.get(), "]\n");
+      }
+      
+      if(subitems_cmd.is_null()) {
+        SetCursor(LoadCursor(0, IDC_ARROW));
+      }
+      else {
+        SetCursor(LoadCursor(0, IDC_HELP)); // TODO: reset when mouse leaves menu
+      }
+    }
+//    if(Win32Themes::has_areo_peak()) {
+//      if(aero_peak) {
+//        struct callback_data {
+//          HWND owner_window;
+//          DWORD process_id;
+//          DWORD thread_id;
+//        } data;
+//        data.owner_window = _window->hwnd();
+//        data.process_id = GetCurrentProcessId();
+//        data.thread_id = GetCurrentThreadId();
+//        
+//        EnumWindows(
+//          [](HWND wnd, LPARAM _data) {
+//            auto data = (callback_data*)_data;
+//            
+//            DWORD pid;
+//            DWORD tid = GetWindowThreadProcessId(wnd, &pid);
+//            
+//            if(pid != data->process_id || tid != data->thread_id)
+//              return TRUE;
+//            
+//            char class_name[20];
+//            if(GetClassNameA(wnd, class_name, sizeof(class_name)) > 0 && strcmp(MenuWindowClass, class_name) == 0) {
+//              BOOL disallow_peak = FALSE;
+//              BOOL excluded_from_peak = FALSE;
+//              Win32Themes::DwmGetWindowAttribute(wnd, Win32Themes::DWMWA_DISALLOW_PEEK,      &disallow_peak,      sizeof(disallow_peak));
+//              Win32Themes::DwmGetWindowAttribute(wnd, Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
+//              
+//              pmath_debug_print("[menu window %p %s %s]", wnd, disallow_peak ? "disallow peak" : "", excluded_from_peak ? "exclude from peak" : "");
+//              
+//              excluded_from_peak = TRUE;
+//              Win32Themes::DwmSetWindowAttribute(wnd, Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
+//            };
+//            return TRUE;
+//          },
+//          (LPARAM)&data
+//        );
+//        
+//        BOOL excluded_from_peak = TRUE;
+//        Win32Themes::DwmSetWindowAttribute(data.owner_window, Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
+//        
+//        Win32Themes::activate_aero_peak(true, aero_peak, data.owner_window, LivePreviewTrigger::TaskbarThumbnail);
+//        previous_aero_peak = aero_peak;
+//      }
+//      else if(previous_aero_peak /*&& (flags != 0xFFFF || menu != nullptr)*/) {
+//        previous_aero_peak = nullptr;
+//        Win32Themes::activate_aero_peak(false, nullptr, nullptr, LivePreviewTrigger::TaskbarThumbnail);
+//      
+//        BOOL excluded_from_peak = FALSE;
+//        Win32Themes::DwmSetWindowAttribute(_window->hwnd(), Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
 //      }
 //    }
   }
-  else {
-    // popup item selected
-    MenuItemBuilder::selected_menu_item_id = 0;
-  }
-  
-  if(flags & MF_MOUSESELECT) {
-    Expr cmd = Win32Menu::id_to_command(MenuItemBuilder::selected_menu_item_id);
-    Expr subitems_cmd;
-    
-    MENUITEMINFOW info = { sizeof(info) };
-    info.fMask = MIIM_DATA | MIIM_ID;
-    if(GetMenuItemInfoW(menu, item_or_index, 0 != (flags & MF_POPUP), &info)) {
-      subitems_cmd = Win32Menu::id_to_command((DWORD)info.dwItemData);      
-//      pmath_debug_print_object("[on_menuselect ", subitems_cmd.get(), ", ");
-//      pmath_debug_print_object("", cmd.get(), "]\n");
-    }
-    
-    if(subitems_cmd.is_null()) {
-      SetCursor(LoadCursor(0, IDC_ARROW));
-    }
-    else {
-      SetCursor(LoadCursor(0, IDC_HELP)); // TODO: reset when mouse leaves menu
-    }
-  }
-//  if(Win32Themes::has_areo_peak()) {
-//    if(aero_peak) {
-//      struct callback_data {
-//        HWND owner_window;
-//        DWORD process_id;
-//        DWORD thread_id;
-//      } data;
-//      data.owner_window = _window->hwnd();
-//      data.process_id = GetCurrentProcessId();
-//      data.thread_id = GetCurrentThreadId();
-//      
-//      EnumWindows(
-//        [](HWND wnd, LPARAM _data) {
-//          auto data = (callback_data*)_data;
-//          
-//          DWORD pid;
-//          DWORD tid = GetWindowThreadProcessId(wnd, &pid);
-//          
-//          if(pid != data->process_id || tid != data->thread_id)
-//            return TRUE;
-//          
-//          char class_name[20];
-//          if(GetClassNameA(wnd, class_name, sizeof(class_name)) > 0 && strcmp(MenuWindowClass, class_name) == 0) {
-//            BOOL disallow_peak = FALSE;
-//            BOOL excluded_from_peak = FALSE;
-//            Win32Themes::DwmGetWindowAttribute(wnd, Win32Themes::DWMWA_DISALLOW_PEEK,      &disallow_peak,      sizeof(disallow_peak));
-//            Win32Themes::DwmGetWindowAttribute(wnd, Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
-//            
-//            pmath_debug_print("[menu window %p %s %s]", wnd, disallow_peak ? "disallow peak" : "", excluded_from_peak ? "exclude from peak" : "");
-//            
-//            excluded_from_peak = TRUE;
-//            Win32Themes::DwmSetWindowAttribute(wnd, Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
-//          };
-//          return TRUE;
-//        },
-//        (LPARAM)&data
-//      );
-//      
-//      BOOL excluded_from_peak = TRUE;
-//      Win32Themes::DwmSetWindowAttribute(data.owner_window, Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
-//      
-//      Win32Themes::activate_aero_peak(true, aero_peak, data.owner_window, LivePreviewTrigger::TaskbarThumbnail);
-//      previous_aero_peak = aero_peak;
-//    }
-//    else if(previous_aero_peak /*&& (flags != 0xFFFF || menu != nullptr)*/) {
-//      previous_aero_peak = nullptr;
-//      Win32Themes::activate_aero_peak(false, nullptr, nullptr, LivePreviewTrigger::TaskbarThumbnail);
-//    
-//      BOOL excluded_from_peak = FALSE;
-//      Win32Themes::DwmSetWindowAttribute(_window->hwnd(), Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
-//    }
-//  }
 
   if(Win32Menu::menu_selector)
     Win32Menu::menu_selector->on_menuselect(menu, item_or_index, flags);
@@ -347,7 +353,7 @@ LRESULT Win32Menu::on_menudrag(WPARAM wParam, LPARAM lParam) {
   HMENU menu = (HMENU)lParam;
   MENUITEMINFOW mii = { sizeof(mii) };
   mii.fMask = MIIM_DATA | MIIM_ID; 
-  if(GetMenuItemInfoW(menu, wParam, TRUE, &mii)) {
+  if(WIN32report(GetMenuItemInfoW(menu, wParam, TRUE, &mii))) {
     Expr cmd = id_to_command(mii.wID);
     
     if(cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
@@ -367,7 +373,7 @@ LRESULT Win32Menu::on_menudrag(WPARAM wParam, LPARAM lParam) {
       RECT rect;
       POINT pt = {0,0};
       GetCursorPos(&pt);
-      if(GetMenuItemRect(nullptr, menu, wParam, &rect)) {
+      if(WIN32report(GetMenuItemRect(nullptr, menu, wParam, &rect))) {
         have_image = HRbool(drop_source->set_drag_image_from_window_part(nullptr, &rect, &pt));
       }
       
@@ -464,12 +470,12 @@ HMENU MenuItemBuilder::create_menu(Expr expr, bool is_popup) {
   if(expr[0] != richmath_System_List)
     return nullptr;
   
-  HMENU menu = is_popup ? CreatePopupMenu() : CreateMenu();
+  HMENU menu = is_popup ? WIN32report(CreatePopupMenu()) : WIN32report(CreateMenu());
   if(menu) {
     MENUINFO mi = { sizeof(mi) };
     mi.fMask = MIM_STYLE;
     mi.dwStyle = MNS_DRAGDROP;
-    SetMenuInfo(menu, &mi);
+    WIN32report(SetMenuInfo(menu, &mi));
     
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr item = expr[i];
@@ -478,7 +484,7 @@ HMENU MenuItemBuilder::create_menu(Expr expr, bool is_popup) {
       item_info.cbSize = sizeof(item_info);
       String buffer;
       if(init_info(&item_info, expr[i], &buffer)) {
-        InsertMenuItemW(menu, GetMenuItemCount(menu), TRUE, &item_info);
+        WIN32report(InsertMenuItemW(menu, WIN32report_errval(GetMenuItemCount(menu), -1), TRUE, &item_info));
       }
     }
   }
@@ -487,11 +493,11 @@ HMENU MenuItemBuilder::create_menu(Expr expr, bool is_popup) {
 }
 
 void MenuItemBuilder::update_items(HMENU sub) {
-  int count = GetMenuItemCount(sub);
+  int count = WIN32report_errval(GetMenuItemCount(sub), -1);
   for(int i = 0; i < count; ++i) {
     MENUITEMINFOW mii = { sizeof(mii) };
     mii.fMask = MIIM_DATA | MIIM_ID | MIIM_SUBMENU;
-    if(GetMenuItemInfoW(sub, i, TRUE, &mii)) {
+    if(WIN32report(GetMenuItemInfoW(sub, i, TRUE, &mii))) {
       if(mii.dwItemData) {
         DWORD list_id = mii.dwItemData;
         // dwItemData != 0 means that this item is dynamically generated from the menu item command of that id
@@ -504,11 +510,11 @@ void MenuItemBuilder::update_items(HMENU sub) {
           mii.cch = 7;
           
           if(mii.hSubMenu) {
-            DestroyMenu(mii.hSubMenu);
+            WIN32report(DestroyMenu(mii.hSubMenu));
             mii.hSubMenu = nullptr;
           }
           
-          SetMenuItemInfoW(sub, i, TRUE, &mii);
+          WIN32report(SetMenuItemInfoW(sub, i, TRUE, &mii));
           continue;
         }
         
@@ -539,25 +545,25 @@ void MenuItemBuilder::update_items(HMENU sub) {
           }
           
           if(insert) {
-            if(InsertMenuItemW(sub, i, TRUE, &mii)) {
+            if(WIN32report(InsertMenuItemW(sub, i, TRUE, &mii))) {
               ++i;
               ++count;
             }
             continue;
           }
           
-          if(!SetMenuItemInfoW(sub, i, TRUE, &mii)) 
+          if(!WIN32report(SetMenuItemInfoW(sub, i, TRUE, &mii))) 
             continue;
           
           ++i;
           if(i < count) {
             mii.fMask = MIIM_DATA | MIIM_ID | MIIM_SUBMENU;
-            if(GetMenuItemInfoW(sub, i, TRUE, &mii)) {
+            if(WIN32report(GetMenuItemInfoW(sub, i, TRUE, &mii))) {
               if(mii.dwItemData == list_id) {
                 if(mii.hSubMenu) {
-                  DestroyMenu(mii.hSubMenu);
+                  WIN32report(DestroyMenu(mii.hSubMenu));
                   mii.hSubMenu = nullptr;
-                  SetMenuItemInfoW(sub, i, TRUE, &mii);
+                  WIN32report(SetMenuItemInfoW(sub, i, TRUE, &mii));
                 }
                 continue;
               }
@@ -576,21 +582,21 @@ void MenuItemBuilder::update_items(HMENU sub) {
           mii.cch = 7;
           
           if(mii.hSubMenu) {
-            DestroyMenu(mii.hSubMenu);
+            WIN32report(DestroyMenu(mii.hSubMenu));
             mii.hSubMenu = nullptr;
           }
           
-          SetMenuItemInfoW(sub, i, TRUE, &mii);
+          WIN32report(SetMenuItemInfoW(sub, i, TRUE, &mii));
           ++i;
         }
         
         while(i < count) {
           mii.fMask = MIIM_DATA | MIIM_ID;
-          if(GetMenuItemInfoW(sub, i, TRUE, &mii)) {
+          if(WIN32report(GetMenuItemInfoW(sub, i, TRUE, &mii))) {
             if(mii.dwItemData != list_id) 
               break;
               
-            if(DeleteMenu(sub, i, MF_BYPOSITION))
+            if(WIN32report(DeleteMenu(sub, i, MF_BYPOSITION)))
               --count;
           }
         }
@@ -613,7 +619,7 @@ void MenuItemBuilder::update_items(HMENU sub) {
         else
           mii.fState |= MFS_UNCHECKED;
         
-        SetMenuItemInfoW(sub, i, TRUE, &mii);
+        WIN32report(SetMenuItemInfoW(sub, i, TRUE, &mii));
       }
     }
   }
@@ -738,8 +744,8 @@ StaticMenuOverride::StaticMenuOverride()
 }
 
 StaticMenuOverride::~StaticMenuOverride() {
-  if(light_background_brush) DeleteObject(light_background_brush);
-  if(dark_background_brush)  DeleteObject(dark_background_brush);
+  if(light_background_brush) WIN32report(DeleteObject(light_background_brush));
+  if(dark_background_brush)  WIN32report(DeleteObject(dark_background_brush));
 }
 
 void StaticMenuOverride::ensure_init() {
@@ -751,7 +757,7 @@ void StaticMenuOverride::ensure_init() {
   if(GetClassInfoW(nullptr, L"#32768", &wc)) {
     singleton.default_wnd_proc = wc.lpfnWndProc;
     wc.lpfnWndProc = wnd_proc;
-    RegisterClassW(&wc);
+    WIN32report(RegisterClassW(&wc));
   }
 }
 
@@ -779,7 +785,7 @@ bool StaticMenuOverride::handle_child_window_mouse_message(HWND hwnd_menu, HWND 
 }
 
 void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
-  int count = GetMenuItemCount(menu);
+  int count = WIN32report_errval(GetMenuItemCount(menu), -1);
   
   int region_start = -1;
   Expr region_lhs;
@@ -798,7 +804,7 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
     
     MENUITEMINFOW mii = { sizeof(mii) };
     mii.fMask = MIIM_ID;
-    if(GetMenuItemInfoW(menu, i, TRUE, &mii)) {
+    if(WIN32report(GetMenuItemInfoW(menu, i, TRUE, &mii))) {
       if(Expr cmd = Win32Menu::id_to_command(mii.wID)) {
         
         if(cmd[0] == richmath_FE_ScopedCommand) {
@@ -896,7 +902,7 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
 
 void StaticMenuOverride::on_create(HWND hwnd) {
   if(Win32Themes::SetWindowTheme && Win32Menu::use_dark_mode)
-    Win32Themes::SetWindowTheme(hwnd, L"DarkMode", nullptr);
+    HRreport(Win32Themes::SetWindowTheme(hwnd, L"DarkMode", nullptr));
 }
 
 void StaticMenuOverride::on_ncdestroy(HWND hwnd) {

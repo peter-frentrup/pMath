@@ -1,5 +1,6 @@
 #define WINVER  0x603
 
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/win32-widget.h>
 
 #include <climits>
@@ -1124,13 +1125,13 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt, const REC
     
     Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
     Win32Menu::use_dark_mode = is_using_dark_mode();
-    cmd = TrackPopupMenuEx(
+    WIN32report(cmd = TrackPopupMenuEx(
             menu,
             flags,
             screen_pt.x,
             screen_pt.y,
             _hwnd,
-            opt_exclude ? &params : nullptr);
+            opt_exclude ? &params : nullptr));
     
     exit_info = menu_hook.exit_info;
   }
@@ -1959,13 +1960,13 @@ void Win32Widget::ask_drop_data(IDataObject *data_object, POINTL pt, DWORD *effe
     
     Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
     Win32Menu::use_dark_mode = is_using_dark_mode();
-    cmd = TrackPopupMenuEx(
+    WIN32report(cmd = TrackPopupMenuEx(
             menu,
             TPM_RETURNCMD | TPM_LEFTALIGN, // Note: not dependent on SM_MENUDROPALIGNMENT system metrics
             pt.x,
             pt.y,
             _hwnd,
-            nullptr);
+            nullptr));
     
     exit_info = menu_hook.exit_info;
   }

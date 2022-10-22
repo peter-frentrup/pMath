@@ -1,6 +1,7 @@
 #include <gui/win32/menus/win32-automenuhook.h>
 
 #include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/menus/win32-menu.h>
 
 #include <gui/menus.h>
@@ -435,7 +436,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
 void Win32MenuItemPopupMenu::append(HMENU menu, SpecialCommandID id, String text, UINT flags) {
   text+= String::FromChar(0);
   if(const wchar_t *buf = text.buffer_wchar()) {
-    AppendMenuW(menu, MF_STRING | flags, (UINT_PTR)id, buf);
+    WIN32report(AppendMenuW(menu, MF_STRING | flags, (UINT_PTR)id, buf));
   }
 }
 
@@ -454,11 +455,11 @@ SpecialCommandID Win32MenuItemPopupMenu::show_popup_for(HWND owner, POINT pt, Ex
   DWORD id;
   {
     Win32AutoMenuHook menu_hook(popup, owner, nullptr, false, false);
-    id = TrackPopupMenuEx(popup, flags, pt.x, pt.y, owner, nullptr);
+    WIN32report(id = TrackPopupMenuEx(popup, flags, pt.x, pt.y, owner, nullptr));
     exit_info = menu_hook.exit_info;
   }
   
-  DestroyMenu(popup);
+  WIN32report(DestroyMenu(popup));
   
   if(!id) {
     if(exit_info.handle_after_exit())
