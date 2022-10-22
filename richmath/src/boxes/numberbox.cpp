@@ -612,10 +612,12 @@ NumberPartPositions::NumberPartPositions(String number)
   mid_decimal_dot = -1;
   mid_significant_range.to = mid_significant_range.from;
   while(mid_significant_range.to < len) {
-    if(buf[mid_significant_range.to] == '`')
+    if( buf[mid_significant_range.to] == '`' ||
+        buf[mid_significant_range.to] == '[' ||
+        buf[mid_significant_range.to] == '*'
+    ) {
       break;
-    if(buf[mid_significant_range.to] == '[')
-      break;
+    }
     if(buf[mid_significant_range.to] == '.')
       mid_decimal_dot = mid_significant_range.to;
     ++mid_significant_range.to;
