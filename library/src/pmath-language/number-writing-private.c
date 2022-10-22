@@ -512,13 +512,16 @@ void _pmath_raw_number_parts_set_decimal_point_automatic(struct _pmath_raw_numbe
   if(fmpz_fits_si(parts->exponent)) {
     slong exp_i = fmpz_get_si(parts->exponent);
     
-    if(-5 <= exp_i && exp_i <= 5) {
+    if(-4 <= exp_i && exp_i <= 6) {
       if(exp_i < parts->total_significant) {
         _pmath_raw_number_parts_set_decimal_point(parts, exp_i);
         return;
       }
     }
   }
+  
+  if(parts->total_significant >= 1)
+    _pmath_raw_number_parts_set_decimal_point(parts, 1);
 }
 
 #define RADIUS_DIGITS 3

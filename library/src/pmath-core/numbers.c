@@ -1887,8 +1887,8 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
   
   if(parts.mid_digits) {
     int relevant_digits = parts.total_significant;
-    if(parts.total_significant < 6)
-      parts.total_significant = 6;
+    if(parts.total_significant < 7)
+      parts.total_significant = 7;
     
     _pmath_raw_number_parts_set_decimal_point_automatic(&parts);
     
