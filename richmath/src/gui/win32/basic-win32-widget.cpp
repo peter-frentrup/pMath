@@ -3,6 +3,7 @@
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/api/win32-themes.h>
 #include <gui/win32/api/win32-touch.h>
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/win32-clipboard.h>
 #include <boxes/box.h>
 #include <resources.h>
@@ -115,7 +116,7 @@ void BasicWin32Widget::after_construction() {
 BasicWin32Widget::~BasicWin32Widget() {
   if(_hwnd) {
     SetWindowLongPtrW(_hwnd, GWLP_USERDATA, 0);
-    DestroyWindow(_hwnd); 
+    WIN32report(DestroyWindow(_hwnd)); 
     _hwnd = nullptr;
   }
   add_remove_window(-1);
@@ -195,7 +196,7 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
 LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   switch(message) {
     case WM_CREATE: {
-        SetMenu(_hwnd, nullptr);
+        WIN32report(SetMenu(_hwnd, nullptr));
         RegisterDragDrop(_hwnd, static_cast<IDropTarget *>(this));
       } break;
       

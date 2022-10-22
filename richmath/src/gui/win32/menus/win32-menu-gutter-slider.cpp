@@ -1,6 +1,7 @@
 #include <gui/win32/menus/win32-menu-gutter-slider.h>
 #include <gui/win32/menus/win32-menu.h>
 #include <gui/win32/api/win32-themes.h>
+#include <gui/win32/api/win32-version.h>
 
 #include <gui/documents.h>
 #include <gui/document.h>
@@ -121,7 +122,7 @@ bool Win32MenuGutterSlider::collect_float_values(Array<float> &values, HMENU men
   for(int i = 0; i < values.length(); ++i) {
     MENUITEMINFOW mii = { sizeof(mii) };
     mii.fMask = MIIM_ID;
-    if(!GetMenuItemInfoW(menu, start_index + i, TRUE, &mii))
+    if(!WIN32report(GetMenuItemInfoW(menu, start_index + i, TRUE, &mii)))
       return false;
     
     Expr cmd = Win32Menu::id_to_command(mii.wID);

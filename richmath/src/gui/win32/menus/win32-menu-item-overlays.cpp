@@ -1,4 +1,5 @@
 #include <gui/win32/menus/win32-menu-item-overlays.h>
+#include <gui/win32/api/win32-version.h>
 
 
 using namespace richmath;
@@ -16,7 +17,7 @@ Win32MenuItemOverlay::Win32MenuItemOverlay()
 
 Win32MenuItemOverlay::~Win32MenuItemOverlay() {
   if(control)
-    DestroyWindow(control);
+    WIN32report(DestroyWindow(control));
 }
 
 void Win32MenuItemOverlay::delete_all() {

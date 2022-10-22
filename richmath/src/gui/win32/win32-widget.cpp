@@ -1944,7 +1944,7 @@ void Win32Widget::ask_drop_data(IDataObject *data_object, POINTL pt, DWORD *effe
     case DROPEFFECT_MOVE: def_cmd = Win32Menu::command_to_id(strings::DropMoveHere); break;
     case DROPEFFECT_LINK: def_cmd = Win32Menu::command_to_id(strings::DropLinkHere); break;
   }
-  SetMenuDefaultItem(menu, def_cmd, FALSE);
+  WIN32report(SetMenuDefaultItem(menu, def_cmd, FALSE));
   
   *effect = DROPEFFECT_NONE;
   

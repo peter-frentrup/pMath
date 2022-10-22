@@ -132,7 +132,9 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     info.dwTypeData = texts[i] + 1;                      // prepend ' '
     info.cch = sizeof(texts[i]) / sizeof(texts[i][0]) - 3; // append ' ' + '\0'
     
-    GetMenuItemInfoW(_menu->hmenu(), i, TRUE, &info);
+    if(!WIN32report(GetMenuItemInfoW(_menu->hmenu(), i, TRUE, &info)))
+      continue;
+    
     texts[i][0] = ' ';
     texts[i][info.cch + 1] = ' ';
     texts[i][info.cch + 2] = '\0';
@@ -178,7 +180,7 @@ Win32Menubar::~Win32Menubar() {
   if(current_menubar == this)
     current_menubar = nullptr;
     
-  DestroyWindow(_hwnd);
+  WIN32report(DestroyWindow(_hwnd));
   if(_font)
     DeleteObject(_font);
   
@@ -202,9 +204,10 @@ void Win32Menubar::reload_image_list() {
   
   image_list = ImageList_Create(sizes[index], sizes[index], ILC_COLOR24 | ILC_MASK, 2, 0);
   
-  HBITMAP hbmp = LoadBitmapW((HINSTANCE)GetModuleHandle(nullptr), MAKEINTRESOURCEW(BMP_PIN16 + index));
-  ImageList_AddMasked(image_list, hbmp, RGB(0xFF, 0, 0xFF));
-  DeleteObject(hbmp);
+  if(HBITMAP hbmp = WIN32report(LoadBitmapW((HINSTANCE)GetModuleHandle(nullptr), MAKEINTRESOURCEW(BMP_PIN16 + index)))) {
+    ImageList_AddMasked(image_list, hbmp, RGB(0xFF, 0, 0xFF));
+    DeleteObject(hbmp);
+  }
   
   TBBUTTONINFOW info = {0};
   info.cbSize = sizeof(info);
@@ -727,7 +730,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                     if(current_item)
                       next_item = hi->idNew;
                     
-                    EndMenu();
+                    WIN32report(EndMenu());
                     *result = 0;
                     return true;
                   }

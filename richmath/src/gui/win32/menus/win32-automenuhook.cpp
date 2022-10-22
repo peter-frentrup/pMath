@@ -256,7 +256,7 @@ void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DW
     case SpecialCommandID::Select:
       self.exit_info.cmd    = cmd_id;
       self.exit_info.reason = MenuExitReason::ExplicitCmd;
-      EndMenu();
+      WIN32report(EndMenu());
       return;
     
     case SpecialCommandID::Remove: 
@@ -268,13 +268,8 @@ void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DW
       self.exit_info.cmd      = cmd_id;
       self.exit_info.list_cmd = subitems_cmd_id;
       self.exit_info.reason   = MenuExitReason::LocateItemSource;
-      EndMenu();
+      WIN32report(EndMenu());
       return;
-//      if(Menus::locate_dynamic_submenu_item_source(std::move(subitems_cmd), std::move(cmd))) {
-//        //EndMenu();
-//        return;
-//      }
-//      break;
   }
   
   Win32Menu::on_menuselect(MAKEWPARAM(cmd_id, MF_MOUSESELECT), (LPARAM)menu);
@@ -305,20 +300,10 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
             self.exit_info.list_cmd = subitems_cmd_id;
             self.exit_info.cmd      = cmd_id;
             self.exit_info.reason   = MenuExitReason::LocateItemSource;
-            EndMenu();
+            WIN32report(EndMenu());
             return true;
           }
         }
-        
-//        Expr cmd;
-//        Expr subitems_cmd;
-//        
-//        if(menu && item >= 0) {
-//          if(Menus::locate_dynamic_submenu_item_source(std::move(subitems_cmd), std::move(cmd))) {
-//            //EndMenu();
-//            return true;
-//          }
-//        }
       } break;
     
     case VK_LEFT: if(self._allow_leave_left) {
@@ -327,7 +312,7 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
         
         if(menu == self._current_popup) {
           self.exit_info.reason = MenuExitReason::LeftKey;
-          EndMenu();
+          WIN32report(EndMenu());
           return true;
         }
       } break;
@@ -338,7 +323,7 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
         
         if(item < 0 || (GetMenuState(menu, item, MF_BYPOSITION) & MF_POPUP) == 0) {
           self.exit_info.reason = MenuExitReason::RightKey;
-          EndMenu();
+          WIN32report(EndMenu());
           return true;
         }
       } break;
@@ -385,7 +370,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   if(list_cmd.is_null())
     return nullptr;
   
-  HMENU menu = CreatePopupMenu();
+  HMENU menu = WIN32report(CreatePopupMenu());
   String select_label;
   if(cmd[0] == richmath_FrontEnd_DocumentOpen)
     select_label = "Open";
@@ -429,7 +414,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   
   //append(menu, SpecialCommandID::None, String("Help\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F1), MF_DISABLED | MF_GRAYED);
   
-  SetMenuDefaultItem(menu, (UINT)SpecialCommandID::Select, FALSE);
+  WIN32report(SetMenuDefaultItem(menu, (UINT)SpecialCommandID::Select, FALSE));
   return menu;
 }
 
@@ -482,7 +467,7 @@ static int find_hilite_menuitem_cmd(HMENU *menu, DWORD *list_cmd, DWORD *cmd) {
     memset(&info, 0, sizeof(info));
     info.cbSize = sizeof(info);
     info.fMask = MIIM_DATA | MIIM_ID;
-    if(GetMenuItemInfoW(*menu, item, TRUE, &info)) {
+    if(WIN32report(GetMenuItemInfoW(*menu, item, TRUE, &info))) {
       if(list_cmd) *list_cmd = (DWORD)info.dwItemData;
       if(cmd)      *cmd      = info.wID;
     }

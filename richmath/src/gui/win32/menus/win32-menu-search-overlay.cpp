@@ -2,6 +2,7 @@
 
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/api/win32-themes.h>
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/ole/combase.h>
 #include <gui/win32/menus/win32-menu.h>
 #include <gui/win32/menus/win32-menubar.h>
@@ -257,7 +258,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
     mii.fMask = MIIM_STRING;
     mii.cch = sizeof(hint)/sizeof(hint[0]);
     mii.dwTypeData = hint;
-    if(GetMenuItemInfoW(menu, start_index, TRUE, &mii)) {
+    if(WIN32report(GetMenuItemInfoW(menu, start_index, TRUE, &mii))) {
       unsigned tabpos = 0;
       while(tabpos < mii.cch && hint[tabpos] != '\t')
         ++tabpos;
@@ -329,11 +330,11 @@ bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
   
   Menus::current_menu_search_text(strings::EmptyString);
   HMENU menu = win->menubar()->menu()->hmenu();
-  int count = GetMenuItemCount(menu);
+  int count = WIN32report_errval(GetMenuItemCount(menu), -1);
   for(int i = count-1; i >= 0; --i) {
     MENUITEMINFOW mii = {sizeof(mii)};
     mii.fMask = MIIM_SUBMENU;
-    if(GetMenuItemInfoW(menu, i, TRUE, &mii)) {
+    if(WIN32report(GetMenuItemInfoW(menu, i, TRUE, &mii))) {
       if(mii.hSubMenu && MenuSearch::contains_search_menu_list(mii.hSubMenu)) {
         win->menubar()->set_focus(i);
         win->menubar()->show_menu(i + 1);
@@ -460,13 +461,13 @@ void MenuSearch::collect_menu_matches(Array<MenuSearchResult> &results, HMENU me
   
   Win32Menu::init_popupmenu(menu);
   
-  int count = GetMenuItemCount(menu);
+  int count = WIN32report_errval(GetMenuItemCount(menu), -1);
   
   for(int i = 0; i < count; ++i) {
     MENUITEMINFOW mii = {sizeof(mii)};
     
     mii.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID | MIIM_SUBMENU;
-    if(!GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii))
+    if(!WIN32report(GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii)))
       continue;
     
     int prefix_len = prefix.length();
@@ -480,19 +481,20 @@ void MenuSearch::collect_menu_matches(Array<MenuSearchResult> &results, HMENU me
         
         mii.dwTypeData = (wchar_t*)&buf[prefix_len];
         mii.cch = len - prefix_len;
-        GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii);
-        len = prefix_len + (int)mii.cch;
-        
-        int j = prefix_len;
-        for(int i = prefix_len; i < len; ++i) {
-          wchar_t ch = buf[i];
-          if(ch == '\t')
-            break;
+        if(WIN32report(GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii))) {
+          len = prefix_len + (int)mii.cch;
           
-          if(ch != L'&')
-            buf[j++] = ch;
+          int j = prefix_len;
+          for(int i = prefix_len; i < len; ++i) {
+            wchar_t ch = buf[i];
+            if(ch == '\t')
+              break;
+            
+            if(ch != L'&')
+              buf[j++] = ch;
+          }
+          len = j;
         }
-        len = j;
       }
       else
         len = 0;
@@ -525,12 +527,12 @@ void MenuSearch::collect_menu_matches(Array<MenuSearchResult> &results, HMENU me
 }
 
 bool MenuSearch::contains_search_menu_list(HMENU menu) {
-  int count = GetMenuItemCount(menu);
+  int count = WIN32report_errval(GetMenuItemCount(menu), -1);
   
   for(int i = 0; i < count; ++i) {
     MENUITEMINFOW mii = {sizeof(mii)};
     mii.fMask = MIIM_DATA;
-    if(GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii)) {
+    if(WIN32report(GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii))) {
       DWORD list_id = mii.dwItemData;
       Expr list_name = Win32Menu::id_to_command(list_id);
       if(list_name == strings::MenuListSearchCommands)
@@ -547,14 +549,14 @@ bool MenuSearch::find_menu_item(Array<IndexAndMenu> &path, DWORD id, DWORD exclu
     return false;
   
   HMENU menu = path[level-1].menu;
-  int count = GetMenuItemCount(menu);
+  int count = WIN32report_errval(GetMenuItemCount(menu), -1);
   path.add({0, nullptr});
   
   for(int i = 0; i < count; ++i) {
     {
       MENUITEMINFOW mii = {sizeof(mii)};
       mii.fMask = MIIM_ID | MIIM_SUBMENU | MIIM_DATA;
-      if(!GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii))
+      if(!WIN32report(GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii)))
         continue;
       
       if(mii.dwItemData == exclude_list_id)
