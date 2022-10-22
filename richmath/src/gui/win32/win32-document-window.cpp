@@ -724,9 +724,10 @@ void Win32DocumentWindow::after_construction() {
           info.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID | MIIM_SUBMENU;
           info.dwTypeData = data;
           info.cch = sizeof(data)/sizeof(data[0])-1;
-    
-          GetMenuItemInfoW(menu->hmenu(), i, TRUE, &info);
-          InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info);
+          
+          if(WIN32report(GetMenuItemInfoW(menu->hmenu(), i, TRUE, &info))) {
+            WIN32report(InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info));
+          }
         }
       }
     }
@@ -753,10 +754,10 @@ Win32DocumentWindow::~Win32DocumentWindow() {
   _working_area->safe_destroy();      _working_area = nullptr;
   
   // remove all menu items so that the submenus are not destroyed automatically
-  HMENU sysmenu = GetSystemMenu(_hwnd, FALSE);
-  int count = GetMenuItemCount(sysmenu);
+  HMENU sysmenu = WIN32report(GetSystemMenu(_hwnd, FALSE));
+  int count = WIN32report_errval(GetMenuItemCount(sysmenu), -1);
   for(int i = 0; i < count; ++i) {
-    RemoveMenu(sysmenu, 0, MF_BYPOSITION);
+    WIN32report(RemoveMenu(sysmenu, 0, MF_BYPOSITION));
   }
   
   static bool deleting_all = false;
@@ -1542,7 +1543,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           MenuExitInfo exit_info;
           DWORD explicit_cmd = 0;
           {
-            Win32AutoMenuHook menu_hook(GetSystemMenu(hwnd(), FALSE), hwnd(), nullptr, false, false);
+            Win32AutoMenuHook menu_hook(WIN32report(GetSystemMenu(hwnd(), FALSE)), hwnd(), nullptr, false, false);
             Win32Menu::use_dark_mode = is_using_dark_mode();
             
             result = base::callback(message, wParam, lParam);

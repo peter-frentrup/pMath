@@ -122,6 +122,7 @@ namespace richmath {
       virtual ArrayView<const Win32CaptionButton> extra_caption_buttons() { return ArrayView<const Win32CaptionButton>(0, nullptr); }
       
       virtual void finish_apply_title(String displayed_title) override;
+      virtual void on_close() override;
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       

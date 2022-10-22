@@ -1807,6 +1807,12 @@ void BasicWin32Window::finish_apply_title(String displayed_title) {
     SetWindowTextW(_hwnd, str);
 }
 
+void BasicWin32Window::on_close() {
+  deregister_self();
+  ShowWindow(_hwnd, SW_HIDE);
+  BasicWin32Widget::on_close();
+}
+
 LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   LRESULT dwm_result = 0;
 

@@ -115,20 +115,10 @@ void BasicWin32Widget::after_construction() {
 
 BasicWin32Widget::~BasicWin32Widget() {
   if(_hwnd) {
-    SetWindowLongPtrW(_hwnd, GWLP_USERDATA, 0);
     WIN32report(DestroyWindow(_hwnd)); 
     _hwnd = nullptr;
   }
   add_remove_window(-1);
-}
-
-void BasicWin32Widget::safe_destroy() {
-  if(_hwnd) {
-    // detach this from window handle:
-    SetWindowLongPtrW(_hwnd, GWLP_USERDATA, 0);
-  }
-  
-  ObjectWithLimbo::safe_destroy();
 }
 
 //
@@ -206,7 +196,6 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       
     case WM_DESTROY: {
         RevokeDragDrop(_hwnd);
-        SetWindowLongPtrW(_hwnd, GWLP_USERDATA, 0);
         _hwnd = nullptr;
       } return 0;
   }
@@ -272,7 +261,8 @@ LRESULT CALLBACK BasicWin32Widget::window_proc(HWND hwnd, UINT message, WPARAM w
   
   if(widget)
     return widget->callback(message, wParam, lParam);
-    
+  
+  fprintf(stderr, "[window_proc: no widget => DefWindowProcW(%p, 0x%x, %p, %p)]\n", hwnd, message, (void*)wParam, (void*)lParam);  
   return DefWindowProcW(hwnd, message, wParam, lParam);
 }
 

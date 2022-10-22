@@ -56,8 +56,6 @@ namespace richmath {
         _initializing = false;
       }
       
-      virtual void safe_destroy() override;
-    
       bool initializing() { return _initializing; }
     
     public:

@@ -57,18 +57,29 @@ CommonDocumentWindow::CommonDocumentWindow()
 }
 
 CommonDocumentWindow::~CommonDocumentWindow() {
-  --All._count;
-  
-  if(All._first == this) {
-    All._first = _next_window;
-    if(All._first == this)
-      All._first = nullptr;
-  }
+  deregister_self();
+}
 
-  _next_window->_prev_window = _prev_window;
-  _prev_window->_next_window = _next_window;
+void CommonDocumentWindow::deregister_self() {
+  if(_next_window) {
+    RICHMATH_ASSERT(_prev_window);
+    
+    --All._count;
+    
+    if(All._first == this) {
+      All._first = _next_window;
+      if(All._first == this)
+        All._first = nullptr;
+    }
+
+    _next_window->_prev_window = _prev_window;
+    _prev_window->_next_window = _next_window;
+    
+    _next_window = nullptr;
+    _prev_window = nullptr;
   
-  All.notify_all();
+    All.notify_all();
+  }
 }
 
 void CommonDocumentWindow::directory(String new_directory) {

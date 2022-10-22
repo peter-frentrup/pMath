@@ -44,6 +44,7 @@ namespace richmath {
       void title(String text);
       
       virtual void finish_apply_title(String displayed_title) = 0;
+      void deregister_self();
     
     private:
       CommonDocumentWindow *_prev_window;
