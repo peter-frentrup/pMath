@@ -9,6 +9,7 @@
 #include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/symbol-values-private.h>
 
@@ -20,9 +21,14 @@ struct dispatch_lookup_info_t {
   unsigned int turn_or_zero;
 };
 
-static struct _pmath_dispatch_table_t *find_dispatch_table(pmath_expr_t keys); // keys wont be freed
+struct dispatch_table_cache_search_t {
+  pmath_t      keys_or_rules;
+  pmath_bool_t implicit_keys;
+};
+
+static struct _pmath_dispatch_table_t *find_dispatch_table(pmath_expr_t rules); // rules wont be freed
 static struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys); // keys will be freed
-static struct _pmath_dispatch_table_t *get_dispatch_table_for_keys(pmath_expr_t keys); // keys will be freed
+static struct _pmath_dispatch_table_t *get_dispatch_table_for_rules(pmath_expr_t rules); // rules wont be freed
 
 static void disown_dispatch_table(pmath_t a);
 static unsigned int hash_dispatch_table(pmath_t a);
@@ -83,7 +89,7 @@ static const pmath_ht_class_ex_t dispatch_entries_ht_class = {
 
 static pmath_atomic_t dispatch_table_cache_lock = PMATH_ATOMIC_STATIC_INIT;
 
-// Maps pmath_t* keys (note: not struct _pmath_t*) to struct _pmath_dispatch_table_t* entries:
+// Maps dispatch_table_cache_search_t* keys to struct _pmath_dispatch_table_t* entries:
 static pmath_hashtable_t dispatch_table_cache;
 
 #define DISPATCH_TABLE_LIMBO_SIZE       8   // Must be a power of two
@@ -91,6 +97,8 @@ static pmath_hashtable_t dispatch_table_cache;
 
 static struct _pmath_dispatch_table_t *dispatch_table_limbo[DISPATCH_TABLE_LIMBO_SIZE];
 static size_t dispatch_table_limbo_next = 0;
+
+static pmath_t      dispatch_table_cache_key_at(struct dispatch_table_cache_search_t *search, size_t i);
 
 static void         dispatch_table_cache_entry_destructor(void *entry);
 static unsigned int dispatch_table_cache_entry_hash(void *entry);
@@ -117,12 +125,15 @@ static size_t unsafe_find_in_limbo(struct _pmath_dispatch_table_t *disp) {
   return 0;
 }
 
-struct _pmath_dispatch_table_t *find_dispatch_table(pmath_expr_t keys) {
+struct _pmath_dispatch_table_t *find_dispatch_table(pmath_expr_t rules) {
   struct _pmath_dispatch_table_t *result = NULL;
+  struct dispatch_table_cache_search_t search;
+  search.implicit_keys = TRUE;
+  search.keys_or_rules = rules;
   
   pmath_atomic_lock(&dispatch_table_cache_lock);
   {
-    result = pmath_ht_search(dispatch_table_cache, &keys);
+    result = pmath_ht_search(dispatch_table_cache, &search);
     if(result) {
       _pmath_ref_ptr((struct _pmath_t*)result);
       if(_pmath_refcount_ptr((struct _pmath_t*)result) == 1) {
@@ -132,9 +143,11 @@ struct _pmath_dispatch_table_t *find_dispatch_table(pmath_expr_t keys) {
           dispatch_table_limbo[i] = dispatch_table_limbo[last];
           dispatch_table_limbo[last] = NULL;
           dispatch_table_limbo_next = last;
+//          pmath_debug_print("[found zombie dispatch table %p in limbo]\n", result);
         }
         else {
-          pmath_debug_print_object("[zombie dispatch table not from limbo: ", keys, "]\n");
+//          pmath_debug_print("[zombie dispatch table %p ", result);
+//          pmath_debug_print_object("not from limbo: ", rules, "]\n");
         }
       }
     }
@@ -144,16 +157,26 @@ struct _pmath_dispatch_table_t *find_dispatch_table(pmath_expr_t keys) {
   return result;
 }
 
-static struct _pmath_dispatch_table_t *get_dispatch_table_for_keys(pmath_expr_t keys) {
+static struct _pmath_dispatch_table_t *get_dispatch_table_for_rules(pmath_expr_t rules) {
   struct _pmath_dispatch_table_t *tab;
   struct _pmath_dispatch_table_t *old;
+  pmath_t keys;
+  size_t len;
   
-  tab = find_dispatch_table(keys);
+  tab = find_dispatch_table(rules);
   if(tab) {
-    //pmath_debug_print("[use cached dispatch table (%d refs) ", (int)_pmath_refcount_ptr(&tab->inherited));
-    //pmath_debug_print_object("for ", keys, "]\n");
-    pmath_unref(keys);
+//    pmath_debug_print("[use cached dispatch table %p (%d refs) ", tab, (int)_pmath_refcount_ptr(&tab->inherited));
+//    pmath_debug_print_object("for ", rules, "]\n");
     return tab;
+  }
+  
+  len = pmath_expr_length(rules);
+  keys = pmath_expr_new(pmath_ref(pmath_System_List), len);
+  for(; len > 0; --len) {
+    pmath_t rule = pmath_expr_get_item(rules, len);
+    pmath_t lhs = pmath_expr_get_item(rule, 1);
+    pmath_unref(rule);
+    keys = pmath_expr_set_item(keys, len, lhs);
   }
   
   tab = create_dispatch_table_for_keys(keys);
@@ -239,6 +262,9 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
     return NULL;
   }
   
+//  pmath_debug_print("[new dispatch table %p ", tab);
+//  pmath_debug_print_object("for ", keys, "]\n");
+  
   tab->all_keys = keys;
   tab->literal_entries = literal_entries;
   current_slice_start = &tab->entries[0];
@@ -262,7 +288,7 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
       
       entry = pmath_ht_insert(literal_entries, entry);
       if(PMATH_UNLIKELY(entry)) {
-        pmath_debug_print("[failed to insert entry for %d", (int)i);
+        pmath_debug_print("[failed to insert entry %p for %d", entry, (int)i);
         pmath_debug_print_object(" of ", keys, "]\n");
       }
     }
@@ -387,7 +413,6 @@ PMATH_API pmath_bool_t pmath_is_list_of_rules(pmath_t obj) {
 
 PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t expr) {
   pmath_dispatch_table_t tab;
-  pmath_t keys;
   size_t len;
   
   if(!pmath_is_expr(expr))
@@ -400,24 +425,18 @@ PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t ex
   if(!pmath_is_expr_of(expr, pmath_System_List))
     return PMATH_NULL;
   
-  len = pmath_expr_length(expr);
-  keys = pmath_expr_new(pmath_ref(pmath_System_List), len);
-  for(; len > 0; --len) {
+  for(len = pmath_expr_length(expr); len > 0; --len) {
     pmath_t rule = pmath_expr_get_item(expr, len);
-    pmath_t lhs;
     
     if(!pmath_is_rule(rule)) {
       pmath_unref(rule);
-      pmath_unref(keys);
       return PMATH_NULL;
     }
     
-    lhs = pmath_expr_get_item(rule, 1);
     pmath_unref(rule);
-    keys = pmath_expr_set_item(keys, len, lhs);
   }
   
-  tab = PMATH_FROM_PTR(get_dispatch_table_for_keys(keys));
+  tab = PMATH_FROM_PTR(get_dispatch_table_for_rules(expr));
   _pmath_expr_attach_dispatch_table(expr, pmath_ref(tab));
   return tab;
 }
@@ -474,7 +493,6 @@ static pmath_t replace_rule_rhs(
     pmath_bool_t           (*callback)(pmath_t*, pmath_bool_t, void*), 
     void                    *callback_context
 ) {
-  struct _pmath_dispatch_table_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
   pmath_t rule = pmath_expr_extract_item(rules, i);
   pmath_bool_t old_no_delay = pmath_is_expr_of(rule, pmath_System_Rule);
   pmath_t value = pmath_expr_extract_item(rule, 2);
@@ -601,6 +619,7 @@ PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
     if(table) {
       // note that table normaly has refcount == 0 here.
       if(keep_callback(table, closure)) {
+//        pmath_debug_print("[keep dispatch table %p in limbo (%d) via disown ...]\n", table, (int)_pmath_refcount_ptr(&table->inherited));
         _pmath_ref_ptr(&table->inherited);
         _pmath_unref_ptr(&table->inherited); // will eventually return the table to limbo
         old_limbo[i] = NULL;
@@ -619,7 +638,10 @@ PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
     for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE && remaining; ++i) {
       struct _pmath_dispatch_table_t *table = old_limbo[i];
       if(table) {
-        old_limbo[i] = pmath_ht_remove(dispatch_table_cache, &table->all_keys);
+        struct dispatch_table_cache_search_t search;
+        search.keys_or_rules = table->all_keys;
+        search.implicit_keys = FALSE;
+        old_limbo[i] = pmath_ht_remove(dispatch_table_cache, &search);
         --remaining;
       }
     }
@@ -647,8 +669,12 @@ PMATH_PRIVATE void _pmath_dispatch_tables_memory_panic(void) {
     dispatch_table_limbo_next = 0;
     
     for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE; ++i) {
-      if(old_limbo[i])
-        old_limbo[i] = pmath_ht_remove(dispatch_table_cache, &old_limbo[i]->all_keys);
+      if(old_limbo[i]) {
+        struct dispatch_table_cache_search_t search;
+        search.keys_or_rules = old_limbo[i]->all_keys;
+        search.implicit_keys = FALSE;
+        old_limbo[i] = pmath_ht_remove(dispatch_table_cache, &search);
+      }
     }
   }
   pmath_atomic_unlock(&dispatch_table_cache_lock);
@@ -691,7 +717,7 @@ static void dispatch_table_cache_entry_destructor(void *entry) {
   if(PMATH_LIKELY(_pmath_refcount_ptr(&tab->inherited) == 0)) {
     size_t i;
     
-    pmath_debug_print_object("[free dispatch table for ", tab->all_keys, "]\n");
+//    pmath_debug_print("[free dispatch table %p ]\n", tab);
     
     pmath_ht_destroy(tab->literal_entries);
     
@@ -702,7 +728,7 @@ static void dispatch_table_cache_entry_destructor(void *entry) {
     pmath_mem_free(tab);
   }
   else {
-    pmath_debug_print("[ignored attempt to free dispatch table cache entry %p with refcount > 0]", tab);
+    pmath_debug_print("[ignored attempt to free dispatch table cache entry %p with refcount > 0]\n", tab);
   }
 }
 
@@ -710,12 +736,12 @@ static void disown_dispatch_table(pmath_t a) {
   struct _pmath_dispatch_table_t *tab = (void*)PMATH_AS_PTR(a);
   struct _pmath_dispatch_table_t *cached = NULL;
   
-  //pmath_debug_print_object("[disowned dispatch table for ", tab->all_keys, "]\n");
+//  pmath_debug_print("[disowned dispatch table %p ]\n", tab);
   
   pmath_atomic_lock(&dispatch_table_cache_lock);
   {
     if(PMATH_UNLIKELY(_pmath_refcount_ptr(&tab->inherited)) != 0) {
-      pmath_debug_print("[dispatch table %p revived just before burial]", tab);
+      pmath_debug_print("[dispatch table %p revived just before burial]\n", tab);
       tab = NULL; // do not free below
     }
     else {
@@ -725,12 +751,16 @@ static void disown_dispatch_table(pmath_t a) {
       tab = old_zombie;
       
       if(tab) {
-        cached = pmath_ht_remove(dispatch_table_cache, &tab->all_keys);
+        struct dispatch_table_cache_search_t search;
+        search.keys_or_rules = tab->all_keys;
+        search.implicit_keys = FALSE;
+//        pmath_debug_print("[dispatch table limbo contained old_zomie %p]\n", tab);
+        cached = pmath_ht_remove(dispatch_table_cache, &search);
         if(PMATH_LIKELY(tab == cached)) {
           cached = NULL; // prevent double-free
         }
         else {
-          pmath_debug_print("[dispatch table cache contains %p instead of %p]", cached, tab);
+          pmath_debug_print("[dispatch table cache contains %p instead of %p]\n", cached, tab);
           if(cached) { // undo the removal
             cached = pmath_ht_insert(dispatch_table_cache, cached);
             // Now cached is NULL on success or remains unchanged on failure. 
@@ -751,11 +781,53 @@ static void disown_dispatch_table(pmath_t a) {
 
 static unsigned int dispatch_table_cache_entry_hash(void *entry) {
   struct _pmath_dispatch_table_t *tab = entry;
-  return pmath_hash(tab->all_keys);
+  unsigned int hash = 17;
+  size_t i;
+
+  for(i = pmath_expr_length(tab->all_keys); i > 0; --i) {
+    pmath_t item = pmath_expr_get_item(tab->all_keys, i);
+    unsigned int h = pmath_hash(item);
+    hash = _pmath_incremental_hash(&h, sizeof(h), hash);
+    pmath_unref(item);
+  }
+  
+  return hash;
+}
+
+static pmath_t dispatch_table_cache_key_at(struct dispatch_table_cache_search_t *search, size_t i) {
+  if(!pmath_is_expr(search->keys_or_rules))
+    return PMATH_NULL;
+  
+  if(search->implicit_keys) {
+    pmath_t rule = pmath_expr_get_item(search->keys_or_rules, i);
+    if(pmath_is_expr(rule)) {
+      pmath_t key = pmath_expr_get_item(rule, 1);
+      pmath_unref(rule);
+      return key;
+    }
+    pmath_unref(rule);
+    return PMATH_NULL;
+  }
+  else {
+    return pmath_expr_get_item(search->keys_or_rules, i);
+  }
 }
 
 static unsigned int dispatch_table_cache_key_hash(void *key) {
-  return pmath_hash(*(pmath_t*)key);
+  struct dispatch_table_cache_search_t *search = key;
+  unsigned int hash = 17;
+  size_t i;
+  
+  if(pmath_is_expr(search->keys_or_rules)) {
+    for(i = pmath_expr_length(search->keys_or_rules); i > 0; --i) {
+      pmath_t item = dispatch_table_cache_key_at(search, i);
+      unsigned int h = pmath_hash(item);
+      hash = _pmath_incremental_hash(&h, sizeof(h), hash);
+      pmath_unref(item);
+    }
+  }
+  
+  return hash;
 }
 
 static unsigned int hash_dispatch_table(pmath_t a) {
@@ -776,8 +848,33 @@ static pmath_bool_t dispatch_table_cache_entry_keys_equal(void *entry1, void *en
 }
 
 static pmath_bool_t dispatch_table_cache_entry_equals_key(void *entry, void *key) {
-  struct _pmath_dispatch_table_t *tab = entry;
-  return pmath_equals(tab->all_keys, *(pmath_t*)key);
+  struct _pmath_dispatch_table_t       *tab    = entry;
+  struct dispatch_table_cache_search_t *search = key;
+  
+  if(pmath_is_expr(search->keys_or_rules)) {
+    size_t i = pmath_expr_length(search->keys_or_rules);
+    
+    if(i != pmath_expr_length(tab->all_keys))
+      return FALSE;
+    
+    for(; i > 0; --i) {
+      pmath_t search_item = dispatch_table_cache_key_at(search, i);
+      pmath_t tab_item    = pmath_expr_get_item(tab->all_keys, i);
+      
+      if(!pmath_equals(search_item, tab_item)) {
+        pmath_unref(tab_item);
+        pmath_unref(search_item);
+        return FALSE;
+      }
+      
+      pmath_unref(tab_item);
+      pmath_unref(search_item);
+    }
+    
+    return TRUE;
+  }
+  else
+    return FALSE;
 }
 
 static pmath_bool_t equal_dispatch_tables(pmath_t a, pmath_t b) {
