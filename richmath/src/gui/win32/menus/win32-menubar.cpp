@@ -124,7 +124,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   Array<TBBUTTON>  buttons(_num_items + 3);
   Array<wchar_t[100]> texts(buttons.length());
   
-  for(int i = 0; i < buttons.length(); ++i) {
+  for(int i = 0; i < _num_items; ++i) {
     MENUITEMINFOW info;
     memset(&info, 0, sizeof(info));
     info.cbSize = sizeof(info);
