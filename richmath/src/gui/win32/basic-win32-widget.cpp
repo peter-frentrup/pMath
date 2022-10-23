@@ -186,7 +186,6 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
 LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   switch(message) {
     case WM_CREATE: {
-        WIN32report(SetMenu(_hwnd, nullptr));
         RegisterDragDrop(_hwnd, static_cast<IDropTarget *>(this));
       } break;
       
