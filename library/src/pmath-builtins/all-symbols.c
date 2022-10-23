@@ -606,7 +606,6 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_do,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_for,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_piecewise, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_switch,    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_while,     PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_which,     PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
 
@@ -1186,7 +1185,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_StringToBoxes,                builtin_stringtoboxes)
   BIND_DOWN(   pmath_System_StringToStream,               builtin_stringtostream)
   BIND_DOWN(   pmath_System_Sum,                          builtin_sum)
-  BIND_DOWN(   pmath_System_Switch,                       builtin_switch)
   BIND_DOWN(   pmath_System_SubRules,                     builtin_symbol_rules)
   BIND_DOWN(   pmath_System_SymbolName,                   builtin_symbolname)
   BIND_DOWN(   pmath_System_Synchronize,                  builtin_synchronize)

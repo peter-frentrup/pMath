@@ -1061,9 +1061,6 @@
 		<Unit filename="src/pmath-builtins/control/flow/stack.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/control/flow/switch.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/control/flow/synchronize.c">
 			<Option compilerVar="CC" />
 		</Unit>

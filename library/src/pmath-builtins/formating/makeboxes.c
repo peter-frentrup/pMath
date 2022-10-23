@@ -234,7 +234,6 @@ extern pmath_symbol_t pmath_System_Superscript;
 extern pmath_symbol_t pmath_System_SuperscriptBox;
 extern pmath_symbol_t pmath_System_Superset;
 extern pmath_symbol_t pmath_System_SupersetEqual;
-extern pmath_symbol_t pmath_System_Switch;
 extern pmath_symbol_t pmath_System_TagAssign;
 extern pmath_symbol_t pmath_System_TagAssignDelayed;
 extern pmath_symbol_t pmath_System_TagBox;
@@ -3320,62 +3319,6 @@ static pmath_t standardform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t switch_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
-  size_t exprlen = pmath_expr_length(expr);
-  
-  if((exprlen & 1) == 1) {
-    pmath_t item;
-    size_t i;
-    
-    pmath_gather_begin(PMATH_NULL);
-    
-    item = pmath_expr_get_item(expr, 0);
-    pmath_emit(
-      ensure_min_precedence(
-        object_to_boxes(thread, item),
-        PMATH_PREC_CALL,
-        -1),
-      PMATH_NULL);
-      
-    pmath_emit(PMATH_C_STRING("("), PMATH_NULL);
-    
-    {
-      pmath_gather_begin(PMATH_NULL);
-      
-      for(i = 1; i <= exprlen; ++i) {
-        if(i > 1) {
-          pmath_emit(PMATH_C_STRING(","), PMATH_NULL);
-          
-          if((i & 1) == 0)
-            pmath_emit(PMATH_C_STRING("\n"), PMATH_NULL);
-        }
-        
-        item = pmath_expr_get_item(expr, i);
-        pmath_emit(
-          ensure_min_precedence(
-            object_to_boxes(thread, item),
-            PMATH_PREC_SEQ + 1,
-            -1),
-          PMATH_NULL);
-      }
-      
-      item = pmath_gather_end();
-      pmath_emit(item, PMATH_NULL);
-    }
-    
-    pmath_emit(PMATH_C_STRING(")"), PMATH_NULL);
-    
-    pmath_unref(expr);
-    expr = pmath_gather_end();
-    return expr;
-  }
-  
-  return call_to_boxes(thread, expr);
-}
-
 static pmath_t placeholder_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
@@ -3624,9 +3567,6 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
           
         if(pmath_same(head, pmath_System_StandardForm))
           return standardform_to_boxes(thread, expr);
-          
-        if(pmath_same(head, pmath_System_Switch))
-          return switch_to_boxes(thread, expr);
           
         if(pmath_same(head, pmath_System_Placeholder))
           return placeholder_to_boxes(thread, expr);
