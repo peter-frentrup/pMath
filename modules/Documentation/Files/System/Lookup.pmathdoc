@@ -112,7 +112,7 @@ Document({
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
         Section(TextData({TemplateBox({"Part"}, "ReferenceHyperlink"), 
            " uses ", TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
-           " for part specifications that are strings of have head ", 
+           " for part specifications that are strings or have head ", 
            TemplateBox({"Key"}, "ReferenceHyperlink"), ":"}), "ExampleText"), 
         SectionGroup({
           Section(
