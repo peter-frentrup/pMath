@@ -192,9 +192,7 @@ asHeldCondition(p: HoldComplete(~))::= p
 asHeldCondition(p: HoldComplete(~~~))::= 
 	composeHeldExpr(And, p)
 
-asHeldSwitchExpression(p: HoldComplete(~))::= p
-asHeldSwitchExpression(p: HoldComplete(~~~))::= 
-	composeHeldExpr(/\/, p)
+asHeldSwitchExpression(p: HoldComplete(~~~))::= composeHeldExpr(Key, p)
 
 
 System`Private`MakeJuxtapositionExpression(boxes: {~~, {"{", ~~~}, ~~~})::= 
@@ -298,10 +296,7 @@ getSwitchCases({"\[RawNewline]"***})::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***, ~inner:List})::= getSwitchCases(inner)
 getSwitchCases({{"Case", "(", ~pattern, ")"}, {"{", ~block, "}"}, ~~~more})::=
 	Join(
-		First @ composeHeldExpr(
-			HoldComplete,
-			asHeldSwitchExpression @ MakeExpression(pattern),
-			makeBlockExpression(block)),
+		MakeExpression({pattern, ":>", block}),
 		getSwitchCases({more}))
 getSwitchCases({~case, "\[RawNewline]", ~~~more})::= Join(getSwitchCases(case), getSwitchCases({more}))
 getSwitchCases(~other)::= (
@@ -309,11 +304,12 @@ getSwitchCases(~other)::= (
 	HoldComplete()
 	)
 tryMakeSwitchBlock(~)::= $Failed
-tryMakeSwitchBlock(boxes: {{"Switch", "(", ~expr, ")"}, {"{", ?cases:{}, "}"}})::=
+tryMakeSwitchBlock(boxes: {switchhead: {"Switch", "(", ~expr, ")"}, casesblock: {"{", ?cases:{}, "}"}})::=
 	composeHeldExpr(
-		Switch,
-		asHeldSwitchExpression @ MakeExpression(expr),
-		getSwitchCases({cases})).withDebugMetadataOf(boxes)
+		Lookup,
+		composeHeldExpr(List, getSwitchCases({cases})) |> withDebugMetadataOf(casesblock),
+		MakeExpression(expr) |> asHeldSwitchExpression |> withDebugMetadataOf(switchhead),
+		HoldComplete(/\/)) |> withDebugMetadataOf(boxes)
 
 
 tryMakeWhileBlock(~)::= $Failed
