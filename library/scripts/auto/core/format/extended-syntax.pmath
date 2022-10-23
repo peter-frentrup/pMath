@@ -143,25 +143,25 @@ composeHeldEvaluationSequence(h: HoldComplete(~))::= h
 composeHeldEvaluationSequence(h: HoldComplete(~~))::= composeHeldExpr(EvaluationSequence, h)
 
 finishBlock(~heldStatements: List)::= heldStatements.Replace(
-	BLOCK(~debugMetadata, ~head, ~~~heldargs) :> composeHeldExpr(head, heldargs).SetDebugMetadataAt(debugMetadata, 1),
+	{BLOCK(~debugMetadata, ~head, ~~~heldargs) :> composeHeldExpr(head, heldargs).SetDebugMetadataAt(debugMetadata, 1)},
 	1).Apply(HoldComplete).Flatten(1)
 
 makeBlockExpression()::= HoldComplete(/\/)
 makeBlockExpression({})::= HoldComplete(/\/)
 makeBlockExpression(~boxes)::=
 	With({debugMetadata:= GetDebugMetadata(boxes), 
-			flatStmts:= Gather(emitMakeStatements(boxes)).Last.Replace(HoldComplete() -> Sequence(), 1)
+			flatStmts:= Gather(emitMakeStatements(boxes)).Last.Replace({HoldComplete() -> Sequence()}, 1)
 		},
 		With({lastIsNull:= flatStmts.Length > 0 && flatStmts.Last === HoldComplete(/\/),
-			nonNullStmts:= flatStmts.Replace(HoldComplete(/\/) -> Sequence(), 1)
+			nonNullStmts:= flatStmts.Replace({HoldComplete(/\/) -> Sequence()}, 1)
 			},
 			If(Length(nonNullStmts) = 0, Return(HoldComplete(/\/)));
-			With({groupedStmts:= nonNullStmts.ReplaceRepeated(
+			With({groupedStmts:= nonNullStmts.ReplaceRepeated({
 					{Longest(~~~pre), STARTBLOCK(~startDebugMetadata, ~head, ~~~init), ~~~post} :> 
 						{pre, 
 							BLOCK(extendSourceLocationEnd(startDebugMetadata, debugMetadata), 
-								head, init, composeHeldEvaluationSequence({post}.finishBlock))},
-					0).finishBlock
+								head, init, composeHeldEvaluationSequence({post}.finishBlock))}
+					}, 0).finishBlock
 				},
 				
 				If(lastIsNull, 
