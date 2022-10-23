@@ -1,0 +1,73 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Switch", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Switch"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Switch"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ") { ", 
+           TemplateBox({"Case"}, "ReferenceHyperlink"), "(", 
+           StyleBox("form", "Arg"), SubscriptBox("1"), ") { ", 
+           StyleBox("value", "Arg"), SubscriptBox("1"), 
+           " } \[Ellipsis]} parses as ", TemplateBox({"Lookup"}, 
+            "ReferenceHyperlink"), "({", StyleBox("form", "Arg"), 
+           SubscriptBox("1"), " \[RuleDelayed] ", StyleBox("value", "Arg"), 
+           SubscriptBox("1"), ", \[Ellipsis]}, Key(", StyleBox("expr", "Arg"), 
+           "), /\\/)."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Classify a value", "ExampleText"), 
+        Section(BoxData({"Function", " ", {"classify", "(", {"~", "x"}, ")"}, {
+            "{", {
+             "\n", {{{"Switch", "(", {{"0", "<", "x"}, ",", {"x", "<", "1"}}, 
+                ")"}, {
+                "{", {
+                 "\n", {{{{"Case", "(", {"True", ",", "True"}, ")"}, {
+                     "{", {"\n", {StringBox("\"A probability.\""), "\n"}}, 
+                     "}"}}, "\n", {{"Case", "(", {"True", ",", "False"}, ")"}, 
+                    {"{", {"\n", {StringBox("\"At least one.\""), "\n"}}, 
+                     "}"}}, "\n", {{"Case", "(", {"False", ",", "True"}, ")"}, 
+                    {"{", {"\n", {StringBox("\"Negative.\""), "\n"}}, "}"}}}, 
+                  "\n"}}, "}"}}, "\n"}}, "}"}}), "Input", 
+         SectionLabel -> "in [1]:"), 
+        SectionGroup({
+          Section(BoxData({"{", {{"classify", "(", {"-", "2"}, ")"}, ",", {
+               "classify", "(", "0.5", ")"}, ",", " ", {
+               "classify", "(", "1", ")"}}, "}"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData({"{", {StringBox("\"Negative.\""), ",", 
+              StringBox("\"A probability.\""), ",", 
+              StringBox("\"At least one.\"")}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+       All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Switch"}, "ReferenceHyperlink"), 
+           " is just alternative syntax for ", 
+           TemplateBox({"Lookup"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({
+             {"Hold", "(", {{"Switch", "(", "e", ")"}, {
+                "{", {"\n", {{{{"Case", "(", "c1", ")"}, {"{", "v1", "}"}}, 
+                   "\n", {{"Case", "(", "c2", ")"}, {"{", "v2", "}"}}}, 
+                  "\n"}}, "}"}}, ")"}, "|>", "FullForm"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            StyleBox({"Hold", "(", {
+               "Lookup", "(", {
+                {"List", "(", {{"RuleDelayed", "(", {"c1", ",", "v1"}, ")"}, 
+                  ",", {"RuleDelayed", "(", {"c2", ",", "v2"}, ")"}}, ")"}, 
+                ",", {"Key", "(", "e", ")"}, ",", "/\\/"}, ")"}, ")"}, 
+             AutoDelete -> True, ShowStringCharacters -> True)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"If"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Piecewise"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Lookup"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
