@@ -1320,12 +1320,18 @@ void ErrorColorizerImpl::get_block_head_argument_counts(SpanExpr *name, int &arg
   argmax = INT_MAX;
   
   if( name->equals("If") ||
-      name->equals("While") ||
-      name->equals("Switch") ||
-      name->equals("Case"))
+      name->equals("While"))
   {
     argmin = 1;
     argmax = 1;
+    return;
+  }
+  
+  if( name->equals("Switch") ||
+      name->equals("Case"))
+  {
+    argmin = 1;
+    argmax = INT_MAX;
     return;
   }
   
