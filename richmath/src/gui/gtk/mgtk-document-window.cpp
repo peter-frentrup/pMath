@@ -805,6 +805,7 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
   static bool deleting_all = false;
   if(!deleting_all) {
     bool have_only_palettes = true;
+    Array<MathGtkDocumentWindow*> palettes;
     for(auto _win : CommonDocumentWindow::All) {
       if(auto win = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
         if(win == this)
@@ -814,24 +815,16 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
           have_only_palettes = false;
           break;
         }
+        
+        palettes.add(win);
       }
     }
     
     if(have_only_palettes) {
       deleting_all = true;
       
-      CommonDocumentWindow *other = next_window();
-      while(other && other != this) {
-        CommonDocumentWindow *next = other->next_window();
-        
-        if(auto win = dynamic_cast<MathGtkDocumentWindow*>(other)) {
-          win->destroy();
-        }
-        else {
-          pmath_debug_print("[unexpected CommonDocumentWindow]\n");
-        }
-        
-        other = next;
+      for(auto win : palettes) {
+        win->destroy();
       }
       
       deleting_all = false;

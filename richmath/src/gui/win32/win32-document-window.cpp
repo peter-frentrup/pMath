@@ -764,30 +764,26 @@ Win32DocumentWindow::~Win32DocumentWindow() {
   
   if(!deleting_all) {
     bool have_only_palettes = true;
+    Array<Win32DocumentWindow*> palettes;
     for(auto _win : CommonDocumentWindow::All) {
       if(auto win = dynamic_cast<Win32DocumentWindow*>(_win)) {
-        if(win != this && !win->is_palette() && win->document()->get_style(Visible, true)) {
+        if(win == this)
+          continue;
+        
+        if(!win->is_palette() && win->document()->get_style(Visible, true)) {
           have_only_palettes = false;
           break;
         }
+        
+        palettes.add(win);
       }
     }
     
     if(have_only_palettes) {
       deleting_all = true;
       
-      CommonDocumentWindow *other = next_window();
-      while(other && other != this) {
-        CommonDocumentWindow *next = other->next_window();
-        
-        if(auto win = dynamic_cast<Win32DocumentWindow*>(other)) {
-          win->safe_destroy();
-        }
-        else {
-          pmath_debug_print("[unexpected CommonDocumentWindow]\n");
-        }
-        
-        other = next;
+      for(auto win : palettes) {
+        win->safe_destroy();
       }
       
       deleting_all = false;

@@ -283,7 +283,7 @@ static pthread_t main_thread = 0;
 FrontEndSession *Application::front_end_session = nullptr;
 double Application::edit_interrupt_timeout      = 2.0;
 double Application::interrupt_timeout           = 0.3;
-double Application::button_timeout              = 4.0;
+double Application::button_timeout              = 20.0;
 double Application::dynamic_timeout             = 4.0;
 double Application::min_dynamic_update_interval = 0.05;
 String Application::application_filename;
