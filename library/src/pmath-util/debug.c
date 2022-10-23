@@ -499,6 +499,29 @@ void pmath_debug_print_raw(uint64_t obj_data) {
   }
 }
 
+static void describe_object(pmath_t obj, void (*write)(void *user, const uint16_t *data, int len), void *user) {
+  char buf[128];
+  
+  if(pmath_is_pointer(obj)) {
+    struct _pmath_t *_obj = PMATH_AS_PTR(obj);
+    
+    switch(_obj->type_shift) {
+      case PMATH_TYPE_SHIFT_PACKED_ARRAY: {
+        _pmath_write_cstr(" [packed array]", write, user);
+      } break;
+      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
+        _pmath_write_cstr(" [expr part]", write, user);
+      } break;
+      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
+        _pmath_write_cstr(" [general expr]", write, user);
+      } break;
+    }
+    
+    snprintf(buf, sizeof(buf), "(%"PRIdPTR" refs) ", pmath_refcount(obj));
+    _pmath_write_cstr(buf, write, user);
+  }
+}
+
 PMATH_API void pmath_debug_print_object(
   const char *pre,
   pmath_t     obj,
@@ -511,6 +534,7 @@ PMATH_API void pmath_debug_print_object(
     if(pmath_debug_print_to_debugger) {
       OutputDebugStringA(pre);
       
+      describe_object(obj, write_data_to_debugger, NULL);
       pmath_write(
         obj,
         PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM,
@@ -525,6 +549,7 @@ PMATH_API void pmath_debug_print_object(
       flockfile(debuglog);
       fputs(pre, debuglog);
       
+      describe_object(obj, write_data_to_file, debuglog);
       pmath_write(
         obj,
         PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM,
