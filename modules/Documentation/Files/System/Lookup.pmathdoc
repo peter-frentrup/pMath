@@ -29,12 +29,8 @@ Document({
             "\[ScriptCapitalO]", "(", "n", ")"}, 
            " in the number of rules), when used repeatedly for a given list of \
            rules, because it attaches a hash-table to that list of rules after \
-           first use."}), "Notes"), 
-        Section(TextData({TemplateBox({"Switch"}, "ReferenceHyperlink"), 
-           " provides an alternative syntax for ", 
-           TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
-           " for use as a procedural programming construct."}), "Notes")}, 
-       All), Section("", "SectionFooterSpacer")}, 1), 
+           first use."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Find a known key:", "ExampleText"), 

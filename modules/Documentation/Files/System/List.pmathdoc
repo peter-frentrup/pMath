@@ -156,8 +156,29 @@ Document({
                     "\[RuleDelayed]", {"x", SuperscriptBox("y")}}}, "}"}, "(", 
                  {"2", ",", "3"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
               Section(BoxData("8"), "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
-        SectionGroup({Section("Constructing Lists", "ExampleSubsection"), 
+               SectionLabel -> "out [1]:")}, All), 
+            Section(TextData({TemplateBox({"Switch"}, "ReferenceHyperlink"), 
+               " provides an alternative syntax:"}), "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({"Hold", "(", {{"Switch", "(", {"2", ",", "3"}, ")"}, {
+                   "{", {
+                    "\n", {
+                     {{{"Case", "(", {"0", ",", "0"}, ")"}, {
+                        "{", StringBox("\"well...\""), "}"}}, "\n", {
+                       {"Case", "(", {{"~", "x"}, ",", {"~", "y"}}, ")"}, {
+                        "{", {"x", SuperscriptBox("y")}, "}"}}}, "\n"}}, 
+                   "}"}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+              Section(
+               BoxData({"Hold", "(", {
+                  {"{", {{{"PatternSequence", "(", {"0", ",", "0"}, ")"}, 
+                     "\[RuleDelayed]", StringBox("\"well...\"")}, ",", {
+                     {"PatternSequence", "(", {{"~", "x"}, ",", {"~", "y"}}, 
+                      ")"}, "\[RuleDelayed]", {"x", SuperscriptBox("y")}}}, 
+                   "}"}, "(", {"2", ",", "3"}, ")"}, ")"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+           All)}, 1), SectionGroup({
+          Section("Constructing Lists", "ExampleSubsection"), 
           Section(
            TextData({"Construct a list consisting of a range of values with ", 
              TemplateBox({"Range"}, "ReferenceHyperlink"), " and ", 
@@ -276,7 +297,7 @@ Document({
                "-", 
                "5.69633400953636327308034181573568723133[+/-2.00*^-39]`40*^-1"\
                }), "Output", SectionGenerated -> True, 
-             SectionLabel -> "out [2]:")}, All)}, 1)}, 1), 
+             SectionLabel -> "out [2]:")}, All)}, 1)}, All), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Array"}, "ReferenceHyperlink"), 

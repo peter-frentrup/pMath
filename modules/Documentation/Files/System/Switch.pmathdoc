@@ -11,11 +11,14 @@ Document({
            TemplateBox({"Case"}, "ReferenceHyperlink"), "(", 
            StyleBox("form", "Arg"), SubscriptBox("1"), ") { ", 
            StyleBox("value", "Arg"), SubscriptBox("1"), 
-           " } \[Ellipsis]} parses as ", TemplateBox({"Lookup"}, 
-            "ReferenceHyperlink"), "({", StyleBox("form", "Arg"), 
+           " } \[Ellipsis]} parses as ({", StyleBox("form", "Arg"), 
            SubscriptBox("1"), " \[RuleDelayed] ", StyleBox("value", "Arg"), 
-           SubscriptBox("1"), ", \[Ellipsis]}, Key(", StyleBox("expr", "Arg"), 
-           "), /\\/)."}), "Notes")}, All), 
+           SubscriptBox("1"), ", \[Ellipsis]})(", StyleBox("expr", "Arg"), 
+           ")."}), "Notes"), 
+        Section(TextData({"If none of the ", StyleBox("expr", "Arg"), 
+           SubscriptBox("i"), " matches, ", 
+           TemplateBox({"Switch"}, "ReferenceHyperlink"), 
+           " stays unevaluated."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -45,26 +48,18 @@ Document({
            SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
        All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section(TextData({TemplateBox({"Switch"}, "ReferenceHyperlink"), 
-           " is just alternative syntax for ", 
-           TemplateBox({"Lookup"}, "ReferenceHyperlink"), ":"}), 
+           " is just alternative syntax for function application:"}), 
          "ExampleText"), SectionGroup({
+          Section(BoxData({{"Switch", "(", "e", ")"}, {
+              "{", {"\n", {{{{"Case", "(", "c1", ")"}, {"{", "v1", "}"}}, 
+                 "\n", {{"Case", "(", "c2", ")"}, {"{", "v2", "}"}}}, "\n"}}, 
+              "}"}}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData({
-             {"Hold", "(", {{"Switch", "(", "e", ")"}, {
-                "{", {"\n", {{{{"Case", "(", "c1", ")"}, {"{", "v1", "}"}}, 
-                   "\n", {{"Case", "(", "c2", ")"}, {"{", "v2", "}"}}}, 
-                  "\n"}}, "}"}}, ")"}, "|>", "FullForm"}), "Input", 
-           SectionLabel -> "in [1]:"), 
-          Section(
-           BoxData(
-            StyleBox({"Hold", "(", {
-               "Lookup", "(", {
-                {"List", "(", {{"RuleDelayed", "(", {"c1", ",", "v1"}, ")"}, 
-                  ",", {"RuleDelayed", "(", {"c2", ",", "v2"}, ")"}}, ")"}, 
-                ",", {"Key", "(", "e", ")"}, ",", "/\\/"}, ")"}, ")"}, 
-             AutoDelete -> True, ShowStringCharacters -> True)), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
-      Section("", "SectionFooterSpacer")}, All), 
+             {"{", {{"c1", "\[RuleDelayed]", "v1"}, ",", {
+                "c2", "\[RuleDelayed]", "v2"}}, "}"}, "(", "e", ")"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"If"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Piecewise"}, 

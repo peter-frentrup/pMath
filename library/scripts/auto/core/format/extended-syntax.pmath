@@ -121,6 +121,13 @@ composeHeldExpr(~~~args)::= (
 	Message(composeHeldExpr::inv, {args})
 	$Failed)
 
+composeHeldExprHeldHead(HoldComplete(~h), HoldComplete(~~~a))::= 
+	HoldComplete(h(a))
+composeHeldExprHeldHead(~h, HoldComplete(~~~a), HoldComplete(~~~b), ~~~c:HoldComplete)::= 
+	composeHeldExprHeldHead(h, HoldComplete(a,b), c)
+composeHeldExprHeldHead(~~~args)::= (
+	Message(composeHeldExprHeldHead::inv, {args})
+	$Failed)
 
 withDebugMetadataOf(~result, ~boxes)::=
 	With({debugMetadata:= GetDebugMetadata(boxes)},
@@ -191,8 +198,6 @@ emitMakeStatements(~boxes)::= Emit @ MakeExpression(boxes)
 asHeldCondition(p: HoldComplete(~))::= p
 asHeldCondition(p: HoldComplete(~~~))::= 
 	composeHeldExpr(And, p)
-
-asHeldSwitchExpression(p: HoldComplete(~~~))::= composeHeldExpr(Key, p)
 
 
 System`Private`MakeJuxtapositionExpression(boxes: {~~, {"{", ~~~}, ~~~})::= 
@@ -304,12 +309,11 @@ getSwitchCases(~other)::= (
 	HoldComplete()
 	)
 tryMakeSwitchBlock(~)::= $Failed
-tryMakeSwitchBlock(boxes: {switchhead: {"Switch", "(", ~expr, ")"}, casesblock: {"{", ?cases:{}, "}"}})::=
-	composeHeldExpr(
-		Lookup,
+tryMakeSwitchBlock(boxes: {{"Switch", "(", ~expr, ")"}, casesblock: {"{", ?cases:{}, "}"}})::=
+	composeHeldExprHeldHead(
 		composeHeldExpr(List, getSwitchCases({cases})) |> withDebugMetadataOf(casesblock),
-		MakeExpression(expr) |> asHeldSwitchExpression |> withDebugMetadataOf(switchhead),
-		HoldComplete(/\/)) |> withDebugMetadataOf(boxes)
+		MakeExpression(expr)
+	) |> withDebugMetadataOf(boxes)
 
 
 tryMakeWhileBlock(~)::= $Failed
