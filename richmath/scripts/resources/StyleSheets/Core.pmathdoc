@@ -111,7 +111,7 @@ Document({
       Section(StyleData("Todo"), BaseStyle -> "Text", SectionLabel -> "todo:", 
        SectionLabelAutoDelete -> False), Section(StyleData("Docked"), 
        BaseStyle -> "ControlStyle", 
-       SectionFrame -> {Inherited, {Inherited, 0.1*^-6}}, 
+       SectionFrame -> {Inherited, {Inherited, 1.0*^-7}}, 
        SectionFrameColor -> GrayLevel(0.502), SectionFrameMargins -> 3, 
        SectionMargins -> 0, ShowStringCharacters -> False), 
       Section(StyleData("TooltipWindowSection"), AutoNumberFormating -> True, 
@@ -652,10 +652,10 @@ Document({
                BaseStyle -> "HeadingText", FontSize -> 12, FontWeight -> Bold, 
                MenuCommandKey -> "5", MenuSortingValue -> 1300, 
                SectionGroupPrecedence -> -40, 
-               SectionMargins -> {{40, Inherited}, Inherited}), 
+               SectionMargins -> {{40, Inherited}, {7, 7}}), 
               Section(StyleData("Subsubsection"), BaseStyle -> "HeadingText", 
                FontSize -> 10, FontWeight -> Bold, MenuCommandKey -> "6", 
                MenuSortingValue -> 1350, SectionGroupPrecedence -> -30, 
-               SectionMargins -> {{40, Inherited}, Inherited})}, All)}, All)}, 
+               SectionMargins -> {{40, Inherited}, {7, 7}})}, All)}, All)}, 
          All)}, All)}, All)}, All)}, StyleDefinitions -> 
   "Stylesheets.pmathdoc", Visible -> True)
