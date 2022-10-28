@@ -283,20 +283,20 @@ static pmath_integer_t round_q(pmath_quotient_t x, pmath_t head) {
 }
 
 PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
-  /* Ceiling(x)           smallest integer greater than or equal to x
-     Ceiling(x, a)        smallest multiple of a that is not less than x
-     Ceiling(a + b*I)     = Ceil(a) + Ceil(b)*I
+  /* Ceiling(x)                     smallest integer greater than or equal to x
+     Ceiling(x, a)                  smallest multiple of a that is not less than x
+     Ceiling(a + b*ImaginaryI)      = Ceil(a) + Ceil(b)*ImaginaryI
   
-     Floor(x)             greatest integer less than or equal to x
-     Floor(x, a)          greatest multiple of a that is not greater than x
-     Floor(a + b*I)       = Floor(a) + Floor(b)*I
+     Floor(x)                       greatest integer less than or equal to x
+     Floor(x, a)                    greatest multiple of a that is not greater than x
+     Floor(a + b*ImaginaryI)        = Floor(a) + Floor(b)*ImaginaryI
   
-     Round(x)             integer closest to x, ties to even
-     Round(x, a)          nearest multiple of a to x
-     Round(a + b*I)       = Round(a) + Round(b)*I
+     Round(x)                       integer closest to x, ties to even
+     Round(x, a)                    nearest multiple of a to x
+     Round(a + b*ImaginaryI)        = Round(a) + Round(b)*ImaginaryI
   
-     IntegerPart(x)       round to zero
-     IntegerPart(a + b*I) = IntegerPart(a) + IntegerPart(b)*I
+     IntegerPart(x)                 round to zero
+     IntegerPart(a + b*ImaginaryI)  = IntegerPart(a) + IntegerPart(b)*ImaginaryI
   
    */
   size_t len = pmath_expr_length(expr);

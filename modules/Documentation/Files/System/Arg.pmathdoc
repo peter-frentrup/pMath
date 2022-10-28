@@ -20,7 +20,8 @@ Document({
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("The result is given in radians:", "ExampleText"), 
-        SectionGroup({Section(BoxData({"Arg", "(", {"1", "+", "I"}, ")"}), 
+        SectionGroup({
+          Section(BoxData({"Arg", "(", {"1", "+", "ImaginaryI"}, ")"}), 
            "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData(FractionBox("\[Pi]", "4")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
@@ -41,7 +42,7 @@ Document({
       Section(TextData({TemplateBox({"ArcTan"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Complex"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-         TemplateBox({"I"}, "ReferenceHyperlink"), 
+         TemplateBox({"ImaginaryI"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Abs"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
          TemplateBox({"AbsArg"}, "ReferenceHyperlink"), 

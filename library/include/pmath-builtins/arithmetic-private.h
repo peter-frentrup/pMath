@@ -72,7 +72,7 @@ pmath_bool_t _pmath_is_nonreal_complex_number(pmath_t z);
 PMATH_PRIVATE
 int _pmath_numeric_sign(pmath_t x);
 
-// If *z == x * I => *z:= x
+// If *z == x * ImaginaryI => *z:= x
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_imaginary(
   pmath_t *z);

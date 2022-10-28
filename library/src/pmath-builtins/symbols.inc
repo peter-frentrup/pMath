@@ -426,7 +426,6 @@ PMATH_DECLARE_SYSTEM_SYMBOL( Hypergeometric2F1Regularized,       DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( HypergeometricPFQ,                  DEFINITEFUNCTION | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( HypergeometricPFQRegularized,       DEFINITEFUNCTION | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( HypergeometricU,                    DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
-PMATH_DECLARE_SYSTEM_SYMBOL( I,                                  0 ) /* TODO: rename to ImaginaryI ? */
 PMATH_DECLARE_SYSTEM_SYMBOL( Identical,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Identity,                           0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( IdentityMatrix,                     0 )
@@ -435,6 +434,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( IgnoreCase,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Im,                                 DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( ImageSize,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( ImageSizeAction,                    0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( ImaginaryI,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Increment,                          HOLDFIRST )
 PMATH_DECLARE_SYSTEM_SYMBOL( Inequation,                         0 ) /* TODO: rename to Inequality ? */
 PMATH_DECLARE_SYSTEM_SYMBOL( Infinity,                           0 )

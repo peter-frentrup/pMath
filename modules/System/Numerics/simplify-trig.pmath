@@ -43,12 +43,12 @@ Function autoSimplifyArcCos(~x) {
     Return($Failed)
 }
 
-% ArcCosh(x) = I ArcCos(x) for real x in -1..1
+% ArcCosh(x) = ImaginaryI ArcCos(x) for real x in -1..1
 Function autoSimplifyArcCosh(~x) {
     If(-1 <= x <= 1) {
         With(y:= autoSimplifyArcCos(x)) % ArcCos(x)
         If(y =!= $Failed && y.IsFreeOf(ArcCos) && y.IsFreeOf(ArcCosh)) {
-            Return(I y)
+            Return(ImaginaryI y)
         }
     }
     Return($Failed)
@@ -97,22 +97,22 @@ arcSinOfRational(1):= Pi/2
 arcSinOfRational(~q)::= If(IsNegative(q), -ArcSin(-q), $Failed)
 
 trigOfComplex(~f, ~x)::= $Failed
-trigOfComplex(ArcSin, Complex(0, ~y))::= I ArcSinh(y)
-trigOfComplex(ArcSinh, Complex(0, ~y))::= I ArcSin(y)
-trigOfComplex(ArcTan, Complex(0, ~y))::= I ArcTanh(y)
-trigOfComplex(ArcTanh, Complex(0, ~y))::= I ArcTan(y)
+trigOfComplex(ArcSin, Complex(0, ~y))::= ImaginaryI ArcSinh(y)
+trigOfComplex(ArcSinh, Complex(0, ~y))::= ImaginaryI ArcSin(y)
+trigOfComplex(ArcTan, Complex(0, ~y))::= ImaginaryI ArcTanh(y)
+trigOfComplex(ArcTanh, Complex(0, ~y))::= ImaginaryI ArcTan(y)
 trigOfComplex(Cos,  Complex(0, ~y))::= Cosh(y)
 trigOfComplex(Cosh, Complex(0, ~y))::= Cos(y)
-trigOfComplex(Cot,  Complex(0, ~y))::= -I Coth(y)
-trigOfComplex(Coth, Complex(0, ~y))::= -I Cot(y)
-trigOfComplex(Csc,  Complex(0, ~y))::= -I Csch(y)
-trigOfComplex(Csch, Complex(0, ~y))::= -I Csc(y)
+trigOfComplex(Cot,  Complex(0, ~y))::= -ImaginaryI Coth(y)
+trigOfComplex(Coth, Complex(0, ~y))::= -ImaginaryI Cot(y)
+trigOfComplex(Csc,  Complex(0, ~y))::= -ImaginaryI Csch(y)
+trigOfComplex(Csch, Complex(0, ~y))::= -ImaginaryI Csc(y)
 trigOfComplex(Sec,  Complex(0, ~y))::= Sech(y)
 trigOfComplex(Sech, Complex(0, ~y))::= Sec(y)
-trigOfComplex(Sin,  Complex(0, ~y))::= I Sinh(y)
-trigOfComplex(Sinh, Complex(0, ~y))::= I Sin(y)
-trigOfComplex(Tan,  Complex(0, ~y))::= I Tanh(y)
-trigOfComplex(Tanh, Complex(0, ~y))::= I Tan(y)
+trigOfComplex(Sin,  Complex(0, ~y))::= ImaginaryI Sinh(y)
+trigOfComplex(Sinh, Complex(0, ~y))::= ImaginaryI Sin(y)
+trigOfComplex(Tan,  Complex(0, ~y))::= ImaginaryI Tanh(y)
+trigOfComplex(Tanh, Complex(0, ~y))::= ImaginaryI Tan(y)
 
 
 %
@@ -458,20 +458,20 @@ Function trigAtInfinity(ArcSin, inf: DirectedInfinity(~dir)) {
     With(re:= Re(dir))
     With(im:= Im(dir))
     If(im < 0) {
-        Return(DirectedInfinity(-I))
+        Return(DirectedInfinity(-ImaginaryI))
     } Else If(im > 0) {
-        Return(DirectedInfinity(I))
+        Return(DirectedInfinity(ImaginaryI))
     } Else If(im = 0) {
         If(re < 0) {
-            Return(DirectedInfinity(I))
+            Return(DirectedInfinity(ImaginaryI))
         } Else If(re > 0) {
-            Return(DirectedInfinity(-I))
+            Return(DirectedInfinity(-ImaginaryI))
         }
     }
-    Return(I Interval(-Infinity, Infinity))
+    Return(ImaginaryI Interval(-Infinity, Infinity))
 }
 trigAtInfinity(ArcSinh, inf: DirectedInfinity(~dir))::= 
-    I * trigAtInfinity(ArcSin, DirectedInfinity(-I dir))
+    ImaginaryI * trigAtInfinity(ArcSin, DirectedInfinity(-ImaginaryI dir))
 Function trigAtInfinity(ArcTan, inf: DirectedInfinity(~dir)) {
     With(re:= Re(dir))
     With(im:= Im(dir))
@@ -489,7 +489,7 @@ Function trigAtInfinity(ArcTan, inf: DirectedInfinity(~dir)) {
     Return(Interval(-Pi/2..Pi/2))
 }
 trigAtInfinity(ArcTanh, inf: DirectedInfinity(~dir))::= 
-    I * trigAtInfinity(ArcTan, DirectedInfinity(-I dir))
+    ImaginaryI * trigAtInfinity(ArcTan, DirectedInfinity(-ImaginaryI dir))
 trigAtInfinity(Cos, inf: DirectedInfinity(~dir))::=
     If(IsReal(dir), 
         Interval(-1..1), 
@@ -518,11 +518,11 @@ trigAtInfinity(Sinh, inf: DirectedInfinity(~dir))::=
 trigAtInfinity(Tan, inf: DirectedInfinity(~dir))::=
     If(IsReal(dir), 
         Interval(-Infinity .. Infinity), 
-        I Sign(Im(dir)), 
+        ImaginaryI Sign(Im(dir)), 
         $Failed)
 trigAtInfinity(Tanh, inf: DirectedInfinity(~dir))::=
     If(IsImaginary(dir), 
-        I Interval(-Infinity..Infinity), 
+        ImaginaryI Interval(-Infinity..Infinity), 
         Sign(Re(dir)), 
         $Failed)
 trigAtInfinity(Cot,  ~inf)::= With({y:= trigAtInfinity(Tan,  inf)}, If(y === $Failed, y, 1/y))

@@ -31,10 +31,10 @@ erfLikeOfRational(FresnelS, ~q)::= If(IsNegative(q), -FresnelS(-q), $Failed, $Fa
 
 
 erfLikeOfComplex(~f, ~z):= $Failed
-erfLikeOfComplex(Erf,  Complex(0, ~y))::= I Erfi(y)
-erfLikeOfComplex(Erfi, Complex(0, ~y))::= I Erf(y)
-erfLikeOfComplex(FresnelC, Complex(0, ~y))::= I FresnelC(y)
-erfLikeOfComplex(FresnelS, Complex(0, ~y))::= I FresnelS(y)
+erfLikeOfComplex(Erf,  Complex(0, ~y))::= ImaginaryI Erfi(y)
+erfLikeOfComplex(Erfi, Complex(0, ~y))::= ImaginaryI Erf(y)
+erfLikeOfComplex(FresnelC, Complex(0, ~y))::= ImaginaryI FresnelC(y)
+erfLikeOfComplex(FresnelS, Complex(0, ~y))::= ImaginaryI FresnelS(y)
 
 
 erfLikeOfProduct(~f, ~x):= $Failed
@@ -72,8 +72,8 @@ Function erfLikeAtInfinity(Erf, inf: DirectedInfinity(~dir)) {
     Return($Failed)
 } 
 erfLikeAtInfinity(Erfi, ~inf)::= 
-    With(erfinf:= erfLikeAtInfinity(Erf, I inf)) {
-        If(erfinf =!= $Failed, -I erfinf, $Failed, $Failed)
+    With(erfinf:= erfLikeAtInfinity(Erf, ImaginaryI inf)) {
+        If(erfinf =!= $Failed, -ImaginaryI erfinf, $Failed, $Failed)
     }
 Function erfLikeAtInfinity(Erfc, inf: DirectedInfinity(~dir)) {
     If(IsReal(dir)) {
@@ -95,9 +95,9 @@ Function erfLikeAtInfinity(FresnelC, inf: DirectedInfinity(~dir)) {
     } Else If(IsImaginary(dir)) {
         With(idir:= Im(dir))
         If(idir > 0) {
-            Return(I/2)
+            Return(ImaginaryI/2)
         } Else If(idir < 0) {
-            Return(-I/2)
+            Return(-ImaginaryI/2)
         }
     }
     Return($Failed)
@@ -112,9 +112,9 @@ Function erfLikeAtInfinity(FresnelS, inf: DirectedInfinity(~dir)) {
     } Else If(IsImaginary(dir)) {
         With(idir:= Im(dir))
         If(idir > 0) {
-            Return(-I/2)
+            Return(-ImaginaryI/2)
         } Else If(idir < 0) {
-            Return(I/2)
+            Return(ImaginaryI/2)
         }
     }
     Return($Failed)

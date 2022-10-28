@@ -90,10 +90,9 @@ Document({
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Evaluate numerically:", "ExampleText"), 
         SectionGroup({Section(BoxData({"Sin", "(", "1.2", ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
-          Section(BoxData("0.93203908596722629`"), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-        SectionGroup({
+           SectionLabel -> "in [1]:"), Section(BoxData("0.9320390859672263`"), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section("Evaluate to arbitrary precision:", "ExampleText"), 
@@ -102,8 +101,8 @@ Document({
                 ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
-              "0.9320390859672263496701344354948259954150705882087307353666[+/\
-              -4.75*^-60]`60"), "Output", SectionGenerated -> True, 
+              "0.93203908596722634967013443549482599541507058820873073536659[7\
+              12+/-188]`60"), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -116,7 +115,7 @@ Document({
                 "{", {"1.2", ",", {"11", {"Pi", "/", "6"}}, ",", "5"}, "}"}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
-             BoxData({"{", {"0.93203908596722629`", ",", {
+             BoxData({"{", {"0.9320390859672263`", ",", {
                  "-", FractionBox("1", "2")}, ",", {"Sin", "(", "5", ")"}}, 
                "}"}), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All), 
@@ -137,10 +136,11 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section(TextData({TemplateBox({"Sin"}, "ReferenceHyperlink"), 
              " allows complex arguments:"}), "ExampleText"), 
-          SectionGroup({Section(BoxData({"Sin", "(", {"2.5", "+", "I"}, ")"}), 
+          SectionGroup({
+            Section(BoxData({"Sin", "(", {"2.5", "+", "ImaginaryI"}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData({"0.92349077604317309`", "-", {
-                "0.94150493327086715`", " ", "\[ImaginaryI]"}}), "Output", 
+            Section(BoxData({"0.9234907760431731`", "-", {
+                "0.9415049332708672`", " ", "\[ImaginaryI]"}}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, 1), SectionGroup({
         Section("Properties & Relations", "ExampleSection"), 
@@ -158,7 +158,8 @@ Document({
            "Input", SectionLabel -> "in [3]:"), 
           Section(BoxData({"Csc", "(", "x", ")"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
-        SectionGroup({Section(BoxData({"Sin", "(", {"I", " ", "x"}, ")"}), 
+        SectionGroup({
+          Section(BoxData({"Sin", "(", {"ImaginaryI", " ", "x"}, ")"}), 
            "Input", SectionLabel -> "in [4]:"), 
           Section(BoxData({"\[ImaginaryI]", " ", {"Sinh", "(", "x", ")"}}), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
@@ -182,17 +183,17 @@ Document({
          "Machine precision may be insufficient to give a correct answer:", 
          "ExampleText"), SectionGroup({
           Section(BoxData({"Sin", "(", {"10.0", "^", "40"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
-          Section(BoxData("0.64678458842683428`"), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-        Section("With exact input, the answer is correct:", "ExampleText"), 
-        SectionGroup({
+           SectionLabel -> "in [1]:"), Section(BoxData("0.6467845884268343`"), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), Section("With exact input, the answer is correct:", 
+         "ExampleText"), SectionGroup({
           Section(BoxData({"N", "(", {{"Sin", "(", {"10", "^", "40"}, ")"}, 
               ",", "20"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
           Section(
            BoxData({
              "-", 
-             "5.69633400953636327308034181573568723133[+/-2.00*^-39]`40*^-1"}), "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+             "0.5696334009536363273080341815735687231328[927+/-926]`40"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
          All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"ArcSin"}, "ReferenceHyperlink"), 

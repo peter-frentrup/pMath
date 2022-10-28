@@ -31,8 +31,8 @@ trigIntOfRational(SinIntegral, ~q)::= If(IsNegative(q), -SinIntegral(-q), $Faile
 
 
 trigIntOfComplex(~f, ~z):= $Failed
-trigIntOfComplex(SinhIntegral, Complex(0, ~y))::= I SinIntegral(y)
-trigIntOfComplex(SinIntegral,  Complex(0, ~y))::= I SinhIntegral(y)
+trigIntOfComplex(SinhIntegral, Complex(0, ~y))::= ImaginaryI SinIntegral(y)
+trigIntOfComplex(SinIntegral,  Complex(0, ~y))::= ImaginaryI SinhIntegral(y)
 
 
 trigIntOfProduct(~f, ~x):= $Failed
@@ -59,9 +59,9 @@ Function trigIntAtInfinity(CoshIntegral, inf: DirectedInfinity(~dir)) {
     } Else If(IsImaginary(dir) && dir != 0) {
         With(idir:= Im(dir))
         If(idir > 0) {
-            Return(I Pi/2)
+            Return(ImaginaryI Pi/2)
         } Else If(dir < 0) {
-            Return(-I Pi/2)
+            Return(-ImaginaryI Pi/2)
         }
     }
     Return($Failed)
@@ -71,7 +71,7 @@ Function trigIntAtInfinity(CosIntegral, inf: DirectedInfinity(~dir)) {
         If(dir > 0) {
             Return(0)
         } Else If(dir < 0) {
-            Return(I Pi)
+            Return(ImaginaryI Pi)
         }
     } Else If(IsImaginary(dir) && dir != 0) {
         Return(Infinity)
@@ -88,9 +88,9 @@ Function trigIntAtInfinity(ExpIntegralEi, inf: DirectedInfinity(~dir)) {
     } Else If(IsImaginary(dir)) {
         With(idir:= Im(dir))
         If(idir > 0) {
-            Return(I Pi)
+            Return(ImaginaryI Pi)
         } Else If(idir < 0) {
-            Return(-I Pi)
+            Return(-ImaginaryI Pi)
         }
     }
     Return($Failed)
@@ -114,8 +114,8 @@ Function trigIntAtInfinity(SinIntegral, inf: DirectedInfinity(~dir)) {
     Return($Failed)
 }
 trigIntAtInfinity(SinhIntegral, inf: DirectedInfinity(~dir))::=
-    With(siinf:= erfLikeAtInfinity(SinIntegral, I inf)) {
-        If(siinf =!= $Failed, -I siinf, $Failed, $Failed)
+    With(siinf:= erfLikeAtInfinity(SinIntegral, ImaginaryI inf)) {
+        If(siinf =!= $Failed, -ImaginaryI siinf, $Failed, $Failed)
     }
 
 

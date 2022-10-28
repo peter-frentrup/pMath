@@ -844,7 +844,7 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
     if(_pmath_complex_float_extract_acb(z, &precision, &is_machine_precision, base)) {
       acb_t exp;
       
-      acb_init(exp); // init to extact 0+0*I
+      acb_init(exp); // init to extact 0+0*ImaginaryI
       arf_set_mpz(arb_midref(acb_realref(exp)), exponent);
       
       acb_pow(z, z, exp, precision);

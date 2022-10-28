@@ -392,8 +392,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
           
           if(i > 1) {
             if(pmath_equals(re2, INT(0))) {
-              // Re(a I * z) = -a Im(z)
-              // Im(a I * z) =  a Re(z)
+              // Re(a ImaginaryI * z) = -a Im(z)
+              // Im(a ImaginaryI * z) =  a Re(z)
               
               if(re) {
                 *re = TIMES3(

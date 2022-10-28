@@ -5,7 +5,7 @@
 #  error include "stdafx.h" first
 #endif
 
-// If *z == x * I => *z:= x
+// If *z == x * ImaginaryI => *z:= x
 PMATH_PRIVATE pmath_bool_t pnum_is_imaginary(pmath_t *z);
 
 PMATH_PRIVATE pmath_bool_t pnum_equals_quotient(pmath_t obj, int32_t num, int32_t den);

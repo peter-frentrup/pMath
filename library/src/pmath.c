@@ -935,7 +935,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
       pmath_symbol_set_value(pmath_System_ComplexInfinity, pmath_ref(_pmath_object_complex_infinity));
       PMATH_RUN("Infinity:=DirectedInfinity(1)");
-      PMATH_RUN("I:=Complex(0,1)");
+      PMATH_RUN("ImaginaryI:=Complex(0,1)");
 #ifdef PMATH_OS_WIN32
       pmath_symbol_set_value(pmath_System_DollarPathListSeparator, PMATH_C_STRING(";"));
       pmath_symbol_set_value(pmath_System_DollarPathnameSeparator, PMATH_C_STRING("\\"));

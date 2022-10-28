@@ -1209,7 +1209,7 @@ static pmath_t complex_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // e
         if(thread->boxform < BOXFORM_OUTPUT)
           return pmath_build_value("c", 0x2148);
           
-        return PMATH_C_STRING("I");
+        return PMATH_C_STRING("ImaginaryI");
       }
       
       if(pmath_is_number(im)) {

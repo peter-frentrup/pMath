@@ -100,8 +100,8 @@ Document({
                 ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
-              "3.6235775447667357763837335562307602033994778557664862648775[+/\
-              -1.84*^-59]`60*^-1"), "Output", SectionGenerated -> True, 
+              "0.36235775447667357763837335562307602033994778557664862648775[0\
+              28+/-157]`60"), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -135,10 +135,11 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section(TextData({TemplateBox({"Cos"}, "ReferenceHyperlink"), 
              " allows complex arguments:"}), "ExampleText"), 
-          SectionGroup({Section(BoxData({"Cos", "(", {"2.5", "+", "I"}, ")"}), 
+          SectionGroup({
+            Section(BoxData({"Cos", "(", {"2.5", "+", "ImaginaryI"}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData({{"-", "1.2362291988563419`"}, "-", {
-                "0.70332517811353468`", " ", "\[ImaginaryI]"}}), "Output", 
+                "0.7033251781135347`", " ", "\[ImaginaryI]"}}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, 1), SectionGroup({
         Section("Properties & Relations", "ExampleSection"), 
@@ -156,7 +157,8 @@ Document({
            "Input", SectionLabel -> "in [3]:"), 
           Section(BoxData({"Sec", "(", "x", ")"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
-        SectionGroup({Section(BoxData({"Cos", "(", {"I", " ", "x"}, ")"}), 
+        SectionGroup({
+          Section(BoxData({"Cos", "(", {"ImaginaryI", " ", "x"}, ")"}), 
            "Input", SectionLabel -> "in [4]:"), 
           Section(BoxData({"Cosh", "(", "x", ")"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
@@ -181,7 +183,7 @@ Document({
          "ExampleText"), SectionGroup({
           Section(BoxData({"Cos", "(", {"10.0", "^", "40"}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData({"-", "0.76267273202437913`"}), "Output", 
+          Section(BoxData({"-", "0.7626727320243791`"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         Section("With exact input, the answer is correct:", "ExampleText"), 
         SectionGroup({
@@ -190,7 +192,8 @@ Document({
           Section(
            BoxData({
              "-", 
-             "8.21898891907023921444802536443255751734[+/-5.54*^-39]`40*^-1"}), "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+             "0.8218988919070239214448025364432557517344[605+/-926]`40"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
          All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"ArcCos"}, "ReferenceHyperlink"), 

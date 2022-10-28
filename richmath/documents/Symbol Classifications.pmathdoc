@@ -785,7 +785,7 @@ Document({
                /\/(ButtonBox(StringBox("\"Green\"")), " ")}, {
                /\/(ButtonBox(StringBox("\"$BaseDirectory\"")), " "), 
                /\/(ButtonBox(StringBox("\"$NewMessage\"")), " "), 
-               /\/(ButtonBox(StringBox("\"I\"")), " ")}, {
+               /\/(ButtonBox(StringBox("\"ImaginaryI\"")), " ")}, {
                /\/(ButtonBox(StringBox("\"$ByteOrdering\"")), " "), 
                /\/(ButtonBox(StringBox("\"$Packages\"")), " "), 
                /\/(ButtonBox(StringBox("\"Infinity\"")), " ")}, {

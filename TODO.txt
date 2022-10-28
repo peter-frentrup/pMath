@@ -237,7 +237,7 @@
 - write help files for every symbol
 
 - builtin_power: handle approximate complex arguments (real or imaginary part is pmath_float_t)
-- builtin_power: handle special complex values (E^(I Pi) = -1, ...).
+- builtin_power: handle special complex values (E^(ImaginaryI Pi) = -1, ...).
 
 - !!! implement FactorInteger() to factorize integers.
 
