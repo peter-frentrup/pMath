@@ -487,7 +487,9 @@ void TextSequence::on_text_changed() {
   buffer_to_inline_sequence.clear();
   buffer_to_text.clear();
   _buffer_size = 0;
-  // TODO: clear _layout
+  if(_layout) {
+    pango_layout_set_text(_layout, "", 0);
+  }
   
   TextSequence &outer = Impl(*this).outermost_span();
   outer.text_changed(true);
