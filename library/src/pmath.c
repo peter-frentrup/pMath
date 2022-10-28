@@ -1062,7 +1062,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       }
       
       PMATH_RUN("IsNumeric(Degree):=True");
-      PMATH_RUN("IsNumeric(E):=True");
+      PMATH_RUN("IsNumeric(ExponentialE):=True");
       PMATH_RUN("IsNumeric(EulerGamma):=True");
       PMATH_RUN("IsNumeric(GoldenRatio):=True");
       PMATH_RUN("IsNumeric(MachinePrecision):=True");

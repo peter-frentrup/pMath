@@ -77,7 +77,7 @@ extern pmath_symbol_t pmath_System_DoubleUpperLeftArrow;
 extern pmath_symbol_t pmath_System_DoubleUpperRightArrow;
 extern pmath_symbol_t pmath_System_DownArrow;
 extern pmath_symbol_t pmath_System_DivideBy;
-extern pmath_symbol_t pmath_System_E;
+extern pmath_symbol_t pmath_System_ExponentialE;
 extern pmath_symbol_t pmath_System_Element;
 extern pmath_symbol_t pmath_System_Equal;
 extern pmath_symbol_t pmath_System_EvaluationSequence;
@@ -3778,7 +3778,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
               return pmath_build_value("c", 0x03C0);
             }
             
-            if(pmath_same(obj, pmath_System_E)) {
+            if(pmath_same(obj, pmath_System_ExponentialE)) {
               pmath_unref(obj);
               return pmath_build_value("c", 0x2147);
             }

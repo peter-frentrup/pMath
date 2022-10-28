@@ -84,7 +84,7 @@ extern pmath_symbol_t pmath_System_DollarNamespace;
 extern pmath_symbol_t pmath_System_DollarNamespacePath;
 extern pmath_symbol_t pmath_System_DollarNewSymbol;
 extern pmath_symbol_t pmath_System_Degree;
-extern pmath_symbol_t pmath_System_E;
+extern pmath_symbol_t pmath_System_ExponentialE;
 extern pmath_symbol_t pmath_System_ImaginaryI;
 extern pmath_symbol_t pmath_System_Infinity;
 extern pmath_symbol_t pmath_System_Pi;
@@ -314,7 +314,7 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
       case 0x212F:
       case 0x2147:
         pmath_unref(name);
-        return pmath_ref(pmath_System_E);
+        return pmath_ref(pmath_System_ExponentialE);
         
       case 0x2148:
       case 0x2149:

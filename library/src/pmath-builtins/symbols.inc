@@ -296,7 +296,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( EllipticPi,                         DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( EllipticRF,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( EllipticRG,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( EllipticRJ,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
-PMATH_DECLARE_SYSTEM_SYMBOL( E,                                  0 ) /* TODO: rename to ExponentialE ? */
+PMATH_DECLARE_SYSTEM_SYMBOL( ExponentialE,                       0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Emit,                               0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Enabled,                            0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( End,                                0 )

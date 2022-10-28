@@ -1228,7 +1228,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_WriteString,                  builtin_writestring)
   BIND_DOWN(   pmath_System_Xor,                          builtin_xor)
   
-  BIND_APPROX( pmath_System_E,                            builtin_approximate_e);
+  BIND_APPROX( pmath_System_ExponentialE,                 builtin_approximate_e);
   BIND_APPROX( pmath_System_EulerGamma,                   builtin_approximate_eulergamma);
   BIND_APPROX( pmath_System_MachinePrecision,             builtin_approximate_machineprecision);
   BIND_APPROX( pmath_System_Pi,                           builtin_approximate_pi);

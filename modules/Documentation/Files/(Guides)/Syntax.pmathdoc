@@ -40,10 +40,10 @@ Document({
              "`", StyleBox("namespace", FontSlant -> Italic), 
              SubscriptBox("2"), "`"}, "nested namespaces"}, {
             {BoxData("\[ExponentialE]")}, {
-             TemplateBox({"E"}, "ReferenceHyperlink")}}, {
+             TemplateBox({"ExponentialE"}, "ReferenceHyperlink")}}, {
             {BoxData("\[Pi]")}, {TemplateBox({"Pi"}, "ReferenceHyperlink")}}, {
             {BoxData("\[ImaginaryI]"), ", ", BoxData("\[ImaginaryJ]")}, {
-             TemplateBox({"I"}, "ReferenceHyperlink")}}})}), "DefinitionBox"), 
+             TemplateBox({"ImaginaryI"}, "ReferenceHyperlink")}}})}), "DefinitionBox"), 
       Section("Forming symbol names.", "Caption")}, All), 
     Section("Numbers", "Section"), Section("Operators", "Section"), 
     SectionGroup({Section("Two-dimensional input forms", "Section"), 

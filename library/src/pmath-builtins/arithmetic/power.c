@@ -16,7 +16,7 @@
 
 extern pmath_symbol_t pmath_System_Complex;
 extern pmath_symbol_t pmath_System_DirectedInfinity;
-extern pmath_symbol_t pmath_System_E;
+extern pmath_symbol_t pmath_System_ExponentialE;
 extern pmath_symbol_t pmath_System_General;
 extern pmath_symbol_t pmath_System_Power;
 extern pmath_symbol_t pmath_System_Sign;
@@ -1150,7 +1150,7 @@ static pmath_bool_t try_inexact_power(pmath_t *expr, pmath_t exponent) {
     slong        base_prec;
     pmath_bool_t base_is_machine_prec;
     
-    if(pmath_same(base, pmath_System_E)) {
+    if(pmath_same(base, pmath_System_ExponentialE)) {
       acb_exp(exp_z, exp_z, exp_prec);
       pmath_unref(base);
       pmath_unref(*expr);
@@ -1586,7 +1586,7 @@ PMATH_PRIVATE pmath_t builtin_exp(pmath_expr_t expr) {
   pmath_unref(expr);
   return pmath_expr_new_extended(
            pmath_ref(pmath_System_Power), 2,
-           pmath_ref(pmath_System_E),
+           pmath_ref(pmath_System_ExponentialE),
            x);
 }
 
@@ -1615,7 +1615,7 @@ PMATH_PRIVATE pmath_bool_t builtin_approximate_power(pmath_t *obj, double prec) 
   base = pmath_expr_extract_item(*obj, 1);
   exp  = pmath_expr_extract_item(*obj, 2);
   
-  if(pmath_same(base, pmath_System_E)) {
+  if(pmath_same(base, pmath_System_ExponentialE)) {
     exp = pmath_set_precision(exp, prec);
   }
   else if(pmath_is_rational(exp)) {

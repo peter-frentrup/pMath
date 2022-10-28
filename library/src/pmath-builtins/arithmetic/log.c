@@ -11,7 +11,7 @@
 
 
 extern pmath_symbol_t pmath_System_Complex;
-extern pmath_symbol_t pmath_System_E;
+extern pmath_symbol_t pmath_System_ExponentialE;
 extern pmath_symbol_t pmath_System_Log;
 extern pmath_symbol_t pmath_System_Pi;
 extern pmath_symbol_t pmath_System_Plus;
@@ -291,7 +291,7 @@ static pmath_bool_t try_log_of_infinity(pmath_t *expr, pmath_t x) {
 
 PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
   /* Log(base, x)
-     Log(x)       = Log(E, x)
+     Log(x)       = Log(ExponentialE, x)
    */
   pmath_t base, x;
   
@@ -303,7 +303,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
       return PMATH_FROM_DOUBLE(log(PMATH_AS_DOUBLE(x)));
     }
     
-    base = pmath_ref(pmath_System_E);
+    base = pmath_ref(pmath_System_ExponentialE);
   }
   else if(pmath_expr_length(expr) == 2) {
     base = pmath_expr_get_item(expr, 1);
@@ -314,7 +314,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
     return expr;
   }
   
-  if(pmath_same(base, pmath_System_E) && pmath_complex_try_evaluate_acb(&expr, x, acb_log)) {
+  if(pmath_same(base, pmath_System_ExponentialE) && pmath_complex_try_evaluate_acb(&expr, x, acb_log)) {
     pmath_unref(x);
     pmath_unref(base);
     return expr;

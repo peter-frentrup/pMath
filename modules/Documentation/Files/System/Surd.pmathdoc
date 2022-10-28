@@ -63,8 +63,8 @@ Document({
                 ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
-              "1.14869835499703500679862694677792758944385088909779750551371[+\
-              /-2.10*^-60]`60"), "Output", SectionGenerated -> True, 
+              "1.14869835499703500679862694677792758944385088909779750551371[0\
+              51+/-159]`60"), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -80,54 +80,53 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {RGBColor(0.75`, 0, 0), {
-                  LineBox({{-4.0`, -1.5874010519681994`}, {
+                {RGBColor(0.75, 0, 0), {
+                  LineBox({{-4.0, -1.5874010519681994`}, {
                      -3.4285714285714284`, -1.5078948822583074`}, {
-                     -2.8571428571428572`, -1.4189834119703837`}, {
+                     -2.857142857142857`, -1.4189834119703837`}, {
                      -2.2857142857142856`, -1.3172675120166988`}, {
-                     -2.0`, -1.259921049894873`}, {
+                     -2.0, -1.259921049894873`}, {
                      -1.7142857142857142`, -1.1968169611771509`}, {
                      -1.4285714285714284`, -1.126247880443606`}, {
                      -1.1428571428571428`, -1.0455159171494204`}, {
-                     -1.0`, -1.0`}, {-0.8571428571428571`, 
-                     -0.94991425159299647`}, {-0.71428571428571419`, 
+                     -1.0, -1.0}, {-0.8571428571428571`, 
+                     -0.9499142515929965`}, {-0.7142857142857142`, 
                      -0.8939035350965675`}, {-0.5714285714285714`, 
-                     -0.82982653336624335`}, {-0.5`, -0.79370052598409968`}, {
-                     -0.42857142857142855`, -0.75394744112915368`}, {
-                     -0.3571428571428571`, -0.70949170598519185`}, {
-                     -0.2857142857142857`, -0.65863375600834939`}, {
-                     -0.21428571428571427`, -0.59840848058857543`}, {
-                     -0.17857142857142855`, -0.56312394022180301`}, {
-                     -0.14285714285714285`, -0.52275795857471019`}, {
+                     -0.8298265333662433`}, {-0.5, -0.7937005259840997`}, {
+                     -0.42857142857142855`, -0.7539474411291537`}, {
+                     -0.3571428571428571`, -0.7094917059851918`}, {
+                     -0.2857142857142857`, -0.6586337560083494`}, {
+                     -0.21428571428571427`, -0.5984084805885754`}, {
+                     -0.17857142857142855`, -0.563123940221803}, {
+                     -0.14285714285714285`, -0.5227579585747102`}, {
                      -0.10714285714285714`, -0.47495712579649824`}, {
-                     -0.071428571428571425`, -0.41491326668312167`}, {
-                     -0.053571428571428568`, -0.37697372056457684`}, {
-                     -0.035714285714285712`, -0.32931687800417475`}, {
+                     -0.07142857142857142`, -0.4149132666831217`}, {
+                     -0.05357142857142857`, -0.37697372056457684`}, {
+                     -0.03571428571428571`, -0.32931687800417475`}, {
                      -0.017857142857142856`, -0.2613789792873551`}, {
-                     0.0`, 0.0`}, {0.017857142857142856`, 
-                     0.2613789792873551`}, {0.035714285714285712`, 
-                     0.32931687800417475`}, {0.053571428571428568`, 
-                     0.37697372056457684`}, {0.071428571428571425`, 
-                     0.41491326668312167`}, {0.10714285714285714`, 
-                     0.47495712579649824`}, {0.14285714285714285`, 
-                     0.52275795857471019`}, {0.17857142857142855`, 
-                     0.56312394022180301`}, {0.21428571428571427`, 
-                     0.59840848058857543`}, {0.2857142857142857`, 
-                     0.65863375600834939`}, {0.3571428571428571`, 
-                     0.70949170598519185`}, {0.42857142857142855`, 
-                     0.75394744112915368`}, {0.5`, 0.79370052598409968`}, {
-                     0.5714285714285714`, 0.82982653336624335`}, {
-                     0.71428571428571419`, 0.8939035350965675`}, {
-                     0.8571428571428571`, 0.94991425159299647`}, {1.0`, 1.0`}, 
-                    {1.1428571428571428`, 1.0455159171494204`}, {
+                     0.0, 0.0}, {0.017857142857142856`, 0.2613789792873551`}, {
+                     0.03571428571428571`, 0.32931687800417475`}, {
+                     0.05357142857142857`, 0.37697372056457684`}, {
+                     0.07142857142857142`, 0.4149132666831217`}, {
+                     0.10714285714285714`, 0.47495712579649824`}, {
+                     0.14285714285714285`, 0.5227579585747102`}, {
+                     0.17857142857142855`, 0.563123940221803}, {
+                     0.21428571428571427`, 0.5984084805885754`}, {
+                     0.2857142857142857`, 0.6586337560083494`}, {
+                     0.3571428571428571`, 0.7094917059851918`}, {
+                     0.42857142857142855`, 0.7539474411291537`}, {
+                     0.5, 0.7937005259840997`}, {
+                     0.5714285714285714`, 0.8298265333662433`}, {
+                     0.7142857142857142`, 0.8939035350965675`}, {
+                     0.8571428571428571`, 0.9499142515929965`}, {1.0, 1.0}, {
+                     1.1428571428571428`, 1.0455159171494204`}, {
                      1.4285714285714284`, 1.126247880443606`}, {
                      1.7142857142857142`, 1.1968169611771509`}, {
-                     2.0`, 1.259921049894873`}, {
-                     2.2857142857142856`, 1.3172675120166988`}, {
-                     2.8571428571428572`, 1.4189834119703837`}, {
-                     3.4285714285714284`, 1.5078948822583074`}, {
-                     4.0`, 1.5874010519681994`}})}}, {
-                 RGBColor(0, 0, 0.75`), {
+                     2.0, 1.259921049894873`}, {2.2857142857142856`, 
+                     1.3172675120166988`}, {2.857142857142857`, 
+                     1.4189834119703837`}, {3.4285714285714284`, 
+                     1.5078948822583074`}, {4.0, 1.5874010519681994`}})}}, {
+                 RGBColor(0, 0, 0.75), {
                   LineBox(CompressedData(
                     "1:c$,gCUr3X26dlL4EM+XoON4[!L,7IcL,iu+A}liNS}dVYg+&f0go6qq\
                     f[*D=7)1oJhxu6UL89mn+z[B,FX4lbTQJR*OqZsaK[dalc;$Y44?hl<^Si\
@@ -143,17 +142,17 @@ Document({
                     7{{#NSpCKbTYu,@#u+E9pIQCPIBEUQ>VHO?-51t<VVtu2#R]^S>^,b4E,G\
                     -DFYEp?+U>rpUM_yl,oYnBV4Syk;%J^QqBegV%^yam%_]RqiqU2B&Cz,0e\
                     ]gaCR{~~~"))}}}, AspectRatio -> 
-                NCache(1/GoldenRatio, 0.61803398874989479`), Axes -> True, 
+                NCache(1/GoldenRatio, 0.6180339887498948`), Axes -> True, 
                PlotRange -> 
                 NCache({-4 .. 4, -1.5874010519681994` .. 1.5874010519681994`}, 
-                 {-4.0` .. 4.0`, -1.5874010519681994` .. 
+                 {-4.0 .. 4.0, -1.5874010519681994` .. 
                    1.5874010519681994`}))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Evaluate numerically:", "ExampleText"), 
         SectionGroup({Section(BoxData({"Surd", "(", {"2.5", ",", "5"}, ")"}), 
            "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData("1.2011244339814311`"), "Output", 
+          Section(BoxData("1.201124433981431`"), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -165,17 +164,17 @@ Document({
              BoxData({"Surd", "(", {
                 {"{", {{"-", "1"}, ",", "2", ",", {"-", "3"}, ",", {"-", "4"}, 
                   ",", "5", ",", "6", ",", "7", ",", "8", ",", "Pi", ",", {
-                   "E", SuperscriptBox("5")}}, "}"}, ",", "5"}, ")"}), 
-             "Input", SectionLabel -> "in [1]:"), 
+                   "ExponentialE", SuperscriptBox("5")}}, "}"}, ",", "5"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData({
                "{", {{"-", "1"}, ",", {"2", SuperscriptBox({"1", "/", "5"})}, 
                 ",", {"-", {"3", SuperscriptBox({"1", "/", "5"})}}, ",", {
-                 "-", {"4", SuperscriptBox({"1", "/", "5"})}}, ",", {
+                 "-", {"2", SuperscriptBox({"2", "/", "5"})}}, ",", {
                  "5", SuperscriptBox({"1", "/", "5"})}, ",", {
                  "6", SuperscriptBox({"1", "/", "5"})}, ",", {
                  "7", SuperscriptBox({"1", "/", "5"})}, ",", {
-                 "8", SuperscriptBox({"1", "/", "5"})}, ",", {
+                 "2", SuperscriptBox({"3", "/", "5"})}, ",", {
                  "\[Pi]", SuperscriptBox({"1", "/", "5"})}, ",", 
                 "\[ExponentialE]"}, "}"}), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All), 
@@ -202,16 +201,39 @@ Document({
         Section(TextData({TemplateBox({"Surd"}, "ReferenceHyperlink"), 
            " is only defined for real arguments:"}), "ExampleText"), 
         SectionGroup({
-          Section(BoxData({"Surd", "(", {{"2.5", "+", "I"}, ",", "5"}, ")"}), 
-           "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData({{"Surd", "::", StringBox("\"preal\"")}, "\[Colon]", 
+          Section(BoxData({"Surd", "(", {{"2.5", "+", "ImaginaryI"}, ",", 
+              "5"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
              TemplateBox({
-               InterpretationBox(StringBox("\"The parameter ", {
-                  "2.5`", "+", "\[ImaginaryI]"}, " should be real-valued.\""), 
-                StringForm("The parameter `1` should be real-valued.", 
-                 2.5` + I), Editable -> False)}, "RowDefault")}), "Message", 
-           SectionGenerated -> True), 
-          Section(BoxData(RadicalBox({"2.5`", "+", "\[ImaginaryI]"}, "5", 
+               TemplateBox({MessageName -> HoldForm(Surd::"preal"), 
+                 Message -> StringForm(
+                   "The parameter `1` should be real-valued.", 2.5 + I), 
+                 Stack -> {
+                   {"Head" -> Surd, "Location" -> 
+                     Language`SourceLocation(
+                      FrontEndObject(11441088334005088292, 985), 0 .. 22)}, {
+                    "Head" -> System`Private`AutoSimplifySurd}, {
+                    "Head" -> EvaluationSequence, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\Numerics\\simplify-surd.pmath", {
+                        30, 56} .. {66, 0})}, {"Head" -> EvaluationSequence, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\Numerics\\simplify-surd.pmath", {
+                        45, 28} .. {48, 0})}, {"Head" -> Message, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\Numerics\\simplify-surd.pmath", {
+                        46, 16} .. {46, 39})}, {"Head" -> SectionPrint}}}, 
+                "MessageMenuButton"), {"Surd", "::", StringBox("\"preal\"")}}, 
+              "RowDefault"), ":", " ", InterpretationBox(
+              StringBox("\"The parameter ", {"2.5", "+", "\[ImaginaryI]"}, 
+               " should be real-valued.\""), 
+              StringForm("The parameter `1` should be real-valued.", 2.5 + I), 
+              Editable -> False)}), "Message", SectionGenerated -> True), 
+          Section(BoxData(RadicalBox({"2.5", "+", "\[ImaginaryI]"}, "5", 
              SurdForm -> True)), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
@@ -225,15 +247,48 @@ Document({
           SectionGroup({
             Section(BoxData({"Surd", "(", {{"-", "1"}, ",", "2"}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData({{"Surd", "::", StringBox("\"noneg\"")}, 
-               "\[Colon]", TemplateBox({
-                 InterpretationBox(
-                  StringBox(
-                   "\"Surd is undefined for even roots of negative \
-                   values.\""), StringForm(
-                   "Surd is undefined for even roots of negative values.", 
-                   HoldForm(Surd(-1, 2))), Editable -> False)}, 
-                "RowDefault")}), "Message", SectionGenerated -> True), 
+            Section(
+             BoxData({
+               TemplateBox({
+                 TemplateBox({MessageName -> HoldForm(Surd::"noneg"), 
+                   Message -> StringForm(
+                     "Surd is undefined for even roots of negative values.", 
+                     Button(HoldForm(Surd(-1, 2)), 
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\mod\
+                       ules\\System\\Numerics\\simplify-surd.pmath", 
+                       Line -> 52, Column -> 41), BaseStyle -> "Hyperlink")), 
+                   Stack -> {
+                     {"Head" -> Surd, "Location" -> 
+                       Language`SourceLocation(
+                        FrontEndObject(11441088334005088292, 1030), 0 .. 10)}, 
+                     {"Head" -> System`Private`AutoSimplifySurd}, {
+                      "Head" -> EvaluationSequence, 
+                      "Location" -> Language`SourceLocation(
+                        "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\mo\
+                        dules\\System\\Numerics\\simplify-surd.pmath", {
+                          30, 56} .. {66, 0})}, {"Head" -> EvaluationSequence, 
+                      "Location" -> Language`SourceLocation(
+                        "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\mo\
+                        dules\\System\\Numerics\\simplify-surd.pmath", {
+                          51, 31} .. {54, 0})}, {"Head" -> Message, 
+                      "Location" -> Language`SourceLocation(
+                        "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\mo\
+                        dules\\System\\Numerics\\simplify-surd.pmath", {
+                          52, 20} .. {52, 62})}, {"Head" -> SectionPrint}}}, 
+                  "MessageMenuButton"), {
+                  "Surd", "::", StringBox("\"noneg\"")}}, "RowDefault"), ":", 
+               " ", InterpretationBox(
+                StringBox(
+                 "\"Surd is undefined for even roots of negative values.\""), 
+                StringForm(
+                 "Surd is undefined for even roots of negative values.", 
+                 Button(HoldForm(Surd(-1, 2)), 
+                  Developer`OpenTextFile(
+                   "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                   \\System\\Numerics\\simplify-surd.pmath", Line -> 52, 
+                   Column -> 41), BaseStyle -> "Hyperlink")), 
+                Editable -> False)}), "Message", SectionGenerated -> True), 
             Section(BoxData("Undefined"), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 

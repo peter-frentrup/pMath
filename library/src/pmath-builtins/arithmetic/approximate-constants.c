@@ -8,7 +8,7 @@
 #include <pmath-builtins/arithmetic-private.h>
 
 
-extern pmath_symbol_t pmath_System_E;
+extern pmath_symbol_t pmath_System_ExponentialE;
 extern pmath_symbol_t pmath_System_EulerGamma;
 extern pmath_symbol_t pmath_System_General;
 extern pmath_symbol_t pmath_System_MachinePrecision;
@@ -57,7 +57,7 @@ static void arb_const_machineprecision(arb_t rop, slong prec) {
 }
 
 PMATH_PRIVATE pmath_bool_t builtin_approximate_e(pmath_t *obj, double prec) {
-  if(!pmath_same(*obj, pmath_System_E) || prec == HUGE_VAL)
+  if(!pmath_same(*obj, pmath_System_ExponentialE) || prec == HUGE_VAL)
     return FALSE;
     
   pmath_unref(*obj);
