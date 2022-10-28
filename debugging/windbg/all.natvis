@@ -457,18 +457,19 @@
 		</Expand>
 	</Type>
 	<Type Name="_pmath_hashtable_t">
-		<DisplayString>{{ count={used_count} }}</DisplayString>
+		<DisplayString>{{ count={((pmath.dll!_pmath_hashtable_impl_t*)this)[-1].used_count} }}</DisplayString>
 		<Expand>
-			<Item Name="class" ExcludeView="EntriesOnly">klass</Item>
-			<Item Name="capacity" ExcludeView="EntriesOnly">capacity</Item>
-			<Item Name="count" ExcludeView="EntriesOnly">used_count</Item>
+			<Item Name="class" ExcludeView="EntriesOnly">((pmath.dll!_pmath_hashtable_impl_t*)this)[-1].klass</Item>
+			<Item Name="capacity" ExcludeView="EntriesOnly">((pmath.dll!_pmath_hashtable_impl_t*)this)[-1].capacity</Item>
+			<Item Name="count" ExcludeView="EntriesOnly">((pmath.dll!_pmath_hashtable_impl_t*)this)[-1].used_count</Item>
 			<!--<Item Name="entries" ExcludeView="EntriesOnly" Condition="klass == &amp;pmath.dll!pmath_ht_obj_class">(_pmath_object_entry_t**)table,[capacity]</Item>
 			<Item Name="entries" ExcludeView="EntriesOnly">table,[capacity]</Item>-->
 			<CustomListItems MaxItemsPerView="1000">
-				<Variable Name="pBucket" InitialValue="(void**)table" />
-				<Variable Name="iFound" InitialValue="0"/>
+				<Variable Name="klass"   InitialValue="((pmath.dll!_pmath_hashtable_impl_t*)this)[-1].klass" />
+				<Variable Name="pBucket" InitialValue="(void**)((pmath.dll!_pmath_hashtable_impl_t*)this)[-1].table" />
+				<Variable Name="iFound"  InitialValue="0"/>
 				
-				<Size>used_count</Size>
+				<Size>((pmath.dll!_pmath_hashtable_impl_t*)this)[-1].used_count</Size>
 				<Loop>
 					<If Condition="((uintptr_t)*pBucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*pBucket) + (uintptr_t)1 != (uintptr_t)0)">
 						<Exec>iFound = iFound + 1</Exec>
