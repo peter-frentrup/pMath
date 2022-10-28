@@ -1,0 +1,198 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Syntax", "Title"), 
+      Section(TextData({"The ", StyleBox("pMath", FontSlant -> Italic), 
+         " syntax is based on two dimensional mathematical notation, similar \
+         to ", StyleBox("Mathematica", FontSlant -> Italic), "."}), "Text")}, 
+     All), SectionGroup({Section("Character strings", "Section"), 
+      Section(
+       TextData({
+         "Character strings are delimited by double quote characters ", 
+         BoxData(StringBox("\"like this\"")), 
+         ". Inside text strings, special characters are prefixed with a \
+         backslash."}), "Text"), 
+      Section(
+       TextData({
+         GridBox({{{"\"", StyleBox("text", FontSlant -> Italic), "\""}, 
+            "a character string"}, {"\\\"", "a literal \" in a text string"}, {
+            "\\\\", "a literal \\ in a text string"}, {
+            "\\  (at end of line)", 
+            "ignore the following line-break and spaces"}, {
+            {"\\[U+", StyleBox("nnnn", FontSlant -> Italic), "]"}, 
+            "a character by its Unicode codepoint"}, {
+            {"\\[", StyleBox("Name", FontSlant -> Italic), "]"}, 
+            "a character by its long name"}, {
+            "\\(...\\)", 
+            "a substring representing two-dimensional boxes"}})}), 
+       "DefinitionBox"), Section("Entering character strings.", "Caption")}, 
+     All), SectionGroup({Section("Symbols", "Section"), 
+      Section(
+       TextData({
+         GridBox({{{StyleBox("name", FontSlant -> Italic)}, "symbol name"}, {
+            {StyleBox("namespace", FontSlant -> Italic), "`", 
+             StyleBox("name", FontSlant -> Italic)}, 
+            "symbol name in a specified namespace"}, {
+            {StyleBox("namespace", FontSlant -> Italic), "`"}, 
+            "namespace name"}, {
+            {StyleBox("namespace", FontSlant -> Italic), SubscriptBox("1"), 
+             "`", StyleBox("namespace", FontSlant -> Italic), 
+             SubscriptBox("2"), "`"}, "nested namespaces"}, {
+            {BoxData("\[ExponentialE]")}, {
+             TemplateBox({"E"}, "ReferenceHyperlink")}}, {
+            {BoxData("\[Pi]")}, {TemplateBox({"Pi"}, "ReferenceHyperlink")}}, {
+            {BoxData("\[ImaginaryI]"), ", ", BoxData("\[ImaginaryJ]")}, {
+             TemplateBox({"I"}, "ReferenceHyperlink")}}})}), "DefinitionBox"), 
+      Section("Forming symbol names.", "Caption")}, All), 
+    Section("Numbers", "Section"), Section("Operators", "Section"), 
+    SectionGroup({Section("Two-dimensional input forms", "Section"), 
+      Section(TextData({GridBox({{"", ""}}), 
+         GridBox({{{FractionBox("x", "y")}, {
+             "division: ", BoxData({"x", "/", "y"})}}, {
+            {BoxData({"x", SuperscriptBox("y")})}, {
+             TemplateBox({"Power"}, "ReferenceHyperlink"), "(", BoxData("x"), 
+             ", ", BoxData("y"), ")"}}, {{BoxData(SqrtBox("x"))}, {
+             "complex square root ", TemplateBox({"Sqrt"}, 
+              "ReferenceHyperlink"), "(", BoxData("x"), ")"}}, {
+            {BoxData(RadicalBox("x", "n"))}, {
+             "complex root ", TemplateBox({"Power"}, "ReferenceHyperlink"), 
+             "(", BoxData("x"), ", ", BoxData({"1", "/", "n"}), ")"}}, {
+            {BoxData(RadicalBox("x", "n", SurdForm -> True))}, {
+             "real root ", TemplateBox({"Surd"}, "ReferenceHyperlink"), "(", 
+             BoxData("x"), ", ", BoxData("n"), ")"}}, {
+            {BoxData(
+              GridBox({{{"a", SubscriptBox({"1", "\[InvisibleComma]", "1"})}, {
+                  "a", SubscriptBox({"1", "\[InvisibleComma]", "2"})}, 
+                 "\[Ellipsis]"}, {
+                 {"a", SubscriptBox({"2", "\[InvisibleComma]", "1"})}, {
+                  "a", SubscriptBox({"2", "\[InvisibleComma]", "2"})}, 
+                 "\[Ellipsis]"}}))}, {
+             "matrix ", 
+             BoxData({
+               "{", {
+                {"{", {{"a", SubscriptBox({"1", "\[InvisibleComma]", "1"})}, 
+                  ",", {"a", SubscriptBox({"1", "\[InvisibleComma]", "2"})}, 
+                  ",", "\[Ellipsis]"}, "}"}, ",", {
+                 "{", {{"a", SubscriptBox({"2", "\[InvisibleComma]", "1"})}, 
+                  ",", {"a", SubscriptBox({"2", "\[InvisibleComma]", "2"})}, 
+                  ",", "\[Ellipsis]"}, "}"}}, "}"})}}})}), "DefinitionBox"), 
+      Section("Two-dimensional input forms with build-in evaluation rules.", 
+       "Caption")}, All), 
+    SectionGroup({Section("Statement blocks", "Section"), 
+      Section(
+       TextData({
+         GridBox({
+           {{BoxData({
+               "Block", {
+                "{", {
+                 "\n", {{{StyleBox("statement", FontSlant -> Italic), 
+                    SubscriptBox("1")}, "\n", {
+                    StyleBox("statement", FontSlant -> Italic), 
+                    SubscriptBox("2")}, "\n", "\[Ellipsis]", "\n", {
+                    StyleBox("statement", FontSlant -> Italic), 
+                    SubscriptBox("n")}}, "\n"}}, "}"}})}, 
+            "a block of multiple statements"}})}), "DefinitionBox"), 
+      Section("Basic block syntax.", "Caption"), 
+      Section(
+       TextData({
+         GridBox({
+           {{BoxData({
+               {"Do", "(", {StyleBox("i", FontSlant -> Italic), " ", 
+                 "\[Rule]", " ", StyleBox("range", FontSlant -> Italic)}, 
+                ")"}, {"{", " ", " ", " ", " ", {
+                 "\n", {StyleBox("block", FontSlant -> Italic), "\n"}}, 
+                "}"}})}, "loops over a fixed range"}, {
+            {BoxData({
+               {"While", "(", {StyleBox("", FontSlant -> Italic), 
+                 StyleBox("condition", FontSlant -> Italic)}, ")"}, {
+                "{", " ", " ", " ", " ", {
+                 "\n", {StyleBox("block", FontSlant -> Italic), "\n"}}, 
+                "}"}})}, "loops as long as a condition is True"}})}), 
+       "DefinitionBox"), Section("Looping blocks.", "Caption"), 
+      Section(
+       TextData({
+         GridBox({
+           {{BoxData({{"If", "(", StyleBox("condition", FontSlant -> Italic), 
+                ")"}, " ", {
+                "{", {"\n", {StyleBox("block", FontSlant -> Italic), "\n"}}, 
+                "}"}}), "\n"}, "conditionally execute a block of statements"}, 
+           {{BoxData({{"If", "(", StyleBox("condition", FontSlant -> Italic), 
+                ")"}, " ", {
+                "{", {"\n", {{StyleBox("block", FontSlant -> Italic), 
+                   SubscriptBox("1")}, "\n"}}, "}"}, "Else", {
+                "{", {"\n", {{StyleBox("block", FontSlant -> Italic), 
+                   SubscriptBox("2")}, "\n"}}, "}"}}), "\n"}, 
+            "conditionally run one or another block"}, {
+            {BoxData({
+               {"If", "(", {StyleBox("condition", FontSlant -> Italic), 
+                 SubscriptBox("1")}, ")"}, {
+                "{", {"\n", {{StyleBox("block", FontSlant -> Italic), 
+                   SubscriptBox("1")}, "\n"}}, "}"}, "Else", " ", {
+                "If", "(", {StyleBox("condition", FontSlant -> Italic), 
+                 SubscriptBox("2")}, ")"}, {
+                "{", {"\n", {{StyleBox("block", FontSlant -> Italic), 
+                   SubscriptBox("2")}, "\n"}}, "}"}, "Else", {
+                "{", {"\n", {{StyleBox("block", FontSlant -> Italic), 
+                   SubscriptBox("n")}, "\n"}}, "}"}})}, 
+            "chain multiple conditionals"}})}), "DefinitionBox"), 
+      Section("Conditional blocks.", "Caption"), 
+      Section(
+       TextData({
+         GridBox({
+           {{BoxData({{"Switch", "(", StyleBox("expr", FontSlant -> Italic), 
+                ")"}, {
+                "{", {
+                 "\n", {
+                  {{{"Case", "(", {StyleBox("pattern", FontSlant -> Italic), 
+                      SubscriptBox("1")}, ")"}, {
+                     "{", {"\n", {{StyleBox("block", FontSlant -> Italic), 
+                        SubscriptBox("1")}, "\n"}}, "}"}}, "\n", {
+                    {"Case", "(", {StyleBox("pattern", FontSlant -> Italic), 
+                      SubscriptBox("2")}, ")"}, {
+                     "{", {"\n", {{StyleBox("block", FontSlant -> Italic), 
+                        SubscriptBox("2")}, "\n"}}, "}"}}, "\n", 
+                   "\[Ellipsis]"}, "\n"}}, "}"}}), "    "}, 
+            "pattern matching"}})}), "DefinitionBox"), 
+      Section("Use pattern matching to decide which block to execute.", 
+       "Caption"), 
+      Section(
+       TextData({
+         GridBox({
+           {{BoxData({"Function", " ", {
+                "name", "(", {{"~", "a"}, ",", {"~", "b"}}, ")"}, {
+                "{", {"\n", {StyleBox("body", FontSlant -> Italic), "\n"}}, 
+                "}"}}), "    \n"}, "a function definition"}, {
+            {BoxData({"Function", " ", {
+                "name", "(", StyleBox("args", FontSlant -> Italic), ")"}, {
+                "Where", "(", StyleBox("cond", FontSlant -> Italic), ")"}, {
+                "{", {"\n", {StyleBox("body", FontSlant -> Italic), "\n"}}, 
+                "}"}})}, "a conditional function definition"}})}), 
+       "DefinitionBox"), Section("Define named functions.", "Caption"), 
+      Section(
+       TextData({
+         GridBox({
+           {{BoxData({
+               {"Local", "(", StyleBox("variables", FontSlant -> Italic), 
+                ")"}, {"{", {"\n", {StyleBox("block", FontSlant -> Italic), 
+                  "\n"}}, "}"}}), "    \n"}, "a block with local variables"}, {
+            {BoxData({
+               "Block", {
+                "{", {
+                 "\n", {{{StyleBox("statements", FontSlant -> Italic), 
+                    SubscriptBox("1")}, "\n", {
+                    "Local", "(", {StyleBox("variable", FontSlant -> Italic), 
+                     "\[Assign]", StyleBox("expr", FontSlant -> Italic)}, 
+                    ")"}, "\n", {StyleBox("statements", FontSlant -> Italic), 
+                    SubscriptBox("2")}, "\n", "\[Ellipsis]"}, "\n"}}, "}"}})}, 
+            "introduce a variable in the middle of a block"}})}), 
+       "DefinitionBox"), Section("Define named functions.", "Caption"), 
+      Section(BoxData({{"With", "(", {"symbol", "\[Assign]", "value"}, ")"}, {
+          "{", {"\n", {"block", "\n"}}, "}"}}), "Input"), 
+      Section(
+       BoxData({
+         "Block", {
+          "{", {"\n", {{{"statements", SubscriptBox("1")}, "\n", {
+              "With", "(", {"symbol", "\[Assign]", "value"}, ")"}, "\n", {
+              "statements", SubscriptBox("2")}}, "\n"}}, "}"}}), "Input")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
