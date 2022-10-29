@@ -3419,7 +3419,7 @@ void StyleInformation::add_style() {
     add(StyleType::AutoBool,        SetterBoxDefaultContentPadding,   List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_ContentPadding)));
     add(StyleType::Bool,            SetterBoxDefaultEnabled,          List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_Enabled)));
     
-    add(StyleType::Bool,            ContinuousAction,                 List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_ContinuousAction)));
+    add(StyleType::Bool,            SliderBoxDefaultContinuousAction, List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_ContinuousAction)));
     add(StyleType::AutoBool,        SliderBoxDefaultEnabled,          List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_Enabled)));
     
     add(StyleType::AutoPositive,    AspectRatio,                      Symbol( richmath_System_AspectRatio));

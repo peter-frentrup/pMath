@@ -107,9 +107,8 @@ Document({
                 "{", {
                  InputFieldBox(Dynamic($Context`s, {
                     Function(++$Context`pre; $Context`s:= #1), Automatic, 
-                    Function(++$Context`post; $Context`s:= #1)}), String, {
-                    SliderBoxOptions, ContinuousAction} -> True, 
-                  SliderBoxOptions -> {ContinuousAction -> True}), ",", 
+                    Function(++$Context`post; $Context`s:= #1)}), String, 
+                  ContinuousAction -> True), ",", 
                  DynamicBox(ToBoxes({$Context`pre, $Context`post, 
                     $Context`s}))}, "}"}, DynamicLocalValues :> {
                  {OwnRules($Context`pre):= {HoldPattern($Context`pre) :> 0}}, {
@@ -183,7 +182,7 @@ Document({
                 {{"Pause", "(", "0.5", ")"}, ";", "a"}, ",", {
                  "SynchronousUpdating", "\[Rule]", "True"}}, ")"}), "Input", 
              SectionLabel -> "in [2]:"), 
-            Section(BoxData(DynamicBox(ToBoxes(Pause(0.5`); $Context`a), 
+            Section(BoxData(DynamicBox(ToBoxes(Pause(0.5); $Context`a), 
                SynchronousUpdating -> True)), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
           SectionGroup({
@@ -205,7 +204,7 @@ Document({
                   {{"Pause", "(", "0.5", ")"}, ";", "b"}, ",", {
                    "SynchronousUpdating", "\[Rule]", "False"}}, ")"}), 
                "Input", SectionLabel -> "in [11]:"), 
-              Section(BoxData(DynamicBox(ToBoxes(Pause(0.5`); $Context`b), 
+              Section(BoxData(DynamicBox(ToBoxes(Pause(0.5); $Context`b), 
                  SynchronousUpdating -> False)), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [11]:")}, All)}, 
            All), SectionGroup({
@@ -280,7 +279,7 @@ Document({
              "Input", SectionLabel -> "in [4]:"), 
             Section(
              BoxData(DynamicBox(
-               ToBoxes(If($Context`x >= 0.5`, $Context`x:= 0.5`); 
+               ToBoxes(If($Context`x >= 0.5, $Context`x:= 0.5); 
                  Slider(Dynamic($Context`x))))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
           SectionGroup({
@@ -304,10 +303,9 @@ Document({
                "Input", SectionLabel -> "in [1]:"), 
               Section(
                BoxData(TemplateBox({
-                  DynamicBox(
-                   ToBoxes(If($Context`y >= 0.5`, $Context`y:= 0.5`); "")), 
-                  SliderBox(Dynamic($Context`y), 0 .. 1)}, "RowDefault")), 
-               "Output", SectionGenerated -> True, 
+                  DynamicBox(ToBoxes(If($Context`y >= 0.5, $Context`y:= 0.5); 
+                     "")), SliderBox(Dynamic($Context`y), 0 .. 1)}, 
+                 "RowDefault")), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
