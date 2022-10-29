@@ -3776,20 +3776,30 @@ else INPUTFORM:
           WRITE_CSTR("(");
           lparen = TRUE;
         }
-        WRITE_CSTR("-I");
+        WRITE_CSTR("-");
       }
-      else if(pmath_equals(im, PMATH_FROM_INT32(1))) {
-        WRITE_CSTR("I");
-      }
-      else {
+      else if(!pmath_equals(im, PMATH_FROM_INT32(1))) {
         if(!lparen && priority > PMATH_PREC_MUL) {
           WRITE_CSTR("(");
           lparen = TRUE;
         }
         _pmath_write_impl(info, im);
-        WRITE_CSTR(" I");
+        WRITE_CSTR(" ");
       }
-
+      
+      if(info->options & PMATH_WRITE_OPTIONS_PREFERUNICODE) {
+        const uint16_t imaginary_i_char = 0x2148;
+        if(info->can_write_unicode && info->can_write_unicode(info->user, &imaginary_i_char, 1)) {
+          info->write(info->user, &imaginary_i_char, 1);
+        }
+        else {
+          WRITE_CSTR("ImaginaryI");
+        }
+      }
+      else {
+        WRITE_CSTR("ImaginaryI");
+      }
+      
       if(lparen)
         WRITE_CSTR(")");
 
