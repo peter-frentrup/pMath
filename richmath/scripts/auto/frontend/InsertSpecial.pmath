@@ -1,0 +1,80 @@
+Begin("FE`")
+
+FE`InsertSpecial
+
+Begin("FE`Private`")
+
+FE`InsertSpecial()::= FE`InsertSpecial(EvaluationDocument())
+Function FE`InsertSpecial(~doc) {
+    With(selboxes:=DocumentRead(doc))
+    insertSpecialAt(doc, selboxes, Developer`GetDebugMetadata(selboxes))
+}
+
+getInputAliasesFor(~)::= CurrentValue(InputAliases)
+
+Function getInputAliasesFor(Language`SourceLocation(~feo:FrontEndObject, ~range)) {
+     With(allMacros:= CurrentValue(feo, InputAliases))
+     If(Match(range, ~x .. ~x)) {
+        allMacros
+     } Else {
+        allMacros |>
+            Select(Function( #[2] |> 
+                Position(~s:String /? StringPosition(s, "\[Placeholder]" | "\[SelectionPlaceholder]") =!= {}) =!= {}))
+     }
+}
+
+Function insertSpecialAt(~doc, ~selboxes, ~loc) {
+    With(allMacros:= getInputAliasesFor(loc))
+    Local(popup:= $Failed, macroName:= "", allowEmpty:= False)
+    popup:= FE`AttachBoxes(loc, Bottom, {
+        Section(
+            BoxData({"\"Insert: \"",FillBox(InputFieldBox(Dynamic(macroName),String,ContinuousAction->True))}),
+            "PopupWindowSection",
+            SectionMargins -> {{4,4}, {4,2}},
+            LineBreakWithin -> False),
+        Section(BoxData(DynamicBox(
+            If(macroName === "" && !allowEmpty) {
+                StringForm("Type an `1` name", Button("input alias", allowEmpty:=True, BaseStyle -> "Hyperlink")) |> ToBoxes
+            } Else {
+                With(matches:= allMacros |> Select(Function(StringMatch(#[1], macroName ++ ~~~, IgnoreCase->True))))
+                If(matches === {}) {
+                    ToBoxes(StringForm("\[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] not found", macroName))
+                } Else {
+                    matches |> 
+                        Map(Function({
+                            ButtonBox({
+                                    PaneBox(makeAliasBoxes(#[1]),
+                                        ImageSize -> {75, Automatic}, LineBreakWithin -> False), 
+                                    PaneBox({makeBoxesVisible(#[2]), " "},
+                                        ImageSize -> {150, Automatic}, 
+                                        ImageSizeAction -> "Clip",
+                                        LineBreakWithin -> False)},
+                                ButtonData -> #[2],
+                                ButtonFrame -> "Palette",
+                                ButtonFunction -> Function(
+                                    DocumentClose(popup); DocumentApply(doc,#)))
+                            })) |>
+                        GridBox
+                }
+            })),
+            "PopupWindowSection",
+            SectionMargins -> {{4,4}, {2,4}},
+            LineBreakWithin -> False)},
+        WindowFrame -> "ThinFrameCallout",
+        RemovalConditions -> {"MouseClickOutsidePopup", "SelectionExit"})
+    SetSelectedDocument(popup)
+}
+
+makeAliasBoxes(~s)::= s |> StringReplace(" " -> "\(StyleBox(\"\[U+2423]\", FontColor -> GrayLevel(0.5))\)") |> ToBoxes
+
+makeBoxesVisible(~box)::= box
+Do(s -> {" ", "\[InvisibleSpace]", "\[InvisiblePlus]", "\[InvisibleTimes]", "\[InvisibleApply]", "\[InvisibleComma]", 
+        "\[NonBreakingSpace]", "\[NoBreak]", "\[LeftInvisibleBracket]", "\[RightInvisibleBracket]",
+        "\[ThickSpace]", "\[MediumSpace]", "\[ThinSpace]", "\[VeryThinSpace]"}
+) {
+    makeBoxesVisible(s):= StyleBox(InputForm(s) |> ToString, FontColor -> Gray)
+}
+
+End()
+
+End()

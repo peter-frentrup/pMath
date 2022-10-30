@@ -34,6 +34,7 @@ FE`Private`shortcuts:= {
 	MenuItem(KeyEvent("L", {KeyControl}),               "DuplicatePreviousInput"),
 	MenuItem(KeyEvent("L", {KeyControl, KeyShift}),     "DuplicatePreviousOutput"),
 	MenuItem(KeyEvent("Enter", {KeyAlt}),               "SimilarSectionBelow"),
+	MenuItem(KeyEvent("I", {KeyControl}),               FrontEnd`KernelExecute(FE`InsertSpecial())),
 	MenuItem(KeyEvent("9", {KeyControl}),               "InsertInlineSection"),
 	MenuItem(KeyEvent("Numpad9", {KeyControl}),         "InsertInlineSection"),
 	MenuItem(KeyEvent("/", {KeyControl}),               "InsertFraction"),

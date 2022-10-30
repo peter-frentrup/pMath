@@ -63,6 +63,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 		MenuItem("S&tart Inline Section",                 "InsertInlineSection"),
 		MenuItem("Insert Fra&me",                         DocumentApply(Automatic, FrameBox("\[SelectionPlaceholder]"))),
 		MenuItem("Insert &Highlighting",                  DocumentApply(Automatic, TemplateBox({"\[SelectionPlaceholder]"}, "Highlighted"))),
+		MenuItem("Insert Specia&l ...",                   FrontEnd`KernelExecute(FE`InsertSpecial())),
 		Delimiter,
 		MenuItem("Table &Column",                         "InsertColumn"),
 		MenuItem("Table &Row",                            "InsertRow")
