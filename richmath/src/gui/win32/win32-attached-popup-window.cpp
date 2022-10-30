@@ -522,7 +522,9 @@ void Win32AttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, Co
       HRGN rgn = CreateRectRgnIndirect(&rect);
       CombineRgn(rgn, rgn, triangle_rgn, RGN_OR);
       DeleteObject(triangle_rgn);
+      
       SetWindowRgn(self.hwnd(), rgn, TRUE);
+      RedrawWindow(self.hwnd(), nullptr, nullptr, RDW_FRAME | RDW_INVALIDATE | RDW_NOERASE | RDW_UPDATENOW);
     } break;
   }
 }
