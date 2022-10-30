@@ -17,8 +17,8 @@ FE`AttachBoxes(~~~args)::= $Failed /? (IsValidArgumentCount(FE`AttachBoxes, Leng
 
 CreateDocument(~~~args)::= FE`CallFrontEnd(FrontEnd`CreateDocument(args))
 
-CurrentValue(~item)::=                                          FE`CallFrontEnd(FrontEnd`CurrentValue(Automatic, item))
-CurrentValue(obj : ~:FrontEndObject|~:DocumentObject, ~item)::= FE`CallFrontEnd(FrontEnd`CurrentValue(obj,       item))
+CurrentValue(~item)::= FE`CallFrontEnd(FrontEnd`CurrentValue(Automatic, item))
+CurrentValue(obj : ~:FrontEndObject|~:DocumentObject|~Language`SourceLocation, ~item)::= FE`CallFrontEnd(FrontEnd`CurrentValue(obj,       item))
 Function CurrentValue(~~~args) {
     IsValidArgumentCount(CurrentValue, Length@{args}, 1, 2)
     $Failed

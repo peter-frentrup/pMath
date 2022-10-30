@@ -223,6 +223,12 @@ FrontEndObject *CurrentValueImpl::object(Expr obj) {
   if(obj == richmath_System_Automatic)
     return Application::get_evaluation_object();
   
+  if(auto sel = SelectionReference::from_pmath(obj).get_all()) {
+    if(auto box = sel.contained_box())
+      return box;
+    return sel.box;
+  }
+  
   return FrontEndObject::find(FrontEndReference::from_pmath(std::move(obj)));
 }
 
