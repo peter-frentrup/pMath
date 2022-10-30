@@ -14,7 +14,9 @@ SetOptions($FrontEndSession, ContextMenu -> {
 	Menu("Su&rround with", {
 		MenuItem("Frame",              DocumentApply(Automatic, FrameBox("\[SelectionPlaceholder]"))),
 		MenuItem("f(\[Ellipsis])",     DocumentApply(Automatic, BoxData({TagBox(FrameBox("f"), "Placeholder"), "(", "\[SelectionPlaceholder]", ")"}))),
-		MenuItem("\"\[Ellipsis]\"",    DocumentApply(Automatic, "\"\[SelectionPlaceholder]\""))
+		MenuItem("\"\[Ellipsis]\"",    DocumentApply(Automatic, "\"\[SelectionPlaceholder]\"")),
+		Delimiter,
+		MenuItem("&Other ...",         FrontEnd`KernelExecute(FE`InsertSpecial()))
 	}),
 	MenuItem("Reset &Graphics Size", "GraphicsOriginalSize"),
 	Delimiter,

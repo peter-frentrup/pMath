@@ -13,7 +13,7 @@ Function FE`InsertSpecial(~doc) {
 getInputAliasesFor(~)::= CurrentValue(InputAliases)
 
 Function getInputAliasesFor(Language`SourceLocation(~feo:FrontEndObject, ~range)) {
-     With(allMacros:= CurrentValue(feo, InputAliases))
+     With(allMacros:= CurrentValue(feo, InputAliases) |> Cases(Except(~ -> ("\[Placeholder]" | "\[SelectionPlaceholder]"))))
      If(Match(range, ~x .. ~x)) {
         allMacros
      } Else {
