@@ -23,7 +23,7 @@ Document({
            " with centered thumb position:"}), "ExampleText"), 
         SectionGroup({Section(BoxData({"Slider", "(", ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData(SliderBox(0.5`, 0 .. 1)), "Output", 
+          Section(BoxData(SliderBox(0.5, 0 .. 1)), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -48,7 +48,7 @@ Document({
                 "0.5", ",", {"Appearance", "\[Rule]", 
                  StringBox("\"Slider\"")}}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
-            Section(BoxData(SliderBox(0.5`, 0 .. 1, Appearance -> "Slider")), 
+            Section(BoxData(SliderBox(0.5, 0 .. 1, Appearance -> "Slider")), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -62,10 +62,9 @@ Document({
                      StringBox("\"DownArrow\"")}, "}"}}}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(
-               BoxData({
-                 "{", {SliderBox(0.5`, 0 .. 1, Appearance -> "UpArrow"), ",", 
-                  SliderBox(0.5`, 0 .. 1, Appearance -> "DownArrow")}, "}"}), 
-               "Output", SectionGenerated -> True, 
+               BoxData({"{", {SliderBox(0.5, 0 .. 1, Appearance -> "UpArrow"), 
+                  ",", SliderBox(0.5, 0 .. 1, Appearance -> "DownArrow")}, 
+                 "}"}), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All), 
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -81,7 +80,7 @@ Document({
                       StringBox("\"UpArrow\"")}, ")"}, ")"}}}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(BoxData(SliderBox(Dynamic($Context`x), 0 .. 1, 
-                 Appearance -> Dynamic(If($Context`x < 0.5`, "DownArrow", 
+                 Appearance -> Dynamic(If($Context`x < 0.5, "DownArrow", 
                     "UpArrow")))), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All), 
           SectionGroup({
@@ -98,10 +97,10 @@ Document({
                SectionLabel -> "in [1]:"), 
               Section(
                BoxData({
-                 "{", {SliderBox(0.82776421440972225`, 0 .. 1, 
+                 "{", {SliderBox(0.8277642144097223`, 0 .. 1, 
                    Appearance -> "Vertical"), ",", 
-                  SliderBox(0.5`, 0 .. 1, Appearance -> "RightArrow"), ",", 
-                  SliderBox(0.5`, 0 .. 1, Appearance -> "LeftArrow")}, "}"}), 
+                  SliderBox(0.5, 0 .. 1, Appearance -> "RightArrow"), ",", 
+                  SliderBox(0.5, 0 .. 1, Appearance -> "LeftArrow")}, "}"}), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All), 
           SectionGroup({
@@ -118,9 +117,9 @@ Document({
                "Input", SectionLabel -> "in [1]:"), 
               Section(
                BoxData({
-                 "{", {SliderBox(0.50740750630696618`, 0 .. 1, 
+                 "{", {SliderBox(0.5074075063069662`, 0 .. 1, 
                    Appearance -> "ToggleSwitchChecked"), ",", 
-                  SliderBox(0.5`, 0 .. 1, 
+                  SliderBox(0.5, 0 .. 1, 
                    Appearance -> "ToggleSwitchUnchecked")}, "}"}), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1), SectionGroup({
@@ -151,9 +150,8 @@ Document({
              SectionLabel -> "in [2]:"), 
             Section(
              BoxData({
-               "{", {SliderBox(Dynamic($Context`x), 0 .. 1, {
-                   SliderBoxOptions, ContinuousAction} -> False, 
-                 SliderBoxOptions -> {ContinuousAction -> False}), ",", 
+               "{", {SliderBox(Dynamic($Context`x), 0 .. 1, 
+                 ContinuousAction -> False), ",", 
                 DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
          1), SectionGroup({Section("Enabled", "ExampleSubsection"), 
@@ -163,7 +161,7 @@ Document({
            "ExampleText"), SectionGroup({
             Section(BoxData({"Slider", "(", {"Enabled", "\[Rule]", "False"}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(SliderBox(0.5`, 0 .. 1, Enabled -> False)), 
+            Section(BoxData(SliderBox(0.5, 0 .. 1, Enabled -> False)), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, 1)}, 1), SectionGroup({
         Section("Properties & Relations", "ExampleSection"), 
@@ -204,7 +202,7 @@ Document({
            "ExampleText"), SectionGroup({
             Section(BoxData({"Filler", "(", {"Slider", "(", ")"}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(FillBox(SliderBox(0.5`, 0 .. 1), 
+            Section(BoxData(FillBox(SliderBox(0.5, 0 .. 1), 
                StripOnInput -> False)), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
       SectionGroup({Section("Neat examples", "ExampleSection"), 
