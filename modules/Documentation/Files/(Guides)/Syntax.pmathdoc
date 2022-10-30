@@ -1,12 +1,11 @@
 /* pMath Document */
 
 Document({
-  SectionGroup({
-    SectionGroup({Section("Syntax", "Title"), 
-      Section(TextData({"The ", StyleBox("pMath", FontSlant -> Italic), 
-         " syntax is based on two dimensional mathematical notation, similar \
-         to ", StyleBox("Mathematica", FontSlant -> Italic), "."}), "Text")}, 
-     All), SectionGroup({Section("Character strings", "Section"), 
+  SectionGroup({Section("Syntax", "Title"), 
+    Section(TextData({"The ", StyleBox("pMath", FontSlant -> Italic), 
+       " syntax is based on two dimensional mathematical notation, similar to \
+       ", StyleBox("Mathematica", FontSlant -> Italic), "."}), "Text"), 
+    SectionGroup({Section("Character strings", "Section"), 
       Section(
        TextData({
          "Character strings are delimited by double quote characters ", 
@@ -23,7 +22,9 @@ Document({
             {"\\[U+", StyleBox("nnnn", FontSlant -> Italic), "]"}, 
             "a character by its Unicode codepoint"}, {
             {"\\[", StyleBox("Name", FontSlant -> Italic), "]"}, 
-            "a character by its long name"}, {
+            "a character by its long name"}, {"\\n", "a line break"}, {
+            "\\t", "a tabulation character"}, {
+            "\\r", "a carriage return character"}, {
             "\\(...\\)", 
             "a substring representing two-dimensional boxes"}})}), 
        "DefinitionBox"), Section("Entering character strings.", "Caption")}, 
@@ -43,9 +44,58 @@ Document({
              TemplateBox({"ExponentialE"}, "ReferenceHyperlink")}}, {
             {BoxData("\[Pi]")}, {TemplateBox({"Pi"}, "ReferenceHyperlink")}}, {
             {BoxData("\[ImaginaryI]"), ", ", BoxData("\[ImaginaryJ]")}, {
-             TemplateBox({"ImaginaryI"}, "ReferenceHyperlink")}}})}), "DefinitionBox"), 
-      Section("Forming symbol names.", "Caption")}, All), 
-    Section("Numbers", "Section"), Section("Operators", "Section"), 
+             TemplateBox({"ImaginaryI"}, "ReferenceHyperlink")}}})}), 
+       "DefinitionBox"), Section("Forming symbol names.", "Caption")}, All), 
+    SectionGroup({Section("Numbers", "Section"), 
+      Section(
+       TextData({
+         GridBox({{{StyleBox("nnnn", FontSlant -> Italic)}, 
+            "an integer given by a string of decimal digits"}, {
+            {StyleBox("base", FontSlant -> Italic), "^^", 
+             StyleBox("nnnn", FontSlant -> Italic)}, 
+            "an integer in a given base"}})}), "DefinitionBox"), 
+      Section("Entering integer numbers.", "Caption"), 
+      Section(
+       TextData({
+         GridBox({
+           {{StyleBox("nn", FontSlant -> Italic), ".", 
+             StyleBox("nnn", FontSlant -> Italic)}, 
+            "a machine precision floating point number"}, {
+            {StyleBox("nn", FontSlant -> Italic), ".", 
+             StyleBox("nn\[Ellipsis]nnn", FontSlant -> Italic), "`"}, 
+            "explicitly request machine precision"}, {
+            {StyleBox("base", FontSlant -> Italic), "^^", 
+             StyleBox({StyleBox("nnn", FontSlant -> Italic), ".", 
+               StyleBox("nn", FontSlant -> Italic)}, FontSlant -> Italic), 
+             "`"}, "specify digits in a given base"}})}), "DefinitionBox"), 
+      Section(
+       "Simple floating point numbers for fast but possibly inaccurate \
+       calculations.", "Caption"), 
+      Section(
+       TextData({
+         GridBox({
+           {{StyleBox("mmm", FontSlant -> Italic), ".", 
+             StyleBox("mmmmm", FontSlant -> Italic), "[", 
+             StyleBox("", FontSlant -> Italic), "+/-", 
+             StyleBox("RRR", FontSlant -> Italic), "*^", 
+             StyleBox("radexp", FontSlant -> Italic), "]`", 
+             StyleBox("prec", FontSlant -> Italic), "*^", 
+             StyleBox("exp", FontSlant -> Italic)}}, {
+            {StyleBox("mmm", FontSlant -> Italic), ".", 
+             StyleBox("mm", FontSlant -> Italic), "[", 
+             StyleBox("mmm", FontSlant -> Italic), "+/-", 
+             StyleBox("rrr", FontSlant -> Italic), "]`", 
+             StyleBox("prec", FontSlant -> Italic), "*^", 
+             StyleBox("exp", FontSlant -> Italic)}}, {
+            {StyleBox({StyleBox("base", FontSlant -> Italic)}, "Arg"), "^^", 
+             StyleBox("mmm", FontSlant -> Italic), ".", 
+             StyleBox("mm", FontSlant -> Italic), "[", 
+             StyleBox("mmm", FontSlant -> Italic), "+/-", 
+             StyleBox("rrr", FontSlant -> Italic), "]`", 
+             StyleBox("prec", FontSlant -> Italic), "*^", 
+             StyleBox("exp", FontSlant -> Italic)}}})}), "DefinitionBox"), 
+      Section("Arbitrary precision floating point numbers.", "Caption")}, 
+     All), Section("Operators", "Section"), 
     SectionGroup({Section("Two-dimensional input forms", "Section"), 
       Section(TextData({GridBox({{"", ""}}), 
          GridBox({{{FractionBox("x", "y")}, {
@@ -76,7 +126,27 @@ Document({
                   ",", "\[Ellipsis]"}, "}"}, ",", {
                  "{", {{"a", SubscriptBox({"2", "\[InvisibleComma]", "1"})}, 
                   ",", {"a", SubscriptBox({"2", "\[InvisibleComma]", "2"})}, 
-                  ",", "\[Ellipsis]"}, "}"}}, "}"})}}})}), "DefinitionBox"), 
+                  ",", "\[Ellipsis]"}, "}"}}, "}"})}}, {
+            {BoxData({"\[Piecewise]", 
+               GridBox({
+                 {{StyleBox("val", FontSlant -> Italic), SubscriptBox("1")}, {
+                   StyleBox("cond", FontSlant -> Italic), SubscriptBox("1")}}, 
+                 {{StyleBox("val", FontSlant -> Italic), SubscriptBox("2")}, {
+                   StyleBox("cond", FontSlant -> Italic), SubscriptBox("2")}}, 
+                 {/\/(" ", " ", "\[VerticalEllipsis]"), 
+                  /\/(" ", " ", " ", "\[VerticalEllipsis]")}})})}, {
+             TemplateBox({"Piecewise"}, "ReferenceHyperlink"), "(", 
+             BoxData({
+               "{", {
+                {"{", {{StyleBox("val", FontSlant -> Italic), 
+                   SubscriptBox("1")}, ",", {
+                   StyleBox("cond", FontSlant -> Italic), SubscriptBox("1")}}, 
+                 "}"}, ",", {
+                 "{", {{StyleBox("val", FontSlant -> Italic), 
+                   SubscriptBox("2")}, ",", {
+                   StyleBox("cond", FontSlant -> Italic), SubscriptBox("2")}}, 
+                 "}"}, ",", "\[Ellipsis]"}, "}"}), ")"}}})}), 
+       "DefinitionBox"), 
       Section("Two-dimensional input forms with build-in evaluation rules.", 
        "Caption")}, All), 
     SectionGroup({Section("Statement blocks", "Section"), 
@@ -186,13 +256,24 @@ Document({
                     ")"}, "\n", {StyleBox("statements", FontSlant -> Italic), 
                     SubscriptBox("2")}, "\n", "\[Ellipsis]"}, "\n"}}, "}"}})}, 
             "introduce a variable in the middle of a block"}})}), 
-       "DefinitionBox"), Section("Define named functions.", "Caption"), 
-      Section(BoxData({{"With", "(", {"symbol", "\[Assign]", "value"}, ")"}, {
-          "{", {"\n", {"block", "\n"}}, "}"}}), "Input"), 
+       "DefinitionBox"), Section("Introduce local variables.", "Caption"), 
       Section(
-       BoxData({
-         "Block", {
-          "{", {"\n", {{{"statements", SubscriptBox("1")}, "\n", {
-              "With", "(", {"symbol", "\[Assign]", "value"}, ")"}, "\n", {
-              "statements", SubscriptBox("2")}}, "\n"}}, "}"}}), "Input")}, 
+       TextData({
+         GridBox({
+           {{BoxData({
+               {"With", "(", {StyleBox("symbol", FontSlant -> Italic), 
+                 "\[Assign]", StyleBox("value", FontSlant -> Italic)}, ")"}, {
+                "{", {"\n", {StyleBox("block", FontSlant -> Italic), "\n"}}, 
+                "}"}}), "    \n"}, "a block with emplace constant symbol"}, {
+            {BoxData({
+               "Block", {
+                "{", {
+                 "\n", {{{StyleBox("statements", FontSlant -> Italic), 
+                    SubscriptBox("1")}, "\n", {
+                    "With", "(", {StyleBox("symbol", FontSlant -> Italic), 
+                     "\[Assign]", StyleBox("expr", FontSlant -> Italic)}, 
+                    ")"}, "\n", {StyleBox("statements", FontSlant -> Italic), 
+                    SubscriptBox("2")}, "\n", "\[Ellipsis]"}, "\n"}}, "}"}})}, 
+            "introduce a constant in the middle of a block"}})}), 
+       "DefinitionBox"), Section("Introduce local constants.", "Caption")}, 
      All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
