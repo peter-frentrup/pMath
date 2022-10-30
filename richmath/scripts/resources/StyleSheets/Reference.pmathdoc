@@ -40,7 +40,7 @@ Document({
          SectionDingbat :> 
           OpenerBox(Dynamic(CurrentValue("SectionGroupOpen"))), 
          SectionFrame -> {0, 0.5}, SectionFrameColor -> GrayLevel(0.6), 
-         SectionFrameMargins -> {{17, Inherited}, Inherited}, 
+         SectionFrameMargins -> {{17, Inherited}, {3, 1}}, 
          SectionMargins -> 0, ShowSectionBracket -> False, 
          WholeSectionGroupOpener -> True), 
         Section(StyleData("SectionHeaderSpacer"), FontSize -> 2, 
