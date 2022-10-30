@@ -2501,7 +2501,7 @@ void MathSequence::Impl::GlyphGenerator::append_box_glyphs(Context &context, Mat
       }
     }
     isp.switch_to_sequence(context, sub, DisplayStage::Layout);
-    sub->em = owner.get_em();
+    sub->em = context.canvas().get_font_size();
     sub->inline_span(true);
     sub->ensure_boxes_valid();
     sub->ensure_spans_valid();
