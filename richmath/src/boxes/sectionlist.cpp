@@ -219,6 +219,23 @@ void SectionList::selection_path(Canvas &canvas, int start, int end) {
   }
 }
 
+RectangleF SectionList::range_rect(int start, int end) {
+  float bottom;
+  if(end < length())
+    bottom = _sections[end]->y_offset;
+  else
+    bottom = _extents.height();
+  
+  if(start == end) {
+    return RectangleF(Point(0, bottom), Point(_extents.width, bottom));
+  }
+  else {
+    float top = _sections[start]->y_offset;
+    
+    return RectangleF(Point(0, top), Point(_extents.width, bottom));
+  }
+}
+
 Expr SectionList::to_pmath_impl(BoxOutputFlags flags) {
   return to_pmath_impl(flags, 0, length());
 }

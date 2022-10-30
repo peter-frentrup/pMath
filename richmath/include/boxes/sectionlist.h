@@ -23,6 +23,7 @@ namespace richmath {
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;
       virtual void selection_path(Canvas &canvas, int start, int end) override;
+      virtual RectangleF range_rect(int start, int end) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       
