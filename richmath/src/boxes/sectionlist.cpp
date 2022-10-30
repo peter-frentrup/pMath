@@ -249,7 +249,15 @@ Expr SectionList::to_pmath_impl(BoxOutputFlags flags, int start, int end) {
   if(e.expr_length() == 1)
     return e[1];
     
-  return Call(Symbol(richmath_System_SectionGroup), e, Symbol(richmath_System_All));
+  e = Call(Symbol(richmath_System_SectionGroup), e, Symbol(richmath_System_All));
+  
+  if(has(flags, BoxOutputFlags::WithDebugMetadata)) {
+    return Expr(pmath_try_set_debug_metadata(
+              e.release(), 
+              SelectionReference(id(), start, end).to_pmath().release()));
+  }
+  
+  return e;
 }
 
 void SectionList::emit_pmath_impl(BoxOutputFlags flags, int start, int end) {
@@ -1297,6 +1305,11 @@ void SectionList::Impl::emit_pmath(BoxOutputFlags flags, int start, int end) {
         open = Symbol(richmath_System_All);
         
       group = Call(Symbol(richmath_System_SectionGroup), group, open);
+      if(has(flags, BoxOutputFlags::WithDebugMetadata)) {
+        group = Expr(pmath_try_set_debug_metadata(
+                  group.release(), 
+                  SelectionReference(self.id(), start, e).to_pmath().release()));
+      }
       Gather::emit(group);
       
       start = e;

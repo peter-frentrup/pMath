@@ -604,6 +604,13 @@ Expr AbstractSequenceSection::to_pmath_impl(BoxOutputFlags flags) {
     
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_Section));
+  
+  if(has(flags, BoxOutputFlags::WithDebugMetadata)) {
+    return Expr(pmath_try_set_debug_metadata(
+              e.release(), 
+              SelectionReference(id(), 0, length()).to_pmath().release()));
+  }
+  
   return e;
 }
 
@@ -964,6 +971,13 @@ Expr StyleDataSection::to_pmath_impl(BoxOutputFlags flags) {
   
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_Section));
+  
+  if(has(flags, BoxOutputFlags::WithDebugMetadata)) {
+    return Expr(pmath_try_set_debug_metadata(
+              e.release(), 
+              SelectionReference(id(), 0, length()).to_pmath().release()));
+  }
+  
   return e;
 }
 
