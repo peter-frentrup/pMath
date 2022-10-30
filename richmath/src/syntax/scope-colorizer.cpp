@@ -1592,10 +1592,10 @@ void Painter::paint_until(SyntaxGlyphStyle style, int next_index) {
 }
 
 void Painter::move_to(int next_index) {
-  if(next_index < index()) {
-    pmath_debug_print("[Painter::move_to needs to rewind from %d to %d", index(), next_index);
-    pmath_debug_print_object(" in :", _seq_debug.text().get(), "]\n");
-  }
+//  if(next_index < index()) {
+//    pmath_debug_print("[Painter::move_to needs to rewind from %d to %d", index(), next_index);
+//    pmath_debug_print_object(" in :", _seq_debug.text().get(), "]\n");
+//  }
   
   _iter.rewind_to(next_index);
 }
