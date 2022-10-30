@@ -182,7 +182,9 @@ void PaneBox::paint_content(Context &context) {
   
   context.canvas().save();
   {
-    context.canvas().pixrect(_extents.to_rectangle(pos), false);
+    RectangleF rect = _extents.to_rectangle(pos);
+    rect.pixel_align(context.canvas(), false, +1);
+    rect.add_rect_path(context.canvas(), false);
     context.canvas().clip();
     
     context.canvas().move_to(pos);
