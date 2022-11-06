@@ -68,11 +68,15 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
 makeAliasBoxes(~s)::= s |> StringReplace(" " -> "\(StyleBox(\"\[U+2423]\", FontColor -> GrayLevel(0.5))\)") |> ToBoxes
 
 makeBoxesVisible(~box)::= box
-Do(s -> {" ", "\[InvisibleSpace]", "\[InvisiblePlus]", "\[InvisibleTimes]", "\[InvisibleApply]", "\[InvisibleComma]", 
-        "\[NonBreakingSpace]", "\[NoBreak]", "\[LeftInvisibleBracket]", "\[RightInvisibleBracket]",
-        "\[ThickSpace]", "\[MediumSpace]", "\[ThinSpace]", "\[VeryThinSpace]"}
-) {
-    makeBoxesVisible(s):= StyleBox(InputForm(s) |> ToString, FontColor -> Gray)
+Function makeBoxesVisible(~s:String) {
+    With(chars:= ToCharacterCode(s))
+    If(Length(chars) === 1 || (Length(chars) === 2 && 16^^D800 <= chars[1] <= 16^^DBFF)) {
+        Return({
+            PaneBox(s, ImageSize -> {25, Automatic}, LineBreakWithin -> False), 
+            StyleBox(InputForm(s) |> ToString, FontColor -> Gray)})
+    } Else {
+        s
+    }
 }
 
 End()
