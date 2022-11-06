@@ -7,9 +7,9 @@
 
 namespace richmath {
   struct BoxFactory {
-    static Box              *create_box(LayoutKind layout_kind, Expr expr, BoxInputFlags options);
+    static Box              *create_empty_box(LayoutKind layout_kind, Expr expr);
     static AbstractSequence *create_sequence(LayoutKind kind);
-    static Section          *create_section(Expr expr);
+    static Section          *create_empty_section(Expr expr);
   };
 }
 

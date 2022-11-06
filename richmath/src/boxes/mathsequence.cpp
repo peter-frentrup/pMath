@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include <boxes/box-factory.h>
+#include <boxes/errorbox.h>
 #include <boxes/fractionbox.h>
 #include <boxes/gridbox.h>
 #include <boxes/numberbox.h>
@@ -1227,13 +1228,15 @@ static void defered_make_box(int pos, pmath_t obj, void *data) {
 class SpanSynchronizer: public Base {
   public:
     SpanSynchronizer(
-      BoxInputFlags             _new_load_options,
-      Array<Box *>          &_old_boxes,
+      BoxInputFlags          _new_load_options,
+      BoxAdopter             _owner_adoptor,
+      Array<Box *>          &_owner_boxes,
       SpanArray             &_old_spans,
       Array<PositionedExpr> &_new_boxes,
       SpanArray             &_new_spans
     ) : Base(),
-      old_boxes(       _old_boxes),
+      owner_adoptor(   _owner_adoptor),
+      owner_boxes(     _owner_boxes),
       old_spans(       _old_spans),
       old_pos(         0),
       old_next_box(    0),
@@ -1250,7 +1253,7 @@ class SpanSynchronizer: public Base {
       if(old_pos >= old_spans.length())
         return false;
         
-      if(old_next_box >= old_boxes.length())
+      if(old_next_box >= owner_boxes.length())
         return false;
         
       if(new_pos >= new_spans.length())
@@ -1269,7 +1272,7 @@ class SpanSynchronizer: public Base {
     
     void finish() {
       if(old_pos == old_spans.length()) {
-        RICHMATH_ASSERT(old_next_box == old_boxes.length());
+        RICHMATH_ASSERT(old_next_box == owner_boxes.length());
       }
       
       if(new_pos == new_spans.length()) {
@@ -1277,17 +1280,17 @@ class SpanSynchronizer: public Base {
       }
       
       int rem = 0;
-      while(old_next_box + rem < old_boxes.length() &&
-            old_boxes[old_next_box + rem]->index() < old_spans.length())
+      while(old_next_box + rem < owner_boxes.length() &&
+            owner_boxes[old_next_box + rem]->index() < old_spans.length())
       {
         ++rem;
       }
       
       if(rem > 0) {
         for(int i = 0; i < rem; ++i)
-          old_boxes[old_next_box + i]->safe_destroy();
+          owner_boxes[old_next_box + i]->safe_destroy();
           
-        old_boxes.remove(old_next_box, rem);
+        owner_boxes.remove(old_next_box, rem);
       }
       
       while(new_next_box < new_boxes.length()) {
@@ -1295,8 +1298,15 @@ class SpanSynchronizer: public Base {
         
         RICHMATH_ASSERT(new_box.pos < new_spans.length());
         
-        Box *box = BoxFactory::create_box(LayoutKind::Math, new_box.expr, new_load_options);
-        old_boxes.insert(old_next_box, 1, &box);
+        Box *box = BoxFactory::create_empty_box(LayoutKind::Math, new_box.expr);
+        owner_boxes.insert(old_next_box, 1, &box);
+        owner_adoptor.adopt(box, new_box.pos);
+        if(!box->try_load_from_object(new_box.expr, new_load_options)) {
+          box->safe_destroy();
+          box = new ErrorBox(new_box.expr);
+          owner_boxes.set(old_next_box, box);
+          owner_adoptor.adopt(box, new_box.pos);
+        }
         
         ++old_next_box;
         ++new_next_box;
@@ -1345,10 +1355,10 @@ class SpanSynchronizer: public Base {
         ++new_pos;
       }
       
-      while(old_next_box < old_boxes.length() &&
+      while(old_next_box < owner_boxes.length() &&
             new_next_box < new_boxes.length())
       {
-        Box *box = old_boxes[old_next_box];
+        Box *box = owner_boxes[old_next_box];
         
         if(box->index() >= old_pos)
           break;
@@ -1360,9 +1370,15 @@ class SpanSynchronizer: public Base {
           
         if(!box->try_load_from_object(new_box.expr, new_load_options)) {
           box->safe_destroy();
-          box = BoxFactory::create_box(LayoutKind::Math, new_box.expr, new_load_options);
-          
-          old_boxes.set(old_next_box, box);
+          box = BoxFactory::create_empty_box(LayoutKind::Math, new_box.expr);
+          owner_boxes.set(old_next_box, box);
+          owner_adoptor.adopt(box, new_box.pos);
+          if(!box->try_load_from_object(new_box.expr, new_load_options)) {
+            box->safe_destroy();
+            box = new ErrorBox(new_box.expr);
+            owner_boxes.set(old_next_box, box);
+            owner_adoptor.adopt(box, new_box.pos);
+          }
         }
         
         ++old_next_box;
@@ -1370,17 +1386,17 @@ class SpanSynchronizer: public Base {
       }
       
       int rem = 0;
-      while(old_next_box + rem < old_boxes.length() &&
-            old_boxes[old_next_box + rem]->index() < old_pos)
+      while(old_next_box + rem < owner_boxes.length() &&
+            owner_boxes[old_next_box + rem]->index() < old_pos)
       {
         ++rem;
       }
       
       if(rem > 0) {
         for(int i = 0; i < rem; ++i)
-          old_boxes[old_next_box + i]->safe_destroy();
+          owner_boxes[old_next_box + i]->safe_destroy();
           
-        old_boxes.remove(old_next_box, rem);
+        owner_boxes.remove(old_next_box, rem);
       }
       
       while(new_next_box < new_boxes.length()) {
@@ -1389,8 +1405,15 @@ class SpanSynchronizer: public Base {
         if(new_box.pos >= new_pos)
           break;
           
-        Box *box = BoxFactory::create_box(LayoutKind::Math, new_box.expr, new_load_options);
-        old_boxes.insert(old_next_box, 1, &box);
+        Box *box = BoxFactory::create_empty_box(LayoutKind::Math, new_box.expr);
+        owner_boxes.insert(old_next_box, 1, &box);
+        owner_adoptor.adopt(box, new_box.pos);
+        if(!box->try_load_from_object(new_box.expr, new_load_options)) {
+          box->safe_destroy();
+          box = new ErrorBox(new_box.expr);
+          owner_boxes.set(old_next_box, box);
+          owner_adoptor.adopt(box, new_box.pos);
+        }
         
         ++old_next_box;
         ++new_next_box;
@@ -1398,12 +1421,13 @@ class SpanSynchronizer: public Base {
     }
     
   public:
-    Array<Box *>     &old_boxes;
-    const SpanArray &old_spans;
-    int              old_pos;
-    int              old_next_box;
+    BoxAdopter        owner_adoptor;
+    Array<Box *>     &owner_boxes;
+    const SpanArray  &old_spans;
+    int               old_pos;
+    int               old_next_box;
     
-    BoxInputFlags                   new_load_options;
+    BoxInputFlags                new_load_options;
     const Array<PositionedExpr> &new_boxes;
     const SpanArray             &new_spans;
     int                          new_pos;
@@ -1435,7 +1459,7 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
                 defered_make_box,
                 &new_boxes);
                 
-  SpanSynchronizer syncer(options, boxes, spans, new_boxes, new_spans);
+  SpanSynchronizer syncer(options, make_adoptor(), boxes, spans, new_boxes, new_spans);
   
   while(syncer.is_in_range())
     syncer.next();

@@ -89,144 +89,64 @@ static Box *finish_create_or_error(Box *box, Expr expr, BoxInputFlags options) {
 
 //{ class BoxFactory ...
 
-Box *BoxFactory::create_box(LayoutKind layout_kind, Expr expr, BoxInputFlags options) {
-  
+Box *BoxFactory::create_empty_box(LayoutKind layout_kind, Expr expr) {
   if(String s = expr) {
     if(s.length() == 1 && s[0] == PMATH_CHAR_BOX)
       return new ErrorBox(s);
     
-    InlineSequenceBox *box = new InlineSequenceBox(create_sequence(layout_kind));
-    box->content()->load_from_object(s, options);
-    return box;
+    return new InlineSequenceBox(create_sequence(layout_kind));
   }
   
   if(!expr.is_expr())
     return new ErrorBox(expr);
-    
+  
   Expr head = expr[0];
   
   if(head == richmath_System_List || head == richmath_System_StringBox) {
-    if(expr.expr_length() == 1) {
-      expr = expr[1];
-      return create_box(layout_kind, expr, options);
-    }
+    if(expr.expr_length() == 1)
+      return create_empty_box(layout_kind, expr[1]);
     
-    InlineSequenceBox *box = new InlineSequenceBox(new MathSequence);
-    box->content()->load_from_object(std::move(expr), options);
-    return box;
+    return new InlineSequenceBox(new MathSequence);
   }
   
-  if(head == richmath_System_BoxData) 
-    return finish_create_or_error(new InlineSequenceBox(new MathSequence), std::move(expr), options);
+  if(head == richmath_System_BoxData)              return new InlineSequenceBox(new MathSequence);
+  if(head == richmath_System_TextData)             return new InlineSequenceBox(new TextSequence);
+  if(head == richmath_System_ButtonBox)            return new ButtonBox(create_sequence(layout_kind));
+  if(head == richmath_System_CheckboxBox)          return new CheckboxBox();
+  if(head == richmath_System_DynamicBox)           return new DynamicBox(create_sequence(layout_kind));
+  if(head == richmath_System_DynamicLocalBox)      return new DynamicLocalBox(create_sequence(layout_kind));
+  if(head == richmath_System_FillBox)              return new FillBox(create_sequence(layout_kind));
+  if(head == richmath_System_FractionBox)          return new FractionBox(); // TODO: consider layout_kind
+  if(head == richmath_System_FrameBox)             return new FrameBox(create_sequence(layout_kind));
+  if(head == richmath_System_GraphicsBox)          return new GraphicsBox();
+  if(head == richmath_System_GridBox)              return new GridBox(layout_kind);
+  if(head == richmath_System_InputFieldBox)        return new InputFieldBox(create_sequence(layout_kind));
+  if(head == richmath_System_InterpretationBox)    return new InterpretationBox(create_sequence(layout_kind));
+  if(head == richmath_System_PaneBox)              return new PaneBox(create_sequence(layout_kind));
+  if(head == richmath_System_PanelBox)             return new PanelBox(create_sequence(layout_kind));
+  if(head == richmath_System_PaneSelectorBox)      return new PaneSelectorBox();
+  if(head == richmath_System_ProgressIndicatorBox) return new ProgressIndicatorBox();
+  if(head == richmath_System_RadicalBox)           return new RadicalBox(create_sequence(layout_kind));
+  if(head == richmath_System_RadioButtonBox)       return new RadioButtonBox();
+  if(head == richmath_System_RotationBox)          return new RotationBox(create_sequence(layout_kind));
+  if(head == richmath_System_SetterBox)            return new SetterBox(create_sequence(layout_kind));
+  if(head == richmath_System_SliderBox)            return new SliderBox();
+  if(head == richmath_System_SubscriptBox)         return new SubsuperscriptBox(); // TODO: consider layout_kind
+  if(head == richmath_System_SubsuperscriptBox)    return new SubsuperscriptBox(); // TODO: consider layout_kind
+  if(head == richmath_System_SuperscriptBox)       return new SubsuperscriptBox(); // TODO: consider layout_kind
+  if(head == richmath_System_SqrtBox)              return new RadicalBox(create_sequence(layout_kind));
+  if(head == richmath_System_StyleBox)             return new StyleBox(create_sequence(layout_kind));
+  if(head == richmath_System_TagBox)               return new TagBox(create_sequence(layout_kind));
+  if(head == richmath_System_TemplateBox)          return new TemplateBox(create_sequence(layout_kind));
+  if(head == richmath_System_TooltipBox)           return new TooltipBox(create_sequence(layout_kind));
+  if(head == richmath_System_TransformationBox)    return new TransformationBox(create_sequence(layout_kind));
+  if(head == richmath_System_OpenerBox)            return new OpenerBox();
+  if(head == richmath_System_OverscriptBox)        return new UnderoverscriptBox(new MathSequence, nullptr,          new MathSequence);
+  if(head == richmath_System_UnderoverscriptBox)   return new UnderoverscriptBox(new MathSequence, new MathSequence, new MathSequence);
+  if(head == richmath_System_UnderscriptBox)       return new UnderoverscriptBox(new MathSequence, new MathSequence, nullptr);
+  if(head == richmath_FE_NumberBox)                return new NumberBox();
+  if(head == richmath_System_TemplateSlot)         return new TemplateBoxSlot(create_sequence(layout_kind));
   
-  if(head == richmath_System_TextData) 
-    return finish_create_or_error(new InlineSequenceBox(new TextSequence), std::move(expr), options);
-  
-  if(head == richmath_System_ButtonBox)
-    return finish_create_or_error(new ButtonBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_CheckboxBox)
-    return finish_create_or_error(new CheckboxBox(), std::move(expr), options);
-    
-  if(head == richmath_System_DynamicBox)
-    return finish_create_or_error(new DynamicBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_DynamicLocalBox)
-    return finish_create_or_error(new DynamicLocalBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_FillBox)
-    return finish_create_or_error(new FillBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_FractionBox)
-    return finish_create_or_error(new FractionBox(), std::move(expr), options);
-    
-  if(head == richmath_System_FrameBox)
-    return finish_create_or_error(new FrameBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_GraphicsBox)
-    return finish_create_or_error(new GraphicsBox(), std::move(expr), options);
-    
-  if(head == richmath_System_GridBox)
-    return finish_create_or_error(new GridBox(layout_kind), std::move(expr), options);
-    
-  if(head == richmath_System_InputFieldBox)
-    return finish_create_or_error(new InputFieldBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_InterpretationBox)
-    return finish_create_or_error(new InterpretationBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_PaneBox)
-    return finish_create_or_error(new PaneBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_PanelBox)
-    return finish_create_or_error(new PanelBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_PaneSelectorBox)
-    return finish_create_or_error(new PaneSelectorBox(), std::move(expr), options);
-    
-  if(head == richmath_System_ProgressIndicatorBox)
-    return finish_create_or_error(new ProgressIndicatorBox(), std::move(expr), options);
-    
-  if(head == richmath_System_RadicalBox)
-    return finish_create_or_error(new RadicalBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_RadioButtonBox)
-    return finish_create_or_error(new RadioButtonBox(), std::move(expr), options);
-    
-  if(head == richmath_System_RotationBox)
-    return finish_create_or_error(new RotationBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_SetterBox)
-    return finish_create_or_error(new SetterBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_SliderBox)
-    return finish_create_or_error(new SliderBox(), std::move(expr), options);
-    
-  if(head == richmath_System_SubscriptBox)
-    return finish_create_or_error(new SubsuperscriptBox(), std::move(expr), options);
-    
-  if(head == richmath_System_SubsuperscriptBox)
-    return finish_create_or_error(new SubsuperscriptBox(), std::move(expr), options);
-    
-  if(head == richmath_System_SuperscriptBox)
-    return finish_create_or_error(new SubsuperscriptBox(), std::move(expr), options);
-    
-  if(head == richmath_System_SqrtBox)
-    return finish_create_or_error(new RadicalBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_StyleBox)
-    return finish_create_or_error(new StyleBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_TagBox)
-    return finish_create_or_error(new TagBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_TemplateBox)
-    return finish_create_or_error(new TemplateBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_TooltipBox)
-    return finish_create_or_error(new TooltipBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_TransformationBox)
-    return finish_create_or_error(new TransformationBox(create_sequence(layout_kind)), std::move(expr), options);
-    
-  if(head == richmath_System_OpenerBox)
-    return finish_create_or_error(new OpenerBox(), std::move(expr), options);
-    
-  if(head == richmath_System_OverscriptBox)
-    return finish_create_or_error(new UnderoverscriptBox(new MathSequence, nullptr, new MathSequence), std::move(expr), options);
-    
-  if(head == richmath_System_UnderoverscriptBox)
-    return finish_create_or_error(new UnderoverscriptBox(new MathSequence, new MathSequence, new MathSequence), std::move(expr), options);
-    
-  if(head == richmath_System_UnderscriptBox)
-    return finish_create_or_error(new UnderoverscriptBox(new MathSequence, new MathSequence, nullptr), std::move(expr), options);
-    
-  if(head == richmath_FE_NumberBox)
-    return finish_create_or_error(new NumberBox(), std::move(expr), options);
-    
-  if(head == richmath_System_TemplateSlot)
-    return finish_create_or_error(new TemplateBoxSlot(create_sequence(layout_kind)), std::move(expr), options);
-    
   return new ErrorBox(std::move(expr));
 }
 
@@ -240,25 +160,17 @@ AbstractSequence *BoxFactory::create_sequence(LayoutKind kind) {
   return new MathSequence;
 }
 
-Section *BoxFactory::create_section(Expr expr) {
+Section *BoxFactory::create_empty_section(Expr expr) {
   if(expr[0] == richmath_System_Section) {
     Expr content = expr[1];
     
-    Section *section = nullptr;
+    if(content.is_string()) return new TextSection();
     
-    if(content[0] == richmath_System_BoxData)
-      section = new MathSection();
-    else if(content[0] == richmath_System_StyleData)
-      section = new StyleDataSection();
-    else if(content[0] == richmath_System_TextData || content.is_string() || content[0] == richmath_System_List)
-      section = new TextSection();
-    
-    if(section) {
-      if(section->try_load_from_object(expr, BoxInputFlags::Default))
-        return section;
-      
-      section->safe_destroy();
-    }
+    Expr content_head = content[0];
+    if(content_head == richmath_System_BoxData)   return new MathSection();
+    if(content_head == richmath_System_StyleData) return new StyleDataSection();
+    if(content_head == richmath_System_TextData)  return new TextSection();
+    if(content_head == richmath_System_List)      return new TextSection();
   }
   
   return new ErrorSection(expr);

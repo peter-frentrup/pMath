@@ -220,7 +220,12 @@ bool Section::edit_selection(SelectionReference &selection, EditAction action) {
       slist->set_open_close_group(index(), true);
       
       if(get_style(SectionEditDuplicateMakesCopy)) {
-        slist->insert(index(), BoxFactory::create_section(to_pmath(BoxOutputFlags::Default)));
+        Expr expr = to_pmath(BoxOutputFlags::Default);
+        Section *copy_sect = BoxFactory::create_empty_section(expr);
+        slist->insert(index(), copy_sect);
+        if(!copy_sect->try_load_from_object(expr, BoxInputFlags::Default)) {
+          pmath_debug_print_object("[copy_sect->try_load_from_object failed for ", expr.get(), "]\n");
+        }
       }
     }
     
@@ -275,7 +280,9 @@ ErrorSection::ErrorSection(const Expr object)
 }
 
 bool ErrorSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  return false;
+  if(_object != expr)
+    return false;
+  return true;
 }
 
 void ErrorSection::resize(Context &context) {
@@ -476,7 +483,7 @@ void AbstractSequenceSection::paint(Context &context) {
   update_dynamic_styles(context);
   cc.apply_non_layout_styles(style);
   
-  if(_dingbat.reload_if_necessary(get_own_style(SectionDingbat), BoxInputFlags::Default)) {
+  if(_dingbat.reload_if_necessary(make_adoptor(), get_own_style(SectionDingbat), BoxInputFlags::Default)) {
     adopt_all();
     invalidate();
   }

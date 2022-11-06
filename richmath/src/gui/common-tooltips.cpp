@@ -51,12 +51,16 @@ void CommonTooltips::load_content(
     String("TooltipWindowSection"));
   
   if(!section) {
-    section = BoxFactory::create_section(section_boxes);
+    section = BoxFactory::create_empty_section(section_boxes);
     doc->insert(0, section);
+    if(!section->try_load_from_object(section_boxes, BoxInputFlags::Default))
+      doc->swap(0, new ErrorSection(section_boxes))->safe_destroy();
   }
   else if(!section->try_load_from_object(section_boxes, BoxInputFlags::Default)) {
-    section = BoxFactory::create_section(section_boxes);
+    section = BoxFactory::create_empty_section(section_boxes);
     doc->swap(0, section)->safe_destroy();
+    if(!section->try_load_from_object(section_boxes, BoxInputFlags::Default))
+      doc->swap(0, new ErrorSection(section_boxes))->safe_destroy();
   }
 }
 

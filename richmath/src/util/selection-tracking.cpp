@@ -674,28 +674,37 @@ static bool finish_edit_section(
   bt.selections.add_all(old_locations);
   
   bt.for_new_boxes_in([&] {
+    bool can_retry_with_new_section;
     Section *sect = edit->original;
-    if(sect && sect->try_load_from_object(parsed, BoxInputFlags::Default)) {
+    if(sect) {
+      can_retry_with_new_section = true;
       edit->original = nullptr;
     }
-    else
-      sect = BoxFactory::create_section(parsed);
-      
-    if(sect->has_box_id() && sect->style) {
-      Expr box_id;
-      sect->style->get(BoxID, &box_id);
-      sect->style->remove(BoxID);
-      Stylesheet::update_box_registry(sect);
-      
-      sect->swap_id(edit);
-      
-      sect->style->set(BoxID, box_id);
-      Stylesheet::update_box_registry(sect);
+    else {
+      can_retry_with_new_section = false;
+      sect = BoxFactory::create_empty_section(parsed);
     }
-    else
-      sect->swap_id(edit);
     
+    edit->original = nullptr;
+    sect->swap_id(edit);
     parent->swap(index, sect)->safe_destroy();
+    
+    if(!sect->try_load_from_object(parsed, BoxInputFlags::Default)) {
+      if(can_retry_with_new_section) {
+        auto old = sect;
+        sect = BoxFactory::create_empty_section(parsed);
+        sect->swap_id(old);
+        parent->swap(index, sect)->safe_destroy();
+        if(!sect->try_load_from_object(parsed, BoxInputFlags::Default)) {
+          sect = new ErrorSection(parsed);
+          parent->swap(index, sect)->safe_destroy();
+        }
+      }
+      else {
+        sect = new ErrorSection(parsed);
+        parent->swap(index, sect)->safe_destroy();
+      }
+    }
   });
   
   

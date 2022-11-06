@@ -296,7 +296,11 @@ static void write_section(Document *doc, Expr expr) {
     i = doc->length();
   }
   
-  doc->insert(i, BoxFactory::create_section(expr));
+  auto sect = BoxFactory::create_empty_section(expr);
+  doc->insert(i, sect);
+  if(!sect->try_load_from_object(expr, BoxInputFlags::Default)) {
+    doc->swap(i, new ErrorSection(expr))->safe_destroy();
+  }
   
   doc->move_to(b, i + 1);
 }

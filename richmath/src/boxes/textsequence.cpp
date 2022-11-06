@@ -973,15 +973,9 @@ void TextSequence::Impl::append_object(int &next_box, Expr object, BoxInputFlags
     }
   }
   
-  Box *box;
-  if(object[0] == richmath_System_List) {
-    auto inline_seq = new InlineSequenceBox(BoxFactory::create_sequence(LayoutKind::Math));
-    inline_seq->content()->load_from_object(object, options);
-    box = inline_seq;
-  }
-  else
-    box = BoxFactory::create_box(LayoutKind::Text, std::move(object), options);
+  Box *box = BoxFactory::create_empty_box(LayoutKind::Text, object);
   
+  int i = self.str.length();
   self.str += PMATH_CHAR_BOX;
   if(next_box < self.boxes.length()) {
     self.boxes[next_box]->safe_destroy();
@@ -989,6 +983,14 @@ void TextSequence::Impl::append_object(int &next_box, Expr object, BoxInputFlags
   }
   else
     self.boxes.add(box);
+  
+  self.adopt(box, i);
+  if(!box->try_load_from_object(object, options)) {
+    box = new ErrorSection(object);
+    self.boxes[next_box]->safe_destroy();
+    self.boxes[next_box] = box;
+    self.adopt(box, i);
+  }
   
   ++next_box;
 }

@@ -453,75 +453,76 @@ void Application::gui_print_section(Expr expr) {
     else
       index = doc->length();
       
-    sect = BoxFactory::create_section(expr);
-    if(sect) {
+    sect = BoxFactory::create_empty_section(expr);
+    doc->insert(index, sect);
+    if(!sect->try_load_from_object(expr, BoxInputFlags::Default)) {
+      sect = new ErrorSection(expr);
+      doc->swap(index, sect)->safe_destroy();
+    }
+    
+    if(session && session->current_job) {
+      if(auto seq_sect = dynamic_cast<AbstractSequenceSection *>(sect)) {
+        if(seq_sect->content()->length() == 1 && seq_sect->content()->count() == 1) {
+          if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(seq_sect->content()->item(0))) {
+            gb->set_user_default_options(session->current_job->default_graphics_options);
+          }
+        }
+      }
+      
       String base_style_name;
-      
-      if(session && session->current_job) {
-        if(auto seq_sect = dynamic_cast<AbstractSequenceSection *>(sect)) {
-          if(seq_sect->content()->length() == 1 && seq_sect->content()->count() == 1) {
-            if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(seq_sect->content()->item(0))) {
-              gb->set_user_default_options(session->current_job->default_graphics_options);
-            }
+      if(sect->style && sect->style->get(BaseStyleName, &base_style_name)) {
+        Section *eval_sect = FrontEndObject::find_cast<Section>(session->current_job->position().section_id);
+        
+        if(eval_sect) {
+          Gather g;
+          Expr   rules;
+          
+          SharedPtr<Stylesheet> all   = eval_sect->stylesheet();
+          SharedPtr<Style>      style = eval_sect->style;
+          
+          for(int count = 20; count && style; --count) {
+            if(style->get(GeneratedSectionStyles, &rules))
+              Gather::emit(rules);
+              
+            String inherited;
+            if(all && style->get(BaseStyleName, &inherited))
+              style = all->styles[inherited];
+            else
+              break;
+          }
+          
+          rules = g.end();
+          Expr base_style = Evaluate(Parse("Try(Replace(`1`, Flatten(`2`)))", base_style_name, rules));
+          if(base_style != richmath_System_DollarFailed) {
+            sect->style->remove(BaseStyleName);
+            sect->style->add_pmath(base_style);
           }
         }
-        
-        if(sect->style && sect->style->get(BaseStyleName, &base_style_name)) {
-          Section *eval_sect = FrontEndObject::find_cast<Section>(session->current_job->position().section_id);
-          
-          if(eval_sect) {
-            Gather g;
-            Expr   rules;
-            
-            SharedPtr<Stylesheet> all   = eval_sect->stylesheet();
-            SharedPtr<Style>      style = eval_sect->style;
-            
-            for(int count = 20; count && style; --count) {
-              if(style->get(GeneratedSectionStyles, &rules))
-                Gather::emit(rules);
-                
-              String inherited;
-              if(all && style->get(BaseStyleName, &inherited))
-                style = all->styles[inherited];
-              else
-                break;
-            }
-            
-            rules = g.end();
-            Expr base_style = Evaluate(Parse("Try(Replace(`1`, Flatten(`2`)))", base_style_name, rules));
-            if(base_style != richmath_System_DollarFailed) {
-              sect->style->remove(BaseStyleName);
-              sect->style->add_pmath(base_style);
-            }
-          }
-        }
-        
-        if(!sect->style)
-          sect->style = new Style();
-        
-        if(!sect->style->contains(SectionGenerated))
-          sect->style->set(SectionGenerated, true);
       }
       
-      doc->insert(index, sect);
+      if(!sect->style)
+        sect->style = new Style();
       
-      pos = EvaluationPosition(sect);
-      pmath_atomic_lock(&print_pos_lock);
-      {
-        print_pos = pos;
-      }
-      pmath_atomic_unlock(&print_pos_lock);
+      if(!sect->style->contains(SectionGenerated))
+        sect->style->set(SectionGenerated, true);
+    }
+    
+    pos = EvaluationPosition(sect);
+    pmath_atomic_lock(&print_pos_lock);
+    {
+      print_pos = pos;
+    }
+    pmath_atomic_unlock(&print_pos_lock);
+    
+    if(doc->selection_box() == doc) {
+      int s = doc->selection_start();
+      int e = doc->selection_end();
       
-      if(doc->selection_box() == doc) {
-        int s = doc->selection_start();
-        int e = doc->selection_end();
+      if(index <= s || index <= e) {
+        if(s >= index) ++s;
+        if(e >= index) ++e;
         
-        if(index <= s || index <= e) {
-          if(s >= index) ++s;
-          if(e >= index) ++e;
-          
-          doc->select(doc, s, e);
-        }
+        doc->select(doc, s, e);
       }
     }
   }

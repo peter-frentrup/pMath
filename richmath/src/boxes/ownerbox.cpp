@@ -247,8 +247,16 @@ bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options) {
     _content->load_from_object(expr, options);
     has_explicit_head(false);
   }
-  else
-    return false;
+  else { // StringBox, /\/
+    if(has_explicit_head())
+      return false;
+    
+    if(content()->kind() != LayoutKind::Math)
+      return false;
+      
+    _content->load_from_object(expr, options);
+    has_explicit_head(false);
+  }
   
   finish_load_from_object(std::move(expr));
   return true;

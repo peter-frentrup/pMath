@@ -595,21 +595,28 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       }
     }
     
-    if(auto section = BoxFactory::create_section(boxes)) {
-      //insert(*pos, s);
-      _sections.insert(*pos, 1, &section);
+    auto section = BoxFactory::create_empty_section(boxes);
+    //insert(*pos, s);
+    _sections.insert(*pos, 1, &section);
+    adopt(section, *pos);
+    if(!section->try_load_from_object(boxes, BoxInputFlags::Default)) {
+      auto bad = section;
+      section = new ErrorSection(boxes);
+      _sections[*pos] = section;
       adopt(section, *pos);
       
-      section->_group_info.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
-      section->_group_info.nesting = 0;
-      section->_group_info.first = -1;
-      section->_group_info.end = -1;
-      section->_group_info.close_rel  = -1; // open
-      
-      ++*pos;
-      
-      section->after_insertion();
+      abandon(bad);
+      bad->safe_destroy();
     }
+    section->_group_info.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
+    section->_group_info.nesting = 0;
+    section->_group_info.first = -1;
+    section->_group_info.end = -1;
+    section->_group_info.close_rel  = -1; // open
+    
+    ++*pos;
+    
+    section->after_insertion();
   }
 }
 

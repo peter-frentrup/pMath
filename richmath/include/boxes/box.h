@@ -153,7 +153,22 @@ namespace richmath {
     }
   };
   
+  class Box;
+  class BoxAdopter {
+      friend class Box;
+      explicit BoxAdopter(Box &owner) : _owner(owner) {}
+    public:
+      void adopt(Box *child, int i);
+      void abandon(Box *child);
+      
+      Box &owner() { return _owner; }
+      
+    private:
+      Box &_owner;
+  };
+  
   class Box: public ActiveStyledObject {
+      friend class BoxAdopter;
     protected:
       virtual ~Box();
       void delete_owned(Box *child) { 
@@ -435,6 +450,7 @@ namespace richmath {
     protected:
       void adopt(Box *child, int i);
       void abandon(Box *child);
+      BoxAdopter make_adoptor() { return BoxAdopter(*this); }
       
       void finish_load_from_object(Expr expr);
       
@@ -474,6 +490,9 @@ namespace richmath {
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override { return Expr(); }
   };
+
+  inline void BoxAdopter::adopt(Box *child, int i) { _owner.adopt(child, i); }
+  inline void BoxAdopter::abandon(Box *child) {      _owner.abandon(child);  }
 }
 
 #endif // RICHMATH__BOXES__BOX_H__INCLUDED

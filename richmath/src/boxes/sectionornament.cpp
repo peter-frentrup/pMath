@@ -1,7 +1,7 @@
 #include <boxes/sectionornament.h>
 
-#include <boxes/mathsequence.h>
-#include <boxes/textsequence.h>
+#include <boxes/box-factory.h>
+#include <boxes/errorbox.h>
 
 
 using namespace richmath;
@@ -22,7 +22,7 @@ SectionOrnament::~SectionOrnament() {
     _box->safe_destroy();
 }
 
-bool SectionOrnament::reload_if_necessary(Expr expr, BoxInputFlags flags) {
+bool SectionOrnament::reload_if_necessary(BoxAdopter owner, Expr expr, BoxInputFlags flags) {
   if(expr == _expr)
     return false;
   
@@ -44,16 +44,12 @@ bool SectionOrnament::reload_if_necessary(Expr expr, BoxInputFlags flags) {
     _box = nullptr;
   }
   
-  if(expr.is_string() || expr[0] == richmath_System_List) {
-    auto seq = new TextSequence();
-    seq->load_from_object(expr, flags);
-    _box = seq;
-  }
-  else {
-    // TODO: use create_box() from mathsequence.cpp directly instead of wrapping int MathSequence
-    auto seq = new MathSequence();
-    seq->load_from_object(expr, flags);
-    _box = seq;
+  _box = BoxFactory::create_empty_box(LayoutKind::Text, expr);
+  owner.adopt(_box, 1);
+  if(!_box->try_load_from_object(expr, flags)) {
+    _box->safe_destroy();
+    _box = new ErrorBox(expr);
+    owner.adopt(_box, 1);
   }
   
   return true;
