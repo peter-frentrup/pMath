@@ -436,24 +436,32 @@ const uint16_t *_pmath_parse_real_ball(
   
   if(str < str_end && *str == '`') {
     const uint16_t *prec_start = str + 1;
-    ulong prec_frac;
-    ulong prec_significant;
     
-    fmpz_t prec_mant;
-    fmpz_init(prec_mant);
-    
-    str = parse_simple_float(prec_mant, &prec_frac, &prec_significant, &is_floating_point, prec_start, str_end, 10);
-    if(str == prec_start) {
-      if(radius_start == radius_end)
-        result->precision_in_base = -HUGE_VAL;
-      else
-        result->precision_in_base = DBL_MANT_DIG / _pmath_log2_of(result->base);
+    if(prec_start < str_end && *prec_start == '`') {
+      str = prec_start + 1;
+      result->precision_in_base = HUGE_VAL;
+      is_floating_point = FALSE;
     }
-    else
-      result->precision_in_base = fmpz_get_d(prec_mant) / pow(10.0, (double)prec_frac);
+    else {
+      ulong prec_frac;
+      ulong prec_significant;
       
-    is_floating_point = TRUE;
-    fmpz_clear(prec_mant);
+      fmpz_t prec_mant;
+      fmpz_init(prec_mant);
+      
+      str = parse_simple_float(prec_mant, &prec_frac, &prec_significant, &is_floating_point, prec_start, str_end, 10);
+      if(str == prec_start) {
+        if(radius_start == radius_end)
+          result->precision_in_base = -HUGE_VAL;
+        else
+          result->precision_in_base = DBL_MANT_DIG / _pmath_log2_of(result->base);
+      }
+      else
+        result->precision_in_base = fmpz_get_d(prec_mant) / pow(10.0, (double)prec_frac);
+        
+      is_floating_point = TRUE;
+      fmpz_clear(prec_mant);
+    }
   }
   else if(is_floating_point) {
     if(default_min_precision == -HUGE_VAL) {
