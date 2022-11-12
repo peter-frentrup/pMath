@@ -2,8 +2,7 @@
 #include <eval/application.h>
 #include <eval/dynamic.h>
 
-#include <new>         // placement new
-#include <type_traits> // aligned_storage
+#include <new> // placement new
 
 
 using namespace richmath;
@@ -30,10 +29,7 @@ namespace richmath {
 
 namespace {
   static int NiftyObservatoryInitializerCounter; // zero initialized at load time
-  static typename std::aligned_storage<
-    sizeof(ObservatoryImpl), 
-    alignof(ObservatoryImpl)
-  >::type TheObservatory_Buffer;
+  static alignas(ObservatoryImpl) char TheObservatory_Buffer[sizeof(ObservatoryImpl)];
   static ObservatoryImpl &TheObservatory = reinterpret_cast<ObservatoryImpl&>(TheObservatory_Buffer);
 };
 

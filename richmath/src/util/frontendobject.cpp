@@ -4,8 +4,7 @@
 #include <eval/application.h>
 #include <util/styled-object.h>
 
-#include <new>         // placement new
-#include <type_traits> // aligned_storage
+#include <new> // placement new
 
 
 using namespace richmath;
@@ -71,10 +70,7 @@ namespace richmath {
 
 namespace {
   static int NiftyFrontEndObjectInitializerCounter; // zero initialized at load time
-  static typename std::aligned_storage<
-    sizeof(FrontEndReferenceImpl), 
-    alignof(FrontEndReferenceImpl)
-  >::type TheCache_Buffer;
+  static alignas(FrontEndReferenceImpl) char TheCache_Buffer[sizeof(FrontEndReferenceImpl)];
   static FrontEndReferenceImpl &TheCache = reinterpret_cast<FrontEndReferenceImpl&>(TheCache_Buffer);
 };
 

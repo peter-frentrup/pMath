@@ -3,8 +3,7 @@
 #include <cmath>
 #include <cstdio>
 
-#include <new>         // placement new
-#include <type_traits> // aligned_storage
+#include <new> // placement new
 
 #include <pmath-util/concurrency/atomic.h>
 
@@ -93,7 +92,7 @@ namespace {
   };
   
   static int NiftyBaseInitializerCounter; // zero initialized at load time
-  static typename std::aligned_storage<sizeof(BaseDebugImpl), alignof(BaseDebugImpl)>::type TheCounter_Buffer;
+  static alignas(BaseDebugImpl) char TheCounter_Buffer[sizeof(BaseDebugImpl)];
   static BaseDebugImpl &TheCounter = reinterpret_cast<BaseDebugImpl&>(TheCounter_Buffer);
 }
 
