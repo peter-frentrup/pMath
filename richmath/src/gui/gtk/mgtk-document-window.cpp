@@ -350,7 +350,7 @@ class MathGtkTitlebarDock: public MathGtkDock {
             Expr text_shadow = MathGtkCss::parse_text_shadow(gtk_widget_get_style_context(titlebar));
             if(text_shadow.expr_length() > 0) {
               pmath_debug_print_object("[found text-shadow: ", text_shadow.get(), "]\n");
-              document()->style->set(TextShadow, std::move(text_shadow));
+              document()->style->set(TextShadow, PMATH_CPP_MOVE(text_shadow));
               has_text_shadow = true;
             }
           }

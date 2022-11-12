@@ -312,7 +312,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
                 GtkMenuItem *next_menu_item = GTK_MENU_ITEM(next_widget);
                 MenuItemBuilder::reset(next_menu_item, type);
                 gtk_widget_show(next_widget);
-                MenuItemBuilder::init(next_menu_item, type, std::move(item), accel_group, id);
+                MenuItemBuilder::init(next_menu_item, type, PMATH_CPP_MOVE(item), accel_group, id);
                 ++old_index;
                 continue;
               }
@@ -323,7 +323,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
           gtk_widget_show(new_menu_item);
           gtk_menu_shell_insert(GTK_MENU_SHELL(menu), new_menu_item, old_index + num_insertions);
           ++num_insertions;
-          MenuItemBuilder::init(GTK_MENU_ITEM(new_menu_item), type, std::move(item), accel_group, id);
+          MenuItemBuilder::init(GTK_MENU_ITEM(new_menu_item), type, PMATH_CPP_MOVE(item), accel_group, id);
           MenuItemBuilder::inline_menu_list_data(GTK_MENU_ITEM(new_menu_item), inline_list_data);
         }
         
@@ -408,7 +408,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
             if(!gutter_sliders)
               gutter_sliders = new MathGtkMenuGutterSliders();
             
-            gutter_sliders->regions.add(std::move(region));
+            gutter_sliders->regions.add(PMATH_CPP_MOVE(region));
           }
           
           region = MathGtkMenuSliderRegion();
@@ -429,7 +429,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
     if(!gutter_sliders)
       gutter_sliders = new MathGtkMenuGutterSliders();
    
-    gutter_sliders->regions.add(std::move(region));
+    gutter_sliders->regions.add(PMATH_CPP_MOVE(region));
   }
   
   MathGtkMenuGutterSliders::menu_gutter_sliders(GTK_WIDGET(menu), gutter_sliders);
@@ -475,7 +475,7 @@ void MathGtkMenuBuilder::collect_menu_matches(Array<MenuSearchResult> &results, 
                 MenuSearchResult{
                   num_matches, 
                   results.length(), 
-                  Call(Symbol(richmath_System_MenuItem), std::move(label), std::move(cmd))});
+                  Call(Symbol(richmath_System_MenuItem), PMATH_CPP_MOVE(label), PMATH_CPP_MOVE(cmd))});
             }
           }
         }
@@ -504,7 +504,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
     GtkWidget *menu_item = MenuItemBuilder::create(type, evalution_box_id);
     gtk_widget_show(menu_item);
     gtk_menu_shell_append(menu, menu_item);
-    MenuItemBuilder::init(GTK_MENU_ITEM(menu_item), type, std::move(item), accel_group, evalution_box_id);
+    MenuItemBuilder::init(GTK_MENU_ITEM(menu_item), type, PMATH_CPP_MOVE(item), accel_group, evalution_box_id);
   }
 }
 
@@ -843,20 +843,20 @@ void MenuItemBuilder::init(GtkMenuItem *menu_item, MenuItemType type, Expr item,
     case MenuItemType::Normal:
     case MenuItemType::CheckButton: 
     case MenuItemType::RadioButton: 
-      init_command(menu_item, std::move(item));
+      init_command(menu_item, PMATH_CPP_MOVE(item));
       break;
       
     case MenuItemType::SearchBox: 
-      init_command(menu_item, std::move(item));
+      init_command(menu_item, PMATH_CPP_MOVE(item));
       MathGtkMenuSearch::init_item(menu_item);
       break;
       
     case MenuItemType::InlineMenu: 
-      init_inline_menu(menu_item, std::move(item));
+      init_inline_menu(menu_item, PMATH_CPP_MOVE(item));
       break;
       
     case MenuItemType::SubMenu: 
-      init_sub_menu(menu_item, std::move(item), accel_group, for_document_window_id);
+      init_sub_menu(menu_item, PMATH_CPP_MOVE(item), accel_group, for_document_window_id);
       break;
     
     case MenuItemType::Invalid:
@@ -945,7 +945,7 @@ GtkMenu *MenuItemBuilder::create_popup_for(GtkMenuItem *menu_item) {
         Expr cmd      = get_command(super_menu_item);
         Expr list_cmd = inline_menu_list_data(GTK_WIDGET(super_menu_item));
         
-        if(Menus::locate_dynamic_submenu_item_source(std::move(list_cmd), std::move(cmd))) {
+        if(Menus::locate_dynamic_submenu_item_source(PMATH_CPP_MOVE(list_cmd), PMATH_CPP_MOVE(cmd))) {
           if(GtkWidget *super_menu = gtk_widget_get_ancestor(GTK_WIDGET(super_menu_item), GTK_TYPE_MENU_SHELL)) {
             gtk_menu_shell_cancel(GTK_MENU_SHELL(super_menu));
           }
@@ -968,7 +968,7 @@ GtkMenu *MenuItemBuilder::create_popup_for(GtkMenuItem *menu_item) {
         Expr cmd      = get_command(super_menu_item);
         Expr list_cmd = inline_menu_list_data(GTK_WIDGET(super_menu_item));
         
-        if(Menus::remove_dynamic_submenu_item(std::move(list_cmd), std::move(cmd))) {
+        if(Menus::remove_dynamic_submenu_item(PMATH_CPP_MOVE(list_cmd), PMATH_CPP_MOVE(cmd))) {
           if(GtkWidget *super_menu = gtk_widget_get_ancestor(GTK_WIDGET(super_menu_item), GTK_TYPE_MENU)) {
             FrontEndReference doc_id = destination(super_menu_item);
             // MathGtkMenuBuilder::Impl::on_map_menu(super_menu, nullptr, FrontEndReference::unsafe_cast_to_pointer(doc_id));
@@ -1963,10 +1963,10 @@ void MathGtkMenuSliderRegion::apply_slider_pos(GtkWidget *menu, FrontEndReferenc
     value+= fabsf(rel_offset) * (other_value - value);
     cmd = Rule(lhs, value);
     if(scope)
-      cmd = Call(Symbol(richmath_FE_ScopedCommand), std::move(cmd), scope);
+      cmd = Call(Symbol(richmath_FE_ScopedCommand), PMATH_CPP_MOVE(cmd), scope);
   }
   
-  if(!Menus::run_command_now(std::move(cmd)))
+  if(!Menus::run_command_now(PMATH_CPP_MOVE(cmd)))
     return;
   
   //expand_inline_lists(GTK_MENU(menu), id);

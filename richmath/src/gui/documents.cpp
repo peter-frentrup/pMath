@@ -288,12 +288,12 @@ Expr Documents::make_section_boxes(Expr boxes, Document *doc) {
     return boxes;
   
   if(boxes[0] != richmath_System_BoxData) {
-    boxes = Application::interrupt_wait(Call(Symbol(richmath_System_MakeBoxes), std::move(boxes))); // ToBoxes instead?
-    boxes = Call(Symbol(richmath_System_BoxData), std::move(boxes));
+    boxes = Application::interrupt_wait(Call(Symbol(richmath_System_MakeBoxes), PMATH_CPP_MOVE(boxes))); // ToBoxes instead?
+    boxes = Call(Symbol(richmath_System_BoxData), PMATH_CPP_MOVE(boxes));
   }
   
   return Call(Symbol(richmath_System_Section), 
-              std::move(boxes), 
+              PMATH_CPP_MOVE(boxes), 
               doc ? doc->get_own_style(DefaultNewSectionStyle, strings::Input) : strings::Input);
 }
 
@@ -302,7 +302,7 @@ bool Documents::locate_document_from_command(Expr item_cmd) {
     String path{ item_cmd[1] };
     if(path.length() > 0) {
       Expr expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), path);
-      expr = Evaluate(std::move(expr));
+      expr = Evaluate(PMATH_CPP_MOVE(expr));
       return expr.is_null();
     }
   }
@@ -365,10 +365,10 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
   }
   expr = Call(
            Symbol(richmath_Documentation_OpenDocumentationForSelection), 
-           std::move(expr),
+           PMATH_CPP_MOVE(expr),
            SelectionReference(word_src).to_pmath());
-  expr = Call(Symbol(richmath_System_TimeConstrained), std::move(expr), Application::button_timeout);
-  expr = Application::interrupt_wait_for_interactive(std::move(expr), word_src.box, Application::button_timeout);
+  expr = Call(Symbol(richmath_System_TimeConstrained), PMATH_CPP_MOVE(expr), Application::button_timeout);
+  expr = Application::interrupt_wait_for_interactive(PMATH_CPP_MOVE(expr), word_src.box, Application::button_timeout);
   
   if(expr == richmath_System_DollarFailed) {
     doc->native()->beep();
@@ -575,7 +575,7 @@ Section *DocumentsImpl::find_style_definition(Document *style_doc, int index, St
 
 bool DocumentsImpl::find_style_definition_cmd(Expr cmd) {
   if(cmd[0] == richmath_FrontEnd_FindStyleDefinition) {
-    cmd = richmath_eval_FrontEnd_FindStyleDefinition(std::move(cmd));
+    cmd = richmath_eval_FrontEnd_FindStyleDefinition(PMATH_CPP_MOVE(cmd));
     return cmd != richmath_System_DollarFailed;
   }
   
@@ -585,7 +585,7 @@ bool DocumentsImpl::find_style_definition_cmd(Expr cmd) {
 void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr expr) {
   if(expr[0] == richmath_System_List) {
     for(auto item : expr.items())
-      collect_selections(sels, std::move(item));
+      collect_selections(sels, PMATH_CPP_MOVE(item));
     return;
   }
   
@@ -636,7 +636,7 @@ Expr DocumentCurrentValueProvider::get_DocumentDirectory(FrontEndObject *obj, Ex
   String result = doc->native()->directory();
   if(!result.is_valid())
     return Symbol(richmath_System_None);
-  return std::move(result); // Not literally the return type Expr, hence std::move.
+  return PMATH_CPP_MOVE(result); // Not literally the return type Expr, hence PMATH_CPP_MOVE.
 }
 
 bool DocumentCurrentValueProvider::put_DocumentDirectory(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -658,7 +658,7 @@ bool DocumentCurrentValueProvider::put_DocumentDirectory(FrontEndObject *obj, Ex
   if(dir.is_null())
     return false;
   
-  doc->native()->directory(std::move(dir));
+  doc->native()->directory(PMATH_CPP_MOVE(dir));
   return true;
 }
 
@@ -671,7 +671,7 @@ Expr DocumentCurrentValueProvider::get_DocumentFileName(FrontEndObject *obj, Exp
   String result = doc->native()->filename();
   if(!result.is_valid())
     return Symbol(richmath_System_None);
-  return std::move(result); // Not literally the return type Expr, hence std::move.
+  return PMATH_CPP_MOVE(result); // Not literally the return type Expr, hence PMATH_CPP_MOVE.
 }
 
 bool DocumentCurrentValueProvider::put_DocumentFileName(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -688,11 +688,11 @@ bool DocumentCurrentValueProvider::put_DocumentFileName(FrontEndObject *obj, Exp
   if(!rhs.is_string())
     return false;
   
-  String name{std::move(rhs)};
+  String name{PMATH_CPP_MOVE(rhs)};
   if(!FileSystem::is_filename_without_directory(name))
     return false;
   
-  doc->native()->filename(std::move(name));
+  doc->native()->filename(PMATH_CPP_MOVE(name));
   return true;
 }
 
@@ -705,7 +705,7 @@ Expr DocumentCurrentValueProvider::get_DocumentFullFileName(FrontEndObject *obj,
   String result = doc->native()->full_filename();
   if(!result.is_valid())
     return Symbol(richmath_System_None);
-  return std::move(result); // Not literally the return type Expr, hence std::move.
+  return PMATH_CPP_MOVE(result); // Not literally the return type Expr, hence PMATH_CPP_MOVE.
 }
 
 bool DocumentCurrentValueProvider::put_DocumentFullFileName(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -722,11 +722,11 @@ bool DocumentCurrentValueProvider::put_DocumentFullFileName(FrontEndObject *obj,
   if(!rhs.is_string())
     return false;
   
-  String path = FileSystem::to_possibly_nonexisting_absolute_file_name(String(std::move(rhs)));
+  String path = FileSystem::to_possibly_nonexisting_absolute_file_name(String(PMATH_CPP_MOVE(rhs)));
   if(path.is_null())
     return false;
   
-  doc->native()->full_filename(std::move(path));
+  doc->native()->full_filename(PMATH_CPP_MOVE(path));
   return true;
 }
 
@@ -809,7 +809,7 @@ Expr DocumentCurrentValueProvider::get_WindowTitle(FrontEndObject *obj, Expr ite
     }
   }
   
-  return Style::get_current_style_value(obj, std::move(item));
+  return Style::get_current_style_value(obj, PMATH_CPP_MOVE(item));
 }
 
 //} ... class DocumentCurrentValueProvider
@@ -850,7 +850,7 @@ MenuCommandStatus StylesMenuImpl::can_set_style(Expr cmd) {
   
   if(String name = cache.style_name_from_command(cmd)) {
     return doc->can_do_scoped(
-      Rule(Symbol(richmath_System_BaseStyle), std::move(name)), 
+      Rule(Symbol(richmath_System_BaseStyle), PMATH_CPP_MOVE(name)), 
       Symbol(richmath_System_Section));
   }
   
@@ -864,7 +864,7 @@ bool StylesMenuImpl::set_style(Expr cmd) {
     
   if(String name = cache.style_name_from_command(cmd)) {
     return doc->do_scoped(
-      Rule(Symbol(richmath_System_BaseStyle), std::move(name)), 
+      Rule(Symbol(richmath_System_BaseStyle), PMATH_CPP_MOVE(name)), 
       Symbol(richmath_System_Section));
   }
   
@@ -905,10 +905,10 @@ bool StylesMenuImpl::find_style_definition(Expr submenu_cmd, Expr item_cmd) {
     //
     // FIXME: Application::notify still does not delay the message long enough.
     
-    Expr expr = Call(Symbol(richmath_FrontEnd_FindStyleDefinition), std::move(style_name));
-    //expr = richmath_eval_FrontEnd_FindStyleDefinition(std::move(expr));
+    Expr expr = Call(Symbol(richmath_FrontEnd_FindStyleDefinition), PMATH_CPP_MOVE(style_name));
+    //expr = richmath_eval_FrontEnd_FindStyleDefinition(PMATH_CPP_MOVE(expr));
     //return expr != richmath_System_DollarFailed;
-    Application::notify(ClientNotification::MenuCommand, std::move(expr));
+    Application::notify(ClientNotification::MenuCommand, PMATH_CPP_MOVE(expr));
     return true;
   }
   
@@ -1040,7 +1040,7 @@ bool SelectDocumentMenuImpl::set_selected_document_cmd(Expr cmd) {
   if(cmd[0] != richmath_FrontEnd_SetSelectedDocument)
     return false;
   
-  cmd = richmath_eval_FrontEnd_SetSelectedDocument(std::move(cmd));
+  cmd = richmath_eval_FrontEnd_SetSelectedDocument(PMATH_CPP_MOVE(cmd));
   if(cmd == richmath_System_DollarFailed)
     return false;
   
@@ -1083,13 +1083,13 @@ bool SelectDocumentMenuImpl::locate_window(Expr submenu_cmd, Expr item_cmd) {
     if(doc) {
       Expr expr;
       if(String path = doc->native()->full_filename()) 
-        expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), std::move(path));
+        expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), PMATH_CPP_MOVE(path));
       else if(String dir = doc->native()->directory())
-        expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), std::move(dir), List());
+        expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), PMATH_CPP_MOVE(dir), List());
       else
         return false;
       
-      expr = Evaluate(std::move(expr));
+      expr = Evaluate(PMATH_CPP_MOVE(expr));
       return !expr.is_null();
     }
   }
@@ -1133,7 +1133,7 @@ bool OpenDocumentMenuImpl::document_open_cmd(Expr cmd) {
   if(exprlen < 1 || exprlen > 2) 
     return false;
   
-  Expr result = richmath_eval_FrontEnd_DocumentOpen(std::move(cmd));
+  Expr result = richmath_eval_FrontEnd_DocumentOpen(PMATH_CPP_MOVE(cmd));
   return result != richmath_System_DollarFailed;
 }
 
@@ -1157,10 +1157,10 @@ Expr OpenDocumentMenuImpl::enum_palettes_menu(Expr name) {
         if(name.part(len - 9).equals(".pmathdoc"))
           name = name.part(0, len - 9);
         
-        item = RecentDocuments::open_document_menu_item(std::move(name), std::move(full), false);
+        item = RecentDocuments::open_document_menu_item(PMATH_CPP_MOVE(name), PMATH_CPP_MOVE(full), false);
       }
       
-      list.set(i, std::move(item));
+      list.set(i, PMATH_CPP_MOVE(item));
     }
     
     return list;
@@ -1174,14 +1174,14 @@ Expr OpenDocumentMenuImpl::enum_recent_documents_menu(Expr name) {
 }
 
 bool OpenDocumentMenuImpl::locate_document(Expr submenu_cmd, Expr item_cmd) {
-  return Documents::locate_document_from_command(std::move(item_cmd));
+  return Documents::locate_document_from_command(PMATH_CPP_MOVE(item_cmd));
 }
 
 bool OpenDocumentMenuImpl::remove_recent_document(Expr submenu_cmd, Expr item_cmd) {
   if(item_cmd.expr_length() >= 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
     String path{ item_cmd[1] };
     if(path.length() > 0)
-      return RecentDocuments::remove(std::move(path));
+      return RecentDocuments::remove(PMATH_CPP_MOVE(path));
   }
   return false;
 }
@@ -1233,7 +1233,7 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
     
   for(auto item : sections.items()) {
     int pos = popup_doc->length();
-    popup_doc->insert_pmath(&pos, Documents::make_section_boxes(std::move(item), popup_doc));
+    popup_doc->insert_pmath(&pos, Documents::make_section_boxes(PMATH_CPP_MOVE(item), popup_doc));
   }
   
   owner_doc->attach_popup_window(sel, popup_doc);

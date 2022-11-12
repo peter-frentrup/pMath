@@ -41,25 +41,25 @@ Expr richmath_eval_FrontEnd_SystemOpenDirectory(Expr expr) {
     return Symbol(richmath_System_DollarFailed);
   
   if(dir.length() > 0)
-    dir = FileSystem::to_existing_absolute_file_name(std::move(dir));
+    dir = FileSystem::to_existing_absolute_file_name(PMATH_CPP_MOVE(dir));
   
   Expr items;
   if(expr.expr_length() == 2) {
     items = expr[2];
     if(items.is_string())
-      items = List(std::move(items));
+      items = List(PMATH_CPP_MOVE(items));
   }
   else {
     String filename = dir;
     dir = FileSystem::extract_directory_path(&filename);
     if(filename.length() > 0)
-      items = List(std::move(filename));
+      items = List(PMATH_CPP_MOVE(filename));
     else
       items = List();
   }
   
   expr = {};
-  if(system_open_directory(std::move(dir), std::move(items)))
+  if(system_open_directory(PMATH_CPP_MOVE(dir), PMATH_CPP_MOVE(items)))
     return {};
   else
     return Symbol(richmath_System_DollarFailed);
@@ -75,21 +75,21 @@ static bool system_open_directory(String dir, Expr items) {
   if(dir.length() == 0) {
     // allow e.g. FrontEnd`SystemOpenDirectory("", "C:\\")
     for(auto filename : items.items()) 
-      if(String(std::move(filename)).length() == 0)
+      if(String(PMATH_CPP_MOVE(filename)).length() == 0)
         return false;
   }
   else {
     for(auto filename : items.items()) 
-      if(!FileSystem::is_filename_without_directory(String(std::move(filename))))
+      if(!FileSystem::is_filename_without_directory(String(PMATH_CPP_MOVE(filename))))
         return false;
   }
   
 #if defined(RICHMATH_USE_WIN32_GUI)
-  return HRbool(win32_system_open_directory(std::move(dir), std::move(items)));
+  return HRbool(win32_system_open_directory(PMATH_CPP_MOVE(dir), PMATH_CPP_MOVE(items)));
 #elif defined(RICHMATH_USE_GTK_GUI)
   if(mgtk_system_open_directory_via_dbus(dir, items))
     return true;
-  return mgtk_system_open_directory(std::move(dir));
+  return mgtk_system_open_directory(PMATH_CPP_MOVE(dir));
 #endif
   return false;
 }
@@ -116,7 +116,7 @@ static HRESULT win32_system_open_directory(String dir, Expr items) {
     name+= String::FromChar(0);
     if(name) {
       if(HRbool(folder->ParseDisplayName(nullptr, nullptr, const_cast<wchar_t*>(name.buffer_wchar()), nullptr, idl.get_address_of(), nullptr))) {
-        item_idls.add(std::move(idl));
+        item_idls.add(PMATH_CPP_MOVE(idl));
       }
     }
   }
@@ -236,7 +236,7 @@ static bool mgtk_system_open_directory(String dir) {
     goto FAILED_ALLOC_URIS;
   }
   
-  if(char *uri = filename_to_g_uri(std::move(dir))) {
+  if(char *uri = filename_to_g_uri(PMATH_CPP_MOVE(dir))) {
     uris = g_list_append(uris, uri);
   }
   else {

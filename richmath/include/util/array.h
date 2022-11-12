@@ -9,6 +9,8 @@
 #include <new>
 #include <utility>
 
+#include <pmath-cpp.h> // for PMATH_CPP_MOVE
+
 #ifdef NDEBUG
 #  define ARRAY_ASSERT(a)   ((void)0)
 #else
@@ -68,7 +70,7 @@ namespace richmath {
       T &set(int i, T &&t) {
         ARRAY_ASSERT(i >= 0);
         ARRAY_ASSERT(i < _length);
-        return _items[i] = std::move(t);
+        return _items[i] = PMATH_CPP_MOVE(t);
       }
       
       T &operator[](int i) { return get(i); }
@@ -261,7 +263,7 @@ namespace richmath {
       Array<T> &set(int i, T &&t) {
         ARRAY_ASSERT(i >= 0);
         ARRAY_ASSERT(i < length());
-        _items[i] = std::move(t);
+        _items[i] = PMATH_CPP_MOVE(t);
         return *this;
       }
       
@@ -274,7 +276,7 @@ namespace richmath {
       
       Array<T> &add(T &&t) {
         length(length() + 1);
-        _items[length() - 1] = std::move(t);
+        _items[length() - 1] = PMATH_CPP_MOVE(t);
         return *this;
       }
       

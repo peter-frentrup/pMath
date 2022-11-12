@@ -32,7 +32,7 @@ bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   if(_uncompressed_expr == expr) {
-    finish_load_from_object(std::move(expr));
+    finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
     
@@ -45,7 +45,7 @@ bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(DoublePoint::load_line_or_lines(_lines, data)) {
     _uncompressed_expr = expr;
-    finish_load_from_object(std::move(expr));
+    finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
   

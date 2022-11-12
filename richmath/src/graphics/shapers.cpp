@@ -321,9 +321,9 @@ void FallbackTextShaper::add_default() {
 
 void FallbackTextShaper::add_or_create(SharedPtr<FallbackTextShaper> &all, SharedPtr<TextShaper> fallback) {
   if(all)
-    all->add(std::move(fallback));
+    all->add(PMATH_CPP_MOVE(fallback));
   else
-    all = new FallbackTextShaper(std::move(fallback));
+    all = new FallbackTextShaper(PMATH_CPP_MOVE(fallback));
 }
 
 uint8_t FallbackTextShaper::num_fonts() {

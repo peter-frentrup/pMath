@@ -119,7 +119,7 @@ bool GraphicsDirective::try_load_from_object(Expr expr, BoxInputFlags opts) {
     must_update(true);
   }
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -140,7 +140,7 @@ void GraphicsDirective::paint(GraphicsDrawingContext &gc) {
     
     Expr new_directives;
     if(_dynamic.get_value(&new_directives, Expr())) 
-      Impl(*this).change_directives(std::move(new_directives));
+      Impl(*this).change_directives(PMATH_CPP_MOVE(new_directives));
   }
   
   apply(_latest_directives, gc);
@@ -210,7 +210,7 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
   }
   
   if(directive.is_rule()) {
-    style.add_pmath(std::move(directive));
+    style.add_pmath(PMATH_CPP_MOVE(directive));
     return;
   }
 }
@@ -406,7 +406,7 @@ bool GraphicsDirective::Impl::change_directives(Expr new_directives) {
   
   self._latest_directives = new_directives;
   self._style->clear();
-  apply_to_style(std::move(new_directives), *self._style.ptr());
+  apply_to_style(PMATH_CPP_MOVE(new_directives), *self._style.ptr());
   return true;
 }
 

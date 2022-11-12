@@ -230,9 +230,9 @@ void Win32MenuGutterSlider::apply_slider_pos(HMENU menu, int pos) {
   
   Expr cmd = Rule(lhs, val);
   if(scope)
-    cmd = Call(Symbol(richmath_FE_ScopedCommand), std::move(cmd), scope);
+    cmd = Call(Symbol(richmath_FE_ScopedCommand), PMATH_CPP_MOVE(cmd), scope);
   
-  if(!Menus::run_command_now(std::move(cmd)))
+  if(!Menus::run_command_now(PMATH_CPP_MOVE(cmd)))
     return;
   
   // TBM_SETPOSNOTIFY exists since Windows 7

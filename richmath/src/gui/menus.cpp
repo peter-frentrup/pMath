@@ -134,7 +134,7 @@ bool Menus::run_command_now(Expr cmd) {
     return true;
     
   func = menu_commands[cmd[0]];
-  if(func && func(std::move(cmd)))
+  if(func && func(PMATH_CPP_MOVE(cmd)))
     return true;
     
   return false;
@@ -158,11 +158,11 @@ MenuCommandStatus Menus::test_command_status(Expr cmd) {
   
   func = menu_command_testers[cmd];
   if(func)
-    return func(std::move(cmd));
+    return func(PMATH_CPP_MOVE(cmd));
     
   func = menu_command_testers[cmd[0]];
   if(func)
-    return func(std::move(cmd));
+    return func(PMATH_CPP_MOVE(cmd));
     
   return MenuCommandStatus(true);
 }
@@ -175,7 +175,7 @@ Expr Menus::generate_dynamic_submenu(Expr cmd) {
   
   func = dynamic_menu_lists[cmd];
   if(func)
-    return func(std::move(cmd));
+    return func(PMATH_CPP_MOVE(cmd));
     
   return Expr();
 }
@@ -188,7 +188,7 @@ bool Menus::remove_dynamic_submenu_item(Expr submenu_cmd, Expr item_cmd) {
   
   func = dynamic_menu_list_item_deleters[submenu_cmd];
   if(func)
-    return func(std::move(submenu_cmd), std::move(item_cmd));
+    return func(PMATH_CPP_MOVE(submenu_cmd), PMATH_CPP_MOVE(item_cmd));
     
   return false;
 }
@@ -201,7 +201,7 @@ bool Menus::locate_dynamic_submenu_item_source(Expr submenu_cmd, Expr item_cmd) 
   
   func = dynamic_menu_list_item_locators[submenu_cmd];
   if(func)
-    return func(std::move(submenu_cmd), std::move(item_cmd));
+    return func(PMATH_CPP_MOVE(submenu_cmd), PMATH_CPP_MOVE(item_cmd));
     
   return false;
 }
@@ -214,7 +214,7 @@ MenuCommandStatus Menus::test_locate_dynamic_submenu_item_source(Expr submenu_cm
   
   func = dynamic_menu_list_item_locator_testers[submenu_cmd];
   if(func)
-    return func(std::move(submenu_cmd), std::move(item_cmd));
+    return func(PMATH_CPP_MOVE(submenu_cmd), PMATH_CPP_MOVE(item_cmd));
     
   return MenuCommandStatus(true);
 }
@@ -248,20 +248,20 @@ void Menus::register_dynamic_submenu(Expr cmd, Expr (*func)(Expr cmd)) {
   }
   
   if(func)
-    dynamic_menu_lists.set(std::move(cmd), func);
+    dynamic_menu_lists.set(PMATH_CPP_MOVE(cmd), func);
   else
-    dynamic_menu_lists.remove(std::move(cmd));
+    dynamic_menu_lists.remove(PMATH_CPP_MOVE(cmd));
 }
 
 void Menus::register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd)) {
   if(func)
-    dynamic_menu_list_item_deleters.set(std::move(submenu_cmd), func);
+    dynamic_menu_list_item_deleters.set(PMATH_CPP_MOVE(submenu_cmd), func);
   else
-    dynamic_menu_list_item_deleters.remove(std::move(submenu_cmd));
+    dynamic_menu_list_item_deleters.remove(PMATH_CPP_MOVE(submenu_cmd));
 }
 
 bool Menus::has_submenu_item_deleter(Expr submenu_cmd) {
-  return dynamic_menu_list_item_deleters[std::move(submenu_cmd)] != nullptr;
+  return dynamic_menu_list_item_deleters[PMATH_CPP_MOVE(submenu_cmd)] != nullptr;
 }
 
 void Menus::register_submenu_item_locator(
@@ -275,13 +275,13 @@ void Menus::register_submenu_item_locator(
     dynamic_menu_list_item_locator_testers.remove(submenu_cmd);
   
   if(func)
-    dynamic_menu_list_item_locators.set(std::move(submenu_cmd), func);
+    dynamic_menu_list_item_locators.set(PMATH_CPP_MOVE(submenu_cmd), func);
   else
-    dynamic_menu_list_item_locators.remove(std::move(submenu_cmd));
+    dynamic_menu_list_item_locators.remove(PMATH_CPP_MOVE(submenu_cmd));
 }
 
 bool Menus::has_submenu_item_locator(Expr submenu_cmd) {
-  return dynamic_menu_list_item_locators[std::move(submenu_cmd)] != nullptr;
+  return dynamic_menu_list_item_locators[PMATH_CPP_MOVE(submenu_cmd)] != nullptr;
 }
 
 MenuItemType Menus::menu_item_type(Expr item) {
@@ -378,7 +378,7 @@ static Expr get_search_commands(Expr name) {
     for(auto &res : results) {
       if(max_results-- == 0)
         break;
-      Gather::emit(std::move(res.item));
+      Gather::emit(PMATH_CPP_MOVE(res.item));
     }
     
     Expr docu_pages = Application::interrupt_wait(

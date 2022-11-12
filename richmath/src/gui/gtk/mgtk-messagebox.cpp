@@ -287,7 +287,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
       bool have_link = false;
       Expr location {};
       if(frame.try_lookup(strings::Location, location)) {
-        location = Application::interrupt_wait(Call(Symbol(richmath_Developer_SourceLocationOpenerFunction), std::move(location)));
+        location = Application::interrupt_wait(Call(Symbol(richmath_Developer_SourceLocationOpenerFunction), PMATH_CPP_MOVE(location)));
         
         if(location[0] == richmath_System_Function) {
           if(location.expr_length() == 1)
@@ -408,9 +408,9 @@ MathGtkHyperlinks::MathGtkHyperlinks() {
 
 String MathGtkHyperlinks::register_hyperlink_action(Expr action) {
   if(hyperlink_actions.is_null())
-    hyperlink_actions = List(std::move(action));
+    hyperlink_actions = List(PMATH_CPP_MOVE(action));
   else
-    hyperlink_actions.append(std::move(action));
+    hyperlink_actions.append(PMATH_CPP_MOVE(action));
   
   return Expr(hyperlink_actions.expr_length()).to_string();
 }

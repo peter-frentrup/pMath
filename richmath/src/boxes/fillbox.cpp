@@ -42,7 +42,7 @@ bool FillBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _content->load_from_object(expr[1], opts);
   _weight = 1.0f; // loaded from style on resize
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 

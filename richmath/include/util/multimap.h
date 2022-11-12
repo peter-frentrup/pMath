@@ -7,7 +7,7 @@ namespace richmath {
   template<typename K, typename V>
   struct MultiMapEntry {
     MultiMapEntry(const K &k, int generation, const V &v): key(k), _generation(generation), value(v) {}
-    MultiMapEntry(const K &k, int generation, V &&v): key(k), _generation(generation), value(std::move(v)) {}
+    MultiMapEntry(const K &k, int generation, V &&v): key(k), _generation(generation), value(PMATH_CPP_MOVE(v)) {}
     MultiMapEntry(const K &k, int generation) : key(k), _generation{generation} {
     }
     

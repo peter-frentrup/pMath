@@ -25,7 +25,7 @@ namespace richmath {
       bool has_pre_or_post_assignment();
       bool has_temporary_assignment();
       
-      void assign(Expr value) { assign(std::move(value), true, true, true); }
+      void assign(Expr value) { assign(PMATH_CPP_MOVE(value), true, true, true); }
       void assign(Expr value, bool pre, bool middle, bool post);
       Expr get_value_unevaluated();
       Expr get_value_now();

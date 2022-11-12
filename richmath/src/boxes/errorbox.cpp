@@ -28,7 +28,7 @@ bool ErrorBox::try_load_from_object(Expr expr, BoxInputFlags options) {
     return false;
   
   _object = expr;
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 

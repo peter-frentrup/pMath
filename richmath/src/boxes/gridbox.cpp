@@ -99,7 +99,7 @@ bool GridItem::try_load_from_object(Expr object, BoxInputFlags options) {
 
 void GridItem::load_from_object(const Expr object, BoxInputFlags opts) {
   _content->load_from_object(object, opts);
-  finish_load_from_object(std::move(object));
+  finish_load_from_object(PMATH_CPP_MOVE(object));
 }
 
 void GridItem::swap_content(GridItem *other) {
@@ -264,7 +264,7 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   else if(options != PMATH_UNDEFINED)
     style = new Style(options);
     
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 

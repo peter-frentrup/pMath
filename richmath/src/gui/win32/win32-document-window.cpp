@@ -1568,7 +1568,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           if(document()->selection_box())
             Menus::current_document_redirect = document();
   
-          Menus::run_command_now(std::move(cmd));
+          Menus::run_command_now(PMATH_CPP_MOVE(cmd));
         } return 0;
         
       case WM_KEYDOWN:

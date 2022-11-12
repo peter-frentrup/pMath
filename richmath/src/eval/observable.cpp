@@ -106,8 +106,8 @@ static void swap_observers(Observable *left, Observable *right) {
     }
   }
   
-  TheObservatory.all_observers.set(right, std::move(left_observers));
-  TheObservatory.all_observers.set(left, std::move(right_observers));
+  TheObservatory.all_observers.set(right, PMATH_CPP_MOVE(left_observers));
+  TheObservatory.all_observers.set(left, PMATH_CPP_MOVE(right_observers));
 }
 
 Observable::Observable()

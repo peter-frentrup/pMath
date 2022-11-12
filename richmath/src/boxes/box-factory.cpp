@@ -147,7 +147,7 @@ Box *BoxFactory::create_empty_box(LayoutKind layout_kind, Expr expr) {
   if(head == richmath_FE_NumberBox)                return new NumberBox();
   if(head == richmath_System_TemplateSlot)         return new TemplateBoxSlot(create_sequence(layout_kind));
   
-  return new ErrorBox(std::move(expr));
+  return new ErrorBox(PMATH_CPP_MOVE(expr));
 }
 
 AbstractSequence *BoxFactory::create_sequence(LayoutKind kind) {

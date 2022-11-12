@@ -27,10 +27,10 @@ YesNoCancel richmath::ask_save(Document *doc) {
     text = "Do you want to save changes?";
   
 #ifdef RICHMATH_USE_GTK_GUI
-  return mgtk_ask_save(doc, std::move(text));
+  return mgtk_ask_save(doc, PMATH_CPP_MOVE(text));
 #endif
 #ifdef RICHMATH_USE_WIN32_GUI
-  return win32_ask_save(doc, std::move(text));
+  return win32_ask_save(doc, PMATH_CPP_MOVE(text));
 #endif
   
   return YesNoCancel::Yes;
@@ -58,10 +58,10 @@ bool richmath::ask_open_suspicious_system_file(String path) {
 
 Expr richmath::ask_interrupt(Expr stack) {
 #ifdef RICHMATH_USE_GTK_GUI
-  return mgtk_ask_interrupt(std::move(stack));
+  return mgtk_ask_interrupt(PMATH_CPP_MOVE(stack));
 #endif
 #ifdef RICHMATH_USE_WIN32_GUI
-  return win32_ask_interrupt(std::move(stack));
+  return win32_ask_interrupt(PMATH_CPP_MOVE(stack));
 #endif
   return Expr();
 }

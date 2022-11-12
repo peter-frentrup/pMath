@@ -134,7 +134,7 @@ void CurrentValue::done() {
 }
 
 Expr CurrentValue::get(Expr item) {
-  return get(Application::get_evaluation_object(), std::move(item));
+  return get(Application::get_evaluation_object(), PMATH_CPP_MOVE(item));
 }
 
 Expr CurrentValue::get(FrontEndObject *obj, Expr item) {
@@ -157,7 +157,7 @@ Expr CurrentValue::get(FrontEndObject *obj, Expr item) {
   if(!func)
     return Symbol(richmath_System_DollarFailed);
     
-  return func(obj, std::move(item));
+  return func(obj, PMATH_CPP_MOVE(item));
 }
 
 bool CurrentValue::put(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -180,7 +180,7 @@ bool CurrentValue::put(FrontEndObject *obj, Expr item, Expr rhs) {
   if(!func)
     return false;
     
-  return func(obj, std::move(item), std::move(rhs));
+  return func(obj, PMATH_CPP_MOVE(item), PMATH_CPP_MOVE(rhs));
 }
 
 bool CurrentValue::register_provider(
@@ -229,7 +229,7 @@ FrontEndObject *CurrentValueImpl::object(Expr obj) {
     return sel.box;
   }
   
-  return FrontEndObject::find(FrontEndReference::from_pmath(std::move(obj)));
+  return FrontEndObject::find(FrontEndReference::from_pmath(PMATH_CPP_MOVE(obj)));
 }
 
 Expr CurrentValueImpl::get_object_value(FrontEndObject *obj, Expr items) {
@@ -240,7 +240,7 @@ Expr CurrentValueImpl::get_object_value(FrontEndObject *obj, Expr items) {
     
     Expr first = items[1];
     if(auto provider = object_providers[first]) {
-      if(auto next_obj = provider(obj, std::move(first))) {
+      if(auto next_obj = provider(obj, PMATH_CPP_MOVE(first))) {
         if(exprlen == 1)
           return next_obj->to_pmath_id();
         
@@ -254,7 +254,7 @@ Expr CurrentValueImpl::get_object_value(FrontEndObject *obj, Expr items) {
     }
   }
   else if(auto provider = object_providers[items]) {
-    if(auto res = provider(obj, std::move(items)))
+    if(auto res = provider(obj, PMATH_CPP_MOVE(items)))
       return res->to_pmath_id();
     
     return Symbol(richmath_System_None);
@@ -267,8 +267,8 @@ bool CurrentValueImpl::put_object_value(FrontEndObject *obj, Expr items, Expr rh
   if(items[0] == richmath_System_List && items.expr_length() > 1) {
     Expr first = items[1];
     if(auto provider = object_providers[first]) {
-      if(auto next_obj = provider(obj, std::move(first)))
-        return CurrentValue::put(next_obj, items.rest(), std::move(rhs));
+      if(auto next_obj = provider(obj, PMATH_CPP_MOVE(first)))
+        return CurrentValue::put(next_obj, items.rest(), PMATH_CPP_MOVE(rhs));
     }
   }
   
@@ -297,7 +297,7 @@ bool CurrentValueImpl::put_AttachmentSource(FrontEndObject *obj, Expr items, Exp
     if(!next_obj)
       return false;
     
-    return CurrentValue::put(next_obj, items.rest(), std::move(rhs));
+    return CurrentValue::put(next_obj, items.rest(), PMATH_CPP_MOVE(rhs));
   }
   
   Document *doc = dynamic_cast<Document*>(obj);
@@ -319,7 +319,7 @@ FrontEndObject *CurrentValueImpl::get_AttachmentSourceBox(FrontEndObject *obj, E
 Expr CurrentValueImpl::get_AvailableMathFonts(FrontEndObject *obj, Expr item) {
   Gather g;
   for(auto &&key : MathShaper::available_shapers.keys())
-    Gather::emit(std::move(key));
+    Gather::emit(PMATH_CPP_MOVE(key));
   
   Expr list = g.end();
   list.sort();
@@ -329,7 +329,7 @@ Expr CurrentValueImpl::get_AvailableMathFonts(FrontEndObject *obj, Expr item) {
 Expr CurrentValueImpl::get_CurrentValueProviders(FrontEndObject *obj, Expr item) {
   Gather g;
   for(auto &&key : providers.keys())
-    Gather::emit(std::move(key));
+    Gather::emit(PMATH_CPP_MOVE(key));
   
   return g.end();
 }
@@ -387,7 +387,7 @@ Expr CurrentValueImpl::get_Editable(FrontEndObject *obj, Expr item) {
     return box->editable();
   } 
   
-  return Style::get_current_style_value(obj, std::move(item));
+  return Style::get_current_style_value(obj, PMATH_CPP_MOVE(item));
 }
 
 Expr CurrentValueImpl::get_MouseOver(FrontEndObject *obj, Expr item) {
@@ -495,7 +495,7 @@ Expr CurrentValueImpl::get_Selectable(FrontEndObject *obj, Expr item) {
   if(Box *box = dynamic_cast<Box*>(obj)) 
     return box->selectable() ? Symbol(richmath_System_True) : Symbol(richmath_System_False);
   
-  return Style::get_current_style_value(obj, std::move(item));
+  return Style::get_current_style_value(obj, PMATH_CPP_MOVE(item));
 }
 
 Expr CurrentValueImpl::get_SelectedMenuCommand(FrontEndObject *obj, Expr item) {
@@ -503,7 +503,7 @@ Expr CurrentValueImpl::get_SelectedMenuCommand(FrontEndObject *obj, Expr item) {
   if(cmd.is_null())
     return Symbol(richmath_System_None);
   
-  return Call(Symbol(richmath_System_Hold), std::move(cmd));
+  return Call(Symbol(richmath_System_Hold), PMATH_CPP_MOVE(cmd));
 }
 
 FrontEndObject *CurrentValueImpl::get_StyleDefinitionsOwner_object(FrontEndObject *obj, Expr item) {

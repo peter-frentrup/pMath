@@ -69,19 +69,19 @@ static Expr eval_sequence(Expr e1, Expr e2, Expr e3) {
   if(e1.is_null()) {
     if(e2.is_null())
       return e3;
-    return Call(Symbol(richmath_System_EvaluationSequence), std::move(e2), std::move(e3));
+    return Call(Symbol(richmath_System_EvaluationSequence), PMATH_CPP_MOVE(e2), PMATH_CPP_MOVE(e3));
   }
   
   if(e2.is_null()) {
     if(e3.is_null())
       return e1;
-    return Call(Symbol(richmath_System_EvaluationSequence), std::move(e1), std::move(e3));
+    return Call(Symbol(richmath_System_EvaluationSequence), PMATH_CPP_MOVE(e1), PMATH_CPP_MOVE(e3));
   }
   
   if(e3.is_null()) 
-    return Call(Symbol(richmath_System_EvaluationSequence), std::move(e1), std::move(e2));
+    return Call(Symbol(richmath_System_EvaluationSequence), PMATH_CPP_MOVE(e1), PMATH_CPP_MOVE(e2));
   
-  return Call(Symbol(richmath_System_EvaluationSequence), std::move(e1), std::move(e2), std::move(e3));
+  return Call(Symbol(richmath_System_EvaluationSequence), PMATH_CPP_MOVE(e1), PMATH_CPP_MOVE(e2), PMATH_CPP_MOVE(e3));
 }
 
 //{ class Dynamic ...
@@ -173,15 +173,15 @@ Expr Dynamic::get_value_now() {
 }
 
 void Dynamic::get_value_later(Expr job_info) {
-  Impl(*this).get_value_later(std::move(job_info));
+  Impl(*this).get_value_later(PMATH_CPP_MOVE(job_info));
 }
 
 bool Dynamic::get_value(Expr *result, Expr job_info) {
-  return Impl(*this).get_value(result, std::move(job_info));
+  return Impl(*this).get_value(result, PMATH_CPP_MOVE(job_info));
 }
 
 bool Dynamic::is_dynamic_of(Expr sym) {
-  return Impl(*this).is_dynamic_of(std::move(sym));
+  return Impl(*this).is_dynamic_of(PMATH_CPP_MOVE(sym));
 }
 
 //} ... class Dynamic
@@ -226,7 +226,7 @@ bool Dynamic::Impl::find_template_box_dynamic(StyledObject *obj, int i, Expr *so
       
       Dynamic dyn { template_box, template_box->arguments[i] };
       if(!Impl(dyn).find_template_box_dynamic(source, source_template, source_index)) {
-        if(source)          *source          = std::move(dyn._expr);
+        if(source)          *source          = PMATH_CPP_MOVE(dyn._expr);
         if(source_template) *source_template = template_box;
         if(source_index)    *source_index    = i;
       }
@@ -260,7 +260,7 @@ void Dynamic::Impl::get_assignment_functions(Expr expr, Expr *pre, Expr *middle,
   
   Expr fun = expr[2];
   if(fun[0] != richmath_System_List) {
-    *middle = std::move(fun);
+    *middle = PMATH_CPP_MOVE(fun);
     if(*middle == richmath_System_Temporary)
       *post = Symbol(richmath_System_Automatic);
     return;
@@ -337,12 +337,12 @@ bool Dynamic::Impl::has_temporary_assignment() {
 
 Expr Dynamic::Impl::make_assignment_call(Expr func, Expr name, Expr value) {
   if(func == richmath_System_Automatic)
-    return Call(Symbol(richmath_System_Assign), std::move(name), std::move(value));
+    return Call(Symbol(richmath_System_Assign), PMATH_CPP_MOVE(name), PMATH_CPP_MOVE(value));
   
   if(func == richmath_System_None)
     return Expr();
   
-  return Call(std::move(func), std::move(value), std::move(name));
+  return Call(PMATH_CPP_MOVE(func), PMATH_CPP_MOVE(value), PMATH_CPP_MOVE(name));
 }
 
 void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
@@ -363,7 +363,7 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
         //dyn.init(source_template, source);
         dyn_source = source_template;
         dyn._owner = source_template;
-        dyn._expr  = std::move(source);
+        dyn._expr  = PMATH_CPP_MOVE(source);
       }
       
       dyn_expr = dyn._expr;
@@ -384,7 +384,7 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
     
     if(middle) {
       self._expr = EvaluationContexts::replace_symbol_namespace(
-                     std::move(value), 
+                     PMATH_CPP_MOVE(value), 
                      EvaluationContexts::resolve_context(self._owner),
                      strings::DollarContext_namespace);
     }
@@ -417,11 +417,11 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
   if(run.is_null())
     return;
   
-  run = dyn_source->prepare_dynamic(std::move(run));
-  run = EvaluationContexts::prepare_namespace_for(std::move(run), dyn_source);
-  run = EvaluationContexts::make_context_block(std::move(run), EvaluationContexts::resolve_context(self.owner()));
+  run = dyn_source->prepare_dynamic(PMATH_CPP_MOVE(run));
+  run = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(run), dyn_source);
+  run = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(run), EvaluationContexts::resolve_context(self.owner()));
   
-  Application::interrupt_wait_for_interactive(std::move(run), self._owner, Application::dynamic_timeout);
+  Application::interrupt_wait_for_interactive(PMATH_CPP_MOVE(run), self._owner, Application::dynamic_timeout);
 }
 
 bool Dynamic::Impl::is_dynamic_of(Expr sym) {
@@ -442,7 +442,7 @@ Expr Dynamic::Impl::get_value_unevaluated(bool *is_dynamic) {
   
   return Call(
            Symbol(richmath_Internal_DynamicEvaluateMultiple),
-           std::move(expr),
+           PMATH_CPP_MOVE(expr),
            self._owner->id().to_pmath_raw());
 }
 
@@ -463,10 +463,10 @@ Expr Dynamic::Impl::get_prepared_dynamic(bool *is_dynamic) {
         //dyn.init(source_template, source);
         dyn_source = source_template;
         dyn._owner = source_template;
-        dyn._expr  = std::move(source);
+        dyn._expr  = PMATH_CPP_MOVE(source);
       }
       
-      dyn_expr = std::move(dyn._expr);
+      dyn_expr = PMATH_CPP_MOVE(dyn._expr);
       if(dyn_expr[0] != richmath_System_Dynamic) {
         /* Note that dynamic changes in the find_template_box_dynamic-chain above would not be visible 
            for self._owner and would thus break its dynamic updating facility.
@@ -477,7 +477,7 @@ Expr Dynamic::Impl::get_prepared_dynamic(bool *is_dynamic) {
         source_template->register_observer(self._owner->id());
         
         *is_dynamic = false;
-        return EvaluationContexts::prepare_namespace_for(std::move(dyn_expr), dyn._owner);
+        return EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(dyn_expr), dyn._owner);
       }
       
     }
@@ -488,8 +488,8 @@ Expr Dynamic::Impl::get_prepared_dynamic(bool *is_dynamic) {
   }
   
   *is_dynamic = true;
-  dyn_expr = dyn_source->prepare_dynamic(std::move(dyn_expr));
-  return EvaluationContexts::prepare_namespace_for(std::move(dyn_expr), dyn_source);
+  dyn_expr = dyn_source->prepare_dynamic(PMATH_CPP_MOVE(dyn_expr));
+  return EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(dyn_expr), dyn_source);
 }
 
 Expr Dynamic::Impl::get_value_now() {
@@ -506,12 +506,12 @@ Expr Dynamic::Impl::get_value_now() {
     style->remove(InternalUsesCurrentValueOfMouseOver);
   }
 
-  call = EvaluationContexts::make_context_block(std::move(call), EvaluationContexts::resolve_context(self.owner()));
+  call = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(call), EvaluationContexts::resolve_context(self.owner()));
   
   auto old_eval_id = Dynamic::current_observer_id;
   Dynamic::current_observer_id = self._owner->id();
   
-  Expr value = Application::interrupt_wait_for(std::move(call), self._owner, Application::dynamic_timeout);
+  Expr value = Application::interrupt_wait_for(PMATH_CPP_MOVE(call), self._owner, Application::dynamic_timeout);
                  
   Dynamic::current_observer_id = old_eval_id;
   
@@ -526,7 +526,7 @@ void Dynamic::Impl::get_value_later(Expr job_info) {
   Expr call = get_value_unevaluated(&is_dynamic);
   
   if(!is_dynamic) {
-    self._owner->dynamic_finished(std::move(job_info), std::move(call));
+    self._owner->dynamic_finished(PMATH_CPP_MOVE(job_info), PMATH_CPP_MOVE(call));
     return;
   }
   
@@ -534,7 +534,7 @@ void Dynamic::Impl::get_value_later(Expr job_info) {
     style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
-  Application::add_job(new DynamicEvaluationJob(std::move(job_info), std::move(call), self._owner));
+  Application::add_job(new DynamicEvaluationJob(PMATH_CPP_MOVE(job_info), PMATH_CPP_MOVE(call), self._owner));
 }
 
 bool Dynamic::Impl::get_value(Expr *result, Expr job_info) {
@@ -552,7 +552,7 @@ bool Dynamic::Impl::get_value(Expr *result, Expr job_info) {
       Dynamic dyn { source_template, source };
       
       while(Dynamic::Impl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) 
-        dyn.init(std::move(source_template), std::move(source));
+        dyn.init(PMATH_CPP_MOVE(source_template), PMATH_CPP_MOVE(source));
       
       if(dyn.is_dynamic()) {
         sync = dyn._synchronous_updating;
@@ -579,7 +579,7 @@ bool Dynamic::Impl::get_value(Expr *result, Expr job_info) {
     return true;
   }
   
-  get_value_later(std::move(job_info));
+  get_value_later(PMATH_CPP_MOVE(job_info));
   return false;
 }
 

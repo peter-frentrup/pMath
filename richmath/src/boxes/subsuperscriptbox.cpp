@@ -58,7 +58,7 @@ bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
     _subscript->load_from_object(expr[1], opts);
     
-    finish_load_from_object(std::move(expr));
+    finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
   
@@ -78,7 +78,7 @@ bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
     _superscript->load_from_object(expr[1], opts);
     
-    finish_load_from_object(std::move(expr));
+    finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
   
@@ -98,7 +98,7 @@ bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _subscript->load_from_object(  expr[1], opts);
     _superscript->load_from_object(expr[2], opts);
     
-    finish_load_from_object(std::move(expr));
+    finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
   

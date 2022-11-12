@@ -115,8 +115,8 @@ Expr Box::allowed_options() {
   if(!head.is_symbol())
     return {};
   
-  Expr opts = Call(Symbol(richmath_System_Options), std::move(head));
-  return Application::interrupt_wait_cached(std::move(opts));
+  Expr opts = Call(Symbol(richmath_System_Options), PMATH_CPP_MOVE(head));
+  return Application::interrupt_wait_cached(PMATH_CPP_MOVE(opts));
 }
 
 bool Box::is_parent_of(Box *child) {
@@ -477,7 +477,7 @@ VolatileSelection Box::normalize_selection(int start, int end) {
 
 Expr Box::prepare_dynamic(Expr expr) {
   if(auto par = parent())
-    return par->prepare_dynamic(std::move(expr));
+    return par->prepare_dynamic(PMATH_CPP_MOVE(expr));
   return expr;
 }
 

@@ -544,7 +544,7 @@ void MathSequence::paint(Context &context) {
       for(Box *box = run.next_value; box && box != this; box = box->parent()) {
         Expr expr;
         if(box->style && context.stylesheet->get(box->style, TextShadow, &expr)) {
-          val = std::move(expr);
+          val = PMATH_CPP_MOVE(expr);
           break;
         }
       }
@@ -1469,7 +1469,7 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   str           = String(new_string);
   boxes_invalid(true);
   
-  finish_load_from_object(std::move(object));
+  finish_load_from_object(PMATH_CPP_MOVE(object));
 }
 
 bool MathSequence::stretch_horizontal(Context &context, float width) {

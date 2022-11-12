@@ -33,7 +33,7 @@ AbstractDynamicBox::AbstractDynamicBox(AbstractSequence *content)
 AbstractDynamicBox::~AbstractDynamicBox() {
   if(Expr deinit = get_own_style(InternalDeinitialization)) {
     if(deinit != richmath_System_None)
-      Application::interrupt_wait(std::move(deinit), Application::dynamic_timeout);
+      Application::interrupt_wait(PMATH_CPP_MOVE(deinit), Application::dynamic_timeout);
   }
 }
 
@@ -76,12 +76,12 @@ void AbstractDynamicBox::ensure_init() {
   Expr deinit = get_own_style(Deinitialization);
   deinit = EvaluationContexts::make_context_block(
                   EvaluationContexts::replace_symbol_namespace(
-                    prepare_dynamic(std::move(deinit)),
+                    prepare_dynamic(PMATH_CPP_MOVE(deinit)),
                     strings::DollarContext_namespace, 
                     ctx),
                   ctx);
   if(deinit)
-    style->set(InternalDeinitialization, std::move(deinit));
+    style->set(InternalDeinitialization, PMATH_CPP_MOVE(deinit));
   else
     style->set(InternalDeinitialization, Symbol(richmath_System_None));
   
@@ -90,18 +90,18 @@ void AbstractDynamicBox::ensure_init() {
     init_call = Expr();
   
   if(Expr vars = get_own_style(DynamicLocalValues))
-    init_call = List(std::move(vars), std::move(init_call));
+    init_call = List(PMATH_CPP_MOVE(vars), PMATH_CPP_MOVE(init_call));
   
   if(init_call) {
     init_call = EvaluationContexts::make_context_block(
                   EvaluationContexts::replace_symbol_namespace(
                     prepare_dynamic(
-                      std::move(init_call)), 
+                      PMATH_CPP_MOVE(init_call)), 
                     strings::DollarContext_namespace, 
                     ctx),
                   ctx);
     
-    Application::interrupt_wait_for(std::move(init_call), this, Application::dynamic_timeout);
+    Application::interrupt_wait_for(PMATH_CPP_MOVE(init_call), this, Application::dynamic_timeout);
   }
 }
 
@@ -148,7 +148,7 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     must_update(true);
   }
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 

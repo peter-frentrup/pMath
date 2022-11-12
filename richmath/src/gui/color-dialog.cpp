@@ -9,7 +9,7 @@ using namespace richmath;
 
 
 Expr richmath_eval_FrontEnd_ColorDialog(Expr expr) {
-  return ColorDialog::run(std::move(expr));
+  return ColorDialog::run(PMATH_CPP_MOVE(expr));
 }
 
 //{ class ColorDialog ...

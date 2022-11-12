@@ -78,8 +78,8 @@ void Win32TooltipWindow::show_global_tooltip(Box *source, Expr boxes, SharedPtr<
     
     CommonTooltips::load_content(
       tooltip_window->document(), 
-      std::move(boxes), 
-      std::move(stylesheet));
+      PMATH_CPP_MOVE(boxes), 
+      PMATH_CPP_MOVE(stylesheet));
   }
   
   if(!IsWindowVisible(tooltip_window->_hwnd))

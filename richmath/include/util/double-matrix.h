@@ -34,7 +34,7 @@ namespace richmath {
         
         const void *data = pmath_packed_array_read(expr.get(), nullptr, 0);
         
-        return DoubleMatrix{std::move(expr), rows, cols, row_stride, (double*)data};
+        return DoubleMatrix{PMATH_CPP_MOVE(expr), rows, cols, row_stride, (double*)data};
       }
       
       explicit operator bool() const { return _raw_data != nullptr; }

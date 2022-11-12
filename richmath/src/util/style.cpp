@@ -268,7 +268,7 @@ namespace {
       virtual bool is_valid_key(int val) {    return _int_to_expr.search(val) != nullptr; }
       virtual bool is_valid_expr(Expr expr) { return _expr_to_int.search(expr) != nullptr; }
       
-      virtual int to_int(Expr expr) { return _expr_to_int[std::move(expr)]; }
+      virtual int to_int(Expr expr) { return _expr_to_int[PMATH_CPP_MOVE(expr)]; }
       virtual Expr to_expr(int val) { return _int_to_expr[val]; }
       
       const Hashtable<Expr, int> &expr_to_int() { return _expr_to_int; }
@@ -296,7 +296,7 @@ namespace {
     ButtonFrameStyleConverter();
     
     protected:
-      void add(ContainerType val, Expr expr) { EnumStyleConverter::add((int)val, std::move(expr)); }
+      void add(ContainerType val, Expr expr) { EnumStyleConverter::add((int)val, PMATH_CPP_MOVE(expr)); }
   };
   
   struct ButtonSourceStyleConverter: public EnumStyleConverter {
@@ -1276,7 +1276,7 @@ bool StyleImpl::set_pmath_flatlist(StyleOptionName n, Expr obj) {
     if(StyleInformation::is_list_with_inherited(obj)) {
       Expr inherited;
       if(raw_get_expr(n, &inherited)) {
-        obj = merge_flatlist_members(std::move(obj), std::move(inherited));
+        obj = merge_flatlist_members(PMATH_CPP_MOVE(obj), PMATH_CPP_MOVE(inherited));
       }
     }
   }
@@ -1386,16 +1386,16 @@ Expr StyleImpl::merge_style_values(StyleOptionName key, Expr newer, Expr older) 
   
   switch(type) {
     case StyleType::Margin:
-      return merge_margin_values(std::move(newer), std::move(older));
+      return merge_margin_values(PMATH_CPP_MOVE(newer), PMATH_CPP_MOVE(older));
       
     case StyleType::Size:
-      return merge_tuple_members(std::move(newer), std::move(older));
+      return merge_tuple_members(PMATH_CPP_MOVE(newer), PMATH_CPP_MOVE(older));
       
     case StyleType::RuleSet:
-      return merge_ruleset_members(key, std::move(newer), std::move(older));
+      return merge_ruleset_members(key, PMATH_CPP_MOVE(newer), PMATH_CPP_MOVE(older));
       
     case StyleType::AnyFlatList:
-      return merge_flatlist_members(std::move(newer), std::move(older));
+      return merge_flatlist_members(PMATH_CPP_MOVE(newer), PMATH_CPP_MOVE(older));
       
     default:
       break;
@@ -1435,8 +1435,8 @@ Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr olde
       }
       
       if(new_rhs != rhs) {
-        rule.set(2, std::move(new_rhs));
-        newer.set(i, std::move(rule));
+        rule.set(2, PMATH_CPP_MOVE(new_rhs));
+        newer.set(i, PMATH_CPP_MOVE(rule));
       }
     }
   }
@@ -1472,7 +1472,7 @@ Expr StyleImpl::merge_margin_values(Expr newer, Expr older) {
     if(newer.expr_length() == 2)
       return merge_tuple_members(newer, List(inherited_margin_leftright(older), inherited_margin_topbottom(older)));
       
-    return merge_tuple_members(std::move(newer), std::move(older));
+    return merge_tuple_members(PMATH_CPP_MOVE(newer), PMATH_CPP_MOVE(older));
   }
   return newer;
 }
@@ -1516,10 +1516,10 @@ Expr StyleImpl::finish_style_merge(StyleOptionName key, Expr value) {
   StyleType type = StyleInformation::get_type(key);
   switch(type) {
     case StyleType::RuleSet:
-      return finish_ruleset_merge(key, std::move(value));
+      return finish_ruleset_merge(key, PMATH_CPP_MOVE(value));
       
     case StyleType::AnyFlatList:
-      return finish_flatlist_merge(key, std::move(value));
+      return finish_flatlist_merge(key, PMATH_CPP_MOVE(value));
       
     default:
       break;
@@ -1554,8 +1554,8 @@ Expr StyleImpl::finish_ruleset_merge(StyleOptionName key, Expr value) {
       }
       
       if(new_rhs != rhs) {
-        rule.set(2, std::move(new_rhs));
-        value.set(i, std::move(rule));
+        rule.set(2, PMATH_CPP_MOVE(new_rhs));
+        value.set(i, PMATH_CPP_MOVE(rule));
       }
     }
   }
@@ -1602,7 +1602,7 @@ Expr StyleImpl::inherited_ruleset_member(Expr inherited, Expr key) {
 Expr StyleImpl::inherited_margin_leftright(Expr inherited) {
   if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
-      return inherited_tuple_member(std::move(inherited), 1);
+      return inherited_tuple_member(PMATH_CPP_MOVE(inherited), 1);
   }
   
   return List(inherited_tuple_member(inherited, 1), inherited_tuple_member(inherited, 2));
@@ -1611,25 +1611,25 @@ Expr StyleImpl::inherited_margin_leftright(Expr inherited) {
 Expr StyleImpl::inherited_margin_left(Expr inherited) {
   if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
-      return inherited_tuple_member(inherited_tuple_member(std::move(inherited), 1), 1);
+      return inherited_tuple_member(inherited_tuple_member(PMATH_CPP_MOVE(inherited), 1), 1);
   }
   
-  return inherited_tuple_member(std::move(inherited), 1);
+  return inherited_tuple_member(PMATH_CPP_MOVE(inherited), 1);
 }
 
 Expr StyleImpl::inherited_margin_right(Expr inherited) {
   if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
-      return inherited_tuple_member(inherited_tuple_member(std::move(inherited), 1), 2);
+      return inherited_tuple_member(inherited_tuple_member(PMATH_CPP_MOVE(inherited), 1), 2);
   }
   
-  return inherited_tuple_member(std::move(inherited), 2);
+  return inherited_tuple_member(PMATH_CPP_MOVE(inherited), 2);
 }
 
 Expr StyleImpl::inherited_margin_topbottom(Expr inherited) {
   if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
-      return inherited_tuple_member(std::move(inherited), 2);
+      return inherited_tuple_member(PMATH_CPP_MOVE(inherited), 2);
   }
   
   return List(inherited_tuple_member(inherited, 3), inherited_tuple_member(inherited, 4));
@@ -1638,19 +1638,19 @@ Expr StyleImpl::inherited_margin_topbottom(Expr inherited) {
 Expr StyleImpl::inherited_margin_top(Expr inherited) {
   if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
-      return inherited_tuple_member(inherited_tuple_member(std::move(inherited), 2), 1);
+      return inherited_tuple_member(inherited_tuple_member(PMATH_CPP_MOVE(inherited), 2), 1);
   }
   
-  return inherited_tuple_member(std::move(inherited), 3);
+  return inherited_tuple_member(PMATH_CPP_MOVE(inherited), 3);
 }
 
 Expr StyleImpl::inherited_margin_bottom(Expr inherited) {
   if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
-      return inherited_tuple_member(inherited_tuple_member(std::move(inherited), 2), 2);
+      return inherited_tuple_member(inherited_tuple_member(PMATH_CPP_MOVE(inherited), 2), 2);
   }
   
-  return inherited_tuple_member(std::move(inherited), 4);
+  return inherited_tuple_member(PMATH_CPP_MOVE(inherited), 4);
 }
 
 Expr StyleImpl::prepare_inherited(StyleOptionName n) const {
@@ -1697,7 +1697,7 @@ Expr StyleImpl::prepare_inherited_ruleset(StyleOptionName n) const {
     Expr dyn;
     if(raw_get_expr(StyleOptionName{entry.value}.to_dynamic(), &dyn)) {
       all_inherited = false;
-      Gather::emit(Rule(entry.key, std::move(dyn)));
+      Gather::emit(Rule(entry.key, PMATH_CPP_MOVE(dyn)));
     }
   }
   
@@ -1736,46 +1736,46 @@ Expr StyleImpl::raw_get_pmath(StyleOptionName key, Expr inherited) const {
       break;
       
     case StyleType::Bool:
-      return raw_get_pmath_bool(key, std::move(inherited));
+      return raw_get_pmath_bool(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::AutoBool:
-      return raw_get_pmath_bool_auto(key, std::move(inherited));
+      return raw_get_pmath_bool_auto(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::Color:
-      return raw_get_pmath_color(key, std::move(inherited));
+      return raw_get_pmath_color(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::Integer:
-      return raw_get_pmath_int(key, std::move(inherited));
+      return raw_get_pmath_int(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::Number:
-      return raw_get_pmath_float(key, std::move(inherited));
+      return raw_get_pmath_float(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::AutoPositive:
-      return raw_get_pmath_posnum_auto(key, std::move(inherited));
+      return raw_get_pmath_posnum_auto(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::Length:
-      return raw_get_pmath_length(key, std::move(inherited));
+      return raw_get_pmath_length(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::Margin:
-      return raw_get_pmath_margin(key, std::move(inherited));
+      return raw_get_pmath_margin(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::Size:
-      return raw_get_pmath_size(key, std::move(inherited));
+      return raw_get_pmath_size(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::String:
-      return raw_get_pmath_string(key, std::move(inherited));
+      return raw_get_pmath_string(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::Any:
-      return raw_get_pmath_object(key, std::move(inherited));
+      return raw_get_pmath_object(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::AnyFlatList:
-      return raw_get_pmath_flatlist(key, std::move(inherited));
+      return raw_get_pmath_flatlist(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::Enum:
-      return raw_get_pmath_enum(key, std::move(inherited));
+      return raw_get_pmath_enum(key, PMATH_CPP_MOVE(inherited));
       
     case StyleType::RuleSet:
-      return raw_get_pmath_ruleset(key, std::move(inherited));
+      return raw_get_pmath_ruleset(key, PMATH_CPP_MOVE(inherited));
   }
   
   return inherited;
@@ -1906,7 +1906,7 @@ Expr StyleImpl::raw_get_pmath_margin(StyleOptionName n, Expr inherited) const { 
     if(bottom.is_valid())
       b = bottom.to_pmath();
     else
-      b = inherited_margin_bottom(std::move(inherited));
+      b = inherited_margin_bottom(PMATH_CPP_MOVE(inherited));
     
     if(l == r) {
       if(t == b) {
@@ -2189,7 +2189,7 @@ void Style::clear() {
 void Style::reset(SharedPtr<Style> &style, String base_style_name) {
   if(!style) {
     style = new Style();
-    style->set(BaseStyleName, std::move(base_style_name));
+    style->set(BaseStyleName, PMATH_CPP_MOVE(base_style_name));
     return;
   }
   
@@ -2215,7 +2215,7 @@ void Style::reset(SharedPtr<Style> &style, String base_style_name) {
 }
 
 void Style::add_pmath(Expr options, bool amend) {
-  if(StyleImpl::of(*this).add_pmath(std::move(options), amend))
+  if(StyleImpl::of(*this).add_pmath(PMATH_CPP_MOVE(options), amend))
     notify_all();
 }
 
@@ -2259,11 +2259,11 @@ bool Style::contains_inherited(Expr expr) {
 }
 
 Expr Style::merge_style_values(StyleOptionName n, Expr newer, Expr older) {
-  return StyleImpl::merge_style_values(n, std::move(newer), std::move(older));
+  return StyleImpl::merge_style_values(n, PMATH_CPP_MOVE(newer), PMATH_CPP_MOVE(older));
 }
 
 Expr Style::finish_style_merge(StyleOptionName n, Expr value) {
-  return StyleImpl::finish_style_merge(n, std::move(value));
+  return StyleImpl::finish_style_merge(n, PMATH_CPP_MOVE(value));
 }
 
 bool Style::get(ColorStyleOptionName n, Color *value) const {
@@ -2535,11 +2535,11 @@ StyleType Style::get_type(StyleOptionName n) {
 }
 
 Expr Style::get_current_style_value(FrontEndObject *obj, Expr item) {
-  return StyleInformation::get_current_style_value(obj, std::move(item));
+  return StyleInformation::get_current_style_value(obj, PMATH_CPP_MOVE(item));
 }
 
 bool Style::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
-  return StyleInformation::put_current_style_value(obj, std::move(item), std::move(rhs));
+  return StyleInformation::put_current_style_value(obj, PMATH_CPP_MOVE(item), PMATH_CPP_MOVE(rhs));
 }
 
 bool Style::set_pmath(StyleOptionName n, Expr obj) {
@@ -2999,7 +2999,7 @@ bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
   if(StyleInformation::get_type(n) == StyleType::AnyFlatList) {
     Expr result = get_pmath(s, n);
     if(result != richmath_System_Inherited) {
-      *value = std::move(result);
+      *value = PMATH_CPP_MOVE(result);
       return true;
     }
     return false;
@@ -3011,7 +3011,7 @@ Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
   Expr result = Symbol(richmath_System_Inherited);
   
   for(int count = 20; count && s && Style::contains_inherited(result); --count) {
-    result = Style::merge_style_values(n, std::move(result), s->get_pmath(n));
+    result = Style::merge_style_values(n, PMATH_CPP_MOVE(result), s->get_pmath(n));
     
     s = find_parent_style(s);
   }
@@ -3723,7 +3723,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
 //      // TODO: check further items ...
 //    }
   }
-  else if(opts.lookup(std::move(item), Expr{PMATH_UNDEFINED}) == PMATH_UNDEFINED)
+  else if(opts.lookup(PMATH_CPP_MOVE(item), Expr{PMATH_UNDEFINED}) == PMATH_UNDEFINED)
     return false;
   
   if(!styled_obj->style) {
@@ -3741,7 +3741,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
       any_change = styled_obj->style->set_pmath(key, Symbol(richmath_System_Inherited)) || any_change;
     }
   }
-  any_change = styled_obj->style->set_pmath(key, std::move(rhs)) || any_change;
+  any_change = styled_obj->style->set_pmath(key, PMATH_CPP_MOVE(rhs)) || any_change;
   
   if(any_change)
     styled_obj->on_style_changed(Style::modifies_size(key));
@@ -3927,7 +3927,7 @@ int MenuSortingValueStyleConverter::to_int(Expr expr) {
     if(value >= 0)
       return value;
   }
-  return EnumStyleConverter::to_int(std::move(expr));
+  return EnumStyleConverter::to_int(PMATH_CPP_MOVE(expr));
 }
 
 Expr MenuSortingValueStyleConverter::to_expr(int val) {

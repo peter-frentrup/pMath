@@ -333,10 +333,10 @@ namespace {
           return;
         
         if(auto seq = dynamic_cast<MathSequence*>(box)) {
-          track_math_sequence(seq, source, std::move(expr));
+          track_math_sequence(seq, source, PMATH_CPP_MOVE(expr));
         }
         else if(auto seq = dynamic_cast<TextSequence*>(box)) {
-          track_text_sequence(seq, source, std::move(expr));
+          track_text_sequence(seq, source, PMATH_CPP_MOVE(expr));
         }
         else if(auto num = dynamic_cast<NumberBox*>(box)) {
           if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
@@ -384,7 +384,7 @@ namespace {
             }
           }
         }
-        visit_span(se, source, std::move(expr));
+        visit_span(se, source, PMATH_CPP_MOVE(expr));
         delete se;
       }
       
@@ -475,7 +475,7 @@ namespace {
       
       void track_text_sequence(TextSequence *seq, const SelectionReference &source, Expr expr) {
         if(expr.is_string()) {
-          visit_text_span(seq, 0, seq->length(), source, std::move(expr));
+          visit_text_span(seq, 0, seq->length(), source, PMATH_CPP_MOVE(expr));
           return;
         }
         
@@ -502,7 +502,7 @@ namespace {
               o_next = o_buf.length();
             
             if(source_location.index <= item_source.end && item_source.id == source_location.id) {
-              visit_text_span(seq, o_pos, o_next, item_source, std::move(item));
+              visit_text_span(seq, o_pos, o_next, item_source, PMATH_CPP_MOVE(item));
               return;
             }
             
@@ -555,7 +555,7 @@ namespace {
     public:
       BoxTracking() 
         : callback {
-            [this](Box *box, Expr expr){ after_creation(box, std::move(expr)); }, 
+            [this](Box *box, Expr expr){ after_creation(box, PMATH_CPP_MOVE(expr)); }, 
             Box::on_finish_load_from_object}
       {
       }

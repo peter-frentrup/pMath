@@ -64,7 +64,7 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   reset_style();
   style->add_pmath(options);
     
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -185,7 +185,7 @@ void SetterBox::Impl::finish_update_value() {
   }
   
   val = EvaluationContexts::replace_symbol_namespace(
-          std::move(val), 
+          PMATH_CPP_MOVE(val), 
           EvaluationContexts::resolve_context(&self), 
           strings::DollarContext_namespace);
 

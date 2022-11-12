@@ -47,13 +47,13 @@ Expr richmath_eval_FrontEnd_KernelExecute(Expr expr) {
   options = {};
   
   if(src)
-    expr = src->prepare_dynamic(std::move(expr));
+    expr = src->prepare_dynamic(PMATH_CPP_MOVE(expr));
   
   if(meth == strings::Preemptive) {
-    return Application::interrupt_wait_for_interactive(std::move(expr), src, Application::button_timeout);
+    return Application::interrupt_wait_for_interactive(PMATH_CPP_MOVE(expr), src, Application::button_timeout);
   }
   else if(meth == strings::Queued) {
-    Application::add_job(new EvaluationJob(std::move(expr), src));
+    Application::add_job(new EvaluationJob(PMATH_CPP_MOVE(expr), src));
     return {};
   }
   else {

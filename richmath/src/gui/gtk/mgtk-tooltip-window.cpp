@@ -86,8 +86,8 @@ void MathGtkTooltipWindow::show_global_tooltip(Box *source, Expr boxes, SharedPt
     
     CommonTooltips::load_content(
       tooltip_window->document(), 
-      std::move(boxes), 
-      std::move(stylesheet));
+      PMATH_CPP_MOVE(boxes), 
+      PMATH_CPP_MOVE(stylesheet));
   }
   
   if(!gtk_widget_get_visible(tooltip_window->widget()))

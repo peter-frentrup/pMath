@@ -540,7 +540,7 @@ GtkMenu *MathGtkWidget::create_popup_menu(VolatileSelection src, ObjectStyleOpti
   
   Expr menu_expr = src.box->get_finished_flatlist_style(style_name);
   if(menu_expr[0] == richmath_System_List && menu_expr.expr_length() > 0) {
-    menu_expr = Call(Symbol(richmath_System_Menu), strings::Popup, std::move(menu_expr));
+    menu_expr = Call(Symbol(richmath_System_Menu), strings::Popup, PMATH_CPP_MOVE(menu_expr));
   }
   else
     return nullptr;

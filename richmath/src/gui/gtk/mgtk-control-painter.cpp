@@ -653,7 +653,7 @@ SharedPtr<BoxAnimation> MathGtkControlPainter::control_transition(
             state2,
             rect);
           
-          result = std::move(anim);
+          result = PMATH_CPP_MOVE(anim);
         }
 //        else
 //          pmath_debug_print("[%d,%d -> %d,%d no buffer]\n", type1, state1, type2, state2);

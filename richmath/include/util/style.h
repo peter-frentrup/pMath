@@ -632,14 +632,14 @@ namespace richmath {
       static void update_box_registry(StyledObject *obj);
       //static void unregister_box(StyledObject *obj);
       
-      Color  get_or_default(SharedPtr<Style> s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(std::move(s), n, &fallback_result); return fallback_result; }
-      int    get_or_default(SharedPtr<Style> s, IntStyleOptionName n,    int    fallback_result = 0) {           get(std::move(s), n, &fallback_result); return fallback_result; }
-      float  get_or_default(SharedPtr<Style> s, FloatStyleOptionName n,  float  fallback_result = 0.0f) {        get(std::move(s), n, &fallback_result); return fallback_result; }
-      Length get_or_default(SharedPtr<Style> s, LengthStyleOptionName n, Length fallback_result = Length(0.0)) { get(std::move(s), n, &fallback_result); return fallback_result; }
-      String get_or_default(SharedPtr<Style> s, StringStyleOptionName n, String fallback_result) {               get(std::move(s), n, &fallback_result); return fallback_result; }
-      Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   fallback_result) {               get(std::move(s), n, &fallback_result); return fallback_result; }
-      String get_or_default(SharedPtr<Style> s, StringStyleOptionName n) { return get_or_default(std::move(s), n, String{}); }
-      Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n) { return get_or_default(std::move(s), n, Expr{}); }
+      Color  get_or_default(SharedPtr<Style> s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      int    get_or_default(SharedPtr<Style> s, IntStyleOptionName n,    int    fallback_result = 0) {           get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      float  get_or_default(SharedPtr<Style> s, FloatStyleOptionName n,  float  fallback_result = 0.0f) {        get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      Length get_or_default(SharedPtr<Style> s, LengthStyleOptionName n, Length fallback_result = Length(0.0)) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      String get_or_default(SharedPtr<Style> s, StringStyleOptionName n, String fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      String get_or_default(SharedPtr<Style> s, StringStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, String{}); }
+      Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, Expr{}); }
       
       Expr name() { return _name; }
       void unregister();

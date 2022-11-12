@@ -60,12 +60,12 @@ PartialDynamic::PartialDynamic() : _owner(nullptr) {
 PartialDynamic::PartialDynamic(StyledObject *owner, Expr expr)
  : _owner(owner)
 {
-  _held_expr = Call(Symbol(richmath_System_HoldComplete), std::move(expr));
+  _held_expr = Call(Symbol(richmath_System_HoldComplete), PMATH_CPP_MOVE(expr));
   _dyn_eval_template = Impl::prepare_dyn_eval_template(_held_expr);
 }
 
 void PartialDynamic::operator=(Expr expr) {
-  _held_expr = Call(Symbol(richmath_System_HoldComplete), std::move(expr));
+  _held_expr = Call(Symbol(richmath_System_HoldComplete), PMATH_CPP_MOVE(expr));
   _dyn_eval_template = Impl::prepare_dyn_eval_template(_held_expr);
 }
 
@@ -79,7 +79,7 @@ Expr PartialDynamic::get_value_now() {
   if(auto style = _owner->own_style()) 
     style->remove(InternalUsesCurrentValueOfMouseOver);
 
-  return Impl(*this).eval_finish_now(std::move(eval));
+  return Impl(*this).eval_finish_now(PMATH_CPP_MOVE(eval));
 }
 
 void PartialDynamic::get_value_later(Expr job_info) {
@@ -87,7 +87,7 @@ void PartialDynamic::get_value_later(Expr job_info) {
     return;
   
   if(!_dyn_eval_template) {
-    _owner->dynamic_finished(std::move(job_info), expr());
+    _owner->dynamic_finished(PMATH_CPP_MOVE(job_info), expr());
     return;
   }
   
@@ -97,7 +97,7 @@ void PartialDynamic::get_value_later(Expr job_info) {
   if(auto style = _owner->own_style()) 
     style->remove(InternalUsesCurrentValueOfMouseOver);
   
-  Application::add_job(new DynamicEvaluationJob(std::move(job_info), std::move(eval), _owner));
+  Application::add_job(new DynamicEvaluationJob(PMATH_CPP_MOVE(job_info), PMATH_CPP_MOVE(eval), _owner));
 }
 
 bool PartialDynamic::get_value(Expr *result, Expr job_info) {
@@ -113,17 +113,17 @@ bool PartialDynamic::get_value(Expr *result, Expr job_info) {
     style->remove(InternalUsesCurrentValueOfMouseOver);
   
   if(synchronous_updating) {
-    *result = Impl(*this).eval_finish_now(std::move(eval));
+    *result = Impl(*this).eval_finish_now(PMATH_CPP_MOVE(eval));
     return true;
   }
   else {
-    Application::add_job(new DynamicEvaluationJob(std::move(job_info), std::move(eval), _owner));
+    Application::add_job(new DynamicEvaluationJob(PMATH_CPP_MOVE(job_info), PMATH_CPP_MOVE(eval), _owner));
     return false;
   }
 }
 
 Expr PartialDynamic::finish_dynamic(Expr dyn_eval_result) {
-  Expr held = Impl::replace_parts(_held_expr, std::move(dyn_eval_result));
+  Expr held = Impl::replace_parts(_held_expr, PMATH_CPP_MOVE(dyn_eval_result));
   if(held.expr_length() == 1 && held[0] == richmath_System_HoldComplete)
     return held[1];
   
@@ -177,7 +177,7 @@ Expr PartialDynamic::Impl::replace_parts(Expr expr, Expr part_rules) {
   if(part_rules[0] != richmath_System_List)
     return expr;
   
-  return Evaluate(Call(Symbol(richmath_System_ReplacePart), std::move(expr), std::move(part_rules)));
+  return Evaluate(Call(Symbol(richmath_System_ReplacePart), PMATH_CPP_MOVE(expr), PMATH_CPP_MOVE(part_rules)));
 }
 
 Expr PartialDynamic::Impl::get_dyncall_unevaluated(bool &synchronous_updating) {
@@ -191,11 +191,11 @@ Expr PartialDynamic::Impl::get_dyncall_unevaluated(bool &synchronous_updating) {
     Expr eval_dyn_i = dyn.get_value_unevaluated();
     if(eval_dyn_i[0] == richmath_Internal_DynamicEvaluateMultiple) {
       rule.set(2, eval_dyn_i[1]);
-      eval.set(i, std::move(rule));
+      eval.set(i, PMATH_CPP_MOVE(rule));
     }
   }
   
-  eval = Call(Symbol(richmath_Internal_DynamicEvaluateMultiple), std::move(eval), self._owner->id().to_pmath_raw());
+  eval = Call(Symbol(richmath_Internal_DynamicEvaluateMultiple), PMATH_CPP_MOVE(eval), self._owner->id().to_pmath_raw());
   
   if(sync_settings == 1 << AutoBoolAutomatic) {
     sync_settings -= 1 << AutoBoolAutomatic;
@@ -216,12 +216,12 @@ Expr PartialDynamic::Impl::get_dyncall_unevaluated(bool &synchronous_updating) {
 }
 
 Expr PartialDynamic::Impl::eval_finish_now(Expr eval) {
-  eval = EvaluationContexts::make_context_block(std::move(eval), EvaluationContexts::resolve_context(self._owner));
+  eval = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(eval), EvaluationContexts::resolve_context(self._owner));
   
   auto old_eval_id = Dynamic::current_observer_id;
   Dynamic::current_observer_id = self._owner->id();
   
-  Expr repl = Application::interrupt_wait_for(std::move(eval), self._owner, Application::dynamic_timeout);
+  Expr repl = Application::interrupt_wait_for(PMATH_CPP_MOVE(eval), self._owner, Application::dynamic_timeout);
                  
   Dynamic::current_observer_id = old_eval_id;
   
@@ -229,7 +229,7 @@ Expr PartialDynamic::Impl::eval_finish_now(Expr eval) {
 }
 
 size_t PartialDynamic::Impl::collect_dynamic_positions(Array<int32_t> &all_flat, Expr expr) {
-  return collect_dynamic_positions(all_flat, nullptr, 0, std::move(expr));
+  return collect_dynamic_positions(all_flat, nullptr, 0, PMATH_CPP_MOVE(expr));
 }
 
 size_t PartialDynamic::Impl::collect_dynamic_positions(Array<int32_t> &all_flat, LinkedList<int32_t> *cur, int32_t cur_depth, Expr expr) {
@@ -289,7 +289,7 @@ Expr PartialDynamic::Impl::get(Expr expr, Expr indices) {
       pmath_packed_array_get_non_continuous_dimensions(indices.get()) == 0)
   {
     const size_t *sizes = pmath_packed_array_get_sizes(indices.get());
-    return get(std::move(expr), (const int32_t*)pmath_packed_array_read(indices.get(), nullptr, 0), *sizes);
+    return get(PMATH_CPP_MOVE(expr), (const int32_t*)pmath_packed_array_read(indices.get(), nullptr, 0), *sizes);
   }
   
   return Expr();

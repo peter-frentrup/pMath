@@ -1604,7 +1604,7 @@ Expr richmath_eval_FrontEnd_AddConfigShaper(Expr expr) {
   Expr data = expr[1];
   expr = Expr();
   
-  SharedPtr<ConfigShaper> shaper = ConfigShaper::try_register(std::move(data));
+  SharedPtr<ConfigShaper> shaper = ConfigShaper::try_register(PMATH_CPP_MOVE(data));
   
   if(shaper) {
     MathShaper::available_shapers.set(shaper->name(), shaper);

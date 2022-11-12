@@ -44,7 +44,7 @@ namespace richmath {
     Expr item;
     
     MenuSearchResult() : quality(0) {}
-    MenuSearchResult(int quality, int index, Expr item) : quality{quality}, index{index}, item{std::move(item)} {}
+    MenuSearchResult(int quality, int index, Expr item) : quality{quality}, index{index}, item{PMATH_CPP_MOVE(item)} {}
     
     friend bool operator<(const MenuSearchResult &left, const MenuSearchResult &right) {
       if(left.quality > right.quality)

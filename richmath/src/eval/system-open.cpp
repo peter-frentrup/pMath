@@ -49,7 +49,7 @@ Expr richmath_eval_FrontEnd_SystemOpen(Expr expr) {
   String s = expr[1];
   expr = {};
   
-  return system_open(std::move(s)) ? Expr() : Symbol(richmath_System_DollarFailed);
+  return system_open(PMATH_CPP_MOVE(s)) ? Expr() : Symbol(richmath_System_DollarFailed);
 }
 
 static bool system_open(String uriOrPath) {
@@ -61,7 +61,7 @@ static bool system_open(String uriOrPath) {
   
   if(String scheme = FileSystem::get_uri_scheme(uriOrPath)) {
     if(scheme.length() <= 1)
-      return system_open_file_path(FileSystem::to_existing_absolute_file_name(std::move(uriOrPath)));
+      return system_open_file_path(FileSystem::to_existing_absolute_file_name(PMATH_CPP_MOVE(uriOrPath)));
     
     if(contains_character_in_range(scheme, 'A', 'Z'))
       return false;
@@ -69,13 +69,13 @@ static bool system_open(String uriOrPath) {
     if(scheme.equals("file")) {
       return system_open_file_path(
                FileSystem::to_existing_absolute_file_name(
-                 FileSystem::get_local_path_from_uri(std::move(uriOrPath))));
+                 FileSystem::get_local_path_from_uri(PMATH_CPP_MOVE(uriOrPath))));
     }
     
     return system_open_non_file_uri(uriOrPath);
   }
   
-  return system_open_file_path(FileSystem::to_existing_absolute_file_name(std::move(uriOrPath)));
+  return system_open_file_path(FileSystem::to_existing_absolute_file_name(PMATH_CPP_MOVE(uriOrPath)));
 }
 
 static bool system_open_file_path(String path) {
@@ -85,9 +85,9 @@ static bool system_open_file_path(String path) {
   // TODO: open *.pmathdoc files locally ?
   
 #if defined(RICHMATH_USE_WIN32_GUI)
-  return win32_shell_execute_ex(std::move(path));
+  return win32_shell_execute_ex(PMATH_CPP_MOVE(path));
 #elif defined(RICHMATH_USE_GTK_GUI)
-  return mgtk_system_open_file_path(std::move(path));
+  return mgtk_system_open_file_path(PMATH_CPP_MOVE(path));
 #else
   return false;
 #endif
@@ -95,9 +95,9 @@ static bool system_open_file_path(String path) {
 
 static bool system_open_non_file_uri(String uri) {
 #if defined(RICHMATH_USE_WIN32_GUI)
-  return win32_shell_execute_ex(std::move(uri));
+  return win32_shell_execute_ex(PMATH_CPP_MOVE(uri));
 #elif defined(RICHMATH_USE_GTK_GUI)
-  return mgtk_system_open_non_file_uri(std::move(uri));
+  return mgtk_system_open_non_file_uri(PMATH_CPP_MOVE(uri));
 #else
   return false;
 #endif

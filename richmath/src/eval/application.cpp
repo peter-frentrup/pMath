@@ -312,7 +312,7 @@ void Application::notify(ClientNotification type, Expr data) {
     
   ClientNotificationData cn;
   cn.type = type;
-  cn.data = std::move(data);
+  cn.data = PMATH_CPP_MOVE(data);
   
   notifications.put(cn);
   pmath_thread_wakeup(main_message_queue.get());
@@ -341,7 +341,7 @@ Expr Application::notify_wait(ClientNotification type, Expr data) {
   cn.finished = &finished;
   cn.notify_queue = Expr(pmath_thread_get_queue());
   cn.type = type;
-  cn.data = std::move(data);
+  cn.data = PMATH_CPP_MOVE(data);
   cn.result_ptr = &result;
   
   notifications.put(cn);
@@ -411,7 +411,7 @@ void Application::gui_print_section(Expr expr) {
     ctx = EvaluationContexts::current();
   
   expr = EvaluationContexts::replace_symbol_namespace(
-           std::move(expr), 
+           PMATH_CPP_MOVE(expr), 
            ctx,
            strings::DollarContext_namespace);
   
@@ -964,7 +964,7 @@ Document *Application::try_create_document(Expr data) {
     
     for(auto item : sections.items()) {
       int pos = doc->length();
-      doc->insert_pmath(&pos, Documents::make_section_boxes(std::move(item), doc));
+      doc->insert_pmath(&pos, Documents::make_section_boxes(PMATH_CPP_MOVE(item), doc));
     }
   }
   
@@ -1259,7 +1259,7 @@ Expr Application::interrupt_wait_for_interactive(Expr expr, FrontEndObject *obj,
   }
   pmath_atomic_unlock(&print_pos_lock);
   
-  Expr result = interrupt_wait_for(std::move(expr), obj, seconds);
+  Expr result = interrupt_wait_for(PMATH_CPP_MOVE(expr), obj, seconds);
 
   pmath_atomic_lock(&print_pos_lock);
   {
@@ -1442,7 +1442,7 @@ static Expr cnt_callfrontend(Expr data) {
   
   Expr expr = data[1];
   data = {};
-  return Evaluate(std::move(expr));
+  return Evaluate(PMATH_CPP_MOVE(expr));
 }
 
 static void cnt_dynamicupdate(Expr data) {
@@ -1549,7 +1549,7 @@ namespace {
         // TODO: convert only the first line to boxes
         Expr boxes = sec->to_pmath(BoxOutputFlags::Default);
         Expr text = Application::interrupt_wait(
-                      Call(Symbol(richmath_FE_BoxesToText), std::move(boxes), strings::PlainText),
+                      Call(Symbol(richmath_FE_BoxesToText), PMATH_CPP_MOVE(boxes), strings::PlainText),
                       Application::edit_interrupt_timeout);
                       
         String str = text.to_string();
@@ -1628,11 +1628,11 @@ namespace {
               
               if(title.length() == 0)
                 title = String("untitled");
-              initialfile = std::move(title) + ".pmathdoc";
+              initialfile = PMATH_CPP_MOVE(title) + ".pmathdoc";
               
               String dir = doc->native()->directory();
               if(!dir.is_null())
-                initialfile = FileSystem::file_name_join(std::move(dir), std::move(initialfile));
+                initialfile = FileSystem::file_name_join(PMATH_CPP_MOVE(dir), PMATH_CPP_MOVE(initialfile));
             }
           }
           
@@ -1643,8 +1643,8 @@ namespace {
           filename = Application::run_filedialog(
                        Call(
                          Symbol(richmath_FE_FileSaveDialog),
-                         std::move(initialfile),
-                         std::move(filter)));
+                         PMATH_CPP_MOVE(initialfile),
+                         PMATH_CPP_MOVE(filter)));
         }
         
         if(!filename.is_string())
@@ -1738,56 +1738,56 @@ static void execute(ClientNotificationData &cn) {
       break;
       
     case ClientNotification::End:
-      cnt_end(std::move(cn.data));
+      cnt_end(PMATH_CPP_MOVE(cn.data));
       break;
       
     case ClientNotification::Return:
-      cnt_return(std::move(cn.data));
+      cnt_return(PMATH_CPP_MOVE(cn.data));
       break;
       
     case ClientNotification::ReturnBox:
-      cnt_returnbox(std::move(cn.data));
+      cnt_returnbox(PMATH_CPP_MOVE(cn.data));
       break;
       
     case ClientNotification::PrintSection:
-      cnt_printsection(std::move(cn.data));
+      cnt_printsection(PMATH_CPP_MOVE(cn.data));
       break;
     
     case ClientNotification::CallFrontEnd:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_callfrontend(std::move(cn.data)).release();
+        *cn.result_ptr = cnt_callfrontend(PMATH_CPP_MOVE(cn.data)).release();
       else
-        cnt_callfrontend(std::move(cn.data));
+        cnt_callfrontend(PMATH_CPP_MOVE(cn.data));
       break;
       
     case ClientNotification::MenuCommand:
-      Menus::run_command_now(std::move(cn.data));
+      Menus::run_command_now(PMATH_CPP_MOVE(cn.data));
       break;
       
     case ClientNotification::DynamicUpdate:
-      cnt_dynamicupdate(std::move(cn.data));
+      cnt_dynamicupdate(PMATH_CPP_MOVE(cn.data));
       break;
       
     case ClientNotification::DocumentRead:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_documentread(std::move(cn.data)).release();
+        *cn.result_ptr = cnt_documentread(PMATH_CPP_MOVE(cn.data)).release();
       break;
       
     case ClientNotification::FileDialog:
       if(cn.result_ptr)
-        *cn.result_ptr = Application::run_filedialog(std::move(cn.data)).release();
+        *cn.result_ptr = Application::run_filedialog(PMATH_CPP_MOVE(cn.data)).release();
       break;
       
     case ClientNotification::Save:
       if(cn.result_ptr)
-        *cn.result_ptr = SaveOperation::do_save(std::move(cn.data)).release();
+        *cn.result_ptr = SaveOperation::do_save(PMATH_CPP_MOVE(cn.data)).release();
       else
-        SaveOperation::do_save(std::move(cn.data));
+        SaveOperation::do_save(PMATH_CPP_MOVE(cn.data));
       break;
     
     case ClientNotification::AskInterrupt:
       if(cn.result_ptr)
-        *cn.result_ptr = ask_interrupt(std::move(cn.data)).release();
+        *cn.result_ptr = ask_interrupt(PMATH_CPP_MOVE(cn.data)).release();
       break;
   }
   

@@ -516,7 +516,7 @@ void TextSequence::load_from_object(Expr obj, BoxInputFlags options) {
     obj = TemplateBoxSlot::prepare_boxes(obj);
     
   if(obj.is_string())
-    obj = expand_string_boxes(String(std::move(obj)));
+    obj = expand_string_boxes(String(PMATH_CPP_MOVE(obj)));
     
   int next_box = 0;
   
@@ -532,7 +532,7 @@ void TextSequence::load_from_object(Expr obj, BoxInputFlags options) {
     
   boxes.length(next_box);
   
-  finish_load_from_object(std::move(obj));
+  finish_load_from_object(PMATH_CPP_MOVE(obj));
 }
 
 Box *TextSequence::move_logical(

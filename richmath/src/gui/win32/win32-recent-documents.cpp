@@ -99,7 +99,7 @@ void Win32RecentDocuments::add(String path) {
 static Expr indexed_open_document_menu_item(int index, String label, String path) {
   label = String("&") + Expr(index + 1).to_string() + " " + label;
   
-  return RecentDocuments::open_document_menu_item(std::move(label), std::move(path));
+  return RecentDocuments::open_document_menu_item(PMATH_CPP_MOVE(label), PMATH_CPP_MOVE(path));
 }
 
 static HRESULT shell_item_to_menu_item(ComBase<IShellItem> shell_item, Expr *menu_item, int index) {
@@ -117,7 +117,7 @@ static HRESULT shell_item_to_menu_item(ComBase<IShellItem> shell_item, Expr *men
   String label = String::FromUcs2((const uint16_t*)str);
   CoTaskMemFree(str);
   
-  *menu_item = indexed_open_document_menu_item(index, std::move(label), std::move(path));
+  *menu_item = indexed_open_document_menu_item(index, PMATH_CPP_MOVE(label), PMATH_CPP_MOVE(path));
   return S_OK;
 }
 
@@ -139,7 +139,7 @@ static HRESULT shell_link_to_menu_item(ComBase<IShellLinkW> shell_link, Expr *me
   while(i > 0 && buf[i - 1] != '\\')
     --i;
   
-  *menu_item = indexed_open_document_menu_item(index, path.part(i), std::move(path));
+  *menu_item = indexed_open_document_menu_item(index, path.part(i), PMATH_CPP_MOVE(path));
   return S_OK;
 }
 
@@ -169,18 +169,18 @@ static HRESULT jump_list_to_menu_list(Expr *result) {
     
     if(auto shell_item = obj.as<IShellItem>()) {
       Expr menu_item;
-      if(HRbool(shell_item_to_menu_item(std::move(shell_item), &menu_item, found))) {
+      if(HRbool(shell_item_to_menu_item(PMATH_CPP_MOVE(shell_item), &menu_item, found))) {
         ++found;
-        Gather::emit(std::move(menu_item));
+        Gather::emit(PMATH_CPP_MOVE(menu_item));
         continue;
       }
     }
     
     if(auto shell_link = obj.as<IShellLinkW>()) {
       Expr menu_item;
-      if(HRbool(shell_link_to_menu_item(std::move(shell_link), &menu_item, found))) {
+      if(HRbool(shell_link_to_menu_item(PMATH_CPP_MOVE(shell_link), &menu_item, found))) {
         ++found;
-        Gather::emit(std::move(menu_item));
+        Gather::emit(PMATH_CPP_MOVE(menu_item));
         continue;
       }
     }
@@ -224,7 +224,7 @@ static HRESULT jump_list_remove(String path) {
 }
 
 bool Win32RecentDocuments::remove(String path) {
-  HRESULT hr = jump_list_remove(std::move(path));
+  HRESULT hr = jump_list_remove(PMATH_CPP_MOVE(path));
   if(HRbool(hr)) {
     if(hr == S_FALSE)
       return false;
@@ -237,7 +237,7 @@ bool Win32RecentDocuments::remove(String path) {
 void Win32RecentDocuments::init() {
   if(String shortcut_path = FileAssociationRegistry::find_startup_shortcut_path()) {
     //Evaluate(Parse("FE`Private`StartupShortcutPath:= `1`", shortcut_path));
-    HRreport(FileAssociationRegistry::set_shortcut_app_user_model_id(std::move(shortcut_path)));
+    HRreport(FileAssociationRegistry::set_shortcut_app_user_model_id(PMATH_CPP_MOVE(shortcut_path)));
   }
   
   // Note: SetCurrentProcessExplicitAppUserModelID() will overwrite the STARTUPINFO block.

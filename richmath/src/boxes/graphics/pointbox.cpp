@@ -47,13 +47,13 @@ bool DoublePoint::load_point_or_points(DoubleMatrix &points, Expr coords) {
     if(the_point) {
       the_point.set(0, 0, pt.x);
       the_point.set(0, 1, pt.y);
-      points = std::move(the_point);
+      points = PMATH_CPP_MOVE(the_point);
       return true;
     }
     return false;
   }
   
-  return load_line(points, std::move(coords));
+  return load_line(points, PMATH_CPP_MOVE(coords));
 }
 
 bool DoublePoint::load_line(DoubleMatrix &line, Expr coords) {
@@ -88,7 +88,7 @@ bool DoublePoint::load_line(DoubleMatrix &line, Expr coords) {
     new_points.set(i, 1, pt.y);
   }
   
-  line = std::move(new_points);
+  line = PMATH_CPP_MOVE(new_points);
   return true;
 }
 
@@ -131,7 +131,7 @@ bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   if(_uncompressed_expr == expr) {
-    finish_load_from_object(std::move(expr));
+    finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
     
@@ -144,7 +144,7 @@ bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(DoublePoint::load_point_or_points(_points, data)) {
     _uncompressed_expr = expr;
-    finish_load_from_object(std::move(expr));
+    finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
   

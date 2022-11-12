@@ -530,7 +530,7 @@ void MenuItemBuilder::update_items(HMENU sub) {
           mii.dwItemData = list_id;
           
           if(Expr cmd = Win32Menu::id_to_command(mii.wID)) {
-            MenuCommandStatus status = Menus::test_command_status(std::move(cmd));
+            MenuCommandStatus status = Menus::test_command_status(PMATH_CPP_MOVE(cmd));
             
             mii.fMask |= MIIM_STATE;
             if(status.enabled)
@@ -606,7 +606,7 @@ void MenuItemBuilder::update_items(HMENU sub) {
       }
     
       if(Expr cmd = Win32Menu::id_to_command(mii.wID)) {
-        MenuCommandStatus status = Menus::test_command_status(std::move(cmd));
+        MenuCommandStatus status = Menus::test_command_status(PMATH_CPP_MOVE(cmd));
         mii.fMask = MIIM_STATE;
         
         if(status.enabled)
@@ -634,10 +634,10 @@ bool MenuItemBuilder::init_info(MENUITEMINFOW *info, Expr item, String *buffer) 
     return init_delimiter_info(info);
   
   if(item[0] == richmath_System_MenuItem && item.expr_length() == 2)
-    return init_item_info(info, std::move(item), buffer);
+    return init_item_info(info, PMATH_CPP_MOVE(item), buffer);
   
   if(item[0] == richmath_System_Menu && item.expr_length() == 2)
-    return init_submenu_info(info, std::move(item), buffer);
+    return init_submenu_info(info, PMATH_CPP_MOVE(item), buffer);
   
   return false;
 }
@@ -695,7 +695,7 @@ bool MenuItemBuilder::init_submenu_info(MENUITEMINFOW *info, Expr item, String *
   }
   else if(sub_items[0] == richmath_System_List) {
     info->fMask |= MIIM_SUBMENU;
-    info->hSubMenu = create_menu(std::move(item), true);
+    info->hSubMenu = create_menu(PMATH_CPP_MOVE(item), true);
   }
   
   return true;

@@ -134,7 +134,7 @@ void AxisTicks::load_from_object(Expr expr, BoxInputFlags options) {
     _rel_tick_neg[i] = 0;
   }
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
 }
 
 bool AxisTicks::is_visible(double t) {

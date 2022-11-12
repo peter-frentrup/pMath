@@ -9,6 +9,7 @@
 #include <type_traits>
 
 #include <util/base.h>
+#include <pmath-cpp.h> // for PMATH_CPP_MOVE
 
 #ifndef NDEBUG
 #  define RICHMATH_DEBUG_HASHTABLES
@@ -21,7 +22,6 @@
 #else
 #  define HASHTABLE_ASSERT(a)  ((void)0)
 #endif
-
 
 
 namespace richmath {
@@ -98,7 +98,7 @@ namespace richmath {
   class Entry {
     public:
       Entry(const K &k, const V &v): key(k), value(v) {}
-      Entry(const K &k, V &&v): key(k), value(std::move(v)) {}
+      Entry(const K &k, V &&v): key(k), value(PMATH_CPP_MOVE(v)) {}
       
       Entry(const Entry<K, V> &src) = delete;
       const Entry &operator=(const Entry<K, V> &src) = delete;
@@ -579,7 +579,7 @@ namespace richmath {
       template<typename F>
       bool modify(const K &key, const V &value, F values_are_equal) {
         V tmp{value};
-        return modify(key, std::move(tmp), values_are_equal);
+        return modify(key, PMATH_CPP_MOVE(tmp), values_are_equal);
       }
       
       // return whether the value was modified
@@ -592,43 +592,43 @@ namespace richmath {
           if(values_are_equal(tab[i]->value, value))
             return false;
           
-          tab[i]->value = std::move(value);
+          tab[i]->value = PMATH_CPP_MOVE(value);
           return true;
         }
         
         if((nonnull_count + 1) * 3 >= capacity * 2) {
           resize(2 * nonnull_count);
           
-          return modify(key, std::move(value), values_are_equal);
+          return modify(key, PMATH_CPP_MOVE(value), values_are_equal);
         }
         
         if(tab[i] == 0)
           ++nonnull_count;
         ++used_count;
-        tab[i] = new Entry<K, V>(key, std::move(value));
+        tab[i] = new Entry<K, V>(key, PMATH_CPP_MOVE(value));
         return true;
       }
       
       // return whether the value was added
       bool set(const K &key, const V &value) {
         V tmp{value};
-        return set(key, std::move(tmp));
+        return set(key, PMATH_CPP_MOVE(tmp));
       }
       
       // return whether the value added
       bool set(const K &key, V &&value) {
-        return modify(key, std::move(value), [](const V &left, const V &right) { return false; });
+        return modify(key, PMATH_CPP_MOVE(value), [](const V &left, const V &right) { return false; });
       }
       
       // return whether the value was added
       bool set_default(const K &key, const V &value) {
         V tmp{value};
-        return set_default(key, std::move(tmp));
+        return set_default(key, PMATH_CPP_MOVE(tmp));
       }
       
       // return whether the value added
       bool set_default(const K &key, V &&value) {
-        return modify(key, std::move(value), [](const V &left, const V &right) { return true; });
+        return modify(key, PMATH_CPP_MOVE(value), [](const V &left, const V &right) { return true; });
       }
       
       template <typename K2, typename V2>

@@ -195,7 +195,7 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   range_step        = new_range_step;
   use_double_values(new_use_double_values);
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -335,7 +335,7 @@ void SliderBox::dynamic_updated() {
 }
 
 void SliderBox::dynamic_finished(Expr info, Expr result) {
-  double new_value = Impl(*this).translate_range_value(std::move(result));
+  double new_value = Impl(*this).translate_range_value(PMATH_CPP_MOVE(result));
   
   if(range_value != new_value) {
     Impl(*this).set_range_value(new_value);
@@ -596,11 +596,11 @@ void SliderBox::Impl::finish_update_value() {
   }
     
   val = EvaluationContexts::replace_symbol_namespace(
-          std::move(val), 
+          PMATH_CPP_MOVE(val), 
           EvaluationContexts::resolve_context(&self), 
           strings::DollarContext_namespace);
   
-  set_range_value(translate_range_value(std::move(val)));
+  set_range_value(translate_range_value(PMATH_CPP_MOVE(val)));
 }
 
 double SliderBox::Impl::translate_range_value(Expr val) {

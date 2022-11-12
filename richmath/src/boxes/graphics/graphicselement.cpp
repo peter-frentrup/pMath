@@ -152,7 +152,7 @@ Expr GraphicsElement::prepare_dynamic(Expr expr) {
     prev = prev->style_parent();
   
   if(prev)
-    return prev->prepare_dynamic(std::move(expr));
+    return prev->prepare_dynamic(PMATH_CPP_MOVE(expr));
   
   return expr;
 }
@@ -216,7 +216,7 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags op
       sty_par = elem;
   }
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -224,7 +224,7 @@ void GraphicsElementCollection::load_from_object(Expr expr, BoxInputFlags opts) 
   if(expr[0] != richmath_System_List)
     expr = List(expr);
     
-  try_load_from_object(std::move(expr), opts);
+  try_load_from_object(PMATH_CPP_MOVE(expr), opts);
 }
 
 void GraphicsElementCollection::add(GraphicsElement *g) {

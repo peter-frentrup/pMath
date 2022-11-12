@@ -83,7 +83,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     dynamic = Symbol(richmath_System_False);
   }
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -177,7 +177,7 @@ void CheckboxBox::click() {
   else
     swap(mouse_down_value, value);
     
-  dynamic.assign(std::move(value), false, true, true);
+  dynamic.assign(PMATH_CPP_MOVE(value), false, true, true);
 }
 
 //} ... class CheckboxBox
@@ -210,7 +210,7 @@ void CheckboxBox::Impl::finish_update_value() {
   }
   
   val = EvaluationContexts::replace_symbol_namespace(
-          std::move(val), 
+          PMATH_CPP_MOVE(val), 
           EvaluationContexts::resolve_context(&self), 
           strings::DollarContext_namespace);
 
@@ -279,7 +279,7 @@ Expr CheckboxBox::Impl::to_literal() {
   
   Expr val = self.dynamic.get_value_now();
   val = EvaluationContexts::replace_symbol_namespace(
-          std::move(val),
+          PMATH_CPP_MOVE(val),
           EvaluationContexts::resolve_context(&self),
           strings::DollarContext_namespace);
   return val;

@@ -51,7 +51,7 @@ Section::Section(SharedPtr<Style> _style)
     unfilled_width(0),
     evaluating(0)
 {
-  style = std::move(_style);
+  style = PMATH_CPP_MOVE(_style);
   must_resize(true);
   visible(true);
 }
@@ -779,7 +779,7 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _content->load_from_object(content, opts);
   
   must_resize(true);
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -829,7 +829,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _content->load_from_object(content, opts);
   
   must_resize(true);
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -858,13 +858,13 @@ Expr EditSection::to_pmath_impl(BoxOutputFlags flags) {
     // todo: wrap in Quiet(...)
     result = Call(
                Symbol(richmath_System_MakeExpression),
-               std::move(result),
+               PMATH_CPP_MOVE(result),
                Rule(Symbol(richmath_System_ParseSymbols), Symbol(richmath_System_False)));
     
     if(original) {
       result = Call(
                  Symbol(richmath_System_Try), 
-                 std::move(result),
+                 PMATH_CPP_MOVE(result),
                  Symbol(richmath_System_DollarFailed),
                  List(
                    Call(
@@ -876,7 +876,7 @@ Expr EditSection::to_pmath_impl(BoxOutputFlags flags) {
   else{
     result = Call(
                Symbol(richmath_System_MakeExpression),
-               std::move(result));
+               PMATH_CPP_MOVE(result));
   }
   
   result = Application::interrupt_wait(
@@ -937,7 +937,7 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   /* now success is guaranteed */
   
-  style_data = std::move(new_style_data);
+  style_data = PMATH_CPP_MOVE(new_style_data);
   
 //  Expr sd_style_definitions(pmath_option_value(richmath_System_StyleData, richmath_System_StyleDefinitions, sd_opts.get()));
 //  if(sd_style_definitions.is_string())
@@ -966,7 +966,7 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _content->load_from_object(boxes, opts);
   
   must_resize(true);
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 

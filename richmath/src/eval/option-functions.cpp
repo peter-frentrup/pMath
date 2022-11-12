@@ -46,7 +46,7 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
       if(auto box = dynamic_cast<Box*>(obj)) {
         Expr sym = box->to_pmath_symbol();
         if(sym.is_symbol())
-          default_options = Call(Symbol(richmath_System_Options), std::move(sym));
+          default_options = Call(Symbol(richmath_System_Options), PMATH_CPP_MOVE(sym));
       }
       
       if(default_options) {
@@ -54,7 +54,7 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
         options = Call(Symbol(richmath_System_Union),
                     options,
                     Call(Symbol(richmath_System_FilterRules),
-                         std::move(default_options),
+                         PMATH_CPP_MOVE(default_options),
                          Call(Symbol(richmath_System_Except),
                               options)));
       }
@@ -62,7 +62,7 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
     
     if(len == 2 && need_filter) {
       expr.set(0, Symbol(richmath_System_Options));
-      expr.set(1, std::move(options));
+      expr.set(1, PMATH_CPP_MOVE(options));
       return expr;
     }
     

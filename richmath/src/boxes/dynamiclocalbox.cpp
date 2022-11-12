@@ -97,7 +97,7 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   content()->load_from_object(expr[2], opts);
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -129,7 +129,7 @@ Expr DynamicLocalBox::to_pmath_impl(BoxOutputFlags flags) {
       
 Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
   expr = Expr(Impl::internal_replace_symbols(expr.release(), _public_symbols, _private_symbols));
-  return AbstractDynamicBox::prepare_dynamic(std::move(expr));
+  return AbstractDynamicBox::prepare_dynamic(PMATH_CPP_MOVE(expr));
 }
 
 //} ... class DynamicLocalBox
@@ -176,13 +176,13 @@ Expr DynamicLocalBox::Impl::collect_definitions() {
     }
     
     if(sym.is_valid())
-      Impl(*this).emit_values(std::move(sym), ctx);
+      Impl(*this).emit_values(PMATH_CPP_MOVE(sym), ctx);
   }
   
   Expr values = g.end();
-  values = EvaluationContexts::replace_symbol_namespace(std::move(values), ctx, strings::DollarContext_namespace);
+  values = EvaluationContexts::replace_symbol_namespace(PMATH_CPP_MOVE(values), ctx, strings::DollarContext_namespace);
   
-  values = self.prepare_dynamic(std::move(values));
+  values = self.prepare_dynamic(PMATH_CPP_MOVE(values));
   values = Expr(Impl::internal_replace_symbols(values.release(), self._private_symbols, self._public_symbols));
   return values;
 }
@@ -193,7 +193,7 @@ void DynamicLocalBox::Impl::emit_values(Expr symbol, String eval_ctx) {
   Expr rules =  Application::interrupt_wait(
                   Call(Symbol(richmath_FE_SymbolDefinitions), 
                     EvaluationContexts::replace_symbol_namespace(
-                      self.prepare_dynamic(std::move(symbol)), 
+                      self.prepare_dynamic(PMATH_CPP_MOVE(symbol)), 
                       strings::DollarContext_namespace, 
                       eval_ctx)),
                   Application::dynamic_timeout);

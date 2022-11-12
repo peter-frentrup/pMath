@@ -27,7 +27,7 @@ namespace richmath {
     public:
       ObservableValue() = default;
       explicit ObservableValue(const T &value) : Observable(), _value(value) {}
-      explicit ObservableValue(T &&value) : Observable(), _value(std::move(value)) {}
+      explicit ObservableValue(T &&value) : Observable(), _value(PMATH_CPP_MOVE(value)) {}
       
       bool unobserved_equals(const T &other) {
         return _value == other;
@@ -53,7 +53,7 @@ namespace richmath {
       
       const T &operator=(T &&new_value) {
         if(_value != new_value) {
-          _value = std::move(new_value);
+          _value = PMATH_CPP_MOVE(new_value);
           notify_all();
         }
         return _value;

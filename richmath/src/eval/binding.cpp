@@ -949,7 +949,7 @@ static bool cut_cmd(Expr cmd) {
 }
 
 static bool do_kernelexecute_cmd(Expr cmd) {
-  cmd = richmath_eval_FrontEnd_KernelExecute(std::move(cmd));
+  cmd = richmath_eval_FrontEnd_KernelExecute(PMATH_CPP_MOVE(cmd));
   return cmd != richmath_System_DollarFailed;
 }
 

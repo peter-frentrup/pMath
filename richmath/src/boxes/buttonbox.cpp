@@ -112,7 +112,7 @@ bool ButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(options != PMATH_UNDEFINED) 
     style->add_pmath(options);
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -152,7 +152,7 @@ void ButtonBox::click() {
   if(fn.is_null())
     return;
   
-  fn = prepare_dynamic(std::move(fn));
+  fn = prepare_dynamic(PMATH_CPP_MOVE(fn));
   
   bool has_data;
   Expr data = get_own_style(ButtonData, Symbol(richmath_System_Inherited));
@@ -162,7 +162,7 @@ void ButtonBox::click() {
   }
   else {
     has_data = true;
-    data = prepare_dynamic(std::move(data));
+    data = prepare_dynamic(PMATH_CPP_MOVE(data));
   }
   
   Expr arg1;
@@ -201,17 +201,17 @@ void ButtonBox::click() {
   // Mathematica also gives a click repeat count as argument #3 and the currently 
   // pressed keyboard modifiers as argument #4
   // These should better be accessed via some CurrendValue() mechanism.
-  fn = Call(std::move(fn), std::move(arg1), std::move(data));
+  fn = Call(PMATH_CPP_MOVE(fn), PMATH_CPP_MOVE(arg1), PMATH_CPP_MOVE(data));
   
-  fn = EvaluationContexts::prepare_namespace_for(std::move(fn), this);
+  fn = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(fn), this);
   
   String method = get_own_style(Method);
   if(method == strings::Preemptive) {
-    fn = EvaluationContexts::prepare_namespace_for(std::move(fn), this);
-    Application::interrupt_wait_for_interactive(std::move(fn), this, Application::button_timeout);
+    fn = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(fn), this);
+    Application::interrupt_wait_for_interactive(PMATH_CPP_MOVE(fn), this, Application::button_timeout);
   }
   else if(method == strings::Queued) {
-    Application::add_job(new EvaluationJob(std::move(fn), this));
+    Application::add_job(new EvaluationJob(PMATH_CPP_MOVE(fn), this));
   }
   else if(auto doc = find_parent<Document>(false)) {
     doc->native()->beep();

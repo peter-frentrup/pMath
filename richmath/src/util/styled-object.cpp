@@ -252,7 +252,7 @@ void ActiveStyledObject::update_cause(Expr cause) {
     style = new Style;
   }
   
-  style->set(InternalUpdateCause, std::move(cause));
+  style->set(InternalUpdateCause, PMATH_CPP_MOVE(cause));
 }
 
 //} ... class ActiveStyledObject
@@ -367,9 +367,9 @@ bool Stylesheet_get<N,T>::impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style
 
 bool Stylesheet_get_pmath::impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, StyleOptionName n, Expr *result) {
   if(all) 
-    *result = Style::merge_style_values(n, std::move(*result), all->get_pmath(style, n));
+    *result = Style::merge_style_values(n, PMATH_CPP_MOVE(*result), all->get_pmath(style, n));
   else if(style)
-    *result = Style::merge_style_values(n, std::move(*result), style->get_pmath(n));
+    *result = Style::merge_style_values(n, PMATH_CPP_MOVE(*result), style->get_pmath(n));
   else
     return false;
   return !Style::contains_inherited(*result);

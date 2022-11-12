@@ -100,7 +100,7 @@ bool PaneSelectorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     if(i - 1 == _current_selection && _cases[i - 1] != val)
       must_update(true);
     
-    _cases[i - 1] = std::move(val);
+    _cases[i - 1] = PMATH_CPP_MOVE(val);
     _panes[i - 1]->load_from_object(rule[2], opts);
   }
   
@@ -118,7 +118,7 @@ bool PaneSelectorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     must_update(true);
   }
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -159,7 +159,7 @@ void PaneSelectorBox::paint(Context &context) {
       BoxRadius radii;
       
       if(Expr radii_expr = context.stylesheet->get_or_default(style, BorderRadius)) 
-        radii = BoxRadius(std::move(radii_expr));
+        radii = BoxRadius(PMATH_CPP_MOVE(radii_expr));
       
       rect.normalize();
       rect.pixel_align(context.canvas(), false, +1);
@@ -236,7 +236,7 @@ Expr PaneSelectorBox::to_pmath_impl(BoxOutputFlags flags) {
   }
   
   Gather g;
-  Gather::emit(std::move(rules));
+  Gather::emit(PMATH_CPP_MOVE(rules));
   
   if(has(flags, BoxOutputFlags::Literal))
     Gather::emit(to_literal());

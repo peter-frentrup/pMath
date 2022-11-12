@@ -102,7 +102,7 @@ void PaintHookManager::add(Box *box, SharedPtr<PaintHook> hook) {
   else {
     PaintHookList hook_list;
     hook_list.push(hook);
-    _hooks.set(box, std::move(hook_list));
+    _hooks.set(box, PMATH_CPP_MOVE(hook_list));
   }
   
   return;
@@ -144,7 +144,7 @@ void PaintHookManager::move_into(PaintHookManager &other) {
       }
     }
     else
-      other._hooks.set(my.key, std::move(my_list));
+      other._hooks.set(my.key, PMATH_CPP_MOVE(my_list));
   }
   
   _hooks.clear();

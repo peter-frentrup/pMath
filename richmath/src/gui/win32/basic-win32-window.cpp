@@ -3833,7 +3833,7 @@ void WindowMagnetCollector::visit_all_windows() {
     };
     
     snappers.add(hwnd);
-    snapper_positions.add(std::move(snap));
+    snapper_positions.add(PMATH_CPP_MOVE(snap));
   });
 }
 

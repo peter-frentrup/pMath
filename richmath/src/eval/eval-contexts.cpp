@@ -92,12 +92,12 @@ void EvaluationContexts::context_source_deleted(StyledObject *obj) {
   if(ctx == Impl::current_context) 
     set_context(strings::Global_namespace);
   
-  Application::async_interrupt(Call(Symbol(richmath_FE_Private_DeleteEvaluationContext), std::move(ctx)));
+  Application::async_interrupt(Call(Symbol(richmath_FE_Private_DeleteEvaluationContext), PMATH_CPP_MOVE(ctx)));
 }
 
 void EvaluationContexts::set_context(String context) {
   if(auto set_ctx = prepare_set_context(context))
-    Application::interrupt_wait(std::move(set_ctx));
+    Application::interrupt_wait(PMATH_CPP_MOVE(set_ctx));
 }
 
 Expr EvaluationContexts::prepare_set_context(String context) {
@@ -107,15 +107,15 @@ Expr EvaluationContexts::prepare_set_context(String context) {
   if(context == Impl::current_context)
     return Expr();
   
-  auto old_ctx = std::move(Impl::current_context);
+  auto old_ctx = PMATH_CPP_MOVE(Impl::current_context);
   Impl::current_context = context;
   pmath_debug_print_object("[prepare_set_context ", old_ctx.get(), "");
   pmath_debug_print_object(" -> ", context.get(), "]\n");
-  return Call(Symbol(richmath_FE_Private_SwitchEvaluationContext), std::move(old_ctx), std::move(context));
+  return Call(Symbol(richmath_FE_Private_SwitchEvaluationContext), PMATH_CPP_MOVE(old_ctx), PMATH_CPP_MOVE(context));
 }
 
 Expr EvaluationContexts::make_context_block(Expr expr, String context) {
-  return Call(Symbol(richmath_FE_Private_EvaluationContextBlock), std::move(expr), std::move(context));
+  return Call(Symbol(richmath_FE_Private_EvaluationContextBlock), PMATH_CPP_MOVE(expr), PMATH_CPP_MOVE(context));
 }
 
 Section *EvaluationContexts::find_section_group_header(Section *section) {
@@ -169,11 +169,11 @@ String EvaluationContexts::resolve_context(StyledObject *obj) {
 }
 
 Expr EvaluationContexts::prepare_namespace_for_current_context(Expr expr) {
-  return replace_symbol_namespace(std::move(expr), strings::DollarContext_namespace, Impl::current_context);
+  return replace_symbol_namespace(PMATH_CPP_MOVE(expr), strings::DollarContext_namespace, Impl::current_context);
 }
 
 Expr EvaluationContexts::prepare_namespace_for(Expr expr, StyledObject *obj) {
-  return replace_symbol_namespace(std::move(expr), strings::DollarContext_namespace, resolve_context(obj));
+  return replace_symbol_namespace(PMATH_CPP_MOVE(expr), strings::DollarContext_namespace, resolve_context(obj));
 }
 
 String EvaluationContexts::current() {

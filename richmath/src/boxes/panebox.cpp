@@ -66,7 +66,7 @@ bool PaneBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(options != PMATH_UNDEFINED) 
     style->add_pmath(options);
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 

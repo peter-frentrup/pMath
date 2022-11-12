@@ -1110,7 +1110,7 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt, const REC
   SharedPtr<Win32Menu> popup_menu;
   Expr context_menu = src.box->get_finished_flatlist_style(ContextMenu);
   if(context_menu[0] == richmath_System_List && context_menu.expr_length() > 0) {
-    popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, std::move(context_menu)), true);
+    popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, PMATH_CPP_MOVE(context_menu)), true);
   }
   if(!popup_menu)
     return;
@@ -1928,7 +1928,7 @@ void Win32Widget::ask_drop_data(IDataObject *data_object, POINTL pt, DWORD *effe
   SharedPtr<Win32Menu> popup_menu;
   Expr context_menu = dst_obj->get_finished_flatlist_style(DragDropContextMenu);
   if(context_menu[0] == richmath_System_List && context_menu.expr_length() > 0) {
-    popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, std::move(context_menu)), true);
+    popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, PMATH_CPP_MOVE(context_menu)), true);
   }
   
   if(!popup_menu) {
@@ -1949,7 +1949,7 @@ void Win32Widget::ask_drop_data(IDataObject *data_object, POINTL pt, DWORD *effe
   *effect = DROPEFFECT_NONE;
   
   ComBase<IDataObject> data; data.copy(data_object);
-  SharedPtr<Win32DragDropHandler> current_handler = new Win32DragDropHandler(std::move(data), allowed_effects);
+  SharedPtr<Win32DragDropHandler> current_handler = new Win32DragDropHandler(PMATH_CPP_MOVE(data), allowed_effects);
   current_handler->used_effect_ptr = effect;
   
   MenuExitInfo exit_info;

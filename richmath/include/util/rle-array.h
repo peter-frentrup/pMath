@@ -179,7 +179,7 @@ namespace richmath {
     
     _array->groups.length(_group + 2);
     ++_group;
-    _array->groups[_group] = {std::move(val), _index };
+    _array->groups[_group] = {PMATH_CPP_MOVE(val), _index };
   }
   
   /// Invalidates other iterators for the array.
@@ -228,10 +228,10 @@ namespace richmath {
     }
     
     if(need_new_group) 
-      _array->groups.set(_group, {std::move(val), _index});
+      _array->groups.set(_group, {PMATH_CPP_MOVE(val), _index});
     
     if(need_group_after)
-      _array->groups.set(garbage.end + 1, std::move(next_entry));
+      _array->groups.set(garbage.end + 1, PMATH_CPP_MOVE(next_entry));
     
     if(garbage.start <= garbage.end)
       _array->groups.remove(garbage);

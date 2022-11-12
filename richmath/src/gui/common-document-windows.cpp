@@ -83,12 +83,12 @@ void CommonDocumentWindow::deregister_self() {
 }
 
 void CommonDocumentWindow::directory(String new_directory) {
-  _directory = std::move(new_directory);
+  _directory = PMATH_CPP_MOVE(new_directory);
 }
 
 void CommonDocumentWindow::filename(String new_filename) {
   _filename = new_filename;
-  _default_title = std::move(new_filename);
+  _default_title = PMATH_CPP_MOVE(new_filename);
   
   reset_title();
 }
@@ -104,8 +104,8 @@ void CommonDocumentWindow::full_filename(String new_full_filename) {
   }
   
   String dir = FileSystem::extract_directory_path(&new_full_filename);
-  directory(std::move(dir));
-  filename(std::move(new_full_filename));
+  directory(PMATH_CPP_MOVE(dir));
+  filename(PMATH_CPP_MOVE(new_full_filename));
 }
 
 void CommonDocumentWindow::on_idle_after_edit() {
@@ -157,7 +157,7 @@ void CommonDocumentWindow::title(String text) {
   if(_content && Application::is_running_job_for(_content))
     text = String("Running... ") + text;
   
-  finish_apply_title(std::move(text));
+  finish_apply_title(PMATH_CPP_MOVE(text));
   //String tmp = text + String::FromChar(0);
   //
   //SetWindowTextW(_hwnd, (const WCHAR *)tmp.buffer());

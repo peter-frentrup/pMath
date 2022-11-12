@@ -121,7 +121,7 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   reset_style();
   style->add_pmath(options);
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -215,11 +215,11 @@ void InputFieldBox::paint_content(Context &context) {
               result = strings::EmptyString;
             }
             else {
-              result = Call(Symbol(richmath_System_MakeBoxes), std::move(result));
-              result = prepare_dynamic(std::move(result));
-              result = EvaluationContexts::prepare_namespace_for(std::move(result), this);
-              result = EvaluationContexts::make_context_block(std::move(result), EvaluationContexts::resolve_context(this));
-              result = Application::interrupt_wait_for(std::move(result), this, Application::dynamic_timeout);
+              result = Call(Symbol(richmath_System_MakeBoxes), PMATH_CPP_MOVE(result));
+              result = prepare_dynamic(PMATH_CPP_MOVE(result));
+              result = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(result), this);
+              result = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(result), EvaluationContexts::resolve_context(this));
+              result = Application::interrupt_wait_for(PMATH_CPP_MOVE(result), this, Application::dynamic_timeout);
             }
           } break;
         
@@ -570,7 +570,7 @@ void InputFieldBox::on_key_press(uint32_t unichar) {
 
 ContainerType InputFieldBox::Impl::parse_appearance(Expr expr) {
   if(expr.is_string()) {
-    String s = std::move(expr);
+    String s = PMATH_CPP_MOVE(expr);
     
     if(s == strings::Frameless)
       return ContainerType::None;
@@ -625,13 +625,13 @@ bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
     case InputFieldType::HeldExpression: {
         Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugMetadata);
         
-        boxes = EvaluationContexts::prepare_namespace_for(std::move(boxes), &self);
+        boxes = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(boxes), &self);
         
         Expr value = Call(Symbol(richmath_System_Try),
                           Call(Symbol(richmath_System_MakeExpression), boxes),
                           Call(Symbol(richmath_System_RawBoxes), boxes));
-        value = EvaluationContexts::make_context_block(std::move(value), EvaluationContexts::resolve_context(&self));
-        value = Evaluate(std::move(value));
+        value = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(value), EvaluationContexts::resolve_context(&self));
+        value = Evaluate(PMATH_CPP_MOVE(value));
         
         if(value[0] == richmath_System_HoldComplete) {
           if(self.input_type() == InputFieldType::HeldExpression) {
@@ -645,14 +645,14 @@ bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
           }
         }
         
-        finish_assign_dynamic(std::move(value), funcs);
+        finish_assign_dynamic(PMATH_CPP_MOVE(value), funcs);
         return true;
       }
       
     case InputFieldType::RawBoxes: {
         Expr boxes = self._content->to_pmath(BoxOutputFlags::WithDebugMetadata);
         
-        finish_assign_dynamic(std::move(boxes), funcs);
+        finish_assign_dynamic(PMATH_CPP_MOVE(boxes), funcs);
         return true;
       }
       
@@ -663,9 +663,9 @@ bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
           Expr value = Call(Symbol(richmath_System_ToString),
                             Call(Symbol(richmath_System_RawBoxes), boxes));
                             
-          value = Evaluate(std::move(value)); // TODO: evaluate this in the kernel thread or use Expr::to_string() directly ?
+          value = Evaluate(PMATH_CPP_MOVE(value)); // TODO: evaluate this in the kernel thread or use Expr::to_string() directly ?
           
-          finish_assign_dynamic(std::move(value), funcs);
+          finish_assign_dynamic(PMATH_CPP_MOVE(value), funcs);
           if(!self.dynamic.is_dynamic())
             self.must_update(true);
         }
@@ -706,19 +706,19 @@ void InputFieldBox::Impl::finish_assign_dynamic(Expr value, DynamicFunctions fun
     case DynamicFunctions::Continue:
       self.did_continuous_updates(true);
       self._assigned_result = value;
-      self.dynamic.assign(std::move(value), need_start, true, false);
+      self.dynamic.assign(PMATH_CPP_MOVE(value), need_start, true, false);
       break;
     
     case DynamicFunctions::Finish:
       self.did_continuous_updates(false);
       self._assigned_result = value;
-      self.dynamic.assign(std::move(value), need_start, true, true);
+      self.dynamic.assign(PMATH_CPP_MOVE(value), need_start, true, true);
       break;
     
     case DynamicFunctions::OnlyPost:
       self.did_continuous_updates(false);
       self._assigned_result = value;
-      self.dynamic.assign(std::move(value), false, false, true);
+      self.dynamic.assign(PMATH_CPP_MOVE(value), false, false, true);
       break;
   }
 }

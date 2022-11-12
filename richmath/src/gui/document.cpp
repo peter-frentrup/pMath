@@ -308,15 +308,15 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
     return false;
     
   reset_style();
-  style->add_pmath(std::move(options_expr));
+  style->add_pmath(PMATH_CPP_MOVE(options_expr));
   load_stylesheet();
   
-  sections_expr = Call(Symbol(richmath_System_SectionGroup), std::move(sections_expr), Symbol(richmath_System_All));
+  sections_expr = Call(Symbol(richmath_System_SectionGroup), PMATH_CPP_MOVE(sections_expr), Symbol(richmath_System_All));
   
   int pos = 0;
-  insert_pmath(&pos, std::move(sections_expr), count());
+  insert_pmath(&pos, PMATH_CPP_MOVE(sections_expr), count());
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
@@ -984,7 +984,7 @@ void Document::on_key_press(uint32_t unichar) {
           if(new_style_expr == richmath_System_Automatic)
             new_style_expr = sect->get_own_style(BaseStyleName);
 
-          new_style->add_pmath(std::move(new_style_expr));
+          new_style->add_pmath(PMATH_CPP_MOVE(new_style_expr));
           if(!new_style->contains(BaseStyleName)) {
             new_style->set(BaseStyleName, sect->get_own_style(BaseStyleName));
           }
@@ -1609,7 +1609,7 @@ String Document::copy_to_text(String mimetype) {
     
   if( is_plain_text || mimetype.equals("InputText")) {
     Expr text = Application::interrupt_wait(
-                  Call(Symbol(richmath_FE_BoxesToText), std::move(boxes), std::move(mimetype)),
+                  Call(Symbol(richmath_FE_BoxesToText), PMATH_CPP_MOVE(boxes), PMATH_CPP_MOVE(mimetype)),
                   Application::edit_interrupt_timeout);
                   
     return text.to_string();
@@ -1892,7 +1892,7 @@ void Document::paste_from_boxes(Expr boxes) {
   }
   
   boxes = Application::interrupt_wait(
-            Call(Symbol(richmath_FE_SectionsToBoxes), std::move(boxes)),
+            Call(Symbol(richmath_FE_SectionsToBoxes), PMATH_CPP_MOVE(boxes)),
             Application::edit_interrupt_timeout);
   
   if(auto grid = dynamic_cast<GridBox *>(context.selection.get())) {
@@ -1968,7 +1968,7 @@ void Document::paste_from_text(String mimetype, String data) {
       data = String(Evaluate(
                Call(
                  Symbol(richmath_System_StringReplace), 
-                 std::move(data), 
+                 PMATH_CPP_MOVE(data), 
                  Rule(
                   strings::linebreak_cr_nl,
                   strings::linebreak_nl))));

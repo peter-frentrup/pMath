@@ -119,7 +119,7 @@ namespace pmath4eigen {
       ComplexExpr(RealExpr e) : Expr(e.release()) {}
       
       explicit ComplexExpr(RealExpr re, RealExpr im)
-        : Expr((im == 0) ? Expr(std::move(re)) : pmath::Complex(std::move(re), std::move(im)))
+        : Expr((im == 0) ? Expr(PMATH_CPP_MOVE(re)) : pmath::Complex(PMATH_CPP_MOVE(re), PMATH_CPP_MOVE(im)))
       {
       }
 
@@ -150,7 +150,7 @@ namespace pmath4eigen {
     }
   
   inline UnevaluatedExpr operator-(UnevaluatedExpr x) {
-    return UnevaluatedExpr(pmath::Call(pmath::Symbol(p4e_System_Times), pmath::Expr(-1), std::move(x)));
+    return UnevaluatedExpr(pmath::Call(pmath::Symbol(p4e_System_Times), pmath::Expr(-1), PMATH_CPP_MOVE(x)));
   }
   
   P4E_IMPL_BINARY_SYM( operator+, p4e_System_Plus )

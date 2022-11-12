@@ -141,7 +141,7 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   style->add_pmath(options);
   style->set_pmath(BaseStyleName, tag);
   
-  finish_load_from_object(std::move(expr));
+  finish_load_from_object(PMATH_CPP_MOVE(expr));
   if(change_args)
     notify_all();
     
@@ -380,8 +380,8 @@ Expr TemplateBox::to_pmath_impl(BoxOutputFlags flags) {
         args.expr_length());
       
       Expr boxes = args;
-      boxes.set(0, std::move(ifun));
-      boxes = Application::interrupt_wait(std::move(boxes), Application::button_timeout);
+      boxes.set(0, PMATH_CPP_MOVE(ifun));
+      boxes = Application::interrupt_wait(PMATH_CPP_MOVE(boxes), Application::button_timeout);
       if(boxes.expr_length() == 1 && boxes[0] == richmath_System_HoldComplete) 
         return boxes[1];
     }
@@ -417,10 +417,10 @@ void TemplateBox::on_mouse_enter() {
     }
     else {
       tooltip = Call(Symbol(richmath_FE_Styles_DollarDefaultDisplayFunctionTooltip), _tag);
-      //tooltip = Application::interrupt_wait(std::move(tooltip), Application::button_timeout);
+      //tooltip = Application::interrupt_wait(PMATH_CPP_MOVE(tooltip), Application::button_timeout);
       
-      tooltip = Call(Symbol(richmath_System_TimeConstrained), std::move(tooltip), Application::button_timeout);
-      tooltip = Evaluate(std::move(tooltip));
+      tooltip = Call(Symbol(richmath_System_TimeConstrained), PMATH_CPP_MOVE(tooltip), Application::button_timeout);
+      tooltip = Evaluate(PMATH_CPP_MOVE(tooltip));
     }
     
     doc->native()->show_tooltip(this, tooltip);
@@ -441,7 +441,7 @@ void TemplateBox::on_mouse_exit() {
 }
 
 void TemplateBox::reset_argument(int index, Expr new_arg) {
-  Impl(*this).reset_argument(index, std::move(new_arg));
+  Impl(*this).reset_argument(index, PMATH_CPP_MOVE(new_arg));
 }
 
 FrontEndObject *TemplateBox::get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item) {
@@ -482,7 +482,7 @@ bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _argument = PMATH_AS_INT32(arg.get());
     is_content_loaded(false);
     
-    finish_load_from_object(std::move(expr));
+    finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
   
@@ -491,9 +491,9 @@ bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 Expr TemplateBoxSlot::prepare_dynamic(Expr expr) {
   if(TemplateBox *owner = find_owner())
-    return owner->prepare_dynamic(std::move(expr));
+    return owner->prepare_dynamic(PMATH_CPP_MOVE(expr));
     
-  return base::prepare_dynamic(std::move(expr));
+  return base::prepare_dynamic(PMATH_CPP_MOVE(expr));
 }
 
 MathSequence *TemplateBoxSlot::as_inline_span() {
@@ -669,10 +669,10 @@ Expr TemplateBoxSlot::get_current_value_of_HeldTemplateSlot(FrontEndObject *obj,
   
   Expr expr = tb->arguments;
   for(size_t depth = 2; depth <= item.expr_length(); ++depth) 
-    expr = CurrentValueOfTemplateSlot::get_next(std::move(expr), item[depth], depth == 2);
+    expr = CurrentValueOfTemplateSlot::get_next(PMATH_CPP_MOVE(expr), item[depth], depth == 2);
   
-  expr = EvaluationContexts::prepare_namespace_for(std::move(expr), tb);
-  return Call(Symbol(richmath_System_HoldComplete), std::move(expr));
+  expr = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(expr), tb);
+  return Call(Symbol(richmath_System_HoldComplete), PMATH_CPP_MOVE(expr));
 }
 
 Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item) {
@@ -691,9 +691,9 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
   
   Expr expr = tb->arguments;
   for(size_t depth = 2; depth <= item.expr_length(); ++depth) 
-    expr = CurrentValueOfTemplateSlot::get_next(std::move(expr), item[depth], depth == 2);
+    expr = CurrentValueOfTemplateSlot::get_next(PMATH_CPP_MOVE(expr), item[depth], depth == 2);
   
-  expr = Dynamic(tb, std::move(expr)).get_value_unevaluated();
+  expr = Dynamic(tb, PMATH_CPP_MOVE(expr)).get_value_unevaluated();
   if(expr[0] == richmath_Internal_DynamicEvaluateMultiple)
     expr.set(2, obj->id().to_pmath_raw());
   
@@ -713,16 +713,16 @@ bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
   
   Expr expr = tb->arguments;
   for(size_t depth = 2; depth <= item.expr_length(); ++depth) 
-    expr = CurrentValueOfTemplateSlot::get_next(std::move(expr), item[depth], depth == 2);
+    expr = CurrentValueOfTemplateSlot::get_next(PMATH_CPP_MOVE(expr), item[depth], depth == 2);
   
   Dynamic dyn{tb, expr};
   if(dyn.is_dynamic()) {
-    dyn.assign(std::move(rhs));
+    dyn.assign(PMATH_CPP_MOVE(rhs));
     return true;
   }
   
   expr = tb->arguments;
-  if(CurrentValueOfTemplateSlot::set(expr, item, 2, std::move(rhs))) {
+  if(CurrentValueOfTemplateSlot::set(expr, item, 2, PMATH_CPP_MOVE(rhs))) {
     if(expr[0] == richmath_System_List) {
       TemplateBoxImpl(*tb).reset_arguments(expr);
       return true;
@@ -770,9 +770,9 @@ Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
   }
   
   dispfun = Call(Symbol(richmath_System_Private_FlattenTemplateSequence), dispfun, self.arguments.expr_length());
-  //dispfun = Application::interrupt_wait(std::move(dispfun), Application::button_timeout);
-  dispfun = Call(Symbol(richmath_System_TimeConstrained), std::move(dispfun), Application::button_timeout);
-  dispfun = Evaluate(std::move(dispfun));
+  //dispfun = Application::interrupt_wait(PMATH_CPP_MOVE(dispfun), Application::button_timeout);
+  dispfun = Call(Symbol(richmath_System_TimeConstrained), PMATH_CPP_MOVE(dispfun), Application::button_timeout);
+  dispfun = Evaluate(PMATH_CPP_MOVE(dispfun));
   
   if(dispfun[0] == richmath_System_Function && dispfun.expr_length() == 1)
     return dispfun[1];
@@ -781,7 +781,7 @@ Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
 }
 
 void TemplateBoxImpl::reset_argument(int index, Expr new_arg) {
-  self.arguments.set(index, std::move(new_arg));
+  self.arguments.set(index, PMATH_CPP_MOVE(new_arg));
   
   // TODO: We should maybe use Array<ObservableValue<Expr>> instead?
   self.notify_all();
@@ -939,10 +939,10 @@ Expr TemplateBoxSlotImpl::prepare_pure_arg(Expr expr) {
 
 Expr CurrentValueOfTemplateSlot::get_next(Expr expr, Expr key, bool allow_options) {
   if(key.is_int32())
-    return get_next_by_index(std::move(expr), PMATH_AS_INT32(key.get()));
+    return get_next_by_index(PMATH_CPP_MOVE(expr), PMATH_AS_INT32(key.get()));
   
   if(key[0] == richmath_System_Key && key.expr_length() == 1)
-    return get_next_by_lookup(std::move(expr), key[1], allow_options);
+    return get_next_by_lookup(PMATH_CPP_MOVE(expr), key[1], allow_options);
   
   return Symbol(richmath_System_DollarFailed);
 }
@@ -982,7 +982,7 @@ Expr CurrentValueOfTemplateSlot::get_next_by_lookup(Expr expr, Expr name, bool a
 
 bool CurrentValueOfTemplateSlot::set(Expr &expr, const Expr &items, size_t depth, Expr value) {
   if(depth > items.expr_length()) {
-    expr = std::move(value);
+    expr = PMATH_CPP_MOVE(value);
     return true;
   }
   
@@ -991,10 +991,10 @@ bool CurrentValueOfTemplateSlot::set(Expr &expr, const Expr &items, size_t depth
   
   Expr key = items[depth];
   if(key.is_int32()) 
-    return set_by_index(expr, PMATH_AS_INT32(key.get()), items, depth, std::move(value));
+    return set_by_index(expr, PMATH_AS_INT32(key.get()), items, depth, PMATH_CPP_MOVE(value));
   
   if(key[0] == richmath_System_Key && key.expr_length() == 1)
-    return set_by_lookup(expr, key[1], items, depth, std::move(value));
+    return set_by_lookup(expr, key[1], items, depth, PMATH_CPP_MOVE(value));
   
   return false;
 }
@@ -1007,20 +1007,20 @@ bool CurrentValueOfTemplateSlot::set_by_index(Expr &expr, int index, const Expr 
     return false;
   
   Expr rest = expr[index];
-  bool success = set(rest, items, depth + 1, std::move(value));
+  bool success = set(rest, items, depth + 1, PMATH_CPP_MOVE(value));
   if(success)
-    expr.set(index, std::move(rest));
+    expr.set(index, PMATH_CPP_MOVE(rest));
   return success;
 }
 
 bool CurrentValueOfTemplateSlot::set_by_lookup(Expr &expr, Expr name, const Expr &items, size_t depth, Expr value) {
   if(expr.is_list_of_rules()) {
     Expr rest = expr.lookup(name, Symbol(richmath_System_Inherited));
-    bool success = set(rest, items, depth + 1, std::move(value));
+    bool success = set(rest, items, depth + 1, PMATH_CPP_MOVE(value));
     if(success) {
       if(rest == richmath_System_Inherited)
         rest = Expr(PMATH_UNDEFINED);
-      expr.set_lookup(std::move(name), std::move(rest));
+      expr.set_lookup(PMATH_CPP_MOVE(name), PMATH_CPP_MOVE(rest));
     }
     return success;
   }
@@ -1032,9 +1032,9 @@ bool CurrentValueOfTemplateSlot::set_by_lookup(Expr &expr, Expr name, const Expr
   size_t i = expr.expr_length();
   Expr last = expr[i];
   if(last.is_list_of_rules()) {
-    bool success = set_by_lookup(last, std::move(name), items, depth, std::move(value));
+    bool success = set_by_lookup(last, PMATH_CPP_MOVE(name), items, depth, PMATH_CPP_MOVE(value));
     if(success)
-      expr.set(i, std::move(last));
+      expr.set(i, PMATH_CPP_MOVE(last));
     return success;
   }
   
@@ -1044,15 +1044,15 @@ bool CurrentValueOfTemplateSlot::set_by_lookup(Expr &expr, Expr name, const Expr
     
     if(last[1] == name) {
       Expr rhs = last[2];
-      bool success = set(rhs, items, depth + 1, std::move(value));
+      bool success = set(rhs, items, depth + 1, PMATH_CPP_MOVE(value));
       if(success) {
         if(rhs == richmath_System_Inherited) {
           expr.set(i, Expr(PMATH_UNDEFINED));
           expr.expr_remove_all(Expr(PMATH_UNDEFINED));
         }
         else{
-          last.set(2, std::move(rhs));
-          expr.set(i, std::move(last));
+          last.set(2, PMATH_CPP_MOVE(rhs));
+          expr.set(i, PMATH_CPP_MOVE(last));
         }
       }
       return success;
@@ -1060,9 +1060,9 @@ bool CurrentValueOfTemplateSlot::set_by_lookup(Expr &expr, Expr name, const Expr
   }
   
   last = Expr();
-  bool success = set(last, items, depth + 1, std::move(value));
+  bool success = set(last, items, depth + 1, PMATH_CPP_MOVE(value));
   if(success && last != richmath_System_Inherited)
-    expr.append(Rule(std::move(name), std::move(last)));
+    expr.append(Rule(PMATH_CPP_MOVE(name), PMATH_CPP_MOVE(last)));
   return success;
 }
 

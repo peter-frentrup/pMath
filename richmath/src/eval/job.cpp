@@ -134,10 +134,10 @@ bool InputJob::start() {
   Expr boxes = section->content()->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugMetadata);
   Expr eval_fun = section->get_style(SectionEvaluationFunction);
   if(eval_fun != richmath_System_Identity)
-    boxes = Call(std::move(eval_fun), std::move(boxes));
+    boxes = Call(PMATH_CPP_MOVE(eval_fun), PMATH_CPP_MOVE(boxes));
   
-  boxes = EvaluationContexts::prepare_namespace_for_current_context(std::move(boxes));
-  Server::local_server->run_boxes(std::move(boxes));
+  boxes = EvaluationContexts::prepare_namespace_for_current_context(PMATH_CPP_MOVE(boxes));
+  Server::local_server->run_boxes(PMATH_CPP_MOVE(boxes));
   
   doc->native()->running_state_changed();
   
@@ -281,10 +281,10 @@ bool ReplacementJob::start() {
   Expr boxes = sequence->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugMetadata, selection_start, selection_end);
   Expr eval_fun = section->get_style(SectionEvaluationFunction);
   if(eval_fun != richmath_System_Identity)
-    boxes = Call(std::move(eval_fun), std::move(boxes));
+    boxes = Call(PMATH_CPP_MOVE(eval_fun), PMATH_CPP_MOVE(boxes));
   
-  boxes = EvaluationContexts::prepare_namespace_for_current_context(std::move(boxes));
-  Server::local_server->run_boxes(std::move(boxes));
+  boxes = EvaluationContexts::prepare_namespace_for_current_context(PMATH_CPP_MOVE(boxes));
+  Server::local_server->run_boxes(PMATH_CPP_MOVE(boxes));
     
   doc->native()->running_state_changed();
   

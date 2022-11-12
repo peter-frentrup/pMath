@@ -20,11 +20,13 @@
 #  define PMATH_CPP_WCHAR_IS_U16
 #endif
 
+#include <utility> // for std::swap
+
 #ifdef PMATH_CPP_USE_RVALUE_REF
-#  include <utility>
-#  define PMATH_CPP_MOVE(m)   std::move(m)
+#  include <type_traits>
+#  define PMATH_CPP_MOVE(_m_)   static_cast<std::remove_reference_t<decltype(_m_)>&&>(_m_)
 #else
-#  define PMATH_CPP_MOVE(m)   m
+#  define PMATH_CPP_MOVE(_m_)   _m_
 #endif
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
@@ -595,12 +597,12 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       explicit String(Expr &&src) throw()
-        : Expr(src.is_string() ? std::move(src) : Expr())
+        : Expr(src.is_string() ? PMATH_CPP_MOVE(src) : Expr())
       {
       }
       
       String(String  &&src) throw()
-        : Expr(std::move(src))
+        : Expr(PMATH_CPP_MOVE(src))
       {
       }
 #endif
@@ -667,7 +669,7 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       String &operator=(String && src) throw() {
-        Expr::operator=(std::move(src));
+        Expr::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
 #endif
@@ -1177,12 +1179,12 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       explicit File(Expr &&file_object) throw()
-        : Expr(pmath_file_test(file_object.get(), 0) ? std::move(file_object) : Expr())
+        : Expr(pmath_file_test(file_object.get(), 0) ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
       File(File &&src) throw()
-        : Expr(std::move(src))
+        : Expr(PMATH_CPP_MOVE(src))
       {
       }
 #endif
@@ -1194,7 +1196,7 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       File &operator=(File &&src) {
-        Expr::operator=(std::move(src));
+        Expr::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
 #endif
@@ -1259,12 +1261,12 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       explicit BinaryFile(Expr &&file_object) throw()
-        : File(File(file_object).is_binary() ? std::move(file_object) : Expr())
+        : File(File(file_object).is_binary() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
       BinaryFile(BinaryFile &&src) throw()
-        : File(std::move(src))
+        : File(PMATH_CPP_MOVE(src))
       {
       }
 #endif
@@ -1276,7 +1278,7 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       BinaryFile &operator=(BinaryFile &&src) {
-        File::operator=(std::move(src));
+        File::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
 #endif
@@ -1329,12 +1331,12 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       explicit ReadableBinaryFile(Expr &&file_object) throw()
-        : BinaryFile(File(file_object).is_readable() ? std::move(file_object) : Expr())
+        : BinaryFile(File(file_object).is_readable() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
       ReadableBinaryFile(ReadableBinaryFile &&src) throw()
-        : BinaryFile(std::move(src))
+        : BinaryFile(PMATH_CPP_MOVE(src))
       {
       }
 #endif
@@ -1346,7 +1348,7 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       ReadableBinaryFile &operator=(ReadableBinaryFile &&src) {
-        BinaryFile::operator=(std::move(src));
+        BinaryFile::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
 #endif
@@ -1390,12 +1392,12 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       explicit WriteableBinaryFile(Expr &&file_object) throw()
-        : BinaryFile(File(file_object).is_writeable() ? std::move(file_object) : Expr())
+        : BinaryFile(File(file_object).is_writeable() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
       WriteableBinaryFile(WriteableBinaryFile &&src) throw()
-        : BinaryFile(std::move(src))
+        : BinaryFile(PMATH_CPP_MOVE(src))
       {
       }
 #endif
@@ -1407,7 +1409,7 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       WriteableBinaryFile &operator=(WriteableBinaryFile &&src) {
-        BinaryFile::operator=(std::move(src));
+        BinaryFile::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
 #endif
@@ -1453,12 +1455,12 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       explicit TextFile(Expr &&file_object) throw()
-        : File(File(file_object).is_text() ? std::move(file_object) : Expr())
+        : File(File(file_object).is_text() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
       TextFile(TextFile &&src) throw()
-        : File(std::move(src))
+        : File(PMATH_CPP_MOVE(src))
       {
       }
 #endif
@@ -1470,7 +1472,7 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       TextFile &operator=(TextFile &&src) {
-        File::operator=(std::move(src));
+        File::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
 #endif
@@ -1523,12 +1525,12 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       explicit ReadableTextFile(Expr &&file_object) throw()
-        : TextFile(File(file_object).is_readable() ? std::move(file_object) : Expr())
+        : TextFile(File(file_object).is_readable() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
       ReadableTextFile(ReadableTextFile &&src) throw()
-        : TextFile(std::move(src))
+        : TextFile(PMATH_CPP_MOVE(src))
       {
       }
 #endif
@@ -1540,7 +1542,7 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       ReadableTextFile &operator=(ReadableTextFile &&src) {
-        TextFile::operator=(std::move(src));
+        TextFile::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
 #endif
@@ -1590,12 +1592,12 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       explicit WriteableTextFile(Expr &&file_object) throw()
-        : TextFile(File(file_object).is_writeable() ? std::move(file_object) : Expr())
+        : TextFile(File(file_object).is_writeable() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
       WriteableTextFile(WriteableTextFile &&src) throw()
-        : TextFile(std::move(src))
+        : TextFile(PMATH_CPP_MOVE(src))
       {
       }
 #endif
@@ -1607,7 +1609,7 @@ namespace pmath {
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
       WriteableTextFile &operator=(WriteableTextFile &&src) {
-        TextFile::operator=(std::move(src));
+        TextFile::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
 #endif

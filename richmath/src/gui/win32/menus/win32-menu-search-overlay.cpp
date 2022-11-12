@@ -78,7 +78,7 @@ void Win32MenuSearchOverlay::init() {
 }
 
 void Win32MenuSearchOverlay::collect_menu_matches(Array<MenuSearchResult> &results, String query, HMENU menu, String prefix) {
-  MenuSearch(std::move(query)).collect_menu_matches(results, menu, std::move(prefix));
+  MenuSearch(PMATH_CPP_MOVE(query)).collect_menu_matches(results, menu, PMATH_CPP_MOVE(prefix));
 }
 
 bool Win32MenuSearchOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu) {
@@ -127,7 +127,7 @@ bool Win32MenuSearchOverlay::handle_char_message(WPARAM wParam, LPARAM lParam, H
   if(str.length() > 0) {
     SendMessageW(GetAncestor(control, GA_PARENT), MN_SELECTITEM, end_index + 1, 0);
   }
-  text(std::move(str));
+  text(PMATH_CPP_MOVE(str));
   hide_caret = false;
   InvalidateRect(control, nullptr, false);
   return true;
