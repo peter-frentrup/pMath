@@ -21,7 +21,8 @@ namespace richmath {
     template<typename T, typename... Args>
     T &push_new(Args&&... args) {
       void *ptr = push_new_object_place(sizeof(T));
-      T *ptr_as_t = new(ptr)T(std::forward<Args>(args)...);
+      // Forward the arguments to the function without calling debug-harming std::forward
+      T *ptr_as_t = new(ptr)T(static_cast<Args&&>(args)...);
       return *ptr_as_t;
     }
     
