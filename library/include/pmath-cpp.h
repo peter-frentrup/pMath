@@ -24,7 +24,7 @@
 
 #ifdef PMATH_CPP_USE_RVALUE_REF
 #  include <type_traits>
-#  define PMATH_CPP_MOVE(_m_)   static_cast<std::remove_reference_t<decltype(_m_)>&&>(_m_)
+#  define PMATH_CPP_MOVE(_m_)   static_cast<typename std::remove_reference<decltype(_m_)>::type&&>(_m_)
 #else
 #  define PMATH_CPP_MOVE(_m_)   _m_
 #endif
