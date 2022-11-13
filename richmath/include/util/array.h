@@ -7,7 +7,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <new>
-#include <utility>
 
 #include <pmath-cpp.h> // for PMATH_CPP_MOVE
 

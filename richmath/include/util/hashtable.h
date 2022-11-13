@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <utility>
 #include <type_traits>
 
 #include <util/base.h>

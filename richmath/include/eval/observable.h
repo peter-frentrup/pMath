@@ -2,7 +2,6 @@
 #define __RICHMATHRICHMATH__EVAL__OBSERVABLE_H__INCLUDED
 
 #include <util/frontendobject.h>
-#include <utility>
 
 namespace richmath {
   class Observable: public Base {
