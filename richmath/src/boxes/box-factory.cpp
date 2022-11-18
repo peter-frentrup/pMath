@@ -103,9 +103,6 @@ Box *BoxFactory::create_empty_box(LayoutKind layout_kind, Expr expr) {
   Expr head = expr[0];
   
   if(head == richmath_System_List || head == richmath_System_StringBox || head == PMATH_NULL) {
-    if(expr.expr_length() == 1)
-      return create_empty_box(layout_kind, expr[1]);
-    
     return new InlineSequenceBox(new MathSequence);
   }
   
