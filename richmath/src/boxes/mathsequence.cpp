@@ -2604,6 +2604,9 @@ void MathSequence::Impl::GlyphGenerator::append_text_glyph_run(Context &context,
       if(owner.glyphs[i].index) {
         owner.glyphs[i].is_normal_text = 1;
       }
+      else if(is_utf16_low(buf[i - glyph_start])) {
+        owner.glyphs[i].is_normal_text = 1;
+      }
       else {
         context.math_shaper->decode_token(
           context,
