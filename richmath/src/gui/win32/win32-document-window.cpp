@@ -1006,6 +1006,19 @@ void Win32DocumentWindow::invalidate_options() {
   String s = doc->get_style(WindowTitle, _default_title);
   if(!_title.unobserved_equals(s))
     title(s);
+  
+  {
+    float progress = doc->get_own_style(WindowProgress, 0.0f);
+    ComBase<ITaskbarList3> task_list;
+    if(HRbool(CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_ALL, task_list.iid(), (void**)task_list.get_address_of()))) {
+      if(progress > 0 && progress <= 1) {
+        HRreport(task_list->SetProgressValue(hwnd(), (ULONGLONG)(progress * 0x100000), 0x100000));
+      }
+      else {
+        HRreport(task_list->SetProgressState(hwnd(), TBPF_NOPROGRESS));
+      }
+    }
+  }
     
   _top_area->document()->stylesheet(doc->stylesheet());
   _top_glass_area->document()->stylesheet(doc->stylesheet());

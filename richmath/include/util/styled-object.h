@@ -70,6 +70,7 @@ namespace richmath {
       virtual void update_cause(Expr cause) final override;
       
       virtual Expr allowed_options() = 0;
+      virtual bool is_option_supported(StyleOptionName key);
   };
   
   class FrontEndSession : public ActiveStyledObject {

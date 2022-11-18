@@ -225,6 +225,8 @@ namespace richmath {
     MatchingBracketHighlightOpacity,      // 0 .. 1
     OccurenceHighlightOpacity,            // 0 .. 1
     
+    WindowProgress,
+    
     SectionGroupPrecedence,
     
     FillBoxDefaultFillBoxWeight = FillBoxWeight + (int)DefaultStyleOptionOffsets::FillBox,

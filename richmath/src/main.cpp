@@ -517,6 +517,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(SectionFrameMarginBottom,      Length(0.0));
   
   Stylesheet::Default->base->set(SectionGroupPrecedence,        0);
+  Stylesheet::Default->base->set(WindowProgress,                0);
   
   Stylesheet::Default->base->set(ContextMenu,               List());
   Stylesheet::Default->base->set(DockedSectionsBottom,      List());

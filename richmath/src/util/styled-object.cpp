@@ -255,6 +255,10 @@ void ActiveStyledObject::update_cause(Expr cause) {
   style->set(InternalUpdateCause, PMATH_CPP_MOVE(cause));
 }
 
+bool ActiveStyledObject::is_option_supported(StyleOptionName key) {
+  return allowed_options().lookup(Style::get_name(key), Expr{PMATH_UNDEFINED}) != PMATH_UNDEFINED;
+}
+
 //} ... class ActiveStyledObject
 
 //{ class FrontEndSession ...

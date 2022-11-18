@@ -3434,6 +3434,8 @@ void StyleInformation::add_style() {
     add(StyleType::Number,          MatchingBracketHighlightOpacity,      List(strings::MatchingBracketHighlightStyle, Symbol(richmath_System_Opacity)));
     add(StyleType::Number,          OccurenceHighlightOpacity,            List(strings::OccurenceHighlightStyle,       Symbol(richmath_System_Opacity)));
     
+    add(StyleType::Number,          WindowProgress,                   String("WindowProgress"));
+    
     add(StyleType::Size,            ImageSizeCommon,                  Symbol( richmath_System_ImageSize));
     // ImageSizeHorizontal
     // ImageSizeVertical
@@ -3594,6 +3596,7 @@ bool StyleInformation::is_window_option(StyleOptionName key) {
          literal_key == StyleDefinitions          ||
          literal_key == Visible                   ||
          literal_key == WindowFrame               ||
+         literal_key == WindowProgress            ||
          literal_key == WindowTitle;
 }
 
@@ -3713,17 +3716,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   if(!key.is_valid())
     return false;
   
-  Expr opts = styled_obj->allowed_options();
-  if(item[0] == richmath_System_List) {
-    Expr rhs = opts.lookup(item[1], Expr{PMATH_UNDEFINED});
-    if(rhs == PMATH_UNDEFINED)
-      return false;
-    
-//    if(rhs[0] == richmath_System_List) {
-//      // TODO: check further items ...
-//    }
-  }
-  else if(opts.lookup(PMATH_CPP_MOVE(item), Expr{PMATH_UNDEFINED}) == PMATH_UNDEFINED)
+  if(!styled_obj->is_option_supported(key))
     return false;
   
   if(!styled_obj->style) {

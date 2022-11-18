@@ -176,6 +176,7 @@ namespace richmath {
       void stylesheet(SharedPtr<Stylesheet> new_stylesheet);
       bool load_stylesheet();
       virtual void reset_style() override;
+      virtual bool is_option_supported(StyleOptionName key) override;
       
       void paint_resize(Canvas &canvas, bool resize_only);
       

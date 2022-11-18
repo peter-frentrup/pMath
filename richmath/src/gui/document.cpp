@@ -3330,6 +3330,13 @@ void Document::reset_style() {
   Style::reset(style, strings::Document);
 }
 
+bool Document::is_option_supported(StyleOptionName key) {
+  switch((int)key) {
+    case WindowProgress: return true;
+  }
+  return base::is_option_supported(key);
+}
+
 void Document::paint_resize(Canvas &canvas, bool resize_only) {
   if(!resize_only)
     has_pending_repaint(false);
