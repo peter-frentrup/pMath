@@ -1,6 +1,12 @@
 #include <pmath-language/number-writing-private.h>
 #include <pmath-language/number-parsing-private.h> // for _pmath_log2_of
 
+#include <pmath-util/memory.h>
+#include <string.h>
+
+
+static void free_fmpz_str(char *str);
+
 static void pow_ui_fmpz(arb_t res, int base, const fmpz_t e, slong prec) {
   slong bits;
   
@@ -269,8 +275,8 @@ static void get_str_parts_new(
   
   assert(out_parts != NULL);
   
-  if(out_parts->mid_digits) { flint_free(out_parts->mid_digits); out_parts->mid_digits = NULL; }
-  if(out_parts->rad_digits) { flint_free(out_parts->rad_digits); out_parts->rad_digits = NULL; }
+  if(out_parts->mid_digits) { free_fmpz_str(out_parts->mid_digits); out_parts->mid_digits = NULL; }
+  if(out_parts->rad_digits) { free_fmpz_str(out_parts->rad_digits); out_parts->rad_digits = NULL; }
   fmpz_zero(out_parts->exponent);
   fmpz_zero(out_parts->rad_exponent_extra);
   out_parts->total_significant     = 0;
@@ -402,8 +408,8 @@ static void get_str_2exp_parts_new(
   assert(out_parts != NULL);
   assert(1 <= in_baselog && in_baselog <= 5);
   
-  if(out_parts->mid_digits) { flint_free(out_parts->mid_digits); out_parts->mid_digits = NULL; }
-  if(out_parts->rad_digits) { flint_free(out_parts->rad_digits); out_parts->rad_digits = NULL; }
+  if(out_parts->mid_digits) { free_fmpz_str(out_parts->mid_digits); out_parts->mid_digits = NULL; }
+  if(out_parts->rad_digits) { free_fmpz_str(out_parts->rad_digits); out_parts->rad_digits = NULL; }
   fmpz_zero(out_parts->exponent);
   fmpz_zero(out_parts->rad_exponent_extra);
   out_parts->total_significant     = 0;
@@ -703,7 +709,7 @@ void _pmath_write_number_part(
             {
               char *tmp = fmpz_get_str(NULL, 10, exp);
               writer(ctx, tmp, strlen(tmp));
-              flint_free(tmp);
+              free_fmpz_str(tmp);
             }
             fmpz_clear(exp);
           }
@@ -712,7 +718,7 @@ void _pmath_write_number_part(
           if(!fmpz_is_zero(parts->rad_exponent_extra)) {
             char *tmp = fmpz_get_str(NULL, 10, parts->rad_exponent_extra);
             writer(ctx, tmp, strlen(tmp));
-            flint_free(tmp);
+            free_fmpz_str(tmp);
           }
         }
       }
@@ -745,7 +751,7 @@ void _pmath_write_number_part(
       if(!fmpz_is_zero(exp)) {
         char *tmp = fmpz_get_str(NULL, 10, exp);
         writer(ctx, tmp, strlen(tmp));
-        flint_free(tmp);
+        free_fmpz_str(tmp);
       }
       
       fmpz_clear(exp);
@@ -755,7 +761,7 @@ void _pmath_write_number_part(
       if(!fmpz_is_zero(parts->exponent)) {
         char *tmp = fmpz_get_str(NULL, 10, parts->exponent);
         writer(ctx, tmp, strlen(tmp));
-        flint_free(tmp);
+        free_fmpz_str(tmp);
       }
     } break;
   }
@@ -810,6 +816,15 @@ static void raw_number_parts_init(struct _pmath_raw_number_parts_t *parts) {
 PMATH_PRIVATE void _pmath_raw_number_parts_clear(struct _pmath_raw_number_parts_t *parts) {
   fmpz_clear(parts->exponent);
   fmpz_clear(parts->rad_exponent_extra);
-  flint_free(parts->mid_digits);
-  flint_free(parts->rad_digits);
+  free_fmpz_str(parts->mid_digits);
+  free_fmpz_str(parts->rad_digits);
+}
+
+static void free_fmpz_str(char *str) {
+  // fmpz_get_str() uses mpz_get_str which uses our memory functions (see memory.c)
+  // But it might be that we fail to redirect flint_free() [too old flint lib]. Then flint_free(str) 
+  // would call the system free() which would segfault.
+  //flint_free(str);
+
+  pmath_mem_free(str);
 }
