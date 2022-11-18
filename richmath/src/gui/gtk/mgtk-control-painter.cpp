@@ -1136,7 +1136,19 @@ void MathGtkStyleContextCache::render_container(
         float top_hide = border.top + canvas.get_font_size() / 0.75; // add font size for possible border radius
         rect.y -=      top_hide;
         rect.height += top_hide;
+        
         render_all_common_inset_const(ctx, canvas, rect);
+      } break;
+    
+    case ContainerType::TabHeadBackground: {
+        if(canvas.glass_background && !canvas.show_only_text) {
+          canvas.show_only_text = true;
+          render_all_common_inset_const(ctx, canvas, rect);
+          canvas.show_only_text = false;
+        }
+        else {
+          render_all_common_inset_const(ctx, canvas, rect);
+        }
       } break;
     
     case ContainerType::TabHead:
@@ -1167,8 +1179,13 @@ void MathGtkStyleContextCache::render_all_common(GtkStyleContext *ctx, Canvas &c
     return;
   
   render_all_common(gtk_style_context_get_parent(ctx), canvas, rect);
-  gtk_render_background(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
-  gtk_render_frame(     ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+  
+  if(!canvas.suppress_output) {
+    if(!canvas.show_only_text) {
+      gtk_render_background(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+    }
+    gtk_render_frame(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+  }
 }
 
 void MathGtkStyleContextCache::render_all_common_inset(GtkStyleContext *ctx, Canvas &canvas, RectangleF &rect) {
@@ -1185,8 +1202,12 @@ void MathGtkStyleContextCache::render_all_common_inset(GtkStyleContext *ctx, Can
     rect.width -=  margin.left + margin.right;
     rect.height -= margin.top + margin.bottom;
   }
-  gtk_render_background(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
-  gtk_render_frame(     ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+  if(!canvas.suppress_output) {
+    if(!canvas.show_only_text) {
+      gtk_render_background(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+    }
+    gtk_render_frame(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+  }
   
   GtkBorder border;
   gtk_style_context_get_border(ctx, gtk_style_context_get_state(ctx), &border);
