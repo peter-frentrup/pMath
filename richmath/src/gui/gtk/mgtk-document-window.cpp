@@ -21,8 +21,13 @@
 
 #ifdef GDK_WINDOWING_X11
 #  include <gdk/gdkx.h>
+#  include <X11/Xlib.h>
+#  include <X11/Xatom.h>
 #  ifdef None
 #    undef None
+#  endif
+#  if GTK_MAJOR_VERSION < 3
+#    define  GDK_IS_X11_WINDOW(w)  ((w) != nullptr)
 #  endif
 #endif
 
@@ -904,6 +909,33 @@ void MathGtkDocumentWindow::invalidate_options() {
   String s = doc->get_style(WindowTitle, _default_title);
   if(!_title.unobserved_equals(s))
     title(s);
+  
+  {
+    float progress = doc->get_own_style(WindowProgress, 0.0f);
+  
+#ifdef GDK_WINDOWING_X11
+    GdkWindow *gdk_window = gtk_widget_get_window(_widget);
+    GdkDisplay *display = gdk_window_get_display(gdk_window);
+    if(GDK_IS_X11_WINDOW(gdk_window)) {
+      if(progress > 0 && progress <= 1) {
+        uint32_t cardinal = (uint32_t)(progress * 100);
+        XChangeProperty(
+          GDK_DISPLAY_XDISPLAY(display),
+          GDK_WINDOW_XID(gdk_window),
+          gdk_x11_get_xatom_by_name_for_display(display, "_NET_WM_XAPP_PROGRESS"),
+          XA_CARDINAL, 32,
+          PropModeReplace,
+          (guchar*)&cardinal, 1);
+      }
+      else {
+        XDeleteProperty(
+          GDK_DISPLAY_XDISPLAY(display),
+          GDK_WINDOW_XID(gdk_window),
+          gdk_x11_get_xatom_by_name_for_display(display, "_NET_WM_XAPP_PROGRESS"));
+      }
+    }
+#endif // GDK_WINDOWING_X11
+  }
   
   WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
   if(_window_frame != f)
