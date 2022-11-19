@@ -118,6 +118,17 @@ Document({
                  StringBox("\"ControlsFontWeight\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), Section(BoxData("Plain"), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(
+             "Find out the resolution of the screen that displays a \
+             document:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"CurrentValue", "(", 
+                 StringBox("\"DocumentScreenDpi\""), ")"}), "Input", 
+               SectionLabel -> "in [1]:"), Section(BoxData("96"), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1), SectionGroup({Section("Document", "ExampleSubsection"), 
           Section("Explore menu commands under the mouse cursor:", 
            "ExampleText"), SectionGroup({
@@ -248,12 +259,17 @@ Document({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section(
-             "Find out the resolution of the screen that displays a \
-             document:", "ExampleText"), 
-            SectionGroup({
-              Section(BoxData({"CurrentValue", "(", 
-                 StringBox("\"DocumentScreenDpi\""), ")"}), "Input", 
-               SectionLabel -> "in [1]:"), Section(BoxData("96"), "Output", 
+             "Some systems support a progress indicator in the taskbar/dock:", 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"Slider", "(", {
+                  {"Dynamic", "(", {"CurrentValue", "(", {
+                     {"EvaluationDocument", "(", ")"}, ",", 
+                     StringBox("\"WindowProgress\"")}, ")"}, ")"}, ",", {
+                   "0", "..", "1"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(SliderBox(Dynamic(CurrentValue(EvaluationDocument(), 
+                   "WindowProgress")), 0 .. 1)), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1), SectionGroup({
           Section("Environment", "ExampleSubsection"), 
