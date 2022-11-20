@@ -240,7 +240,7 @@ bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options) {
     _content->load_from_object(expr[1], options);
     has_explicit_head(true);
   }
-  else if(expr[0] == richmath_System_List) {
+  else if(expr[0] == richmath_System_List || expr.is_string()) {
     if(has_explicit_head())
       return false;
     
