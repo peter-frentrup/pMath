@@ -38,9 +38,9 @@ namespace richmath {
 
   class Length {
     public:
-      Length() { _raw_value.as_uint32 = ExponentMask; }
+      Length() { _raw_value.as_uint32 = QuietNanMask; }
       
-      Length(SymbolicSize sym) { _raw_value.as_uint32 = ExponentMask | (uint32_t)sym; }
+      Length(SymbolicSize sym) { _raw_value.as_uint32 = QuietNanMask | (uint32_t)sym; }
       explicit Length(float raw_value) : _raw_value{raw_value} {}
       
       static Length Absolute(float f) { Length len( f); return len.is_explicit_abs() ? len : Length(); }
@@ -49,7 +49,7 @@ namespace richmath {
       float raw_value() const { return _raw_value.as_float; }
       float explicit_abs_value() const { return  _raw_value.as_float; }
       float explicit_rel_value() const { return -_raw_value.as_float; }
-      SymbolicSize symblic_value() const { return (SymbolicSize)(_raw_value.as_uint32 & FractionMask); }
+      SymbolicSize symblic_value() const { return (SymbolicSize)(_raw_value.as_uint32 & QuietNanPayloadMask); }
       
       Length resolve_scaled(float rel_scale) const;
       float resolve(float em, const LengthConversionFactors &factors, float rel_scale) const;
@@ -59,7 +59,7 @@ namespace richmath {
       bool is_explicit_abs() const { return (_raw_value.as_uint32 & ExponentMask) != ExponentMask && (_raw_value.as_uint32 & SignMask) == 0; }
       bool is_explicit_rel() const { return (_raw_value.as_uint32 & ExponentMask) != ExponentMask && (_raw_value.as_uint32 & SignMask) == SignMask; }
       bool is_symbolic() const { return (_raw_value.as_uint32 & ExponentMask) == ExponentMask; } // NaN or Infinity
-      bool is_valid()    const { return _raw_value.as_uint32 != ExponentMask; } // not NaN
+      bool is_valid()    const { return _raw_value.as_uint32 != QuietNanMask; } // not NaN
       
       explicit operator bool() const { return is_valid(); }
       
@@ -77,9 +77,10 @@ namespace richmath {
         uint32_t as_uint32;
       } _raw_value;
       
-      static const uint32_t SignMask     = 0x80000000u; // 10000000_00000000_00000000_00000000
-      static const uint32_t ExponentMask = 0x7F800000u; // 01111111_10000000_00000000_00000000
-      static const uint32_t FractionMask = 0x007FFFFFu; // 00000000_01111111_11111111_11111111
+      static const uint32_t SignMask            = 0x80000000u; // 10000000_00000000_00000000_00000000
+      static const uint32_t ExponentMask        = 0x7F800000u; // 01111111_10000000_00000000_00000000
+      static const uint32_t QuietNanMask        = 0x7FC00000u; // 01111111_11000000_00000000_00000000
+      static const uint32_t QuietNanPayloadMask = 0x003FFFFFu; // 00000000_00111111_11111111_11111111
   };
 }
 
