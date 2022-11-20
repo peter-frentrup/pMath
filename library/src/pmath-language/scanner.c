@@ -378,6 +378,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   parser.error                       = error;
   parser.data                        = data;
   parser.tokens.comment_level        = 0;
+  parser.tokens.in_line_comment      = FALSE;
   parser.tokens.in_string            = FALSE;
   parser.tokens.have_error           = FALSE;
   parser.stack_error                 = FALSE;
@@ -386,10 +387,12 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   parser.tokenizing = TRUE;
   while(parser.tokens.pos < parser.tokens.len)
     scan_next(&parser.tokens, &parser);
+  
   parser.tokens.pos = 0;
-  parser.tokens.comment_level = 0;
-  parser.tokens.in_string  = FALSE;
-  parser.tokenizing = FALSE;
+  parser.tokens.comment_level   = 0;
+  parser.tokens.in_line_comment = FALSE;
+  parser.tokens.in_string       = FALSE;
+  parser.tokenizing             = FALSE;
   
   if(parser.tokens.have_error) {
     skip_space(&parser, -1, FALSE);
