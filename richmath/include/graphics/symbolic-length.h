@@ -23,10 +23,14 @@ namespace richmath {
     static const LengthConversionFactors SectionMargins;
     static const LengthConversionFactors GraphicsSize;
     static const LengthConversionFactors NormalDashingInPt;
+    static const LengthConversionFactors PointSizeInPt;
     static const LengthConversionFactors SimpleDashingOnInPt;
     static const LengthConversionFactors SimpleDashingOffInPt;
-    static const LengthConversionFactors PointSizeInPt;
+    static const LengthConversionFactors SliderLengthScale;
+    static const LengthConversionFactors SliderThicknessScale;
     static const LengthConversionFactors ThicknessInPt;
+    static const LengthConversionFactors ToggleSwitchLengthScale;
+    static const LengthConversionFactors ToggleSwitchThicknessScale;
     static const LengthConversionFactors PlotRangePadding;
     
     float Automatic;

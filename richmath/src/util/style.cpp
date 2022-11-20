@@ -1159,7 +1159,7 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     any_change = raw_remove_length(n) || any_change;
     
     any_change = raw_set_length(Horizontal, dim) || any_change;
-    any_change = raw_set_length(Vertical, SymbolicSize::Automatic) || any_change;
+    any_change = raw_set_length(Vertical, /*dim.is_symbolic() ? dim :*/ SymbolicSize::Automatic) || any_change;
     return any_change;
   }
   
@@ -3443,6 +3443,10 @@ void StyleInformation::add_style() {
     add(StyleType::Size,            PaneBoxDefaultImageSizeCommon,    List(Symbol(richmath_System_PaneBoxOptions), Symbol(richmath_System_ImageSize)));
     // PaneBoxDefaultImageSizeHorizontal
     // PaneBoxDefaultImageSizeVertical
+    
+    add(StyleType::Size,            SliderBoxDefaultImageSizeCommon,    List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_ImageSize)));
+    // SliderBoxDefaultImageSizeHorizontal
+    // SliderBoxDefaultImageSizeVertical
     
     add(StyleType::Margin,          FrameMarginLeft,                  Symbol( richmath_System_FrameMargins));
     // SectionFrameMarginRight

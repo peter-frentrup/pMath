@@ -223,36 +223,62 @@ bool SliderBox::expand(const BoxSize &size) {
 
 void SliderBox::resize(Context &context) {
   float em = context.canvas().get_font_size();
+  
+  bool vertical = Impl(*this).is_vertical();
+  type = Impl(*this).parse_thumb_appearance(get_own_style(Appearance));
+  
+  const LengthConversionFactors *length_factors;
+  const LengthConversionFactors *thickness_factors;
+  switch(type) {
+    case ContainerType::ToggleSwitchThumbChecked:
+    case ContainerType::ToggleSwitchThumbUnchecked:
+      length_factors    = &LengthConversionFactors::ToggleSwitchLengthScale;
+      thickness_factors = &LengthConversionFactors::ToggleSwitchThicknessScale;
+      break;
+    
+    default:
+      length_factors    = &LengthConversionFactors::SliderLengthScale;
+      thickness_factors = &LengthConversionFactors::SliderThicknessScale;
+      break;
+  }
+  
+  Length wlen = get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
+  Length hlen = get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
+  if(hlen == SymbolicSize::Automatic && wlen.is_symbolic())
+    hlen = wlen;
+  
   _extents.ascent  = em;//0.75 * em * 1.5;
   _extents.descent = 0;
   _extents.width   = em;
   
-  type = Impl(*this).parse_thumb_appearance(get_own_style(Appearance));
-  
   BoxSize size = _extents;
   ControlPainter::std->calc_container_size(*this, context.canvas(), type, &size);
   
-  if(Impl(*this).is_vertical()) {
-    thumb_width = size.height();
-    _extents.width = size.width;
+  if(vertical) {
+    _extents.width = wlen.resolve(size.width, *thickness_factors, context.width);
+    thumb_width = size.height() * _extents.width / size.width;
   }
   else {
-    thumb_width = size.width;
-    _extents.ascent  = size.ascent;
-    _extents.descent = size.descent;
+    _extents.ascent = hlen.resolve(size.height(), *thickness_factors, context.width);
+    thumb_width = size.width * _extents.ascent / size.height();
   }
   
   size = _extents;
   ControlPainter::std->calc_container_size(*this, context.canvas(), Impl::channel_for_thumb(type), &size);
   
-  if(Impl(*this).is_vertical()) {
-    channel_width = size.width;
-    _extents.ascent  = size.ascent;
-    _extents.descent = size.descent;
+  if(vertical) {
+    channel_width = min(size.width, _extents.width);
+    _extents.ascent = hlen.resolve(size.height(), *length_factors, context.width);
+    
+    if(thumb_width > 0.67 * _extents.ascent)
+      thumb_width > 0.67 * _extents.ascent;
   }
   else {
-    channel_width = size.height();
-    _extents.width   = size.width;
+    channel_width = min(size.height(), _extents.height());
+    _extents.width = wlen.resolve(size.width, *length_factors, context.width);
+    
+    if(thumb_width > 0.67 * _extents.width)
+      thumb_width > 0.67 * _extents.width;
   }
   
   float h = _extents.height();

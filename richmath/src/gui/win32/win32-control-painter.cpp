@@ -356,7 +356,7 @@ void Win32ControlPainter::calc_container_size(
       } return;
       
     case ContainerType::HorizontalSliderChannel: {
-        extents->width = 8 * extents->height();
+        extents->width = 8 * canvas.get_font_size();
         
         float dx = 0;
         float dy = 4;
@@ -372,7 +372,7 @@ void Win32ControlPainter::calc_container_size(
       } return;
       
     case ContainerType::VerticalSliderChannel: {
-        extents->ascent = 8 * extents->height();
+        extents->ascent = 8 * canvas.get_font_size();
         extents->descent = 0;
         
         float dx = 4;

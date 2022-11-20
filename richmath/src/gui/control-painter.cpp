@@ -152,9 +152,9 @@ void ControlPainter::calc_container_size(
       } break;
     
     case ContainerType::HorizontalSliderChannel: {
-        extents->width   = 8 * extents->height();
-        extents->ascent  = 3.0;
-        extents->descent = 1.0;
+        extents->width   = 8 * canvas.get_font_size();
+        extents->ascent  = 4.0;
+        extents->descent = 0;
       } break;
       
     case ContainerType::HorizontalSliderDownArrowButton:
@@ -164,9 +164,8 @@ void ControlPainter::calc_container_size(
       } break;
     
     case ContainerType::VerticalSliderChannel: {
-        float h = 8 * extents->height();
-        extents->ascent = 0.5f * h + 0.25 * canvas.get_font_size();
-        extents->descent = h - extents->ascent;
+        extents->ascent  = 8 * canvas.get_font_size();
+        extents->descent = 0;
         extents->width   = 4.0;
       } break;
       
@@ -408,13 +407,13 @@ void ControlPainter::draw_container(
       break;
       
     case ContainerType::ToggleSwitchThumbUnchecked: {
-      rect.grow(-0.75f, 0);
+      rect.grow(-0.75f, -0.75f);
       rect.pixel_align(canvas, false);
       ControlPainterImpl::paint_frame(canvas, rect, false, state != ControlState::Disabled, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor);
     } break;
       
     case ContainerType::ToggleSwitchThumbChecked: {
-      rect.grow(-0.75f, 0);
+      rect.grow(-0.75f, -0.75f);
       rect.pixel_align(canvas, false);
       ControlPainterImpl::paint_frame(canvas, rect, false, state != ControlState::Disabled, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonColor : ButtonHoverColor);
     } break;

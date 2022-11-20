@@ -423,7 +423,8 @@ Options(Section):= {
     SliderBoxOptions -> {
         Appearance -> Automatic,
         ContinuousAction -> True,
-        Enabled -> Automatic},
+        Enabled -> Automatic,
+        ImageSize -> Automatic},
     "StringStyle" -> { FontColor -> Inherited },
     StyleDefinitions -> None,
     "SymbolShadowingStyle" -> { FontColor -> Inherited },
@@ -452,11 +453,12 @@ Options(Setter):= Options(SetterBox):= Options(SetterBar):= {
     Enabled -> Automatic }
 
 Options(Slider):= Options(SliderBox):= {
+    Appearance -> Automatic,
     BaseStyle -> "Slider", 
     BoxID -> None,
-    Appearance -> Automatic,
     ContinuousAction -> True,
-    Enabled -> Automatic }
+    Enabled -> Automatic,
+    ImageSize -> Automatic }
 
 Options(StyleData):= {
     StyleDefinitions -> Automatic }

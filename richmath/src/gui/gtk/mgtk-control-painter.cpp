@@ -322,10 +322,9 @@ void MathGtkControlPainter::calc_container_size(
       
       case ContainerType::HorizontalSliderChannel: {
           // TODO: calculate implicitly from minimum scale>contents>trough>slider height (18+2 for border), taking margins (-9 top and bottom) into account and add trough border (1 top and bottom)
-          extents->width = 8 * extents->height();
-          float h = 4 * 0.75f;
-          extents->ascent  = h * 0.75;
-          extents->descent = h * 0.25;
+          extents->width   = 8 * canvas.get_font_size();
+          extents->ascent  = 4.0 * 0.75f;
+          extents->descent = 0;
         }
         return;
         
@@ -348,9 +347,8 @@ void MathGtkControlPainter::calc_container_size(
       
       case ContainerType::VerticalSliderChannel: {
           // TODO: calculate implicitly from minimum scale>contents>trough>slider size
-          float h = 8 * extents->height();
-          extents->ascent = 0.5f * h + 0.25 * canvas.get_font_size();
-          extents->descent = h - extents->ascent;
+          extents->ascent  = 8 * canvas.get_font_size();
+          extents->descent = 0;
           extents->width   = 4.0 * 0.75f;
         }
         return;
@@ -438,9 +436,9 @@ void MathGtkControlPainter::calc_container_size(
           min_width  += thumb_border.left + thumb_border.right;
           min_height += thumb_border.top + thumb_border.bottom;
           
-          extents->ascent  = min_height * 0.75f * 0.75f;
-          extents->descent = min_height * 0.75f * 0.25f;
-          extents->width  = min_width * 0.75f;
+          extents->ascent  = min_height * 0.75f;
+          extents->descent = 0;
+          extents->width   = min_width * 0.75f;
         }
         return;
       
@@ -462,9 +460,9 @@ void MathGtkControlPainter::calc_container_size(
           min_width  += thumb_border.left + thumb_border.right;
           min_height += thumb_border.top + thumb_border.bottom;
           
-          extents->ascent  = min_height * 0.75f * 0.75f;
-          extents->descent = min_height * 0.75f * 0.25f;
-          extents->width  = min_width * 0.75f;
+          extents->ascent  = min_height * 0.75f;
+          extents->descent = 0;
+          extents->width   = min_width * 0.75f;
         }
         return;
         
