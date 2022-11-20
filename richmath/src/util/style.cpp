@@ -1176,11 +1176,6 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     any_change = raw_remove_length(n)          || any_change;
     any_change = raw_remove_length(Horizontal) || any_change;
     any_change = raw_remove_length(Vertical)   || any_change;
-    if(!StyleOptionName{n} .is_dynamic()) {
-      any_change = remove_dynamic(n)          || any_change;
-      any_change = remove_dynamic(Horizontal) || any_change;
-      any_change = remove_dynamic(Vertical)   || any_change;
-    }
     return any_change;
   }
   
