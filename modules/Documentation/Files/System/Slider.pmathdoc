@@ -163,6 +163,56 @@ Document({
                ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData(SliderBox(0.5, 0 .. 1, Enabled -> False)), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, 1), SectionGroup({Section("ImageSize", "ExampleSubsection"), 
+          Section("Symbolic sizes:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Slider", "(", {"ImageSize", "\[Rule]", "s"}, ")"}, ",", {
+                 "s", "\[Rule]", {"{", {"Automatic", ",", "Tiny", ",", 
+                   "Small", ",", "Medium", ",", "Large"}, "}"}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {SliderBox(0.5, 0 .. 1, 
+                 ImageSize -> {Automatic, Automatic}), ",", 
+                SliderBox(0.5, 0 .. 1, ImageSize -> {Tiny, Automatic}), ",", 
+                SliderBox(0.5, 0 .. 1, ImageSize -> {Small, Automatic}), ",", 
+                SliderBox(0.5, 0 .. 1, ImageSize -> {Medium, Automatic}), ",", 
+                SliderBox(0.5, 0 .. 1, ImageSize -> {Large, Automatic})}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Explicit size:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Slider", "(", {"ImageSize", "\[Rule]", "200"}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(SliderBox(0.5, 0 .. 1, 
+                 ImageSize -> {200, Automatic})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Specify an explicit height:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Slider", "(", {
+                  "ImageSize", "\[Rule]", {"{", {"150", ",", "50"}, "}"}}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(SliderBox(0.5, 0 .. 1, ImageSize -> {150, 50})), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Relative size:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Slider", "(", {
+                  "ImageSize", "\[Rule]", {"Scaled", "(", "1", ")"}}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(SliderBox(0.5, 0 .. 1, 
+                 ImageSize :> {Scaled(1), Automatic})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1)}, 1), SectionGroup({
         Section("Properties & Relations", "ExampleSection"), 
         Section("Apply pre- and post-evaluations:", "Text"), 

@@ -56,7 +56,37 @@ Document({
                "{", {TemplateBox({False, Enabled -> False}, "ToggleSwitch"), 
                 ",", TemplateBox({True, Enabled -> False}, "ToggleSwitch")}, 
                "}"}), "Output", SectionGenerated -> True, 
-             SectionLabel -> "out [1]:")}, All)}, 1)}, 1), 
+             SectionLabel -> "out [1]:")}, All)}, 1), 
+        SectionGroup({Section("ImageSize", "ExampleSubsection"), 
+          Section("Symbolic sizes:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"ToggleSwitch", "(", {"ImageSize", "\[Rule]", "s"}, ")"}, 
+                ",", {"s", "\[Rule]", {
+                  "{", {"Automatic", ",", "Tiny", ",", "Small", ",", "Medium", 
+                   ",", "Large"}, "}"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {TemplateBox({False, ImageSize -> Automatic}, 
+                 "ToggleSwitch"), ",", TemplateBox({False, ImageSize -> Tiny}, 
+                 "ToggleSwitch"), ",", 
+                TemplateBox({False, ImageSize -> Small}, "ToggleSwitch"), ",", 
+                TemplateBox({False, ImageSize -> Medium}, "ToggleSwitch"), 
+                ",", TemplateBox({False, ImageSize -> Large}, 
+                 "ToggleSwitch")}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Explicit size:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"ToggleSwitch", "(", {
+                  "ImageSize", "\[Rule]", {"{", {"100", ",", "50"}, "}"}}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(TemplateBox({False, ImageSize -> {100, 50}}, 
+                 "ToggleSwitch")), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
         Section(TextData({TemplateBox({"Checkbox"}, "ReferenceHyperlink"), 
            " and ", TemplateBox({"Opener"}, "ReferenceHyperlink"), 
