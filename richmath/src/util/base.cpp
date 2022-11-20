@@ -148,6 +148,8 @@ BaseDebugImpl::~BaseDebugImpl() {
 
 void BaseDebugImpl::debug_check_leaks_after(intptr_t min_timer) {
   if(auto num_alive = pmath_atomic_read_aquire(&count)) {
+    Locked guard(&TheCounter.lock);
+    
     intptr_t num_alive_after_min_timer = num_alive;
     if(min_timer > 0) {
       num_alive_after_min_timer = 0;
