@@ -20,50 +20,10 @@ const double richmath::Infinity = HUGE_VAL;
 namespace richmath {
   class BaseDebugImpl {
     public:
-      BaseDebugImpl() {
-        pmath_atomic_write_release(&count, 0);
-        pmath_atomic_write_release(&lock, 0);
-        pmath_atomic_write_release(&timer, 0);
-        non_freed_objects_list = nullptr;
-      }
-      ~BaseDebugImpl() {
-        debug_check_leaks_after(0);
-      }
+      BaseDebugImpl();
+      ~BaseDebugImpl();
       
-      void debug_check_leaks_after(intptr_t min_timer) {
-        if(auto num_alive = pmath_atomic_read_aquire(&count)) {
-          intptr_t num_alive_after_min_timer = num_alive;
-          if(min_timer > 0) {
-            num_alive_after_min_timer = 0;
-            for(Base *obj = non_freed_objects_list; obj; obj = obj->debug_next) {
-              if(obj->debug_alloc_time >= min_timer)
-                ++num_alive_after_min_timer;
-            }
-          }
-          
-          if(num_alive_after_min_timer > 0) {
-            if(min_timer > 0) {
-              printf("\n%d objects alive. %d POSSIBLE LEAKS (created after time %d but still alive):",
-                (int)num_alive, (int)num_alive_after_min_timer, (int)min_timer);
-            }
-            else
-              printf("\n%d OBJECTS LEAKED:", (int)num_alive);
-            
-            Base *obj = non_freed_objects_list;
-            for(int max_count = 2000; obj && max_count > 0; obj = obj->debug_next) {
-              if(obj->debug_alloc_time >= min_timer) {
-                --max_count;
-                
-                printf("\n  AT %p (time %d): %s", obj, (int)obj->debug_alloc_time, obj->debug_tag);
-              }
-            }
-            if(obj)
-              printf("\n  ...and more");
-            
-            printf("\n");
-          }
-        }
-      }
+      void debug_check_leaks_after(intptr_t min_timer);
       
       pmath_atomic_t count;
       pmath_atomic_t lock;
@@ -171,6 +131,58 @@ void Base::debug_check_leaks_after(intptr_t alloc_clock) {
 #endif
 
 //} ... class Base
+
+//{ class BaseDebugImpl ...
+
+#ifdef RICHMATH_DEBUG_MEMORY
+BaseDebugImpl::BaseDebugImpl() {
+  pmath_atomic_write_release(&count, 0);
+  pmath_atomic_write_release(&lock, 0);
+  pmath_atomic_write_release(&timer, 0);
+  non_freed_objects_list = nullptr;
+}
+
+BaseDebugImpl::~BaseDebugImpl() {
+  debug_check_leaks_after(0);
+}
+
+void BaseDebugImpl::debug_check_leaks_after(intptr_t min_timer) {
+  if(auto num_alive = pmath_atomic_read_aquire(&count)) {
+    intptr_t num_alive_after_min_timer = num_alive;
+    if(min_timer > 0) {
+      num_alive_after_min_timer = 0;
+      for(Base *obj = non_freed_objects_list; obj; obj = obj->debug_next) {
+        if(obj->debug_alloc_time >= min_timer)
+          ++num_alive_after_min_timer;
+      }
+    }
+    
+    if(num_alive_after_min_timer > 0) {
+      if(min_timer > 0) {
+        printf("\n%d objects alive. %d POSSIBLE LEAKS (created after time %d but still alive):",
+          (int)num_alive, (int)num_alive_after_min_timer, (int)min_timer);
+      }
+      else
+        printf("\n%d OBJECTS LEAKED:", (int)num_alive);
+      
+      Base *obj = non_freed_objects_list;
+      for(int max_count = 2000; obj && max_count > 0; obj = obj->debug_next) {
+        if(obj->debug_alloc_time >= min_timer) {
+          --max_count;
+          
+          printf("\n  AT %p (time %d): %s", obj, (int)obj->debug_alloc_time, obj->debug_tag);
+        }
+      }
+      if(obj)
+        printf("\n  ...and more");
+      
+      printf("\n");
+    }
+  }
+}
+#endif // RICHMATH_DEBUG_MEMORY
+
+//} ... class BaseDebugImpl
 
 //{ class Shareable ...
 
