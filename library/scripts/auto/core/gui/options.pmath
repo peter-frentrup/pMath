@@ -483,7 +483,8 @@ Options(TemplateBox):= {
 
 Options(ToggleSwitch):= { 
     BoxID -> None,
-    Enabled -> Automatic}
+    Enabled -> Automatic,
+    ImageSize -> Automatic}
 
 Options(Tooltip):= Options(TooltipBox):= { 
     %BaselinePosition -> Automatic,

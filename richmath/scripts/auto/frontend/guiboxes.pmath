@@ -217,9 +217,10 @@ makeTabViewBox(~x)::= makeCallBoxes(x)
 
 MakeBoxes(~x: ToggleSwitch)::= makeToggleSwitchBox(x) /? allowGuiBoxes
 Attributes(makeToggleSwitchBox):= {HoldAllComplete}
-makeToggleSwitchBox(ToggleSwitch())::=                                               TemplateBox({False},                  "ToggleSwitch")
-makeToggleSwitchBox(ToggleSwitch(~state,               options:OptionsPattern()))::= TemplateBox({state,         options}, "ToggleSwitch")
-makeToggleSwitchBox(ToggleSwitch(~state, values:{~,~}, options:OptionsPattern()))::= TemplateBox({state, values, options}, "ToggleSwitch2")
+makeToggleSwitchBox(ToggleSwitch())::=                                                             TemplateBox({False},                  "ToggleSwitch")
+makeToggleSwitchBox(ToggleSwitch(                                    options:OptionsPattern()))::= TemplateBox({False,         options}, "ToggleSwitch")
+makeToggleSwitchBox(ToggleSwitch(state:Except(~:Rule|~:RuleDelayed), options:OptionsPattern()))::= TemplateBox({state,         options}, "ToggleSwitch")
+makeToggleSwitchBox(ToggleSwitch(~state,               values:{~,~}, options:OptionsPattern()))::= TemplateBox({state, values, options}, "ToggleSwitch2")
 makeToggleSwitchBox(~x)::= makeCallBoxes(x)
 
 

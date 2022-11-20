@@ -319,7 +319,9 @@ Document({
                       True -> "ToggleSwitchChecked", ~ -> 
                        "ToggleSwitchUnchecked"})), 
                   Enabled -> 
-                   Dynamic(CurrentValue({TemplateSlot, Key(Enabled)}))), 
+                   Dynamic(CurrentValue({TemplateSlot, Key(Enabled)})), 
+                  ImageSize -> 
+                   Dynamic(CurrentValue({TemplateSlot, Key(ImageSize)}))), 
                  Initialization :> 
                   With({FE`Private`sym:= CurrentValue({TemplateSlot, 1})}, 
                    If(IsSymbol(FE`Private`sym) && 
@@ -372,7 +374,9 @@ Document({
                       If(FE`Private`state === FE`Private`values[2], 
                        "ToggleSwitchChecked", "ToggleSwitchUnchecked")))), 
                   Enabled -> 
-                   Dynamic(CurrentValue({TemplateSlot, Key(Enabled)}))), 
+                   Dynamic(CurrentValue({TemplateSlot, Key(Enabled)})), 
+                  ImageSize -> 
+                   Dynamic(CurrentValue({TemplateSlot, Key(ImageSize)}))), 
                  Initialization :> 
                   With({FE`Private`sym:= CurrentValue({TemplateSlot, 1})}, 
                    If(IsSymbol(FE`Private`sym) && 
