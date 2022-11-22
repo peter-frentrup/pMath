@@ -914,11 +914,11 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
     }
   }
   
-  float expand_width_or_zero = optional_expand_width ? *optional_expand_width : 0.0f;
+  float expand_width = optional_expand_width ? *optional_expand_width : max_auto_width;
   
   if(!w.is_explicit_abs_positive()) {
     if(w != SymbolicSize::Automatic) {
-      w = Length::Absolute(w.resolve(self.em, LengthConversionFactors::GraphicsSize, expand_width_or_zero));
+      w = Length::Absolute(w.resolve(self.em, LengthConversionFactors::GraphicsSize, expand_width));
       if(w.is_explicit_abs_positive()) {
         if(check_max_auto_width && isfinite(max_auto_width) && max_auto_width > 0 && w.explicit_abs_value() > max_auto_width)
           w = Length(max_auto_width);
@@ -930,7 +930,7 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
   
   if(!h.is_explicit_abs_positive()) {
     if(h != SymbolicSize::Automatic) {
-      h = Length::Absolute(h.resolve(self.em, LengthConversionFactors::GraphicsSize, expand_width_or_zero));
+      h = Length::Absolute(h.resolve(self.em, LengthConversionFactors::GraphicsSize, expand_width));
       if(!h.is_explicit_abs_positive())
         h = SymbolicSize::Automatic;
     }
@@ -957,35 +957,38 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
   }
   
   if(w == SymbolicSize::Automatic) {
-    float content_h = h.explicit_abs_value() - self.margin_top - self.margin_bottom;
-    
-    w = Length::Absolute(content_h / ratio + /*self.margin_left +*/ self.margin_right);
-    
-    if(!any_frame) {
+    float content_h = max(0.0f, h.explicit_abs_value() - self.margin_top - self.margin_bottom);
+    float content_w = content_h / ratio;
+
+    if(!any_frame) { // No frame, but an Y-axis whose labels could extend the left margin
       self.margin_left = max(
                            label_sizes[AxisIndexX].width / 2,
                            calc_margin_width(
-                             w.explicit_abs_value() - self.margin_right,
+                             content_w,
                              label_sizes[AxisIndexY].width + self.ticks[AxisIndexY]->extra_offset,
                              bounds.xmax - bounds.xmin,
                              bounds.xmax - ox));
     }
+    
+    w = Length::Absolute(content_w + self.margin_left + self.margin_right);
   }
   
   if(h == SymbolicSize::Automatic) {
-    float content_w = w.explicit_abs_value() - self.margin_left - self.margin_right;
-    
-    h = Length(content_w * ratio + self.margin_top/* + self.margin_bottom*/);
-    
-    if(!any_frame) {
+    float content_w = max(0.0f, w.explicit_abs_value() - self.margin_left - self.margin_right);
+    float content_h = content_w * ratio;
+
+    if(!any_frame) { // No frame, but an X-axis whose labels could extend the bottom margin
       self.margin_bottom = max(
                              label_sizes[AxisIndexY].height() / 2,
                              calc_margin_width(
-                               h.explicit_abs_value() - self.margin_top,
+                               content_h,
                                label_sizes[AxisIndexX].height() + self.ticks[AxisIndexX]->extra_offset,
                                bounds.ymax - bounds.ymin,
                                bounds.ymax - oy));
     }
+    
+    h = Length(content_h + self.margin_top + self.margin_bottom);
+    
   }
   
   self._extents.width = w.explicit_abs_value();
