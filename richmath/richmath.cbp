@@ -757,6 +757,7 @@
 		<Unit filename="include/boxes/fractionbox.h" />
 		<Unit filename="include/boxes/framebox.h" />
 		<Unit filename="include/boxes/graphics/axisticks.h" />
+		<Unit filename="include/boxes/graphics/circlebox.h" />
 		<Unit filename="include/boxes/graphics/graphicsbox.h" />
 		<Unit filename="include/boxes/graphics/graphicsdirective.h" />
 		<Unit filename="include/boxes/graphics/graphicsdrawingcontext.h" />
@@ -1374,6 +1375,7 @@
 		<Unit filename="src/boxes/fractionbox.cpp" />
 		<Unit filename="src/boxes/framebox.cpp" />
 		<Unit filename="src/boxes/graphics/axisticks.cpp" />
+		<Unit filename="src/boxes/graphics/circlebox.cpp" />
 		<Unit filename="src/boxes/graphics/graphicsbox.cpp" />
 		<Unit filename="src/boxes/graphics/graphicsdirective.cpp" />
 		<Unit filename="src/boxes/graphics/graphicsdrawingcontext.cpp" />

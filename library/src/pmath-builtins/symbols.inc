@@ -172,6 +172,8 @@ PMATH_DECLARE_SYSTEM_SYMBOL( ChebyshevU,                         DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( Checkbox,                           0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( CheckboxBox,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Chop,                               0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( Circle,                             0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( CircleBox,                          HOLDALL )
 PMATH_DECLARE_SYSTEM_SYMBOL( CirclePlus,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( CircleTimes,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( ClearAll,                           HOLDALL )

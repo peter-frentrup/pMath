@@ -10,6 +10,7 @@ MakeGraphicsExpression(~x)               ::= HoldComplete(x)
 
 MakeGraphicsExpression(~z:CompressedData)::= MakeExpression(z)
 MakeGraphicsExpression(~multi: List)     ::= HoldComplete @@ List @ HoldComplete(multi).Map(MakeGraphicsExpression, 2).ReleaseHold.Replace(HoldComplete(~~~x) :> x, 1)
+MakeGraphicsExpression(CircleBox(~~~args)) ::= HoldComplete(Circle(args))
 MakeGraphicsExpression(LineBox(~~~args)) ::= HoldComplete(Line(args))
 MakeGraphicsExpression(LineBox(~z:CompressedData))::= MakeExpression({"Line", "(", z, ")"})
 MakeGraphicsExpression(PointBox(~~~args))::= HoldComplete(Point(args))
