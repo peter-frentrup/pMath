@@ -25,8 +25,8 @@ Document({
         SectionGroup({
           Section(BoxData({"Graphics", "(", {"Circle", "(", ")"}, ")"}), 
            "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData(GraphicsBox({CircleBox()}, 
-             ImageSize -> {100, Automatic})), "Output", 
+          Section(BoxData(GraphicsBox({CircleBox()})), "Output", 
+           GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -38,8 +38,9 @@ Document({
                   {"Pi", "/", "6"}, "..", {"3", {"Pi", "/", "4"}}}}, ")"}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
-             BoxData(GraphicsBox({CircleBox({0, 0}, 1, Pi*1/6 .. 3*(Pi*1/4))}, 
-               ImageSize -> {100, Automatic})), "Output", 
+             BoxData(GraphicsBox({
+                CircleBox({0, 0}, 1, Pi*1/6 .. 3*(Pi*1/4))})), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -50,8 +51,8 @@ Document({
                 "Circle", "(", {{"{", {"0", ",", "0"}, "}"}, ",", {
                   "{", {"2", ",", "1"}, "}"}}, ")"}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
-            Section(BoxData(GraphicsBox({CircleBox({0, 0}, {2, 1})}, 
-               ImageSize -> {100, Automatic})), "Output", 
+            Section(BoxData(GraphicsBox({CircleBox({0, 0}, {2, 1})})), 
+             "Output", GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -70,16 +71,12 @@ Document({
                     "Circle", "(", ")"}}, "}"}, ")"}}, "}"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(
-             BoxData({
-               "{", {GraphicsBox({RGBColor(1, 0, 0), CircleBox()}, 
-                 ImageSize -> {100, Automatic}), ",", 
-                GraphicsBox({Dashing({Small, Small}), CircleBox()}, 
-                 ImageSize -> {100, Automatic}), ",", 
-                GraphicsBox({Thickness(Large), CircleBox()}, 
-                 ImageSize -> {100, Automatic}), ",", 
+             BoxData({"{", {GraphicsBox({RGBColor(1, 0, 0), CircleBox()}), 
+                ",", GraphicsBox({Dashing({Small, Small}), CircleBox()}), ",", 
+                GraphicsBox({Thickness(Large), CircleBox()}), ",", 
                 GraphicsBox({RGBColor(1, 0, 0), Thickness(Large), 
-                  Dashing({Small, Small}), CircleBox()}, 
-                 ImageSize -> {100, Automatic})}, "}"}), "Output", 
+                  Dashing({Small, Small}), CircleBox()})}, "}"}), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Specify radii:", "ExampleText"), 
@@ -92,9 +89,10 @@ Document({
            "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData(GraphicsBox({CircleBox({0, 0}, 1), CircleBox({0, 0}, 2), 
-              CircleBox({0, 0}, 3)}, ImageSize -> {100, Automatic})), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-         All), SectionGroup({
+              CircleBox({0, 0}, 3)})), "Output", 
+           GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section("Specify centers:", "ExampleText"), 
@@ -107,9 +105,10 @@ Document({
              "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({CircleBox({0, 0}, 1), CircleBox({1, 1}, 1), 
-                CircleBox({2, 2}, 1)}, ImageSize -> {100, Automatic})), 
-             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All)}, All), SectionGroup({
+                CircleBox({2, 2}, 1)})), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section("A circular arc:", "ExampleText"), 
@@ -119,8 +118,8 @@ Document({
                   ",", {"0", "..", {"4", {"Pi", "/", "3"}}}}, ")"}, "}"}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
-             BoxData(GraphicsBox({CircleBox({0, 0}, 1, 0 .. 4*(Pi*1/3))}, 
-               ImageSize -> {100, Automatic})), "Output", 
+             BoxData(GraphicsBox({CircleBox({0, 0}, 1, 0 .. 4*(Pi*1/3))})), 
+             "Output", GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
             Section(BoxData({"Graphics", "(", {
@@ -128,8 +127,8 @@ Document({
                   ",", {{"4", {"Pi", "/", "3"}}, "..", "0"}}, ")"}, "}"}, 
                ")"}), "Input", SectionLabel -> "in [2]:"), 
             Section(
-             BoxData(GraphicsBox({CircleBox({0, 0}, 1, 4*(Pi*1/3) .. 0)}, 
-               ImageSize -> {100, Automatic})), "Output", 
+             BoxData(GraphicsBox({CircleBox({0, 0}, 1, 4*(Pi*1/3) .. 0)})), 
+             "Output", GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
              SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
          All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -147,8 +146,10 @@ Document({
             Section(
              BoxData(GraphicsBox({CircleBox({0, 0}, {3, 1}), 
                 CircleBox({0, 0}, {2, 3/2}), CircleBox({0, 0}, {1, 2})})), 
-             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All)}, All), SectionGroup({
+             "Output", GraphicsBoxOptions -> {
+               ImageSize -> {Small, Automatic}}, SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section("Short form for a unit circle at the origin:", 
@@ -156,10 +157,11 @@ Document({
             Section(BoxData({"Graphics", "(", {
                 {"Circle", "(", ")"}, ",", {"Axes", "\[Rule]", "True"}}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(GraphicsBox({CircleBox()}, Axes -> True, 
-               ImageSize -> {Small, Automatic})), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All)}, 1), SectionGroup({Section("Neat Examples", "ExampleSection"), 
+            Section(BoxData(GraphicsBox({CircleBox()}, Axes -> True)), 
+             "Output", GraphicsBoxOptions -> {
+               ImageSize -> {Small, Automatic}}, SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+      SectionGroup({Section("Neat Examples", "ExampleSection"), 
         Section("Random circles:", "ExampleText"), 
         SectionGroup({
           Section(BoxData({"Graphics", "(", {
@@ -180,7 +182,7 @@ Document({
                CircleBox({2.0023937963720817`, 1.3211119977394419`}, 
                 0.4409497888872379`)}, {Hue(0.9542850498022156`), 
                CircleBox({2.9507843364487476`, 1.134634905932907`}, 
-                0.9369154164290582`)}, {Hue(0.0844972584401883), 
+                0.9369154164290582`)}, {Hue(0.0844972584401882[942+/-140]`16), 
                CircleBox({1.7521869476893022`, 2.4816084878752136`}, 
                 0.5572882273152607`)}, {Hue(0.7413248870622221`), 
                CircleBox({2.5423540813825634`, 3.7297665345000044`}, 
@@ -220,7 +222,8 @@ Document({
                CircleBox({3.841963522532179`, 3.9611993092679225`}, 
                 0.8162563678897639`)}, {Hue(0.696262134070065), 
                CircleBox({0.3222196982487828`, 0.41282324386390545`}, 
-                0.0835381507780395)}, {Hue(0.4224378413594956`), 
+                0.0835381507780394[925+/-140]`16)}, {
+               Hue(0.4224378413594956`), 
                CircleBox({2.5711523894857495`, 2.158665268117494`}, 
                 0.7092253815400794`)}, {Hue(0.5949939108161496`), 
                CircleBox({0.7970793636072635`, 1.6691429916329024`}, 
