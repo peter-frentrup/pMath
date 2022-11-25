@@ -283,23 +283,17 @@ void AxisTicks::draw_tick(Canvas &canvas, Point p, float length) {
   float factor = label_direction.length();
   if(factor == 0)
     return;
-    
-  factor = 1 / factor;
-  
-  Point p1 = p;
-  Point p2 = p + (length * factor) * label_direction;
-  
-  if(label_direction.x == 0 || label_direction.y == 0) {
-    p1 = canvas.align_point(p1, true);
-    p2 = canvas.align_point(p2, true);
-  }
   
   canvas.save();
   {
     cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
     
-    canvas.move_to(p1);
-    canvas.line_to(p2);
+    if(label_direction.x == 0 || label_direction.y == 0)
+      canvas.move_to(canvas.align_point(p, true));
+    else
+      canvas.move_to(p);
+    
+    canvas.rel_line_to((length / factor) * label_direction);
     
     canvas.hair_stroke();
   }
