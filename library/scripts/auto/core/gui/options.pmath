@@ -57,6 +57,7 @@ Options(CreateDocument):= Options(Document):= {
     "FunctionLocalVariableStyle" -> Inherited,
     "FunctionNameStyle" -> Inherited,
     GeneratedSectionStyles -> Inherited,
+    GraphicsBoxOptions -> Inherited,
     GridBoxColumnSpacing -> Inherited,
     GridBoxOptions -> Inherited,
     GridBoxRowSpacing -> Inherited,
@@ -254,6 +255,7 @@ Options(Style):= Options(StyleBox):= {
     FontWeight -> Inherited,
     "FunctionLocalVariableStyle" -> Inherited,
     "FunctionNameStyle" -> Inherited,
+    GraphicsBoxOptions -> Inherited,
     GridBoxColumnSpacing -> Inherited, % TODO: remove
     GridBoxOptions -> Inherited,
     GridBoxRowSpacing -> Inherited,    % TODO: remove
@@ -354,6 +356,17 @@ Options(Section):= {
     "FunctionLocalVariableStyle" -> { FontColor -> Inherited },
     "FunctionNameStyle" -> { FontColor -> Inherited },
     GeneratedSectionStyles -> Inherited,
+    GraphicsBoxOptions -> {
+        AspectRatio -> Inherited,
+        Axes -> Inherited,
+        AxesOrigin -> Inherited,
+        Background -> Inherited,
+        BaselinePosition -> Inherited,
+        Frame -> Inherited,
+        FrameTicks -> Inherited,
+        ImageSize -> Inherited,
+        PlotRange -> Inherited,
+        PlotRangePadding -> Inherited},
     GridBoxColumnSpacing -> 0.5,
     GridBoxBoxOptions -> {
         AllowScriptLevelChange -> True},

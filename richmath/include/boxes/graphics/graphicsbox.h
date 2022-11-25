@@ -73,6 +73,8 @@ namespace richmath {
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::GraphicsBox; }
+
     protected:
       enum {
         UserHasChangedSizeBit = base::NumFlagsBits,

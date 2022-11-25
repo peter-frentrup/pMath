@@ -351,6 +351,7 @@ GoldenRatio::usage:= "GoldenRatio is the golden ratio \({\"\\[Phi]\", \"=\", Fra
 Goto::usage:= "Goto(\(StyleBox(\"tag\", \"Arg\")\)) searches Label(\(StyleBox(\"tag\", \"Arg\")\)) and transfers control to that point."
 Graphics::usage:= "Graphics(\(StyleBox(\"primitives\", \"Arg\")\), \(StyleBox(\"options\", \"Arg\")\)) represents a graphical image."
 GraphicsBox::usage:= "GraphicsBox(\[Ellipsis]) is a low-level construct that represents a graphical image."
+GraphicsBoxOptions::usage:= "\({\"GraphicsBoxOptions \[Rule] {\", StyleBox(\"opt\", \"Arg\"), SubscriptBox(\"1\"), \" \[Rule] \", StyleBox(\"val\", \"Arg\"), SubscriptBox(\"1\"), \", \", StyleBox(\"opt\", \"Arg\"), SubscriptBox(\"2\"), \" \[Rule] \", StyleBox(\"val\", \"Arg\"), SubscriptBox(\"2\"), \", \[Ellipsis]}\"}\) is an option that specifies settings for GraphicsBox."
 Gray::usage:= "Gray represents the color gray in graphics and style specifications."
 GrayLevel::usage:= "GrayLevel(\(StyleBox(\"level\", \"Arg\")\)) is a directive which specifies a gray-level intensity to use for graphics and text."
 Greater::usage:= "\({\"x\", \" > \", \"y\"}\) yields True if \(\"x\"\) is determined to be greater than \(\"y\"\).\n\({{\"x\", SubscriptBox(\"1\")}, \" > \", {\"x\", SubscriptBox(\"2\")}, \" > \", {\"x\", SubscriptBox(\"3\")}}\) yields True if the \({\"x\", SubscriptBox(\"i\")}\) form a strictly decreasing sequence."

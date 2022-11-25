@@ -22,13 +22,14 @@ namespace richmath {
     FillBox         = 0x00400000,
     FractionBox     = 0x00500000,
     FrameBox        = 0x00600000,
-    GridBox         = 0x00700000,
-    InputFieldBox   = 0x00800000,
-    PaneBox         = 0x00900000,
-    PanelBox        = 0x00A00000,
-    SetterBox       = 0x00B00000,
-    SliderBox       = 0x00C00000,
-    TemplateBox     = 0x00D00000,
+    GraphicsBox     = 0x00700000,
+    GridBox         = 0x00800000,
+    InputFieldBox   = 0x00900000,
+    PaneBox         = 0x00A00000,
+    PanelBox        = 0x00B00000,
+    SetterBox       = 0x00C00000,
+    SliderBox       = 0x00D00000,
+    TemplateBox     = 0x00E00000,
   };
   
   enum AutoBoolValues {
@@ -97,7 +98,8 @@ namespace richmath {
     InlineSectionEditingBackgroundColor,
     MatchingBracketBackgroundColor,
     OccurenceBackgroundColor,
-    FrameBoxDefaultBackground = Background + (int)DefaultStyleOptionOffsets::FrameBox,
+    FrameBoxDefaultBackground    = Background + (int)DefaultStyleOptionOffsets::FrameBox,
+    GraphicsBoxDefaultBackground = Background + (int)DefaultStyleOptionOffsets::GraphicsBox,
   };
   
   enum IntStyleOptionName {
@@ -229,7 +231,8 @@ namespace richmath {
     
     SectionGroupPrecedence,
     
-    FillBoxDefaultFillBoxWeight = FillBoxWeight + (int)DefaultStyleOptionOffsets::FillBox,
+    FillBoxDefaultFillBoxWeight   = FillBoxWeight + (int)DefaultStyleOptionOffsets::FillBox,
+    GraphicsBoxDefaultAspectRatio = AspectRatio   + (int)DefaultStyleOptionOffsets::GraphicsBox,
   };
   
   enum LengthStyleOptionName {
@@ -276,6 +279,14 @@ namespace richmath {
     FrameBoxDefaultFrameMarginRight  = FrameMarginRight  + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultFrameMarginTop    = FrameMarginTop    + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultFrameMarginBottom = FrameMarginBottom + (int)DefaultStyleOptionOffsets::FrameBox,
+    
+    GraphicsBoxDefaultImageSizeCommon        = ImageSizeCommon        + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultImageSizeHorizontal    = ImageSizeHorizontal    + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultImageSizeVertical      = ImageSizeVertical      + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultPlotRangePaddingLeft   = PlotRangePaddingLeft   + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultPlotRangePaddingRight  = PlotRangePaddingRight  + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultPlotRangePaddingTop    = PlotRangePaddingTop    + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultPlotRangePaddingBottom = PlotRangePaddingBottom + (int)DefaultStyleOptionOffsets::GraphicsBox,
     
     PaneBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PaneBox,
@@ -346,6 +357,7 @@ namespace richmath {
     FillBoxOptions,
     FractionBoxOptions,
     FrameBoxOptions,
+    GraphicsBoxOptions,
     GridBoxOptions,
     InputFieldBoxOptions,
     PaneBoxOptions,
@@ -415,6 +427,14 @@ namespace richmath {
     FrameBoxDefaultBorderRadius              = BorderRadius           + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultBaselinePosition          = BaselinePosition       + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultFrameStyle                = FrameStyle             + (int)DefaultStyleOptionOffsets::FrameBox,
+    
+    GraphicsBoxDefaultAxes             = Axes             + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultAxesOrigin       = AxesOrigin       + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultBaselinePosition = BaselinePosition + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultFrame            = Frame            + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultFrameTicks       = FrameTicks       + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultPlotRange        = PlotRange        + (int)DefaultStyleOptionOffsets::GraphicsBox,
+    GraphicsBoxDefaultTicks            = Ticks            + (int)DefaultStyleOptionOffsets::GraphicsBox,
     
     InputFieldBoxDefaultAppearance           = Appearance             + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultBaselinePosition     = BaselinePosition       + (int)DefaultStyleOptionOffsets::InputFieldBox,
