@@ -34,12 +34,17 @@ using namespace std;
 
 extern pmath_symbol_t richmath_System_CircleBox;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Range;
+
+static const double TwoPi = 2 * M_PI;
 
 //{ class CircleBox ...
 
 CircleBox::CircleBox()
   : GraphicsElement(),
-    cx{0.0}, cy{0.0}
+    cx{0.0}, cy{0.0},
+    rx{1.0}, ry{1.0},
+    angles{0.0, TwoPi}
 {
 }
 
@@ -50,7 +55,7 @@ bool CircleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != richmath_System_CircleBox)
     return false;
     
-  if(expr.expr_length() > 2)
+  if(expr.expr_length() > 3)
     return false;
     
   if(_expr == expr) {
@@ -61,6 +66,8 @@ bool CircleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _expr = expr;
   cx = cy = 0.0;
   rx = ry = 1.0;
+  angles.from = 0.0;
+  angles.to = TwoPi;
   if(expr.expr_length() >= 1) {
     DoublePoint center;
     if(DoublePoint::load_point(center, expr[1])) {
@@ -87,6 +94,27 @@ bool CircleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
       }
       // TODO: else message
     }
+  }
+  
+  if(expr.expr_length() >= 3) {
+    Expr angle_range = expr[3];
+    if(angle_range.expr_length() == 2 && angle_range[0] == richmath_System_Range) {
+      double a1 = angle_range[1].to_double(NAN);
+      double a2 = angle_range[2].to_double(NAN);
+      
+      if(isfinite(a1)) angles.from = a1; // TODO: else message
+      if(isfinite(a2)) angles.to   = a2; // TODO: else message
+      
+      if(angles.to < angles.from) {
+        if(angles.length() < -TwoPi)
+          angles.to = angles.from + TwoPi;
+        else
+          angles.to += TwoPi;
+      }
+      else if(angles.length() > TwoPi)
+        angles.to = angles.from + TwoPi;
+    }
+    // TODO: else message
   }
   
   finish_load_from_object(PMATH_CPP_MOVE(expr));
@@ -126,8 +154,6 @@ void CircleBox::find_extends(GraphicsBounds &bounds) {
     return;
   }
   
-  bounds.add_point(cx, cy);
-  
   auto oldmat = bounds.elem_to_container;
   if(Impl(*this).transform_to_std_circle(bounds.elem_to_container)) {
     double t1 = atan2(bounds.elem_to_container.xy, bounds.elem_to_container.xx); // x'(t1) = 0
@@ -138,12 +164,24 @@ void CircleBox::find_extends(GraphicsBounds &bounds) {
     double c2 = cos(t2);
     double s2 = sin(t2);
     
-    bounds.add_point( c1,  s1); // at t1
-    bounds.add_point(-c1, -s1); // at t1 + pi
-    bounds.add_point( c2,  s2); // at t2
-    bounds.add_point(-c2, -s2); // at t2 + pi
+    if(angles.length() >= TwoPi) {
+      bounds.add_point( c1,  s1); // at t1
+      bounds.add_point(-c1, -s1); // at t1 + pi
+      bounds.add_point( c2,  s2); // at t2
+      bounds.add_point(-c2, -s2); // at t2 + pi
+    }
+    else {
+      if(angles.contains(        t1 < 0     ? t1 + TwoPi : t1))  bounds.add_point( c1,  s1); // at t1
+      if(angles.contains(M_PI + (t1 < -M_PI ? t1 + TwoPi : t1))) bounds.add_point(-c1, -s1); // at t1 + pi
+      if(angles.contains(        t2 < 0     ? t2 + TwoPi : t2))  bounds.add_point( c2,  s2); // at t2
+      if(angles.contains(M_PI + (t2 < -M_PI ? t2 + TwoPi : t2))) bounds.add_point(-c2, -s2); // at t2 + pi
+      
+      bounds.add_point(cos(angles.from), sin(angles.from));
+      bounds.add_point(cos(angles.to),   sin(angles.to));
+    }
   }
-  else { // degenerate circle, center already adjusted
+  else { // degenerate circle, center already adjusted. TODO: restrict according to angles
+    //bounds.add_point(cx, cy);
     bounds.add_point(-rx, -ry);
     bounds.add_point(-rx,  ry);
     bounds.add_point( rx, -ry);
@@ -159,20 +197,17 @@ void CircleBox::paint(GraphicsDrawingContext &gc) {
   cairo_matrix_t std_circle_mat = mat;
   if(Impl(*this).transform_to_std_circle(std_circle_mat)) {
     gc.canvas().set_matrix(std_circle_mat);
-    gc.canvas().arc(0, 0, 1, 0, 2 * M_PI, false);
+    gc.canvas().arc(0, 0, 1, angles.from, angles.to, false);
   }
-  else { // one or both of the radii are zero
+  else { // one or both of the radii are zero. TODO: restrict according to angles
     gc.canvas().move_to(cx - rx, cy - ry);
     gc.canvas().line_to(cx + rx, cy + ry);
     gc.canvas().close_path();
   }
   
-  auto jf = gc.canvas().join_form();
-  gc.canvas().join_form(JoinFormRound); // oly really necessary for degenerate circles
   gc.canvas().set_matrix(gc.initial_matrix());
   gc.canvas().stroke();
   gc.canvas().set_matrix(mat);
-  gc.canvas().join_form(jf); 
 }
 
 Expr CircleBox::to_pmath_impl(BoxOutputFlags flags) {

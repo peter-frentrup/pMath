@@ -2,7 +2,7 @@
 #define RICHMATH__BOXES__GRAPHICS__CIRCLEBOX_H__INCLUDED
 
 #include <boxes/graphics/graphicselement.h>
-
+#include <util/interval.h>
 
 namespace richmath {
   class CircleBox final : public GraphicsElement {
@@ -24,6 +24,7 @@ namespace richmath {
       double cy;
       double rx;
       double ry;
+      Interval<double> angles;
       
     protected:
       CircleBox();
