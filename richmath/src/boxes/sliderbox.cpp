@@ -271,14 +271,14 @@ void SliderBox::resize(Context &context) {
     _extents.ascent = hlen.resolve(size.height(), *length_factors, context.width);
     
     if(thumb_width > 0.67 * _extents.ascent)
-      thumb_width > 0.67 * _extents.ascent;
+      thumb_width = 0.67 * _extents.ascent;
   }
   else {
     channel_width = min(size.height(), _extents.height());
     _extents.width = wlen.resolve(size.width, *length_factors, context.width);
     
     if(thumb_width > 0.67 * _extents.width)
-      thumb_width > 0.67 * _extents.width;
+      thumb_width = 0.67 * _extents.width;
   }
   
   float h = _extents.height();
