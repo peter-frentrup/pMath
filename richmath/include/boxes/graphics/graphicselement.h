@@ -3,6 +3,7 @@
 
 #include <util/array.h>
 #include <util/pmath-extra.h>
+#include <util/double-point.h>
 #include <util/styled-object.h>
 
 #include <cairo.h>
@@ -20,6 +21,7 @@ namespace richmath {
       bool is_finite();
       
       void add_point(double elem_x, double elem_y);
+      void add_point(const DoublePoint &p) { add_point(p.x, p.y); }
       
     public:
       cairo_matrix_t elem_to_container;

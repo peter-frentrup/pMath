@@ -2,6 +2,7 @@
 
 #include <boxes/graphics/graphicsdrawingcontext.h>
 #include <graphics/canvas.h>
+#include <util/double-point.h>
 
 #include <cmath>
 #include <limits>

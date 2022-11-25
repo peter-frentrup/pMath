@@ -1,7 +1,7 @@
 #ifndef RICHMATH__BOXES__GRAPHICS__LINEBOX_H__INCLUDED
 #define RICHMATH__BOXES__GRAPHICS__LINEBOX_H__INCLUDED
 
-#include <boxes/graphics/pointbox.h>
+#include <boxes/graphics/graphicselement.h>
 #include <util/double-matrix.h>
 
 

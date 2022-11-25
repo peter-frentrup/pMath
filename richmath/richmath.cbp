@@ -1312,6 +1312,7 @@
 		<Unit filename="include/util/base.h" />
 		<Unit filename="include/util/concurrent-queue.h" />
 		<Unit filename="include/util/double-matrix.h" />
+		<Unit filename="include/util/double-point.h" />
 		<Unit filename="include/util/filesystem.h" />
 		<Unit filename="include/util/frontendobject.h" />
 		<Unit filename="include/util/hashtable.h" />
@@ -1935,6 +1936,7 @@
 		<Unit filename="src/syntax/spanexpr.cpp" />
 		<Unit filename="src/syntax/syntax-state.cpp" />
 		<Unit filename="src/util/base.cpp" />
+		<Unit filename="src/util/double-point.cpp" />
 		<Unit filename="src/util/filesystem.cpp" />
 		<Unit filename="src/util/frontendobject.cpp" />
 		<Unit filename="src/util/heterogeneous-stack.cpp" />
