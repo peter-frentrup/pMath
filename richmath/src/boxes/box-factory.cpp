@@ -157,20 +157,30 @@ AbstractSequence *BoxFactory::create_sequence(LayoutKind kind) {
   return new MathSequence;
 }
 
-Section *BoxFactory::create_empty_section(Expr expr) {
+Section *BoxFactory::create_empty_section(SectionKind kind) {
+  switch(kind) {
+    case SectionKind::Error: break;
+    case SectionKind::Math:  return new MathSection();
+    case SectionKind::Style: return new StyleDataSection();
+    case SectionKind::Text:  return new TextSection();
+  }
+  return new ErrorSection(Expr());
+}
+
+SectionKind BoxFactory::kind_of_section(Expr expr) {
   if(expr[0] == richmath_System_Section) {
     Expr content = expr[1];
     
-    if(content.is_string()) return new TextSection();
+    if(content.is_string()) return SectionKind::Text;
     
     Expr content_head = content[0];
-    if(content_head == richmath_System_BoxData)   return new MathSection();
-    if(content_head == richmath_System_StyleData) return new StyleDataSection();
-    if(content_head == richmath_System_TextData)  return new TextSection();
-    if(content_head == richmath_System_List)      return new TextSection();
+    if(content_head == richmath_System_BoxData)   return SectionKind::Math;
+    if(content_head == richmath_System_StyleData) return SectionKind::Style;
+    if(content_head == richmath_System_TextData)  return SectionKind::Text;
+    if(content_head == richmath_System_List)      return SectionKind::Text;
   }
   
-  return new ErrorSection(expr);
+  return SectionKind::Error;
 }
 
 //} ... class BoxFactory

@@ -5,6 +5,7 @@
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
+#include <boxes/section.h> // for SectionKind
 
 
 namespace richmath {
@@ -38,6 +39,7 @@ namespace richmath {
       static void notify(     ClientNotification type, Expr data); // callable from non-GUI thread
       static Expr notify_wait(ClientNotification type, Expr data); // callable from non-GUI thread
       
+      static Section *try_make_output(SectionKind kind);
       static void gui_print_section(Expr expr);
       static Expr save(Document *doc);
       //static void update_control_active(bool value);

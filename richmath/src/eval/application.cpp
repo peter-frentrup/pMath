@@ -390,7 +390,7 @@ static void write_data(void *user, const uint16_t *data, int len) {
 #undef BUFSIZE
 }
 
-void Application::gui_print_section(Expr expr) {
+Section *Application::try_make_output(SectionKind kind) {
   EvaluationPosition pos;
   
   pmath_atomic_lock(&print_pos_lock);
@@ -402,112 +402,68 @@ void Application::gui_print_section(Expr expr) {
   Document *doc = FrontEndObject::find_cast<Document>(pos.document_id);
   Section *sect = FrontEndObject::find_cast<Section>( pos.section_id);
   
-  String ctx;
-  if(sect)
-    ctx = EvaluationContexts::resolve_context(sect);
-  else if(doc)
-    ctx = EvaluationContexts::resolve_context(doc);
-  else
-    ctx = EvaluationContexts::current();
-  
-  expr = EvaluationContexts::replace_symbol_namespace(
-           PMATH_CPP_MOVE(expr), 
-           ctx,
-           strings::DollarContext_namespace);
-  
   if(doc && doc->editable()) {
-    int index;
+    Section *new_sect;
     if(sect && sect->parent() == doc) {
-      index = sect->index() + 1;
+      Interval<int> removal {0, 0};
+      removal.from = sect->index() + 1;
+      removal.to = removal.from;
       
-      while(index < doc->count()) {
-        Section *s = doc->section(index);
+      while(removal.to < doc->count()) {
+        Section *s = doc->section(removal.to);
         if(!s || !s->get_style(SectionGenerated))
           break;
-          
-        if(session && session->current_job && session->current_job->default_graphics_options.is_null()) {
-          if(auto seq_sect = dynamic_cast<AbstractSequenceSection *>(s)) {
-            if(seq_sect->content()->length() == 1 && seq_sect->content()->count() == 1) {
-              if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(seq_sect->content()->item(0))) {
-                session->current_job->default_graphics_options = gb->get_user_options();
-              }
-            }
-          }
-        }
         
-        if(doc->selection_box() == doc) {
-          int start = doc->selection_start();
-          int end   = doc->selection_end();
-          
-          if(index < start || index < end) {
-            if(start > index) --start;
-            if(end > index)   --end;
-            
-            doc->select(doc, start, end);
-          }
-        }
-        
-        doc->remove(index, index + 1);
+        removal.to++;
       }
+      
+      if(session) {
+        if(auto job = session->current_job) {
+          for(int i = removal.from; i < removal.to; ++i) {
+            job->remember_output_style(doc->section(i));
+          }
+        }
+      }
+      
+      new_sect = nullptr;
+      if(removal.from < removal.to) {
+        Section *s = doc->section(removal.from);
+        if(s->kind() == kind) {
+          new_sect = s;
+          removal.from++;
+        }
+      }
+      
+      if(!new_sect) {
+        new_sect = BoxFactory::create_empty_section(kind);
+        doc->insert(removal.from, new_sect);
+        removal.from++;
+        removal.to++;
+      }
+      
+      if(removal.length() > 0 && doc->selection_box() == doc) {
+        int start = doc->selection_start();
+        int end   = doc->selection_end();
+        
+        if(removal.from < start || removal.from < end) {
+          if(     removal.to   <= start) start-= removal.length();
+          else if(removal.from <= start) start = removal.from;
+          
+          if(     removal.to   <= end) end-= removal.length();
+          else if(removal.from <= end) end = removal.from;
+          
+          doc->select(doc, start, end);
+        }
+      }
+      
+      doc->remove(removal.from, removal.to);
     }
-    else
-      index = doc->length();
-      
-    sect = BoxFactory::create_empty_section(expr);
-    doc->insert(index, sect);
-    if(!sect->try_load_from_object(expr, BoxInputFlags::Default)) {
-      sect = new ErrorSection(expr);
-      doc->swap(index, sect)->safe_destroy();
-    }
-    
-    if(session && session->current_job) {
-      if(auto seq_sect = dynamic_cast<AbstractSequenceSection *>(sect)) {
-        if(seq_sect->content()->length() == 1 && seq_sect->content()->count() == 1) {
-          if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(seq_sect->content()->item(0))) {
-            gb->set_user_default_options(session->current_job->default_graphics_options);
-          }
-        }
-      }
-      
-      String base_style_name;
-      if(sect->style && sect->style->get(BaseStyleName, &base_style_name)) {
-        Section *eval_sect = FrontEndObject::find_cast<Section>(session->current_job->position().section_id);
-        
-        if(eval_sect) {
-          Gather g;
-          Expr   rules;
-          
-          SharedPtr<Stylesheet> all   = eval_sect->stylesheet();
-          SharedPtr<Style>      style = eval_sect->style;
-          
-          for(int count = 20; count && style; --count) {
-            if(style->get(GeneratedSectionStyles, &rules))
-              Gather::emit(rules);
-              
-            String inherited;
-            if(all && style->get(BaseStyleName, &inherited))
-              style = all->styles[inherited];
-            else
-              break;
-          }
-          
-          rules = g.end();
-          Expr base_style = Evaluate(Parse("Try(Replace(`1`, Flatten(`2`)))", base_style_name, rules));
-          if(base_style != richmath_System_DollarFailed) {
-            sect->style->remove(BaseStyleName);
-            sect->style->add_pmath(base_style);
-          }
-        }
-      }
-      
-      if(!sect->style)
-        sect->style = new Style();
-      
-      if(!sect->style->contains(SectionGenerated))
-        sect->style->set(SectionGenerated, true);
+    else {
+      new_sect = BoxFactory::create_empty_section(kind);
+      doc->insert(doc->length(), new_sect);
     }
     
-    pos = EvaluationPosition(sect);
+    pos = EvaluationPosition(new_sect);
     pmath_atomic_lock(&print_pos_lock);
     {
       print_pos = pos;
@@ -517,6 +473,7 @@ void Application::gui_print_section(Expr expr) {
     if(doc->selection_box() == doc) {
       int s = doc->selection_start();
       int e = doc->selection_end();
+      int index = new_sect->index();
       
       if(index <= s || index <= e) {
         if(s >= index) ++s;
@@ -525,8 +482,19 @@ void Application::gui_print_section(Expr expr) {
         doc->select(doc, s, e);
       }
     }
+    
+    return new_sect;
   }
   else {
+    // TODO: write to some common messages window
+    return nullptr;
+  }
+}
+
+void Application::gui_print_section(Expr expr) {
+  Section *sect = try_make_output(BoxFactory::kind_of_section(expr));
+  
+  if(!sect) {
     if(expr[0] == richmath_System_Section) {
       Expr boxes = expr[1];
       if(boxes[0] == richmath_System_BoxData)
@@ -538,7 +506,29 @@ void Application::gui_print_section(Expr expr) {
     printf("\n");
     pmath_write(expr.get(), 0, write_data, stdout);
     printf("\n");
+    return;
   }
+  
+  expr = EvaluationContexts::replace_symbol_namespace(
+           PMATH_CPP_MOVE(expr), 
+           EvaluationContexts::resolve_context(sect),
+           strings::DollarContext_namespace);
+
+  if(!sect->try_load_from_object(expr, BoxInputFlags::Default)) {
+    if(Document *doc = dynamic_cast<Document*>(sect->parent())) {
+      sect = new ErrorSection(expr);
+      doc->swap(sect->index(), sect)->safe_destroy();
+    }
+  }
+  
+  if(session && session->current_job)
+    session->current_job->adjust_output_style(sect);
+  
+  if(!sect->style)
+    sect->style = new Style();
+  
+  if(!sect->style->contains(SectionGenerated))
+    sect->style->set(SectionGenerated, true);
 }
 
 static void update_control_active(bool value) {

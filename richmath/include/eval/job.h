@@ -9,6 +9,7 @@
 namespace richmath {
   class Box;
   class Document;
+  class Section;
   class MathSection;
   class MathSequence;
   
@@ -41,7 +42,14 @@ namespace richmath {
       virtual void end() = 0;
       virtual void dequeued() = 0;
       
+      void remember_output_style(Section *old_sect);
+      void adjust_output_style(Section *sect);
+      
       const EvaluationPosition &position() { return _position; }
+    
+    protected:
+      void apply_default_graphics_options(Section *sect);
+      void apply_generated_section_styles(Section *sect);
       
     public:
       Expr default_graphics_options;

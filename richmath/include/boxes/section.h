@@ -10,6 +10,13 @@ namespace richmath {
   class MathSequence;
   class TextSequence;
   
+  enum class SectionKind {
+    Error,
+    Math,
+    Text,
+    Style
+  };
+  
   /* Every section has a SectionGroupPrecedence (SGP) option to specify how deep
      it will be nested in the section groups. When a section X is followed by a
      section Y, three possible situations arise:
@@ -56,6 +63,8 @@ namespace richmath {
       virtual ~Section();
     public:
       Section(SharedPtr<Style> _style);
+      
+      virtual SectionKind kind() = 0;
       
       float label_width();
       void resize_label(Context &context);
@@ -117,7 +126,9 @@ namespace richmath {
   
   class ErrorSection final : public Section {
     public:
-      ErrorSection(const Expr object);
+      explicit ErrorSection(Expr object);
+      
+      virtual SectionKind kind() { return SectionKind::Error; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
@@ -196,6 +207,8 @@ namespace richmath {
       explicit MathSection();
       explicit MathSection(SharedPtr<Style> _style);
       
+      virtual SectionKind kind() { return SectionKind::Math; }
+      
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       MathSequence *content() { return (MathSequence*)_content; }
@@ -205,6 +218,8 @@ namespace richmath {
     public:
       explicit TextSection();
       explicit TextSection(SharedPtr<Style> _style);
+      
+      virtual SectionKind kind() { return SectionKind::Text; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
@@ -216,6 +231,9 @@ namespace richmath {
       virtual ~EditSection();
     public:
       EditSection();
+      
+      //virtual SectionKind kind() { return original ? original->kind : SectionKind::Math; }
+      virtual SectionKind kind() { return SectionKind::Error; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
@@ -231,6 +249,8 @@ namespace richmath {
   class StyleDataSection final : public AbstractSequenceSection {
     public:
       StyleDataSection();
+      
+      virtual SectionKind kind() { return SectionKind::Style; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

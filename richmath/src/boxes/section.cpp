@@ -273,7 +273,7 @@ float Section::get_em() {
 
 //{ class ErrorSection ...
 
-ErrorSection::ErrorSection(const Expr object)
+ErrorSection::ErrorSection(Expr object)
   : Section(0),
     _object(object)
 {

@@ -1,7 +1,8 @@
 #include <eval/job.h>
 
-#include <boxes/section.h>
+#include <boxes/graphics/graphicsbox.h>
 #include <boxes/mathsequence.h>
+#include <boxes/section.h>
 
 #include <eval/application.h>
 #include <eval/dynamic.h>
@@ -56,6 +57,66 @@ Job::Job()
   : Shareable()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
+}
+
+void Job::remember_output_style(Section *old_sect) {
+  if(default_graphics_options.is_null()) {
+    if(auto seq_sect = dynamic_cast<AbstractSequenceSection *>(old_sect)) {
+      if(seq_sect->content()->length() == 1 && seq_sect->content()->count() == 1) {
+        if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(seq_sect->content()->item(0))) {
+          default_graphics_options = gb->get_user_options();
+        }
+      }
+    }
+  }
+}
+
+void Job::adjust_output_style(Section *sect) {
+  apply_default_graphics_options(sect);
+  apply_generated_section_styles(sect);
+}
+
+void Job::apply_default_graphics_options(Section *sect) {
+  if(auto seq_sect = dynamic_cast<AbstractSequenceSection *>(sect)) {
+    if(seq_sect->content()->length() == 1 && seq_sect->content()->count() == 1) {
+      if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(seq_sect->content()->item(0))) {
+        gb->set_user_default_options(default_graphics_options);
+      }
+    }
+  }
+}
+
+void Job::apply_generated_section_styles(Section *sect) {
+  String base_style_name;
+  if(sect->style && sect->style->get(BaseStyleName, &base_style_name)) {
+    Section *eval_sect = FrontEndObject::find_cast<Section>(_position.section_id);
+    
+    if(eval_sect) {
+      Gather g;
+      Expr   rules;
+      
+      SharedPtr<Stylesheet> all   = eval_sect->stylesheet();
+      SharedPtr<Style>      style = eval_sect->style;
+      
+      for(int count = 20; count && style; --count) {
+        if(style->get(GeneratedSectionStyles, &rules))
+          Gather::emit(rules);
+          
+        String inherited;
+        if(all && style->get(BaseStyleName, &inherited))
+          style = all->styles[inherited];
+        else
+          break;
+      }
+      
+      rules = g.end();
+      Expr base_style = Evaluate(Parse("Try(Replace(`1`, Flatten(`2`)))", base_style_name, rules));
+      if(base_style != richmath_System_DollarFailed) {
+        sect->style->remove(BaseStyleName);
+        sect->style->add_pmath(base_style);
+      }
+    }
+  }
 }
 
 //} ... class Job
