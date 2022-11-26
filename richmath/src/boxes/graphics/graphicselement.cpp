@@ -63,7 +63,7 @@ GraphicsBounds::GraphicsBounds()
   cairo_matrix_init_identity(&elem_to_container);
 }
 
-bool GraphicsBounds::is_finite() {
+bool GraphicsBounds::is_finite() const {
   return isfinite(x_range.from) && isfinite(x_range.to) && isfinite(y_range.from) && isfinite(y_range.to);
 }
 

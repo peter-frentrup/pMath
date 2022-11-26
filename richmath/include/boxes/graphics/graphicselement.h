@@ -19,7 +19,8 @@ namespace richmath {
     public:
       GraphicsBounds();
       
-      bool is_finite();
+      bool is_finite() const;
+      bool contains(const DoublePoint &p) const { return x_range.contains(p.x) && y_range.contains(p.y); }
       
       void add_point(double elem_x, double elem_y);
       void add_point(const DoublePoint &p) { add_point(p.x, p.y); }
