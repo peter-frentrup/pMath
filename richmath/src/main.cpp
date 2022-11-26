@@ -551,8 +551,7 @@ static void init_stylesheet() {
 //  Stylesheet::Default->base->set(FontFeatures,
 //                                 List(Rule(String("ssty"), Symbol(richmath_System_Automatic))));
 
-//  Stylesheet::Default->base->set(GeneratedSectionStyles,
-//                                 Parse("{~FE`Private`style :> FE`Private`style}"));
+  Stylesheet::Default->base->set(GeneratedSectionStyles, List());
 
 //  Stylesheet::Default->styles.set("SystemResetStyle", Stylesheet::Default->base);
 

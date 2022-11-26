@@ -347,9 +347,10 @@ namespace richmath {
     DockedSectionsBottom,      // StyleType::AnyFlatList
     DockedSectionsBottomGlass, // StyleType::AnyFlatList
     
-    FontFamilies,          // StyleType::AnyFlatList
-    InputAliases,          // StyleType::AnyFlatList
-    InputAutoReplacements, // StyleType::AnyFlatList
+    FontFamilies,           // StyleType::AnyFlatList
+    GeneratedSectionStyles, // StyleType::AnyFlatList
+    InputAliases,           // StyleType::AnyFlatList
+    InputAutoReplacements,  // StyleType::AnyFlatList
     
     ButtonBoxOptions,
     DynamicBoxOptions,
@@ -381,7 +382,6 @@ namespace richmath {
     
     StyleDefinitions,
     InternalLastStyleDefinitions,
-    GeneratedSectionStyles,
     
     SectionDingbat,
     SectionEvaluationFunction,

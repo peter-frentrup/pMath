@@ -89,31 +89,18 @@ void Job::apply_default_graphics_options(Section *sect) {
 void Job::apply_generated_section_styles(Section *sect) {
   String base_style_name;
   if(sect->style && sect->style->get(BaseStyleName, &base_style_name)) {
-    Section *eval_sect = FrontEndObject::find_cast<Section>(_position.section_id);
-    
-    if(eval_sect) {
-      Gather g;
-      Expr   rules;
+    if(Section *eval_sect = FrontEndObject::find_cast<Section>(_position.section_id)) {
+      Expr rules = eval_sect->get_style(GeneratedSectionStyles);
       
-      SharedPtr<Stylesheet> all   = eval_sect->stylesheet();
-      SharedPtr<Style>      style = eval_sect->style;
-      
-      for(int count = 20; count && style; --count) {
-        if(style->get(GeneratedSectionStyles, &rules))
-          Gather::emit(rules);
-          
-        String inherited;
-        if(all && style->get(BaseStyleName, &inherited))
-          style = all->styles[inherited];
+      Expr base_style;
+      if(rules.try_lookup(base_style_name, base_style)) {
+        //sect->style->remove(BaseStyleName);
+        
+        // TODO: support short-hand notation for all directives.
+        if(base_style.is_string())
+          sect->style->set_pmath(BaseStyleName, base_style);
         else
-          break;
-      }
-      
-      rules = g.end();
-      Expr base_style = Evaluate(Parse("Try(Replace(`1`, Flatten(`2`)))", base_style_name, rules));
-      if(base_style != richmath_System_DollarFailed) {
-        sect->style->remove(BaseStyleName);
-        sect->style->add_pmath(base_style);
+          sect->style->add_pmath(base_style); 
       }
     }
   }

@@ -3524,7 +3524,6 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             Frame,                            Symbol( richmath_System_Frame));
     add(StyleType::Any,             FrameStyle,                       Symbol( richmath_System_FrameStyle));
     add(StyleType::Any,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
-    add(StyleType::Any,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
     add(StyleType::Any,             Initialization,                   Symbol( richmath_System_Initialization));
     add(StyleType::Any,             InterpretationFunction,           Symbol( richmath_System_InterpretationFunction));
     add(StyleType::Any,             JoinForm,                         Symbol( richmath_System_JoinForm));
@@ -3550,6 +3549,7 @@ void StyleInformation::add_style() {
     add(StyleType::AnyFlatList, DockedSectionsBottomGlass, List(Symbol(richmath_System_DockedSections), String("BottomGlass")));
     
     add(StyleType::AnyFlatList, FontFamilies,              Symbol( richmath_System_FontFamily));
+    add(StyleType::AnyFlatList, GeneratedSectionStyles,    Symbol( richmath_System_GeneratedSectionStyles));
     add(StyleType::AnyFlatList, InputAliases,              Symbol( richmath_System_InputAliases));
     add(StyleType::AnyFlatList, InputAutoReplacements,     Symbol( richmath_System_InputAutoReplacements));
     
