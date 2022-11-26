@@ -3,6 +3,7 @@
 
 #include <boxes/abstractsequence.h>
 #include <util/array.h>
+#include <util/interval.h>
 
 
 namespace richmath {
@@ -81,8 +82,7 @@ namespace richmath {
       float label_center_distance_min;
       float tick_length_factor;
       float extra_offset;
-      double start_position;
-      double end_position;
+      Interval<double> range;
       double ignore_label_position;
       Expr _expr;
   };

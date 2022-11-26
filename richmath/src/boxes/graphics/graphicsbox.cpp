@@ -480,8 +480,8 @@ void GraphicsBox::transform_inner_to_outer(cairo_matrix_t *mat) {
   
   cairo_matrix_scale(mat, sx, sy);
   
-  sx = ticks[AxisIndexBottom]->end_position - ticks[AxisIndexBottom]->start_position;
-  sy = ticks[AxisIndexLeft  ]->end_position - ticks[AxisIndexLeft  ]->start_position;
+  sx = ticks[AxisIndexBottom]->range.length();
+  sy = ticks[AxisIndexLeft  ]->range.length();
   if(sx == 0) sx = 1;
   if(sy == 0) sy = 1;
   
@@ -489,8 +489,8 @@ void GraphicsBox::transform_inner_to_outer(cairo_matrix_t *mat) {
   
   cairo_matrix_translate(
     mat,
-    - ticks[AxisIndexBottom]->start_position,
-    - ticks[AxisIndexLeft  ]->start_position);
+    - ticks[AxisIndexBottom]->range.from,
+    - ticks[AxisIndexLeft  ]->range.from);
 }
 
 VolatileSelection GraphicsBox::mouse_selection(Point pos, bool *was_inside_start) {
@@ -823,10 +823,8 @@ float GraphicsBox::Impl::calc_margin_width(float w, float lbl_w, double all_x, d
 
 void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *optional_expand_width) {
   GraphicsBounds bounds;
-  bounds.x_range.from = self.ticks[AxisIndexX]->start_position;
-  bounds.x_range.to   = self.ticks[AxisIndexX]->end_position;
-  bounds.y_range.from = self.ticks[AxisIndexY]->start_position;
-  bounds.y_range.to   = self.ticks[AxisIndexY]->end_position;
+  bounds.x_range = self.ticks[AxisIndexX]->range;
+  bounds.y_range = self.ticks[AxisIndexY]->range;
   
   double ox = 0, oy = 0;
   calculate_axes_origin(bounds, &ox, &oy);
@@ -1413,18 +1411,18 @@ Expr GraphicsBox::Impl::get_ticks(const GraphicsBounds &bounds, enum AxisIndex p
 }
 
 bool GraphicsBox::Impl::set_axis_ends(enum AxisIndex part, const GraphicsBounds &bounds) { // true if ends changed
-  const Interval<double> *range;
+  const Interval<double> *b_range;
   
   if(part == AxisIndexX || part == AxisIndexBottom || part == AxisIndexTop) {
-    range = &bounds.x_range;
+    b_range = &bounds.x_range;
   }
   else {
-    range = &bounds.y_range;
+    b_range = &bounds.y_range;
   }
   
-  if(self.ticks[part]->start_position != range->from || self.ticks[part]->end_position != range->to) {
-    self.ticks[part]->start_position = range->from;
-    self.ticks[part]->end_position   = range->to;
+  Interval<double> &a_range = self.ticks[part]->range;
+  if(a_range != *b_range) {
+    a_range = *b_range;
     return true;
   }
   

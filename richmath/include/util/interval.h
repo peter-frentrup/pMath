@@ -20,6 +20,9 @@ namespace richmath {
     Interval &operator+=(T val) { from+= val; to+= val; return *this; }
     Interval &operator-=(T val) { from-= val; to-= val; return *this; }
     
+    friend bool operator==(const Interval<T> &left, const Interval<T> &right) { return left.from == right.from && left.to == right.to; }
+    friend bool operator!=(const Interval<T> &left, const Interval<T> &right) { return !(left == right); }
+    
     bool is_singleton() const { return from == to; }
     auto length() const -> decltype(to - from) { return to - from; }
     bool contains(T x) const { return from <= x && x <= to; }

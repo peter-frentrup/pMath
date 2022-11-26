@@ -74,8 +74,7 @@ AxisTicks::AxisTicks()
     label_center_distance_min(0),
     tick_length_factor(0),
     extra_offset(0),
-    start_position(0),
-    end_position(0),
+    range(0, 0),
     ignore_label_position(NAN)
 {
 }
@@ -138,9 +137,7 @@ void AxisTicks::load_from_object(Expr expr, BoxInputFlags options) {
 }
 
 bool AxisTicks::is_visible(double t) {
-  double err = (end_position - start_position) * 1.0e-4;
-  
-  return start_position - err <= t && t <= end_position + err;
+  return range.grown_by(range.length() * 1.0e-4).contains(t);
 }
 
 void AxisTicks::resize(Context &context) {
@@ -301,10 +298,10 @@ void AxisTicks::draw_tick(Canvas &canvas, Point p, float length) {
 }
 
 Point AxisTicks::get_tick_position(double t) {
-  if(end_position == start_position) 
+  if(range.is_singleton()) 
     return start_pos;
   
-  double relative = (t - start_position) / (end_position - start_position);
+  double relative = (t - range.from) / range.length();
   
   return start_pos + (end_pos - start_pos) * relative;
 }
