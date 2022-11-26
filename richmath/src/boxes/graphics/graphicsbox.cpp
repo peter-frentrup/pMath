@@ -95,6 +95,8 @@ class GraphicsBox::Impl {
     void calculate_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
     
     GraphicsBounds calculate_plotrange();
+    static bool get_range_from_pmath(Interval<double> &result, Expr expr);
+    static bool get_double_from_pmath(double &result, Expr expr);
     bool have_frame(bool *left, bool *right, bool *bottom, bool *top);
     bool have_axes(bool *x, bool *y);
     
@@ -1113,44 +1115,12 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
   if(plot_range[0] == richmath_System_NCache)
     plot_range = plot_range[2];
   
-  if(plot_range[0] != richmath_System_List)
-    plot_range = List(plot_range, plot_range);
-    
-  if( plot_range[0] == richmath_System_List &&
-      plot_range.expr_length() == 2)
-  {
-    Expr xrange = plot_range[1];
-    Expr yrange = plot_range[2];
-    
-    if(xrange[0] == richmath_System_Range && xrange.expr_length() == 2) {
-      Expr xmin = xrange[1];
-      if(xmin[0] == richmath_System_NCache)
-        xmin = xmin[2];
-        
-      Expr xmax = xrange[2];
-      if(xmax[0] == richmath_System_NCache)
-        xmax = xmax[2];
-        
-      if(xmin.is_number() && xmax.is_number()) {
-        bounds.x_range.from = xmin.to_double();
-        bounds.x_range.to   = xmax.to_double();
-      }
-    }
-    
-    if(yrange[0] == richmath_System_Range && yrange.expr_length() == 2) {
-      Expr ymin = yrange[1];
-      if(ymin[0] == richmath_System_NCache)
-        ymin = ymin[2];
-        
-      Expr ymax = yrange[2];
-      if(ymax[0] == richmath_System_NCache)
-        ymax = ymax[2];
-        
-      if(ymin.is_number() && ymax.is_number()) {
-        bounds.y_range.from = ymin.to_double();
-        bounds.y_range.to   = ymax.to_double();
-      }
-    }
+  if(plot_range[0] == richmath_System_List && plot_range.expr_length() == 2) {
+    get_range_from_pmath(bounds.x_range, plot_range[1]);
+    get_range_from_pmath(bounds.y_range, plot_range[2]);
+  }
+  else if(get_range_from_pmath(bounds.x_range, plot_range)) {
+    bounds.y_range = bounds.x_range;
   }
   
   Length pad_left   = self.get_own_style(PlotRangePaddingLeft,   SymbolicSize::Automatic);
@@ -1213,6 +1183,33 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
       bounds.y_range.grow_by(1);
   }
   return bounds;
+}
+
+bool GraphicsBox::Impl::get_range_from_pmath(Interval<double> &result, Expr expr) {
+  if(expr[0] == richmath_System_Range && expr.expr_length() == 2)
+    return get_double_from_pmath(result.from, expr[1]) && get_double_from_pmath(result.to, expr[2]);
+    
+  double d;
+  if(get_double_from_pmath(d, expr)) {
+    d = fabs(d);
+    result.from = -d;
+    result.to   =  d;
+    return true; 
+  }
+  
+  return false;
+}
+
+bool GraphicsBox::Impl::get_double_from_pmath(double &result, Expr expr) {
+  if(expr[0] == richmath_System_NCache)
+    expr = expr[2];
+  
+  if(expr.is_number()) {
+    result = expr.to_double();
+    return true;
+  }
+  
+  return false;
 }
 
 bool GraphicsBox::Impl::have_frame(bool *left, bool *right, bool *bottom, bool *top) {
