@@ -73,18 +73,6 @@ static T max(const T &a, const T &b, const T &c, const T &d) {
   return std::max(std::max(a, b), std::max(c, d));
 }
 
-template<typename T>
-static T clip(const T &x, const T &min, const T &max) {
-  if(min < x) {
-    if(x < max)
-      return x;
-      
-    return max;
-  }
-  
-  return min;
-}
-
 
 enum SyntaxPosition {
   Alone,
@@ -110,7 +98,7 @@ class GraphicsBox::Impl {
     bool have_frame(bool *left, bool *right, bool *bottom, bool *top);
     bool have_axes(bool *x, bool *y);
     
-    static Expr generate_default_ticks(double min, double max, bool with_labels);
+    static Expr generate_default_ticks(const Interval<double> &range, bool with_labels);
     Expr generate_ticks(const GraphicsBounds &bounds, AxisIndex part);
     Expr get_ticks(const GraphicsBounds &bounds, AxisIndex part);
     
@@ -833,10 +821,10 @@ float GraphicsBox::Impl::calc_margin_width(float w, float lbl_w, double all_x, d
 
 void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *optional_expand_width) {
   GraphicsBounds bounds;
-  bounds.xmin = self.ticks[AxisIndexX]->start_position;
-  bounds.xmax = self.ticks[AxisIndexX]->end_position;
-  bounds.ymin = self.ticks[AxisIndexY]->start_position;
-  bounds.ymax = self.ticks[AxisIndexY]->end_position;
+  bounds.x_range.from = self.ticks[AxisIndexX]->start_position;
+  bounds.x_range.to   = self.ticks[AxisIndexX]->end_position;
+  bounds.y_range.from = self.ticks[AxisIndexY]->start_position;
+  bounds.y_range.to   = self.ticks[AxisIndexY]->end_position;
   
   double ox = 0, oy = 0;
   calculate_axes_origin(bounds, &ox, &oy);
@@ -890,7 +878,7 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
   float ratio = self.get_own_style(AspectRatio, NAN);
   
   if(!isfinite(ratio) || ratio <= 0) {
-    ratio = (bounds.ymax - bounds.ymin) / (bounds.xmax - bounds.xmin);
+    ratio = bounds.y_range.length() / bounds.x_range.length();
     
     if(!isfinite(ratio) || ratio <= 0)
       ratio = 1.0f; // 0.61803f;
@@ -942,8 +930,8 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
                          calc_margin_width(
                            w.explicit_abs_value() - self.margin_right,
                            label_sizes[AxisIndexY].width + self.ticks[AxisIndexY]->extra_offset,
-                           bounds.xmax - bounds.xmin,
-                           bounds.xmax - ox));
+                           bounds.x_range.length(),
+                           bounds.x_range.to - ox));
   }
   
   if(h.is_explicit_abs_positive() && !any_frame) {
@@ -952,8 +940,8 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
                            calc_margin_width(
                              h.explicit_abs_value() - self.margin_top,
                              label_sizes[AxisIndexX].height() + self.ticks[AxisIndexX]->extra_offset,
-                             bounds.ymax - bounds.ymin,
-                             bounds.ymax - oy));
+                             bounds.y_range.length(),
+                             bounds.y_range.to - oy));
   }
   
   if(w == SymbolicSize::Automatic) {
@@ -966,8 +954,8 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
                            calc_margin_width(
                              content_w,
                              label_sizes[AxisIndexY].width + self.ticks[AxisIndexY]->extra_offset,
-                             bounds.xmax - bounds.xmin,
-                             bounds.xmax - ox));
+                             bounds.x_range.length(),
+                             bounds.x_range.to - ox));
     }
     
     w = Length::Absolute(content_w + self.margin_left + self.margin_right);
@@ -983,8 +971,8 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
                              calc_margin_width(
                                content_h,
                                label_sizes[AxisIndexX].height() + self.ticks[AxisIndexX]->extra_offset,
-                               bounds.ymax - bounds.ymin,
-                               bounds.ymax - oy));
+                               bounds.y_range.length(),
+                               bounds.y_range.to - oy));
     }
     
     h = Length(content_h + self.margin_top + self.margin_bottom);
@@ -1101,20 +1089,20 @@ void GraphicsBox::Impl::calculate_axes_origin(const GraphicsBounds &bounds, doub
   try_get_axes_origin(bounds, ox, oy);
   
   if(!isfinite(*ox)) {
-    Expr e = Evaluate(Call(Symbol(richmath_FE_Graphics_DefaultAxesOrigin), bounds.xmin, bounds.xmax));
+    Expr e = Evaluate(Call(Symbol(richmath_FE_Graphics_DefaultAxesOrigin), bounds.x_range.from, bounds.x_range.to));
     *ox = e.to_double();
   }
   
   if(!isfinite(*oy)) {
-    Expr e = Evaluate(Call(Symbol(richmath_FE_Graphics_DefaultAxesOrigin), bounds.ymin, bounds.ymax));
+    Expr e = Evaluate(Call(Symbol(richmath_FE_Graphics_DefaultAxesOrigin), bounds.y_range.from, bounds.y_range.to));
     *oy = e.to_double();
   }
   
   if(!isfinite(*ox))
-    *ox = clip(0.0, bounds.xmin, bounds.xmax);
+    *ox = bounds.x_range.nearest(0.0);
     
   if(!isfinite(*oy))
-    *oy = clip(0.0, bounds.ymin, bounds.ymax);
+    *oy = bounds.y_range.nearest(0.0);
 }
 
 GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
@@ -1124,6 +1112,9 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
   
   if(plot_range[0] == richmath_System_NCache)
     plot_range = plot_range[2];
+  
+  if(plot_range[0] != richmath_System_List)
+    plot_range = List(plot_range, plot_range);
     
   if( plot_range[0] == richmath_System_List &&
       plot_range.expr_length() == 2)
@@ -1141,8 +1132,8 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
         xmax = xmax[2];
         
       if(xmin.is_number() && xmax.is_number()) {
-        bounds.xmin = xmin.to_double();
-        bounds.xmax = xmax.to_double();
+        bounds.x_range.from = xmin.to_double();
+        bounds.x_range.to   = xmax.to_double();
       }
     }
     
@@ -1156,8 +1147,8 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
         ymax = ymax[2];
         
       if(ymin.is_number() && ymax.is_number()) {
-        bounds.ymin = ymin.to_double();
-        bounds.ymax = ymax.to_double();
+        bounds.y_range.from = ymin.to_double();
+        bounds.y_range.to   = ymax.to_double();
       }
     }
   }
@@ -1167,67 +1158,59 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
   Length pad_top    = self.get_own_style(PlotRangePaddingTop,    SymbolicSize::Automatic);
   Length pad_bottom = self.get_own_style(PlotRangePaddingBottom, SymbolicSize::Automatic);
   
-  if(pad_left   == SymbolicSize::Automatic && isfinite(bounds.xmin)) pad_left   = SymbolicSize::None;
-  if(pad_right  == SymbolicSize::Automatic && isfinite(bounds.xmax)) pad_right  = SymbolicSize::None;
-  if(pad_top    == SymbolicSize::Automatic && isfinite(bounds.ymin)) pad_top    = SymbolicSize::None;
-  if(pad_bottom == SymbolicSize::Automatic && isfinite(bounds.ymax)) pad_bottom = SymbolicSize::None;
+  if(pad_left   == SymbolicSize::Automatic && isfinite(bounds.x_range.from)) pad_left   = SymbolicSize::None;
+  if(pad_right  == SymbolicSize::Automatic && isfinite(bounds.x_range.to))   pad_right  = SymbolicSize::None;
+  if(pad_top    == SymbolicSize::Automatic && isfinite(bounds.y_range.from)) pad_top    = SymbolicSize::None;
+  if(pad_bottom == SymbolicSize::Automatic && isfinite(bounds.y_range.to))   pad_bottom = SymbolicSize::None;
   
   if(!bounds.is_finite()) {
     GraphicsBounds auto_bounds;
     self.elements.find_extends(auto_bounds);
     
-    double ox = clip(0.0, bounds.xmin, bounds.xmax);
-    double oy = clip(0.0, bounds.ymin, bounds.ymax);
+    double ox = bounds.x_range.nearest(0.0);
+    double oy = bounds.y_range.nearest(0.0);
     try_get_axes_origin(auto_bounds, &ox, &oy);
     
     auto_bounds.add_point(ox, oy);
     
-    if(!isfinite(bounds.xmin)) bounds.xmin = auto_bounds.xmin;
-    if(!isfinite(bounds.xmax)) bounds.xmax = auto_bounds.xmax;
-    if(!isfinite(bounds.ymin)) bounds.ymin = auto_bounds.ymin;
-    if(!isfinite(bounds.ymax)) bounds.ymax = auto_bounds.ymax;
+    if(!isfinite(bounds.x_range.from)) bounds.x_range.from = auto_bounds.x_range.from;
+    if(!isfinite(bounds.x_range.to))   bounds.x_range.to   = auto_bounds.x_range.to;
+    if(!isfinite(bounds.y_range.from)) bounds.y_range.from = auto_bounds.y_range.from;
+    if(!isfinite(bounds.y_range.to))   bounds.y_range.to   = auto_bounds.y_range.to;
   }
   
-  if(!isfinite(bounds.xmin) || !isfinite(bounds.xmax) || bounds.xmin > bounds.xmax) {
-    bounds.xmin = -1;
-    bounds.xmax = 1;
+  if(!isfinite(bounds.x_range.from) || !isfinite(bounds.x_range.to) || bounds.x_range.from > bounds.x_range.to) {
+    bounds.x_range.from = -1;
+    bounds.x_range.to   = 1;
   }
   
-  if(!isfinite(bounds.ymin) || !isfinite(bounds.ymax) || bounds.ymin > bounds.ymax) {
-    bounds.ymin = -1;
-    bounds.ymax = 1;
+  if(!isfinite(bounds.y_range.from) || !isfinite(bounds.y_range.to) || bounds.y_range.from > bounds.y_range.to) {
+    bounds.y_range.from = -1;
+    bounds.y_range.to   = 1;
   }
   
-  float w = bounds.xmax - bounds.xmin;
-  float h = bounds.ymax - bounds.ymin;
+  float w = bounds.x_range.length();
+  float h = bounds.y_range.length();
   
-  bounds.xmin-= pad_left.resolve( w, LengthConversionFactors::PlotRangePadding, w);
-  bounds.xmax+= pad_right.resolve(w, LengthConversionFactors::PlotRangePadding, w);
-  bounds.ymin-= pad_bottom.resolve( h, LengthConversionFactors::PlotRangePadding, h);
-  bounds.ymax+= pad_top.resolve(    h, LengthConversionFactors::PlotRangePadding, h);
+  bounds.x_range.from -= pad_left.resolve(   w, LengthConversionFactors::PlotRangePadding, w);
+  bounds.x_range.to   += pad_right.resolve(  w, LengthConversionFactors::PlotRangePadding, w);
+  bounds.y_range.from -= pad_bottom.resolve( h, LengthConversionFactors::PlotRangePadding, h);
+  bounds.y_range.to   += pad_top.resolve(    h, LengthConversionFactors::PlotRangePadding, h);
   
-  if(bounds.xmin == bounds.xmax) {
-    double dist = 0.5 * max(fabs(bounds.xmin), fabs(0.5 * bounds.ymin + 0.5 * bounds.ymax));
+  if(bounds.x_range.is_singleton()) {
+    double dist = 0.5 * max(fabs(bounds.x_range.from), fabs(0.5 * bounds.y_range.from + 0.5 * bounds.y_range.to));
     
-    bounds.xmin -= dist;
-    bounds.xmax += dist;
-    
-    if(bounds.xmin == bounds.xmax) {
-      bounds.xmin -= 1;
-      bounds.xmax += 1;
-    }
+    bounds.x_range.grow_by(dist);
+    if(bounds.x_range.is_singleton())
+      bounds.x_range.grow_by(1);
   }
   
-  if(bounds.ymin == bounds.ymax) {
-    double dist = 0.5 * max(fabs(bounds.ymin), fabs(0.5 * bounds.xmin + 0.5 * bounds.xmax));
+  if(bounds.y_range.is_singleton()) {
+    double dist = 0.5 * max(fabs(bounds.y_range.from), fabs(0.5 * bounds.x_range.from + 0.5 * bounds.x_range.to));
     
-    bounds.ymin -= dist;
-    bounds.ymax += dist;
-    
-    if(bounds.ymin == bounds.ymax) {
-      bounds.ymin -= 1;
-      bounds.ymax += 1;
-    }
+    bounds.y_range.grow_by(dist);
+    if(bounds.y_range.is_singleton())
+      bounds.y_range.grow_by(1);
   }
   return bounds;
 }
@@ -1312,9 +1295,9 @@ bool GraphicsBox::Impl::have_axes(bool *x, bool *y) {
   return false;
 }
 
-Expr GraphicsBox::Impl::generate_default_ticks(double min, double max, bool with_labels) {
+Expr GraphicsBox::Impl::generate_default_ticks(const Interval<double> &range, bool with_labels) {
   return Evaluate(Call(Symbol(richmath_FE_Graphics_DefaultTickBoxes),
-             min, max,
+             range.from, range.to,
              Symbol(with_labels ? richmath_System_True : richmath_System_False)));
 }
 
@@ -1332,12 +1315,12 @@ Expr GraphicsBox::Impl::generate_ticks(const GraphicsBounds &bounds, enum AxisIn
       case AxisIndexX:
       case AxisIndexBottom:
       case AxisIndexTop:
-        return generate_default_ticks(bounds.xmin, bounds.xmax, true);
+        return generate_default_ticks(bounds.x_range, true);
         
       case AxisIndexY:
       case AxisIndexLeft:
       case AxisIndexRight:
-        return generate_default_ticks(bounds.ymin, bounds.ymax, true);
+        return generate_default_ticks(bounds.y_range, true);
     }
   }
   
@@ -1345,17 +1328,17 @@ Expr GraphicsBox::Impl::generate_ticks(const GraphicsBounds &bounds, enum AxisIn
     switch(part) {
       case AxisIndexX:
       case AxisIndexBottom:
-        return generate_default_ticks(bounds.xmin, bounds.xmax, true);
+        return generate_default_ticks(bounds.x_range, true);
         
       case AxisIndexTop:
-        return generate_default_ticks(bounds.xmin, bounds.xmax, false);
+        return generate_default_ticks(bounds.x_range, false);
         
       case AxisIndexY:
       case AxisIndexLeft:
-        return generate_default_ticks(bounds.ymin, bounds.ymax, true);
+        return generate_default_ticks(bounds.y_range, true);
         
       case AxisIndexRight:
-        return generate_default_ticks(bounds.ymin, bounds.ymax, false);
+        return generate_default_ticks(bounds.y_range, false);
     }
   }
   
@@ -1433,20 +1416,18 @@ Expr GraphicsBox::Impl::get_ticks(const GraphicsBounds &bounds, enum AxisIndex p
 }
 
 bool GraphicsBox::Impl::set_axis_ends(enum AxisIndex part, const GraphicsBounds &bounds) { // true if ends changed
-  double min, max;
+  const Interval<double> *range;
   
   if(part == AxisIndexX || part == AxisIndexBottom || part == AxisIndexTop) {
-    min = bounds.xmin;
-    max = bounds.xmax;
+    range = &bounds.x_range;
   }
   else {
-    min = bounds.ymin;
-    max = bounds.ymax;
+    range = &bounds.y_range;
   }
   
-  if(self.ticks[part]->start_position != min || self.ticks[part]->end_position != max) {
-    self.ticks[part]->start_position = min;
-    self.ticks[part]->end_position   = max;
+  if(self.ticks[part]->start_position != range->from || self.ticks[part]->end_position != range->to) {
+    self.ticks[part]->start_position = range->from;
+    self.ticks[part]->end_position   = range->to;
     return true;
   }
   

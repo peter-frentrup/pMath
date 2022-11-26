@@ -19,11 +19,14 @@ namespace richmath {
     
     Interval &operator+=(T val) { from+= val; to+= val; return *this; }
     Interval &operator-=(T val) { from-= val; to-= val; return *this; }
-
+    
+    bool is_singleton() const { return from == to; }
     auto length() const -> decltype(to - from) { return to - from; }
     bool contains(T x) const { return from <= x && x <= to; }
     bool contains(const Interval<T> &other) const { return from <= other.from && other.to <= to; }
     T nearest(T x) const { return (from < x) ? ((x < to) ? x : to) : from; }
+    void grow_by(T delta) { from -= delta; to += delta; }
+    Interval<T> grown_by(T delta) const { auto res = *this; res.grow_by(delta); return res; }
     Interval<T> snap(Interval<T> inner) const;
     Interval<T> intersect(Interval<T> other) const;
     Interval<T> union_hull(Interval<T> other) const;

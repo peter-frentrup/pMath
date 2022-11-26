@@ -142,14 +142,14 @@ void CircleBox::find_extends(GraphicsBounds &bounds) {
   cairo_matrix_transform_point(&bounds.elem_to_container, &p3.x, &p3.y);
   cairo_matrix_transform_point(&bounds.elem_to_container, &p4.x, &p4.y);
   
-  if( bounds.xmin <= p1.x && p1.x <= bounds.xmax &&
-      bounds.xmin <= p2.x && p2.x <= bounds.xmax &&
-      bounds.xmin <= p3.x && p3.x <= bounds.xmax &&
-      bounds.xmin <= p4.x && p4.x <= bounds.xmax &&
-      bounds.ymin <= p1.y && p1.y <= bounds.ymax &&
-      bounds.ymin <= p2.y && p2.y <= bounds.ymax &&
-      bounds.ymin <= p3.y && p3.y <= bounds.ymax &&
-      bounds.ymin <= p4.y && p4.y <= bounds.ymax
+  if( bounds.x_range.contains(p1.x) &&
+      bounds.x_range.contains(p2.x) &&
+      bounds.x_range.contains(p3.x) &&
+      bounds.x_range.contains(p4.x) &&
+      bounds.y_range.contains(p1.y) &&
+      bounds.y_range.contains(p2.y) &&
+      bounds.y_range.contains(p3.y) &&
+      bounds.y_range.contains(p4.y)
   ) {
     return;
   }

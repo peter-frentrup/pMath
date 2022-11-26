@@ -2,6 +2,7 @@
 #define RICHMATH__BOXES__GRAPHICS__GRAPHICSELEMENT_H__INCLUDED
 
 #include <util/array.h>
+#include <util/interval.h>
 #include <util/pmath-extra.h>
 #include <util/double-point.h>
 #include <util/styled-object.h>
@@ -26,10 +27,8 @@ namespace richmath {
     public:
       cairo_matrix_t elem_to_container;
       
-      double xmin;
-      double xmax;
-      double ymin;
-      double ymax;
+      Interval<double> x_range;
+      Interval<double> y_range;
   };
   
   class GraphicsElement: public StyledObject {

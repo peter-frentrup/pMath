@@ -56,15 +56,15 @@ namespace {
 
 //{ class GraphicsBounds ...
 
-GraphicsBounds::GraphicsBounds() {
+GraphicsBounds::GraphicsBounds()
+: x_range{HUGE_VAL, -HUGE_VAL},
+  y_range{HUGE_VAL, -HUGE_VAL}
+{
   cairo_matrix_init_identity(&elem_to_container);
-  
-  xmin = ymin =  HUGE_VAL;
-  xmax = ymax = -HUGE_VAL;
 }
 
 bool GraphicsBounds::is_finite() {
-  return isfinite(xmin) && isfinite(ymin) && isfinite(xmax) && isfinite(ymax);
+  return isfinite(x_range.from) && isfinite(x_range.to) && isfinite(y_range.from) && isfinite(y_range.to);
 }
 
 void GraphicsBounds::add_point(double elem_x, double elem_y) {
@@ -80,13 +80,13 @@ void GraphicsBounds::add_point(double elem_x, double elem_y) {
   cairo_matrix_transform_point(&elem_to_container, &elem_x, &elem_y);
   
   if(add_x) {
-    if(elem_x < xmin) xmin = elem_x;
-    if(elem_x > xmax) xmax = elem_x;
+    if(elem_x < x_range.from) x_range.from = elem_x;
+    if(elem_x > x_range.to)   x_range.to   = elem_x;
   }
   
   if(add_y) {
-    if(elem_y < ymin) ymin = elem_y;
-    if(elem_y > ymax) ymax = elem_y;
+    if(elem_y < y_range.from) y_range.from = elem_y;
+    if(elem_y > y_range.to)   y_range.to   = elem_y;
   }
 }
 
