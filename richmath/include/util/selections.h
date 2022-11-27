@@ -46,7 +46,7 @@ namespace richmath {
     
     bool selectable() const;
     bool exitable() const;
-    bool selection_exitable(bool vertical) const;
+    bool selection_exitable() const;
     
     VolatileLocation parent() const { return parent(LogicalDirection::Backward); }
     VolatileLocation parent(LogicalDirection direction) const;

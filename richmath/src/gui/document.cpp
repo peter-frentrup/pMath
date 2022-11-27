@@ -1211,7 +1211,7 @@ void Document::select_range(VolatileSelection from, VolatileSelection to) {
   int depth_to   = Box::depth(to.box);
   
   while(depth_from > depth_to) {
-    if(from.box->parent() && !from.box->parent()->selection_exitable(false)) {
+    if(from.box->parent() && !from.box->parent()->selection_exitable()) {
       if(from.box->selectable()) {
         int o1 = document_order(from.start_only(), to.end_only());
         int o2 = document_order(from.end_only(), to.start_only());
@@ -1237,7 +1237,7 @@ void Document::select_range(VolatileSelection from, VolatileSelection to) {
   sel_last.set(to);
   
   while(from.box != to.box && from.box && to.box) {
-    if(from.box->parent() && !from.box->parent()->selection_exitable(false)) {
+    if(from.box->parent() && !from.box->parent()->selection_exitable()) {
       if(from.box->selectable()) {
         int o = document_order(from.start_only(), to.start_only());
         
@@ -1259,7 +1259,7 @@ void Document::select_range(VolatileSelection from, VolatileSelection to) {
     from.end = to.end;
     
   while(from.box && !from.box->selectable()) {
-    if(!from.box->selection_exitable(false))
+    if(!from.box->selection_exitable())
       return;
     
     from.expand_to_parent();
@@ -1394,7 +1394,7 @@ void Document::move_start_end(LogicalDirection direction, bool selecting) {
   
   while(new_loc) {
     auto parent = new_loc.parent(direction);
-    if(!parent.exitable() || !parent.selectable() || !parent.selection_exitable(false))
+    if(!parent.exitable() || !parent.selectable() || !parent.selection_exitable())
       break;
     
     new_loc = parent;

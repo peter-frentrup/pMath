@@ -76,7 +76,7 @@ namespace richmath {
         int              *index,
         bool              called_from_child) override;
         
-      virtual bool selection_exitable(bool vertical) override { return vertical; }
+      virtual bool selection_exitable() override { return false; }
       virtual bool remove_inserts_placeholder() override { return false; }
       
       virtual VolatileSelection normalize_selection(int start, int end) override;

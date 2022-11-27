@@ -848,6 +848,9 @@ Box *MathSequence::move_vertical(
   }
   
   if(auto par = outer.parent()) {
+    if(!par->exitable())
+      return move_logical(direction, false, index);
+    
     *index_rel_x = x;
     *index = outer.index();
     return par->move_vertical(direction, index_rel_x, index, true);

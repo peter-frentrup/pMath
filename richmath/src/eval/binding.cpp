@@ -1561,7 +1561,7 @@ static bool select_all_cmd(Expr cmd) {
     return false;
   }
     
-  while(sel && sel->selection_exitable(true)) {
+  while(sel && sel->exitable()) {
     Box *next = sel->parent();
     if(!next || !next->selectable())
       break;

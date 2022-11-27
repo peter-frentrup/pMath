@@ -77,11 +77,11 @@ bool VolatileLocation::exitable() const {
   return box->exitable();
 }
 
-bool VolatileLocation::selection_exitable(bool vertical) const {
+bool VolatileLocation::selection_exitable() const {
   if(!box)
     return false;
   
-  return box->selection_exitable(vertical);
+  return box->selection_exitable();
 }
 
 VolatileLocation VolatileLocation::move_logical(LogicalDirection direction, bool jumping) const {

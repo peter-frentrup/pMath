@@ -527,14 +527,6 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
         must_update(true);
       }
       break;
-     
-//    case SpecialKey::Up:
-//      event.key = SpecialKey::Left;
-//      break;
-//      
-//    case SpecialKey::Down:
-//      event.key = SpecialKey::Right;
-//      break;
       
     default:
       break;

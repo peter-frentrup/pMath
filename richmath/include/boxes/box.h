@@ -348,10 +348,8 @@ namespace richmath {
       /// Note that mouse and e.g. TAB selection are not subject to this restriction.
       virtual bool exitable() { return true; }
       
-      /// Decides whether the selection can exit any (direct) child box via Shift+Left/Right/... keys
-      ///
-      /// Note that mouse and e.g. TAB selection are not subject to this restriction.
-      virtual bool selection_exitable(bool vertical) { return true; }
+      /// Decides whether the selection can extend from inside to outside the box.
+      virtual bool selection_exitable() { return true; }
 
       /// Decides whether this box (i = -1) or the child box at index i >= 0 may be selected.
       ///
