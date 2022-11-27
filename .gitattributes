@@ -1,1 +1,5 @@
-*.sh binary
+*.sh       binary
+
+*.nb       linguist-documentation
+*.pmathdoc linguist-documentation
+*.inc      linguist-language=C
