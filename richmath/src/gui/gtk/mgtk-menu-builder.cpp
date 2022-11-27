@@ -1174,10 +1174,10 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
   else if(key.equals("PageDown"))           *accel_key = GDK_Page_Down;
   else if(key.equals("End"))                *accel_key = GDK_End;
   else if(key.equals("Home"))               *accel_key = GDK_Home;
-  else if(key.equals("Left"))               *accel_key = GDK_Left;
-  else if(key.equals("Up"))                 *accel_key = GDK_Up;
-  else if(key.equals("Right"))              *accel_key = GDK_Right;
-  else if(key.equals("Down"))               *accel_key = GDK_Down;
+  else if(key.equals("LeftArrow"))          *accel_key = GDK_Left;
+  else if(key.equals("UpArrow"))            *accel_key = GDK_Up;
+  else if(key.equals("RightArrow"))         *accel_key = GDK_Right;
+  else if(key.equals("DownArrow"))          *accel_key = GDK_Down;
   else if(key.equals("Insert"))             *accel_key = GDK_Insert;
   else if(key.equals("Delete"))             *accel_key = GDK_Delete;
   else if(key.equals("Numpad0"))            *accel_key = GDK_0; // GDK_KP_0 ...?

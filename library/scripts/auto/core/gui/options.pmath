@@ -41,6 +41,7 @@ Options(CreateDocument):= Options(Document):= {
     DefaultNewSectionStyle -> Inherited,
     DefaultReturnCreatedSectionStyle -> Inherited,
     DockedSections -> Inherited,
+    DocumentEventActions -> Inherited,
     Editable -> Inherited,
     Enabled -> Automatic,
     EvaluationContext -> "Global`",
@@ -320,6 +321,7 @@ Options(Section):= {
     DefaultNewSectionStyle -> Inherited,
     DefaultReturnCreatedSectionStyle -> Inherited,
     DockedSections -> Inherited,
+    DocumentEventActions -> Inherited,
     DynamicBoxOptions -> {
         Deinitialization -> None,
         Initialization -> None,

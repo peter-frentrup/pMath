@@ -63,6 +63,7 @@ extern pmath_symbol_t richmath_System_Deinitialization;
 extern pmath_symbol_t richmath_System_DisplayFunction;
 extern pmath_symbol_t richmath_System_DockedSections;
 extern pmath_symbol_t richmath_System_Document;
+extern pmath_symbol_t richmath_System_DocumentEventActions;
 extern pmath_symbol_t richmath_System_DownRules;
 extern pmath_symbol_t richmath_System_DynamicBoxOptions;
 extern pmath_symbol_t richmath_System_DynamicLocalBoxOptions;
@@ -2604,6 +2605,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Deinitialization);
   impl.emit_definition(DisplayFunction);
   impl.emit_definition(DockedSections);
+  impl.emit_definition(DocumentEventActions);
   impl.emit_definition(DragDropContextMenu);
   impl.emit_definition(DynamicBoxOptions);
   impl.emit_definition(DynamicLocalBoxOptions);
@@ -3541,6 +3543,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             UnsavedVariables,                 Symbol( richmath_System_UnsavedVariables));
     
     add(StyleType::AnyFlatList, ContextMenu,               Symbol( richmath_System_ContextMenu));
+    add(StyleType::AnyFlatList, DocumentEventActions,      Symbol( richmath_System_DocumentEventActions ));
     add(StyleType::AnyFlatList, DragDropContextMenu,       strings::DragDropContextMenu);
     
     add(StyleType::AnyFlatList, DockedSectionsTop,         List(Symbol(richmath_System_DockedSections), String("Top")));
@@ -3722,6 +3725,8 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
   StyleOptionName key = Style::get_key(item);
   if(key.is_valid()) 
     return styled_obj->get_pmath_style(key);
+  
+  // TODO support CurrentValue(..., {DocumentEventActions, "UpArrowKeyDown"}) etc.
   
   return Symbol(richmath_System_DollarFailed);
 }

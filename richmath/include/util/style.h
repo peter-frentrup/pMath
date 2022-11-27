@@ -347,6 +347,7 @@ namespace richmath {
     DockedSectionsBottom,      // StyleType::AnyFlatList
     DockedSectionsBottomGlass, // StyleType::AnyFlatList
     
+    DocumentEventActions,   // StyleType::AnyFlatList
     FontFamilies,           // StyleType::AnyFlatList
     GeneratedSectionStyles, // StyleType::AnyFlatList
     InputAliases,           // StyleType::AnyFlatList
@@ -469,62 +470,27 @@ namespace richmath {
       StyleOptionName(StringStyleOptionName value) : _value((int)value) {}
       StyleOptionName(ObjectStyleOptionName value) : _value((int)value) {}
       
-      explicit operator ColorStyleOptionName() const {
-        return (ColorStyleOptionName)_value;
-      }
-      explicit operator IntStyleOptionName() const {
-        return (IntStyleOptionName)_value;
-      }
-      explicit operator FloatStyleOptionName() const {
-        return (FloatStyleOptionName)_value;
-      }
-      explicit operator LengthStyleOptionName() const {
-        return (LengthStyleOptionName)_value;
-      }
-      explicit operator StringStyleOptionName() const {
-        return (StringStyleOptionName)_value;
-      }
-      explicit operator ObjectStyleOptionName() const {
-        return (ObjectStyleOptionName)_value;
-      }
-      explicit operator int() const {
-        return _value;
-      }
+      explicit operator ColorStyleOptionName() const {  return (ColorStyleOptionName)_value; }
+      explicit operator IntStyleOptionName() const {    return (IntStyleOptionName)_value; }
+      explicit operator FloatStyleOptionName() const {  return (FloatStyleOptionName)_value; }
+      explicit operator LengthStyleOptionName() const { return (LengthStyleOptionName)_value; }
+      explicit operator StringStyleOptionName() const { return (StringStyleOptionName)_value; }
+      explicit operator ObjectStyleOptionName() const { return (ObjectStyleOptionName)_value; }
+      explicit operator int() const { return _value; }
       
-      bool is_valid() const {
-        return _value >= 0;
-      }
+      explicit operator bool() const { return _value >= 0; }
+      bool is_valid() const {          return _value >= 0; }
       
-      bool is_literal() const {
-        return (_value & (DynamicFlag | VolatileFlag)) == 0;
-      }
-      bool is_dynamic() const {
-        return (_value & DynamicFlag) != 0;
-      }
-      bool is_volatile() const {
-        return (_value & VolatileFlag) != 0;
-      }
-      StyleOptionName to_literal() const {
-        return StyleOptionName { _value & ~(DynamicFlag | VolatileFlag) };
-      }
-      StyleOptionName to_dynamic() const {
-        return StyleOptionName { (_value & ~VolatileFlag) | DynamicFlag };
-      }
-      StyleOptionName to_volatile() const {
-        return StyleOptionName { (_value & ~DynamicFlag) | VolatileFlag };
-      }
+      bool is_literal() const {  return (_value & (DynamicFlag | VolatileFlag)) == 0; }
+      bool is_dynamic() const {  return (_value & DynamicFlag) != 0; }
+      bool is_volatile() const { return (_value & VolatileFlag) != 0;}
+      StyleOptionName to_literal() const {  return StyleOptionName { _value & ~(DynamicFlag | VolatileFlag) }; }
+      StyleOptionName to_dynamic() const {  return StyleOptionName { (_value & ~VolatileFlag) | DynamicFlag }; }
+      StyleOptionName to_volatile() const { return StyleOptionName { (_value & ~DynamicFlag) | VolatileFlag }; }
       
-      unsigned int hash() const {
-        return (unsigned int)_value;
-      }
-  
-      bool operator==(StyleOptionName other) const {
-        return _value == other._value;
-      }
-      
-      bool operator!=(StyleOptionName other) const {
-        return _value != other._value;
-      }
+      unsigned int hash() const { return (unsigned int)_value; }
+      bool operator==(StyleOptionName other) const { return _value == other._value; }
+      bool operator!=(StyleOptionName other) const { return _value != other._value; }
       
     private:
       int _value;

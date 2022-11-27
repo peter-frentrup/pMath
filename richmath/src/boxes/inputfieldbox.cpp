@@ -517,7 +517,6 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
     
   switch(event.key) {
     case SpecialKey::Return:
-    
       if(!invalidated())
         dynamic_updated();
         
@@ -527,29 +526,15 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
           
         must_update(true);
       }
-      
-      event.key = SpecialKey::Unknown;
-      return;
-      
-//    case SpecialKey::Tab:
-//      event.key = SpecialKey::Unknown;
-//      return;
-
-    case SpecialKey::Up: {
-//        Document *doc = find_parent<Document>(false);
-//        if(doc && doc->selection_box() == _content && doc->selection_start() == 0)
-//          break;
-          
-        event.key = SpecialKey::Left;
-      } break;
-      
-    case SpecialKey::Down: {
-//        Document *doc = find_parent<Document>(false);
-//        if(doc && doc->selection_box() == _content && doc->selection_start() == _content->length())
-//          break;
-          
-        event.key = SpecialKey::Right;
-      } break;
+      break;
+     
+//    case SpecialKey::Up:
+//      event.key = SpecialKey::Left;
+//      break;
+//      
+//    case SpecialKey::Down:
+//      event.key = SpecialKey::Right;
+//      break;
       
     default:
       break;

@@ -524,8 +524,10 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(DockedSectionsBottomGlass, List());
   Stylesheet::Default->base->set(DockedSectionsTop,         List());
   Stylesheet::Default->base->set(DockedSectionsTopGlass,    List());
+  Stylesheet::Default->base->set(DocumentEventActions,      List());
   Stylesheet::Default->base->set(DragDropContextMenu,       List());
   Stylesheet::Default->base->set(FontFamilies,              List());
+  Stylesheet::Default->base->set(GeneratedSectionStyles, List());
   Stylesheet::Default->base->set(InputAliases,              List());
   Stylesheet::Default->base->set(InputAutoReplacements,     List());
   
@@ -550,8 +552,6 @@ static void init_stylesheet() {
                                         
 //  Stylesheet::Default->base->set(FontFeatures,
 //                                 List(Rule(String("ssty"), Symbol(richmath_System_Automatic))));
-
-  Stylesheet::Default->base->set(GeneratedSectionStyles, List());
 
 //  Stylesheet::Default->styles.set("SystemResetStyle", Stylesheet::Default->base);
 

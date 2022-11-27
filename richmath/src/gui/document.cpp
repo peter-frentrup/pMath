@@ -17,6 +17,7 @@
 
 #include <gui/clipboard.h>
 #include <gui/documents.h>
+#include <gui/event-handlers.h>
 #include <gui/native-widget.h>
 
 #include <syntax/spanexpr.h>
@@ -893,6 +894,9 @@ void Document::on_mouse_cancel() {
 }
 
 void Document::on_key_down(SpecialKeyEvent &event) {
+  if(EventHandlers::execute_key_down_handler(this, DocumentEventActions, event) == EventHandlerResult::StopPropagation)
+    return;
+   
   switch(event.key) {
     case SpecialKey::Left:
       Impl(*this).handle_key_left_right(event, LogicalDirection::Backward);
@@ -950,6 +954,9 @@ void Document::on_key_up(SpecialKeyEvent &event) {
 }
 
 void Document::on_key_press(uint32_t unichar) {
+  if(EventHandlers::execute_key_press_handler(this, DocumentEventActions, unichar) == EventHandlerResult::StopPropagation)
+    return;
+  
   AbstractSequence *initial_seq = dynamic_cast<AbstractSequence *>(selection_box());
   
   if(!Impl(*this).prepare_insert(false)) {

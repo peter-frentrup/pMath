@@ -200,14 +200,13 @@ void ButtonBox::click() {
   
   // Mathematica also gives a click repeat count as argument #3 and the currently 
   // pressed keyboard modifiers as argument #4
-  // These should better be accessed via some CurrendValue() mechanism.
+  // These should better be accessed via some CurrentValue() mechanism.
   fn = Call(PMATH_CPP_MOVE(fn), PMATH_CPP_MOVE(arg1), PMATH_CPP_MOVE(data));
   
   fn = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(fn), this);
   
   String method = get_own_style(Method);
   if(method == strings::Preemptive) {
-    fn = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(fn), this);
     Application::interrupt_wait_for_interactive(PMATH_CPP_MOVE(fn), this, Application::button_timeout);
   }
   else if(method == strings::Queued) {

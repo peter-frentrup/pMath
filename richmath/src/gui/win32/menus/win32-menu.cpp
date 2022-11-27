@@ -1120,10 +1120,10 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
   else if(key.equals("PageDown"))           accel->key = VK_NEXT;
   else if(key.equals("End"))                accel->key = VK_END;
   else if(key.equals("Home"))               accel->key = VK_HOME;
-  else if(key.equals("Left"))               accel->key = VK_LEFT;
-  else if(key.equals("Up"))                 accel->key = VK_UP;
-  else if(key.equals("Right"))              accel->key = VK_RIGHT;
-  else if(key.equals("Down"))               accel->key = VK_DOWN;
+  else if(key.equals("LeftArrow"))          accel->key = VK_LEFT;
+  else if(key.equals("UpArrow"))            accel->key = VK_UP;
+  else if(key.equals("RightArrow"))         accel->key = VK_RIGHT;
+  else if(key.equals("DownArrow"))          accel->key = VK_DOWN;
   else if(key.equals("Insert"))             accel->key = VK_INSERT;
   else if(key.equals("Delete"))             accel->key = VK_DELETE;
   else if(key.equals("Numpad0"))            accel->key = VK_NUMPAD0;
@@ -1150,66 +1150,6 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
 }
 
 static String vk_name(UINT vk) {
-  /*switch(vk){
-    case VK_CONTROL: return "Ctrl";
-    case VK_MENU:    return "Alt";
-    case VK_SHIFT:   return "Shift";
-  
-    case VK_F1:      return "F1";
-    case VK_F2:      return "F2";
-    case VK_F3:      return "F3";
-    case VK_F4:      return "F4";
-    case VK_F5:      return "F5";
-    case VK_F6:      return "F6";
-    case VK_F7:      return "F7";
-    case VK_F8:      return "F8";
-    case VK_F9:      return "F9";
-    case VK_F10:     return "F10";
-    case VK_F11:     return "F11";
-    case VK_F12:     return "F12";
-    case VK_F13:     return "F13";
-    case VK_F14:     return "F14";
-    case VK_F15:     return "F15";
-    case VK_F16:     return "F16";
-    case VK_F17:     return "F17";
-    case VK_F18:     return "F18";
-    case VK_F19:     return "F19";
-    case VK_F20:     return "F20";
-    case VK_F21:     return "F21";
-    case VK_F22:     return "F22";
-    case VK_F23:     return "F23";
-    case VK_F24:     return "F24";
-  
-    case VK_RETURN:  return "Enter";
-    case VK_TAB:     return "Tab";
-    case VK_ESCAPE:  return "Esc";
-    case VK_PRIOR:   return "PageUp";
-    case VK_NEXT:    return "PageDown";
-    case VK_END:     return "End";
-    case VK_HOME:    return "Home";
-    case VK_LEFT:    return "Left";
-    case VK_UP:      return "Up";
-    case VK_RIGHT:   return "Right";
-    case VK_DOWN:    return "Down";
-    case VK_INSERT:  return "Insert";
-    case VK_DELETE:  return "Delete";
-  
-    case VK_NUMPAD0: return "0";
-    case VK_NUMPAD1: return "1";
-    case VK_NUMPAD2: return "2";
-    case VK_NUMPAD3: return "3";
-    case VK_NUMPAD4: return "4";
-    case VK_NUMPAD5: return "5";
-    case VK_NUMPAD6: return "6";
-    case VK_NUMPAD7: return "7";
-    case VK_NUMPAD8: return "8";
-    case VK_NUMPAD9: return "9";
-  
-    case VK_PLAY:    return "Play";
-    case VK_ZOOM:    return "Zoom";
-  }
-  */
-  
   UINT ch = MapVirtualKeyW(vk, MAPVK_VK_TO_CHAR) & 0x7FFFFFFF;
   if(ch > ' ')
     return String::FromChar(ch);
