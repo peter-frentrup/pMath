@@ -1218,14 +1218,14 @@ void SectionList::paint_single_section_bracket(
         1.0   /* skip*/
       };
       
-      cairo_set_dash(context.canvas().cairo(), dashes, 2, 0.5);
-      cairo_set_line_cap(context.canvas().cairo(), CAIRO_LINE_CAP_BUTT);
+      context.canvas().set_dashes(dashes, 0.5);
+      context.canvas().cap_form(CapFormButt);
       context.canvas().line_width(3.0f);
       
       context.canvas().set_color(Color::Black);
       context.canvas().stroke_preserve();
       
-      cairo_set_dash(context.canvas().cairo(), nullptr, 0, 0.0);
+      context.canvas().set_dashes({}, 0.0);
     }
     else if(style & BorderEval) {
       context.canvas().line_width(3.0f);

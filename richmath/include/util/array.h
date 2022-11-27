@@ -43,10 +43,13 @@ namespace richmath {
       using iterator = value_type*;
     
     public:
+      ArrayView() : _items(nullptr), _length(0) {}
       explicit ArrayView(int length, T *items) : _items(items), _length(length) { ARRAY_ASSERT(length >= 0); }
       
-      template<int N>
-      ArrayView(T items[N]) : _items(items), _length(N) {}
+      // template<int N>
+      // ArrayView(T items[N]) : _items(items), _length(N) {}
+      template<typename S, int N>
+      ArrayView(S (&items)[N]) : _items(items), _length(N) {}
       
       int length() { return _length; }
       

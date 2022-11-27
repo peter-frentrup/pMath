@@ -253,7 +253,7 @@ void Canvas::get_dashes(Array<double> &result) {
   cairo_get_dash(_cr, result.items(), nullptr);
 }
 
-void Canvas::set_dashes(const Array<double> &new_dashes, double offset) {
+void Canvas::set_dashes(ArrayView<const double> new_dashes, double offset) {
   cairo_set_dash(_cr, new_dashes.items(), new_dashes.length(), offset);
 }
 

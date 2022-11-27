@@ -94,7 +94,7 @@ namespace richmath {
       int dash_count();
       double dash_offset();
       void get_dashes(Array<double> &result);
-      void set_dashes(const Array<double> &new_dashes, double offset);
+      void set_dashes(ArrayView<const double> new_dashes, double offset);
       
       enum JoinForm join_form();
       void join_form(enum JoinForm jf);
