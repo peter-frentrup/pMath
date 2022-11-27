@@ -367,12 +367,6 @@ void ReplacementJob::end() {
   auto section = dynamic_cast<Section*>(Box::find(_position.section_id));
   auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.object_id));
   
-  if(section) {
-    section->evaluating--;
-    if(!section->evaluating)
-      section->invalidate(); // request_repaint_all doeas not always cover the section bracket ?!?
-  }
-  
   if( have_result                            &&
       result != richmath_System_DollarFailed &&
       doc                                    &&
