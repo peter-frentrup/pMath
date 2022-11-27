@@ -53,6 +53,7 @@ namespace richmath {
       
     public:
       Expr default_graphics_options;
+      Expr default_section_styles;
       
     protected:
       EvaluationPosition _position;

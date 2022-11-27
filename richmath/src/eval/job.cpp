@@ -69,6 +69,17 @@ void Job::remember_output_style(Section *old_sect) {
       }
     }
   }
+  
+  String base_style_name;
+  if(old_sect && old_sect->style->get(BaseStyleName, &base_style_name) && !default_section_styles.lookup(base_style_name, Expr())) {
+    if(default_section_styles.is_null()) {
+      default_section_styles = List();
+    }
+    Gather g;
+    old_sect->style->remove(SectionLabel);
+    old_sect->style->emit_to_pmath();
+    default_section_styles.append(Rule(base_style_name, g.end()));
+  }
 }
 
 void Job::adjust_output_style(Section *sect) {
@@ -94,13 +105,18 @@ void Job::apply_generated_section_styles(Section *sect) {
       
       Expr base_style;
       if(rules.try_lookup(base_style_name, base_style)) {
-        //sect->style->remove(BaseStyleName);
+        sect->style->remove(BaseStyleName);
         
-        // TODO: support short-hand notation for all directives.
-        if(base_style.is_string())
-          sect->style->set_pmath(BaseStyleName, base_style);
-        else
-          sect->style->add_pmath(base_style); 
+        // TODO: Support short-hand notation for all directives., not only single "StyleName". 
+        //       Should also allow {"StyleName", rules}, like Mma.
+        sect->style->add_pmath(base_style); 
+      }
+    }
+    
+    if(sect->style->get(BaseStyleName, &base_style_name)) {
+      Expr base_style;
+      if(default_section_styles.try_lookup(base_style_name, base_style)) {
+        sect->style->add_pmath(base_style); 
       }
     }
   }
