@@ -593,6 +593,8 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
       } break;
     
     case ContainerType::ListViewItem:
+      if(theme)
+        return Color::None;
       if(state == ControlState::Normal)
         return Color::None;
       else
@@ -603,6 +605,8 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
       return Win32ControlPainterImpl::get_sys_color(state == ControlState::Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
     
     case ContainerType::ListViewItemSelected:
+      if(theme)
+        return Color::None;
       return Win32ControlPainterImpl::get_sys_color(COLOR_HIGHLIGHTTEXT);
       
     case ContainerType::TooltipWindow:
@@ -1541,7 +1545,11 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   bool repeat = false;
   if(type2 == ContainerType::DefaultPushButton && state1 == ControlState::Normal && state2 == ControlState::Normal) {
     if(control.is_foreground_window()) {
-      state2 = ControlState::Hot;
+      // On Windows 10 there is no animation (and both states look the same), 
+      // but PBS_DEFAULTED -> PBS_DEFAULTED_ANIMATING has duration 1000ms,
+      // wheas PBS_DEFAULTED_ANIMATING -> PBS_DEFAULTED has duration 0ms.
+      // So we adjust state1 instead of state2 to get 0ms in that case.
+      state1 = ControlState::Hot; 
       repeat = true;
     }
   }
