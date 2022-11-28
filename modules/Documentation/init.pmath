@@ -362,7 +362,8 @@ Function InteractiveCreateHelpDocument() {
                                     ButtonFunction -> Function {
                                         DocumentClose(popup)
                                         CreateHelpDocument(name)
-                                    }
+                                    },
+                                    ButtonFrame -> "Defaulted"
                                 )
                             } Else {
                                 StringBox({
@@ -391,6 +392,16 @@ Function InteractiveCreateHelpDocument() {
                 SectionMargins -> {{8, 8}, {0, 8}})
         },
         WindowFrame -> "ThinFrameCallout",
+        DocumentEventActions -> {
+            "ReturnKeyDown" -> Function { % TODO: FE`CallFrontEnd(FrontEnd`FindAndClickDefaultButton())
+                If(name =!= "") {
+                    DocumentClose(popup)
+                    CreateHelpDocument(name)
+                    Break()
+                }
+            },
+            "EscapeKeyDown" -> Function(DocumentClose(popup))
+        },
         RemovalConditions -> {"MouseClickOutsidePopup", "SelectionExit"}
     );
     SetSelectedDocument(popup);

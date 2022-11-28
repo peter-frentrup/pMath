@@ -25,32 +25,43 @@ Function getInputAliasesFor(Language`SourceLocation(~feo:FrontEndObject, ~range)
 
 Function insertSpecialAt(~doc, ~selboxes, ~loc) {
     With(allMacros:= getInputAliasesFor(loc))
-    Local(popup:= $Failed, macroName:= "", allowEmpty:= False)
+    Local(popup:= $Failed, macroName:= "", matches:= {}, allowEmpty:= False, selIndex:= 0)
     popup:= FE`AttachBoxes(loc, Bottom, {
         Section(
             BoxData({"\"Insert: \"",FillBox(InputFieldBox(Dynamic(macroName),String,ContinuousAction->True))}),
             "PopupWindowSection",
             SectionMargins -> {{4,4}, {4,2}},
             LineBreakWithin -> False),
+        % Section(BoxData(DynamicBox(ToBoxes(selIndex))), 
+        %     "PopupWindowSection",
+        %     SectionMargins -> {{4,4}, {4,2}},
+        %     LineBreakWithin -> False),
         Section(BoxData(DynamicBox(
             If(macroName === "" && !allowEmpty) {
                 StringForm("Type an `1` name", Button("input alias", allowEmpty:=True, BaseStyle -> "Hyperlink")) |> ToBoxes
             } Else {
-                With(matches:= allMacros |> Select(Function(StringMatch(#[1], macroName ++ ~~~, IgnoreCase->True))))
+                With(m:= allMacros |> Select(Function(StringMatch(#[1], macroName ++ ~~~, IgnoreCase->True)))) {
+                    If(matches =!= m) {
+                        If(1 <= selIndex <= Length(matches)) {
+                            selIndex:= m |> Position(matches[selIndex], 1) |> Append({0}) |> Part(1, 1)
+                        }
+                        matches:= m
+                    }
+                }
                 If(matches === {}) {
                     ToBoxes(StringForm("\[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] not found", macroName))
                 } Else {
-                    matches |> 
+                    Array(Length(matches)) |> 
                         Map(Function({
                             ButtonBox({
-                                    PaneBox(makeAliasBoxes(#[1]),
+                                    PaneBox(makeAliasBoxes(matches[#, 1]),
                                         ImageSize -> {75, Automatic}, LineBreakWithin -> False), 
-                                    PaneBox({makeBoxesVisible(#[2]), " "},
+                                    PaneBox({makeBoxesVisible(matches[#, 2]), " "},
                                         ImageSize -> {150, Automatic}, 
                                         ImageSizeAction -> "Clip",
                                         LineBreakWithin -> False)},
-                                ButtonData -> #[2],
-                                ButtonFrame -> "Palette",
+                                ButtonData -> matches[#, 2],
+                                ButtonFrame -> Dynamic(If(# === selIndex, "ListViewItemSelected", "ListViewItem")),
                                 ButtonFunction -> Function(
                                     DocumentClose(popup); DocumentApply(doc,#)))
                             })) |>
@@ -58,9 +69,39 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
                 }
             })),
             "PopupWindowSection",
+            ButtonBoxOptions -> { ButtonFrame -> "ListViewItem" },
             SectionMargins -> {{4,4}, {2,4}},
             LineBreakWithin -> False)},
         WindowFrame -> "ThinFrameCallout",
+        DocumentEventActions -> {
+            "EscapeKeyDown" -> Function(DocumentClose(popup);Break()),
+            "UpArrowKeyDown" -> Function {
+                If(selIndex > 1) {
+                    selIndex-= 1
+                }
+                Break()
+            },
+            "DownArrowKeyDown" -> Function {
+                If(selIndex < Length(matches)) {
+                    selIndex+= 1
+                }
+                Break()
+            },
+            "ReturnKeyDown" -> Function {
+                If(1 <= selIndex <= Length(matches)) {
+                    DocumentClose(popup)
+                    DocumentApply(doc, matches[selIndex, 2])
+                    Break()
+                } Else {
+                    With(apply := Lookup(matches, macroName, $Failed))
+                    If(apply =!= $Failed) {
+                        DocumentClose(popup)
+                        DocumentApply(doc, apply)
+                        Break()
+                    }
+                }
+            }
+        },
         RemovalConditions -> {"MouseClickOutsidePopup", "SelectionExit"})
     SetSelectedDocument(popup)
 }
