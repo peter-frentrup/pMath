@@ -319,7 +319,7 @@ void Win32AttachedPopupWindow::do_set_selected_document() {
 LRESULT Win32AttachedPopupWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   LRESULT result = 0;
   
-  if(!initializing()) {
+  if(!initializing() && !destroying()) {
     switch(message) {
       case WM_NCACTIVATE: {
         if(Win32DocumentWindow::handle_ncactivate(result, hwnd(), wParam, lParam, document()->selectable()))

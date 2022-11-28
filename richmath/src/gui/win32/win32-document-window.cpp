@@ -411,7 +411,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
     }
     
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
-      if(!initializing()) {
+      if(!initializing() && !destroying()) {
         switch(message) {
           case WM_MOUSEMOVE: {
               base::callback(message, wParam, lParam);
@@ -599,7 +599,7 @@ class richmath::Win32GlassDock: public Win32Dock {
     }
     
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
-      if(!initializing()) {
+      if(!initializing() && !destroying()) {
         switch(message) {
           case WM_THEMECHANGED: {
             reload_shadows(Win32HighDpi::get_dpi_for_window(_hwnd));
@@ -1453,7 +1453,7 @@ bool Win32DocumentWindow::handle_activateapp(LRESULT &res, HWND hwnd, WPARAM wPa
 LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   LRESULT result = 0;
   
-  if(!initializing()) {
+  if(!initializing() && !destroying()) {
     if(_menubar->callback(&result, message, wParam, lParam))
       return result;
       

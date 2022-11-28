@@ -57,7 +57,8 @@ BasicWin32Widget::BasicWin32Widget(
     _hwnd(nullptr),
     _limbo_next(nullptr),
     init_data(new InitData),
-    _initializing(true)
+    _initializing(true),
+    _destroying(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -114,11 +115,19 @@ void BasicWin32Widget::after_construction() {
 }
 
 BasicWin32Widget::~BasicWin32Widget() {
+  if(!_destroying) {
+    pmath_debug_print("[Unexpected destruction]\n");
+  }
   if(_hwnd) {
     WIN32report(DestroyWindow(_hwnd)); 
     _hwnd = nullptr;
   }
   add_remove_window(-1);
+}
+
+void BasicWin32Widget::safe_destroy() {
+  _destroying = true;
+  ObjectWithLimbo::safe_destroy();
 }
 
 //

@@ -56,7 +56,10 @@ namespace richmath {
         _initializing = false;
       }
       
+      virtual void safe_destroy() override;
+      
       bool initializing() { return _initializing; }
+      bool destroying() {   return _destroying; }
     
     public:
       //
@@ -128,6 +131,7 @@ namespace richmath {
       ObjectWithLimbo *_limbo_next;
       InitData *init_data;
       bool _initializing;
+      bool _destroying;
       
       static void init_window_class();
   };

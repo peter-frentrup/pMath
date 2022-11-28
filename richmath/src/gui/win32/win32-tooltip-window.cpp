@@ -217,7 +217,7 @@ void Win32TooltipWindow::paint_canvas(Canvas &canvas, bool resize_only) {
 }
 
 LRESULT Win32TooltipWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {
-  if(!initializing()) {
+  if(!initializing() && !destroying()) {
     switch(message) {
       case WM_NCHITTEST:
         return HTNOWHERE;

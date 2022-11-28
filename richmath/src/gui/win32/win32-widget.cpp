@@ -1155,7 +1155,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         _width  = rect.right;
         _height = rect.bottom;
         
-        if(!initializing()) {
+        if(!initializing() && !destroying()) {
           if(_width * scale_factor() != document()->extents().width)
             document()->invalidate_all();
           else
@@ -1164,7 +1164,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       } return 0;
   }
   
-  if(!initializing()) {
+  if(!initializing() && !destroying()) {
     switch(message) {
       case WM_ERASEBKGND:
         return 1;

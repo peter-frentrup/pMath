@@ -1865,7 +1865,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       } break;
   }
 
-  if(!initializing()) {
+  if(!initializing() && !destroying()) {
     switch(message) {
 //{ sizing & moving ...
       case WM_SIZING:
