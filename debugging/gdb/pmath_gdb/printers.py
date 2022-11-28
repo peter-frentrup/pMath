@@ -92,6 +92,13 @@ class HashtablePrinter:
     def to_string(self):
         return 'richmath::Hashtable with {0} elements'.format(self.val['used_count'])
 
+    def _table(self):
+        large_table = self.val['large_table']
+        if int(large_table) != 0:
+            return large_table
+        else:
+            return self.val['small_table']
+
     class Iterator:
         def __init__(self, table, used_count, capacity):
             self.table = table
@@ -104,7 +111,7 @@ class HashtablePrinter:
         def __iter__(self):
             return self
         
-        def next(self):
+        def __next__(self):
             if self.next_value != None:
                 v = self.next_value
                 self.next_value = None
@@ -124,11 +131,11 @@ class HashtablePrinter:
             "oops, data corrupt"
             raise StopIteration
     
-    def display_hint (self):
+    def display_hint(self):
         return 'map'
 
     def children(self):
-        return self.Iterator(self.val['table'], self.val['used_count'], self.val['capacity'])
+        return self.Iterator(self._table(), self.val['used_count'], self.val['capacity'])
     
 
 @register_pretty_printer
@@ -146,8 +153,13 @@ class ArrayPrinter:
     def display_hint (self):
         return 'array'
 
+    def _length(self):
+        if int(self.val["_items"]) == 0:
+            return 0
+        return int(self.val["_items"].cast(gdb.lookup_type('int').pointer())[-1])
+    
     def to_string(self):
-        return 'richmath::Array of {0} elements'.format(self.val['_length'])
+        return 'richmath::Array of {0} elements'.format(self._length())
     
     class Iterator:
         def __init__(self, items, length):
@@ -158,7 +170,7 @@ class ArrayPrinter:
         def __iter__(self):
             return self
         
-        def next(self):
+        def __next__(self):
             if self.index >= self.length:
                 raise StopIteration
             
@@ -167,7 +179,7 @@ class ArrayPrinter:
             return (str(self.index), result)
     
     def children(self):
-        return self.Iterator(self.val['_items'], self.val['_length'])
+        return self.Iterator(self.val['_items'], self._length())
     
 
 
