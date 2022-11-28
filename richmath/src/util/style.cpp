@@ -121,6 +121,7 @@ extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Opacity;
 extern pmath_symbol_t richmath_System_PaneBoxOptions;
 extern pmath_symbol_t richmath_System_PanelBoxOptions;
+extern pmath_symbol_t richmath_System_Part;
 extern pmath_symbol_t richmath_System_Placeholder;
 extern pmath_symbol_t richmath_System_Plain;
 extern pmath_symbol_t richmath_System_PlotRange;
@@ -3718,15 +3719,34 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
   auto styled_obj = dynamic_cast<StyledObject*>(obj);
   if(!styled_obj)
     return Symbol(richmath_System_DollarFailed);
-
-  if(item[0] == richmath_System_List && item.expr_length() == 1)
-    item = item[1];
-    
-  StyleOptionName key = Style::get_key(item);
-  if(key.is_valid()) 
-    return styled_obj->get_pmath_style(key);
   
-  // TODO support CurrentValue(..., {DocumentEventActions, "UpArrowKeyDown"}) etc.
+  if(item[0] == richmath_System_List) {
+    size_t item_len = item.expr_length();
+    for(size_t k_len = item_len; k_len > 0; --k_len) {
+      StyleOptionName key = Style::get_key(item.items(1, k_len));
+      if(!key && k_len == 1)
+        key = Style::get_key(item[1]);
+      
+      if(key) {
+        Expr res = styled_obj->get_pmath_style(key);
+        
+        if(k_len < item_len) {
+          if(res[0] != richmath_System_List)
+            return Symbol(richmath_System_DollarFailed);
+          
+          Expr rest = item.items(k_len, item_len);
+          rest.set(0, Symbol(richmath_System_Part));
+          rest.set(1, PMATH_CPP_MOVE(res));
+          return rest;
+        }
+        
+        return res;
+      }
+    } 
+  }
+  
+  if(StyleOptionName key = Style::get_key(item)) 
+    return styled_obj->get_pmath_style(key);
   
   return Symbol(richmath_System_DollarFailed);
 }

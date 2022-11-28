@@ -136,6 +136,10 @@ namespace pmath {
               _last_index(last_index < first_index ? first_index - 1 : last_index)
           {
           }
+
+          operator Expr() const {
+            return Expr(pmath_expr_get_item_range(_expr_ptr->get(), _first_index, _last_index - _first_index + 1));
+          }
           
           Iterator begin() const throw() {
             return Iterator(_expr_ptr, _first_index);
