@@ -20,10 +20,7 @@ extern pmath_symbol_t richmath_System_True;
 
 //{ class FontFeatureSet ...
 
-FontFeatureSet::FontFeatureSet()
-  : Base()
-{
-  SET_BASE_DEBUG_TAG(typeid(*this).name());
+FontFeatureSet::FontFeatureSet() {
   _tag_to_value.default_value = 0;
 }
 

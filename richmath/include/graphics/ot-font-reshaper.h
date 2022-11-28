@@ -57,9 +57,11 @@ namespace richmath {
     | ((uint32_t)(c) << 8) \
     |  (uint32_t)(d))
   
-  class FontFeatureSet: public Base {
+  class FontFeatureSet {
     public:
       FontFeatureSet();
+      FontFeatureSet(const FontFeatureSet &src) = delete;
+      FontFeatureSet const &operator=(FontFeatureSet const &src) = delete;
       
       static uint32_t tag_from_name(const String &s);
       static uint32_t tag_from_name(const char *s);

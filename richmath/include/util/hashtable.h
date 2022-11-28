@@ -124,7 +124,7 @@ namespace richmath {
       to call the move constructor.
    */
   template <typename K, typename V>
-  class Hashtable: public Base {
+  class Hashtable {
     private:
       using self_type = Hashtable<K, V>;
       using entry_type = Entry<K, V>;
@@ -418,11 +418,7 @@ namespace richmath {
       }
       
     public:
-      Hashtable()
-        : Base()
-      {
-        SET_BASE_DEBUG_TAG(typeid(*this).name());
-        
+      Hashtable() {
         nonnull_count = 0;
         used_count    = 0;
         capacity      = MINSIZE;
@@ -435,6 +431,9 @@ namespace richmath {
         _debug_num_freezers = 0;
 #endif
       }
+      
+      Hashtable(const Hashtable &src) = delete;
+      Hashtable const &operator=(Hashtable const &src) = delete;
       
       ~Hashtable() {
         auto tab = table();

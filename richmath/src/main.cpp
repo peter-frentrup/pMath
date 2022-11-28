@@ -129,7 +129,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
 
 #ifdef RICHMATH_DEBUG_MEMORY
 #  ifdef PMATH_64BIT
-     static_assert(sizeof(Base) == 32, "");
+     static_assert(sizeof(Base) == 40, "");
 #  endif
 #else
   static_assert(sizeof(Base) == 1, ""); // unused

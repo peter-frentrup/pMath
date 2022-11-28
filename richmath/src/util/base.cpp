@@ -87,6 +87,8 @@ Base::Base() {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   debug_alloc_time = pmath_atomic_fetch_add(&TheCounter.timer, 1);
   
+  debug_original_this = this;
+  
   (void)pmath_atomic_fetch_add(&TheCounter.count, 1);
   {
     Locked guard(&TheCounter.lock);
@@ -104,6 +106,12 @@ Base::Base() {
 
 Base::~Base() {
 #ifdef RICHMATH_DEBUG_MEMORY
+  if(this != debug_original_this) {
+    fprintf(stderr, "[relocated non-relocatable %s: %p -> %p]\n", debug_tag, debug_original_this, this);
+    RICHMATH_ASSERT(this == debug_original_this);
+  }
+  RICHMATH_ASSERT(this == debug_original_this && "non-");
+  
   {
     Locked guard(&TheCounter.lock);
     

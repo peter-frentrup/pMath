@@ -32,6 +32,7 @@ namespace richmath {
       intptr_t      debug_alloc_time;
       mutable Base *debug_prev;
       mutable Base *debug_next;
+      Base         *debug_original_this;
     protected:
       const char *get_debug_tag() const { return debug_tag; }
       void SET_BASE_DEBUG_TAG(const char *tag) { debug_tag = tag; }
