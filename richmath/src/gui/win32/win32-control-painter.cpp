@@ -43,6 +43,10 @@ class Win32ControlPainterInfo final: public BasicWin32Widget {
       init(); // total exception!!! Calling init in consructor is only allowd since this class is final
     }
     
+    ~Win32ControlPainterInfo() {
+      begin_destruction(); // total exception: no dynamic memory management => no safe_destroy()
+    }
+    
   protected:
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       switch(message) {

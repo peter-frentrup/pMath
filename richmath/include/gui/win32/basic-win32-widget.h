@@ -121,6 +121,7 @@ namespace richmath {
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
       
       virtual void on_close();
+      void begin_destruction() { _destroying = true; }
       
       static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
       

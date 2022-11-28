@@ -20,6 +20,10 @@ class Win32ClipboardInfo final: public BasicWin32Widget {
     {
       init(); // total exception!!! Calling init in consructor is only allowd since this class is final
     }
+    
+    ~Win32ClipboardInfo() {
+      begin_destruction(); // total exception: no dynamic memory management => no safe_destroy()
+    }
 };
 
 static Win32ClipboardInfo w32cbinfo;

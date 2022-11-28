@@ -116,7 +116,7 @@ void BasicWin32Widget::after_construction() {
 
 BasicWin32Widget::~BasicWin32Widget() {
   if(!_destroying) {
-    pmath_debug_print("[Unexpected destruction]\n");
+    fprintf(stderr, "[Unexpected destruction]\n");
   }
   if(_hwnd) {
     WIN32report(DestroyWindow(_hwnd)); 
