@@ -4,8 +4,12 @@
 
 #include <boxes/mathsequence.h>
 #include <eval/dynamic.h>
+#include <gui/control-glow.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
+
+#include <boxes/inputfieldbox.h>
+#include <boxes/panebox.h>
 
 using namespace richmath;
 
@@ -115,6 +119,46 @@ void ContainerWidgetBox::paint(Context &context) {
       state,
       rect);
   }
+  
+  if(!ControlGlowHook::all_disabled) {
+    switch(type) {
+      case ContainerType::TabHead:
+      case ContainerType::TabHeadAbuttingLeft:
+      case ContainerType::TabHeadAbuttingLeftRight:
+      case ContainerType::TabHeadAbuttingRight:
+        if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
+          Box *hook_anchor = nullptr;
+          for(Box *tmp = parent(); tmp; tmp = tmp->parent()) {
+            if(dynamic_cast<AbstractSequence*>(tmp)) {
+              hook_anchor = tmp;
+              continue;
+            }
+            
+            if(dynamic_cast<InputFieldBox*>(tmp))
+              break;
+            if(dynamic_cast<PaneBox*>(tmp))
+              break;
+          }
+          
+          if(hook_anchor) {
+            auto hook = new ControlGlowHook(this, type, state);
+            hook->outside_margin_left   = 2 * 0.75; 
+            hook->outside_margin_right  = 2 * 0.75; 
+            hook->outside_margin_top    = 0 * 0.75; 
+            hook->outside_margin_bottom = 0 * 0.75; 
+            hook->inside_margin_left    = 2 * 0.75; 
+            hook->inside_margin_right   = 2 * 0.75; 
+            hook->inside_margin_top     = 0 * 0.75; 
+            hook->inside_margin_bottom  = 0 * 0.75; 
+            context.post_paint_hooks.add(hook_anchor, hook);
+          }
+        }
+        break;
+      
+      default: break;
+    }
+  }
+  
   
   context.canvas().move_to(pos + ControlPainter::std->container_content_offset(*this, type, state));
   
