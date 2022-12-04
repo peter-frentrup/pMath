@@ -3,6 +3,7 @@
 
 
 #include <util/interval.h>
+#include <graphics/margins.h>
 
 namespace pmath {
   class Expr;
@@ -20,7 +21,7 @@ namespace richmath {
     Bottom = 3 
   };
   
-  static Side opposite_side(Side side) { return (Side)(((int)side + 2) % 4); }
+  inline Side opposite_side(Side side) { return (Side)(((int)side + 2) % 4); }
   
   float round_directed(float x, int direction, bool to_half);
   
@@ -105,9 +106,13 @@ namespace richmath {
       
       RectangleF &operator+=(const Vector2F &delta) { x+= delta.x; y+= delta.y; return *this; }
       RectangleF &operator-=(const Vector2F &delta) { x-= delta.x; y-= delta.y; return *this; }
+      RectangleF &operator+=(const Margins<float> &m) { width+= m.left + m.right; height += m.top + m.bottom; x-= m.left; y-= m.top; return *this; }
+      RectangleF &operator-=(const Margins<float> &m) { width-= m.left + m.right; height -= m.top + m.bottom; x+= m.left; y+= m.top; return *this; }
       
       friend RectangleF operator+(RectangleF rect, const Vector2F &vec) { return rect+= vec; }
       friend RectangleF operator-(RectangleF rect, const Vector2F &vec) { return rect-= vec; }
+      friend RectangleF operator+(RectangleF rect, const Margins<float> &m) { return rect+= m; }
+      friend RectangleF operator-(RectangleF rect, const Margins<float> &m) { return rect-= m; }
       
       Interval<float> x_interval() const { return {x, x + width}; }
       Interval<float> y_interval() const { return {y, y + height}; }
@@ -164,6 +169,7 @@ namespace richmath {
       void grow(float delta) {           grow(delta, delta); }
       void grow(const Vector2F &delta) { grow(delta.x, delta.y); }
       void grow(float dx, float dy);
+      void grow(const Margins<float> &m) { *this += m; }
       void grow(Side side, float delta);
       RectangleF enlarged_by(float dx, float dy) const { RectangleF rect = *this; rect.grow(dx, dy); return rect; }
       

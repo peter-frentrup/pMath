@@ -1610,11 +1610,8 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
       rect1,
       duration / 1000.0);
       
-    if( !anim->box_id.is_valid() || 
-        !anim->buf1 || 
-        !anim->buf2)
-    {
-      return 0;
+    if(!anim->box_id.is_valid() || !anim->buf1 || !anim->buf2) {
+      return nullptr;
     }
     
     anim->repeat = repeat;

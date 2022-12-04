@@ -2,6 +2,7 @@
 #define RICHMATH__GUI__CONTROL_GLOW_H__INCLUDED
 
 #include <gui/control-painter.h>
+#include <graphics/margins.h>
 #include <graphics/paint-hook.h>
 
 namespace richmath {
@@ -18,14 +19,8 @@ namespace richmath {
       Box           *destination;
       ContainerType  type;
       ControlState   state;
-      float          outside_margin_left;
-      float          outside_margin_right;
-      float          outside_margin_top;
-      float          outside_margin_bottom;
-      float          inside_margin_left;
-      float          inside_margin_right;
-      float          inside_margin_top;
-      float          inside_margin_bottom;
+      Margins<float> outside;
+      Margins<float> inside;
   };
 }
 

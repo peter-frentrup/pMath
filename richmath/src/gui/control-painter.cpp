@@ -660,6 +660,31 @@ bool ControlPainter::container_hover_repaint(ControlContext &control, ContainerT
   }
 }
 
+bool ControlPainter::control_glow_margins(
+    ControlContext &control, 
+    ContainerType   type,
+    ControlState    state, 
+    Margins<float> *outer, 
+    Margins<float> *inner
+) {
+  switch(type) {
+    case ContainerType::TabHead:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingRight:
+      if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
+        if(outer) *outer = Margins<float>(2 * 0.75, 0);
+        if(inner) *inner = Margins<float>(2 * 0.75, 0);
+        return true;
+      }
+      break;
+    
+    default: break;
+  }
+  
+  return false;
+}
+
 void ControlPainter::paint_scroll_indicator(
   Canvas &canvas,
   Point   pos,

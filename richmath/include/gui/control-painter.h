@@ -2,6 +2,7 @@
 #define __GUI__CONTROL_PAINTER_H_
 
 #include <graphics/animation.h>
+#include <graphics/margins.h>
 #include <graphics/shapers.h>
 
 #include <util/hashtable.h>
@@ -145,8 +146,17 @@ namespace richmath {
         ControlContext &control, 
         ContainerType   type,
         ControlState    state);
-        
+      
       virtual bool container_hover_repaint(ControlContext &control, ContainerType type);
+      
+      virtual bool control_glow_margins(
+        ControlContext &control,
+        ContainerType   type,
+        ControlState    state,
+        Margins<float> *outer,
+        Margins<float> *inner);
+      
+      virtual ContainerType control_glow_type(ControlContext &control, ContainerType type) { return type; }
       
       virtual void paint_scroll_indicator(
         Canvas &canvas,

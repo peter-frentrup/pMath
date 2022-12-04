@@ -3,16 +3,16 @@
 Document({
   SectionGroup({Section("GUI Controls", "Title"), 
     SectionGroup({Section(BoxData({"Slider", "(", ")"}), "Input", 
-       SectionLabel -> "in [1]:"), Section(BoxData(SliderBox(0.5`, 0 .. 1)), 
+       SectionLabel -> "in [1]:"), Section(BoxData(SliderBox(0.5, 0 .. 1)), 
        "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
     SectionGroup({
       Section(BoxData({"Slider", "(", {"Enabled", "\[Rule]", "False"}, ")"}), 
        "Input", SectionLabel -> "in [2]:"), 
-      Section(BoxData(SliderBox(0.5`, 0 .. 1, Enabled -> False)), "Output", 
+      Section(BoxData(SliderBox(0.5, 0 .. 1, Enabled -> False)), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
     SectionGroup({Section(BoxData({"ProgressIndicator", "(", "0.5", ")"}), 
        "Input", SectionLabel -> "in [3]:"), 
-      Section(BoxData(ProgressIndicatorBox(0.5`, 0 .. 1)), "Output", 
+      Section(BoxData(ProgressIndicatorBox(0.5, 0 .. 1)), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
     SectionGroup({
       Section(
@@ -272,45 +272,43 @@ Document({
                  {"\n", {
                    "{", {"Panel", "(", {
                      {"\n", {"Grid", "(", {
-                        {"{", {
-                          "\n", {
-                           "{", {
-                            {"Setter", "(", {
+                        {"{", {"{", {StringBox("\" \""), ",", {
+                            "\n", {"Setter", "(", {
                               {"Dynamic", "(", {"idx", ",", {
                                  "{", {"Automatic", ",", "None", ",", 
                                   "Automatic"}, "}"}}, ")"}, ",", "1", ",", 
                               StringBox("\"Tab 1\""), ",", {
                                "\n", {"ButtonFrame", "\[Rule]", 
                                 StringBox("\"TabHeadAbuttingRight\"")}}}, 
-                             ")"}, ",", {
-                             "\n", {"Setter", "(", {
-                               {"Dynamic", "(", {"idx", ",", {
-                                  "{", {"Automatic", ",", "None", ",", 
-                                   "Automatic"}, "}"}}, ")"}, ",", "2", ",", 
-                               StringBox("\"Tab 2\""), ",", {
-                                "\n", {"ButtonFrame", "\[Rule]", 
-                                 StringBox("\"TabHeadAbuttingLeftRight\"")}}}, 
-                              ")"}}, ",", {
-                             "\n", {"Setter", "(", {
-                               {"Dynamic", "(", {"idx", ",", {
-                                  "{", {"Automatic", ",", "None", ",", 
-                                   "Automatic"}, "}"}}, ")"}, ",", "3", ",", 
-                               StringBox("\"Tab 3\""), ",", {
-                                "\n", {"ButtonFrame", "\[Rule]", 
-                                 StringBox("\"TabHeadAbuttingLeftRight\"")}}}, 
-                              ")"}}, ",", {
-                             "\n", {"Setter", "(", {
-                               {"Dynamic", "(", {"idx", ",", {
-                                  "{", {"Automatic", ",", "None", ",", 
-                                   "Automatic"}, "}"}}, ")"}, ",", "4", ",", 
-                               StringBox("\"Tab 4\""), ",", {
-                                "\n", {"ButtonFrame", "\[Rule]", 
-                                 StringBox("\"TabHeadAbuttingLeft\"")}}}, 
-                              ")"}}, ",", {"\n", StringBox("\"  \"")}, ",", {
-                             "\n", {"Button", "(", {StringBox("\"+\""), ",", 
-                               ",", {"ButtonFrame", "\[Rule]", 
-                                StringBox("\"TabHead\"")}}, ")"}}, ",", {
-                             "\n", StringBox("\" \"")}}, "}"}}, "}"}, ",", {
+                             ")"}}, ",", {
+                            "\n", {"Setter", "(", {
+                              {"Dynamic", "(", {"idx", ",", {
+                                 "{", {"Automatic", ",", "None", ",", 
+                                  "Automatic"}, "}"}}, ")"}, ",", "2", ",", 
+                              StringBox("\"Tab 2\""), ",", {
+                               "\n", {"ButtonFrame", "\[Rule]", 
+                                StringBox("\"TabHeadAbuttingLeftRight\"")}}}, 
+                             ")"}}, ",", {
+                            "\n", {"Setter", "(", {
+                              {"Dynamic", "(", {"idx", ",", {
+                                 "{", {"Automatic", ",", "None", ",", 
+                                  "Automatic"}, "}"}}, ")"}, ",", "3", ",", 
+                              StringBox("\"Tab 3\""), ",", {
+                               "\n", {"ButtonFrame", "\[Rule]", 
+                                StringBox("\"TabHeadAbuttingLeftRight\"")}}}, 
+                             ")"}}, ",", {
+                            "\n", {"Setter", "(", {
+                              {"Dynamic", "(", {"idx", ",", {
+                                 "{", {"Automatic", ",", "None", ",", 
+                                  "Automatic"}, "}"}}, ")"}, ",", "4", ",", 
+                              StringBox("\"Tab 4\""), ",", {
+                               "\n", {"ButtonFrame", "\[Rule]", 
+                                StringBox("\"TabHeadAbuttingLeft\"")}}}, 
+                             ")"}}, ",", {"\n", StringBox("\"  \"")}, ",", {
+                            "\n", {"Button", "(", {StringBox("\"+\""), ",", 
+                              ",", {"ButtonFrame", "\[Rule]", 
+                               StringBox("\"TabHead\"")}}, ")"}}, ",", {
+                            "\n", StringBox("\" \"")}}, "}"}, "}"}, ",", {
                          "\n", {"ColumnSpacing", "\[Rule]", "0"}}}, ")"}}, 
                      ",", {"\n", {"Appearance", "\[Rule]", 
                        StringBox("\"TabHead\"")}}}, ")"}, "}"}}, ",", {
@@ -329,15 +327,15 @@ Document({
                          "\n", {"Dynamic", "(", "idx", ")"}}}, ")"}}, ",", {
                       "\n", {"Appearance", "\[Rule]", 
                        StringBox("\"TabBody\"")}}}, ")"}, "}"}}}, "}"}, ",", {
-                "RowSpacing", "\[Rule]", "0"}}, ")"}}}, ")"}), "Input", 
-         SectionLabel -> "in [24]:"), 
+                "RowSpacing", "\[Rule]", "0"}}, ")"}}}, ")"}), "Input"), 
         Section(BoxData(DynamicLocalBox({$Context`idx}, 
            TagBox(
             GridBox({
               {PanelBox(
                 TagBox(
                  GridBox({
-                   {SetterBox(Dynamic($Context`idx, {
+                   {StringBox("\" \""), 
+                    SetterBox(Dynamic($Context`idx, {
                        Automatic, None, Automatic}), 1, 
                      StringBox("\"Tab 1\""), 
                      ButtonFrame -> "TabHeadAbuttingRight"), 
@@ -363,8 +361,8 @@ Document({
                   3 -> StringBox("\"content 3\""), 
                   4 -> StringBox("\"content 4\"")}, Dynamic($Context`idx)), 
                 Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), "Grid"), 
-           Deinitialization -> None, DynamicLocalValues :> {
-             {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}}, 
-           Initialization -> None, UnsavedVariables -> {})), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [24]:")}, All)}, 
-     All)}, All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+           DynamicLocalValues :> {
+             {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}})), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+       All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
+ Visible -> True)

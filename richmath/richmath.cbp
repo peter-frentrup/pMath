@@ -815,6 +815,7 @@
 		<Unit filename="include/graphics/ft-shaper.h" />
 		<Unit filename="include/graphics/glyph-iterator.h" />
 		<Unit filename="include/graphics/glyphs.h" />
+		<Unit filename="include/graphics/margins.h" />
 		<Unit filename="include/graphics/ot-font-reshaper.h" />
 		<Unit filename="include/graphics/ot-math-shaper.h" />
 		<Unit filename="include/graphics/paint-hook.h" />

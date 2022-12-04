@@ -73,6 +73,7 @@ void ContainerWidgetBox::paint(Context &context) {
   Point pos = context.canvas().current_pos();
   
   RectangleF rect = _extents.to_rectangle(pos);
+  //rect.pixel_align(context.canvas(), false); // The animation creation functions round outward, others round to nearest. THat could cause pixel jumping
   ControlState state = calc_state(context);
   
   if(animation && !animation->is_compatible(context.canvas(), rect.width, rect.height)) 
@@ -121,41 +122,28 @@ void ContainerWidgetBox::paint(Context &context) {
   }
   
   if(!ControlGlowHook::all_disabled) {
-    switch(type) {
-      case ContainerType::TabHead:
-      case ContainerType::TabHeadAbuttingLeft:
-      case ContainerType::TabHeadAbuttingLeftRight:
-      case ContainerType::TabHeadAbuttingRight:
-        if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
-          Box *hook_anchor = nullptr;
-          for(Box *tmp = parent(); tmp; tmp = tmp->parent()) {
-            if(dynamic_cast<AbstractSequence*>(tmp)) {
-              hook_anchor = tmp;
-              continue;
-            }
-            
-            if(dynamic_cast<InputFieldBox*>(tmp))
-              break;
-            if(dynamic_cast<PaneBox*>(tmp))
-              break;
-          }
-          
-          if(hook_anchor) {
-            auto hook = new ControlGlowHook(this, type, state);
-            hook->outside_margin_left   = 2 * 0.75; 
-            hook->outside_margin_right  = 2 * 0.75; 
-            hook->outside_margin_top    = 0 * 0.75; 
-            hook->outside_margin_bottom = 0 * 0.75; 
-            hook->inside_margin_left    = 2 * 0.75; 
-            hook->inside_margin_right   = 2 * 0.75; 
-            hook->inside_margin_top     = 0 * 0.75; 
-            hook->inside_margin_bottom  = 0 * 0.75; 
-            context.post_paint_hooks.add(hook_anchor, hook);
-          }
+    Margins<float> glow_outer {0.0f};
+    Margins<float> glow_inner {0.0f};
+    if(ControlPainter::std->control_glow_margins(*this, type, state, &glow_outer, &glow_inner)) {
+      Box *hook_anchor = nullptr;
+      for(Box *tmp = parent(); tmp; tmp = tmp->parent()) {
+        if(dynamic_cast<AbstractSequence*>(tmp)) {
+          hook_anchor = tmp;
+          continue;
         }
-        break;
+        
+        if(dynamic_cast<InputFieldBox*>(tmp))
+          break;
+        if(dynamic_cast<PaneBox*>(tmp))
+          break;
+      }
       
-      default: break;
+      if(hook_anchor) {
+        auto hook = new ControlGlowHook(this, ControlPainter::std->control_glow_type(*this, type), state);
+        hook->outside = glow_outer;
+        hook->inside  = glow_inner;
+        context.post_paint_hooks.add(hook_anchor, hook);
+      }
     }
   }
   

@@ -15,14 +15,8 @@ ControlGlowHook::ControlGlowHook(Box *destination, ContainerType type, ControlSt
   destination{destination},
   type{type},
   state{state},
-  outside_margin_left{0.0f},
-  outside_margin_right{0.0f},
-  outside_margin_top{0.0f},
-  outside_margin_bottom{0.0f},
-  inside_margin_left{0.0f},
-  inside_margin_right{0.0f},
-  inside_margin_top{0.0f},
-  inside_margin_bottom{0.0f}
+  outside{0.0f},
+  inside{0.0f}
 {
 }
 
@@ -48,18 +42,11 @@ void ControlGlowHook::run(Box *box, Context &context) {
     context.canvas().transform(mat);
     
     RectangleF rect = destination->extents().to_rectangle(p0);
-    RectangleF outer = rect;
-    outer.grow(Side::Left,   outside_margin_left);
-    outer.grow(Side::Right,  outside_margin_right);
-    outer.grow(Side::Top,    outside_margin_top);
-    outer.grow(Side::Bottom, outside_margin_bottom);
+    RectangleF outer = rect + outside;
     outer.pixel_align(context.canvas(), false, 0 /* 1 */);
     outer.add_rect_path(context.canvas(), false);
     
-    rect.grow(Side::Left,   -inside_margin_left);
-    rect.grow(Side::Right,  -inside_margin_right);
-    rect.grow(Side::Top,    -inside_margin_top);
-    rect.grow(Side::Bottom, -inside_margin_bottom);
+    rect-= inside;
     rect.pixel_align(context.canvas(), false, -1);
     if(rect.is_positive())
       rect.add_rect_path(context.canvas(), true);
