@@ -14,7 +14,7 @@ namespace richmath {
     Backward
   };
   
-  static LogicalDirection opposite_direction(LogicalDirection dir) { return (dir == LogicalDirection::Forward) ? LogicalDirection::Backward : LogicalDirection::Forward; }
+  inline LogicalDirection opposite_direction(LogicalDirection dir) { return (dir == LogicalDirection::Forward) ? LogicalDirection::Backward : LogicalDirection::Forward; }
   
   /** Represents a (volatile) reference to a single position inside a Box.
   
