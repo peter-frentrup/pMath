@@ -604,10 +604,18 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHead:
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom:
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
     case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight:
     case ContainerType::TabBodyBackground:
     case ContainerType::TabPanelCenter: {
         if(Impl::dark_mode_is_fake(type) && control.is_using_dark_mode()) {
@@ -765,15 +773,31 @@ void Win32ControlPainter::draw_container(
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHead: {
         if(state != ControlState::Pressed && state != ControlState::PressedHovered) {
-          rect.y +=      1.5f;
-          rect.height -= 1.5f;
+          rect.grow(Side::Top, -1.5f);
           
           if(y_scale > 0) {
             Win32Themes::MARGINS mar;
             if(!Impl(*this).try_get_sizing_margin(control, ContainerType::TabHeadBackground, ControlState::Normal, &mar)) {
               mar = {2,2,2,2};
             }
-            rect.height -= mar.cyTopHeight / y_scale;
+            rect.grow(Side::Bottom, -mar.cyTopHeight / y_scale);
+          }
+        }
+      } break;
+      
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom: {
+        if(state != ControlState::Pressed && state != ControlState::PressedHovered) {
+          rect.grow(Side::Bottom, -1.5f);
+          
+          if(y_scale > 0) {
+            Win32Themes::MARGINS mar;
+            if(!Impl(*this).try_get_sizing_margin(control, ContainerType::TabHeadBackground, ControlState::Normal, &mar)) {
+              mar = {2,2,2,2};
+            }
+            rect.grow(Side::Top, -mar.cyBottomHeight / y_scale);
           }
         }
       } break;
@@ -783,15 +807,31 @@ void Win32ControlPainter::draw_container(
     case ContainerType::TabHeadLeftAbuttingTop:
     case ContainerType::TabHeadLeft: {
         if(state != ControlState::Pressed && state != ControlState::PressedHovered) {
-          rect.x +=     1.5f;
-          rect.width -= 1.5f;
+          rect.grow(Side::Left, -1.5f);
           
           if(x_scale > 0) {
             Win32Themes::MARGINS mar;
             if(!Impl(*this).try_get_sizing_margin(control, ContainerType::TabHeadBackground, ControlState::Normal, &mar)) {
               mar = {2,2,2,2};
             }
-            rect.width -= mar.cxLeftWidth / x_scale;
+            rect.grow(Side::Right, -mar.cxLeftWidth / x_scale);
+          }
+        }
+      } break;
+    
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight: {
+        if(state != ControlState::Pressed && state != ControlState::PressedHovered) {
+          rect.grow(Side::Right, -1.5f);
+          
+          if(x_scale > 0) {
+            Win32Themes::MARGINS mar;
+            if(!Impl(*this).try_get_sizing_margin(control, ContainerType::TabHeadBackground, ControlState::Normal, &mar)) {
+              mar = {2,2,2,2};
+            }
+            rect.grow(Side::Left, -mar.cxRightWidth / x_scale);
           }
         }
       } break;
@@ -1026,9 +1066,21 @@ void Win32ControlPainter::draw_container(
       case ContainerType::TabHeadLeftAbuttingBottom:
       case ContainerType::TabHeadLeftAbuttingTopBottom:
       case ContainerType::TabHeadLeftAbuttingTop:
-      case ContainerType::TabHeadLeft: {
+      case ContainerType::TabHeadLeft:
+      case ContainerType::TabHeadRightAbuttingBottom:
+      case ContainerType::TabHeadRightAbuttingTopBottom:
+      case ContainerType::TabHeadRightAbuttingTop:
+      case ContainerType::TabHeadRight: {
           using std::swap;
           swap(w, h);
+          dc = nullptr;
+          dc_x = dc_y = 0;
+        } break;
+        
+      case ContainerType::TabHeadBottomAbuttingRight:
+      case ContainerType::TabHeadBottomAbuttingLeftRight:
+      case ContainerType::TabHeadBottomAbuttingLeft:
+      case ContainerType::TabHeadBottom: {
           dc = nullptr;
           dc_x = dc_y = 0;
         } break;
@@ -1647,6 +1699,35 @@ void Win32ControlPainter::draw_container(
           DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_TOP);
         } break;
       
+      case ContainerType::TabHeadBottomAbuttingRight:
+      case ContainerType::TabHeadBottomAbuttingLeftRight:
+      case ContainerType::TabHeadBottomAbuttingLeft:
+      case ContainerType::TabHeadBottom: {
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
+          
+          DWORD flags = 0;
+          if(state == ControlState::Disabled)
+            flags |= BF_MONO;
+          
+          RECT edge = irect;
+          edge.top = edge.bottom - 3;
+          
+          irect.bottom-= 2;
+          DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_LEFT | BF_RIGHT);
+          
+          edge.right = irect.left + 3;
+          DrawEdge(dc, &edge, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_DIAGONAL | BF_TOP | BF_LEFT);
+          
+          edge.right = irect.right;
+          edge.left = edge.right - 3;
+          DrawEdge(dc, &edge, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_DIAGONAL | BF_BOTTOM | BF_LEFT);
+          
+          irect.bottom = edge.bottom;
+          irect.left+= 2;
+          irect.right-= 2;
+          DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_BOTTOM);
+        } break;
+      
       case ContainerType::TabHeadLeftAbuttingBottom:
       case ContainerType::TabHeadLeftAbuttingTopBottom:
       case ContainerType::TabHeadLeftAbuttingTop:
@@ -1674,6 +1755,35 @@ void Win32ControlPainter::draw_container(
           irect.top+= 2;
           irect.bottom-= 2;
           DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_LEFT);
+        } break;
+      
+      case ContainerType::TabHeadRightAbuttingBottom:
+      case ContainerType::TabHeadRightAbuttingTopBottom:
+      case ContainerType::TabHeadRightAbuttingTop:
+      case ContainerType::TabHeadRight: {
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
+          
+          DWORD flags = 0;
+          if(state == ControlState::Disabled)
+            flags |= BF_MONO;
+          
+          RECT edge = irect;
+          edge.left = edge.right - 3;
+          
+          irect.right-= 2;
+          DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_TOP | BF_BOTTOM);
+          
+          edge.bottom = irect.top + 3;
+          DrawEdge(dc, &edge, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_DIAGONAL | BF_BOTTOM | BF_RIGHT);
+          
+          edge.bottom = irect.bottom;
+          edge.top = edge.bottom - 3;
+          DrawEdge(dc, &edge, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_DIAGONAL | BF_BOTTOM | BF_LEFT);
+          
+          irect.right = edge.right;
+          irect.top+= 2;
+          irect.bottom-= 2;
+          DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_RIGHT);
         } break;
     
       case ContainerType::TabHeadBackground: {
@@ -1749,8 +1859,36 @@ void Win32ControlPainter::draw_container(
           mat.xx = mat.yy = 0;
           mat.xy = w / rect.height; // w and h where swapped, but not the rect fields
           mat.yx = h / rect.width;
-          mat.x0 = -rect.y * mat.xy;
-          mat.y0 = -rect.x * mat.yx;
+          mat.x0 = -mat.xy * rect.y;
+          mat.y0 = -mat.yx * rect.x;
+          
+          cairo_pattern_set_matrix(cairo_get_source(canvas.cairo()), &mat);
+        } break;
+        
+      case ContainerType::TabHeadRightAbuttingBottom:
+      case ContainerType::TabHeadRightAbuttingTopBottom:
+      case ContainerType::TabHeadRightAbuttingTop:
+      case ContainerType::TabHeadRight: {
+          cairo_matrix_t mat;
+          mat.xx = mat.yy = 0;
+          mat.xy =  w / rect.height; // w and h where swapped, but not the rect fields
+          mat.yx = -h / rect.width;
+          mat.x0 = -mat.xy * rect.y;
+          mat.y0 = -mat.yx * rect.right();
+          
+          cairo_pattern_set_matrix(cairo_get_source(canvas.cairo()), &mat);
+        } break;
+        
+      case ContainerType::TabHeadBottomAbuttingRight:
+      case ContainerType::TabHeadBottomAbuttingLeftRight:
+      case ContainerType::TabHeadBottomAbuttingLeft:
+      case ContainerType::TabHeadBottom: {
+          cairo_matrix_t mat;
+          mat.xx =  w / rect.width;
+          mat.yy = -h / rect.height;
+          mat.xy = mat.yx = 0;
+          mat.x0 = -mat.xx * rect.x;
+          mat.y0 = -mat.yy * rect.bottom();
           
           cairo_pattern_set_matrix(cairo_get_source(canvas.cairo()), &mat);
         } break;
@@ -1761,8 +1899,8 @@ void Win32ControlPainter::draw_container(
           mat.xx = w / rect.width;
           mat.yy = h / rect.height;
           mat.xy = mat.yx = 0;
-          mat.x0 = -rect.x * mat.xx;
-          mat.y0 = -rect.y * mat.yy;
+          mat.x0 = -mat.xx * rect.x;
+          mat.y0 = -mat.yy * rect.y;
           
           cairo_pattern_set_matrix(cairo_get_source(canvas.cairo()), &mat);
         }
@@ -1908,10 +2046,18 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHead:
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom:
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
-    case ContainerType::TabHeadLeft: {
+    case ContainerType::TabHeadLeft: 
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight: {
         if(state2 == ControlState::PressedHovered/* || state1 == ControlState::Normal*/)
           return nullptr;
       } break;
@@ -1989,6 +2135,15 @@ bool Win32ControlPainter::container_hover_repaint(ControlContext &control, Conta
     case ContainerType::PopupPanel:
     case ContainerType::TabBodyBackground:
     case ContainerType::TabHeadBackground:
+    case ContainerType::TabPanelTopLeft:
+    case ContainerType::TabPanelTopCenter:
+    case ContainerType::TabPanelTopRight:
+    case ContainerType::TabPanelCenterLeft:
+    case ContainerType::TabPanelCenter:
+    case ContainerType::TabPanelCenterRight:
+    case ContainerType::TabPanelBottomLeft:
+    case ContainerType::TabPanelBottomCenter:
+    case ContainerType::TabPanelBottomRight:
     case ContainerType::TooltipWindow:
       return false;
     
@@ -2013,6 +2168,10 @@ bool Win32ControlPainter::control_glow_margins(
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadBottom:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingRight:
       if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
         Win32Themes::MARGINS mar;
         if(!Impl(*this).try_get_sizing_margin(control, type, ControlState::Normal, &mar)) {
@@ -2022,8 +2181,6 @@ bool Win32ControlPainter::control_glow_margins(
         double scale = 72.0 / control.dpi();
         if(outer) *outer = Margins<float>(mar.cxLeftWidth * scale, mar.cxRightWidth * scale, 0, 0);
         if(inner) *inner = Margins<float>(mar.cxLeftWidth * scale, mar.cxRightWidth * scale, 0, 0);
-        //if(outer) *outer = Margins<float>(2 * 0.75, 0);
-        //if(inner) *inner = Margins<float>(2 * 0.75, 0);
         return true;
       }
       return false;
@@ -2032,6 +2189,10 @@ bool Win32ControlPainter::control_glow_margins(
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
     case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight:
       if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
         Win32Themes::MARGINS mar;
         if(!Impl(*this).try_get_sizing_margin(control, type, ControlState::Normal, &mar)) {
@@ -2572,6 +2733,14 @@ HANDLE Win32ControlPainter::get_control_theme(
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
     case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight:
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom:
       theme = w32cp_cache.tab_theme(control.dpi());
       break;
     
@@ -2611,10 +2780,18 @@ HANDLE Win32ControlPainter::get_control_theme(
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHead:
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom:
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
     case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight:
       break;
     
     default:
@@ -2889,10 +3066,18 @@ HANDLE Win32ControlPainter::get_control_theme(
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHead: 
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom: 
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
-    case ContainerType::TabHeadLeft: {
+    case ContainerType::TabHeadLeft: 
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight: {
         *theme_state = 1; // TIS_NORMAL
         switch(state) {
           case ControlState::Disabled:       *theme_state = 4; break; // TIS_DISABLED
@@ -2924,20 +3109,28 @@ HANDLE Win32ControlPainter::get_control_theme(
   
   switch(type) {
     case ContainerType::TabHead:
+    case ContainerType::TabHeadBottom: 
     case ContainerType::TabHeadLeft: 
+    case ContainerType::TabHeadRight: 
       // Windows 10: TABP_TABITEM has no line on the left, looks exactly like TABP_TABITEMBOTHEDGE
       //*theme_part = 1; // TABP_TABITEM
       //break;
     case ContainerType::TabHeadAbuttingRight: 
+    case ContainerType::TabHeadBottomAbuttingRight: 
     case ContainerType::TabHeadLeftAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingBottom:
       *theme_part = 2; // TABP_TABITEMLEFTEDGE
       break;
     case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHeadBottomAbuttingLeft:
     case ContainerType::TabHeadLeftAbuttingTop:
+    case ContainerType::TabHeadRightAbuttingTop:
       *theme_part = 3; // TABP_TABITEMRIGHTEDGE
       break;
     case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
       *theme_part = 4; // TABP_TABITEMBOTHEDGE
       break;
   }
@@ -2971,6 +3164,10 @@ bool Win32ControlPainter::Impl::dark_mode_is_fake(ContainerType type) {
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHead:
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom:
     case ContainerType::TabHeadBackground:
     case ContainerType::TabBodyBackground:
     case ContainerType::TabPanelTopLeft:
@@ -2986,6 +3183,10 @@ bool Win32ControlPainter::Impl::dark_mode_is_fake(ContainerType type) {
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
     case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight:
       return true;
     
     default: return false;

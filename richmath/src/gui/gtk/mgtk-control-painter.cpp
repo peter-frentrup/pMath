@@ -65,14 +65,22 @@ class MathGtkStyleContextCache {
     GtkStyleContext *tab_head_right_background_context() {     return init_context_once(_tab_head_right_background_context,    []() { return make_tab_head_background_context(Side::Right); } ); }
     GtkStyleContext *tab_head_bottom_background_context() {    return init_context_once(_tab_head_bottom_background_context,   []() { return make_tab_head_background_context(Side::Bottom); } ); }
     GtkStyleContext *tab_head_other_background_context() {     return init_context_once(_tab_head_other_background_context,    []() { return make_tab_head_background_context((Side)(-1)); } ); }
-    GtkStyleContext *tab_head_top_abutting_none_context() {    return init_context_once(_tab_head_top_abutting_none_context,   []() { return make_tab_head_context(Side::Top,  false, false); }); }
-    GtkStyleContext *tab_head_top_abutting_right_context() {   return init_context_once(_tab_head_top_abutting_right_context,  []() { return make_tab_head_context(Side::Top,  false, true); }); }
-    GtkStyleContext *tab_head_top_abutting_both_context() {    return init_context_once(_tab_head_top_abutting_both_context,   []() { return make_tab_head_context(Side::Top,  true,  true); }); }
-    GtkStyleContext *tab_head_top_abutting_left_context() {    return init_context_once(_tab_head_top_abutting_left_context,   []() { return make_tab_head_context(Side::Top,  true,  false); }); }
-    GtkStyleContext *tab_head_left_abutting_none_context() {   return init_context_once(_tab_head_left_abutting_none_context,  []() { return make_tab_head_context(Side::Left, false, false); }); }
-    GtkStyleContext *tab_head_left_abutting_below_context() {  return init_context_once(_tab_head_left_abutting_below_context, []() { return make_tab_head_context(Side::Left, false, true); }); }
-    GtkStyleContext *tab_head_left_abutting_both_context() {   return init_context_once(_tab_head_left_abutting_both_context,  []() { return make_tab_head_context(Side::Left, true,  true); }); }
-    GtkStyleContext *tab_head_left_abutting_above_context() {  return init_context_once(_tab_head_left_abutting_above_context, []() { return make_tab_head_context(Side::Left, true,  false); }); }
+    GtkStyleContext *tab_head_top_abutting_none_context() {     return init_context_once(_tab_head_top_abutting_none_context,      []() { return make_tab_head_context(Side::Top,     false, false); }); }
+    GtkStyleContext *tab_head_top_abutting_right_context() {    return init_context_once(_tab_head_top_abutting_right_context,     []() { return make_tab_head_context(Side::Top,     false, true); }); }
+    GtkStyleContext *tab_head_top_abutting_both_context() {     return init_context_once(_tab_head_top_abutting_both_context,      []() { return make_tab_head_context(Side::Top,     true,  true); }); }
+    GtkStyleContext *tab_head_top_abutting_left_context() {     return init_context_once(_tab_head_top_abutting_left_context,      []() { return make_tab_head_context(Side::Top,     true,  false); }); }
+    GtkStyleContext *tab_head_bottom_abutting_none_context() {  return init_context_once(_tab_head_bottom_abutting_none_context,   []() { return make_tab_head_context(Side::Bottom,  false, false); }); }
+    GtkStyleContext *tab_head_bottom_abutting_right_context() { return init_context_once(_tab_head_bottom_abutting_right_context,  []() { return make_tab_head_context(Side::Bottom,  false, true); }); }
+    GtkStyleContext *tab_head_bottom_abutting_both_context() {  return init_context_once(_tab_head_bottom_abutting_both_context,   []() { return make_tab_head_context(Side::Bottom,  true,  true); }); }
+    GtkStyleContext *tab_head_bottom_abutting_left_context() {  return init_context_once(_tab_head_bottom_abutting_left_context,   []() { return make_tab_head_context(Side::Bottom,  true,  false); }); }
+    GtkStyleContext *tab_head_left_abutting_none_context() {    return init_context_once(_tab_head_left_abutting_none_context,     []() { return make_tab_head_context(Side::Left,    false, false); }); }
+    GtkStyleContext *tab_head_left_abutting_below_context() {   return init_context_once(_tab_head_left_abutting_below_context,    []() { return make_tab_head_context(Side::Left,    false, true); }); }
+    GtkStyleContext *tab_head_left_abutting_both_context() {    return init_context_once(_tab_head_left_abutting_both_context,     []() { return make_tab_head_context(Side::Left,    true,  true); }); }
+    GtkStyleContext *tab_head_left_abutting_above_context() {   return init_context_once(_tab_head_left_abutting_above_context,    []() { return make_tab_head_context(Side::Left,    true,  false); }); }
+    GtkStyleContext *tab_head_right_abutting_none_context() {   return init_context_once(_tab_head_right_abutting_none_context,    []() { return make_tab_head_context(Side::Right,   false, false); }); }
+    GtkStyleContext *tab_head_right_abutting_below_context() {  return init_context_once(_tab_head_right_abutting_below_context,   []() { return make_tab_head_context(Side::Right,   false, true); }); }
+    GtkStyleContext *tab_head_right_abutting_both_context() {   return init_context_once(_tab_head_right_abutting_both_context,    []() { return make_tab_head_context(Side::Right,   true,  true); }); }
+    GtkStyleContext *tab_head_right_abutting_above_context() {  return init_context_once(_tab_head_right_abutting_above_context,   []() { return make_tab_head_context(Side::Right,   true,  false); }); }
     GtkStyleContext *tab_head_label_context() {          return init_context_once(_tab_head_label_context,          make_tab_head_label_context); }
     GtkStyleContext *toggle_switch_channel_context() {   return init_context_once(_toggle_switch_channel_context,   make_toggle_switch_channel_context); }
     GtkStyleContext *toggle_switch_thumb_context() {     return init_context_once(_toggle_switch_thumb_context,     make_toggle_switch_thumb_context); }
@@ -180,10 +188,18 @@ class MathGtkStyleContextCache {
     GtkStyleContext *_tab_head_top_abutting_right_context;
     GtkStyleContext *_tab_head_top_abutting_both_context;
     GtkStyleContext *_tab_head_top_abutting_left_context;
+    GtkStyleContext *_tab_head_bottom_abutting_none_context;
+    GtkStyleContext *_tab_head_bottom_abutting_right_context;
+    GtkStyleContext *_tab_head_bottom_abutting_both_context;
+    GtkStyleContext *_tab_head_bottom_abutting_left_context;
     GtkStyleContext *_tab_head_left_abutting_none_context;
     GtkStyleContext *_tab_head_left_abutting_below_context;
     GtkStyleContext *_tab_head_left_abutting_both_context;
     GtkStyleContext *_tab_head_left_abutting_above_context;
+    GtkStyleContext *_tab_head_right_abutting_none_context;
+    GtkStyleContext *_tab_head_right_abutting_below_context;
+    GtkStyleContext *_tab_head_right_abutting_both_context;
+    GtkStyleContext *_tab_head_right_abutting_above_context;
     GtkStyleContext *_tab_head_label_context;
     GtkStyleContext *_toggle_switch_channel_context;
     GtkStyleContext *_toggle_switch_thumb_context;
@@ -911,15 +927,25 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext &contro
     case ContainerType::TabPanelBottomLeft:
     case ContainerType::TabPanelBottomRight:  return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_other_background_context();
     
-    case ContainerType::TabHead:                     return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_none_context();
-    case ContainerType::TabHeadAbuttingRight:        return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_right_context();
-    case ContainerType::TabHeadAbuttingLeftRight:    return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_both_context();
-    case ContainerType::TabHeadAbuttingLeft:         return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_left_context();
+    case ContainerType::TabHead:                        return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_none_context();
+    case ContainerType::TabHeadAbuttingRight:           return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_right_context();
+    case ContainerType::TabHeadAbuttingLeftRight:       return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_both_context();
+    case ContainerType::TabHeadAbuttingLeft:            return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_left_context();
     
-    case ContainerType::TabHeadLeft:                  return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_none_context();
-    case ContainerType::TabHeadLeftAbuttingBottom:    return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_below_context();
-    case ContainerType::TabHeadLeftAbuttingTopBottom: return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_both_context();
-    case ContainerType::TabHeadLeftAbuttingTop:       return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_above_context();
+    case ContainerType::TabHeadBottom:                  return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_bottom_abutting_none_context();
+    case ContainerType::TabHeadBottomAbuttingRight:     return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_bottom_abutting_right_context();
+    case ContainerType::TabHeadBottomAbuttingLeftRight: return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_bottom_abutting_both_context();
+    case ContainerType::TabHeadBottomAbuttingLeft:      return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_bottom_abutting_left_context();
+    
+    case ContainerType::TabHeadLeft:                    return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_none_context();
+    case ContainerType::TabHeadLeftAbuttingBottom:      return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_below_context();
+    case ContainerType::TabHeadLeftAbuttingTopBottom:   return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_both_context();
+    case ContainerType::TabHeadLeftAbuttingTop:         return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_above_context();
+    
+    case ContainerType::TabHeadRight:                   return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_right_abutting_none_context();
+    case ContainerType::TabHeadRightAbuttingBottom:     return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_right_abutting_below_context();
+    case ContainerType::TabHeadRightAbuttingTopBottom:  return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_right_abutting_both_context();
+    case ContainerType::TabHeadRightAbuttingTop:        return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_right_abutting_above_context();
     
     case ContainerType::ToggleSwitchChannelChecked:
     case ContainerType::ToggleSwitchChannelUnchecked: return painter_cache_for(control).toggle_switch_channel_context();
@@ -1002,10 +1028,18 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
     case ContainerType::TabHeadAbuttingRight:
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft: 
+    case ContainerType::TabHeadBottom:
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft: 
     case ContainerType::TabHeadLeft:
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
-    case ContainerType::TabHeadLeftAbuttingTop: {
+    case ContainerType::TabHeadLeftAbuttingTop:
+    case ContainerType::TabHeadRight:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop: {
         switch(state) {
           case ControlState::Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_INSENSITIVE );
           case ControlState::PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_PRELIGHT );
@@ -1109,46 +1143,54 @@ MathGtkStyleContextCache::MathGtkStyleContextCache(const char *theme_variant) {
   _theme_variant = theme_variant;
   _current_theme = nullptr;
   
-  _checkbox_context                      = nullptr;
-  _default_push_button_context           = nullptr;
-  _expander_arrow_context                = nullptr;
-  _input_field_button_context            = nullptr;
-  _input_field_context                   = nullptr;
-  _list_item_context                     = nullptr;
-  _list_item_selected_context            = nullptr;
-  _panel_context                         = nullptr;
-  _popup_panel_context                   = nullptr;
-  _progress_bar_context                  = nullptr;
-  _progress_bar_trough_context           = nullptr;
-  _push_button_context                   = nullptr;
-  _radio_button_context                  = nullptr;
-  _horz_slider_channel_context           = nullptr;
-  _horz_slider_thumb_context             = nullptr;
-  _horz_slider_thumb_down_arrow_context  = nullptr;
-  _horz_slider_thumb_up_arrow_context    = nullptr;
-  _vert_slider_channel_context           = nullptr;
-  _vert_slider_thumb_context             = nullptr;
-  _vert_slider_thumb_left_arrow_context  = nullptr;
-  _vert_slider_thumb_right_arrow_context = nullptr;
-  _tab_body_context                      = nullptr;
-  _tab_head_top_background_context       = nullptr;
-  _tab_head_left_background_context      = nullptr;
-  _tab_head_right_background_context     = nullptr;
-  _tab_head_bottom_background_context    = nullptr;
-  _tab_head_other_background_context     = nullptr;
-  _tab_head_top_abutting_none_context    = nullptr;
-  _tab_head_top_abutting_right_context   = nullptr;
-  _tab_head_top_abutting_both_context    = nullptr;
-  _tab_head_top_abutting_left_context    = nullptr;
-  _tab_head_left_abutting_none_context   = nullptr;
-  _tab_head_left_abutting_below_context  = nullptr;
-  _tab_head_left_abutting_both_context   = nullptr;
-  _tab_head_left_abutting_above_context  = nullptr;
-  _tab_head_label_context                = nullptr;
-  _toggle_switch_channel_context         = nullptr;
-  _toggle_switch_thumb_context           = nullptr;
-  _tool_button_context                   = nullptr;
-  _tooltip_context                       = nullptr;
+  _checkbox_context                       = nullptr;
+  _default_push_button_context            = nullptr;
+  _expander_arrow_context                 = nullptr;
+  _input_field_button_context             = nullptr;
+  _input_field_context                    = nullptr;
+  _list_item_context                      = nullptr;
+  _list_item_selected_context             = nullptr;
+  _panel_context                          = nullptr;
+  _popup_panel_context                    = nullptr;
+  _progress_bar_context                   = nullptr;
+  _progress_bar_trough_context            = nullptr;
+  _push_button_context                    = nullptr;
+  _radio_button_context                   = nullptr;
+  _horz_slider_channel_context            = nullptr;
+  _horz_slider_thumb_context              = nullptr;
+  _horz_slider_thumb_down_arrow_context   = nullptr;
+  _horz_slider_thumb_up_arrow_context     = nullptr;
+  _vert_slider_channel_context            = nullptr;
+  _vert_slider_thumb_context              = nullptr;
+  _vert_slider_thumb_left_arrow_context   = nullptr;
+  _vert_slider_thumb_right_arrow_context  = nullptr;
+  _tab_body_context                       = nullptr;
+  _tab_head_top_background_context        = nullptr;
+  _tab_head_left_background_context       = nullptr;
+  _tab_head_right_background_context      = nullptr;
+  _tab_head_bottom_background_context     = nullptr;
+  _tab_head_other_background_context      = nullptr;
+  _tab_head_top_abutting_none_context     = nullptr;
+  _tab_head_top_abutting_right_context    = nullptr;
+  _tab_head_top_abutting_both_context     = nullptr;
+  _tab_head_top_abutting_left_context     = nullptr;
+  _tab_head_bottom_abutting_none_context  = nullptr;
+  _tab_head_bottom_abutting_right_context = nullptr;
+  _tab_head_bottom_abutting_both_context  = nullptr;
+  _tab_head_bottom_abutting_left_context  = nullptr;
+  _tab_head_left_abutting_none_context    = nullptr;
+  _tab_head_left_abutting_below_context   = nullptr;
+  _tab_head_left_abutting_both_context    = nullptr;
+  _tab_head_left_abutting_above_context   = nullptr;
+  _tab_head_right_abutting_none_context   = nullptr;
+  _tab_head_right_abutting_below_context  = nullptr;
+  _tab_head_right_abutting_both_context   = nullptr;
+  _tab_head_right_abutting_above_context  = nullptr;
+  _tab_head_label_context                 = nullptr;
+  _toggle_switch_channel_context          = nullptr;
+  _toggle_switch_thumb_context            = nullptr;
+  _tool_button_context                    = nullptr;
+  _tooltip_context                        = nullptr;
 }
 
 MathGtkStyleContextCache::~MathGtkStyleContextCache() {
@@ -1189,10 +1231,18 @@ void MathGtkStyleContextCache::clear() {
   unref_and_null(_tab_head_top_abutting_right_context);
   unref_and_null(_tab_head_top_abutting_both_context);
   unref_and_null(_tab_head_top_abutting_left_context);
+  unref_and_null(_tab_head_bottom_abutting_none_context);
+  unref_and_null(_tab_head_bottom_abutting_right_context);
+  unref_and_null(_tab_head_bottom_abutting_both_context);
+  unref_and_null(_tab_head_bottom_abutting_left_context);
   unref_and_null(_tab_head_left_abutting_none_context);
   unref_and_null(_tab_head_left_abutting_below_context);
   unref_and_null(_tab_head_left_abutting_both_context);
   unref_and_null(_tab_head_left_abutting_above_context);
+  unref_and_null(_tab_head_right_abutting_none_context);
+  unref_and_null(_tab_head_right_abutting_below_context);
+  unref_and_null(_tab_head_right_abutting_both_context);
+  unref_and_null(_tab_head_right_abutting_above_context);
   unref_and_null(_tab_head_label_context);
   unref_and_null(_toggle_switch_channel_context);
   unref_and_null(_toggle_switch_thumb_context);
@@ -1487,6 +1537,18 @@ void MathGtkStyleContextCache::render_container(
         render_all_common_inset_const(ctx, canvas, rect);
       } break;
     
+    case ContainerType::TabHeadBottom:
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft: {
+        GtkBorder margin;
+        gtk_style_context_get_margin(ctx, flags, &margin);
+        
+        rect.grow(Side::Bottom, -margin.bottom);
+        
+        render_all_common_inset_const(ctx, canvas, rect);
+      } break;
+    
     case ContainerType::TabHeadLeft:
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
@@ -1496,6 +1558,19 @@ void MathGtkStyleContextCache::render_container(
         
         
         rect.grow(Side::Left, -margin.left);
+        
+        render_all_common_inset_const(ctx, canvas, rect);
+      } break;
+    
+    case ContainerType::TabHeadRight:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop: {
+        GtkBorder margin;
+        gtk_style_context_get_margin(ctx, flags, &margin);
+        
+        
+        rect.grow(Side::Right, -margin.right);
         
         render_all_common_inset_const(ctx, canvas, rect);
       } break;

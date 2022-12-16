@@ -257,7 +257,11 @@ void ControlPainter::calc_container_size(
     case ContainerType::TabHeadAbuttingRight:
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
-    case ContainerType::TabHead: {
+    case ContainerType::TabHead: 
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom: {
         if(extents->ascent < canvas.get_font_size() * 0.75f)
           extents->ascent = canvas.get_font_size() * 0.75f;// - extents->ascent;
           
@@ -272,7 +276,11 @@ void ControlPainter::calc_container_size(
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
-    case ContainerType::TabHeadLeft: {
+    case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight: {
         if(extents->ascent < canvas.get_font_size() * 0.75f)
           extents->ascent = canvas.get_font_size() * 0.75f;// - extents->ascent;
           
@@ -569,20 +577,47 @@ void ControlPainter::draw_container(
     case ContainerType::TabHeadAbuttingRight:
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
-    case ContainerType::TabHead: {
+    case ContainerType::TabHead: 
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom: {
+        bool top;
+        switch(type) {
+          case ContainerType::TabHeadAbuttingRight:
+          case ContainerType::TabHeadAbuttingLeftRight:
+          case ContainerType::TabHeadAbuttingLeft:
+          case ContainerType::TabHead: 
+            top = true;
+            break;
+          
+          default:
+            top = false;
+            break;
+        }
         if(state != ControlState::Pressed && state != ControlState::PressedHovered) {
           rect.grow(0, -1.5);
         }
         
         Margins<float> padding(0);
-        padding.top = 1.5f;
+        if(top)
+          padding.top = 1.5f;
+        else
+          padding.bottom = 1.5f;
         if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
           padding.left  = 1.5f;
           padding.right = 1.5f;
         }
         else {
-          padding.left  = (type == ContainerType::TabHeadAbuttingLeft  || type == ContainerType::TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
-          padding.right = (type == ContainerType::TabHeadAbuttingRight || type == ContainerType::TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
+          switch(type) {
+            case ContainerType::TabHeadAbuttingLeft:
+            case ContainerType::TabHeadBottomAbuttingLeft:      padding.left = 0.75f; padding.right = 1.5f;
+            case ContainerType::TabHeadAbuttingLeftRight:
+            case ContainerType::TabHeadBottomAbuttingLeftRight: padding.left = 0.75f; padding.right = 0.75f;
+            case ContainerType::TabHeadAbuttingRight:
+            case ContainerType::TabHeadBottomAbuttingRight:     padding.left = 1.5f;  padding.right = 0.75f;
+            default:                                            padding.left = 1.5f;  padding.right = 1.5f;
+          }
         }
         
         RectangleF inner = rect - padding;
@@ -603,20 +638,47 @@ void ControlPainter::draw_container(
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
-    case ContainerType::TabHeadLeft: {
+    case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight: {
+        bool left;
+        switch(type) {
+          case ContainerType::TabHeadLeftAbuttingBottom:
+          case ContainerType::TabHeadLeftAbuttingTopBottom:
+          case ContainerType::TabHeadLeftAbuttingTop:
+          case ContainerType::TabHeadLeft:
+            left = true;
+            break;
+          
+          default:
+            left = false;
+            break;
+        }
         if(state != ControlState::Pressed && state != ControlState::PressedHovered) {
           rect.grow(-1.5, 0);
         }
         
         Margins<float> padding(0);
-        padding.left = 1.5f;
+        if(left)
+          padding.left = 1.5f;
+        else
+          padding.right = 1.5f;
         if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
           padding.top    = 1.5f;
           padding.bottom = 1.5f;
         }
         else {
-          padding.top    = (type == ContainerType::TabHeadLeftAbuttingTop    || type == ContainerType::TabHeadLeftAbuttingTopBottom) ? 0.75f : 1.5f;
-          padding.bottom = (type == ContainerType::TabHeadLeftAbuttingBottom || type == ContainerType::TabHeadLeftAbuttingTopBottom) ? 0.75f : 1.5f;
+          switch(type) {
+            case ContainerType::TabHeadLeftAbuttingTop:
+            case ContainerType::TabHeadRightAbuttingTop:       padding.top = 0.75f;  padding.bottom = 1.5f;  break;
+            case ContainerType::TabHeadLeftAbuttingTopBottom:
+            case ContainerType::TabHeadRightAbuttingTopBottom: padding.top = 0.75f;  padding.bottom = 0.75f; break;
+            case ContainerType::TabHeadLeftAbuttingBottom:
+            case ContainerType::TabHeadRightAbuttingBottom:    padding.top = 1.5f;   padding.bottom = 0.75f; break;
+            default:                                           padding.top = 1.5f;   padding.bottom = 1.5f;  break;
+          }
         }
         
         RectangleF inner = rect - padding;
@@ -787,12 +849,28 @@ Vector2F ControlPainter::container_content_offset(
           return {0.0f, -1.5f};
       } break;
     
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom: {
+        if(state == ControlState::Pressed || state == ControlState::PressedHovered)
+          return {0.0f, 0.75f};
+      } break;
+    
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
     case ContainerType::TabHeadLeft: {
         if(state == ControlState::Pressed || state == ControlState::PressedHovered)
           return {-0.75f, -0.75f};
+      } break;
+    
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight: {
+        if(state == ControlState::Pressed || state == ControlState::PressedHovered)
+          return {0.75f, -0.75f};
       } break;
     
     default: break;
@@ -814,10 +892,18 @@ bool ControlPainter::container_hover_repaint(ControlContext &control, ContainerT
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHead:
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom:
     case ContainerType::TabHeadLeftAbuttingBottom:
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
     case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight:
     case ContainerType::ToggleSwitchThumbChecked:
     case ContainerType::ToggleSwitchThumbUnchecked:
       return true;
@@ -839,6 +925,10 @@ bool ControlPainter::control_glow_margins(
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadBottom:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingRight:
       if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
         if(outer) *outer = Margins<float>(2 * 0.75, 0);
         if(inner) *inner = Margins<float>(2 * 0.75, 0);
@@ -850,6 +940,10 @@ bool ControlPainter::control_glow_margins(
     case ContainerType::TabHeadLeftAbuttingTopBottom:
     case ContainerType::TabHeadLeftAbuttingTop:
     case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight:
       if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
         if(outer) *outer = Margins<float>(0, 1 * 0.75);
         if(inner) *inner = Margins<float>(0, 2 * 0.75);

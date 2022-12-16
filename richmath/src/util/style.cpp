@@ -3864,10 +3864,20 @@ ButtonFrameStyleConverter::ButtonFrameStyleConverter() : EnumStyleConverter() {
   add(ContainerType::TabHeadAbuttingLeft,      String("TabHeadAbuttingLeft"));
   add(ContainerType::TabHead,                  strings::TabHead);
   
+  add(ContainerType::TabHeadBottomAbuttingRight,     String("TabHeadBottomAbuttingRight"));
+  add(ContainerType::TabHeadBottomAbuttingLeftRight, String("TabHeadBottomAbuttingLeftRight"));
+  add(ContainerType::TabHeadBottomAbuttingLeft,      String("TabHeadBottomAbuttingLeft"));
+  add(ContainerType::TabHeadBottom,                  String("TabHeadBottom"));
+  
   add(ContainerType::TabHeadLeftAbuttingBottom,    String("TabHeadLeftAbuttingBottom"));
   add(ContainerType::TabHeadLeftAbuttingTopBottom, String("TabHeadLeftAbuttingTopBottom"));
   add(ContainerType::TabHeadLeftAbuttingTop,       String("TabHeadLeftAbuttingTop"));
   add(ContainerType::TabHeadLeft,                  String("TabHeadLeft"));
+  
+  add(ContainerType::TabHeadRightAbuttingBottom,    String("TabHeadRightAbuttingBottom"));
+  add(ContainerType::TabHeadRightAbuttingTopBottom, String("TabHeadRightAbuttingTopBottom"));
+  add(ContainerType::TabHeadRightAbuttingTop,       String("TabHeadRightAbuttingTop"));
+  add(ContainerType::TabHeadRight,                  String("TabHeadRight"));
 }
 
 ButtonSourceStyleConverter::ButtonSourceStyleConverter() : EnumStyleConverter() {

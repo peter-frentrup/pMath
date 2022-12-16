@@ -363,8 +363,8 @@ Document({
                 Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), "Grid"), 
            DynamicLocalValues :> {
              {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}})), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-       All), SectionGroup({
+         "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 2), 
+      SectionGroup({
         Section(
          BoxData({
            {{"{", {
@@ -405,8 +405,132 @@ Document({
               PanelBox(StringBox("\" x \""), 
                Appearance -> "TabPanelBottomRight")}}, 
             GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid")), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, 
-       All), SectionGroup({
+         "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, 2), 
+      SectionGroup({
+        Section(BoxData({"DynamicLocal", "(", {
+            {"{", {"idx", "\[Assign]", "1"}, "}"}, ",", {
+             {{{"{", {
+                 {"{", {StringBox("\"TabPanelTopLeft\""), ",", 
+                   StringBox("\"TabPanelTopCenter\""), ",", 
+                   StringBox("\"TabPanelTopRight\"")}, "}"}, ",", {
+                  "{", {StringBox("\"TabPanelCenterLeft\""), ",", 
+                   StringBox("\"TabPanelCenter\""), ",", 
+                   StringBox("\"TabPanelCenterRight\"")}, "}"}, ",", {
+                  "{", {StringBox("\"TabPanelBottomLeft\""), ",", 
+                   StringBox("\"TabPanelBottomCenter\""), ",", 
+                   StringBox("\"TabPanelBottomRight\"")}, "}"}}, "}"}, "|>", {
+                "Map", "(", {
+                 {"Function", "(", {"Panel", "(", {
+                    StringBox("\"\""), ",", {"Appearance", "\[Rule]", "#"}, 
+                    ",", {"ContentPadding", "\[Rule]", "False"}}, ")"}, ")"}, 
+                 ",", "2"}, ")"}}, "|>", {
+               "Grid", "(", {{"ColumnSpacing", "\[Rule]", "0"}, ",", {
+                 "RowSpacing", "\[Rule]", "0"}}, ")"}}, "|>", {
+              "Replace", "(", {
+               "{", {
+                {{"Panel", "(", {"~", ",", {"Appearance", "\[Rule]", 
+                    StringBox("\"TabPanelCenter\"")}, ",", "~~~"}, ")"}, 
+                 "\[Rule]", {"Panel", "(", {
+                   {"PaneSelector", "(", {
+                     {"{", {
+                       {"\n", {"1", "\[Rule]", StringBox("\"content 1\"")}}, 
+                       ",", {"\n", {"2", "\[Rule]", 
+                         StringBox("\"content 2\"")}}, ",", {
+                        "\n", {"3", "\[Rule]", StringBox("\"content 3\"")}}, 
+                       ",", {"\n", {"4", "\[Rule]", 
+                         StringBox("\"content 4\"")}}}, "}"}, ",", {
+                      "\n", {"Dynamic", "(", "idx", ")"}}}, ")"}, ",", {
+                    "Appearance", "\[Rule]", 
+                    StringBox("\"TabPanelCenter\"")}}, ")"}}, ",", {
+                 "\n", {
+                  {"Panel", "(", {"~", ",", {"Appearance", "\[Rule]", 
+                     StringBox("\"TabPanelCenterLeft\"")}, ",", "~~~"}, ")"}, 
+                  "\[Rule]", {"Panel", "(", {
+                    {"Grid", "(", {
+                      {"{", {
+                        {"\n", {"{", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "1", ",", 
+                            StringBox("\"Tab 1\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadLeftAbuttingBottom\"")}}, 
+                           ")"}, "}"}}, ",", {
+                         "\n", {"{", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "2", ",", 
+                            StringBox("\"Tab 2\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadLeftAbuttingTopBottom\"")}}, 
+                           ")"}, "}"}}, ",", {
+                         "\n", {"{", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "3", ",", 
+                            StringBox("\"Tab 3\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadLeftAbuttingTop\"")}}, ")"}, 
+                          "}"}}, ",", {
+                         "\n", {"{", {"Pane", "(", {
+                            StringBox("\"\""), ",", {"{", {"10", ",", "10"}, 
+                             "}"}}, ")"}, "}"}}, ",", {
+                         "\n", {"{", {"Button", "(", {
+                            StringBox("\"+\""), ",", "None", ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadLeft\"")}}, ")"}, "}"}}}, 
+                       "}"}, ",", {"\n", {"ColumnSpacing", "\[Rule]", "0"}}, 
+                      ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}, ",", {
+                     "Appearance", "\[Rule]", 
+                     StringBox("\"TabPanelCenterLeft\"")}}, ")"}}}}, "}"}, 
+              ")"}}}, ")"}), "Input", SectionLabel -> "in [5]:"), 
+        Section(BoxData(DynamicLocalBox({$Context`idx}, 
+           TagBox(
+            GridBox({
+              {PanelBox(StringBox("\"\""), Appearance -> "TabPanelTopLeft", 
+                ContentPadding -> False), PanelBox(StringBox("\"\""), 
+                Appearance -> "TabPanelTopCenter", ContentPadding -> False), 
+               PanelBox(StringBox("\"\""), Appearance -> "TabPanelTopRight", 
+                ContentPadding -> False)}, {
+               PanelBox(
+                TagBox(
+                 GridBox({
+                   {SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 1, 
+                     StringBox("\"Tab 1\""), 
+                     ButtonFrame -> "TabHeadLeftAbuttingBottom")}, {
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 2, 
+                     StringBox("\"Tab 2\""), 
+                     ButtonFrame -> "TabHeadLeftAbuttingTopBottom")}, {
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 3, 
+                     StringBox("\"Tab 3\""), 
+                     ButtonFrame -> "TabHeadLeftAbuttingTop")}, {
+                    PaneBox(StringBox("\"\""), ImageSize -> {10, 10})}, {
+                    ButtonBox(StringBox("\"+\""), 
+                     ButtonFrame -> "TabHeadLeft")}}, 
+                  GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
+                Appearance -> "TabPanelCenterLeft"), 
+               PanelBox(PaneSelectorBox({1 -> StringBox("\"content 1\""), 
+                  2 -> StringBox("\"content 2\""), 
+                  3 -> StringBox("\"content 3\""), 
+                  4 -> StringBox("\"content 4\"")}, Dynamic($Context`idx)), 
+                Appearance -> "TabPanelCenter"), 
+               PanelBox(StringBox("\"\""), 
+                Appearance -> "TabPanelCenterRight", 
+                ContentPadding -> False)}, {
+               PanelBox(StringBox("\"\""), Appearance -> "TabPanelBottomLeft", 
+                ContentPadding -> False), PanelBox(StringBox("\"\""), 
+                Appearance -> "TabPanelBottomCenter", 
+                ContentPadding -> False), PanelBox(StringBox("\"\""), 
+                Appearance -> "TabPanelBottomRight", 
+                ContentPadding -> False)}}, GridBoxColumnSpacing -> 0, 
+             GridBoxRowSpacing -> 0), "Grid"), 
+           DynamicLocalValues :> {
+             {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}})), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [5]:")}, 2), 
+      SectionGroup({
         Section(BoxData({"DynamicLocal", "(", {
             {"{", {"idx", "\[Assign]", "1"}, "}"}, ",", {
              {{{"{", {
@@ -437,7 +561,19 @@ Document({
                          StringBox("\"content 2\"")}}, ",", {
                         "\n", {"3", "\[Rule]", StringBox("\"content 3\"")}}, 
                        ",", {"\n", {"4", "\[Rule]", 
-                         StringBox("\"content 4\"")}}}, "}"}, ",", {
+                         StringBox("\"content 4\"")}}, ",", {
+                        "\n", {"5", "\[Rule]", StringBox("\"content 5\"")}}, 
+                       ",", {"\n", {"6", "\[Rule]", 
+                         StringBox("\"content 6\"")}}, ",", {
+                        "\n", {"7", "\[Rule]", StringBox("\"content 7\"")}}, 
+                       ",", {"\n", {"8", "\[Rule]", 
+                         StringBox("\"content 8\"")}}, ",", {
+                        "\n", {"9", "\[Rule]", StringBox("\"content 9\"")}}, 
+                       ",", {"\n", {"10", "\[Rule]", 
+                         StringBox("\"content 10\"")}}, ",", {
+                        "\n", {"11", "\[Rule]", StringBox("\"content 11\"")}}, 
+                       ",", {"\n", {"12", "\[Rule]", 
+                         StringBox("\"content 12\"")}}}, "}"}, ",", {
                       "\n", {"Dynamic", "(", "idx", ")"}}}, ")"}, ",", {
                     "Appearance", "\[Rule]", 
                     StringBox("\"TabPanelCenter\"")}}, ")"}}, ",", {
@@ -481,13 +617,153 @@ Document({
                        "}"}, ",", {"\n", {"ColumnSpacing", "\[Rule]", "0"}}, 
                       ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}, ",", {
                      "Appearance", "\[Rule]", 
-                     StringBox("\"TabPanelCenterLeft\"")}}, ")"}}}}, "}"}, 
-              ")"}}}, ")"}), "Input", SectionLabel -> "in [4]:"), 
+                     StringBox("\"TabPanelCenterLeft\"")}}, ")"}}}, ",", {
+                 "\n", {
+                  {"Panel", "(", {"~", ",", {"Appearance", "\[Rule]", 
+                     StringBox("\"TabPanelTopCenter\"")}}, ")"}, "\[Rule]", {
+                   "Panel", "(", {
+                    {"Grid", "(", {
+                      {"{", {"{", {StringBox("\" \""), ",", {
+                          "\n", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "4", ",", 
+                            StringBox("\"Tab 4\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadAbuttingRight\"")}}, ")"}}, 
+                         ",", {"\n", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "5", ",", 
+                            StringBox("\"Tab 5\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadAbuttingLeftRight\"")}}, 
+                           ")"}}, ",", {
+                          "\n", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "6", ",", 
+                            StringBox("\"Tab 6\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadAbuttingLeft\"")}}, ")"}}, 
+                         ",", {"\n", {"Pane", "(", {
+                            StringBox("\"\""), ",", {"{", {"10", ",", "10"}, 
+                             "}"}}, ")"}}, ",", {
+                          "\n", {"Button", "(", {StringBox("\"+\""), ",", 
+                            "None", ",", {"ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHead\"")}}, ")"}}, ",", {
+                          "\n", StringBox("\" \"")}}, "}"}, "}"}, ",", {
+                       "\n", {"ColumnSpacing", "\[Rule]", "0"}}, ",", {
+                       "RowSpacing", "\[Rule]", "0"}}, ")"}, ",", {
+                     "Appearance", "\[Rule]", 
+                     StringBox("\"TabPanelTopCenter\"")}}, ")"}}}, ",", {
+                 "\n", {
+                  {"Panel", "(", {"~", ",", {"Appearance", "\[Rule]", 
+                     StringBox("\"TabPanelCenterRight\"")}}, ")"}, "\[Rule]", {
+                   "Panel", "(", {
+                    {"Grid", "(", {
+                      {"{", {
+                        {"\n", {"{", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "7", ",", 
+                            StringBox("\"Tab 7\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadRightAbuttingBottom\"")}}, 
+                           ")"}, "}"}}, ",", {
+                         "\n", {"{", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "8", ",", 
+                            StringBox("\"Tab 8\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadRightAbuttingTopBottom\"")}}, 
+                           ")"}, "}"}}, ",", {
+                         "\n", {"{", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "9", ",", 
+                            StringBox("\"Tab 9\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadRightAbuttingTop\"")}}, ")"}, 
+                          "}"}}, ",", {
+                         "\n", {"{", {"Pane", "(", {
+                            StringBox("\"\""), ",", {"{", {"10", ",", "10"}, 
+                             "}"}}, ")"}, "}"}}, ",", {
+                         "\n", {"{", {"Button", "(", {
+                            StringBox("\"+\""), ",", "None", ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadRight\"")}}, ")"}, "}"}}}, 
+                       "}"}, ",", {"\n", {"ColumnSpacing", "\[Rule]", "0"}}, 
+                      ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}, ",", {
+                     "Appearance", "\[Rule]", 
+                     StringBox("\"TabPanelCenterRight\"")}}, ")"}}}, ",", {
+                 "\n", {
+                  {"Panel", "(", {"~", ",", {"Appearance", "\[Rule]", 
+                     StringBox("\"TabPanelBottomCenter\"")}}, ")"}, "\[Rule]", 
+                  {"Panel", "(", {
+                    {"Grid", "(", {
+                      {"{", {"{", {StringBox("\" \""), ",", {
+                          "\n", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "10", ",", 
+                            StringBox("\"Tab 10\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadBottomAbuttingRight\"")}}, 
+                           ")"}}, ",", {
+                          "\n", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "11", ",", 
+                            StringBox("\"Tab 11\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox(
+                              "\"TabHeadBottomAbuttingLeftRight\"")}}, ")"}}, 
+                         ",", {"\n", {"Setter", "(", {
+                            {"Dynamic", "(", {"idx", ",", {
+                               "{", {"Automatic", ",", "None", ",", 
+                                "Automatic"}, "}"}}, ")"}, ",", "12", ",", 
+                            StringBox("\"Tab 12\""), ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadBottomAbuttingLeft\"")}}, 
+                           ")"}}, ",", {
+                          "\n", {"Pane", "(", {StringBox("\"\""), ",", {
+                             "{", {"10", ",", "10"}, "}"}}, ")"}}, ",", {
+                          "\n", {"Button", "(", {StringBox("\"+\""), ",", 
+                            "None", ",", {"ButtonFrame", "\[Rule]", 
+                             StringBox("\"TabHeadBottom\"")}}, ")"}}, ",", {
+                          "\n", StringBox("\" \"")}}, "}"}, "}"}, ",", {
+                       "\n", {"ColumnSpacing", "\[Rule]", "0"}}, ",", {
+                       "RowSpacing", "\[Rule]", "0"}}, ")"}, ",", {
+                     "Appearance", "\[Rule]", 
+                     StringBox("\"TabPanelBottomCenter\"")}}, ")"}}}}, "}"}, 
+              ")"}}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
         Section(BoxData(DynamicLocalBox({$Context`idx}, 
            TagBox(
             GridBox({
               {PanelBox(StringBox("\"\""), Appearance -> "TabPanelTopLeft"), 
-               PanelBox(StringBox("\"\""), Appearance -> "TabPanelTopCenter"), 
+               PanelBox(
+                TagBox(
+                 GridBox({
+                   {StringBox("\" \""), 
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 4, 
+                     StringBox("\"Tab 4\""), 
+                     ButtonFrame -> "TabHeadAbuttingRight"), 
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 5, 
+                     StringBox("\"Tab 5\""), 
+                     ButtonFrame -> "TabHeadAbuttingLeftRight"), 
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 6, 
+                     StringBox("\"Tab 6\""), 
+                     ButtonFrame -> "TabHeadAbuttingLeft"), 
+                    PaneBox(StringBox("\"\""), ImageSize -> {10, 10}), 
+                    ButtonBox(StringBox("\"+\""), ButtonFrame -> "TabHead"), 
+                    StringBox("\" \"")}}, GridBoxColumnSpacing -> 0, 
+                  GridBoxRowSpacing -> 0), "Grid"), 
+                Appearance -> "TabPanelTopCenter"), 
                PanelBox(StringBox("\"\""), Appearance -> "TabPanelTopRight")}, 
               {PanelBox(
                 TagBox(
@@ -512,19 +788,64 @@ Document({
                PanelBox(PaneSelectorBox({1 -> StringBox("\"content 1\""), 
                   2 -> StringBox("\"content 2\""), 
                   3 -> StringBox("\"content 3\""), 
-                  4 -> StringBox("\"content 4\"")}, Dynamic($Context`idx)), 
+                  4 -> StringBox("\"content 4\""), 
+                  5 -> StringBox("\"content 5\""), 
+                  6 -> StringBox("\"content 6\""), 
+                  7 -> StringBox("\"content 7\""), 
+                  8 -> StringBox("\"content 8\""), 
+                  9 -> StringBox("\"content 9\""), 
+                  10 -> StringBox("\"content 10\""), 
+                  11 -> StringBox("\"content 11\""), 
+                  12 -> StringBox("\"content 12\"")}, Dynamic($Context`idx)), 
                 Appearance -> "TabPanelCenter"), 
-               PanelBox(StringBox("\"\""), 
+               PanelBox(
+                TagBox(
+                 GridBox({
+                   {SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 7, 
+                     StringBox("\"Tab 7\""), 
+                     ButtonFrame -> "TabHeadRightAbuttingBottom")}, {
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 8, 
+                     StringBox("\"Tab 8\""), 
+                     ButtonFrame -> "TabHeadRightAbuttingTopBottom")}, {
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 9, 
+                     StringBox("\"Tab 9\""), 
+                     ButtonFrame -> "TabHeadRightAbuttingTop")}, {
+                    PaneBox(StringBox("\"\""), ImageSize -> {10, 10})}, {
+                    ButtonBox(StringBox("\"+\""), 
+                     ButtonFrame -> "TabHeadRight")}}, 
+                  GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
                 Appearance -> "TabPanelCenterRight")}, {
                PanelBox(StringBox("\"\""), 
                 Appearance -> "TabPanelBottomLeft"), 
-               PanelBox(StringBox("\"\""), 
+               PanelBox(
+                TagBox(
+                 GridBox({
+                   {StringBox("\" \""), 
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 10, 
+                     StringBox("\"Tab 10\""), 
+                     ButtonFrame -> "TabHeadBottomAbuttingRight"), 
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 11, 
+                     StringBox("\"Tab 11\""), 
+                     ButtonFrame -> "TabHeadBottomAbuttingLeftRight"), 
+                    SetterBox(Dynamic($Context`idx, {
+                       Automatic, None, Automatic}), 12, 
+                     StringBox("\"Tab 12\""), 
+                     ButtonFrame -> "TabHeadBottomAbuttingLeft"), 
+                    PaneBox(StringBox("\"\""), ImageSize -> {10, 10}), 
+                    ButtonBox(StringBox("\"+\""), 
+                     ButtonFrame -> "TabHeadBottom"), StringBox("\" \"")}}, 
+                  GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
                 Appearance -> "TabPanelBottomCenter"), 
                PanelBox(StringBox("\"\""), 
                 Appearance -> "TabPanelBottomRight")}}, 
              GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
            DynamicLocalValues :> {
              {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}})), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
-       All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+       2)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
  Visible -> True)

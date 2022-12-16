@@ -51,6 +51,16 @@ namespace richmath {
     TabHeadLeftAbuttingTop,
     TabHeadLeft,
     
+    TabHeadRightAbuttingBottom,
+    TabHeadRightAbuttingTopBottom,
+    TabHeadRightAbuttingTop,
+    TabHeadRight,
+    
+    TabHeadBottomAbuttingRight,
+    TabHeadBottomAbuttingLeftRight,
+    TabHeadBottomAbuttingLeft,
+    TabHeadBottom,
+    
     // not really a container:
     HorizontalSliderChannel,
     HorizontalSliderThumb,
