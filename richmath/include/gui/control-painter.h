@@ -33,8 +33,23 @@ namespace richmath {
     TabHeadAbuttingLeftRight,
     TabHeadAbuttingLeft,
     TabHead,
-    TabHeadBackground,
-    TabBodyBackground,
+    TabHeadBackground, // a row of TabPanelTopLeft, TabPanelTopCenter, TabPanelTopRight
+    TabBodyBackground, // a 2x3 grid of TabPanelCenterLeft, TabPanelCenter, TabPanelCenterRight and TabPanelBottomLeft, TabPanelBottomCenter, TabPanelBottomRight
+    
+    TabPanelTopLeft,
+    TabPanelTopCenter,
+    TabPanelTopRight,
+    TabPanelCenterLeft,
+    TabPanelCenter,
+    TabPanelCenterRight,
+    TabPanelBottomLeft,
+    TabPanelBottomCenter,
+    TabPanelBottomRight,
+    
+    TabHeadLeftAbuttingBottom,
+    TabHeadLeftAbuttingTopBottom,
+    TabHeadLeftAbuttingTop,
+    TabHeadLeft,
     
     // not really a container:
     HorizontalSliderChannel,

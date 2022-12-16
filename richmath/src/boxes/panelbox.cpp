@@ -15,6 +15,15 @@ namespace richmath { namespace strings {
   extern String Popup;
   extern String TabBody;
   extern String TabHead;
+  extern String TabPanelTopLeft;
+  extern String TabPanelTopCenter;
+  extern String TabPanelTopRight;
+  extern String TabPanelCenterLeft;
+  extern String TabPanelCenter;
+  extern String TabPanelCenterRight;
+  extern String TabPanelBottomLeft;
+  extern String TabPanelBottomCenter;
+  extern String TabPanelBottomRight;
   extern String Tooltip;
 }}
 
@@ -144,35 +153,28 @@ static ContainerType parse_panel_appearance(Expr expr) {
   if(expr.is_string()) {
     String s = PMATH_CPP_MOVE(expr);
     
-    if(s == strings::Framed)
-      return ContainerType::Panel;
-    
-    if(s == strings::Frameless)
-      return ContainerType::None;
-    
-    if(s == strings::AddressBand)
-      return ContainerType::AddressBandBackground;
-    
-    if(s == strings::Popup)
-      return ContainerType::PopupPanel;
-    
-    if(s == strings::TabBody)
-      return ContainerType::TabBodyBackground;
-    
-    if(s == strings::TabHead)
-      return ContainerType::TabHeadBackground;
-    
-    if(s == strings::Tooltip)
-      return ContainerType::TooltipWindow;
+    if(s == strings::Framed)               return ContainerType::Panel;
+    if(s == strings::Frameless)            return ContainerType::None;
+    if(s == strings::AddressBand)          return ContainerType::AddressBandBackground;
+    if(s == strings::Popup)                return ContainerType::PopupPanel;
+    if(s == strings::TabBody)              return ContainerType::TabBodyBackground;
+    if(s == strings::TabHead)              return ContainerType::TabHeadBackground;
+    if(s == strings::TabPanelTopLeft)      return ContainerType::TabPanelTopLeft;
+    if(s == strings::TabPanelTopCenter)    return ContainerType::TabPanelTopCenter;
+    if(s == strings::TabPanelTopRight)     return ContainerType::TabPanelTopRight;
+    if(s == strings::TabPanelCenterLeft)   return ContainerType::TabPanelCenterLeft;
+    if(s == strings::TabPanelCenter)       return ContainerType::TabPanelCenter;
+    if(s == strings::TabPanelCenterRight)  return ContainerType::TabPanelCenterRight;
+    if(s == strings::TabPanelBottomLeft)   return ContainerType::TabPanelBottomLeft;
+    if(s == strings::TabPanelBottomCenter) return ContainerType::TabPanelBottomCenter;
+    if(s == strings::TabPanelBottomRight)  return ContainerType::TabPanelBottomRight;
+    if(s == strings::Tooltip)              return ContainerType::TooltipWindow;
     
     return ContainerType::Panel;
   }
   
-  if(expr == richmath_System_None)
-    return ContainerType::None;
-    
-  if(expr == richmath_System_Automatic)
-    return ContainerType::Panel;
+  if(expr == richmath_System_None)      return ContainerType::None;
+  if(expr == richmath_System_Automatic) return ContainerType::Panel;
   
   return ContainerType::Panel;
 }

@@ -59,16 +59,27 @@ class MathGtkStyleContextCache {
     GtkStyleContext *vert_slider_thumb_context() {             return init_context_once(_vert_slider_thumb_context,             []() { return make_slider_thumb_context(  true, false, false); }); }
     GtkStyleContext *vert_slider_thumb_left_arrow_context() {  return init_context_once(_vert_slider_thumb_left_arrow_context,  []() { return make_slider_thumb_context(  true, true,  false); }); }
     GtkStyleContext *vert_slider_thumb_right_arrow_context() { return init_context_once(_vert_slider_thumb_right_arrow_context, []() { return make_slider_thumb_context(  true, false, true); }); }
-    GtkStyleContext *tab_body_context() {                return init_context_once(_tab_body_context,                make_tab_body_context); }
-    GtkStyleContext *tab_head_background_context() {     return init_context_once(_tab_head_background_context,     make_tab_head_background_context); }
-    GtkStyleContext *tab_head_context() {                return init_context_once(_tab_head_context,                []() { return make_tab_head_context(false, false); }); }
+    GtkStyleContext *tab_body_context() {                      return init_context_once(_tab_body_context,                     make_tab_body_context); }
+    GtkStyleContext *tab_head_top_background_context() {       return init_context_once(_tab_head_top_background_context,      []() { return make_tab_head_background_context(Side::Top); } ); }
+    GtkStyleContext *tab_head_left_background_context() {      return init_context_once(_tab_head_left_background_context,     []() { return make_tab_head_background_context(Side::Left); } ); }
+    GtkStyleContext *tab_head_right_background_context() {     return init_context_once(_tab_head_right_background_context,    []() { return make_tab_head_background_context(Side::Right); } ); }
+    GtkStyleContext *tab_head_bottom_background_context() {    return init_context_once(_tab_head_bottom_background_context,   []() { return make_tab_head_background_context(Side::Bottom); } ); }
+    GtkStyleContext *tab_head_other_background_context() {     return init_context_once(_tab_head_other_background_context,    []() { return make_tab_head_background_context((Side)(-1)); } ); }
+    GtkStyleContext *tab_head_top_abutting_none_context() {    return init_context_once(_tab_head_top_abutting_none_context,   []() { return make_tab_head_context(Side::Top,  false, false); }); }
+    GtkStyleContext *tab_head_top_abutting_right_context() {   return init_context_once(_tab_head_top_abutting_right_context,  []() { return make_tab_head_context(Side::Top,  false, true); }); }
+    GtkStyleContext *tab_head_top_abutting_both_context() {    return init_context_once(_tab_head_top_abutting_both_context,   []() { return make_tab_head_context(Side::Top,  true,  true); }); }
+    GtkStyleContext *tab_head_top_abutting_left_context() {    return init_context_once(_tab_head_top_abutting_left_context,   []() { return make_tab_head_context(Side::Top,  true,  false); }); }
+    GtkStyleContext *tab_head_left_abutting_none_context() {   return init_context_once(_tab_head_left_abutting_none_context,  []() { return make_tab_head_context(Side::Left, false, false); }); }
+    GtkStyleContext *tab_head_left_abutting_below_context() {  return init_context_once(_tab_head_left_abutting_below_context, []() { return make_tab_head_context(Side::Left, false, true); }); }
+    GtkStyleContext *tab_head_left_abutting_both_context() {   return init_context_once(_tab_head_left_abutting_both_context,  []() { return make_tab_head_context(Side::Left, true,  true); }); }
+    GtkStyleContext *tab_head_left_abutting_above_context() {  return init_context_once(_tab_head_left_abutting_above_context, []() { return make_tab_head_context(Side::Left, true,  false); }); }
     GtkStyleContext *tab_head_label_context() {          return init_context_once(_tab_head_label_context,          make_tab_head_label_context); }
     GtkStyleContext *toggle_switch_channel_context() {   return init_context_once(_toggle_switch_channel_context,   make_toggle_switch_channel_context); }
     GtkStyleContext *toggle_switch_thumb_context() {     return init_context_once(_toggle_switch_thumb_context,     make_toggle_switch_thumb_context); }
     GtkStyleContext *tool_button_context() {             return init_context_once(_tool_button_context,             make_tool_button_context); }
     GtkStyleContext *tooltip_context() {                 return init_context_once(_tooltip_context,                 make_tooltip_context); }
     
-    static void render_container(
+    void render_container(
       GtkStyleContext *ctx, 
       GtkStateFlags    flags,
       Canvas          &canvas,
@@ -101,8 +112,8 @@ class MathGtkStyleContextCache {
     static GtkStyleContext *make_slider_channel_context(bool vertical);
     static GtkStyleContext *make_slider_thumb_context(bool vertical, bool marks_before, bool marks_after);
     static GtkStyleContext *make_tab_body_context();
-    static GtkStyleContext *make_tab_head_background_context();
-    static GtkStyleContext *make_tab_head_context(bool has_left_sibling, bool has_right_sibling);
+    static GtkStyleContext *make_tab_head_background_context(Side side);
+    static GtkStyleContext *make_tab_head_context(Side side, bool has_sibling_before, bool has_sibling_after);
     static GtkStyleContext *make_tab_head_label_context();
     static GtkStyleContext *make_toggle_switch_channel_context();
     static GtkStyleContext *make_toggle_switch_thumb_context();
@@ -160,8 +171,19 @@ class MathGtkStyleContextCache {
     GtkStyleContext *_vert_slider_thumb_left_arrow_context;
     GtkStyleContext *_vert_slider_thumb_right_arrow_context;
     GtkStyleContext *_tab_body_context;
-    GtkStyleContext *_tab_head_background_context;
-    GtkStyleContext *_tab_head_context;
+    GtkStyleContext *_tab_head_top_background_context;
+    GtkStyleContext *_tab_head_left_background_context;
+    GtkStyleContext *_tab_head_right_background_context;
+    GtkStyleContext *_tab_head_bottom_background_context;
+    GtkStyleContext *_tab_head_other_background_context;
+    GtkStyleContext *_tab_head_top_abutting_none_context;
+    GtkStyleContext *_tab_head_top_abutting_right_context;
+    GtkStyleContext *_tab_head_top_abutting_both_context;
+    GtkStyleContext *_tab_head_top_abutting_left_context;
+    GtkStyleContext *_tab_head_left_abutting_none_context;
+    GtkStyleContext *_tab_head_left_abutting_below_context;
+    GtkStyleContext *_tab_head_left_abutting_both_context;
+    GtkStyleContext *_tab_head_left_abutting_above_context;
     GtkStyleContext *_tab_head_label_context;
     GtkStyleContext *_toggle_switch_channel_context;
     GtkStyleContext *_toggle_switch_thumb_context;
@@ -408,8 +430,6 @@ void MathGtkControlPainter::calc_container_size(
         } 
         break;
       
-      case ContainerType::TabHeadBackground: return;
-      
       case ContainerType::ToggleSwitchChannelChecked:
       case ContainerType::ToggleSwitchChannelUnchecked: {
           GtkBorder thumb_border = {};
@@ -466,6 +486,69 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
         
+      case ContainerType::TabHeadBackground: {
+          if(auto center_ctx = painter_cache_for(control).tab_body_context()) {
+            GtkBorder border = MathGtkStyleContextCache::get_all_border_padding(center_ctx);
+            
+            if(extents->width < 0.75f * (border.left + border.right))
+              extents->width  = 0.75f * (border.left + border.right);
+            
+            if(extents->height() < 0.75f * border.top) {
+              extents->descent = 0;
+              extents->ascent  = 0.75f * border.top;
+            }
+            return;
+          }
+        } break;
+        
+      case ContainerType::TabPanelTopCenter: {
+          if(auto center_ctx = painter_cache_for(control).tab_body_context()) {
+            GtkBorder border = MathGtkStyleContextCache::get_all_border_padding(center_ctx);
+            
+            if(extents->height() < 0.75f * border.top) {
+              extents->descent = 0;
+              extents->ascent  = 0.75f * border.top;
+            }
+            
+            return;
+          }
+        } break;
+        
+      case ContainerType::TabPanelCenterLeft: {
+          if(auto center_ctx = painter_cache_for(control).tab_body_context()) {
+            GtkBorder border = MathGtkStyleContextCache::get_all_border_padding(center_ctx);
+            
+            if(extents->width < 0.75f * border.left)
+              extents->width  = 0.75f * border.left;
+            
+            return;
+          }
+        } break;
+        
+      case ContainerType::TabPanelCenterRight: {
+          if(auto center_ctx = painter_cache_for(control).tab_body_context()) {
+            GtkBorder border = MathGtkStyleContextCache::get_all_border_padding(center_ctx);
+            
+            if(extents->width < 0.75f * border.right)
+              extents->width  = 0.75f * border.right;
+            
+            return;
+          }
+        } break;
+        
+      case ContainerType::TabPanelBottomCenter: {
+          if(auto center_ctx = painter_cache_for(control).tab_body_context()) {
+            GtkBorder border = MathGtkStyleContextCache::get_all_border_padding(center_ctx);
+            
+            if(extents->height() < 0.75f * border.bottom) {
+              extents->descent = 0;
+              extents->ascent  = 0.75f * border.bottom;
+            }
+            
+            return;
+          }
+        } break;
+    
       default:
         break;
     }
@@ -568,7 +651,7 @@ void MathGtkControlPainter::draw_container(
     canvas.clip();
     
     GtkStateFlags flags = get_state_flags(control, type, state);
-    MathGtkStyleContextCache::render_container(gsc, flags, canvas, type, state, rect);
+    painter_cache_for(control).render_container(gsc, flags, canvas, type, state, rect);
     
     canvas.restore();
     return;
@@ -707,6 +790,15 @@ bool MathGtkControlPainter::container_hover_repaint(ControlContext &control, Con
     case ContainerType::PopupPanel:
     case ContainerType::TabBodyBackground:
     case ContainerType::TabHeadBackground:
+    case ContainerType::TabPanelTopLeft:
+    case ContainerType::TabPanelTopCenter:
+    case ContainerType::TabPanelTopRight:
+    case ContainerType::TabPanelCenterLeft:
+    case ContainerType::TabPanelCenter:
+    case ContainerType::TabPanelCenterRight:
+    case ContainerType::TabPanelBottomLeft:
+    case ContainerType::TabPanelBottomCenter:
+    case ContainerType::TabPanelBottomRight:
     case ContainerType::TooltipWindow:
       return false;
     
@@ -803,15 +895,31 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext &contro
     case ContainerType::ListViewItemSelected:            return painter_cache_for(control).list_item_selected_context();
     
     case ContainerType::OpenerTriangleClosed:
-    case ContainerType::OpenerTriangleOpened:        return painter_cache_for(control).expander_arrow_context();
+    case ContainerType::OpenerTriangleOpened: return painter_cache_for(control).expander_arrow_context();
     
-    case ContainerType::TabBodyBackground:           return painter_cache_for(control).tab_body_context();
-    case ContainerType::TabHeadBackground:           return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_background_context();
+    case ContainerType::TabPanelCenter:
+    case ContainerType::TabBodyBackground:    return painter_cache_for(control).tab_body_context();
     
-    case ContainerType::TabHead:
-    case ContainerType::TabHeadAbuttingRight:
-    case ContainerType::TabHeadAbuttingLeftRight:
-    case ContainerType::TabHeadAbuttingLeft:         return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_context();
+    case ContainerType::TabPanelTopCenter:
+    case ContainerType::TabHeadBackground:    return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_background_context();
+    case ContainerType::TabPanelCenterLeft:   return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_background_context();
+    case ContainerType::TabPanelCenterRight:  return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_right_background_context();
+    case ContainerType::TabPanelBottomCenter: return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_bottom_background_context();
+    
+    case ContainerType::TabPanelTopLeft:
+    case ContainerType::TabPanelTopRight:
+    case ContainerType::TabPanelBottomLeft:
+    case ContainerType::TabPanelBottomRight:  return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_other_background_context();
+    
+    case ContainerType::TabHead:                     return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_none_context();
+    case ContainerType::TabHeadAbuttingRight:        return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_right_context();
+    case ContainerType::TabHeadAbuttingLeftRight:    return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_both_context();
+    case ContainerType::TabHeadAbuttingLeft:         return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_top_abutting_left_context();
+    
+    case ContainerType::TabHeadLeft:                  return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_none_context();
+    case ContainerType::TabHeadLeftAbuttingBottom:    return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_below_context();
+    case ContainerType::TabHeadLeftAbuttingTopBottom: return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_both_context();
+    case ContainerType::TabHeadLeftAbuttingTop:       return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_left_abutting_above_context();
     
     case ContainerType::ToggleSwitchChannelChecked:
     case ContainerType::ToggleSwitchChannelUnchecked: return painter_cache_for(control).toggle_switch_channel_context();
@@ -893,7 +1001,11 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
     case ContainerType::TabHead:
     case ContainerType::TabHeadAbuttingRight:
     case ContainerType::TabHeadAbuttingLeftRight:
-    case ContainerType::TabHeadAbuttingLeft: {
+    case ContainerType::TabHeadAbuttingLeft: 
+    case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadLeftAbuttingBottom:
+    case ContainerType::TabHeadLeftAbuttingTopBottom:
+    case ContainerType::TabHeadLeftAbuttingTop: {
         switch(state) {
           case ControlState::Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_INSENSITIVE );
           case ControlState::PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_PRELIGHT );
@@ -948,10 +1060,15 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
     case ContainerType::PushButton:
     case ContainerType::TabBodyBackground:
     case ContainerType::TabHeadBackground:
-    //case ContainerType::TabHead:
-    //case ContainerType::TabHeadAbuttingRight:
-    //case ContainerType::TabHeadAbuttingLeftRight:
-    //case ContainerType::TabHeadAbuttingLeft: 
+    case ContainerType::TabPanelTopLeft:
+    case ContainerType::TabPanelTopCenter:
+    case ContainerType::TabPanelTopRight:
+    case ContainerType::TabPanelCenterLeft:
+    case ContainerType::TabPanelCenter:
+    case ContainerType::TabPanelCenterRight:
+    case ContainerType::TabPanelBottomLeft:
+    case ContainerType::TabPanelBottomCenter:
+    case ContainerType::TabPanelBottomRight: 
       result &= ~(int)GTK_STATE_FLAG_SELECTED;
       break;
       
@@ -1014,8 +1131,19 @@ MathGtkStyleContextCache::MathGtkStyleContextCache(const char *theme_variant) {
   _vert_slider_thumb_left_arrow_context  = nullptr;
   _vert_slider_thumb_right_arrow_context = nullptr;
   _tab_body_context                      = nullptr;
-  _tab_head_background_context           = nullptr;
-  _tab_head_context                      = nullptr;
+  _tab_head_top_background_context       = nullptr;
+  _tab_head_left_background_context      = nullptr;
+  _tab_head_right_background_context     = nullptr;
+  _tab_head_bottom_background_context    = nullptr;
+  _tab_head_other_background_context     = nullptr;
+  _tab_head_top_abutting_none_context    = nullptr;
+  _tab_head_top_abutting_right_context   = nullptr;
+  _tab_head_top_abutting_both_context    = nullptr;
+  _tab_head_top_abutting_left_context    = nullptr;
+  _tab_head_left_abutting_none_context   = nullptr;
+  _tab_head_left_abutting_below_context  = nullptr;
+  _tab_head_left_abutting_both_context   = nullptr;
+  _tab_head_left_abutting_above_context  = nullptr;
   _tab_head_label_context                = nullptr;
   _toggle_switch_channel_context         = nullptr;
   _toggle_switch_thumb_context           = nullptr;
@@ -1052,8 +1180,19 @@ void MathGtkStyleContextCache::clear() {
   unref_and_null(_vert_slider_thumb_left_arrow_context);
   unref_and_null(_vert_slider_thumb_right_arrow_context);
   unref_and_null(_tab_body_context);
-  unref_and_null(_tab_head_background_context);
-  unref_and_null(_tab_head_context);
+  unref_and_null(_tab_head_top_background_context);
+  unref_and_null(_tab_head_left_background_context);
+  unref_and_null(_tab_head_right_background_context);
+  unref_and_null(_tab_head_bottom_background_context);
+  unref_and_null(_tab_head_other_background_context);
+  unref_and_null(_tab_head_top_abutting_none_context);
+  unref_and_null(_tab_head_top_abutting_right_context);
+  unref_and_null(_tab_head_top_abutting_both_context);
+  unref_and_null(_tab_head_top_abutting_left_context);
+  unref_and_null(_tab_head_left_abutting_none_context);
+  unref_and_null(_tab_head_left_abutting_below_context);
+  unref_and_null(_tab_head_left_abutting_both_context);
+  unref_and_null(_tab_head_left_abutting_above_context);
   unref_and_null(_tab_head_label_context);
   unref_and_null(_toggle_switch_channel_context);
   unref_and_null(_toggle_switch_thumb_context);
@@ -1131,14 +1270,201 @@ void MathGtkStyleContextCache::render_container(
         //gtk_style_context_get_border(ctx, GTK_STATE_FLAG_NORMAL, &border);
         GtkBorder border = get_all_border_padding(ctx);
         
-        float top_hide = border.top + canvas.get_font_size() / 0.75; // add font size for possible border radius
-        rect.y -=      top_hide;
-        rect.height += top_hide;
+        //float top_hide = border.top;// + canvas.get_font_size() / 0.75; // add font size for possible border radius
+        rect.grow(Side::Top, border.top);
         
         render_all_common_inset_const(ctx, canvas, rect);
       } break;
     
+    case ContainerType::TabPanelCenter: {
+        GtkBorder border = get_all_border_padding(ctx);
+        
+        rect.grow(Margins<float>{border.left, border.right, border.top, border.bottom});
+        
+        render_all_common_inset_const(ctx, canvas, rect);
+      } break;
+    
+    case ContainerType::TabPanelTopLeft: {
+        if(auto body_ctx = tab_body_context()) {
+          GtkBorder border = get_all_border_padding(body_ctx);
+          auto body_rect   = rect;
+          body_rect.height += 100;
+          body_rect.width  += 100;
+          body_rect.x      = rect.right() - border.left;
+          body_rect.y      = rect.bottom() - border.top;
+          render_all_common_inset(body_ctx, canvas, body_rect);
+        }
+        
+        if(canvas.glass_background && !canvas.show_only_text) {
+          canvas.show_only_text = true;
+          render_all_common_inset_const(ctx, canvas, rect);
+          canvas.show_only_text = false;
+        }
+        else {
+          render_all_common_inset_const(ctx, canvas, rect);
+        }
+      } break;
+    
+    case ContainerType::TabPanelTopCenter: {
+        if(auto body_ctx = tab_body_context()) {
+          GtkBorder border = get_all_border_padding(body_ctx);
+          auto body_rect   = rect;
+          body_rect.height += 100;
+          body_rect.y      = rect.bottom() - border.top;
+          body_rect.grow(Side::Left,  border.left);
+          body_rect.grow(Side::Right, border.right);
+          
+          render_all_common_inset(body_ctx, canvas, body_rect);
+        }
+        
+        if(canvas.glass_background && !canvas.show_only_text) {
+          canvas.show_only_text = true;
+          render_all_common_inset_const(ctx, canvas, rect);
+          canvas.show_only_text = false;
+        }
+        else {
+          render_all_common_inset_const(ctx, canvas, rect);
+        }
+      } break;
+    
+    case ContainerType::TabPanelTopRight: {
+        if(auto body_ctx = tab_body_context()) {
+          GtkBorder border = get_all_border_padding(body_ctx);
+          auto body_rect   = rect;
+          body_rect.height += 100;
+          body_rect.width  += 100;
+          body_rect.x      = rect.left() - body_rect.width + border.left;
+          body_rect.y      = rect.bottom() - border.top;
+          render_all_common_inset(body_ctx, canvas, body_rect);
+        }
+        
+        if(canvas.glass_background && !canvas.show_only_text) {
+          canvas.show_only_text = true;
+          render_all_common_inset_const(ctx, canvas, rect);
+          canvas.show_only_text = false;
+        }
+        else {
+          render_all_common_inset_const(ctx, canvas, rect);
+        }
+      } break;
+    
+    case ContainerType::TabPanelCenterLeft: {
+        if(auto body_ctx = tab_body_context()) {
+          GtkBorder border = get_all_border_padding(body_ctx);
+          auto body_rect   = rect;
+          body_rect.width += 100;
+          body_rect.x      = rect.right() - border.left;
+          body_rect.grow(Side::Top,    border.top);
+          body_rect.grow(Side::Bottom, border.bottom);
+          render_all_common_inset(body_ctx, canvas, body_rect);
+        }
+        
+        if(canvas.glass_background && !canvas.show_only_text) {
+          canvas.show_only_text = true;
+          render_all_common_inset_const(ctx, canvas, rect);
+          canvas.show_only_text = false;
+        }
+        else {
+          render_all_common_inset_const(ctx, canvas, rect);
+        }
+      } break;
+    
+    case ContainerType::TabPanelCenterRight: {
+        if(auto body_ctx = tab_body_context()) {
+          GtkBorder border = get_all_border_padding(body_ctx);
+          auto body_rect   = rect;
+          body_rect.width += 100;
+          body_rect.x      = rect.left() - body_rect.width + border.right;
+          body_rect.grow(Side::Top,    border.top);
+          body_rect.grow(Side::Bottom, border.bottom);
+          render_all_common_inset(body_ctx, canvas, body_rect);
+        }
+        
+        if(canvas.glass_background && !canvas.show_only_text) {
+          canvas.show_only_text = true;
+          render_all_common_inset_const(ctx, canvas, rect);
+          canvas.show_only_text = false;
+        }
+        else {
+          render_all_common_inset_const(ctx, canvas, rect);
+        }
+      } break;
+    
+    case ContainerType::TabPanelBottomLeft: {
+        if(auto body_ctx = tab_body_context()) {
+          GtkBorder border = get_all_border_padding(body_ctx);
+          auto body_rect   = rect;
+          body_rect.height += 100;
+          body_rect.width  += 100;
+          body_rect.x      = rect.right() - border.left;
+          body_rect.y      = rect.top() - body_rect.height + border.bottom;
+          render_all_common_inset(body_ctx, canvas, body_rect);
+        }
+        
+        if(canvas.glass_background && !canvas.show_only_text) {
+          canvas.show_only_text = true;
+          render_all_common_inset_const(ctx, canvas, rect);
+          canvas.show_only_text = false;
+        }
+        else {
+          render_all_common_inset_const(ctx, canvas, rect);
+        }
+      } break;
+    
+    case ContainerType::TabPanelBottomCenter: {
+        if(auto body_ctx = tab_body_context()) {
+          GtkBorder border = get_all_border_padding(body_ctx);
+          auto body_rect   = rect;
+          body_rect.height += 100;
+          body_rect.y      = rect.top() - body_rect.height + border.bottom;
+          body_rect.grow(Side::Left,  border.left);
+          body_rect.grow(Side::Right, border.right);
+          render_all_common_inset(body_ctx, canvas, body_rect);
+        }
+        
+        if(canvas.glass_background && !canvas.show_only_text) {
+          canvas.show_only_text = true;
+          render_all_common_inset_const(ctx, canvas, rect);
+          canvas.show_only_text = false;
+        }
+        else {
+          render_all_common_inset_const(ctx, canvas, rect);
+        }
+      } break;
+    
+    case ContainerType::TabPanelBottomRight: {
+        if(auto body_ctx = tab_body_context()) {
+          GtkBorder border = get_all_border_padding(body_ctx);
+          auto body_rect   = rect;
+          body_rect.height += 100;
+          body_rect.width  += 100;
+          body_rect.x      = rect.left() - body_rect.width + border.left;
+          body_rect.y      = rect.top() - body_rect.height + border.bottom;
+          render_all_common_inset(body_ctx, canvas, body_rect);
+        }
+        
+        if(canvas.glass_background && !canvas.show_only_text) {
+          canvas.show_only_text = true;
+          render_all_common_inset_const(ctx, canvas, rect);
+          canvas.show_only_text = false;
+        }
+        else {
+          render_all_common_inset_const(ctx, canvas, rect);
+        }
+      } break;
+    
     case ContainerType::TabHeadBackground: {
+        if(auto body_ctx = tab_body_context()) {
+          GtkBorder border = get_all_border_padding(body_ctx);
+          auto body_rect   = rect;
+          body_rect.height += 100;
+          body_rect.y      = rect.bottom() - border.top;
+          //rect.grow(Side::Bottom, -border.top);
+          rect.grow(Side::Left,   -border.left); // TODO: also consider border radius
+          rect.grow(Side::Right,  -border.right);
+          render_all_common_inset(body_ctx, canvas, body_rect);
+        }
+        
         if(canvas.glass_background && !canvas.show_only_text) {
           canvas.show_only_text = true;
           render_all_common_inset_const(ctx, canvas, rect);
@@ -1156,10 +1482,20 @@ void MathGtkStyleContextCache::render_container(
         GtkBorder margin;
         gtk_style_context_get_margin(ctx, flags, &margin);
         
-        //rect.x -=      margin.left;
-        rect.y +=      margin.top;
-        rect.height -= margin.top;
-        //rect.width +=  margin.left + margin.right;
+        rect.grow(Side::Top, -margin.top);
+        
+        render_all_common_inset_const(ctx, canvas, rect);
+      } break;
+    
+    case ContainerType::TabHeadLeft:
+    case ContainerType::TabHeadLeftAbuttingBottom:
+    case ContainerType::TabHeadLeftAbuttingTopBottom:
+    case ContainerType::TabHeadLeftAbuttingTop: {
+        GtkBorder margin;
+        gtk_style_context_get_margin(ctx, flags, &margin);
+        
+        
+        rect.grow(Side::Left, -margin.left);
         
         render_all_common_inset_const(ctx, canvas, rect);
       } break;
@@ -1751,7 +2087,7 @@ GtkStyleContext *MathGtkStyleContextCache::make_tab_body_context() {
   return make_context_from_path_and_free(path, notebook);
 }
 
-GtkStyleContext *MathGtkStyleContextCache::make_tab_head_background_context() {
+GtkStyleContext *MathGtkStyleContextCache::make_tab_head_background_context(Side side) {
   GtkWidgetPath *path = gtk_widget_path_new();
   gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
   gtk_widget_path_iter_set_object_name(path, -1, "window");
@@ -1764,11 +2100,16 @@ GtkStyleContext *MathGtkStyleContextCache::make_tab_head_background_context() {
   
   gtk_widget_path_append_type(path, G_TYPE_NONE);
   gtk_widget_path_iter_set_object_name(path, -1, "header");
-  gtk_widget_path_iter_add_class(path, -1, "top");
+  switch(side) {
+    case Side::Left:   gtk_widget_path_iter_add_class(path, -1, "left"); break;
+    case Side::Top:    gtk_widget_path_iter_add_class(path, -1, "top"); break;
+    case Side::Right:  gtk_widget_path_iter_add_class(path, -1, "right"); break;
+    case Side::Bottom: gtk_widget_path_iter_add_class(path, -1, "bottom"); break;
+  }
   return make_context_from_path_and_free(path);
 }
 
-GtkStyleContext *MathGtkStyleContextCache::make_tab_head_context(bool has_left_sibling, bool has_right_sibling) {
+GtkStyleContext *MathGtkStyleContextCache::make_tab_head_context(Side side, bool has_sibling_before, bool has_sibling_after) {
   GtkWidgetPath *path = gtk_widget_path_new();
   gtk_widget_path_append_type(path, GTK_TYPE_NOTEBOOK);
   gtk_widget_path_iter_set_object_name(path, -1, "notebook");
@@ -1776,16 +2117,44 @@ GtkStyleContext *MathGtkStyleContextCache::make_tab_head_context(bool has_left_s
   
   gtk_widget_path_append_type(path, G_TYPE_NONE);
   gtk_widget_path_iter_set_object_name(path, -1, "header");
-  gtk_widget_path_iter_add_class(path, -1, "top");
+  switch(side) {
+    case Side::Left:   gtk_widget_path_iter_add_class(path, -1, "left"); break;
+    case Side::Top:    gtk_widget_path_iter_add_class(path, -1, "top"); break;
+    case Side::Right:  gtk_widget_path_iter_add_class(path, -1, "right"); break;
+    case Side::Bottom: gtk_widget_path_iter_add_class(path, -1, "bottom"); break;
+  }
   
   gtk_widget_path_append_type(path, G_TYPE_NONE);
   gtk_widget_path_iter_set_object_name(path, -1, "tabs");
   
-  gtk_widget_path_append_type(path, G_TYPE_NONE);
-  gtk_widget_path_iter_set_object_name(path, -1, "tab");
+//  GtkStyleContext *tabs = make_context_from_path_and_free(path);
+//  path = gtk_widget_path_copy(gtk_style_context_get_path(tabs));
   
-  // TODO: recognize has_left_sibling and has_right_sibling, find a theme to test
+  if(has_sibling_before || has_sibling_after) {
+    GtkWidgetPath *sibling_path = gtk_widget_path_new();
+    
+    if(has_sibling_before) {
+      gtk_widget_path_append_type(sibling_path, G_TYPE_NONE);
+      gtk_widget_path_iter_set_object_name(sibling_path, -1, "tab");
+    }
+    
+    gtk_widget_path_append_type(sibling_path, G_TYPE_NONE);
+    gtk_widget_path_iter_set_object_name(sibling_path, -1, "tab");
+    
+    if(has_sibling_after) {
+      gtk_widget_path_append_type(sibling_path, G_TYPE_NONE);
+      gtk_widget_path_iter_set_object_name(sibling_path, -1, "tab");
+    }
+    
+    gtk_widget_path_append_with_siblings(path, sibling_path, has_sibling_before ? 1 : 0);
+    gtk_widget_path_unref(sibling_path);
+  }
+  else {
+    gtk_widget_path_append_type(path, G_TYPE_NONE);
+    gtk_widget_path_iter_set_object_name(path, -1, "tab");
+  }
   
+//  return make_context_from_path_and_free(path, tabs);
   return make_context_from_path_and_free(path);
 }
 

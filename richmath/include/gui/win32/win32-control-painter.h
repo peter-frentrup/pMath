@@ -12,6 +12,7 @@
 
 namespace richmath {
   class Win32ControlPainter: public ControlPainter {
+      class Impl;
     public:
       static Win32ControlPainter win32_painter;
       
@@ -57,6 +58,13 @@ namespace richmath {
         ControlState    state) override;
         
       virtual bool container_hover_repaint(ControlContext &context, ContainerType type) override;
+      
+      virtual bool control_glow_margins(
+        ControlContext &control,
+        ContainerType   type,
+        ControlState    state,
+        Margins<float> *outer,
+        Margins<float> *inner) override;
       
       virtual void system_font_style(ControlContext &context, Style *style) override;
       

@@ -106,7 +106,28 @@ void ControlPainter::calc_container_size(
   switch(type) {
     case ContainerType::None:
     case ContainerType::FramelessButton: 
-    case ContainerType::TabHeadBackground: break;
+    case ContainerType::TabPanelTopLeft:
+    case ContainerType::TabPanelTopRight:
+    case ContainerType::TabPanelCenter:
+    case ContainerType::TabPanelBottomLeft:
+    case ContainerType::TabPanelBottomRight:
+      break;
+    
+    case ContainerType::TabHeadBackground: 
+    case ContainerType::TabPanelTopCenter:
+    case ContainerType::TabPanelBottomCenter: {
+        if(extents->height() < 1.5) {
+          extents->ascent = 1.5;
+          extents->descent = 0;
+        }
+      } break;
+    
+    case ContainerType::TabPanelCenterLeft:
+    case ContainerType::TabPanelCenterRight: {
+        if(extents->width < 1.5) {
+          extents->width = 1.5;
+        }
+      } break;
     
     case ContainerType::GenericButton:
     case ContainerType::PushButton:
@@ -248,6 +269,21 @@ void ControlPainter::calc_container_size(
         extents->descent += 1.5;
       } break;
     
+    case ContainerType::TabHeadLeftAbuttingBottom:
+    case ContainerType::TabHeadLeftAbuttingTopBottom:
+    case ContainerType::TabHeadLeftAbuttingTop:
+    case ContainerType::TabHeadLeft: {
+        if(extents->ascent < canvas.get_font_size() * 0.75f)
+          extents->ascent = canvas.get_font_size() * 0.75f;// - extents->ascent;
+          
+        if(extents->descent < canvas.get_font_size() * 0.25f)
+          extents->descent = canvas.get_font_size() * 0.25f;// - extents->descent;
+          
+        extents->width +=   9.0;
+        extents->ascent +=  3.0;
+        extents->descent += 1.5;
+      } break;
+    
     case ContainerType::TabBodyBackground: {
         extents->width +=   12.0;
         extents->ascent +=  4.5;
@@ -282,9 +318,17 @@ bool ControlPainter::is_very_transparent(ControlContext &control, ContainerType 
   return type == ContainerType::None || 
          type == ContainerType::FramelessButton || 
          type == ContainerType::AddressBandInputField || 
-         type == ContainerType::OpenerTriangleClosed ||
-         type == ContainerType::OpenerTriangleOpened ||
-         type == ContainerType::TabHeadBackground;
+         type == ContainerType::OpenerTriangleClosed  ||
+         type == ContainerType::OpenerTriangleOpened  ||
+         type == ContainerType::TabHeadBackground     ||
+         type == ContainerType::TabPanelTopLeft       ||
+         type == ContainerType::TabPanelTopCenter     ||
+         type == ContainerType::TabPanelTopRight      ||
+         type == ContainerType::TabPanelCenterLeft    ||
+         type == ContainerType::TabPanelCenterRight   ||
+         type == ContainerType::TabPanelBottomLeft    ||
+         type == ContainerType::TabPanelBottomCenter  ||
+         type == ContainerType::TabPanelBottomRight;
 }
 
 void ControlPainter::draw_container(
@@ -530,23 +574,52 @@ void ControlPainter::draw_container(
           rect.grow(0, -1.5);
         }
         
-        RectangleF inner = rect;
-        inner.y+=      1.5f;
-        inner.height-= 1.5f;
-        
-        float dxleft;
-        float dxright;
+        Margins<float> padding(0);
+        padding.top = 1.5f;
         if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
-          dxleft = 1.5f;
-          dxright = 1.5f;
+          padding.left  = 1.5f;
+          padding.right = 1.5f;
         }
         else {
-          dxleft  = (type == ContainerType::TabHeadAbuttingLeft  || type == ContainerType::TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
-          dxright = (type == ContainerType::TabHeadAbuttingRight || type == ContainerType::TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
+          padding.left  = (type == ContainerType::TabHeadAbuttingLeft  || type == ContainerType::TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
+          padding.right = (type == ContainerType::TabHeadAbuttingRight || type == ContainerType::TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
         }
         
-        inner.x+= dxleft;
-        inner.width-= dxleft + dxright;
+        RectangleF inner = rect - padding;
+        
+        Color old_color = canvas.get_color();
+        ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+        if(state == ControlState::Hovered)
+          canvas.set_color(ButtonHoverColor);
+        else
+          canvas.set_color(ButtonColor);
+        
+        inner.add_rect_path(canvas);
+        canvas.fill();
+        
+        canvas.set_color(old_color);
+      } break;
+    
+    case ContainerType::TabHeadLeftAbuttingBottom:
+    case ContainerType::TabHeadLeftAbuttingTopBottom:
+    case ContainerType::TabHeadLeftAbuttingTop:
+    case ContainerType::TabHeadLeft: {
+        if(state != ControlState::Pressed && state != ControlState::PressedHovered) {
+          rect.grow(-1.5, 0);
+        }
+        
+        Margins<float> padding(0);
+        padding.left = 1.5f;
+        if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
+          padding.top    = 1.5f;
+          padding.bottom = 1.5f;
+        }
+        else {
+          padding.top    = (type == ContainerType::TabHeadLeftAbuttingTop    || type == ContainerType::TabHeadLeftAbuttingTopBottom) ? 0.75f : 1.5f;
+          padding.bottom = (type == ContainerType::TabHeadLeftAbuttingBottom || type == ContainerType::TabHeadLeftAbuttingTopBottom) ? 0.75f : 1.5f;
+        }
+        
+        RectangleF inner = rect - padding;
         
         Color old_color = canvas.get_color();
         ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
@@ -587,6 +660,88 @@ void ControlPainter::draw_container(
         canvas.fill();
         
         canvas.set_color(old_color);
+      } break;
+    
+    case ContainerType::TabPanelTopLeft: {
+        rect.y += rect.height - 1.5f;
+        rect.height = 1.5f;
+        rect.x += rect.width - 1.5f;
+        rect.width = 1.5f;
+        
+        RectangleF inner{ rect.bottom_right(), Vector2F(0,0) };
+        ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+      } break;
+    
+    case ContainerType::TabPanelTopCenter: {
+        rect.y += rect.height - 1.5f;
+        rect.height = 1.5f;
+        
+        RectangleF inner = rect;
+        inner.y+= inner.height;
+        inner.height = 0.0f;
+        ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+      } break;
+    
+    case ContainerType::TabPanelTopRight: {
+        rect.y += rect.height - 1.5f;
+        rect.height = 1.5f;
+        rect.width = 1.5f;
+        
+        RectangleF inner{ rect.bottom_left(), Vector2F(0,0) };
+        ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+      } break;
+    
+    case ContainerType::TabPanelCenterLeft: {
+        rect.x += rect.width - 1.5f;
+        rect.width = 1.5f;
+        
+        RectangleF inner = rect;
+        inner.x+= inner.width;
+        inner.width = 0.0f;
+        ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+      } break;
+    
+    case ContainerType::TabPanelCenter: {
+        Color old_color = canvas.get_color();
+        
+        canvas.set_color(ButtonColor);
+        rect.add_rect_path(canvas);
+        canvas.fill();
+        
+        canvas.set_color(old_color);
+      } break;
+    
+    case ContainerType::TabPanelCenterRight: {
+        rect.width = 1.5f;
+        
+        RectangleF inner = rect;
+        inner.width = 0.0f;
+        ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+      } break;
+      
+    case ContainerType::TabPanelBottomLeft: {
+        rect.height = 1.5f;
+        rect.x += rect.width - 1.5f;
+        rect.width = 1.5f;
+        
+        RectangleF inner{ rect.top_right(), Vector2F(0,0) };
+        ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+      } break;
+    
+    case ContainerType::TabPanelBottomCenter: {
+        rect.height = 1.5f;
+        
+        RectangleF inner = rect;
+        inner.height = 0.0f;
+        ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+      } break;
+    
+    case ContainerType::TabPanelBottomRight: {
+        rect.height = 1.5f;
+        rect.width = 1.5f;
+        
+        RectangleF inner{ rect.top_left(), Vector2F(0,0) };
+        ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
       } break;
   }
   
@@ -632,6 +787,14 @@ Vector2F ControlPainter::container_content_offset(
           return {0.0f, -1.5f};
       } break;
     
+    case ContainerType::TabHeadLeftAbuttingBottom:
+    case ContainerType::TabHeadLeftAbuttingTopBottom:
+    case ContainerType::TabHeadLeftAbuttingTop:
+    case ContainerType::TabHeadLeft: {
+        if(state == ControlState::Pressed || state == ControlState::PressedHovered)
+          return {-0.75f, -0.75f};
+      } break;
+    
     default: break;
   }
   
@@ -651,6 +814,10 @@ bool ControlPainter::container_hover_repaint(ControlContext &control, ContainerT
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
     case ContainerType::TabHead:
+    case ContainerType::TabHeadLeftAbuttingBottom:
+    case ContainerType::TabHeadLeftAbuttingTopBottom:
+    case ContainerType::TabHeadLeftAbuttingTop:
+    case ContainerType::TabHeadLeft:
     case ContainerType::ToggleSwitchThumbChecked:
     case ContainerType::ToggleSwitchThumbUnchecked:
       return true;
@@ -675,6 +842,17 @@ bool ControlPainter::control_glow_margins(
       if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
         if(outer) *outer = Margins<float>(2 * 0.75, 0);
         if(inner) *inner = Margins<float>(2 * 0.75, 0);
+        return true;
+      }
+      break;
+      
+    case ContainerType::TabHeadLeftAbuttingBottom:
+    case ContainerType::TabHeadLeftAbuttingTopBottom:
+    case ContainerType::TabHeadLeftAbuttingTop:
+    case ContainerType::TabHeadLeft:
+      if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
+        if(outer) *outer = Margins<float>(0, 1 * 0.75);
+        if(inner) *inner = Margins<float>(0, 2 * 0.75);
         return true;
       }
       break;
