@@ -504,6 +504,8 @@ static void describe_object(pmath_t obj, void (*write)(void *user, const uint16_
   
   if(pmath_is_pointer(obj)) {
     struct _pmath_t *_obj = PMATH_AS_PTR(obj);
+    if(!_obj)
+      return;
     
     switch(_obj->type_shift) {
       case PMATH_TYPE_SHIFT_PACKED_ARRAY: {
