@@ -1463,7 +1463,7 @@ void MathGtkMenuSearch::on_text_changed(GtkEditable *entry, void *doc_id_as_ptr)
             sel_next = true;
           }
           else if(sel_next) {
-            if(gtk_widget_is_sensitive(child)) {
+            if(gtk_widget_is_sensitive(child) && !GTK_IS_SEPARATOR_MENU_ITEM(child)) {
               next_sel_item = child;
               sel_next = false;
             }
