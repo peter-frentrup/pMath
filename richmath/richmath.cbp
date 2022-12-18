@@ -138,6 +138,7 @@
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add option="-DGDK_DISABLE_DEPRECATION_WARNINGS" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
@@ -194,6 +195,7 @@
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add option="-DGDK_DISABLE_DEPRECATION_WARNINGS" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
@@ -309,6 +311,7 @@
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add option="-DGDK_DISABLE_DEPRECATION_WARNINGS" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
@@ -613,6 +616,7 @@
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add option="-DGDK_DISABLE_DEPRECATION_WARNINGS" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
@@ -650,6 +654,7 @@
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add option="-DGDK_DISABLE_DEPRECATION_WARNINGS" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
@@ -685,6 +690,7 @@
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add option="-DGDK_DISABLE_DEPRECATION_WARNINGS" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
@@ -723,6 +729,7 @@
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add option="-DGDK_DISABLE_DEPRECATION_WARNINGS" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
