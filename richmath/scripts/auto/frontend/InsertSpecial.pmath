@@ -109,6 +109,7 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
 makeAliasBoxes(~s)::= s |> StringReplace(" " -> "\(StyleBox(\"\[U+2423]\", FontColor -> GrayLevel(0.5))\)") |> ToBoxes
 
 makeBoxesVisible(~box)::= box
+makeBoxesVisible(ButtonBox(~~~b))::= ButtonBox(b, ButtonFrame -> Automatic)
 Function makeBoxesVisible(~s:String) {
     With(chars:= ToCharacterCode(s))
     If(Length(chars) === 1 || (Length(chars) === 2 && 16^^D800 <= chars[1] <= 16^^DBFF)) {
