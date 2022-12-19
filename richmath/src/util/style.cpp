@@ -3843,6 +3843,7 @@ ButtonFrameStyleConverter::ButtonFrameStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Symbol(richmath_System_Automatic);
   _expr_to_int.default_value = -1;//ContainerType::PushButton;
   
+  EnumStyleConverter::add(_expr_to_int.default_value, _int_to_expr.default_value);
   add(ContainerType::None,                 Symbol(richmath_System_None));
   add(ContainerType::FramelessButton,      strings::Frameless);
   add(ContainerType::GenericButton,        String("Generic"));
