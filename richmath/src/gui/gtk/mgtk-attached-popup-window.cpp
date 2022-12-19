@@ -396,8 +396,10 @@ void MathGtkAttachedPopupWindow::close() {
   if(!_widget || destroying())
     return;
   
+  pmath_debug_print("[MathGtkAttachedPopupWindow::close %p]\n", this);
   GdkEvent *ev = gdk_event_new(GDK_DELETE);
   if(!gtk_widget_event(_widget, ev)) {
+    pmath_debug_print("[MathGtkAttachedPopupWindow::close %p ignored GDK_DELETE, calling destroy]\n", this);
     destroy();
   }
   gdk_event_free(ev);
@@ -451,6 +453,7 @@ bool MathGtkAttachedPopupWindow::on_configure(GdkEvent *e) {
 }
 
 bool MathGtkAttachedPopupWindow::on_delete(GdkEvent *e) {
+  pmath_debug_print("[MathGtkAttachedPopupWindow::on_delete %p]\n", this);
   switch(content()->get_style(ClosingAction)) {
     case ClosingActionHide: {
         content()->style->set(Visible, false);

@@ -40,7 +40,10 @@ void BasicGtkWidget::after_construction() {
 }
 
 void BasicGtkWidget::destroy_widget_key_callback(BasicGtkWidget *_this) {
-  pmath_debug_print("[destroy_widget_key_callback]\n");
+  pmath_debug_print("[destroy_widget_key_callback %p]\n", _this);
+  if(!_this)
+    return;
+  
   //g_object_set_data(G_OBJECT(_this->widget()), widget_key, nullptr);
   if(!_this->destroying()) {
     _this->_widget = nullptr;
@@ -51,18 +54,27 @@ void BasicGtkWidget::destroy_widget_key_callback(BasicGtkWidget *_this) {
 BasicGtkWidget::~BasicGtkWidget() {
   if(!_destroying) {
     RICHMATH_ASSERT(_destroying);
+    _destroying = true;
   }
   
-  if(_widget) {
+  if(auto wid = _widget) {
+    _widget = nullptr;
+    
     g_signal_handlers_disconnect_matched(
-      _widget,
+      wid,
       G_SIGNAL_MATCH_DATA,
       0, 0, 0, 0,
       this);
+    
+    if(g_object_get_data(G_OBJECT(wid), widget_key)) {
+      g_object_set_data_full(
+        G_OBJECT(wid),
+        widget_key,
+        nullptr,
+        (GDestroyNotify)BasicGtkWidget::destroy_widget_key_callback);
       
-    if(g_object_get_data(G_OBJECT(_widget), widget_key))
-      gtk_widget_destroy(_widget);
-    _widget = nullptr;
+      gtk_widget_destroy(wid);
+    }
   }
   
   add_remove_window(-1);
