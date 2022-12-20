@@ -12,6 +12,17 @@
 		</Expand>
 	</Type>
 
+	<Type Name="richmath::ArrayView&lt;*&gt;">
+		<DisplayString>{{ length={_length} }}</DisplayString>
+		<Expand>
+			<Item Name="length" ExcludeView="simple">_length</Item>
+			<ArrayItems>
+				<Size>_length</Size>
+				<ValuePointer>_items</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
 	<Type Name="richmath::Matrix&lt;*&gt;">
 		<DisplayString>{{ {((int*)_items._items)[-1] / _cols} x {_cols} }}</DisplayString>
 		<Expand>
