@@ -2247,57 +2247,142 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
 bool Document::split_section(bool do_it) {
   if(!editable())
     return false;
-    
-  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(selection_box());
-  if(!seq)
-    return false;
-    
-  int start = selection_start();
-  int end   = selection_end();
   
-  AbstractSequenceSection *sect = dynamic_cast<AbstractSequenceSection *>(seq->parent());
-  if(!sect || !sect->editable())
-    return false;
-    
-  if(!do_it)
-    return true;
-    
-  SharedPtr<Style> new_style = new Style();
-  new_style->merge(sect->style);
-  
-  AbstractSequenceSection *new_sect;
-  if(dynamic_cast<MathSection *>(sect))
-    new_sect = new MathSection(new_style);
-  else
-    new_sect = new TextSection(new_style);
-    
-  int e = end;
-  if(start == e && seq->char_at(e) == '\n')
-    ++e;
-    
-  insert(sect->index() + 1, new_sect);
-  new_sect->content()->insert(0, seq, e, seq->length());
-  
-  if(start < end) {
-    new_style = new Style();
+  VolatileSelection sel = selection_now();
+  if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel.box)) {
+    AbstractSequenceSection *sect = dynamic_cast<AbstractSequenceSection *>(seq->parent());
+    if(!sect || !sect->editable())
+      return false;
+      
+    if(!do_it)
+      return true;
+      
+    SharedPtr<Style> new_style = new Style();
     new_style->merge(sect->style);
     
+    AbstractSequenceSection *new_sect;
     if(dynamic_cast<MathSection *>(sect))
       new_sect = new MathSection(new_style);
     else
       new_sect = new TextSection(new_style);
       
+    int e = sel.end;
+    if(sel.start == e && seq->char_at(e) == '\n')
+      ++e;
+      
     insert(sect->index() + 1, new_sect);
-    new_sect->content()->insert(0, seq, start, end);
-  }
-  else if(seq->char_at(start - 1) == '\n')
-    --start;
+    new_sect->content()->insert(0, seq, e, seq->length());
     
-  seq->remove(start, seq->length());
+    if(sel.start < sel.end) {
+      new_style = new Style();
+      new_style->merge(sect->style);
+      
+      if(dynamic_cast<MathSection *>(sect))
+        new_sect = new MathSection(new_style);
+      else
+        new_sect = new TextSection(new_style);
+        
+      insert(sect->index() + 1, new_sect);
+      new_sect->content()->insert(0, seq, sel.start, sel.end);
+    }
+    else if(seq->char_at(sel.start - 1) == '\n')
+      --sel.start;
+      
+    seq->remove(sel.start, seq->length());
+    
+    move_to(this, sect->index() + 1);
+    move_horizontal(LogicalDirection::Forward, false);
+    return true;
+  }
   
-  move_to(this, sect->index() + 1);
-  move_horizontal(LogicalDirection::Forward, false);
-  return true;
+  if(sel.box == this) {
+    bool any_split = false;
+    
+    for(int i = sel.end - 1; i >= sel.start; --i) {
+      if(auto sect = dynamic_cast<AbstractSequenceSection*>(section(i))) {
+        AbstractSequence *seq = sect->content();
+        int               len = seq->length();
+        const uint16_t   *buf = seq->text().buffer();
+        for(int j = len; j > 0; --j) {
+          if(buf[j] == '\n') {
+            VolatileSelection nl(seq, j, j + 1);
+            int next_non_nl = nl.end;
+            while(next_non_nl < len && buf[next_non_nl] == '\n')
+              ++next_non_nl;
+            
+            int next_non_sp = next_non_nl;
+            while(next_non_sp < len && buf[next_non_sp] <= ' ')
+              ++next_non_sp;
+              
+            if(next_non_sp < len) {
+              VolatileSelection after(seq, next_non_sp, next_non_sp + 1);
+              after.expand_up_to_sibling(nl);
+              if(after.end != len && buf[after.end] != '\n')
+                continue;
+              
+              after.expand();
+              if(after.start != 0)
+                continue;
+              if(after.end < len && buf[after.end] != '\n')
+                continue;
+            }
+            
+            while(j > 0 && buf[j - 1] == '\n')
+              --j;
+            
+            int prev_non_sp = j;
+            while(prev_non_sp > 0 && buf[prev_non_sp - 1] <= ' ')
+              --prev_non_sp;
+            
+            if(prev_non_sp > 0) {
+              VolatileSelection before(seq, prev_non_sp - 1, prev_non_sp);
+              before.expand_up_to_sibling(nl);
+              if(before.start > 0 && buf[before.start - 1] != '\n')
+                continue;
+              
+              before.expand();
+              if(before.end < len && before.end > 0 && buf[before.end - 1] == '\n')
+                before.expand();
+              
+              if(before.start != 0)
+                continue;
+              
+              if(before.end < len && buf[before.end] != '\n')
+                continue;
+            }
+            
+            any_split = true;
+            if(do_it) {
+              SharedPtr<Style> new_style = new Style();
+              new_style->merge(sect->style);
+              
+              AbstractSequenceSection *new_sect;
+              if(dynamic_cast<MathSection *>(sect))
+                new_sect = new MathSection(new_style);
+              else
+                new_sect = new TextSection(new_style);
+              
+              insert(sect->index() + 1, new_sect);
+              new_sect->content()->insert(0, seq, next_non_nl, len);
+              sel.end++;
+            }
+            len = j;
+          }
+        }
+        
+        if(do_it && len < seq->length()) {
+          seq->remove(len, seq->length());
+        }
+      }
+    }
+    
+    if(any_split && do_it) {
+      select(sel);
+    }
+    return any_split;
+  }
+  
+  return false;
 }
 
 bool Document::merge_sections(bool do_it) {

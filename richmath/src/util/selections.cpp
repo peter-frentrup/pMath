@@ -787,11 +787,16 @@ void VolatileSelectionImpl::expand_text() {
   
   TextLayoutIterator new_start = iter_start;
   
-  while(new_start.byte_index() > 0 && !new_start.is_word_start())
+  while(new_start.byte_index() > 0 && !new_start.is_word_start()) {
     new_start.move_previous_char();
+    if(new_start.current_char() == '\n') {
+      new_start.move_next_char();
+      break;
+    }
+  }
   
   TextLayoutIterator new_end = iter_start; // not iter_end!
-  while(new_end.has_more_bytes() && !new_end.is_word_end())
+  while(new_end.has_more_bytes() && !new_end.is_word_end() && new_end.current_char() != '\n')
     new_end.move_next_char();
   
   auto large_enough = [&]() { 
@@ -802,17 +807,26 @@ void VolatileSelectionImpl::expand_text() {
   
   if(!large_enough()) {
     // TODO: try sentence boundaries next.
-  
-    GSList *lines = pango_layout_get_lines_readonly(iter_start.outermost_sequence()->get_layout());
     
-    int prev_par_start = 0;
+    if(iter_end.current_char() == '\n')
+      iter_end.move_next_char();
+  
+    const GSList *lines = pango_layout_get_lines_readonly(iter_start.outermost_sequence()->get_layout());
+    
     int paragraph_start = 0;
     while(lines) {
-      PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
+      const PangoLayoutLine *line = (const PangoLayoutLine *)lines->data;
       
-      if(line->is_paragraph_start && line->start_index <= iter_start.byte_index()) {
-        prev_par_start = paragraph_start;
-        paragraph_start = line->start_index;
+      if(line->is_paragraph_start) {
+        if(line->start_index <= iter_start.byte_index()) {
+          paragraph_start = line->start_index;
+        }
+        else if(line->start_index <= iter_end.byte_index()) {
+          // embedded paragraph break => select whole text
+          new_start.rewind_to_byte(0);
+          new_end.skip_forward_beyond_text_pos(seq, seq->length());
+          break;
+        }
       }
       
       if(line->start_index + line->length >= iter_end.byte_index()) {
@@ -824,7 +838,7 @@ void VolatileSelectionImpl::expand_text() {
         
         lines = lines->next;
         while(lines) {
-          PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
+          const PangoLayoutLine *line = (const PangoLayoutLine *)lines->data;
           if(line->is_paragraph_start && line->start_index >= iter_end.byte_index()) {
             new_end.rewind_to_byte(line->start_index);
             break;
@@ -839,7 +853,7 @@ void VolatileSelectionImpl::expand_text() {
         if(iter_end.byte_index() - iter_start.byte_index() < new_end.byte_index() - paragraph_start)
           new_start.rewind_to_byte(paragraph_start);
         else
-          new_start.rewind_to_byte(prev_par_start);
+          new_start.rewind_to_byte(0);
           
         break;
       }
