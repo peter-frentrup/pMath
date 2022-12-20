@@ -26,6 +26,7 @@ namespace richmath { namespace strings {
 }}
 
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_StringBox;
 
 namespace {
   class TrackedSelection {
@@ -414,6 +415,69 @@ namespace {
           
           destination.set(se->sequence(), se->end() + 1, se->end() + 1);
           return;
+        }
+        
+        if(count == 0 && expr[0] == richmath_System_StringBox) {
+          if(expr_len == 1) {
+            auto str = expr[1];
+            if(auto str_src = SelectionReference::from_debug_metadata_of(str)) {
+              visit_span(se, str_src, PMATH_CPP_MOVE(str));
+              return;
+            }
+          }
+          
+          const uint16_t *se_buf = se->sequence()->text().buffer();
+          int o_pos     = se->start();
+          int o_pos_max = se->end();
+          for(size_t i = 1; i <= expr_len; ++i) {
+            auto sub = expr[i];
+            auto sub_src = SelectionReference::from_debug_metadata_of(sub);
+            
+            int o_next_box = o_pos;
+            while(o_next_box <= o_pos_max && se_buf[o_next_box] != PMATH_CHAR_BOX)
+              ++o_next_box;
+            
+            int o_next_sub;
+            if(sub.is_string()) {
+              o_next_sub = o_next_box;
+            }
+            else {
+              o_next_sub = o_next_box <= o_pos_max ? o_next_box + 1 : o_next_box;
+            }
+            
+            if(sub_src.id == source_location.id && sub_src.start <= source_location.index && source_location.index <= sub_src.end) {
+              if(sub.is_string()) {
+                if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
+                  if(0 <= sub_src.start && sub_src.start <= sub_src.end && sub_src.end <= source_seq->length()) {
+                    const uint16_t *buf = source_seq->text().buffer();
+                    if(sub_src.length() >= 2 && buf[sub_src.start] == '"' && buf[sub_src.end - 1] == '"') {
+                      int in_pos = sub_src.start + 1;
+                      while(o_pos < o_next_sub && in_pos < source_location.index) {
+                        int in_next = next_char_pos(buf, in_pos, sub_src.end);
+                        if(source_location.index < in_next) {
+                          destination.set(se->sequence(), o_pos, o_pos + 1);
+                          return;
+                        }
+                        in_pos = in_next;
+                        ++o_pos;
+                        if(o_pos + 1 < o_next_sub && is_utf16_high(se_buf[o_pos-1]) && is_utf16_low(se_buf[o_pos]))
+                          ++o_pos;
+                      }
+                      destination.set(se->sequence(), o_pos, o_pos);
+                      return;
+                    }
+                  }
+                }
+              }
+              else {
+                destination.set(se->sequence(), o_pos, o_next_sub);
+                return;
+              }
+              break;
+            }
+            
+            o_pos = o_next_sub;
+          }
         }
         
         if(count == 0 && expr.is_string()) {
