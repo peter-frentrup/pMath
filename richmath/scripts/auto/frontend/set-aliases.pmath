@@ -23,8 +23,8 @@
 		"graphics" -> GraphicsBox({}),
 		"lorem" -> "Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 		
-		"LaTeX" -> StyleBox({{"L",SuperscriptBox("A")},StyleBox({"T",SubscriptBox("E")},ScriptSizeMultipliers->{1}),"X"},AutoSpacing->False,ShowAutoStyles->False),
-		"TeX" -> StyleBox({StyleBox({"T",SubscriptBox("E")},ScriptSizeMultipliers->{1}),"X"},AutoSpacing->False,ShowAutoStyles->False),
+		"LaTeX" -> StyleBox({"L", SuperscriptBox("A"), StyleBox({"T", SubscriptBox("E")}, ScriptSizeMultipliers -> {1}), "X"}, AutoSpacing -> False, ShowAutoStyles -> False),
+		"TeX" -> StyleBox({StyleBox({"T", SubscriptBox("E")}, ScriptSizeMultipliers -> {1}), "X"}, AutoSpacing -> False, ShowAutoStyles -> False),
 		
 		"cases" -> BoxData({"\[Piecewise]", GridBox({{"\[SelectionPlaceholder]", "\[Placeholder]"}, {"\[Placeholder]", "\[Placeholder]"}})}),
 		"pmatrix" -> BoxData({"(", GridBox({{"\[SelectionPlaceholder]", "\[Placeholder]"}, {"\[Placeholder]", "\[Placeholder]"}}), ")"}),
