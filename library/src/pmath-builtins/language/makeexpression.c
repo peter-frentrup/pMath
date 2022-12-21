@@ -471,7 +471,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     
     if(exprlen == 0) {
       pmath_unref(expr);
-      return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
+      return HOLDCOMPLETE(PMATH_NULL);
     }
     
     firstchar  = unichar_at(expr, 1);
@@ -1658,7 +1658,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   
   if(len == 0) {
     pmath_unref(string);
-    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
+    return HOLDCOMPLETE(PMATH_NULL);
   }
   
   if(str[0] == '"')
@@ -1673,7 +1673,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   len = pmath_string_length( string);
   if(len == 0) {
     pmath_unref(string);
-    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
+    return HOLDCOMPLETE(PMATH_NULL);
   }
   
   tok = pmath_token_analyse(str, 1, NULL);
@@ -1711,7 +1711,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   
   if(tok == PMATH_TOK_NEWLINE || tok == PMATH_TOK_SPACE) {
     pmath_unref(string);
-    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
+    return HOLDCOMPLETE(PMATH_NULL);
   }
   
   if(len == 1 && str[0] == '#') {
@@ -2495,7 +2495,7 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
     
   if(i > exprlen) {
     pmath_unref(boxes);
-    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
+    return HOLDCOMPLETE(PMATH_NULL);
   }
   
   if(i == exprlen) {
@@ -2559,7 +2559,7 @@ static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes) {
   exprlen = pmath_expr_length(boxes);
   if(exprlen == 0) {
     pmath_unref(boxes);
-    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
+    return HOLDCOMPLETE(PMATH_NULL);
   }
   
   result = pmath_expr_new(pmath_ref(pmath_System_EvaluationSequence), exprlen);
