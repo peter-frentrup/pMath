@@ -263,6 +263,10 @@ Document({
                  GridBoxRowSpacing -> 0)}), InterpretationFunction -> 
               Function({"OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
                  InterpretationBox("", #3)}, ")"})}), 
+          Section(StyleData("Spacer"), TemplateBoxOptions -> {
+             DisplayFunction -> Function(PaneBox("", ImageSize -> #1)), 
+             InterpretationFunction -> 
+              Function({"Spacer", "(", InterpretationBox(, #1), ")"})}), 
           Section(StyleData("TabView"), TemplateBoxOptions -> {
              DisplayFunction -> Function(DynamicLocalBox({FE`Private`rules}, 
                 GridBox({

@@ -533,6 +533,7 @@
 {"SliderBox", {"ArgumentCount" -> 2}},
 {"Sort", {"ArgumentCount" -> 1..2}},
 {"SortBy", {"ArgumentCount" -> 2}},
+{"Spacer", {"ArgumentCount" -> 1}},
 {"Split", {"ArgumentCount" -> 1..2}},
 {"Sqrt", {"ArgumentCount" -> 1}},
 {"SqrtBox", {"ArgumentCount" -> 1}},

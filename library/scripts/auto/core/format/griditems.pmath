@@ -1,7 +1,15 @@
-Begin("System`Private`")
+Begin("System`Private`Format`GridItems`")
 
 MakeBoxes(SpanFromAbove):= "\[SpanFromAbove]"
 MakeBoxes(SpanFromBoth):= "\[SpanFromBoth]"
 MakeBoxes(SpanFromLeft):= "\[SpanFromLeft]"
+
+MakeBoxes(Spacer(~size ? isLength))::=                   TemplateBox({size}, "Spacer")
+MakeBoxes(Spacer(size: {~ ? isLength, ~ ? isLength}))::= TemplateBox({size}, "Spacer")
+
+SetAttributes(isLength, {HoldAllComplete})
+isLength(Automatic)::= True
+isLength(~len)::= IsNumeric(Unevaluated(len)) && (len >= 0) === True
+isLength(~)::= False
 
 End()

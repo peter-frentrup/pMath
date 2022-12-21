@@ -173,7 +173,7 @@ AutoLoad(Hold(UpTo),
 	ToFileName({$BaseDirectory, "auto", "core"}, "upto.pmath"))
 AutoLoad(Hold(Nothing), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "nothing.pmath"))
-AutoLoad(Hold(SpanFromAbove, SpanFromLeft, SpanFromBoth), 
+AutoLoad(Hold(Spacer, SpanFromAbove, SpanFromLeft, SpanFromBoth), 
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "griditems.pmath"))
 AutoLoad(Hold(Highlighted), 
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "highlighted.pmath"))
