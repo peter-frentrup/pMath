@@ -130,13 +130,13 @@ makeOpenerBox(~x)::= makeCallBoxes(x)
 MakeBoxes(~p:Pane)::= makePaneBox(p) /? allowGuiBoxes
 
 Attributes(makePaneBox):= {HoldAllComplete}
-makePaneBox(Pane(~expr))::= PaneBox(MakeBoxes(expr))
-makePaneBox(Pane(~expr, ~size, options:OptionsPattern()))::= PaneBox(MakeBoxes(expr), ImageSize->size, options)
+makePaneBox(Pane(~expr))::= PaneBox(makeNullBoxes(expr))
+makePaneBox(Pane(~expr, ~size, options:OptionsPattern()))::= PaneBox(makeNullBoxes(expr), ImageSize->size, options)
 makePaneBox(~x)::= makeCallBoxes(x)
 
 
 MakeBoxes(Panel())::=                                 PanelBox("") /? allowGuiBoxes
-MakeBoxes(Panel(~expr, options:OptionsPattern()))::=  PanelBox(MakeBoxes(expr), options) /? allowGuiBoxes
+MakeBoxes(Panel(~expr, options:OptionsPattern()))::=  PanelBox(makeNullBoxes(expr), options) /? allowGuiBoxes
 
 
 MakeBoxes(~p: PaneSelector)::= makePaneSelectorBox(p) /? allowGuiBoxes
@@ -146,7 +146,7 @@ Attributes(makePaneSelectorBox):= {HoldAllComplete}
 makePaneSelectorBox(PaneSelector(panes: {~~}, ~sel, options:OptionsPattern()))::= 
 	PaneSelectorBox(paneSelectorListToBoxes(panes), sel, options).Replace(HOLD(~x) :> x)
 makePaneSelectorBox(PaneSelector(panes: {~~}, ~sel, ~def, options:OptionsPattern()))::= 
-	PaneSelectorBox(paneSelectorListToBoxes(panes), sel, MakeBoxes(def), options).Replace(HOLD(~x) :> x)
+	PaneSelectorBox(paneSelectorListToBoxes(panes), sel, makeNullBoxes(def), options).Replace(HOLD(~x) :> x)
 makePaneSelectorBox(~x)::= makeCallBoxes(x)
 
 
@@ -174,8 +174,8 @@ MakeBoxes(RadioButton(~state, ~value, options:OptionsPattern()))::= RadioButtonB
 MakeBoxes(rb: RadioButtonBar(~var, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= TemplateBox({var, values, options}, "RadioButtonBar") /? allowGuiBoxes
 MakeBoxes(rb: RadioButtonBar(~var, values:{~~}, options:OptionsPattern()))::=                      TemplateBox({var, values, options}, "RadioButtonBarSimple") /? allowGuiBoxes
 
-MakeBoxes(Setter(~var, ~value,                                    options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(value), options) /? allowGuiBoxes
-MakeBoxes(Setter(~var, ~value, label:Except((~ -> ~) | (~ :> ~)), options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options) /? allowGuiBoxes
+MakeBoxes(Setter(~var, ~value,                                    options:OptionsPattern()))::= SetterBox(var, value, makeNullBoxes(value), options) /? allowGuiBoxes
+MakeBoxes(Setter(~var, ~value, label:Except((~ -> ~) | (~ :> ~)), options:OptionsPattern()))::= SetterBox(var, value, makeNullBoxes(label), options) /? allowGuiBoxes
 
 
 MakeBoxes(sb: SetterBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern(SetterBar)))::= Block {
@@ -259,14 +259,14 @@ DynamicBox/: MakeExpression(DynamicBox(ToBoxes(~var), options:OptionsPattern()))
 
 FillBox/: MakeExpression(FillBox(~contentBoxes, ~~~pre, (Rule|RuleDelayed)(FillBoxWeight, ~weight), ~~~post))::=
 	Local(head) {
-		With(content:= makeNullExpression(contentBoxes)) 
+		With(content:= MakeExpression(contentBoxes)) 
 		HoldComplete(Filler(head(content), weight, pre, post)).Replace(
 			{head(HoldComplete(~x)) :> x,
 			 head(~)                :> $Failed})
 	}
 FillBox/: MakeExpression(FillBox(~contentBoxes, ~~~opts))::=
 	Local(head) {
-		With(content:= makeNullExpression(contentBoxes)) 
+		With(content:= MakeExpression(contentBoxes)) 
 		HoldComplete(Filler(head(content), opts)).Replace(
 			{head(HoldComplete(~x)) :> x,
 			 head(~)                :> $Failed})
@@ -303,10 +303,6 @@ PanelBox/: MakeExpression(PanelBox(~content, options:OptionsPattern()))::=
 	}
 
 
-makeNullExpression("")::= HoldComplete(/\/)
-makeNullExpression({})::= HoldComplete(/\/)
-makeNullExpression(~boxes)::= MakeExpression(boxes)
-
 wrapHoldCompleteAsHOLD(HoldComplete())::= HOLD(Sequence())
 wrapHoldCompleteAsHOLD(HoldComplete(~x))::= HOLD(x)
 wrapHoldCompleteAsHOLD(HoldComplete(~~x))::= HOLD(Sequence(x))
@@ -320,9 +316,9 @@ PaneSelectorBox/: MakeExpression(PaneSelectorBox(~list:List, ~val, ~def, opts: O
 	With({panes:= paneSelectorListToExpr(list), defpane:= wrapHoldCompleteAsHOLD @ MakeExpression(def)},
 		HoldComplete(PaneSelector(panes, val, defpane, opts)).Replace(HOLD(~x) :> x))
 
-paneSelectorRuleToExpr(~val -> ~paneboxes)::=                 HOLD(val) -> wrapHoldCompleteAsHOLD @ makeNullExpression(paneboxes)
-paneSelectorRuleToExpr(~val :> ~paneboxes)::= RuleDelayed @@ {HOLD(val),   wrapHoldCompleteAsHOLD @ makeNullExpression(paneboxes)}
-paneSelectorRuleToExpr(~paneboxes)::= wrapHoldCompleteAsHOLD @ makeNullExpression(paneboxes)
+paneSelectorRuleToExpr(~val -> ~paneboxes)::=                 HOLD(val) -> wrapHoldCompleteAsHOLD @ MakeExpression(paneboxes)
+paneSelectorRuleToExpr(~val :> ~paneboxes)::= RuleDelayed @@ {HOLD(val),   wrapHoldCompleteAsHOLD @ MakeExpression(paneboxes)}
+paneSelectorRuleToExpr(~paneboxes)::= wrapHoldCompleteAsHOLD @ MakeExpression(paneboxes)
 
 paneSelectorListToExpr(~rules: List)::= rules.Map(paneSelectorRuleToExpr)
 
