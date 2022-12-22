@@ -1,0 +1,72 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Spacer", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Spacer"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Spacer"}, "ReferenceHyperlink"), "(", 
+           TemplateBox({"Scaled"}, "ReferenceHyperlink"), "(", 
+           StyleBox("r", "Arg"), ")) takes the width to be a fraction ", 
+           StyleBox("r", "Arg"), " of the overall width."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Leave 20 points white space in a list of letters:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"{", {"x", ",", {"Spacer", "(", "20", ")"}, ",", 
+              "y"}, "}"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"x", ",", TemplateBox({20}, "Spacer"), ",", 
+              "y"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Blank space 50 points wide and 70 points high:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "Spacer", "(", {"{", {"50", ",", "70"}, "}"}, ")"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(FrameBox(TemplateBox({{50, 70}}, "Spacer"))), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Insert blank space of 50% of the total line width:", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               "{", {"x", ",", {"Spacer", "(", {"Scaled", "(", "0.5", ")"}, 
+                 ")"}, ",", "y"}, "}"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {"x", ",", TemplateBox({Scaled(0.5)}, "Spacer"), 
+                ",", "y"}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section("A 100% spacer will occupy a whole line:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"{", {"x", ",", {"Spacer", "(", {"Scaled", "(", "1", ")"}, 
+               ")"}, ",", "y"}, "}"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"x", ",", TemplateBox({Scaled(1)}, "Spacer"), 
+              ",", "y"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({"Use ", TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+             " to fill only the available space:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"{", {"x", ",", {"Filler", "(", ")"}, ",", "y"}, 
+               "}"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"x", ",", FillBox(""), ",", "y"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Pane"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"ImageSize"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
