@@ -9,7 +9,8 @@ MakeBoxes(Spacer(size: {~ ? isLength, ~ ? isLength}))::= TemplateBox({size}, "Sp
 
 SetAttributes(isLength, {HoldAllComplete})
 isLength(Automatic)::= True
+isLength(Scaled(~s))::= IsNumeric(Unevaluated(s)) && (s >= 0) === True
+isLength(Dynamic(~~))::= True
 isLength(~len)::= IsNumeric(Unevaluated(len)) && (len >= 0) === True
-isLength(~)::= False
 
 End()
