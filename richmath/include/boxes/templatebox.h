@@ -27,6 +27,7 @@ namespace richmath {
       virtual bool selectable(int i = -1) override;
       virtual VolatileSelection normalize_selection(int start, int end) override;
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
+      virtual void after_inline_span_mouse_selection(Box *top, VolatileSelection &sel, bool &was_inside_start) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,

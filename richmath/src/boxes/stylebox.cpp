@@ -105,6 +105,9 @@ void AbstractStyleBox::colorize_scope(SyntaxState &state) {
 }
 
 VolatileSelection AbstractStyleBox::mouse_selection(Point pos, bool *was_inside_start) {
+  // Note: this function will normally not be called, because of TemplateBox::as_inline_span()
+  //       Instead, after_inline_span_mouse_selection() would be called.
+  
   if(auto par = parent()) {
     if(get_own_style(Placeholder)) {
       *was_inside_start = 0 <= pos.x && pos.x <= _extents.width;
@@ -124,6 +127,19 @@ VolatileSelection AbstractStyleBox::mouse_selection(Point pos, bool *was_inside_
   }
   
   return base::mouse_selection(pos, was_inside_start);
+}
+
+void AbstractStyleBox::after_inline_span_mouse_selection(Box *top, VolatileSelection &sel, bool &was_inside_start) {
+  if(auto par = parent()) {
+    if(get_own_style(Placeholder)) {
+      was_inside_start = true;
+      sel = { par, _index, _index + 1 };
+      goto DONE;
+    }
+  }
+  
+DONE:
+  base::after_inline_span_mouse_selection(top, sel, was_inside_start);
 }
 
 //} ... class AbstractStyleBox

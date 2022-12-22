@@ -327,6 +327,10 @@ namespace richmath {
       /// Note that further mouse event processing done by the result of Box::mouse_sensitive() where 
       /// ret is the returned box, but text selection is subject to Box::selectable()
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start);
+      
+      /// Called on boxes of in-line spans after mouse selection. Climbs up the hierarchy until top, so that
+      /// intermediate boxes that where skipped during mouse_selection() may alter the result.
+      virtual void after_inline_span_mouse_selection(Box *top, VolatileSelection &sel, bool &was_inside_start);
         
       /// Append the child-to-parent coordinate transformation to a matrix (multiply from right). 
       virtual void child_transformation(

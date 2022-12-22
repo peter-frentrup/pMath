@@ -766,7 +766,9 @@ VolatileSelection TextSequence::mouse_selection(Point pos, bool *was_inside_star
       pos.y -= line_y;
       pos.x = px;
       
-      return box->mouse_selection(pos, was_inside_start);
+      VolatileSelection sel = box->mouse_selection(pos, was_inside_start);
+      box->after_inline_span_mouse_selection(this, sel, *was_inside_start);
+      return sel;
     }
   }
   
@@ -777,7 +779,9 @@ VolatileSelection TextSequence::mouse_selection(Point pos, bool *was_inside_star
   while(trailing-- > 0)
     iter.move_next_char();
   
-  return VolatileSelection(iter.current_sequence(), iter.text_index());
+  VolatileSelection res = { iter.current_sequence(), iter.text_index() };
+  res.box->after_inline_span_mouse_selection(this, res, *was_inside_start);
+  return res;
 }
 
 void TextSequence::child_transformation(int index, cairo_matrix_t *matrix) {

@@ -18,7 +18,8 @@ namespace richmath {
       virtual void colorize_scope(SyntaxState &state) override;
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
-        
+      virtual void after_inline_span_mouse_selection(Box *top, VolatileSelection &sel, bool &was_inside_start) override;
+      
     protected:
       virtual void resize_default_baseline(Context &context) override;
       void paint_or_resize_no_baseline(Context &context, bool paint);

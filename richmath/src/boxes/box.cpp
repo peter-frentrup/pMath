@@ -436,6 +436,14 @@ VolatileSelection Box::mouse_selection(Point pos, bool *was_inside_start) {
   return { this, 0, length() };
 }
 
+void Box::after_inline_span_mouse_selection(Box *top, VolatileSelection &sel, bool &was_inside_start) {
+  if(top == this)
+    return;
+  
+  if(auto par = parent())
+    return par->after_inline_span_mouse_selection(top, sel, was_inside_start);
+}
+
 void Box::child_transformation(
   int             index,
   cairo_matrix_t *matrix

@@ -920,32 +920,47 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
         
       if(start.current_sequence()->is_placeholder(start.text_index())) {
         *was_inside_start = true;
-        return { start.current_sequence(), start.text_index(), start.text_index() + 1 };
+        VolatileSelection sel = { start.current_sequence(), start.text_index(), start.text_index() + 1 };
+        sel.box->after_inline_span_mouse_selection(this, sel, *was_inside_start);
+        return sel;
       }
       
       if(auto box = start.current_box()) {
         float xoff = start.current_glyph().x_offset;
         if(pos.x > prev - line_start + xoff + box->extents().width) {
           *was_inside_start = false;
-          return { start.current_sequence(), start.text_index(), start.text_index() + 1 };
+          VolatileSelection sel = { start.current_sequence(), start.text_index(), start.text_index() + 1 };
+          sel.box->after_inline_span_mouse_selection(this, sel, *was_inside_start);
+          return sel;
         }
         
         if(pos.x < prev - line_start + xoff) {
           *was_inside_start = false;
-          return { start.current_sequence(), start.text_index() };
+          VolatileSelection sel = { start.current_sequence(), start.text_index() };
+          sel.box->after_inline_span_mouse_selection(this, sel, *was_inside_start);
+          return sel;
         }
-        
-        return box->mouse_selection(
-                 pos - Vector2F(prev - line_start + xoff, 0),
-                 was_inside_start);
+        else {
+          auto sel = box->mouse_selection(
+                       pos - Vector2F(prev - line_start + xoff, 0),
+                       was_inside_start);
+          
+          box->after_inline_span_mouse_selection(this, sel, *was_inside_start);
+          return sel;
+        }
       }
       
       if(line_start + pos.x > (prev + start.current_glyph().right) / 2) {
         *was_inside_start = false;
-        return { start.current_sequence(), start.text_index() + 1 };
+        VolatileSelection sel = { start.current_sequence(), start.text_index() + 1 };
+        sel.box->after_inline_span_mouse_selection(this, sel, *was_inside_start);
+        return sel;
       }
-      
-      return { start.current_sequence(), start.text_index() };
+      else {
+        VolatileSelection sel = { start.current_sequence(), start.text_index() };
+        sel.box->after_inline_span_mouse_selection(this, sel, *was_inside_start);
+        return sel;
+      }
     }
     
     start.move_next_glyph();
@@ -961,8 +976,11 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
       start = prev;
   }
   
-  if(start.has_more_glyphs())
-    return { start.current_sequence(), start.text_index() };
+  if(start.has_more_glyphs()) {
+    VolatileSelection sel = { start.current_sequence(), start.text_index() };
+    sel.box->after_inline_span_mouse_selection(this, sel, *was_inside_start);
+    return sel;
+  }
   else
     return { this, length() };
 }

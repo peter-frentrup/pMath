@@ -171,25 +171,51 @@ VolatileSelection TemplateBox::normalize_selection(int start, int end) {
 }
 
 VolatileSelection TemplateBox::mouse_selection(Point pos, bool *was_inside_start) {
+  // Note: this function will normally not be called, because of TemplateBox::as_inline_span()
+  //       Instead, after_inline_span_mouse_selection() would be called.
+  
   auto sel = base::mouse_selection(pos, was_inside_start);
+  after_inline_span_mouse_selection(this, sel, *was_inside_start);
+  return sel;
+}
+
+void TemplateBox::after_inline_span_mouse_selection(Box *top, VolatileSelection &sel, bool &was_inside_start) {
   if(!sel)
-    return sel;
+    goto DONE;
   
   if(is_parent_of(sel.box->mouse_sensitive()))
-    return sel; // a button etc. inside the template definition
+    goto DONE; // a button etc. inside the template definition
   
   for(Box *tmp = sel.box; tmp && tmp != this; tmp = tmp->parent()) {
     if(auto slot = dynamic_cast<TemplateBoxSlot*>(tmp)) {
       if(slot->find_owner() == this)
-        return sel; // inside a template slot
+        goto DONE; // inside a template slot
     }
   }
   
   if(sel.selectable())
-    return sel;
+    goto DONE;
   
-  *was_inside_start = true;
-  return { this, 0, 0 };
+  if(auto par = parent()) {
+    while(sel.box && sel.box != par) {
+      if(sel.start < sel.box->length()) {
+        was_inside_start = true;
+        sel = {par, _index };
+        goto DONE;
+      }
+      sel.expand_to_parent();
+      sel.start = sel.end;
+    }
+    was_inside_start = false;
+    sel = {par, _index + 1 };
+    goto DONE;
+  }
+  
+  was_inside_start = true;
+  sel = { this, 0, 0 };
+  
+DONE:
+  base::after_inline_span_mouse_selection(top, sel, was_inside_start);
 }
 
 Box *TemplateBox::move_logical(
