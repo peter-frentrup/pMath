@@ -71,6 +71,9 @@ static gboolean animation_timeout(gpointer data) {
   return animation_running; // continue ?
 }
 
+static double             caret_blink_begin_time = 0.0;
+static SelectionReference caret_blink_begin_location {};
+
 static Array<const char *> drag_mime_types; // index is the info parameter
 static GtkTargetList *drop_targets;
 
@@ -909,16 +912,29 @@ void MathGtkWidget::paint_canvas(Canvas &canvas, bool resize_only) {
     GtkSettings *settings = gtk_widget_get_settings(_widget);
     gboolean may_blink;
     gint     blink_time;
+    gint     blink_timeout = -1;
     
     g_object_get(
       settings,
-      "gtk-cursor-blink",      &may_blink,
-      "gtk-cursor-blink-time", &blink_time,
+      "gtk-cursor-blink",         &may_blink,
+      "gtk-cursor-blink-time",    &blink_time,
+      "gtk-cursor-blink-timeout", &blink_timeout,
       nullptr);
       
     if(may_blink) {
       is_blinking = true;
-      gdk_threads_add_timeout(blink_time / 2, blink_caret, FrontEndReference::unsafe_cast_to_pointer(document()->id()));
+      
+      Context *ctx = document_context();
+      if(caret_blink_begin_location != ctx->selection) {
+        caret_blink_begin_location = ctx->selection;
+        caret_blink_begin_time     = pmath_tickcount();
+      }
+      if( ctx->old_selection == ctx->selection || // caret hidden
+          blink_timeout < 0 || blink_timeout == INT_MAX ||
+          (pmath_tickcount() - caret_blink_begin_time) * 1000 < blink_timeout // blinking still active
+      ) {
+        gdk_threads_add_timeout(blink_time / 2, blink_caret, FrontEndReference::unsafe_cast_to_pointer(document()->id()));
+      }
     }
   }
   
@@ -1070,6 +1086,7 @@ bool MathGtkWidget::on_focus_in(GdkEvent *e) {
     auto ctx = document_context();
     ctx->old_selection.id = FrontEndReference::None;
     
+    caret_blink_begin_location = SelectionReference();
     sel_box->request_repaint_range(ctx->selection.start, ctx->selection.end);
   }
   
