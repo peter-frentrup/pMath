@@ -3,6 +3,11 @@
 
 using namespace richmath;
 
+// See Firefox issue "Implement ui.caretBlinkCount on Windows" -- https://bugzilla.mozilla.org/show_bug.cgi?id=1725454
+#ifndef SPI_GETCARETTIMEOUT
+#  define SPI_GETCARETTIMEOUT 0x2022
+#endif
+
 
 BOOL (WINAPI * Win32Touch::GetGestureInfo)(HANDLE, PGESTUREINFO) = nullptr;
 BOOL (WINAPI * Win32Touch::CloseGestureInfoHandle)(HANDLE) = nullptr;
@@ -92,4 +97,26 @@ Win32Touch::~Win32Touch() {
   CloseTouchInputHandle = nullptr;
   GetCurrentInputMessageSource = nullptr;
   EnableMouseInPointer = nullptr;
+}
+
+DWORD Win32Touch::get_caret_timeout() {
+  DWORD result = INFINITE;
+  if(SystemParametersInfoW(SPI_GETCARETTIMEOUT, 0, &result, 0))
+    return result;
+  else
+    return INFINITE;
+//  DWORD result = INFINITE;
+//  HKEY key = nullptr;
+//  LONG status = RegOpenKeyExW(HKEY_CURRENT_USER, L"Control Panel\\Desktop", 0, KEY_READ, &key);
+//  if(status == ERROR_SUCCESS) {
+//    DWORD size = sizeof(DWORD);
+//    LONG status_et = RegGetValueW(key, nullptr, L"CaretTimeout", RRF_RT_REG_DWORD, nullptr, &result, &size);
+//    if(status_et != ERROR_SUCCESS) {
+//      result = INFINITE;
+//    }
+//  
+//    RegCloseKey(key);
+//  }
+//  
+//  return result;
 }

@@ -102,6 +102,8 @@ namespace richmath {
         return get_mouse_message_source(id, ::GetMessageExtraInfo());
       }
       static DeviceKind get_mouse_message_source(int *id, LPARAM messageExtraInfo);
+      
+      static DWORD get_caret_timeout();
     
       static void init();
       

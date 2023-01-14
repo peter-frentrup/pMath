@@ -116,6 +116,9 @@ SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
   }
 }
 
+static DWORD caret_blink_begin_time = 0;
+static SelectionReference caret_blink_begin_location {};
+
 //{ class Win32Widget ...
 
 Win32Widget::Win32Widget(
@@ -594,10 +597,21 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
   if( _hwnd &&
       _hwnd == GetFocus() &&
       document()->selection_box() &&
-      document()->selection_length() == 0 &&
-      GetCaretBlinkTime() != INFINITE)
+      document()->selection_length() == 0)
   {
-    SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, GetCaretBlinkTime(), nullptr);
+    DWORD blink_time = GetCaretBlinkTime();
+    if(blink_time && blink_time != INFINITE) {
+      Context *ctx = document_context();
+      if(ctx->selection != caret_blink_begin_location) {
+        caret_blink_begin_location = ctx->selection;
+        caret_blink_begin_time     = GetTickCount();
+      }
+      if( ctx->old_selection == ctx->selection || // caret hidden
+          GetTickCount() - caret_blink_begin_time < Win32Touch::get_caret_timeout() // blinking still active
+      ) {
+        SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, GetCaretBlinkTime(), nullptr);
+      }
+    }
   }
   
   canvas.scale(1 / scale_factor(), 1 / scale_factor());
@@ -1700,8 +1714,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             ctx->old_selection.id = FrontEndReference::None;
             sel_box->request_repaint_range(ctx->selection.start, ctx->selection.end);
             
-            if(GetCaretBlinkTime() != INFINITE)
-              SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, GetCaretBlinkTime(), nullptr);
+            caret_blink_begin_time     = GetTickCount();
+            caret_blink_begin_location = ctx->selection;
+            DWORD blink_time           = GetCaretBlinkTime();
+            if(blink_time && blink_time != INFINITE)
+              SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, blink_time, nullptr);
           }
         } return 0;
       
