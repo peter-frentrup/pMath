@@ -122,12 +122,14 @@ namespace {
       CaretUtil();
       
       void reset(const SelectionReference &location);
-      void update(const SelectionReference &location);
+      void update_location_reference(const SelectionReference &location);
+      bool update(Win32Widget &wid, Context &ctx);
       bool continue_blinking() const;
       
     private:
       DWORD              blink_begin_time;
       SelectionReference blink_begin_location;
+      SIZE               caret_size;
   };
 };
 
@@ -615,13 +617,8 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
   {
     DWORD blink_time = GetCaretBlinkTime();
     if(blink_time && blink_time != INFINITE) {
-      Context *ctx = document_context();
-      the_caret.update(ctx->selection);
-      if( ctx->old_selection == ctx->selection || // caret hidden
-          the_caret.continue_blinking()
-      ) {
-        SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, GetCaretBlinkTime(), nullptr);
-      }
+      if(the_caret.update(*this, *document_context()))
+        SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, blink_time, nullptr);
     }
   }
   
@@ -1738,6 +1735,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           
           scrolling = false;
           SetTimer(_hwnd, (UINT_PTR)&TimerIdKillFocus, 0, nullptr);
+          DestroyCaret();
         } break;
       
       case WM_SYSKEYUP: {
@@ -2151,7 +2149,8 @@ void Win32Widget::position_drop_cursor(POINTL ptl) {
 //{ class CaretUtil ...
 
 CaretUtil::CaretUtil()
-: blink_begin_time(0)
+: blink_begin_time(0),
+  caret_size{0,0}
 {
 }
 
@@ -2160,11 +2159,53 @@ void CaretUtil::reset(const SelectionReference &location) {
   blink_begin_time     = GetTickCount();
 }
 
-void CaretUtil::update(const SelectionReference &location) {
+void CaretUtil::update_location_reference(const SelectionReference &location) {
   if(location != blink_begin_location) {
     blink_begin_location = location;
     blink_begin_time     = GetTickCount();
   }
+}
+
+bool CaretUtil::update(Win32Widget &wid, Context &ctx) {
+  if(ctx.selection.length() > 0)
+    return false;
+  
+  RectangleF last_caret_rect(ctx.last_cursor_pos[0], ctx.last_cursor_pos[1]);
+  last_caret_rect.normalize();
+  
+  Point offset = wid.scroll_pos();
+  float scale  = wid.scale_factor();
+  
+  POINT caret_pos;
+  caret_pos.x = (int)((last_caret_rect.x - offset.x) * scale);
+  caret_pos.y = (int)((last_caret_rect.y - offset.y) * scale);
+  
+  SIZE new_caret_size;
+  new_caret_size.cx = (int)ceil(last_caret_rect.width  * scale);
+  new_caret_size.cy = (int)ceil(last_caret_rect.height * scale);
+  
+  if(new_caret_size.cx <= 0) new_caret_size.cx = 1;
+  if(new_caret_size.cy <= 0) new_caret_size.cy = 1;
+  
+  if(new_caret_size.cx != caret_size.cx || new_caret_size.cy != caret_size.cy) {
+    if(HBITMAP hbmp = CreateBitmap(new_caret_size.cx, new_caret_size.cy, 1, 1, nullptr)) {
+      // TODO: Clear hbmp contents. CreateBitmap(... nullptr) is documented to give undefined contents.
+      if(CreateCaret(wid.hwnd(), hbmp, new_caret_size.cx, new_caret_size.cy)) {
+        ShowCaret(wid.hwnd());
+      }
+      DeleteObject(hbmp);
+    }
+  }
+  SetCaretPos(caret_pos.x, caret_pos.y);
+  
+  caret_size = new_caret_size;
+  
+  update_location_reference(ctx.selection);
+  
+  if(ctx.old_selection == ctx.selection) // caret is hidden
+    return true;
+  
+  return the_caret.continue_blinking();
 }
 
 bool CaretUtil::continue_blinking() const {

@@ -617,12 +617,13 @@ void MathGtkWidget::update_im_cursor_location() {
   
   last_cursor_rect.normalize();
   
-  Point sp = scroll_pos();
+  Point offset = scroll_pos();
+  float scale  = scale_factor();
   
-  area.x      = (int)((sp.x + last_cursor_rect.x) * scale_factor());
-  area.y      = (int)((sp.y + last_cursor_rect.y) * scale_factor());
-  area.width  = (int)ceilf(last_cursor_rect.width * scale_factor());
-  area.height = (int)ceilf(last_cursor_rect.height * scale_factor());
+  area.x      = (int)((last_cursor_rect.x - offset.x)  * scale);
+  area.y      = (int)((last_cursor_rect.y - offset.y)  * scale);
+  area.width  = (int)ceilf(last_cursor_rect.width  * scale);
+  area.height = (int)ceilf(last_cursor_rect.height * scale);
   
   gtk_im_context_set_cursor_location(_im_context, &area);
 }
