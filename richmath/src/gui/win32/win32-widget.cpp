@@ -116,8 +116,22 @@ SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
   }
 }
 
-static DWORD caret_blink_begin_time = 0;
-static SelectionReference caret_blink_begin_location {};
+namespace {
+  class CaretUtil {
+    public:
+      CaretUtil();
+      
+      void reset(const SelectionReference &location);
+      void update(const SelectionReference &location);
+      bool continue_blinking() const;
+      
+    private:
+      DWORD              blink_begin_time;
+      SelectionReference blink_begin_location;
+  };
+};
+
+static CaretUtil the_caret;
 
 //{ class Win32Widget ...
 
@@ -602,12 +616,9 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
     DWORD blink_time = GetCaretBlinkTime();
     if(blink_time && blink_time != INFINITE) {
       Context *ctx = document_context();
-      if(ctx->selection != caret_blink_begin_location) {
-        caret_blink_begin_location = ctx->selection;
-        caret_blink_begin_time     = GetTickCount();
-      }
+      the_caret.update(ctx->selection);
       if( ctx->old_selection == ctx->selection || // caret hidden
-          GetTickCount() - caret_blink_begin_time < Win32Touch::get_caret_timeout() // blinking still active
+          the_caret.continue_blinking()
       ) {
         SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, GetCaretBlinkTime(), nullptr);
       }
@@ -1714,8 +1725,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             ctx->old_selection.id = FrontEndReference::None;
             sel_box->request_repaint_range(ctx->selection.start, ctx->selection.end);
             
-            caret_blink_begin_time     = GetTickCount();
-            caret_blink_begin_location = ctx->selection;
+            the_caret.reset(ctx->selection);
             DWORD blink_time           = GetCaretBlinkTime();
             if(blink_time && blink_time != INFINITE)
               SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, blink_time, nullptr);
@@ -2137,3 +2147,28 @@ void Win32Widget::position_drop_cursor(POINTL ptl) {
 }
 
 //} ... class Win32Widget
+
+//{ class CaretUtil ...
+
+CaretUtil::CaretUtil()
+: blink_begin_time(0)
+{
+}
+
+void CaretUtil::reset(const SelectionReference &location) {
+  blink_begin_location = location;
+  blink_begin_time     = GetTickCount();
+}
+
+void CaretUtil::update(const SelectionReference &location) {
+  if(location != blink_begin_location) {
+    blink_begin_location = location;
+    blink_begin_time     = GetTickCount();
+  }
+}
+
+bool CaretUtil::continue_blinking() const {
+  return GetTickCount() - blink_begin_time < Win32Touch::get_caret_timeout();
+}
+
+//} ... class CaretUtil
