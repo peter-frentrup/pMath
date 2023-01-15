@@ -88,6 +88,7 @@ $MathShapers:= {
 	/*"STIX Math", */"XITS Math", 
 	"Latin Modern Math", 
 	"TeX Gyre Bonum Math", 
+	"TeX Gyre DejaVu Math", 
 	"TeX Gyre Pagella Math", 
 	"TeX Gyre Termes Math", 
 	"GFS Neohellenic Math"}
