@@ -425,41 +425,45 @@ void Win32Widget::set_cursor(CursorType type) {
     return;
   }
   
+//  int dpi_value = dpi();
+//  int w = Win32HighDpi::get_system_metrics_for_dpi(SM_CXCURSOR, dpi_value);
+//  int h = Win32HighDpi::get_system_metrics_for_dpi(SM_CYCURSOR, dpi_value);
+  
+  // Note that DestroyCursor() is not necessary because we only use shared cursors.
   switch(type) {
-    case CursorType::Finger:
-      SetCursor(LoadCursor(0, IDC_HAND));
-      return;
-      
-    case CursorType::Default:
-      SetCursor(LoadCursor(0, IDC_ARROW));
-      return;
-      
-    case CursorType::Current:
-      break;
-      
+    case CursorType::Finger:  SetCursor(LoadCursor(0, IDC_HAND));  return;
+    case CursorType::Default: SetCursor(LoadCursor(0, IDC_ARROW)); return;
+    case CursorType::Current: break;
+    
     case CursorType::SizeN:
-    case CursorType::SizeS:
-      SetCursor(LoadCursor(0, IDC_SIZENS));
-      return;
+    case CursorType::SizeS: SetCursor(LoadCursor(0, IDC_SIZENS)); return;
       
     case CursorType::SizeNW:
-    case CursorType::SizeSE:
-      SetCursor(LoadCursor(0, IDC_SIZENWSE));
-      return;
+    case CursorType::SizeSE: SetCursor(LoadCursor(0, IDC_SIZENWSE)); return;
       
     case CursorType::SizeE:
-    case CursorType::SizeW:
-      SetCursor(LoadCursor(0, IDC_SIZEWE));
-      return;
+    case CursorType::SizeW: SetCursor(LoadCursor(0, IDC_SIZEWE)); return;
       
     case CursorType::SizeNE:
-    case CursorType::SizeSW:
-      SetCursor(LoadCursor(0, IDC_SIZENESW));
-      return;
+    case CursorType::SizeSW: SetCursor(LoadCursor(0, IDC_SIZENESW)); return;
       
-    default:
-      SetCursor(LoadCursor(GetModuleHandle(0), MAKEINTRESOURCE((int)type)));
+//    default: SetCursor((HCURSOR)LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE((int)type), IMAGE_CURSOR, w, h, LR_DEFAULTCOLOR | LR_SHARED)); return;
+    default: SetCursor(LoadCursor(GetModuleHandleW(nullptr), MAKEINTRESOURCE((int)type))); return;
   }
+  
+  static_assert((int)CursorType::TextSE   == CUR_TEXT_SE,  "");
+  static_assert((int)CursorType::TextE    == CUR_TEXT_E,   "");
+  static_assert((int)CursorType::TextNE   == CUR_TEXT_NE,  "");
+  static_assert((int)CursorType::TextN    == CUR_TEXT_N,   "");
+  static_assert((int)CursorType::TextNW   == CUR_TEXT_NW,  "");
+  static_assert((int)CursorType::TextW    == CUR_TEXT_W,   "");
+  static_assert((int)CursorType::TextSW   == CUR_TEXT_SW,  "");
+  static_assert((int)CursorType::TextS    == CUR_TEXT_S,   "");
+  static_assert((int)CursorType::Section  == CUR_SECTION,  "");
+  static_assert((int)CursorType::Document == CUR_DOCUMENT, "");
+  static_assert((int)CursorType::NoSelect == CUR_NOSELECT, "");
+  static_assert((int)CursorType::Grab     == CUR_GRAB,     "");
+  static_assert((int)CursorType::Grabbing == CUR_GRABBING, "");
 }
 
 void Win32Widget::running_state_changed() {

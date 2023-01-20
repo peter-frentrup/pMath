@@ -509,8 +509,10 @@ MathGtkCursors::MathGtkCursors()
 //  g_free(theme_name);
   
   if(num_refs++ == 0) {
-    all_cursors.set(CursorType::Finger,      new_cursor_from_name_or_fallback("help", GDK_HAND2));
-    all_cursors.set(CursorType::Default,     new_cursor_from_name_or_fallback("default", GDK_LEFT_PTR));
+    all_cursors.set(CursorType::Finger,   new_cursor_from_name_or_fallback("help",     GDK_HAND2));
+    all_cursors.set(CursorType::Default,  new_cursor_from_name_or_fallback("default",  GDK_LEFT_PTR));
+    all_cursors.set(CursorType::Grab,     new_cursor_from_name_or_fallback("grab",     GDK_X_CURSOR));
+    all_cursors.set(CursorType::Grabbing, new_cursor_from_name_or_fallback("grabbing", GDK_FLEUR));
     
     all_cursors.set(CursorType::Document, gdk_pixbuf_new_from_xpm_data(xpm_document));
     all_cursors.set(CursorType::NoSelect, gdk_pixbuf_new_from_xpm_data(xpm_no_select));

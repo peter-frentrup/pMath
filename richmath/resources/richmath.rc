@@ -21,6 +21,8 @@ CUR_TEXT_NE  CURSOR "text_beam_ne.cur"
 CUR_SECTION  CURSOR "section_beam.cur"
 CUR_DOCUMENT CURSOR "document_beam.cur"
 CUR_NOSELECT CURSOR "no_select.cur"
+CUR_GRAB     CURSOR "grab_hand.cur"
+CUR_GRABBING CURSOR "grabbing.cur"
 
 
 BMP_PIN16 BITMAP "pin16.bmp"

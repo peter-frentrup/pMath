@@ -16,6 +16,8 @@
 #define CUR_SECTION     109
 #define CUR_DOCUMENT    110
 #define CUR_NOSELECT    111
+#define CUR_GRAB        112
+#define CUR_GRABBING    113
 
 
 #define BMP_PIN16       201

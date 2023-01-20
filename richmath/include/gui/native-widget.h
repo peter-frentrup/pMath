@@ -29,6 +29,8 @@ namespace richmath {
     Section  = 109,
     Document = 110,
     NoSelect = 111,
+    Grab     = 112,
+    Grabbing = 113,
     SizeSE   = 120,
     SizeE    = 121,
     SizeNE   = 122,
