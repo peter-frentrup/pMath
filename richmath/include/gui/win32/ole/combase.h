@@ -48,6 +48,8 @@ namespace richmath {
         internal_release();
       }
       
+      ComBase(nullptr_t) {}
+      
       ComBase(const ComBase &other) noexcept
         : ptr(other.ptr)
       {
