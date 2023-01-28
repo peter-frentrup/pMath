@@ -39,6 +39,14 @@ namespace richmath {
       virtual Point scroll_pos() override;
       virtual bool scroll_to(Point pos) override;
       
+      void map_native_points_to_document_inline(ArrayView<Point> pts);
+      void map_document_points_to_native_inline(ArrayView<Point> pts);
+      Point map_native_point_to_document(POINT native_pt) { return map_native_point_to_document(Point(native_pt.x, native_pt.y)); }
+      Point map_native_point_to_document(Point native_pt) { map_native_points_to_document_inline(ArrayView<Point>(1, &native_pt)); return native_pt; }
+      Point map_document_point_to_native(Point doc_pt) {    map_document_points_to_native_inline(ArrayView<Point>(1, &doc_pt));    return doc_pt; }
+      RectangleF map_native_rect_to_document(const RectangleF &native_rect);
+      RectangleF map_document_rect_to_native(const RectangleF &doc_rect);
+      
       virtual void show_tooltip(Box *source, Expr boxes) override;
       virtual void hide_tooltip() override;
       virtual Document *try_create_popup_window(const SelectionReference &anchor) override;

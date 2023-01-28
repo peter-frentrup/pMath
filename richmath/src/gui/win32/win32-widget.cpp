@@ -244,6 +244,44 @@ Point Win32Widget::scroll_pos() {
   return Point(Vector2F(GetScrollPos(_hwnd, SB_HORZ), GetScrollPos(_hwnd, SB_VERT)) / scale_factor());
 }
 
+void Win32Widget::map_native_points_to_document_inline(ArrayView<Point> pts) {
+//  pt = scroll_pos() + Vector2F(pt) / scale_factor();
+  
+  int scroll_x_pixels = GetScrollPos(_hwnd, SB_HORZ);
+  int scroll_y_pixels = GetScrollPos(_hwnd, SB_VERT);
+  float scale         = scale_factor();
+  
+  for(Point &pt : pts) {
+    pt.x = (scroll_x_pixels + pt.x) / scale; 
+    pt.y = (scroll_y_pixels + pt.y) / scale; 
+  }
+}
+
+void Win32Widget::map_document_points_to_native_inline(ArrayView<Point> pts) {
+//  pt = Point((pt - scroll_pos()) * scale_factor());
+  
+  int scroll_x_pixels = GetScrollPos(_hwnd, SB_HORZ);
+  int scroll_y_pixels = GetScrollPos(_hwnd, SB_VERT);
+  float scale         = scale_factor();
+  
+  for(Point &pt : pts) {
+    pt.x = pt.x * scale - scroll_x_pixels; 
+    pt.y = pt.y * scale - scroll_y_pixels;
+  }
+}
+
+RectangleF Win32Widget::map_native_rect_to_document(const RectangleF &native_rect) {
+  Point pts[2] = { native_rect.top_left(), native_rect.bottom_right() };
+  map_native_points_to_document_inline(array_view(pts));
+  return {pts[0], pts[1]};
+}
+
+RectangleF Win32Widget::map_document_rect_to_native(const RectangleF &doc_rect) {
+  Point pts[2] = { doc_rect.top_left(), doc_rect.bottom_right() };
+  map_document_points_to_native_inline(array_view(pts));
+  return {pts[0], pts[1]};
+}
+
 bool Win32Widget::scroll_to(Point pos) {
   SCROLLINFO si;
   
@@ -338,7 +376,7 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
   }
   
   event.set_origin(document());
-  Point pos{(event.position - scroll_pos()) * scale_factor()};
+  Point pos = map_document_point_to_native(event.position);
   
   /* Unlike set_drag_image_from_window() i.e. IDropSourceHelper::InitializeFromWindow, 
      set_drag_image_from_document() , i.e. IDropSourceHelper::InitializeFromBitmap,
@@ -396,15 +434,8 @@ void Win32Widget::invalidate_options() {
 }
 
 void Win32Widget::invalidate_rect(const RectangleF &rect) {
-  Point sp = scroll_pos();
-  float sf = scale_factor();
-  
-  RECT irect;
-  irect.left   = (int)floorf((rect.x - sp.x) * sf) - 4;
-  irect.top    = (int)floorf((rect.y - sp.y) * sf) - 4;
-  irect.right  = irect.left + (int)ceilf(rect.width  * sf) + 8;
-  irect.bottom = irect.top  + (int)ceilf(rect.height * sf) + 8;
-  
+  RECT irect = discretize(map_document_rect_to_native(rect));
+  InflateRect(&irect, 4, 4);
   InvalidateRect(_hwnd, &irect, FALSE);
 }
 
@@ -978,9 +1009,8 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
       if(vert || horz) {
         scrolling = true;
         already_scrolled = !event.middle;
-        Point sp = scroll_pos();
         mouse_down_event = event;
-        mouse_down_event.position = Point{(event.position - scroll_pos()) * scale_factor()};
+        mouse_down_event.position = map_document_point_to_native(event.position);
         SetTimer(_hwnd, (UINT_PTR)&TimerIdScroll, 20, 0);
         if(event.middle)
           invalidate();
@@ -1224,16 +1254,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               RectangleF bounds = sel.box->range_rect(sel.start, sel.end);
               
               if(sel.box->visible_rect(bounds)) {
-                auto factor = scale_factor();
-                bounds.x      *= factor;
-                bounds.y      *= factor;
-                bounds.width  *= factor;
-                bounds.height *= factor;
-                
-                bounds.x -= GetScrollPos(hwnd(), SB_HORZ);
-                bounds.y -= GetScrollPos(hwnd(), SB_VERT);
-
-                exclude_rect = discretize(bounds);
+                exclude_rect = discretize(map_document_rect_to_native(bounds));
                 MapWindowPoints(hwnd(), nullptr, (POINT*)&exclude_rect, 2);
                 if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
                   pt.x = exclude_rect.left;
@@ -1299,11 +1320,9 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.middle = message == WM_MBUTTONDOWN;
           event.right  = message == WM_RBUTTONDOWN;
           
-          event.position.x = (int16_t)( lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
-          event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
-          
-          event.position.x /= scale_factor();
-          event.position.y /= scale_factor();
+          event.position.x = (int16_t)( lParam & 0xFFFF);
+          event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
+          event.position = map_native_point_to_document(event.position);
           
           event.device = Win32Touch::get_mouse_message_source(&event.id);
           fprintf(
@@ -1312,8 +1331,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             message == WM_LBUTTONDOWN ? "L" : (message == WM_MBUTTONDOWN ? "M" : "R"),
             event.device == DeviceKind::Mouse ? "mouse" : (event.device == DeviceKind::Pen ? "pen" : "touch"),
             event.id,
-            (double)event.position.x,
-            (double)event.position.y);
+            event.position.x,
+            event.position.y);
             
           on_mousedown(event);
         } return 0;
@@ -1339,11 +1358,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           pt.x = (int16_t)( lParam & 0xFFFF);
           pt.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
           
-          event.position.x = pt.x + GetScrollPos(_hwnd, SB_HORZ);
-          event.position.y = pt.y + GetScrollPos(_hwnd, SB_VERT);
-          
-          event.position.x /= scale_factor();
-          event.position.y /= scale_factor();
+          event.position = map_native_point_to_document(Point(pt.x, pt.y));
           
           on_mouseup(event);
           
@@ -1364,14 +1379,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.middle = (wParam & MK_MBUTTON) != 0;
           event.right  = (wParam & MK_RBUTTON) != 0;
           
-          event.position.x = (int16_t)(lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
-          event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
-          
-          event.position.x /= scale_factor();
-          event.position.y /= scale_factor();
+          event.position.x = (int16_t)( lParam & 0xFFFF);
+          event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
+          event.position = map_native_point_to_document(event.position);
           
           on_mousemove(event);
-          
           
           TRACKMOUSEEVENT tme;
           memset(&tme, 0, sizeof(tme));
@@ -1584,11 +1596,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 event.middle = (GetKeyState(VK_MBUTTON) & ~1);
                 event.right  = (GetKeyState(VK_RBUTTON) & ~1);
                 
-                event.position.x = mouse.x + GetScrollPos(_hwnd, SB_HORZ);
-                event.position.y = mouse.y + GetScrollPos(_hwnd, SB_VERT);
-                
-                event.position.x /= scale_factor();
-                event.position.y /= scale_factor();
+                event.position = map_native_point_to_document(mouse);
                 
                 on_mousemove(event);
               }
@@ -1825,9 +1833,7 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
   POINT pt = {(int) ptl.x, (int)ptl.y };
   ScreenToClient(_hwnd, &pt);
   
-  Point pos{
-    (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor(),
-    (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor()};
+  Point pos = map_native_point_to_document(pt);
   
   bool was_inside_start;
   if(!may_drop_into(document()->mouse_selection(pos, &was_inside_start), is_dragging))
@@ -2140,9 +2146,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
 void Win32Widget::position_drop_cursor(POINTL ptl) {
   POINT pt = {(int) ptl.x, (int)ptl.y };
   ScreenToClient(_hwnd, &pt);
-  Point pos{
-    (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor(),
-    (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor()};
+  Point pos = map_native_point_to_document(pt);
   
   bool was_inside_start;
   document()->select(document()->mouse_selection(pos, &was_inside_start));
@@ -2177,16 +2181,11 @@ bool CaretUtil::update(Win32Widget &wid, Context &ctx) {
   RectangleF last_caret_rect(ctx.last_cursor_pos[0], ctx.last_cursor_pos[1]);
   last_caret_rect.normalize();
   
-  Point offset = wid.scroll_pos();
-  float scale  = wid.scale_factor();
-  
-  POINT caret_pos;
-  caret_pos.x = (int)((last_caret_rect.x - offset.x) * scale);
-  caret_pos.y = (int)((last_caret_rect.y - offset.y) * scale);
+  RECT new_caret_rect = discretize(wid.map_document_rect_to_native(last_caret_rect));
   
   SIZE new_caret_size;
-  new_caret_size.cx = (int)ceil(last_caret_rect.width  * scale);
-  new_caret_size.cy = (int)ceil(last_caret_rect.height * scale);
+  new_caret_size.cx = new_caret_rect.right  - new_caret_rect.left;
+  new_caret_size.cy = new_caret_rect.bottom - new_caret_rect.top;
   
   if(new_caret_size.cx <= 0) new_caret_size.cx = 1;
   if(new_caret_size.cy <= 0) new_caret_size.cy = 1;
@@ -2200,7 +2199,7 @@ bool CaretUtil::update(Win32Widget &wid, Context &ctx) {
       DeleteObject(hbmp);
     }
   }
-  SetCaretPos(caret_pos.x, caret_pos.y);
+  SetCaretPos(new_caret_rect.left, new_caret_rect.top);
   
   caret_size = new_caret_size;
   
