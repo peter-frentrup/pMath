@@ -396,6 +396,8 @@ class IVirtualDesktopNotificationService : public IUnknown {
   RICHMATH_MAKE_MINGW_UUID(IVirtualDesktopNotification_10240)
   RICHMATH_MAKE_MINGW_UUID(IVirtualDesktopNotification_22000)
   RICHMATH_MAKE_MINGW_UUID(IVirtualDesktopNotificationService)
+  
+#  undef RICHMATH_MAKE_MINGW_UUID
 #endif
 
 
