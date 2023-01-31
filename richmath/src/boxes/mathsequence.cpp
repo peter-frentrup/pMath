@@ -330,8 +330,8 @@ namespace richmath {
       
       void selection_path_wrt_outermost_origin(Context *opt_context, Canvas &canvas, int start, int end);
       void selection_path(Context *opt_context, Canvas &canvas, VolatileSelection sel);
-      void selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, VolatileSelection sel);
-      void selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, const GlyphIterator &start, const GlyphIterator &end);
+      void selection_rectangles(Array<RectangleF> &rects, Point p0, Context *opt_context, VolatileSelection sel);
+      void selection_rectangles(Array<RectangleF> &rects, Point p0, Context *opt_context, const GlyphIterator &start, const GlyphIterator &end);
       
       class PaintHookHandler {
         public:
@@ -564,7 +564,7 @@ void MathSequence::paint(Context &context) {
           run_end.move_to_glyph(glyphs.length());
         
         rects.length(0);
-        Impl(*this).selection_rectangles(rects, nullptr/*&context*/, context.canvas(), run_start, run_end);
+        Impl(*this).selection_rectangles(rects, context.canvas().current_pos(), nullptr/*&context*/, run_start, run_end);
         
         for(auto &rect : rects) {
           context.draw_text_shadows(
@@ -3817,7 +3817,7 @@ void MathSequence::Impl::selection_path_wrt_outermost_origin(Context *opt_contex
 
 void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, VolatileSelection sel) {
   Array<RectangleF> rects;
-  selection_rectangles(rects, opt_context, canvas, sel);
+  selection_rectangles(rects, canvas.current_pos(), opt_context, sel);
   
   if(sel.length() == 0 && rects.length() == 1) {
     canvas.move_to(canvas.align_point(rects[0].top_left(),    true));
@@ -3832,7 +3832,7 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, Vo
   canvas.add_stacked_rectangles(rects);
 }
 
-void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, VolatileSelection sel) {
+void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Point p0, Context *opt_context, VolatileSelection sel) {
   MathSequence *sel_seq = dynamic_cast<MathSequence*>(sel.box);
   if(!sel_seq)
     return;
@@ -3849,10 +3849,10 @@ void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context 
   GlyphIterator iter_end = iter_start;
   iter_end.skip_forward_to_glyph_after_text_pos(sel_seq, sel.end);
   
-  selection_rectangles(rects, opt_context, canvas, iter_start, iter_end);
+  selection_rectangles(rects, p0, opt_context, iter_start, iter_end);
 }
 
-void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, const GlyphIterator &start, const GlyphIterator &end) {
+void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Point p0, Context *opt_context, const GlyphIterator &start, const GlyphIterator &end) {
 //  bool tight_widths    = true;
 //  bool big_middle_blob = false;
   bool tight_widths    = false;
@@ -3861,7 +3861,6 @@ void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context 
   RICHMATH_ASSERT(start.outermost_sequence() == &self);
   RICHMATH_ASSERT(end.outermost_sequence()   == &self);
   
-  Point p0 = canvas.current_pos();
   p0.y -= self.lines[0].ascent;
   
   Point p1 = p0;
