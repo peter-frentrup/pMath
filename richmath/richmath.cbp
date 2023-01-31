@@ -47,6 +47,7 @@
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="oleaut32" />
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
@@ -54,6 +55,7 @@
 					<Add library="shell32" />
 					<Add library="shlwapi" />
 					<Add library="propsys" />
+					<Add library="uiautomationcore" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
@@ -107,12 +109,14 @@
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="oleaut32" />
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="advapi32" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
 					<Add library="propsys" />
+					<Add library="uiautomationcore" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
@@ -279,6 +283,7 @@
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="oleaut32" />
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
@@ -286,6 +291,7 @@
 					<Add library="shell32" />
 					<Add library="shlwapi" />
 					<Add library="propsys" />
+					<Add library="uiautomationcore" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
@@ -395,6 +401,7 @@
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="oleaut32" />
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
@@ -402,6 +409,7 @@
 					<Add library="shell32" />
 					<Add library="shlwapi" />
 					<Add library="propsys" />
+					<Add library="uiautomationcore" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_32.lib)" />
 					<Add directory="$(#glib_32.lib)" />
@@ -457,6 +465,7 @@
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="oleaut32" />
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
@@ -464,6 +473,7 @@
 					<Add library="shell32" />
 					<Add library="shlwapi" />
 					<Add library="propsys" />
+					<Add library="uiautomationcore" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_32.lib)" />
 					<Add directory="$(#pango_32.lib)" />
@@ -518,6 +528,7 @@
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="oleaut32" />
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
@@ -525,6 +536,7 @@
 					<Add library="shell32" />
 					<Add library="shlwapi" />
 					<Add library="propsys" />
+					<Add library="uiautomationcore" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_64.lib)" />
 					<Add directory="$(#glib_64.lib)" />
@@ -581,6 +593,7 @@
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="oleaut32" />
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
@@ -588,6 +601,7 @@
 					<Add library="shell32" />
 					<Add library="shlwapi" />
 					<Add library="propsys" />
+					<Add library="uiautomationcore" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_64.lib)" />
 					<Add directory="$(#glib_64.lib)" />
@@ -990,6 +1004,24 @@
 		<Unit filename="include/gui/messagebox.h" />
 		<Unit filename="include/gui/native-widget.h" />
 		<Unit filename="include/gui/recent-documents.h" />
+		<Unit filename="include/gui/win32/a11y/win32-uia-box-provider.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/a11y/win32-uia-text-range-provider.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="include/gui/win32/api/stylusutil.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1125,7 +1157,25 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
+		<Unit filename="include/gui/win32/ole/com-safe-arrays.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="include/gui/win32/ole/combase.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/ole/comsidechannel.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
@@ -1629,6 +1679,24 @@
 		<Unit filename="src/gui/messagebox.cpp" />
 		<Unit filename="src/gui/native-widget.cpp" />
 		<Unit filename="src/gui/recent-documents.cpp" />
+		<Unit filename="src/gui/win32/a11y/win32-uia-box-provider.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/a11y/win32-uia-text-range-provider.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="src/gui/win32/api/stylusutil.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1765,6 +1833,15 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/combase.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/ole/comsidechannel.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />

@@ -3,12 +3,6 @@
 #include <gui/win32/api/win32-version.h>
 #include <gui/win32/win32-widget.h>
 
-#include <climits>
-#include <cmath>
-#include <cstdio>
-
-#include <cairo-win32.h>
-
 #include <boxes/buttonbox.h>
 #include <boxes/gridbox.h>
 #include <boxes/section.h>
@@ -18,6 +12,7 @@
 #include <eval/job.h>
 #include <gui/control-painter.h>
 #include <gui/documents.h>
+#include <gui/win32/a11y/win32-uia-box-provider.h>
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
 #include <gui/win32/api/win32-highdpi.h>
@@ -31,7 +26,16 @@
 #include <gui/win32/win32-tooltip-window.h>
 #include <util/autovaluereset.h>
 
+#include <cairo-win32.h>
+
+#include <uiautomation.h>
+
+#include <climits>
+#include <cmath>
+#include <cstdio>
+
 #include <resources.h>
+
 
 #ifndef DM_POINTERHITTEST
 #  define DM_POINTERHITTEST   0x0250
@@ -1784,6 +1788,14 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       
       case WM_MENUSELECT: {
           Win32Menu::on_menuselect(wParam, lParam);
+        } break;
+      
+      case WM_GETOBJECT: {
+          if(auto provider = new Win32UiaBoxProvider(document()->id())) {
+            LRESULT res = UiaReturnRawElementProvider(hwnd(), wParam, lParam, provider);
+            provider->Release();
+            return res;
+          }
         } break;
     }
   }
