@@ -88,6 +88,13 @@ namespace richmath {
       bool shift;
   };
   
+  #define DECLARE_FLAGS_ENUM_OPERATORS(ENUM_NAME) \
+    inline bool       has(        ENUM_NAME  lhs, ENUM_NAME rhs) { return ((unsigned)lhs & (unsigned)rhs) == (unsigned)rhs; } \
+    inline ENUM_NAME  operator |( ENUM_NAME  lhs, ENUM_NAME rhs) { return (ENUM_NAME)((unsigned)lhs | (unsigned)rhs); } \
+    inline ENUM_NAME &operator |=(ENUM_NAME &lhs, ENUM_NAME rhs) { lhs = (ENUM_NAME)((unsigned)lhs | (unsigned)rhs); return lhs; } \
+    inline ENUM_NAME  operator -( ENUM_NAME  lhs, ENUM_NAME rhs) { return (ENUM_NAME)((unsigned)lhs & ~(unsigned)rhs); } \
+    inline ENUM_NAME &operator -=(ENUM_NAME &lhs, ENUM_NAME rhs) { lhs = (ENUM_NAME)((unsigned)lhs & ~(unsigned)rhs); return lhs; }
+  
   enum class BoxOutputFlags {
     Default           =  0,
     Parseable         =  1, ///< no StyleBox with StripOnInput->True, ...
@@ -97,24 +104,7 @@ namespace richmath {
     NoNewSymbols      = 16, ///< do not generate new symbols by effectively using MakeExpression(..., ParseSymbols->False)
     LimitedDepth      = 32, ///< output the id() for boxas at relative depth > Box::max_box_output_depth 
   };
-  
-  inline bool has(BoxOutputFlags lhs, BoxOutputFlags rhs) {
-    return ((int)lhs & (int)rhs) == (int)rhs;
-  }
-  inline BoxOutputFlags operator |(BoxOutputFlags lhs, BoxOutputFlags rhs) {
-    return (BoxOutputFlags)((int)lhs | (int)rhs);
-  }
-  inline BoxOutputFlags &operator |=(BoxOutputFlags &lhs, BoxOutputFlags rhs) {
-    lhs = (BoxOutputFlags)((int)lhs | (int)rhs);
-    return lhs;
-  }
-  inline BoxOutputFlags operator -(BoxOutputFlags lhs, BoxOutputFlags rhs) {
-    return (BoxOutputFlags)((int)lhs & ~(int)rhs);
-  }
-  inline BoxOutputFlags &operator -=(BoxOutputFlags &lhs, BoxOutputFlags rhs) {
-    lhs = (BoxOutputFlags)((int)lhs & ~(int)rhs);
-    return lhs;
-  }
+  DECLARE_FLAGS_ENUM_OPERATORS(BoxOutputFlags)
   
   enum class BoxInputFlags {
     Default            = 0,
@@ -122,24 +112,7 @@ namespace richmath {
     AllowTemplateSlots = 2,
     ForceResetDynamic  = 4
   };
-  
-  inline bool has(BoxInputFlags lhs, BoxInputFlags rhs) {
-    return ((int)lhs & (int)rhs) == (int)rhs;
-  }
-  inline BoxInputFlags operator |(BoxInputFlags lhs, BoxInputFlags rhs) {
-    return (BoxInputFlags)((int)lhs | (int)rhs);
-  }
-  inline BoxInputFlags &operator |=(BoxInputFlags &lhs, BoxInputFlags rhs) {
-    lhs = (BoxInputFlags)((int)lhs | (int)rhs);
-    return lhs;
-  }
-  inline BoxInputFlags operator -(BoxInputFlags lhs, BoxInputFlags rhs) {
-    return (BoxInputFlags)((int)lhs & ~(int)rhs);
-  }
-  inline BoxInputFlags &operator -=(BoxInputFlags &lhs, BoxInputFlags rhs) {
-    lhs = (BoxInputFlags)((int)lhs & ~(int)rhs);
-    return lhs;
-  }
+  DECLARE_FLAGS_ENUM_OPERATORS(BoxInputFlags)
   
   template< class... Args >
   struct FunctionChain {
