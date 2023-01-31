@@ -21,16 +21,16 @@ namespace richmath {
       Expr to_pmath() const;
       Expr to_pmath_raw() const { return Expr((int32_t)_id); }
       
-      friend bool operator==(const FrontEndReference &left, const FrontEndReference &right) { return left._id == right._id; }
-      friend bool operator!=(const FrontEndReference &left, const FrontEndReference &right) { return left._id != right._id; }
-      friend bool operator<( const FrontEndReference &left, const FrontEndReference &right) { return left._id <  right._id; }
-      friend bool operator<=(const FrontEndReference &left, const FrontEndReference &right) { return left._id <= right._id; }
-      friend bool operator>( const FrontEndReference &left, const FrontEndReference &right) { return left._id >  right._id; }
-      friend bool operator>=(const FrontEndReference &left, const FrontEndReference &right) { return left._id >= right._id; }
+      friend bool operator==(FrontEndReference left, FrontEndReference right) { return left._id == right._id; }
+      friend bool operator!=(FrontEndReference left, FrontEndReference right) { return left._id != right._id; }
+      friend bool operator<( FrontEndReference left, FrontEndReference right) { return left._id <  right._id; }
+      friend bool operator<=(FrontEndReference left, FrontEndReference right) { return left._id <= right._id; }
+      friend bool operator>( FrontEndReference left, FrontEndReference right) { return left._id >  right._id; }
+      friend bool operator>=(FrontEndReference left, FrontEndReference right) { return left._id >= right._id; }
       
       static const FrontEndReference None;
       
-      static void *unsafe_cast_to_pointer(const FrontEndReference &ref) {
+      static void *unsafe_cast_to_pointer(FrontEndReference ref) {
         return (void*)(uintptr_t)ref._id;
       }
       
