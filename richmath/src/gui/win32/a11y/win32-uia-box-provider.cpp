@@ -470,14 +470,15 @@ STDMETHODIMP Win32UiaBoxProvider::GetSelection(SAFEARRAY **pRetVal) {
   *pRetVal = nullptr;
   
   Document *doc = box->find_parent<Document>(true);
-  if(!doc || !doc->selection())
+  if(!doc)
     return S_OK;
   
-  if(!box->is_parent_of(doc->selection_box()))
+  VolatileSelection sel = doc->selection_now();
+  if(!box->is_parent_of(sel.box))
     return S_OK;
   
   ComBase<ITextRangeProvider> range;
-  range.attach(new Win32UiaTextRangeProvider(doc->selection()));
+  range.attach(new Win32UiaTextRangeProvider(SelectionReference(sel)));
   HR(ComSafeArray::create_singleton(pRetVal, range));
   return S_OK;
 }
@@ -609,14 +610,25 @@ STDMETHODIMP Win32UiaBoxProvider::GetCaretRange(BOOL *isActive, ITextRangeProvid
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Document *doc = FrontEndObject::find_cast<Document>(obj_ref);
-  if(!doc)
+  Box *box = FrontEndObject::find_cast<Box>(obj_ref);
+  if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  *pRetVal  = new Win32UiaTextRangeProvider(doc->selection());
+  *pRetVal = nullptr;
+  
+  Document *doc = box->find_parent<Document>(true);
+  if(!doc || !doc->selection())
+    return S_OK;
+  
+  VolatileSelection sel = doc->selection_now();
+  if(!box->is_parent_of(sel.box))
+    return S_OK;
+  
+  sel.start = sel.end;
+  *pRetVal  = new Win32UiaTextRangeProvider(SelectionReference(sel));
   *isActive = doc->native()->is_focused_widget();
   
-  return HRreport(E_NOTIMPL);
+  return S_OK;
 }
 
 //} ... class Win32UiaBoxProvider

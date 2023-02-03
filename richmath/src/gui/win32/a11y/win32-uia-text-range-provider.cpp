@@ -206,6 +206,14 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetBoundingRectangles(SAFEARRAY **pRetVa
 //    }
     sel.add_rectangles(rects, SelectionDisplayFlags::Default, {0.0f, 0.0f});
     
+    if(sel.length() == 0) { 
+      // There will be a (single) degenerate rectangle for the caret position. 
+      // Widen it to be visible.
+      for(RectangleF &rect : rects) {
+        rect.grow(0.75f, 0.75f);
+      }
+    }
+    
     for(RectangleF &rect : rects) {
       if(sel.box->visible_rect(rect) && !rect.is_empty()) {
         ++num_visible;
@@ -229,7 +237,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetBoundingRectangles(SAFEARRAY **pRetVa
     const RectangleF &rect = rects[i];
     
     if(!rect.is_empty()) {
-      HR(ComSafeArray::put_double(*pRetVal, j++,     rect.x));
+      HR(ComSafeArray::put_double(*pRetVal, j++, rect.x));
       HR(ComSafeArray::put_double(*pRetVal, j++, rect.y));
       HR(ComSafeArray::put_double(*pRetVal, j++, rect.width));
       HR(ComSafeArray::put_double(*pRetVal, j++, rect.height));

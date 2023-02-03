@@ -209,6 +209,7 @@ namespace richmath {
       explicit SelectionReference(const VolatileSelection &box_with_range) : SelectionReference(box_with_range.box, box_with_range.start, box_with_range.end) {}
       explicit SelectionReference(Box *box, int start, int end);
       explicit SelectionReference(FrontEndReference id, int start, int end);
+      explicit SelectionReference(const LocationReference &loc) : SelectionReference(loc.id, loc.index, loc.index) {}
       
       explicit operator bool() const { return id.is_valid(); }
       
