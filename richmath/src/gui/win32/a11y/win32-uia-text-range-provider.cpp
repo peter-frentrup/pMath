@@ -185,43 +185,55 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetBoundingRectangles(SAFEARRAY **pRetVa
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Box *box = range.get();
-  if(!box)
+  VolatileSelection sel = range.get_all();
+  if(!sel)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
   Array<RectangleF> rects;
+  int num_visible = 0;
     
-  Document *doc = box->find_parent<Document>(true);
+  Document *doc = sel.box->find_parent<Document>(true);
   Win32Widget *wid = doc ? dynamic_cast<Win32Widget*>(doc->native()) : nullptr;
   if(wid && IsWindowVisible(wid->hwnd())) {
     POINT screen_pt = {0, 0};
     ClientToScreen(wid->hwnd(), &screen_pt);
     
-    { // TODO
-      RectangleF rect = box->extents().to_rectangle();
-      if(box->visible_rect(rect)) {
-        rects.add(rect);
-      }
-    }
+//    { // TODO
+//      RectangleF rect = sel.box->extents().to_rectangle();
+//      if(sel.box->visible_rect(rect)) {
+//        rects.add(rect);
+//      }
+//    }
+    sel.add_rectangles(rects, SelectionDisplayFlags::Default, {0.0f, 0.0f});
     
     for(RectangleF &rect : rects) {
-      rect = wid->map_document_rect_to_native(rect);
-      rect.x+= screen_pt.x;
-      rect.y+= screen_pt.y;
+      if(sel.box->visible_rect(rect) && !rect.is_empty()) {
+        ++num_visible;
+        rect = wid->map_document_rect_to_native(rect);
+        rect.x+= screen_pt.x;
+        rect.y+= screen_pt.y;
+      }
+      else {
+        rect.width = 0;
+        rect.height = 0;
+      }
     }
   }
   
-  *pRetVal = SafeArrayCreateVector(VT_R8, 0, 4 * rects.length());
+  *pRetVal = SafeArrayCreateVector(VT_R8, 0, 4 * num_visible);
   if(!*pRetVal)
     return check_HRESULT(E_OUTOFMEMORY, __func__, __FILE__, __LINE__);
   
+  int j = 0;
   for(int i = 0; i < rects.length(); ++i) {
     const RectangleF &rect = rects[i];
     
-    HR(ComSafeArray::put_double(*pRetVal, 4 * i,     rect.x));
-    HR(ComSafeArray::put_double(*pRetVal, 4 * i + 1, rect.y));
-    HR(ComSafeArray::put_double(*pRetVal, 4 * i + 2, rect.width));
-    HR(ComSafeArray::put_double(*pRetVal, 4 * i + 3, rect.height));
+    if(!rect.is_empty()) {
+      HR(ComSafeArray::put_double(*pRetVal, j++,     rect.x));
+      HR(ComSafeArray::put_double(*pRetVal, j++, rect.y));
+      HR(ComSafeArray::put_double(*pRetVal, j++, rect.width));
+      HR(ComSafeArray::put_double(*pRetVal, j++, rect.height));
+    }
   }
   
   return S_OK;
