@@ -207,6 +207,9 @@ namespace richmath {
       
       void line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size);
       void line_extents(int line, float *x, float *y, BoxSize *size);
+      
+      void outermost_selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, const TextLayoutIterator &start, const TextLayoutIterator &end);
+      
   };
 }
 
@@ -369,117 +372,61 @@ void TextSequence::paint(Context &context) {
   }
 }
 
-void TextSequence::selection_path(Canvas &canvas, int start_text_index, int end_text_index) {
-  if(start_text_index > length())
-    start_text_index = length();
-  if(end_text_index > length())
-    end_text_index = length();
+void TextSequence::selection_path(Canvas &canvas, int start, int end) {
+  if(start > length())
+    start = length();
+  if(end > length())
+    end = length();
   
-  TextLayoutIterator iter_start = Impl(*this).text_iterator();
-  TextSequence &outermost = *iter_start.outermost_sequence();
-  iter_start.skip_forward_beyond_text_pos(this, start_text_index);
+  Point p0 = canvas.current_pos();
   
-  TextLayoutIterator iter_end = iter_start;
-  iter_end.skip_forward_beyond_text_pos(this, end_text_index);
-  
-  float x0, y0;
-  canvas.current_pos(&x0, &y0);
-  
-  if(start_text_index == end_text_index) {
+  if(start == end) {
+    TextLayoutIterator iter = Impl(*this).text_iterator();
+    iter.skip_forward_beyond_text_pos(this, start);
+    
     int x_pos;
-    int line = iter_start.find_current_line_x(false, &x_pos);
+    int line = iter.find_current_line_x(false, &x_pos);
     
     BoxSize size;
     float x, y;
     Impl(*this).line_extents(line, &x, &y, &size);
     
-    float x1 = x0 + x + pango_units_to_double(x_pos);
-    float y1 = y0 + y - size.ascent - 0.75;
+    Point p1 = p0;
+    p1.x += x + pango_units_to_double(x_pos);
+    p1.y += y - size.ascent - 0.75;
     
-    float x2 = x1;
-    float y2 = y0 + y + size.descent + 0.75;
+    Point p2;
+    p2.x = p1.x;
+    p2.y = p0.y + y + size.descent + 0.75;
     
-    canvas.align_point(&x1, &y1, true);
-    canvas.align_point(&x2, &y2, true);
-    
-    canvas.move_to(x1, y1);
-    canvas.line_to(x2, y2);
+    canvas.move_to(canvas.align_point(p1, true));
+    canvas.line_to(canvas.align_point(p2, true));
   }
   else {
-    float last_bottom = 0;
-    float spacing = pango_units_to_double(pango_layout_get_spacing(outermost._layout));
+    Array<RectangleF> rects;
+    selection_rectangles(rects, SelectionDisplayFlags::InterLineRects, p0, start, end);
     
-    int line_index = 0;
-    PangoLayoutIter *pango_iter = pango_layout_get_iter(outermost._layout);
-    
-    int start_byte_index = iter_start.byte_index();
-    int end_byte_index   = iter_end.byte_index();
-    // adjust start_byte_index...
-    PangoLayoutLine *prev = nullptr;
-    do {
-      PangoLayoutLine *pango_line = pango_layout_iter_get_line_readonly(pango_iter);
-      
-      if(start_byte_index < pango_line->start_index) {
-        if(prev && prev->start_index + prev->length < start_byte_index)
-          start_byte_index = prev->start_index + prev->length;
-          
-        break;
-      }
-      
-      prev = pango_line;
-    } while(pango_layout_iter_next_line(pango_iter));
-    pango_layout_iter_free(pango_iter);
-    prev = nullptr;
-    
-    pango_iter = pango_layout_get_iter(_layout);
-    do {
-      PangoLayoutLine *pango_line = pango_layout_iter_get_line_readonly(pango_iter);
-      
-      if(end_byte_index <= pango_line->start_index)
-        break;
-        
-      if(start_byte_index <= pango_line->start_index + pango_line->length) {
-        int *xranges;
-        int num_xranges;
-        float x, y;
-        BoxSize size;
-        
-        Impl(outermost).line_extents(pango_iter, line_index, &x, &y, &size);
-        if(end_byte_index > pango_line->start_index + pango_line->length)
-          size.descent += spacing;
-          
-        if(start_byte_index < pango_line->start_index) {
-          size.ascent +=  spacing;
-          
-          RectangleF rect(x0 + x, last_bottom, _extents.width - x, y0 + y - size.ascent - last_bottom);
-          rect.normalize();
-          rect.pixel_align(  canvas, false, 0);
-          rect.add_rect_path(canvas, false);
-        }
-        
-        last_bottom = y0 + y + size.descent;
-        
-        pango_layout_line_get_x_ranges(pango_line, start_byte_index, end_byte_index, &xranges, &num_xranges);
-        
-        for(int i = 0; i < num_xranges; ++i) {
-          RectangleF rect(
-            Point(x0 + pango_units_to_double(xranges[2 * i]),
-                  y0 + y - size.ascent),
-            Point(x0 + pango_units_to_double(xranges[2 * i + 1]),
-                  last_bottom));
-                  
-          rect.pixel_align(  canvas, false, 0);
-          rect.add_rect_path(canvas, false);
-        }
-        
-        g_free(xranges);
-      }
-      
-      ++line_index;
-    } while(pango_layout_iter_next_line(pango_iter));
-    
-    pango_layout_iter_free(pango_iter);
+    for(RectangleF &rect : rects) {
+      rect.pixel_align(  canvas, false, 0);
+      rect.add_rect_path(canvas, false);
+    }
+    //canvas.add_stacked_rectangles(rects);
   }
+}
+
+void TextSequence::selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) {
+  if(start > length())
+    start = length();
+  if(end > length())
+    end = length();
+  
+  TextLayoutIterator iter_start = Impl(*this).text_iterator();
+  iter_start.skip_forward_beyond_text_pos(this, start);
+  
+  TextLayoutIterator iter_end = iter_start;
+  iter_end.skip_forward_beyond_text_pos(this, end);
+  
+  Impl(*iter_start.outermost_sequence()).outermost_selection_rectangles(rects, flags, p0, iter_start, iter_end);
 }
 
 void TextSequence::on_text_changed() {
@@ -1103,6 +1050,97 @@ void TextSequence::Impl::line_extents(int line, float *x, float *y, BoxSize *siz
   line_extents(iter, line, x, y, size);
   
   pango_layout_iter_free(iter);
+}
+
+void TextSequence::Impl::outermost_selection_rectangles(
+  Array<RectangleF>        &rects, 
+  SelectionDisplayFlags     flags, 
+  Point                     p0, 
+  const TextLayoutIterator &start, 
+  const TextLayoutIterator &end
+) {
+  RICHMATH_ASSERT(&self == start.outermost_sequence());
+  RICHMATH_ASSERT(&self == end.outermost_sequence());
+  
+  const bool inter_line_rects = has(flags, SelectionDisplayFlags::InterLineRects);
+  
+  const float spacing = pango_units_to_double(pango_layout_get_spacing(self._layout));
+  
+  float last_bottom = 0.0f;
+  int line_index = 0;
+  
+  int start_byte_index = start.byte_index();
+  int end_byte_index   = end.byte_index();
+  
+  PangoLayoutLine *prev = nullptr;
+  PangoLayoutIter *pango_iter = pango_layout_get_iter(self._layout);
+//  // Adjust start_byte_index it is at the beginning/end of a line.
+//  do {
+//    PangoLayoutLine *pango_line = pango_layout_iter_get_line_readonly(pango_iter);
+//    
+//    if(start_byte_index < pango_line->start_index) {
+//      if(prev && prev->start_index + prev->length < start_byte_index)
+//        start_byte_index = prev->start_index + prev->length;
+//        
+//      break;
+//    }
+//    
+//    prev = pango_line;
+//  } while(pango_layout_iter_next_line(pango_iter));
+//  pango_layout_iter_free(pango_iter);
+//  prev = nullptr;
+//  pango_iter = pango_layout_get_iter(self._layout);
+
+  do {
+    PangoLayoutLine *pango_line = pango_layout_iter_get_line_readonly(pango_iter);
+    
+    if(end_byte_index <= pango_line->start_index)
+      break;
+      
+    if(start_byte_index <= pango_line->start_index + pango_line->length) {
+      int *xranges;
+      int num_xranges;
+      float x, y;
+      BoxSize size;
+      
+      line_extents(pango_iter, line_index, &x, &y, &size);
+      if(end_byte_index > pango_line->start_index + pango_line->length)
+        size.descent += spacing;
+      
+      float top = p0.y + y - size.ascent;
+      if(start_byte_index < pango_line->start_index) {
+        size.ascent +=  spacing;
+        
+        if(inter_line_rects) {
+          RectangleF rect(p0.x + x, last_bottom, self._extents.width - x, top - last_bottom);
+          rect.normalize();
+          rects.add(rect);
+        }
+        else
+          top = last_bottom;
+      }
+      
+      last_bottom = p0.y + y + size.descent;
+      
+      pango_layout_line_get_x_ranges(pango_line, start_byte_index, end_byte_index, &xranges, &num_xranges);
+      
+      for(int i = 0; i < num_xranges; ++i) {
+        RectangleF rect(
+          Point(p0.x + pango_units_to_double(xranges[2 * i]),
+                top),
+          Point(p0.x + pango_units_to_double(xranges[2 * i + 1]),
+                last_bottom));
+                
+        rects.add(rect);
+      }
+      
+      g_free(xranges);
+    }
+    
+    ++line_index;
+  } while(pango_layout_iter_next_line(pango_iter));
+  
+  pango_layout_iter_free(pango_iter);
 }
 
 //} ... class TextSequence::Impl

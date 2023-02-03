@@ -67,7 +67,8 @@ namespace richmath {
       
       virtual bool request_repaint_range(int start, int end) override;
       virtual RectangleF range_rect(int start, int end) override;
-      
+      virtual void selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) override = 0;
+
       float get_em() { return em; }
       const String &text() { return str; }
       

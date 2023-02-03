@@ -290,6 +290,14 @@ void Box::selection_path(Canvas &canvas, int start, int end) {
     canvas.pixrect(item(i)->extents().to_rectangle(p0), false);
 }
 
+void Box::selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) {
+  if(end > count())
+    end = count();
+  
+  for(int i = start; i < end; ++i) 
+    rects.add(item(i)->extents().to_rectangle(p0));
+}
+
 bool Box::scroll_to(const RectangleF &rect) {
   return false;
 }

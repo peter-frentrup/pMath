@@ -30,6 +30,7 @@ namespace richmath {
       virtual void paint(Context &context) override;
       
       virtual void selection_path(Canvas &canvas, int start, int end) override;
+      virtual void selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual void load_from_object(Expr obj, BoxInputFlags options) override;

@@ -531,6 +531,10 @@ void GridBox::selection_path(Canvas &canvas, int start, int end) {
   canvas.pixrect(rect + Vector2F(p0), false);
 }
 
+void GridBox::selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) {
+  rects.add(range_rect(start, end) + Vector2F(p0));
+}
+
 RectangleF GridBox::range_rect(int start, int end) {
   auto index_rect = get_enclosing_range(start, end);
   

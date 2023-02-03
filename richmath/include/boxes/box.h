@@ -110,9 +110,17 @@ namespace richmath {
     Default            = 0,
     FormatNumbers      = 1,
     AllowTemplateSlots = 2,
-    ForceResetDynamic  = 4
+    ForceResetDynamic  = 4,
   };
   DECLARE_FLAGS_ENUM_OPERATORS(BoxInputFlags)
+  
+  enum class SelectionDisplayFlags {
+    Default        = 0,
+    TightWidths    = 1, ///< Reduce rectangle width tightly around the lines' ink areas instead of extending to the whole box width
+    BigCenterBlob  = 2, ///< Combine all but the first and last lines into one rectangle intead of separate rectangles for each line
+    InterLineRects = 4, ///< Include rectangles for the white space between lines.
+  };
+  DECLARE_FLAGS_ENUM_OPERATORS(SelectionDisplayFlags)
   
   template< class... Args >
   struct FunctionChain {
@@ -245,6 +253,7 @@ namespace richmath {
       virtual void end_paint_inline_span(Context &context, BasicHeterogeneousStack &context_stack, DisplayStage stage) {}
       virtual VolatileSelection get_highlight_child(const VolatileSelection &src);
       virtual void selection_path(Canvas &canvas, int start, int end);
+      virtual void selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end);
       virtual bool scroll_to(const RectangleF &rect);
       virtual bool scroll_to(Canvas &canvas, const VolatileSelection &child);
       bool default_scroll_to(Canvas &canvas, Box *scroll_view, const VolatileSelection &child_sel);

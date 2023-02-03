@@ -7,7 +7,10 @@
 namespace richmath {
   class Box;
   class Canvas;
+  class RectangleF;
+  class Point;
   enum class BoxOutputFlags;
+  enum class SelectionDisplayFlags;
   
   enum class LogicalDirection {
     Forward,
@@ -115,6 +118,7 @@ namespace richmath {
     pmath::Expr to_pmath(BoxOutputFlags flags) const;
     
     void add_path(Canvas &canvas) const;
+    void add_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0) const;
     
     void expand();
     void expand_to_parent();

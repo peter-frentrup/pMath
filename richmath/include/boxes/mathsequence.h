@@ -42,7 +42,8 @@ namespace richmath {
       
       virtual void selection_path(Canvas &canvas,   int start, int end) override;
       void         selection_path(Context &context, int start, int end);
-      
+      virtual void selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) override;
+
       virtual Expr to_pmath_symbol() override { return Expr(); }
       
       virtual Box *move_logical(

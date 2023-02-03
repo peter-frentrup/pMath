@@ -348,6 +348,11 @@ void VolatileSelection::add_path(Canvas &canvas) const {
   }
 }
 
+void VolatileSelection::add_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0) const {
+  if(box)
+    box->selection_rectangles(rects, flags, p0, start, end);
+}
+
 void VolatileSelection::expand() {
   VolatileSelectionImpl(*this).expand();
 }
