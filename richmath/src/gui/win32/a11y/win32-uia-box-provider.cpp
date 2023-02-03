@@ -655,7 +655,22 @@ HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(struct UiaRect *pRetVal
   
   MapWindowPoints(wid->hwnd(), nullptr, (LPPOINT)&client, 2);
   
-  RectangleF rect = box->extents().to_rectangle();
+  RectangleF rect = RectangleF(0, 0, 0, 0);
+  if(box->extents().is_empty()) { 
+    // For inline-spans, box->extents().to_rectangle() would be empty
+    //  box->as_inline_span() || box->as_inline_text_span() ...
+    Array<RectangleF> rects;
+    box->selection_rectangles(rects, SelectionDisplayFlags::BigCenterBlob, {0.0f, 0.0f}, 0, box->length());
+    if(rects.length() > 0) {
+      rect = rects[0];
+      for(int i = 1; i < rects.length(); ++i)
+        rect = rect.union_hull(rects[i]);
+    }
+  }
+  else {
+    rect = box->extents().to_rectangle();
+  }
+  
   if(box->visible_rect(rect)) {
     rect = wid->map_document_rect_to_native(rect);
     

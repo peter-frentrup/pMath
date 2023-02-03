@@ -26,6 +26,8 @@ namespace richmath {
       float height() const { return ascent + descent; }
       float center() const { return (ascent - descent) / 2; }
       
+      bool is_empty() const { return width == 0 && height() == 0; }
+      
       bool operator==(const BoxSize &other) const {
         return other.width   == width &&
                other.ascent  == ascent &&
