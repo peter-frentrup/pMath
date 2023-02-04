@@ -23,6 +23,10 @@ namespace richmath {
       HRESULT expand_to_character();
       HRESULT expand_to_word();
       
+      HRESULT move_by_all(int count, int *num_moved);
+      HRESULT move_by_character(int count, int *num_moved);
+      HRESULT move_by_word(int count, int *num_moved);
+      
       HRESULT get_IsHidden(VARIANT *pRetVal);
       HRESULT get_IsReadOnly(VARIANT *pRetVal);
       
@@ -307,7 +311,23 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetText(int maxLength, BSTR *pRetVal) {
 // ITextRangeProvider::Move
 //
 STDMETHODIMP Win32UiaTextRangeProvider::Move(enum TextUnit unit, int count, int *pRetVal) {
-  return check_HRESULT(E_NOTIMPL, __func__, __FILE__, __LINE__);
+  if(!pRetVal)
+    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+  if(!Application::is_running_on_gui_thread())
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    
+  fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Move(%d, %d)]\n", this, range.id, range.start, range.end, unit, count);
+  switch(unit) {
+    case TextUnit_Character: return Impl(*this).move_by_character(count, pRetVal);
+    case TextUnit_Format:    // not supported. Use next larger unit.
+    case TextUnit_Word:      return Impl(*this).move_by_character(count, pRetVal);
+    case TextUnit_Line:      // not supported. Use next larger unit.
+    case TextUnit_Paragraph: // not supported. Use next larger unit.
+    case TextUnit_Page:      // not supported. Use next larger unit.
+    case TextUnit_Document:  return Impl(*this).move_by_all(count, pRetVal);
+    default: break;
+  }
+  return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
 }
 
 //
@@ -473,6 +493,106 @@ HRESULT Win32UiaTextRangeProvider::Impl::expand_to_word() {
   
   self.range.start = self.range.end = 0;
   return S_OK;
+}
+
+HRESULT Win32UiaTextRangeProvider::Impl::move_by_all(int count, int *num_moved) {
+  *num_moved = 0;
+  Box *box = self.range.get();
+  if(!box)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  bool was_degenerate = self.range.length() == 0;
+  if(count > 0) {
+    *num_moved = 1;
+    self.range.end   = box->length();
+    self.range.start = was_degenerate ? self.range.end : 0;
+  }
+  else if(count < 0) {
+    *num_moved = -1;
+    self.range.start = 0;
+    self.range.end   = was_degenerate ? 0 : box->length();
+  }
+  return S_OK;
+}
+
+HRESULT Win32UiaTextRangeProvider::Impl::move_by_character(int count, int *num_moved) {
+  *num_moved = 0;
+  VolatileSelection sel = self.range.get_all();
+  if(!sel)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  LogicalDirection dir;
+  if(count < 0) {
+    count = -count;
+    dir = LogicalDirection::Backward;
+  }
+  else
+    dir = LogicalDirection::Forward;
+  
+  VolatileLocation loc = sel.start_only();
+  while(count-- > 0) {
+    // FIXME: move_logical() will skip the non-selectable parts of a TemplateBox. But we probably want to reach them.
+    VolatileLocation next = loc.move_logical(dir, false);
+    if(!next || next == loc)
+      break;
+    
+    loc = next;
+    ++*num_moved;
+  }
+  
+  if(dir == LogicalDirection::Backward)
+    *num_moved = -*num_moved;
+  
+  self.range.set(loc);
+  if(sel.length() == 0)
+    return S_OK;
+  else
+    return expand_to_character();
+}
+
+HRESULT Win32UiaTextRangeProvider::Impl::move_by_word(int count, int *num_moved) {
+  *num_moved = 0;
+  VolatileSelection sel = self.range.get_all();
+  if(!sel)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  LogicalDirection dir;
+  if(count < 0) {
+    count = -count;
+    dir = LogicalDirection::Backward;
+  }
+  else
+    dir = LogicalDirection::Forward;
+  
+  VolatileLocation loc = sel.start_only();
+  while(count-- > 0) {
+    // FIXME: move_logical() will skip the non-selectable parts of a TemplateBox. But we probably want to reach them.
+    VolatileLocation next_char = loc.move_logical(dir, false);
+    if(!next_char || next_char == loc)
+      break;
+    
+    if(next_char.box == loc.box) { // stayed within the same box
+      VolatileLocation next = loc.move_logical(dir, true);
+      if(!next) // should not happen
+        next = next_char;
+      
+      loc = next;
+      ++*num_moved;
+    }
+    else { // switched to inner or outer box
+      loc = next_char;
+      ++*num_moved;
+    }
+  }
+  
+  if(dir == LogicalDirection::Backward)
+    *num_moved = -*num_moved;
+  
+  self.range.set(loc);
+  if(sel.length() == 0)
+    return S_OK;
+  else
+    return expand_to_word();
 }
 
 HRESULT Win32UiaTextRangeProvider::Impl::get_IsHidden(VARIANT *pRetVal) {
