@@ -59,6 +59,8 @@ namespace richmath {
       
       virtual bool scroll_to(const RectangleF &rect) override;
       virtual bool scroll_to(Canvas &canvas, const VolatileSelection &child_sel) override;
+      bool async_scroll_to(const SelectionReference &target);
+      const SelectionReference &pending_scroll_target() { return auto_scroll_target; }
       
       void mouse_exit();
       void mouse_down(MouseEvent &event);
@@ -198,10 +200,10 @@ namespace richmath {
       FrontEndReference  prev_sel_box_id;
       int                must_resize_min;
       DragStatus         drag_status;
-      bool               auto_scroll;
       
       SharedPtr<BoxRepaintEvent> flashing_cursor_circle;
       
+      SelectionReference auto_scroll_target;
       SelectionReference sel_first;
       SelectionReference sel_last;
       

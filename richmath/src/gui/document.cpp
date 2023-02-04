@@ -270,7 +270,6 @@ Document::Document()
     prev_sel_box_id(FrontEndReference::None),
     must_resize_min(0),
     drag_status(DragStatus::Idle),
-    auto_scroll(false),
     _native(NativeWidget::dummy),
     auto_completion(this)
 {
@@ -415,6 +414,23 @@ bool Document::scroll_to(const RectangleF &rect) {
 
 bool Document::scroll_to(Canvas &canvas, const VolatileSelection &child_sel) {
   return default_scroll_to(canvas, this, child_sel);
+}
+
+bool Document::async_scroll_to(const SelectionReference &target) {
+  if(!target) {
+    auto_scroll_target.reset();
+    return true;
+  }
+  
+  if(!native()->is_scrollable())
+    return false;
+  
+  if(!is_parent_of(FrontEndObject::find_cast<Box>(target.id)))
+    return false;
+  
+  auto_scroll_target = target;
+  request_repaint_all();
+  return true;
 }
 
 //{ event invokers ...
@@ -1177,7 +1193,10 @@ void Document::select(const VolatileSelection &sel) {
     
   sel_last.set(sel);
   sel_first = sel_last;
-  auto_scroll = !mouse_history.is_mouse_down(this);
+  if(mouse_history.is_mouse_down(this))
+    auto_scroll_target.reset();
+  else
+    auto_scroll_target.set(sel);
   
   Impl(*this).raw_select(sel);
 }
@@ -1192,8 +1211,6 @@ void Document::select_to(const VolatileSelection &sel) {
 void Document::select_range(VolatileSelection from, VolatileSelection to) {
   if(!from.null_or_selectable() || !to.null_or_selectable())
     return;
-    
-  auto_scroll = !is_mouse_down();
   
   sel_first.set(from);
   from.expand_to_cover(to, true);
@@ -1206,8 +1223,14 @@ void Document::select_range(VolatileSelection from, VolatileSelection to) {
     from.expand_to_parent();
   }
   
-  if(from.box)
+  if(from.box) {
+    if(is_mouse_down())
+      auto_scroll_target.reset();
+    else
+      auto_scroll_target = sel_last;
+    
     Impl(*this).raw_select(from);
+  }
 }
 
 void Document::move_to(Box *box, int index, bool selecting) {
@@ -3424,6 +3447,10 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     while(sel_sects.box && sel_sects.box != this)
       sel_sects.expand_to_parent();
     
+    VolatileSelection scroll_target_sects = auto_scroll_target.get_all();
+    while(scroll_target_sects.box && scroll_target_sects.box != this)
+      scroll_target_sects.expand_to_parent();
+    
     int i = 0;
     while(i < length() && _extents.descent <= page_rect.top()) {
       if(section(i)->must_resize()) // || i == sel_sect)
@@ -3454,8 +3481,8 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
         if(!resi && sel_sects.box == this) 
           resi = (sel_sects.start <= i && i < sel_sects.end);
         
-        if(!resi && auto_scroll) 
-          resi = (i < sel_sects.end);
+        if(!resi && scroll_target_sects) 
+          resi = (i < scroll_target_sects.end);
         
         if(resi) 
           resize_section(context, i);
@@ -3562,13 +3589,12 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
         canvas.paint();
       }
       
-      if(auto_scroll) {
-        if(VolatileSelection box_range = sel_last.get_all()) {
-          auto_scroll = box_range.box->scroll_to(canvas, box_range) || has_pending_repaint();
-        }
-        else
-          auto_scroll = false;
+      if(VolatileSelection box_range = auto_scroll_target.get_all()) {
+        if(!box_range.box->scroll_to(canvas, box_range) && !has_pending_repaint())
+          auto_scroll_target.reset();
       }
+      else
+        auto_scroll_target.reset();
       
       canvas.translate(page_rect.x, page_rect.y);
       
