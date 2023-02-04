@@ -12,6 +12,14 @@ static ComSideChannelBase *volatile_cpp_side_channel = nullptr;
 //{ class ComSideChannelBase ...
 
 STDMETHODIMP ComSideChannelBase::PutSelfOnSideChannel(void) {
+  if(!Application::is_running_on_gui_thread())
+    return E_UNEXPECTED;
+  
+  AddRef();
+  if(volatile_cpp_side_channel) {
+    volatile_cpp_side_channel->Release();
+    volatile_cpp_side_channel = nullptr;
+  }
   volatile_cpp_side_channel = this;
   return S_OK;
 }
