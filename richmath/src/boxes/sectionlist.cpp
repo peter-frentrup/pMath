@@ -219,6 +219,10 @@ void SectionList::selection_path(Canvas &canvas, int start, int end) {
   }
 }
 
+void SectionList::selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) {
+  rects.add(range_rect(start, end) + Vector2F(p0));
+}
+
 RectangleF SectionList::range_rect(int start, int end) {
   float bottom;
   if(end < length())
