@@ -57,6 +57,11 @@ STDMETHODIMP Win32UiaTextRangeProvider::QueryInterface(REFIID iid, void **ppvObj
     *ppvObject = static_cast<ITextRangeProvider*>(this);
     return S_OK;
   }
+  else if(iid == IID_IRichmathComSideChannel) {
+    AddRef();
+    *ppvObject = static_cast<IRichmathComSideChannel*>(this);
+    return S_OK;
+  }
   
   *ppvObject = nullptr;
   return E_NOINTERFACE;

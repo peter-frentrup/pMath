@@ -6,11 +6,15 @@
 #endif
 
 
-#include <uiautomationcore.h>
 #include <util/selections.h>
+#include <gui/win32/ole/comsidechannel.h>
+#include <uiautomationcore.h>
 
 namespace richmath {
-  class Win32UiaTextRangeProvider : public ITextRangeProvider {
+  class Win32UiaTextRangeProvider : 
+      public ITextRangeProvider,
+      public ComSideChannelBase 
+  {
       class Impl;
     public:
       explicit Win32UiaTextRangeProvider(SelectionReference range);
