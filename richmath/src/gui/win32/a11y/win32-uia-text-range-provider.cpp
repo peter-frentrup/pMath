@@ -29,6 +29,9 @@ namespace richmath {
       
       HRESULT get_IsHidden(VARIANT *pRetVal);
       HRESULT get_IsReadOnly(VARIANT *pRetVal);
+    
+    private:
+      static VolatileLocation move_beyond_end(VolatileLocation loc, bool jumping);
       
     private:
       Win32UiaTextRangeProvider &self;
@@ -322,7 +325,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::Move(enum TextUnit unit, int count, int 
   switch(unit) {
     case TextUnit_Character: return Impl(*this).move_by_character(count, pRetVal);
     case TextUnit_Format:    // not supported. Use next larger unit.
-    case TextUnit_Word:      return Impl(*this).move_by_character(count, pRetVal);
+    case TextUnit_Word:      return Impl(*this).move_by_word(count, pRetVal);
     case TextUnit_Line:      // not supported. Use next larger unit.
     case TextUnit_Paragraph: // not supported. Use next larger unit.
     case TextUnit_Page:      // not supported. Use next larger unit.
@@ -610,25 +613,40 @@ HRESULT Win32UiaTextRangeProvider::Impl::move_by_character(int count, int *num_m
   else
     dir = LogicalDirection::Forward;
   
+  bool keep_empty = sel.length() == 0;
   VolatileLocation loc = sel.start_only();
+  VolatileLocation prev{};
   while(count-- > 0) {
     // FIXME: move_logical() will skip the non-selectable parts of a TemplateBox. But we probably want to reach them.
     VolatileLocation next = loc.move_logical(dir, false);
     if(!next || next == loc)
       break;
     
+    prev = loc;
     loc = next;
     ++*num_moved;
+  }
+  
+  if(dir == LogicalDirection::Forward) {
+    // exit the end of a box before selecting its last character
+    if(!keep_empty)
+      loc = move_beyond_end(loc, false);
   }
   
   if(dir == LogicalDirection::Backward)
     *num_moved = -*num_moved;
   
   self.range.set(loc);
-  if(sel.length() == 0)
+  if(keep_empty)
     return S_OK;
-  else
-    return expand_to_character();
+  
+  HR(expand_to_character());
+  
+  if(dir == LogicalDirection::Forward) {
+    if(self.range.get_all().start_only() == prev)
+      --*num_moved;
+  }
+  return S_OK;
 }
 
 HRESULT Win32UiaTextRangeProvider::Impl::move_by_word(int count, int *num_moved) {
@@ -645,7 +663,9 @@ HRESULT Win32UiaTextRangeProvider::Impl::move_by_word(int count, int *num_moved)
   else
     dir = LogicalDirection::Forward;
   
+  bool keep_empty = sel.length() == 0;
   VolatileLocation loc = sel.start_only();
+  VolatileLocation prev{};
   while(count-- > 0) {
     // FIXME: move_logical() will skip the non-selectable parts of a TemplateBox. But we probably want to reach them.
     VolatileLocation next_char = loc.move_logical(dir, false);
@@ -657,23 +677,37 @@ HRESULT Win32UiaTextRangeProvider::Impl::move_by_word(int count, int *num_moved)
       if(!next) // should not happen
         next = next_char;
       
+      prev = loc;
       loc = next;
       ++*num_moved;
     }
     else { // switched to inner or outer box
+      prev = loc;
       loc = next_char;
       ++*num_moved;
     }
+  }
+  
+  if(dir == LogicalDirection::Forward) {
+    // exit the end of a box before selecting its last character
+    if(!keep_empty)
+      loc = move_beyond_end(loc, true);
   }
   
   if(dir == LogicalDirection::Backward)
     *num_moved = -*num_moved;
   
   self.range.set(loc);
-  if(sel.length() == 0)
+  if(keep_empty)
     return S_OK;
-  else
-    return expand_to_word();
+  
+  HR(expand_to_word());
+  
+  if(dir == LogicalDirection::Forward) {
+    if(self.range.get_all().start_only() == prev)
+      --*num_moved;
+  }
+  return S_OK;
 }
 
 HRESULT Win32UiaTextRangeProvider::Impl::get_IsHidden(VARIANT *pRetVal) {
@@ -695,6 +729,30 @@ HRESULT Win32UiaTextRangeProvider::Impl::get_IsReadOnly(VARIANT *pRetVal) {
   pRetVal->vt = VT_BOOL;
   pRetVal->boolVal = box->editable() ? VARIANT_FALSE : VARIANT_TRUE;
   return S_OK;
+}
+
+VolatileLocation Win32UiaTextRangeProvider::Impl::move_beyond_end(VolatileLocation loc, bool jumping) {
+  if(loc && loc.index == loc.box->length()) {
+    // exit while at end
+    while(loc && loc.index == loc.box->length()) {
+      VolatileLocation next = loc.move_logical(LogicalDirection::Forward, jumping);
+      if(!next || loc == next)
+        break;
+      
+      loc = next;
+    }
+    
+//    // enter while before new box
+//    while(loc) {
+//      // FIXME: move_logical() will skip the non-selectable parts of a TemplateBox. But we probably want to reach them.
+//      VolatileLocation next = loc.move_logical(LogicalDirection::Forward, false);
+//      if(next.box == loc.box)
+//        break;
+//      
+//      loc = next;
+//    }
+  }
+  return loc;
 }
 
 //} ... class Win32UiaTextRangeProvider::Impl
