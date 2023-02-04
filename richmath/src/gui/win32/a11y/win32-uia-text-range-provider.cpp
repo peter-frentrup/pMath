@@ -372,7 +372,30 @@ STDMETHODIMP Win32UiaTextRangeProvider::MoveEndpointByUnit(enum TextPatternRange
 // ITextRangeProvider::MoveEndpointByRange
 //
 STDMETHODIMP Win32UiaTextRangeProvider::MoveEndpointByRange(enum TextPatternRangeEndpoint endpoint, ITextRangeProvider *targetRange, enum TextPatternRangeEndpoint targetEndpoint) {
-  return check_HRESULT(E_NOTIMPL, __func__, __FILE__, __LINE__);
+  if(!targetRange)
+    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+  if(!Application::is_running_on_gui_thread())
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+
+  VolatileSelection from = range.get_all();
+  VolatileSelection to = Impl::get(targetRange).get_all();
+  
+  if(!from || !to)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  if(endpoint == TextPatternRangeEndpoint_Start)
+    from.start = from.end; // from = the other endpoint, which should stay fixed (end)
+  else
+    from.end = from.start; // from = the other endpoint, which should stay fixed (start)
+  
+  if(targetEndpoint == TextPatternRangeEndpoint_Start)
+    to.end = to.start;
+  else
+    to.start = to.end;
+  
+  from.expand_to_cover(to, /* restrict_from_exists */ false);
+  range.set(from);
+  return S_OK;
 }
 
 //
