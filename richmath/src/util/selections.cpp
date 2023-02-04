@@ -391,6 +391,77 @@ void VolatileSelection::expand_nearby_placeholder(float *index_rel_x) {
   }
 }
 
+void VolatileSelection::expand_to_cover(VolatileSelection &other, bool restrict_from_exits) {
+  if(end < start) {
+    using std::swap;
+    swap(start, end);
+  }
+  
+  if(other.end < other.start) {
+    using std::swap;
+    swap(other.start, other.end);
+  }
+  
+  if(!box || !other.box)
+    return;
+  
+  int depth_from = Box::depth(box);
+  int depth_to   = Box::depth(other.box);
+  
+  while(depth_from > depth_to) {
+    if(restrict_from_exits) {
+      if(box->parent() && !box->parent()->selection_exitable()) {
+        int o1 = document_order(start_only(), other.end_only());
+        int o2 = document_order(end_only(), other.start_only());
+        
+        if(o1 > 0) {
+          start = 0;
+        }
+        else if(o2 < 0) {
+          end = box->length();
+        }
+        else {
+          start = 0;
+          end = box->length();
+        }
+        return;
+      }
+    }
+    expand_to_parent();
+    --depth_from;
+  }
+  
+  while(depth_to > depth_from) {
+    other.expand_to_parent();
+    --depth_to;
+  }
+  
+  VolatileSelection to = other;
+  
+  while(box != to.box && box && to.box) {
+    if(restrict_from_exits) {
+      if(box->parent() && !box->parent()->selection_exitable()) {
+        int o = document_order(start_only(), to.start_only());
+        
+        if(o < 0) 
+          end = box->length();
+        else
+          start = 0;
+       
+        return;
+      }
+    }
+    
+    expand_to_parent();
+    to.expand_to_parent();
+  }
+  
+  if(to.start < start)
+    start = to.start;
+  if(end < to.end)
+    end = to.end;
+}
+
 void VolatileSelection::normalize() {
   if(box) 
     *this = box->normalize_selection(start, end); 

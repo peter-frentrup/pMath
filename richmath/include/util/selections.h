@@ -125,6 +125,8 @@ namespace richmath {
     void expand_up_to_sibling(const VolatileSelection &sibling, int max_steps = INT_MAX);
     void expand_nearby_placeholder(float *index_rel_x);
     
+    void expand_to_cover(VolatileSelection &other, bool restrict_from_exits = true);
+    
     void normalize();
     void dynamic_to_literal();
     

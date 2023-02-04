@@ -1193,71 +1193,12 @@ void Document::select_range(VolatileSelection from, VolatileSelection to) {
   if(!from.null_or_selectable() || !to.null_or_selectable())
     return;
     
-  sel_first.set(from);
-  sel_last.set(to);
   auto_scroll = !is_mouse_down();
   
-  if(from.end < from.start) {
-    using std::swap;
-    swap(from.start, from.end);
-  }
-  
-  if(to.end < to.start) {
-    using std::swap;
-    swap(to.start, to.end);
-  }
-  
-  int depth_from = Box::depth(from.box);
-  int depth_to   = Box::depth(to.box);
-  
-  while(depth_from > depth_to) {
-    if(from.box->parent() && !from.box->parent()->selection_exitable()) {
-      if(from.box->selectable()) {
-        int o1 = document_order(from.start_only(), to.end_only());
-        int o2 = document_order(from.end_only(), to.start_only());
-        
-        if(o1 > 0)
-          Impl(*this).raw_select(from.box, 0, from.end);
-        else if(o2 < 0)
-          Impl(*this).raw_select(from.box, from.start, from.box->length());
-        else
-          Impl(*this).raw_select(from.box, 0, from.box->length());
-      }
-      return;
-    }
-    from.expand_to_parent();
-    --depth_from;
-  }
-  
-  while(depth_to > depth_from) {
-    to.expand_to_parent();
-    --depth_to;
-  }
-  
+  sel_first.set(from);
+  from.expand_to_cover(to, true);
   sel_last.set(to);
   
-  while(from.box != to.box && from.box && to.box) {
-    if(from.box->parent() && !from.box->parent()->selection_exitable()) {
-      if(from.box->selectable()) {
-        int o = document_order(from.start_only(), to.start_only());
-        
-        if(o < 0)
-          Impl(*this).raw_select(from.box, from.start, from.box->length());
-        else
-          Impl(*this).raw_select(from.box, 0, from.end);
-      }
-      return;
-    }
-    
-    from.expand_to_parent();
-    to.expand_to_parent();
-  }
-  
-  if(to.start < from.start)
-    from.start = to.start;
-  if(from.end < to.end)
-    from.end = to.end;
-    
   while(from.box && !from.box->selectable()) {
     if(!from.box->selection_exitable())
       return;
