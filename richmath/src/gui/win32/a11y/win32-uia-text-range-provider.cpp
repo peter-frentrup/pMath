@@ -319,7 +319,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::Move(enum TextUnit unit, int count, int 
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
     
-  fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Move(%d, %d)]\n", this, range.id, range.start, range.end, unit, count);
+  //fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Move(%d, %d)]\n", this, range.id, range.start, range.end, unit, count);
   switch(unit) {
     case TextUnit_Character: return Impl(*this).move_by_character(count, pRetVal);
     case TextUnit_Format:    // not supported. Use next larger unit.
@@ -336,8 +336,36 @@ STDMETHODIMP Win32UiaTextRangeProvider::Move(enum TextUnit unit, int count, int 
 //
 // ITextRangeProvider::MoveEndpointByUnit
 //
-STDMETHODIMP Win32UiaTextRangeProvider::MoveEndpointByUnit( enum TextPatternRangeEndpoint endpoint, enum TextUnit unit, int count, int *pRetVal) {
-  return check_HRESULT(E_NOTIMPL, __func__, __FILE__, __LINE__);
+STDMETHODIMP Win32UiaTextRangeProvider::MoveEndpointByUnit(enum TextPatternRangeEndpoint endpoint, enum TextUnit unit, int count, int *pRetVal) {
+  if(!pRetVal)
+    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+  if(!Application::is_running_on_gui_thread())
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  auto orig = range;
+  VolatileSelection from = range.get_all();
+  if(!from)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  if(endpoint == TextPatternRangeEndpoint_Start) {
+    range.end  = range.start; // range = the endpoint to be moved
+    from.start = from.end;    // from = the other endpoint
+  }
+  else {
+    range.start = range.end;  // range = the endpoint to be moved
+    from.end    = from.start; // from = the other endpoint
+  }
+  
+  HRESULT hr = HRreport(Move(unit, count, pRetVal));
+  VolatileSelection to = range.get_all();
+  if(FAILED(hr) || !to) {
+    range = orig;
+    return hr;
+  }
+  
+  from.expand_to_cover(to, /* restrict_from_exists */ false);
+  range.set(from);
+  return S_OK;
 }
 
 //
