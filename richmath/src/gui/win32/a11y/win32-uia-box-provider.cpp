@@ -41,11 +41,11 @@ Win32UiaBoxProvider::Win32UiaBoxProvider(FrontEndReference obj_ref)
   : refcount(1),
     obj_ref(obj_ref)
 {
-  fprintf(stderr, "[%p = new Win32UiaBoxProvider(%d)]\n", this, obj_ref);
+  //fprintf(stderr, "[%p = new Win32UiaBoxProvider(%d)]\n", this, obj_ref);
 }
 
 Win32UiaBoxProvider::~Win32UiaBoxProvider() {
-  fprintf(stderr, "[delete %p = new Win32UiaBoxProvider(%d)]\n", this, obj_ref);
+  //fprintf(stderr, "[delete Win32UiaBoxProvider %p(%d)]\n", this, obj_ref);
 }
 
 //
@@ -209,7 +209,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_HostRawElementProvider(IRawElementProvider
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_HostRawElementProvider()]\n", this, obj_ref);
+  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_HostRawElementProvider()]\n", this, obj_ref);
   Box *box = FrontEndObject::find_cast<Box>(obj_ref);
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
@@ -237,7 +237,7 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::Navigate(%d)]\n", this, obj_ref, direction);
+  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::Navigate(%d)]\n", this, obj_ref, direction);
   *pRetVal = nullptr;
   switch(direction) {
     case NavigateDirection_Parent: {
@@ -315,7 +315,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetRuntimeId(SAFEARRAY **pRetVal) {
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetRuntimeId()]\n", this, obj_ref);
+  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetRuntimeId()]\n", this, obj_ref);
   *pRetVal = nullptr;
   if(box->parent()) {
     int rId[] = { UiaAppendRuntimeId, (int)(uint32_t)(uintptr_t)FrontEndReference::unsafe_cast_to_pointer(obj_ref) };
@@ -378,7 +378,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_FragmentRoot(IRawElementProviderFragmentRo
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_FragmentRoot()]\n", this, obj_ref);
+  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_FragmentRoot()]\n", this, obj_ref);
   Document *doc = box->find_parent<Document>(/* selfincluding */true);
   if(!doc || doc == box) {
     AddRef();
@@ -465,7 +465,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetSelection(SAFEARRAY **pRetVal) {
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetSelection()]\n", this, obj_ref);
+  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetSelection()]\n", this, obj_ref);
   
   *pRetVal = nullptr;
   
@@ -515,7 +515,7 @@ STDMETHODIMP Win32UiaBoxProvider::RangeFromChild(IRawElementProviderSimple *chil
   if(!this_box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::RangeFromChild(%p)]\n", this, obj_ref, childElement);
+  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::RangeFromChild(%p)]\n", this, obj_ref, childElement);
   
   *pRetVal = nullptr;
   auto child_feo = Impl::find(childElement);
@@ -576,7 +576,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_DocumentRange(ITextRangeProvider **pRetVal
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_DocumentRange()]\n", this, obj_ref);
+  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_DocumentRange()]\n", this, obj_ref);
   *pRetVal = new Win32UiaTextRangeProvider(SelectionReference(box, 0, box->length()));
   return S_OK;
 }

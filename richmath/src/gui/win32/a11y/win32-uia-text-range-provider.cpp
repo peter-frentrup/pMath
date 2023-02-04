@@ -41,11 +41,11 @@ Win32UiaTextRangeProvider::Win32UiaTextRangeProvider(SelectionReference range)
   : refcount(1),
     range(range)
 {
-  fprintf(stderr, "[delete %p = new Win32UiaTextRangeProvider(%d, %d .. %d)]\n", this, range.id, range.start, range.end);
+  //fprintf(stderr, "[delete %p = new Win32UiaTextRangeProvider(%d, %d .. %d)]\n", this, range.id, range.start, range.end);
 }
 
 Win32UiaTextRangeProvider::~Win32UiaTextRangeProvider() {
-  fprintf(stderr, "[delete %p = new Win32UiaTextRangeProvider(%d, %d .. %d)]\n", this, range.id, range.start, range.end);
+  //fprintf(stderr, "[delete Win32UiaTextRangeProvider %p(%d, %d .. %d)]\n", this, range.id, range.start, range.end);
 }
 
 //
@@ -95,7 +95,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::Clone(ITextRangeProvider **pRetVal) {
   if(!pRetVal)
     return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
  
-  fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Clone()]\n", this, range.id, range.start, range.end);
+  //fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Clone()]\n", this, range.id, range.start, range.end);
 
   *pRetVal = new Win32UiaTextRangeProvider(range);
   return S_OK;
@@ -108,7 +108,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::Compare(ITextRangeProvider *other, BOOL 
   if(!pRetVal)
     return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
   
-  fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Compare(%p)]\n", this, range.id, range.start, range.end, other);
+  //fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Compare(%p)]\n", this, range.id, range.start, range.end, other);
   *pRetVal = range == Impl::get(other);
   return S_OK;
 }
@@ -145,7 +145,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::ExpandToEnclosingUnit(enum TextUnit unit
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
     
-  fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::ExpandToEnclosingUnit(%d)]\n", this, range.id, range.start, range.end, unit);
+  //fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::ExpandToEnclosingUnit(%d)]\n", this, range.id, range.start, range.end, unit);
   switch(unit) {
     case TextUnit_Character: return Impl(*this).expand_to_character();
     case TextUnit_Format:    // not supported. Use next larger unit.
@@ -214,12 +214,6 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetBoundingRectangles(SAFEARRAY **pRetVa
     POINT screen_pt = {0, 0};
     ClientToScreen(wid->hwnd(), &screen_pt);
     
-//    { // TODO
-//      RectangleF rect = sel.box->extents().to_rectangle();
-//      if(sel.box->visible_rect(rect)) {
-//        rects.add(rect);
-//      }
-//    }
     sel.add_rectangles(rects, SelectionDisplayFlags::Default, {0.0f, 0.0f});
     
     if(sel.length() == 0) { 
@@ -429,14 +423,14 @@ STDMETHODIMP Win32UiaTextRangeProvider::Select(void) {
 // ITextRangeProvider::AddToSelection
 //
 STDMETHODIMP Win32UiaTextRangeProvider::AddToSelection(void) {
-  return check_HRESULT(E_NOTIMPL, __func__, __FILE__, __LINE__);
+  return check_HRESULT(UIA_E_NOTSUPPORTED, __func__, __FILE__, __LINE__);
 }
 
 //
 // ITextRangeProvider::RemoveFromSelection
 //
 STDMETHODIMP Win32UiaTextRangeProvider::RemoveFromSelection(void) {
-  return check_HRESULT(E_NOTIMPL, __func__, __FILE__, __LINE__);
+  return check_HRESULT(UIA_E_NOTSUPPORTED, __func__, __FILE__, __LINE__);
 }
 
 //
