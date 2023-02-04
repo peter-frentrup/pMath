@@ -117,16 +117,19 @@ STDMETHODIMP Win32UiaTextRangeProvider::CompareEndpoints(enum TextPatternRangeEn
   if(!pRetVal)
     return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
   
-  SelectionReference target = Impl::get(targetRange);
+  VolatileLocation thisLoc = range
+    .start_end_reference(
+      endpoint == TextPatternRangeEndpoint_Start ? LogicalDirection::Backward : LogicalDirection::Forward)
+    .get_all();
+  VolatileLocation targetLoc = Impl::get(targetRange)
+    .start_end_reference(
+      targetEndpoint == TextPatternRangeEndpoint_Start ? LogicalDirection::Backward : LogicalDirection::Forward)
+    .get_all();
   
-  if(range.id != target.id)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+  if(!thisLoc || !targetLoc)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  int thisIndex   = (endpoint       == TextPatternRangeEndpoint_Start) ? range.start  : range.end;
-  int targetIndex = (targetEndpoint == TextPatternRangeEndpoint_Start) ? target.start : target.end;
-  
-  *pRetVal = thisIndex - targetIndex;
-  
+  *pRetVal = document_order(thisLoc, targetLoc);
   return S_OK;
 }
 
