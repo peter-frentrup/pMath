@@ -136,7 +136,11 @@ STDMETHODIMP Win32UiaTextRangeProvider::ExpandToEnclosingUnit(enum TextUnit unit
   fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::ExpandToEnclosingUnit(%d)]\n", this, range.id, range.start, range.end, unit);
   switch(unit) {
     case TextUnit_Character: return Impl(*this).expand_to_character();
+    case TextUnit_Format:    // not supported. Use next larger unit.
     case TextUnit_Word:      return Impl(*this).expand_to_word();
+    case TextUnit_Line:      // not supported. Use next larger unit.
+    case TextUnit_Paragraph: // not supported. Use next larger unit.
+    case TextUnit_Page:      // not supported. Use next larger unit.
     case TextUnit_Document:  return Impl(*this).expand_to_all();
     default: break;
   }
