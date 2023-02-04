@@ -438,7 +438,20 @@ STDMETHODIMP Win32UiaTextRangeProvider::RemoveFromSelection(void) {
 // ITextRangeProvider::ScrollIntoView
 //
 STDMETHODIMP Win32UiaTextRangeProvider::ScrollIntoView(BOOL alignToTop) {
-  return check_HRESULT(E_NOTIMPL, __func__, __FILE__, __LINE__);
+  if(!Application::is_running_on_gui_thread())
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  Box *box = range.get();
+  if(!box)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  Document *doc = box->find_parent<Document>(true);
+  if(!doc)
+    return check_HRESULT(UIA_E_NOTSUPPORTED, __func__, __FILE__, __LINE__);
+  
+  // TODO: respect 'alignToTop'
+  doc->async_scroll_to(range);
+  return S_OK;
 }
 
 //
