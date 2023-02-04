@@ -687,7 +687,7 @@ Box *MathSequence::move_logical(
           ++*index;
       }
       else {
-        if(*index + 2 < len && is_utf16_high(buf[*index]) && is_utf16_low(buf[*index + 1]))
+        if(*index + 1 < len && is_utf16_high(buf[*index]) && is_utf16_low(buf[*index + 1]))
           ++*index;
           
         ++*index;
