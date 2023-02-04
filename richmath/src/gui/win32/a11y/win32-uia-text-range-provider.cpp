@@ -402,7 +402,22 @@ STDMETHODIMP Win32UiaTextRangeProvider::MoveEndpointByRange(enum TextPatternRang
 // ITextRangeProvider::Select
 //
 STDMETHODIMP Win32UiaTextRangeProvider::Select(void) {
-  return check_HRESULT(E_NOTIMPL, __func__, __FILE__, __LINE__);
+  if(!Application::is_running_on_gui_thread())
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  VolatileSelection sel = range.get_all();
+  if(!sel)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  if(!sel.selectable())
+    return check_HRESULT(UIA_E_ELEMENTNOTENABLED, __func__, __FILE__, __LINE__);
+  
+  Document *doc = sel.box->find_parent<Document>(true);
+  if(!doc)
+    return check_HRESULT(UIA_E_NOTSUPPORTED, __func__, __FILE__, __LINE__);
+  
+  doc->select(sel);
+  return S_OK;
 }
 
 //
