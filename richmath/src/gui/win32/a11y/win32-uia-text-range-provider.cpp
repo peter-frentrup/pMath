@@ -426,14 +426,14 @@ STDMETHODIMP Win32UiaTextRangeProvider::Select(void) {
 // ITextRangeProvider::AddToSelection
 //
 STDMETHODIMP Win32UiaTextRangeProvider::AddToSelection(void) {
-  return check_HRESULT(UIA_E_NOTSUPPORTED, __func__, __FILE__, __LINE__);
+  return check_HRESULT(UIA_E_INVALIDOPERATION, __func__, __FILE__, __LINE__);
 }
 
 //
 // ITextRangeProvider::RemoveFromSelection
 //
 STDMETHODIMP Win32UiaTextRangeProvider::RemoveFromSelection(void) {
-  return check_HRESULT(UIA_E_NOTSUPPORTED, __func__, __FILE__, __LINE__);
+  return check_HRESULT(UIA_E_INVALIDOPERATION, __func__, __FILE__, __LINE__);
 }
 
 //
