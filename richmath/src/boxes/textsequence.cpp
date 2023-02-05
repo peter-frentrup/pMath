@@ -1122,16 +1122,26 @@ void TextSequence::Impl::outermost_selection_rectangles(
       
       last_bottom = p0.y + y + size.descent;
       
-      pango_layout_line_get_x_ranges(pango_line, start_byte_index, end_byte_index, &xranges, &num_xranges);
+      int extend_end = end_byte_index;
+      if(start_byte_index == end_byte_index && end_byte_index == pango_line->start_index + pango_line->length) {
+        // Degenerate selection after last character of the line would result in num_xranges==0
+        ++extend_end;
+      }
+      pango_layout_line_get_x_ranges(pango_line, start_byte_index, extend_end, &xranges, &num_xranges);
       
-      for(int i = 0; i < num_xranges; ++i) {
-        RectangleF rect(
-          Point(p0.x + pango_units_to_double(xranges[2 * i]),
-                top),
-          Point(p0.x + pango_units_to_double(xranges[2 * i + 1]),
-                last_bottom));
-                
-        rects.add(rect);
+      if(num_xranges) {
+        int num_normal = (extend_end == end_byte_index) ? num_xranges : num_xranges - 1;
+        for(int i = 0; i < num_normal; ++i) {
+          RectangleF rect(
+            Point(p0.x + pango_units_to_double(xranges[2 * i]),     top),
+            Point(p0.x + pango_units_to_double(xranges[2 * i + 1]), last_bottom));
+                  
+          rects.add(rect);
+        }
+        if(num_normal < num_xranges) {
+          float x = p0.x + pango_units_to_double(xranges[2 * num_normal]);
+          rects.add(RectangleF(Point(x, top), Point(x, last_bottom)));
+        }
       }
       
       g_free(xranges);
