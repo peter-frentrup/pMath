@@ -562,7 +562,7 @@ void Win32Widget::beep() {
 void Win32Widget::on_selection_changed() {
   if(UiaClientsAreListening()) {
     ComBase<IRawElementProviderSimple> elem;
-    elem.attach(new Win32UiaBoxProvider(document()->id()));
+    elem.attach(Win32UiaBoxProvider::create(document()));
     HRreport(UiaRaiseAutomationEvent(elem.get(), UIA_Text_TextSelectionChangedEventId)); 
   }
 }
@@ -1807,7 +1807,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
       
       case WM_GETOBJECT: {
-          if(auto provider = new Win32UiaBoxProvider(document()->id())) {
+          if(auto provider = Win32UiaBoxProvider::create(document())) {
             LRESULT res = UiaReturnRawElementProvider(hwnd(), wParam, lParam, provider);
             provider->Release();
             return res;

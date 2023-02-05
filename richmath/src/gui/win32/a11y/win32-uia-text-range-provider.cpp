@@ -267,9 +267,9 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetEnclosingElement(IRawElementProviderS
   if(!pRetVal)
     return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
   
-  *pRetVal = new Win32UiaBoxProvider(range.id);
+  *pRetVal = Win32UiaBoxProvider::create(range.get());
   if(!*pRetVal)
-    return check_HRESULT(E_OUTOFMEMORY, __func__, __FILE__, __LINE__);
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
   return S_OK;
 }
@@ -492,7 +492,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetChildren(SAFEARRAY **pRetVal) {
     
     for(int i = 0; i < after - first; ++i) {
       ComBase<IRawElementProviderSimple> child;
-      child.attach(new Win32UiaBoxProvider(sel.box->item(after + i)->id()));
+      child.attach(Win32UiaBoxProvider::create(sel.box->item(after + i)));
       if(!child)
         return check_HRESULT(E_OUTOFMEMORY, __func__, __FILE__, __LINE__);
       

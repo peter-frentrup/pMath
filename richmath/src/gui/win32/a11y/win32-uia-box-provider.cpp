@@ -25,11 +25,6 @@ namespace richmath {
       HRESULT get_IsEnabled(VARIANT *pRetVal);
       HRESULT get_IsKeyboardFocusable(VARIANT *pRetVal);
       
-      static FrontEndObject *find(IRawElementProviderSimple *obj);
-      
-      template <typename T>
-      static T *find_cast(IRawElementProviderSimple *obj) { return dynamic_cast<T*>(find(obj)); }
-      
     private:
       Win32UiaBoxProvider &self;
   };
@@ -46,6 +41,13 @@ Win32UiaBoxProvider::Win32UiaBoxProvider(FrontEndReference obj_ref)
 
 Win32UiaBoxProvider::~Win32UiaBoxProvider() {
   //fprintf(stderr, "[delete Win32UiaBoxProvider %p(%d)]\n", this, obj_ref);
+}
+
+Win32UiaBoxProvider *Win32UiaBoxProvider::create(Box *box) {
+  if(!box)
+    return nullptr;
+  
+  return new Win32UiaBoxProvider(box->id());
 }
 
 //
@@ -210,7 +212,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_HostRawElementProvider(IRawElementProvider
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_HostRawElementProvider()]\n", this, obj_ref);
-  Box *box = FrontEndObject::find_cast<Box>(obj_ref);
+  Box *box = get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
 
@@ -233,7 +235,7 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Box *box = FrontEndObject::find_cast<Box>(obj_ref);
+  Box *box = get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -242,7 +244,7 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
   switch(direction) {
     case NavigateDirection_Parent: {
         if(Box *parent = box->parent()) 
-          *pRetVal = new Win32UiaBoxProvider(parent->id());
+          *pRetVal = Win32UiaBoxProvider::create(parent);
       } return S_OK;
     
     case NavigateDirection_NextSibling: {
@@ -253,7 +255,7 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
               Box *item = parent->item(i);
               if(item == box) {
                 if(i + 1 < count)
-                  *pRetVal = new Win32UiaBoxProvider(parent->item(i + 1)->id());
+                  *pRetVal = Win32UiaBoxProvider::create(parent->item(i + 1));
                 return S_OK;
               }
             }
@@ -261,7 +263,7 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
           else {
             int i = box->index();
             if(i + 1 < parent->count())
-              *pRetVal = new Win32UiaBoxProvider(parent->item(i + 1)->id());
+              *pRetVal = Win32UiaBoxProvider::create(parent->item(i + 1));
           }
         }
       } return S_OK;
@@ -274,7 +276,7 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
               Box *item = parent->item(i);
               if(item == box) {
                 if(i > 0)
-                  *pRetVal = new Win32UiaBoxProvider(parent->item(i - 1)->id());
+                  *pRetVal = Win32UiaBoxProvider::create(parent->item(i - 1));
                 return S_OK;
               }
             }
@@ -282,19 +284,19 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
           else {
             int i = box->index();
             if(i > 0)
-              *pRetVal = new Win32UiaBoxProvider(parent->item(i - 1)->id());
+              *pRetVal = Win32UiaBoxProvider::create(parent->item(i - 1));
           }
         }
       } return S_OK;
     
     case NavigateDirection_FirstChild: {
         if(int count = box->count())
-          *pRetVal = new Win32UiaBoxProvider(box->item(0)->id());
+          *pRetVal = Win32UiaBoxProvider::create(box->item(0));
       } return S_OK;
       
     case NavigateDirection_LastChild: {
         if(int count = box->count())
-          *pRetVal = new Win32UiaBoxProvider(box->item(count - 1)->id());
+          *pRetVal = Win32UiaBoxProvider::create(box->item(count - 1));
       } return S_OK;
   }
   
@@ -311,7 +313,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetRuntimeId(SAFEARRAY **pRetVal) {
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Box *box = FrontEndObject::find_cast<Box>(obj_ref);
+  Box *box = get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -374,7 +376,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_FragmentRoot(IRawElementProviderFragmentRo
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Box *box = FrontEndObject::find_cast<Box>(obj_ref);
+  Box *box = get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -385,7 +387,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_FragmentRoot(IRawElementProviderFragmentRo
     *pRetVal = this;
   }
   else
-    *pRetVal = new Win32UiaBoxProvider(doc->id());
+    *pRetVal = Win32UiaBoxProvider::create(doc);
     
   return S_OK;
 }
@@ -400,7 +402,7 @@ STDMETHODIMP Win32UiaBoxProvider::ElementProviderFromPoint(double x, double y, I
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Document *doc = FrontEndObject::find_cast<Document>(obj_ref);
+  Document *doc = get<Document>();
   if(!doc)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -422,7 +424,7 @@ STDMETHODIMP Win32UiaBoxProvider::ElementProviderFromPoint(double x, double y, I
     *pRetVal = this;
   }
   else if(sel.box) 
-    *pRetVal = new Win32UiaBoxProvider(sel.box->id());
+    *pRetVal = Win32UiaBoxProvider::create(sel.box);
   
   return S_OK;
 }
@@ -437,7 +439,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetFocus(IRawElementProviderFragment **pRetVal
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Document *doc = FrontEndObject::find_cast<Document>(obj_ref);
+  Document *doc = get<Document>();
   if(!doc)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -448,7 +450,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetFocus(IRawElementProviderFragment **pRetVal
       *pRetVal = this;
     }
     else
-      *pRetVal = new Win32UiaBoxProvider(sel_box->id());
+      *pRetVal = Win32UiaBoxProvider::create(sel_box);
   }
   
   return S_OK;
@@ -461,7 +463,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetSelection(SAFEARRAY **pRetVal) {
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Box *box = FrontEndObject::find_cast<Box>(obj_ref);
+  Box *box = get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -490,7 +492,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetVisibleRanges(SAFEARRAY **pRetVal) {
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Box *box = FrontEndObject::find_cast<Document>(obj_ref);
+  Box *box = get<Document>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -511,14 +513,14 @@ STDMETHODIMP Win32UiaBoxProvider::RangeFromChild(IRawElementProviderSimple *chil
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Box *this_box = FrontEndObject::find_cast<Box>(obj_ref);
+  Box *this_box = get<Box>();
   if(!this_box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::RangeFromChild(%p)]\n", this, obj_ref, childElement);
   
   *pRetVal = nullptr;
-  auto child_feo = Impl::find(childElement);
+  FrontEndObject *child_feo = find(childElement);
   if(!child_feo)
     return S_OK;
   
@@ -541,7 +543,7 @@ STDMETHODIMP Win32UiaBoxProvider::RangeFromPoint(struct UiaPoint point, ITextRan
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Document *doc = FrontEndObject::find_cast<Document>(obj_ref);
+  Document *doc = get<Document>();
   if(!doc)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -572,7 +574,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_DocumentRange(ITextRangeProvider **pRetVal
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Box *box = FrontEndObject::find_cast<Box>(obj_ref);
+  Box *box = get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -610,7 +612,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetCaretRange(BOOL *isActive, ITextRangeProvid
   if(!Application::is_running_on_gui_thread())
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
-  Box *box = FrontEndObject::find_cast<Box>(obj_ref);
+  Box *box = get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -631,6 +633,18 @@ STDMETHODIMP Win32UiaBoxProvider::GetCaretRange(BOOL *isActive, ITextRangeProvid
   return S_OK;
 }
 
+FrontEndObject *Win32UiaBoxProvider::get_object() {
+  return FrontEndObject::find(obj_ref);
+}
+
+FrontEndObject *Win32UiaBoxProvider::find(IRawElementProviderSimple *obj) {
+  ComBase<ComSideChannelBase> cppChild = ComSideChannelBase::from_iunk(obj);
+  if(auto childObj = dynamic_cast<Win32UiaBoxProvider*>(cppChild.get())) {
+    return FrontEndObject::find(childObj->obj_ref);
+  }
+  return nullptr;
+}
+
 //} ... class Win32UiaBoxProvider
 
 //{ class Win32UiaBoxProvider::Impl ...
@@ -644,7 +658,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(struct UiaRect *pRetVal
   if(!pRetVal)
     return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
   
-  Box *box = FrontEndObject::find_cast<Box>(self.obj_ref);
+  Box *box = self.get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -703,7 +717,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(VARIANT *pRetVal) {
   HR(get_BoundingRectangle(&rect));
   
   pRetVal->vt = VT_EMPTY;
-  Box *box = FrontEndObject::find_cast<Box>(self.obj_ref);
+  Box *box = self.get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -714,7 +728,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(VARIANT *pRetVal) {
 }
 
 HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
-  Box *box = FrontEndObject::find_cast<Box>(self.obj_ref);
+  Box *box = self.get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
@@ -735,7 +749,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
 }
 
 HRESULT Win32UiaBoxProvider::Impl::get_HasKeyboardFocus(VARIANT *pRetVal) {
-  Box *box = FrontEndObject::find_cast<Box>(self.obj_ref);
+  Box *box = self.get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
     
@@ -750,7 +764,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_HasKeyboardFocus(VARIANT *pRetVal) {
 }
 
 HRESULT Win32UiaBoxProvider::Impl::get_IsEnabled(VARIANT *pRetVal) {
-  Box *box = FrontEndObject::find_cast<Box>(self.obj_ref);
+  Box *box = self.get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
 
@@ -760,21 +774,13 @@ HRESULT Win32UiaBoxProvider::Impl::get_IsEnabled(VARIANT *pRetVal) {
 }
 
 HRESULT Win32UiaBoxProvider::Impl::get_IsKeyboardFocusable(VARIANT *pRetVal) {
-  Box *box = FrontEndObject::find_cast<Box>(self.obj_ref);
+  Box *box = self.get<Box>();
   if(!box)
     return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
 
   pRetVal->vt      = VT_BOOL;
   pRetVal->boolVal = box->selectable() ? VARIANT_TRUE : VARIANT_FALSE;
   return S_OK;
-}
-
-FrontEndObject *Win32UiaBoxProvider::Impl::find(IRawElementProviderSimple *obj) {
-  ComBase<ComSideChannelBase> cppChild = ComSideChannelBase::from_iunk(obj);
-  if(auto childObj = dynamic_cast<Win32UiaBoxProvider*>(cppChild.get())) {
-    return FrontEndObject::find(childObj->obj_ref);
-  }
-  return nullptr;
 }
 
 //} ... class Win32UiaBoxProvider::Impl

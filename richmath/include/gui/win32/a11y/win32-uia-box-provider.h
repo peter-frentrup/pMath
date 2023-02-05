@@ -11,6 +11,9 @@
 #include <gui/win32/ole/comsidechannel.h>
 
 namespace richmath {
+  class FrontEndObject;
+  class Box;
+  
   class Win32UiaBoxProvider : 
       public IRawElementProviderSimple, 
       public IRawElementProviderFragment,
@@ -19,14 +22,15 @@ namespace richmath {
       public ComSideChannelBase 
   {
       class Impl;
-    public:
+    protected:
       explicit Win32UiaBoxProvider(FrontEndReference obj_ref);
       Win32UiaBoxProvider(const Win32UiaBoxProvider&) = delete;
       
-    protected:
       virtual ~Win32UiaBoxProvider();
     
     public:
+      static Win32UiaBoxProvider *create(Box * box);
+      
       //
       // IUnknown methods
       //
@@ -73,7 +77,16 @@ namespace richmath {
       //
       STDMETHODIMP RangeFromAnnotation(IRawElementProviderSimple *annotationElement, ITextRangeProvider **pRetVal) override;
       STDMETHODIMP GetCaretRange(BOOL *isActive, ITextRangeProvider **pRetVal) override;
-        
+      
+    public:
+      FrontEndObject *get_object();
+      template <typename T> T *get() { return dynamic_cast<T*>(get_object()); }
+      
+      static FrontEndObject *find(IRawElementProviderSimple *obj);
+      
+      template <typename T>
+      static T *find_cast(IRawElementProviderSimple *obj) { return dynamic_cast<T*>(find(obj)); }
+      
     private:
       LONG refcount;
       FrontEndReference obj_ref;
