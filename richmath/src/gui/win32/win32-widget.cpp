@@ -337,6 +337,49 @@ Document *Win32Widget::try_create_popup_window(const SelectionReference &anchor)
   return popup->document();
 }
 
+void Win32Widget::show_popup_menu(const VolatileSelection &src) {
+  bool has_rect = false;
+  RECT exclude_rect;
+  POINT pt;
+  
+  if(src) {
+    RectangleF bounds = src.box->range_rect(src.start, src.end);
+    
+    if(src.box->visible_rect(bounds)) {
+      exclude_rect = discretize(map_document_rect_to_native(bounds));
+      MapWindowPoints(hwnd(), nullptr, (POINT*)&exclude_rect, 2);
+      if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
+        pt.x = exclude_rect.left;
+        pt.y = exclude_rect.bottom;
+      }
+      else {
+        pt.x = exclude_rect.right;
+        pt.y = exclude_rect.bottom;
+      }
+      InflateRect(&exclude_rect, 2, 2);
+      has_rect = true;
+    }
+  }
+
+  if(!has_rect) {
+    if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
+      pt.x = 0;
+      pt.y = 0;
+    }
+    else {
+      RECT rect;
+      
+      GetClientRect(_hwnd, &rect);
+      pt.x = rect.right;
+      pt.y = 0;
+    }
+    
+    ClientToScreen(_hwnd, &pt);
+  }
+  
+  on_popupmenu(src, pt, has_rect ? &exclude_rect : nullptr);
+}
+
 double Win32Widget::message_time() {
   return GetMessageTime() / 1000.0;
 }
@@ -1258,50 +1301,15 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } return 0;
         
       case WM_CONTEXTMENU:  {
-          bool has_rect = false;
-          RECT exclude_rect;
-          POINT pt;
           if(lParam == -1) {
-            if(auto sel = document()->selection_now()) {
-              RectangleF bounds = sel.box->range_rect(sel.start, sel.end);
-              
-              if(sel.box->visible_rect(bounds)) {
-                exclude_rect = discretize(map_document_rect_to_native(bounds));
-                MapWindowPoints(hwnd(), nullptr, (POINT*)&exclude_rect, 2);
-                if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
-                  pt.x = exclude_rect.left;
-                  pt.y = exclude_rect.bottom;
-                }
-                else {
-                  pt.x = exclude_rect.right;
-                  pt.y = exclude_rect.bottom;
-                }
-                InflateRect(&exclude_rect, 2, 2);
-                has_rect = true;
-              }
-            }
-          
-            if(!has_rect) {
-              if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
-                pt.x = 0;
-                pt.y = 0;
-              }
-              else {
-                RECT rect;
-                
-                GetClientRect(_hwnd, &rect);
-                pt.x = rect.right;
-                pt.y = 0;
-              }
-              
-              ClientToScreen(_hwnd, &pt);
-            }
+            show_popup_menu(document()->selection_now());
           }
           else {
+            POINT pt;
             pt.x = (int16_t)( lParam & 0xFFFF);
             pt.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
+            on_popupmenu(document()->selection_now(), pt, nullptr);
           }
-          on_popupmenu(document()->selection_now(), pt, has_rect ? &exclude_rect : nullptr);
         } return 0;
         
       case WM_INITMENUPOPUP: {
