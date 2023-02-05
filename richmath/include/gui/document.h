@@ -181,6 +181,7 @@ namespace richmath {
       virtual bool is_option_supported(StyleOptionName key) override;
       
       void paint_resize(Canvas &canvas, bool resize_only);
+      virtual void selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath_id() override;

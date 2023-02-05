@@ -185,6 +185,7 @@ namespace richmath {
       void paint_flashing_cursor_if_needed();
       
     public:
+      RectangleF document_cursor_rect(int index);
       void paint_cursor_and_flash();
       //}
       
@@ -3616,6 +3617,14 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
   });
 }
 
+void Document::selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) {
+  if(start == end) {
+    rects.add(Impl(*this).document_cursor_rect(start) + Vector2F(p0));
+    return;
+  }
+  base::selection_rectangles(rects, flags, p0, start, end);
+}
+
 Expr Document::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
@@ -4040,47 +4049,22 @@ void Document::Impl::paint_document_cursor() {
   if( self.context.selection.id    == self.id() &&
       self.context.selection.start == self.context.selection.end)
   {
-    float y;
-    if(self.context.selection.start < self.length())
-      y = self.section(self.context.selection.start)->y_offset;
-    else
-      y = self._extents.descent;
-      
-    float x1 = 0;
-    float y1 = y + 0.5;
-    float x2 = self._extents.width;
-    float y2 = y + 0.5;
+    RectangleF caret_rect = document_cursor_rect(self.context.selection.start);
     
     if(Color c = self.get_style(SectionInsertionPointColor, Color::None)) {
-      self.context.canvas().align_point(&x1, &y1, true);
-      self.context.canvas().align_point(&x2, &y2, true);
-      self.context.canvas().move_to(x1, y1);
-      self.context.canvas().line_to(x2, y2);
+      Point p1(0,                   caret_rect.y);
+      Point p2(self._extents.width, caret_rect.y);
+      
+      self.context.canvas().move_to(self.context.canvas().align_point(p1, true));
+      self.context.canvas().line_to(self.context.canvas().align_point(p2, true));
       
       self.context.canvas().set_color(c);
       self.context.canvas().hair_stroke();
     }
     
-    if(self.context.selection.start < self.count()) {
-      Section *sect = self.section(self.context.selection.start);
-      x1 = sect->get_style(SectionMarginLeft)
-                .resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt, self._page_width);
-    }
-    else if(self.count() > 0) {
-      Section *sect = self.section(self.context.selection.start - 1);
-      x1 = sect->get_style(SectionMarginLeft)
-                .resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt, self._page_width);
-    }
-    else
-      x1 = 20 * 0.75;
-      
-    x1 += self._scrollx;
-    x2 = x1 + 40 * 0.75;
-    
-    self.context.canvas().align_point(&x1, &y1, true);
-    self.context.canvas().align_point(&x2, &y2, true);
-    self.context.canvas().move_to(x1, y1);
-    self.context.canvas().line_to(x2, y2);
+    caret_rect.pixel_align(self.context.canvas(), true);
+    self.context.canvas().move_to(caret_rect.top_left());
+    self.context.canvas().rel_line_to(caret_rect.width, 0);
     
     self.context.draw_selection_path();
   }
@@ -4156,6 +4140,43 @@ void Document::Impl::paint_flashing_cursor_if_needed() {
       self.context.canvas().restore();
     }
   }
+}
+
+RectangleF Document::Impl::document_cursor_rect(int index) {
+  float y;
+  if(index < self.length())
+    y = self.section(index)->y_offset;
+  else
+    y = self._extents.descent;
+  
+  Point p1(0,                   y + 0.5);
+  Point p2(self._extents.width, y + 0.5);
+  
+//  if(Color c = self.get_style(SectionInsertionPointColor, Color::None)) {
+//    self.context.canvas().move_to(self.context.canvas().align_point(p1, true));
+//    self.context.canvas().line_to(self.context.canvas().align_point(p2, true));
+//    
+//    self.context.canvas().set_color(c);
+//    self.context.canvas().hair_stroke();
+//  }
+  
+  if(index < self.count()) {
+    Section *sect = self.section(index);
+    p1.x = sect->get_style(SectionMarginLeft)
+                .resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt, self._page_width);
+  }
+  else if(self.count() > 0) {
+    Section *sect = self.section(index - 1);
+    p1.x = sect->get_style(SectionMarginLeft)
+                .resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt, self._page_width);
+  }
+  else
+    p1.x = 20 * 0.75;
+    
+  p1.x += self._scrollx;
+  p2.x = p1.x + 40 * 0.75;
+  
+  return {p1, p2};
 }
 
 void Document::Impl::paint_cursor_and_flash() {
