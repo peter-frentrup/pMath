@@ -120,6 +120,7 @@ namespace richmath {
       
       virtual void on_editing();
       virtual void on_idle_after_edit();
+      virtual void on_selection_changed();
       
       virtual void on_saved() = 0;
       

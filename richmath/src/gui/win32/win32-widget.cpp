@@ -516,6 +516,14 @@ void Win32Widget::beep() {
   MessageBeep(0);
 }
 
+void Win32Widget::on_selection_changed() {
+  if(UiaClientsAreListening()) {
+    ComBase<IRawElementProviderSimple> elem;
+    elem.attach(new Win32UiaBoxProvider(document()->id()));
+    HRreport(UiaRaiseAutomationEvent(elem.get(), UIA_Text_TextSelectionChangedEventId)); 
+  }
+}
+
 bool Win32Widget::register_timed_event(SharedPtr<TimedEvent> event) {
   if(!_hwnd)
     return false;

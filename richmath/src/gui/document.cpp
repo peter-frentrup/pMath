@@ -3713,6 +3713,8 @@ void Document::Impl::raw_select(VolatileSelection sel) {
     self.context.selection.set_raw(sel);
     
     sel.request_repaint();
+    
+    self.native()->on_selection_changed();
   }
   
   self.best_index_rel_x = 0;

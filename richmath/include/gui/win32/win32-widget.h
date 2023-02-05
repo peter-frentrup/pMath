@@ -85,6 +85,7 @@ namespace richmath {
       virtual void full_filename(String new_full_filename) override {}
       
       virtual void on_saved() override {}
+      virtual void on_selection_changed() override;
       
       virtual bool is_using_dark_mode() override { return has_dark_background(); }
       

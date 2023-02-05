@@ -239,6 +239,9 @@ void NativeWidget::on_idle_after_edit() {
   }
 }
 
+void NativeWidget::on_selection_changed() {
+}
+
 bool NativeWidget::source_range(SelectionReference ref) {
   if(auto box = ref.get()) {
     if(_source_range.unobserved_equals(ref))
