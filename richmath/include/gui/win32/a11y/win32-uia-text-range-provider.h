@@ -11,8 +11,8 @@
 #include <uiautomationcore.h>
 
 namespace richmath {
-  class Win32UiaTextRangeProvider : 
-      public ITextRangeProvider,
+  class Win32UiaTextRangeProvider :
+      public ITextRangeProvider2,
       public ComSideChannelBase 
   {
       class Impl;
@@ -32,7 +32,7 @@ namespace richmath {
       STDMETHODIMP_(ULONG) Release(void) override;
       
       //
-      // ITextRangeProvider methods
+      // ITextRangeProvider methods (from ITextRangeProvider2)
       //
       STDMETHODIMP Clone(ITextRangeProvider **pRetVal) override;
       STDMETHODIMP Compare(ITextRangeProvider *other, BOOL *pRetVal) override;
@@ -53,6 +53,10 @@ namespace richmath {
       STDMETHODIMP ScrollIntoView(BOOL alignToTop) override;
       STDMETHODIMP GetChildren(SAFEARRAY * *pRetVal) override;
       
+      //
+      // ITextRangeProvider2 methods
+      //
+      STDMETHODIMP ShowContextMenu(void) override;
     private:
       LONG refcount;
       SelectionReference range;

@@ -55,9 +55,9 @@ Win32UiaTextRangeProvider::~Win32UiaTextRangeProvider() {
 //  IUnknown::QueryInterface
 //
 STDMETHODIMP Win32UiaTextRangeProvider::QueryInterface(REFIID iid, void **ppvObject) {
-  if(iid == IID_IUnknown || iid == IID_ITextRangeProvider) {
+  if(iid == IID_IUnknown || iid == IID_ITextRangeProvider || iid == IID_ITextRangeProvider2) {
     AddRef();
-    *ppvObject = static_cast<ITextRangeProvider*>(this);
+    *ppvObject = static_cast<ITextRangeProvider2*>(this);
     return S_OK;
   }
   else if(iid == IID_IRichmathComSideChannel) {
@@ -503,7 +503,30 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetChildren(SAFEARRAY **pRetVal) {
   
   return S_OK;
 }
+
+//
+// ITextRangeProvider2::ShowContextMenu
+//
+STDMETHODIMP Win32UiaTextRangeProvider::ShowContextMenu(void) {
+  if(!Application::is_running_on_gui_thread())
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
   
+  VolatileSelection sel = range.get_all();
+  if(!sel)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  Document *doc = sel.box->find_parent<Document>(true);
+  if(!doc)
+    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  
+  Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
+  if(!wid || IsWindowVisible(wid->hwnd()))
+    return check_HRESULT(UIA_E_INVALIDOPERATION, __func__, __FILE__, __LINE__);
+  
+  wid->show_popup_menu(sel);
+  return S_OK;
+}
+
 //} ... class Win32UiaTextRangeProvider
 
 //{ class Win32UiaTextRangeProvider::Impl ...
