@@ -96,7 +96,7 @@ STDMETHODIMP_(ULONG) Win32UiaTextRangeProvider::Release(void) {
 //
 STDMETHODIMP Win32UiaTextRangeProvider::Clone(ITextRangeProvider **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
  
   //fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Clone()]\n", this, range.id, range.start, range.end);
 
@@ -109,7 +109,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::Clone(ITextRangeProvider **pRetVal) {
 //
 STDMETHODIMP Win32UiaTextRangeProvider::Compare(ITextRangeProvider *other, BOOL *pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   //fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Compare(%p)]\n", this, range.id, range.start, range.end, other);
   *pRetVal = range == Impl::get(other);
@@ -121,9 +121,9 @@ STDMETHODIMP Win32UiaTextRangeProvider::Compare(ITextRangeProvider *other, BOOL 
 //
 STDMETHODIMP Win32UiaTextRangeProvider::CompareEndpoints(enum TextPatternRangeEndpoint endpoint, ITextRangeProvider *targetRange, enum TextPatternRangeEndpoint targetEndpoint, int *pRetVal) {
   if(!targetRange)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   VolatileLocation thisLoc = range
     .start_end_reference(
@@ -135,7 +135,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::CompareEndpoints(enum TextPatternRangeEn
     .get_all();
   
   if(!thisLoc || !targetLoc)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = document_order(thisLoc, targetLoc);
   return S_OK;
@@ -146,7 +146,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::CompareEndpoints(enum TextPatternRangeEn
 //
 STDMETHODIMP Win32UiaTextRangeProvider::ExpandToEnclosingUnit(enum TextUnit unit) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
     
   //fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::ExpandToEnclosingUnit(%d)]\n", this, range.id, range.start, range.end, unit);
   switch(unit) {
@@ -159,21 +159,21 @@ STDMETHODIMP Win32UiaTextRangeProvider::ExpandToEnclosingUnit(enum TextUnit unit
     case TextUnit_Document:  return Impl(*this).expand_to_all();
     default: break;
   }
-  return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+  return HRreport(E_INVALIDARG);
 }
 
 //
 // ITextRangeProvider::FindAttribute
 //
 STDMETHODIMP Win32UiaTextRangeProvider::FindAttribute(TEXTATTRIBUTEID attributeId, VARIANT val, BOOL backward, ITextRangeProvider **pRetVal) {
-  return check_HRESULT(E_NOTIMPL, __func__, __FILE__, __LINE__);
+  return HRreport(E_NOTIMPL);
 }
 
 //
 // ITextRangeProvider::FindText
 //
 STDMETHODIMP Win32UiaTextRangeProvider::FindText(BSTR text, BOOL backward, BOOL ignoreCase, ITextRangeProvider **pRetVal) {
-  return check_HRESULT(E_NOTIMPL, __func__, __FILE__, __LINE__);
+  return HRreport(E_NOTIMPL);
 }
 
 //
@@ -181,9 +181,9 @@ STDMETHODIMP Win32UiaTextRangeProvider::FindText(BSTR text, BOOL backward, BOOL 
 //
 STDMETHODIMP Win32UiaTextRangeProvider::GetAttributeValue(TEXTATTRIBUTEID attributeId, VARIANT *pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   pRetVal->vt = VT_EMPTY;
   
@@ -200,13 +200,13 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetAttributeValue(TEXTATTRIBUTEID attrib
 //
 STDMETHODIMP Win32UiaTextRangeProvider::GetBoundingRectangles(SAFEARRAY **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   VolatileSelection sel = range.get_all();
   if(!sel)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Array<RectangleF> rects;
   int num_visible = 0;
@@ -243,7 +243,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetBoundingRectangles(SAFEARRAY **pRetVa
   
   *pRetVal = SafeArrayCreateVector(VT_R8, 0, 4 * num_visible);
   if(!*pRetVal)
-    return check_HRESULT(E_OUTOFMEMORY, __func__, __FILE__, __LINE__);
+    return HRreport(E_OUTOFMEMORY);
   
   int j = 0;
   for(int i = 0; i < rects.length(); ++i) {
@@ -265,11 +265,11 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetBoundingRectangles(SAFEARRAY **pRetVa
 //
 STDMETHODIMP Win32UiaTextRangeProvider::GetEnclosingElement(IRawElementProviderSimple **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   *pRetVal = Win32UiaBoxProvider::create(range.get());
   if(!*pRetVal)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   return S_OK;
 }
@@ -279,10 +279,10 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetEnclosingElement(IRawElementProviderS
 //
 STDMETHODIMP Win32UiaTextRangeProvider::GetText(int maxLength, BSTR *pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = nullptr;
   if(auto seq = FrontEndObject::find_cast<AbstractSequence>(range.id)) {
@@ -317,9 +317,9 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetText(int maxLength, BSTR *pRetVal) {
 //
 STDMETHODIMP Win32UiaTextRangeProvider::Move(enum TextUnit unit, int count, int *pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
     
   //fprintf(stderr, "[%p(%d:%d..%d)->Win32UiaTextRangeProvider::Move(%d, %d)]\n", this, range.id, range.start, range.end, unit, count);
   switch(unit) {
@@ -332,7 +332,7 @@ STDMETHODIMP Win32UiaTextRangeProvider::Move(enum TextUnit unit, int count, int 
     case TextUnit_Document:  return Impl(*this).move_by_all(count, pRetVal);
     default: break;
   }
-  return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+  return HRreport(E_INVALIDARG);
 }
 
 //
@@ -340,14 +340,14 @@ STDMETHODIMP Win32UiaTextRangeProvider::Move(enum TextUnit unit, int count, int 
 //
 STDMETHODIMP Win32UiaTextRangeProvider::MoveEndpointByUnit(enum TextPatternRangeEndpoint endpoint, enum TextUnit unit, int count, int *pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   auto orig = range;
   VolatileSelection from = range.get_all();
   if(!from)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   if(endpoint == TextPatternRangeEndpoint_Start) {
     range.end  = range.start; // range = the endpoint to be moved
@@ -375,15 +375,15 @@ STDMETHODIMP Win32UiaTextRangeProvider::MoveEndpointByUnit(enum TextPatternRange
 //
 STDMETHODIMP Win32UiaTextRangeProvider::MoveEndpointByRange(enum TextPatternRangeEndpoint endpoint, ITextRangeProvider *targetRange, enum TextPatternRangeEndpoint targetEndpoint) {
   if(!targetRange)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
 
   VolatileSelection from = range.get_all();
   VolatileSelection to = Impl::get(targetRange).get_all();
   
   if(!from || !to)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   if(endpoint == TextPatternRangeEndpoint_Start)
     from.start = from.end; // from = the other endpoint, which should stay fixed (end)
@@ -405,18 +405,18 @@ STDMETHODIMP Win32UiaTextRangeProvider::MoveEndpointByRange(enum TextPatternRang
 //
 STDMETHODIMP Win32UiaTextRangeProvider::Select(void) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   VolatileSelection sel = range.get_all();
   if(!sel)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   if(!sel.selectable())
-    return check_HRESULT(UIA_E_ELEMENTNOTENABLED, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTENABLED);
   
   Document *doc = sel.box->find_parent<Document>(true);
   if(!doc)
-    return check_HRESULT(UIA_E_NOTSUPPORTED, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_NOTSUPPORTED);
   
   doc->select(sel);
   return S_OK;
@@ -426,14 +426,14 @@ STDMETHODIMP Win32UiaTextRangeProvider::Select(void) {
 // ITextRangeProvider::AddToSelection
 //
 STDMETHODIMP Win32UiaTextRangeProvider::AddToSelection(void) {
-  return check_HRESULT(UIA_E_INVALIDOPERATION, __func__, __FILE__, __LINE__);
+  return HRreport(UIA_E_INVALIDOPERATION);
 }
 
 //
 // ITextRangeProvider::RemoveFromSelection
 //
 STDMETHODIMP Win32UiaTextRangeProvider::RemoveFromSelection(void) {
-  return check_HRESULT(UIA_E_INVALIDOPERATION, __func__, __FILE__, __LINE__);
+  return HRreport(UIA_E_INVALIDOPERATION);
 }
 
 //
@@ -441,15 +441,15 @@ STDMETHODIMP Win32UiaTextRangeProvider::RemoveFromSelection(void) {
 //
 STDMETHODIMP Win32UiaTextRangeProvider::ScrollIntoView(BOOL alignToTop) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Box *box = range.get();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Document *doc = box->find_parent<Document>(true);
   if(!doc)
-    return check_HRESULT(UIA_E_NOTSUPPORTED, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_NOTSUPPORTED);
   
   // TODO: respect 'alignToTop'
   doc->async_scroll_to(range);
@@ -461,14 +461,14 @@ STDMETHODIMP Win32UiaTextRangeProvider::ScrollIntoView(BOOL alignToTop) {
 //
 STDMETHODIMP Win32UiaTextRangeProvider::GetChildren(SAFEARRAY **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   VolatileSelection sel = range.get_all();
   if(!sel)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = nullptr;
   
@@ -488,13 +488,13 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetChildren(SAFEARRAY **pRetVal) {
   if(first < after) {
     *pRetVal = SafeArrayCreateVector(VT_UNKNOWN, 0, after - first);
     if(!*pRetVal)
-      return check_HRESULT(E_OUTOFMEMORY, __func__, __FILE__, __LINE__);
+      return HRreport(E_OUTOFMEMORY);
     
     for(int i = 0; i < after - first; ++i) {
       ComBase<IRawElementProviderSimple> child;
       child.attach(Win32UiaBoxProvider::create(sel.box->item(after + i)));
       if(!child)
-        return check_HRESULT(E_OUTOFMEMORY, __func__, __FILE__, __LINE__);
+        return HRreport(E_OUTOFMEMORY);
       
       long index = i;
       HR(SafeArrayPutElement(*pRetVal, &index, child.get()));
@@ -509,19 +509,19 @@ STDMETHODIMP Win32UiaTextRangeProvider::GetChildren(SAFEARRAY **pRetVal) {
 //
 STDMETHODIMP Win32UiaTextRangeProvider::ShowContextMenu(void) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   VolatileSelection sel = range.get_all();
   if(!sel)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Document *doc = sel.box->find_parent<Document>(true);
   if(!doc)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
   if(!wid || IsWindowVisible(wid->hwnd()))
-    return check_HRESULT(UIA_E_INVALIDOPERATION, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_INVALIDOPERATION);
   
   wid->show_popup_menu(sel);
   return S_OK;
@@ -547,7 +547,7 @@ SelectionReference Win32UiaTextRangeProvider::Impl::get(ITextRangeProvider *obj)
 HRESULT Win32UiaTextRangeProvider::Impl::expand_to_all() {
   Box *box = self.range.get();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   int len = box->length();
   self.range.start = 0;
@@ -558,7 +558,7 @@ HRESULT Win32UiaTextRangeProvider::Impl::expand_to_all() {
 HRESULT Win32UiaTextRangeProvider::Impl::expand_to_character() {
   VolatileSelection sel = self.range.get_all();
   if(!sel)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   int len = sel.box->length();
   if(len == 0) {
@@ -577,7 +577,7 @@ HRESULT Win32UiaTextRangeProvider::Impl::expand_to_character() {
 HRESULT Win32UiaTextRangeProvider::Impl::expand_to_word() {
   VolatileSelection sel = self.range.get_all();
   if(!sel)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   VolatileLocation next = sel.start_only().move_logical(LogicalDirection::Forward, true);
   if(next.box == sel.box) {
@@ -606,7 +606,7 @@ HRESULT Win32UiaTextRangeProvider::Impl::move_by_all(int count, int *num_moved) 
   *num_moved = 0;
   Box *box = self.range.get();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   bool was_degenerate = self.range.length() == 0;
   if(count > 0) {
@@ -626,7 +626,7 @@ HRESULT Win32UiaTextRangeProvider::Impl::move_by_character(int count, int *num_m
   *num_moved = 0;
   VolatileSelection sel = self.range.get_all();
   if(!sel)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   LogicalDirection dir;
   if(count < 0) {
@@ -676,7 +676,7 @@ HRESULT Win32UiaTextRangeProvider::Impl::move_by_word(int count, int *num_moved)
   *num_moved = 0;
   VolatileSelection sel = self.range.get_all();
   if(!sel)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   LogicalDirection dir;
   if(count < 0) {
@@ -736,7 +736,7 @@ HRESULT Win32UiaTextRangeProvider::Impl::move_by_word(int count, int *num_moved)
 HRESULT Win32UiaTextRangeProvider::Impl::get_IsHidden(VARIANT *pRetVal) {
   Box *box = self.range.get();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
     
   pRetVal->vt = VT_BOOL;
   RectangleF rect = box->extents().to_rectangle();
@@ -747,7 +747,7 @@ HRESULT Win32UiaTextRangeProvider::Impl::get_IsHidden(VARIANT *pRetVal) {
 HRESULT Win32UiaTextRangeProvider::Impl::get_IsReadOnly(VARIANT *pRetVal) {
   Box *box = self.range.get();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
     
   pRetVal->vt = VT_BOOL;
   pRetVal->boolVal = box->editable() ? VARIANT_FALSE : VARIANT_TRUE;

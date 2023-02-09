@@ -11,7 +11,6 @@
 #include <gui/win32/ole/comsidechannel.h>
 
 namespace richmath {
-  class FrontEndObject;
   class Box;
   
   class Win32UiaBoxProvider : 
@@ -29,7 +28,7 @@ namespace richmath {
       virtual ~Win32UiaBoxProvider();
     
     public:
-      static Win32UiaBoxProvider *create(Box * box);
+      static Win32UiaBoxProvider *create(Box *box);
       
       //
       // IUnknown methods

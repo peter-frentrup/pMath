@@ -55,7 +55,7 @@ Win32UiaBoxProvider *Win32UiaBoxProvider::create(Box *box) {
 //
 STDMETHODIMP Win32UiaBoxProvider::QueryInterface(REFIID iid, void **ppvObject) {
   if(!ppvObject)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(iid == IID_IUnknown || iid == IID_IRawElementProviderSimple) {
     AddRef();
@@ -118,10 +118,10 @@ STDMETHODIMP_(ULONG) Win32UiaBoxProvider::Release(void) {
 //
 STDMETHODIMP Win32UiaBoxProvider::get_ProviderOptions(enum ProviderOptions *pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!obj_ref)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = ProviderOptions_ServerSideProvider | ProviderOptions_UseComThreading;
   return S_OK;
@@ -132,10 +132,10 @@ STDMETHODIMP Win32UiaBoxProvider::get_ProviderOptions(enum ProviderOptions *pRet
 //
 STDMETHODIMP Win32UiaBoxProvider::GetPatternProvider(PATTERNID patternId, IUnknown **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = nullptr;
   if(patternId == UIA_TextPatternId || patternId == UIA_TextPattern2Id) {
@@ -150,10 +150,10 @@ STDMETHODIMP Win32UiaBoxProvider::GetPatternProvider(PATTERNID patternId, IUnkno
 //
 STDMETHODIMP Win32UiaBoxProvider::GetPropertyValue(PROPERTYID propertyId, VARIANT *pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   pRetVal->vt = VT_EMPTY; // Fall back to default value.
   
@@ -206,15 +206,15 @@ STDMETHODIMP Win32UiaBoxProvider::GetPropertyValue(PROPERTYID propertyId, VARIAN
 //
 STDMETHODIMP Win32UiaBoxProvider::get_HostRawElementProvider(IRawElementProviderSimple **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_HostRawElementProvider()]\n", this, obj_ref);
   Box *box = get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
 
   if(auto doc = dynamic_cast<Document*>(box)) {
     if(auto wid = dynamic_cast<Win32Widget*>(doc->native()))
@@ -230,14 +230,14 @@ STDMETHODIMP Win32UiaBoxProvider::get_HostRawElementProvider(IRawElementProvider
 //
 STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRawElementProviderFragment **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Box *box = get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::Navigate(%d)]\n", this, obj_ref, direction);
   *pRetVal = nullptr;
@@ -300,7 +300,7 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
       } return S_OK;
   }
   
-  return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+  return HRreport(E_INVALIDARG);
 }
 
 //
@@ -308,14 +308,14 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
 //
 STDMETHODIMP Win32UiaBoxProvider::GetRuntimeId(SAFEARRAY **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Box *box = get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetRuntimeId()]\n", this, obj_ref);
   *pRetVal = nullptr;
@@ -340,7 +340,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetRuntimeId(SAFEARRAY **pRetVal) {
 //
 STDMETHODIMP Win32UiaBoxProvider::get_BoundingRectangle(struct UiaRect *pRetVal) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   return Impl(*this).get_BoundingRectangle(pRetVal);
 }
@@ -350,7 +350,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_BoundingRectangle(struct UiaRect *pRetVal)
 //
 STDMETHODIMP Win32UiaBoxProvider::GetEmbeddedFragmentRoots(SAFEARRAY **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   *pRetVal = nullptr;
   return S_OK;
@@ -361,7 +361,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetEmbeddedFragmentRoots(SAFEARRAY **pRetVal) 
 //
 STDMETHODIMP Win32UiaBoxProvider::SetFocus(void) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   return S_OK;
 }
@@ -371,14 +371,14 @@ STDMETHODIMP Win32UiaBoxProvider::SetFocus(void) {
 //
 STDMETHODIMP Win32UiaBoxProvider::get_FragmentRoot(IRawElementProviderFragmentRoot **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Box *box = get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_FragmentRoot()]\n", this, obj_ref);
   Document *doc = box->find_parent<Document>(/* selfincluding */true);
@@ -397,14 +397,14 @@ STDMETHODIMP Win32UiaBoxProvider::get_FragmentRoot(IRawElementProviderFragmentRo
 //
 STDMETHODIMP Win32UiaBoxProvider::ElementProviderFromPoint(double x, double y, IRawElementProviderFragment **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Document *doc = get<Document>();
   if(!doc)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = nullptr;
   
@@ -434,14 +434,14 @@ STDMETHODIMP Win32UiaBoxProvider::ElementProviderFromPoint(double x, double y, I
 //
 STDMETHODIMP Win32UiaBoxProvider::GetFocus(IRawElementProviderFragment **pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Document *doc = get<Document>();
   if(!doc)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = nullptr;
   if(Box *sel_box = doc->selection_box()) {
@@ -461,11 +461,11 @@ STDMETHODIMP Win32UiaBoxProvider::GetFocus(IRawElementProviderFragment **pRetVal
 //
 STDMETHODIMP Win32UiaBoxProvider::GetSelection(SAFEARRAY **pRetVal) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Box *box = get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetSelection()]\n", this, obj_ref);
   
@@ -490,11 +490,11 @@ STDMETHODIMP Win32UiaBoxProvider::GetSelection(SAFEARRAY **pRetVal) {
 //
 STDMETHODIMP Win32UiaBoxProvider::GetVisibleRanges(SAFEARRAY **pRetVal) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Box *box = get<Document>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetVisibleRanges()]\n", this, obj_ref);
   // FIXME: collect all continuous ranges that are visible
@@ -511,11 +511,11 @@ STDMETHODIMP Win32UiaBoxProvider::GetVisibleRanges(SAFEARRAY **pRetVal) {
 //
 STDMETHODIMP Win32UiaBoxProvider::RangeFromChild(IRawElementProviderSimple *childElement, ITextRangeProvider **pRetVal) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Box *this_box = get<Box>();
   if(!this_box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::RangeFromChild(%p)]\n", this, obj_ref, childElement);
   
@@ -541,15 +541,15 @@ STDMETHODIMP Win32UiaBoxProvider::RangeFromChild(IRawElementProviderSimple *chil
 //
 STDMETHODIMP Win32UiaBoxProvider::RangeFromPoint(struct UiaPoint point, ITextRangeProvider **pRetVal) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Document *doc = get<Document>();
   if(!doc)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
   if(!wid)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = nullptr;
   if(!IsWindowVisible(wid->hwnd()))
@@ -572,11 +572,11 @@ STDMETHODIMP Win32UiaBoxProvider::RangeFromPoint(struct UiaPoint point, ITextRan
 //
 STDMETHODIMP Win32UiaBoxProvider::get_DocumentRange(ITextRangeProvider **pRetVal) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Box *box = get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::get_DocumentRange()]\n", this, obj_ref);
   *pRetVal = new Win32UiaTextRangeProvider(SelectionReference(box, 0, box->length()));
@@ -588,7 +588,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_DocumentRange(ITextRangeProvider **pRetVal
 //
 STDMETHODIMP Win32UiaBoxProvider::get_SupportedTextSelection(enum SupportedTextSelection *pRetVal) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = SupportedTextSelection_Single;
   return S_OK;
@@ -599,7 +599,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_SupportedTextSelection(enum SupportedTextS
 //
 STDMETHODIMP Win32UiaBoxProvider::RangeFromAnnotation(IRawElementProviderSimple *annotationElement, ITextRangeProvider **pRetVal) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = nullptr;
   return HRreport(E_INVALIDARG);
@@ -610,11 +610,11 @@ STDMETHODIMP Win32UiaBoxProvider::RangeFromAnnotation(IRawElementProviderSimple 
 //
 STDMETHODIMP Win32UiaBoxProvider::GetCaretRange(BOOL *isActive, ITextRangeProvider **pRetVal) {
   if(!Application::is_running_on_gui_thread())
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   Box *box = get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = nullptr;
   
@@ -656,11 +656,11 @@ inline Win32UiaBoxProvider::Impl::Impl(Win32UiaBoxProvider &self)
 
 HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(struct UiaRect *pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   Box *box = self.get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   pRetVal->left   = 0.0;
   pRetVal->top    = 0.0;
@@ -711,7 +711,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(struct UiaRect *pRetVal
 
 HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(VARIANT *pRetVal) {
   if(!pRetVal)
-    return check_HRESULT(E_INVALIDARG, __func__, __FILE__, __LINE__);
+    return HRreport(E_INVALIDARG);
   
   UiaRect rect;
   HR(get_BoundingRectangle(&rect));
@@ -719,7 +719,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(VARIANT *pRetVal) {
   pRetVal->vt = VT_EMPTY;
   Box *box = self.get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   if(rect.width == 0 && rect.height == 0)
     return S_OK; // default = empty rect = invisible
@@ -728,15 +728,15 @@ HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(VARIANT *pRetVal) {
 }
 
 HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
-  Box *box = self.get<Box>();
-  if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+  FrontEndObject *obj = self.get_object();
+  if(!obj)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
-  if(dynamic_cast<Document*>(box)) {
+  if(dynamic_cast<Document*>(obj)) {
     pRetVal->vt   = VT_I4;
     pRetVal->lVal = UIA_DocumentControlTypeId; // Document control type imples it supports text pattern.
   }
-  else if(dynamic_cast<AbstractSequence*>(box)) {
+  else if(dynamic_cast<AbstractSequence*>(obj)) {
     pRetVal->vt   = VT_I4;
     pRetVal->lVal = UIA_TextControlTypeId; // Text control type imples it supports text pattern.
   }
@@ -751,7 +751,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
 HRESULT Win32UiaBoxProvider::Impl::get_HasKeyboardFocus(VARIANT *pRetVal) {
   Box *box = self.get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
     
   pRetVal->vt      = VT_BOOL;
   pRetVal->boolVal = VARIANT_FALSE;
@@ -766,7 +766,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_HasKeyboardFocus(VARIANT *pRetVal) {
 HRESULT Win32UiaBoxProvider::Impl::get_IsEnabled(VARIANT *pRetVal) {
   Box *box = self.get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
 
   pRetVal->vt      = VT_BOOL;
   pRetVal->boolVal = box->enabled() ? VARIANT_TRUE : VARIANT_FALSE;
@@ -776,7 +776,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_IsEnabled(VARIANT *pRetVal) {
 HRESULT Win32UiaBoxProvider::Impl::get_IsKeyboardFocusable(VARIANT *pRetVal) {
   Box *box = self.get<Box>();
   if(!box)
-    return check_HRESULT(UIA_E_ELEMENTNOTAVAILABLE, __func__, __FILE__, __LINE__);
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
 
   pRetVal->vt      = VT_BOOL;
   pRetVal->boolVal = box->selectable() ? VARIANT_TRUE : VARIANT_FALSE;
