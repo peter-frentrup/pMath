@@ -24,6 +24,7 @@ namespace richmath {
       
       HRESULT get_BoundingRectangle(struct UiaRect *pRetVal);
       HRESULT get_BoundingRectangle(VARIANT *pRetVal);
+      HRESULT get_ClassName(VARIANT *pRetVal);
       HRESULT get_ControlType(VARIANT *pRetVal);
       HRESULT get_HasKeyboardFocus(VARIANT *pRetVal);
       HRESULT get_IsEnabled(VARIANT *pRetVal);
@@ -174,6 +175,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetPropertyValue(PROPERTYID propertyId, VARIAN
   
   switch(propertyId) {
     case UIA_ControlTypePropertyId: return Impl(*this).get_ControlType(pRetVal);
+    case UIA_ClassNamePropertyId:   return Impl(*this).get_ClassName(pRetVal);
     case UIA_NamePropertyId:        return Impl(*this).get_Name(pRetVal);
       
     case UIA_AutomationIdPropertyId: 
@@ -199,12 +201,12 @@ STDMETHODIMP Win32UiaBoxProvider::GetPropertyValue(PROPERTYID propertyId, VARIAN
     case UIA_IsEnabledPropertyId:           return Impl(*this).get_IsEnabled(pRetVal);
     case UIA_IsKeyboardFocusablePropertyId: return Impl(*this).get_IsKeyboardFocusable(pRetVal);
     
-    case UIA_ProviderDescriptionPropertyId:
-      pRetVal->bstrVal = SysAllocString(L"Richmath: Uia Box Content");
-      if(pRetVal->bstrVal) {
-        pRetVal->vt = VT_BSTR;
-      }
-      break;
+//    case UIA_ProviderDescriptionPropertyId:
+//      pRetVal->bstrVal = SysAllocString(L"Richmath: Uia Box Content");
+//      if(pRetVal->bstrVal) {
+//        pRetVal->vt = VT_BSTR;
+//      }
+//      break;
   }
   
   return S_OK;
@@ -734,6 +736,25 @@ HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(VARIANT *pRetVal) {
     return S_OK; // default = empty rect = invisible
   
   return InitVariantFromDoubleArray(&rect.left, 4, pRetVal);
+}
+
+HRESULT Win32UiaBoxProvider::Impl::get_ClassName(VARIANT *pRetVal) {
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+    
+  Box *box = self.get<Box>();
+  if(!box)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  if(Expr sym = box->to_pmath_symbol()) {
+    String sym_name = sym.to_string();
+    pRetVal->vt = VT_BSTR;
+    pRetVal->bstrVal = SysAllocStringLen((const wchar_t*)sym_name.buffer(), sym_name.length());  
+  }
+  else
+    pRetVal->vt = VT_EMPTY; // Fall back to default value.
+  
+  return S_OK;
 }
 
 HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
