@@ -2,7 +2,9 @@
 
 #include <eval/application.h>
 #include <boxes/abstractsequence.h>
+#include <boxes/graphics/graphicsbox.h>
 #include <boxes/gridbox.h>
+#include <boxes/inputfieldbox.h>
 #include <util/text-gathering.h>
 
 #include <gui/win32/ole/com-safe-arrays.h>
@@ -146,10 +148,19 @@ STDMETHODIMP Win32UiaBoxProvider::GetPatternProvider(PATTERNID patternId, IUnkno
   *pRetVal = nullptr;
   switch(patternId) {
     case UIA_TextPatternId:
-    case UIA_TextPattern2Id:
-      *pRetVal = static_cast<ITextProvider2 *>(this);
-      (*pRetVal)->AddRef();
-      return S_OK;
+    case UIA_TextPattern2Id: {
+      FrontEndObject *obj = get_object();
+      if(auto owner = dynamic_cast<OwnerBox*>(obj)) {
+        *pRetVal = static_cast<ITextProvider2 *>(Win32UiaBoxProvider::create(owner->content()));
+      }
+//      else if(auto sect = dynamic_cast<AbstractSequenceSection*>(obj)) {
+//        *pRetVal = static_cast<ITextProvider2 *>(Win32UiaBoxProvider::create(sect->content()));
+//      }
+      else /*if(dynamic_cast<AbstractSequence*>(obj) || dynamic_cast<Document*>(obj))*/ {
+        *pRetVal = static_cast<ITextProvider2 *>(this);
+        (*pRetVal)->AddRef();
+      }
+    } return S_OK;
     
     case UIA_GridPatternId:      *pRetVal = static_cast<IGridProvider*>(     Win32UiaGridProvider::create(get<GridBox>())); return S_OK;
     case UIA_TablePatternId:     *pRetVal = static_cast<ITableProvider*>(    Win32UiaGridProvider::create(get<GridBox>())); return S_OK;
@@ -778,6 +789,14 @@ HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
     pRetVal->vt   = VT_I4;
     pRetVal->lVal = UIA_DataItemControlTypeId;
   }
+  else if(dynamic_cast<GraphicsBox*>(obj)) {
+    pRetVal->vt   = VT_I4;
+    pRetVal->lVal = UIA_ImageControlTypeId;
+  }
+  else if(dynamic_cast<InputFieldBox*>(obj)) {
+    pRetVal->vt   = VT_I4;
+    pRetVal->lVal = UIA_EditControlTypeId;
+  }
   else {
     pRetVal->vt   = VT_I4;
     pRetVal->lVal = UIA_GroupControlTypeId;
@@ -829,7 +848,7 @@ HRESULT Win32UiaBoxProvider::Impl::get_Name(VARIANT *pRetVal) {
   SimpleTextGather name(1000);
   if(auto doc = dynamic_cast<Document*>(box))
     name.append_text(doc->native()->window_title());
-  else
+  else if(!dynamic_cast<InputFieldBox*>(box))
     name.append(box);
   
   pRetVal->vt = VT_BSTR;
