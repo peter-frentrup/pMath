@@ -9,11 +9,11 @@ namespace richmath {
       SectionOrnament();
       ~SectionOrnament();
       
-      bool has_index(int i) { return _box && _box->index() == i; }
+      bool has_index(int i) const { return _box && _box->index() == i; }
       bool reload_if_necessary(BoxAdopter owner, Expr expr, BoxInputFlags flags);
       
-      Box *box_or_null() { return _box; }
-      Expr to_pmath() { return _expr; }
+      Box *box_or_null() const { return _box; }
+      Expr to_pmath() const { return _expr; }
       
     private:
       Box *_box;

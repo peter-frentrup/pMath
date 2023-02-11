@@ -1406,6 +1406,7 @@
 		<Unit filename="include/util/sharedptr.h" />
 		<Unit filename="include/util/style.h" />
 		<Unit filename="include/util/styled-object.h" />
+		<Unit filename="include/util/text-gathering.h" />
 		<Unit filename="include/util/tintedptr.h" />
 		<Unit filename="resources/Windows.manifest">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2074,6 +2075,7 @@
 		<Unit filename="src/util/selections.cpp" />
 		<Unit filename="src/util/style.cpp" />
 		<Unit filename="src/util/styled-object.cpp" />
+		<Unit filename="src/util/text-gathering.cpp" />
 		<Extensions>
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />

@@ -3,6 +3,7 @@
 #include <eval/application.h>
 #include <boxes/abstractsequence.h>
 #include <boxes/gridbox.h>
+#include <util/text-gathering.h>
 
 #include <gui/win32/ole/com-safe-arrays.h>
 #include <gui/win32/a11y/win32-uia-grid-provider.h>
@@ -27,6 +28,7 @@ namespace richmath {
       HRESULT get_HasKeyboardFocus(VARIANT *pRetVal);
       HRESULT get_IsEnabled(VARIANT *pRetVal);
       HRESULT get_IsKeyboardFocusable(VARIANT *pRetVal);
+      HRESULT get_Name(VARIANT *pRetVal);
       
     private:
       Win32UiaBoxProvider &self;
@@ -172,13 +174,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetPropertyValue(PROPERTYID propertyId, VARIAN
   
   switch(propertyId) {
     case UIA_ControlTypePropertyId: return Impl(*this).get_ControlType(pRetVal);
-      
-    case UIA_NamePropertyId: 
-//      pRetVal->bstrVal = SysAllocString(L"Text Area"); // TODO: In a production application, this would be localized text.
-//      if(pRetVal->bstrVal) {
-//        pRetVal->vt = VT_BSTR;
-//      } 
-      break;
+    case UIA_NamePropertyId:        return Impl(*this).get_Name(pRetVal);
       
     case UIA_AutomationIdPropertyId: 
 //      pRetVal->bstrVal = SysAllocString(L"Text Area"); // TODO: use the BoxID if available.
@@ -801,6 +797,22 @@ HRESULT Win32UiaBoxProvider::Impl::get_IsKeyboardFocusable(VARIANT *pRetVal) {
 
   pRetVal->vt      = VT_BOOL;
   pRetVal->boolVal = box->selectable() ? VARIANT_TRUE : VARIANT_FALSE;
+  return S_OK;
+}
+
+HRESULT Win32UiaBoxProvider::Impl::get_Name(VARIANT *pRetVal) {
+  Box *box = self.get<Box>();
+  if(!box)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  SimpleTextGather name(1000);
+  if(auto doc = dynamic_cast<Document*>(box))
+    name.append_text(doc->native()->window_title());
+  else
+    name.append(box);
+  
+  pRetVal->vt = VT_BSTR;
+  pRetVal->bstrVal = SysAllocStringLen((const wchar_t*)name.text.buffer(), name.text.length());
   return S_OK;
 }
 

@@ -190,6 +190,8 @@ namespace richmath {
         cairo_matrix_t *matrix) override;
       
       virtual float get_em() override;
+      
+      const SectionOrnament &dingbat() const { return _dingbat; }
     
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
