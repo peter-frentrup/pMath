@@ -14,6 +14,7 @@ namespace richmath {
       virtual MathSequence *as_inline_span() override { return nullptr; }
       
       virtual ControlState calc_state(Context &context);
+      ControlState latest_state() { return old_state; }
       
       virtual void paint(Context &context) override;
       

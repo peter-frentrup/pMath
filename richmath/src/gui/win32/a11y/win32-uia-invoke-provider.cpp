@@ -28,6 +28,16 @@ Win32UiaInvokeProvider *Win32UiaInvokeProvider::create(AbstractButtonBox *box) {
   return new Win32UiaInvokeProvider(box->id());
 }
 
+Win32UiaInvokeProvider *Win32UiaInvokeProvider::try_create(FrontEndObject *obj) {
+  if(!obj)
+    return nullptr;
+  
+  //if(dynamic_cast<SetterBox*>(obj)) return nullptr; // TODO: SetterBox implements SelectionItem pattern instead
+  if(auto button = dynamic_cast<AbstractButtonBox*>(obj)) return create(button);
+  
+  return nullptr;
+}
+
 //
 //  IUnknown::QueryInterface
 //
@@ -72,8 +82,12 @@ STDMETHODIMP Win32UiaInvokeProvider::Invoke(void) {
   if(!Application::is_running_on_gui_thread())
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
-  if(!FrontEndObject::find_cast<AbstractButtonBox>(obj_ref))
+  FrontEndObject *obj = FrontEndObject::find(obj_ref);
+  if(!obj)
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+//  if(!dynamic_cast<AbstractButtonBox*>(obj))
+//    return HRreport(UIA_E_INVALIDOPERATION);
   
   Application::click_button_async(obj_ref);
   return S_OK;

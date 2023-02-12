@@ -14,6 +14,7 @@ namespace richmath {
       virtual int length() override { return 0; }
       
       virtual ControlState calc_state(Context &context);
+      ContainerType control_type() { return type; }
       
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;

@@ -30,6 +30,8 @@ namespace richmath {
       virtual void dynamic_finished(Expr info, Expr result) override;
       virtual VolatileSelection dynamic_to_literal(int start, int end) override;
     
+      bool is_down() { return get_flag(IsDownBit); }
+      
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
@@ -51,7 +53,6 @@ namespace richmath {
       void is_initialized(bool value) {      change_flag(IsInitializedBit, value); }
       bool must_update() {               return get_flag(MustUpdateBit); }
       void must_update(bool value) {         change_flag(MustUpdateBit, value); }
-      bool is_down() {                   return get_flag(IsDownBit); }
       void is_down(bool value) {             change_flag(IsDownBit, value); }
       
     private:

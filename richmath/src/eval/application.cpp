@@ -10,6 +10,7 @@
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/box-factory.h>
 #include <boxes/buttonbox.h>
+#include <boxes/emptywidgetbox.h>
 
 #include <graphics/config-shaper.h>
 
@@ -232,17 +233,31 @@ static int on_add_job(void *data) {
 
 // also a GSourceFunc, must return G_SOURCE_REMOVE (=0).  data = FrontEndReference cast to pointer
 static int on_invokebutton(void *data) {
-  if(auto button = FrontEndObject::find_cast<AbstractButtonBox>(FrontEndReference::unsafe_cast_from_pointer(data))) {
+  Box *box = FrontEndObject::find_cast<Box>(FrontEndReference::unsafe_cast_from_pointer(data));
+  if(!box)
+    return 0;
+  
+  if(auto button = dynamic_cast<AbstractButtonBox*>(box))
     button->click();
-    
+  else if(auto emptywidget = dynamic_cast<EmptyWidgetBox*>(box))
+    emptywidget->click();
+  else
+    return 0;
+  
 #ifdef RICHMATH_USE_WIN32_GUI
-    if(UiaClientsAreListening()) {
-      ComBase<IRawElementProviderSimple> elem;
-      elem.attach(Win32UiaBoxProvider::create(button));
-      HRreport(UiaRaiseAutomationEvent(elem.get(), UIA_Invoke_InvokedEventId)); 
+  if(UiaClientsAreListening()) {
+    ComBase<IRawElementProviderSimple> elem;
+    elem.attach(Win32UiaBoxProvider::create(box));
+    
+    if(elem) {
+      ComBase<IToggleProvider> toggle;
+      if(HRbool(elem->GetPatternProvider(UIA_TogglePatternId, (IUnknown**)toggle.get_address_of())) && toggle)
+        HRreport(UiaRaiseAutomationEvent(elem.get(), UIA_ToggleToggleStatePropertyId)); 
+      else
+        HRreport(UiaRaiseAutomationEvent(elem.get(), UIA_Invoke_InvokedEventId)); 
     }
-#endif
   }
+#endif
   return 0;
 }
 

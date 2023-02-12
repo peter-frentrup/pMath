@@ -1,5 +1,5 @@
-#ifndef RICHMATH__GUI__WIN32__WIN32_UIA_INVOKE_PROVIDER_H__INCLUDED
-#define RICHMATH__GUI__WIN32__WIN32_UIA_INVOKE_PROVIDER_H__INCLUDED
+#ifndef RICHMATH__GUI__WIN32__A11Y__WIN32_UIA_INVOKE_PROVIDER_H__INCLUDED
+#define RICHMATH__GUI__WIN32__A11Y__WIN32_UIA_INVOKE_PROVIDER_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -24,6 +24,7 @@ namespace richmath {
     
     public:
       static Win32UiaInvokeProvider *create(AbstractButtonBox *box);
+      static Win32UiaInvokeProvider *try_create(FrontEndObject *obj);
       
       //
       // IUnknown methods
@@ -43,4 +44,4 @@ namespace richmath {
   };
 }
 
-#endif // RICHMATH__GUI__WIN32__WIN32_UIA_INVOKE_PROVIDER_H__INCLUDED
+#endif // RICHMATH__GUI__WIN32__A11Y__WIN32_UIA_INVOKE_PROVIDER_H__INCLUDED
