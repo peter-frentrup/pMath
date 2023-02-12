@@ -39,6 +39,8 @@ namespace richmath {
       static void notify(     ClientNotification type, Expr data); // callable from non-GUI thread
       static Expr notify_wait(ClientNotification type, Expr data); // callable from non-GUI thread
       
+      static void click_button_async(FrontEndReference button_id); // callable from non-GUI thread
+      
       static Section *try_make_output(SectionKind kind);
       static void gui_print_section(Expr expr);
       static Expr save(Document *doc);

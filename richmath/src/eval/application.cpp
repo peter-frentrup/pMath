@@ -9,6 +9,7 @@
 
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/box-factory.h>
+#include <boxes/buttonbox.h>
 
 #include <graphics/config-shaper.h>
 
@@ -17,11 +18,14 @@
 
 
 #ifdef RICHMATH_USE_WIN32_GUI
+#  include <gui/win32/a11y/win32-uia-box-provider.h>
 #  include <gui/win32/api/win32-highdpi.h>
 #  include <gui/win32/basic-win32-widget.h>
 #  include <gui/win32/win32-document-window.h>
 #  include <gui/win32/win32-filedialog.h>
 #  include <gui/win32/menus/win32-menu.h>
+
+#  include <uiautomation.h>
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
@@ -57,6 +61,7 @@
 
 #  define WM_CLIENTNOTIFY  (WM_USER + 1)
 #  define WM_ADDJOB        (WM_USER + 2)
+#  define WM_INVOKEBUTTON  (WM_USER + 3)
 
 #  define TID_DYNAMIC_UPDATE  1
 
@@ -225,6 +230,22 @@ static int on_add_job(void *data) {
   return 0;
 }
 
+// also a GSourceFunc, must return G_SOURCE_REMOVE (=0).  data = FrontEndReference cast to pointer
+static int on_invokebutton(void *data) {
+  if(auto button = FrontEndObject::find_cast<AbstractButtonBox>(FrontEndReference::unsafe_cast_from_pointer(data))) {
+    button->click();
+    
+#ifdef RICHMATH_USE_WIN32_GUI
+    if(UiaClientsAreListening()) {
+      ComBase<IRawElementProviderSimple> elem;
+      elem.attach(Win32UiaBoxProvider::create(button));
+      HRreport(UiaRaiseAutomationEvent(elem.get(), UIA_Invoke_InvokedEventId)); 
+    }
+#endif
+  }
+  return 0;
+}
+
 // also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
 static int on_dynamic_update_delay_timeout(void *data) {
   dynamic_update_delay_timer_active = false;
@@ -254,14 +275,10 @@ class ClientInfoWindow final: public BasicWin32Widget {
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       if(!initializing() && !destroying()) {
         switch(message) {
-          case WM_CLIENTNOTIFY:
-            on_client_notify(nullptr);
-            return 0;
-            
-          case WM_ADDJOB:
-            on_add_job(nullptr);
-            return 0;
-            
+          case WM_CLIENTNOTIFY: on_client_notify(nullptr); return 0;
+          case WM_ADDJOB:       on_add_job(nullptr); return 0;
+          case WM_INVOKEBUTTON: on_invokebutton((void*)lParam); return 0;
+          
           case WM_TIMER:
             on_dynamic_update_delay_timeout(nullptr);
             KillTimer(_hwnd, TID_DYNAMIC_UPDATE);
@@ -714,6 +731,19 @@ void Application::done() {
   palette_search_path = Expr();
   session_id = Expr();
   main_message_queue = Expr();
+}
+
+void Application::click_button_async(FrontEndReference button_id) { // callable from non-GUI thread
+  if(!button_id)
+    return;
+  
+#ifdef RICHMATH_USE_WIN32_GUI
+  PostMessage(info_window.hwnd(), WM_INVOKEBUTTON, 0, (LPARAM)FrontEndReference::unsafe_cast_to_pointer(button_id));
+#endif
+
+#ifdef RICHMATH_USE_GTK_GUI
+  g_idle_add_full(G_PRIORITY_DEFAULT, on_invokebutton, FrontEndReference::unsafe_cast_to_pointer(button_id), nullptr);
+#endif
 }
 
 void Application::add_job(SharedPtr<Job> job) {
