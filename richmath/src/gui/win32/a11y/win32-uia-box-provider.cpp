@@ -449,12 +449,16 @@ STDMETHODIMP Win32UiaBoxProvider::ElementProviderFromPoint(double x, double y, I
   
   bool was_inside_start;
   VolatileSelection sel = doc->mouse_selection(pt, &was_inside_start);
-  if(sel.box == doc) {
+  Box *receiver = sel.box ? sel.box->mouse_sensitive() : sel.box;
+  if(receiver == doc)
+    receiver = sel.box;
+  
+  if(receiver == doc) {
     AddRef();
     *pRetVal = this;
   }
-  else if(sel.box) 
-    *pRetVal = Win32UiaBoxProvider::create(sel.box);
+  else if(receiver) 
+    *pRetVal = Win32UiaBoxProvider::create(receiver);
   
   return S_OK;
 }
