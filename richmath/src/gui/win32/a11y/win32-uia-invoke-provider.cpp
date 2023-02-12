@@ -1,6 +1,6 @@
 #include <gui/win32/a11y/win32-uia-invoke-provider.h>
 
-#include <boxes/buttonbox.h>
+#include <boxes/setterbox.h>
 #include <eval/application.h>
 
 #include <gui/win32/ole/combase.h>
@@ -32,7 +32,7 @@ Win32UiaInvokeProvider *Win32UiaInvokeProvider::try_create(FrontEndObject *obj) 
   if(!obj)
     return nullptr;
   
-  //if(dynamic_cast<SetterBox*>(obj)) return nullptr; // TODO: SetterBox implements SelectionItem pattern instead
+  if(dynamic_cast<SetterBox*>(obj)) return nullptr; // TODO: SetterBox implements SelectionItem pattern instead
   if(auto button = dynamic_cast<AbstractButtonBox*>(obj)) return create(button);
   
   return nullptr;

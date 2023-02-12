@@ -4,16 +4,18 @@
 #include <boxes/abstractsequence.h>
 #include <boxes/buttonbox.h>
 #include <boxes/checkboxbox.h>
-#include <boxes/openerbox.h>
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/gridbox.h>
 #include <boxes/inputfieldbox.h>
+#include <boxes/openerbox.h>
+#include <boxes/radiobuttonbox.h>
 #include <util/text-gathering.h>
 
 #include <gui/win32/ole/com-safe-arrays.h>
 #include <gui/win32/a11y/win32-uia-grid-provider.h>
 #include <gui/win32/a11y/win32-uia-grid-item-provider.h>
 #include <gui/win32/a11y/win32-uia-invoke-provider.h>
+#include <gui/win32/a11y/win32-uia-selection-item-provider.h>
 #include <gui/win32/a11y/win32-uia-text-range-provider.h>
 #include <gui/win32/a11y/win32-uia-toggle-provider.h>
 #include <gui/win32/win32-widget.h>
@@ -167,14 +169,15 @@ STDMETHODIMP Win32UiaBoxProvider::GetPatternProvider(PATTERNID patternId, IUnkno
       }
     } return S_OK;
     
-    case UIA_GridPatternId:      *pRetVal = static_cast<IGridProvider*>(     Win32UiaGridProvider::create(get<GridBox>())); return S_OK;
-    case UIA_TablePatternId:     *pRetVal = static_cast<ITableProvider*>(    Win32UiaGridProvider::create(get<GridBox>())); return S_OK;
+    case UIA_GridPatternId:          *pRetVal = static_cast<IGridProvider*>(         Win32UiaGridProvider::create(get<GridBox>())); return S_OK;
+    case UIA_TablePatternId:         *pRetVal = static_cast<ITableProvider*>(        Win32UiaGridProvider::create(get<GridBox>())); return S_OK;
     
-    case UIA_GridItemPatternId:  *pRetVal = static_cast<IGridItemProvider*>( Win32UiaGridItemProvider::create(get<GridItem>())); return S_OK;
-    case UIA_TableItemPatternId: *pRetVal = static_cast<ITableItemProvider*>(Win32UiaGridItemProvider::create(get<GridItem>())); return S_OK;
+    case UIA_GridItemPatternId:      *pRetVal = static_cast<IGridItemProvider*>(     Win32UiaGridItemProvider::create(get<GridItem>())); return S_OK;
+    case UIA_TableItemPatternId:     *pRetVal = static_cast<ITableItemProvider*>(    Win32UiaGridItemProvider::create(get<GridItem>())); return S_OK;
   
-    case UIA_InvokePatternId:    *pRetVal = static_cast<IInvokeProvider*>(Win32UiaInvokeProvider::try_create(get_object())); return S_OK;
-    case UIA_TogglePatternId:    *pRetVal = static_cast<IToggleProvider*>(Win32UiaToggleProvider::try_create(get_object())); return S_OK;
+    case UIA_InvokePatternId:        *pRetVal = static_cast<IInvokeProvider*>(       Win32UiaInvokeProvider::try_create(       get_object())); return S_OK;
+    case UIA_SelectionItemPatternId: *pRetVal = static_cast<ISelectionItemProvider*>(Win32UiaSelectionItemProvider::try_create(get_object())); return S_OK;
+    case UIA_TogglePatternId:        *pRetVal = static_cast<IToggleProvider*>(       Win32UiaToggleProvider::try_create(       get_object())); return S_OK;
   }
   
   return S_OK;
@@ -816,6 +819,10 @@ HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
   else if(dynamic_cast<CheckboxBox*>(obj) || dynamic_cast<OpenerBox*>(obj)) {
     pRetVal->vt   = VT_I4;
     pRetVal->lVal = UIA_CheckBoxControlTypeId;
+  }
+  else if(dynamic_cast<RadioButtonBox*>(obj)) {
+    pRetVal->vt   = VT_I4;
+    pRetVal->lVal = UIA_RadioButtonControlTypeId;
   }
   else {
     pRetVal->vt   = VT_I4;

@@ -250,9 +250,17 @@ static int on_invokebutton(void *data) {
     elem.attach(Win32UiaBoxProvider::create(box));
     
     if(elem) {
-      ComBase<IToggleProvider> toggle;
-      if(HRbool(elem->GetPatternProvider(UIA_TogglePatternId, (IUnknown**)toggle.get_address_of())) && toggle)
-        HRreport(UiaRaiseAutomationEvent(elem.get(), UIA_ToggleToggleStatePropertyId)); 
+      ComBase<IUnknown> dummy;
+      if(HRbool(elem->GetPatternProvider(UIA_TogglePatternId, dummy.get_address_of())) && dummy) {
+        VARIANT old_value, new_value;
+        VariantInit(&old_value);
+        VariantInit(&new_value);
+        HRreport(UiaRaiseAutomationPropertyChangedEvent(elem.get(), UIA_ToggleToggleStatePropertyId, old_value, new_value)); 
+        VariantClear(&old_value);
+        VariantClear(&new_value);
+      }
+      else if(HRbool(elem->GetPatternProvider(UIA_SelectionItemPatternId, dummy.get_address_of())) && dummy) 
+        HRreport(UiaRaiseAutomationEvent(elem.get(), UIA_SelectionItem_ElementSelectedEventId)); 
       else
         HRreport(UiaRaiseAutomationEvent(elem.get(), UIA_Invoke_InvokedEventId)); 
     }
