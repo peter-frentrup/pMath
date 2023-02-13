@@ -1,3 +1,5 @@
+#include <initguid.h>
+
 #include <gui/win32/a11y/win32-uia-box-provider.h>
 
 #include <eval/application.h>
@@ -138,7 +140,7 @@ STDMETHODIMP Win32UiaBoxProvider::get_ProviderOptions(enum ProviderOptions *pRet
   if(!obj_ref)
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
-  *pRetVal = ProviderOptions_ServerSideProvider | ProviderOptions_UseComThreading;
+  *pRetVal = ProviderOptions(ProviderOptions_ServerSideProvider | ProviderOptions_UseComThreading);
   return S_OK;
 }
 

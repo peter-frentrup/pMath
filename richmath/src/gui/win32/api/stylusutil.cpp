@@ -1,9 +1,12 @@
+//#include <initguid.h>
+
 #include <gui/win32/api/stylusutil.h>
 
 #include <cstdio>
 #include <guiddef.h>
 #include <msinkaut.h>
 
+#define _MIDL_USE_GUIDDEF_
 #include <RTSCOM_i.c>
 #include <msinkaut_i.c>
 
