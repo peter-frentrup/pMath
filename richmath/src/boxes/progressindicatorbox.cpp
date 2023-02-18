@@ -26,12 +26,11 @@ namespace std {
 
 ProgressIndicatorBox::ProgressIndicatorBox()
   : base(),
-    range_min(0.0),
-    range_max(1.0),
-    range_value(0.5)
+    _range_interval(0.0, 1.0),
+    _range_value(0.5)
 {
   must_update(true);
-  dynamic.init(this, Expr());
+  _dynamic.init(this, Expr());
 }
 
 ProgressIndicatorBox::~ProgressIndicatorBox() {
@@ -54,24 +53,22 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   if(new_range.expr_length() != 2)
     return false;
-    
-  double new_range_min = new_range[1].to_double(NAN);
-  double new_range_max = new_range[2].to_double(NAN);
   
-  if(std::isnan(new_range_min))
+  Interval<double> new_range_interval(new_range[1].to_double(NAN), new_range[2].to_double(NAN));
+  
+  if(std::isnan(new_range_interval.from))
     return false;
     
-  if(std::isnan(new_range_max))
+  if(std::isnan(new_range_interval.to))
     return false;
     
   /* now success is guaranteed */
   
-  range     = new_range;
-  range_min = new_range_min;
-  range_max = new_range_max;
+  _range_expr     = new_range;
+  _range_interval = new_range_interval;
   
-  if(dynamic.expr() != expr[1] || has(opts, BoxInputFlags::ForceResetDynamic)) {
-    dynamic = expr[1];
+  if(_dynamic.expr() != expr[1] || has(opts, BoxInputFlags::ForceResetDynamic)) {
+    _dynamic = expr[1];
     must_update(true);
   }
   
@@ -117,8 +114,8 @@ void ProgressIndicatorBox::paint(Context &context) {
     must_update(false);
     
     Expr val;
-    if(dynamic.get_value(&val)) {
-      range_value = val.to_double(NAN);
+    if(_dynamic.get_value(&val)) {
+      _range_value = val.to_double(NAN);
     }
   }
   
@@ -133,10 +130,10 @@ void ProgressIndicatorBox::paint(Context &context) {
   double p = 0;
   ControlState state = ControlState::Normal;
   
-  if(range_min <= range_value && range_value <= range_max && range_max - range_min > 0) {
-    p = (range_value - range_min) / (range_max - range_min);
+  if(_range_interval.contains(_range_value) && _range_interval.length() > 0) {
+    p = (_range_value - _range_interval.from) / _range_interval.length();
   }
-  else if(range_value > range_max) {
+  else if(_range_value > _range_interval.to) {
     p = 1;
   }
   else {
@@ -171,12 +168,12 @@ Expr ProgressIndicatorBox::to_pmath_impl(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Literal))
     val = to_literal();
   else
-    val = dynamic.expr();
+    val = _dynamic.expr();
     
   return Call(
            Symbol(richmath_System_ProgressIndicatorBox),
            val,
-           range);
+           _range_expr);
 }
 
 VolatileSelection ProgressIndicatorBox::mouse_selection(Point pos, bool *was_inside_start) {
@@ -195,19 +192,19 @@ void ProgressIndicatorBox::dynamic_updated() {
 void ProgressIndicatorBox::dynamic_finished(Expr info, Expr result) {
   double new_value = result.to_double(NAN);
   
-  if(range_value != new_value)
+  if(_range_value != new_value)
     request_repaint_all();
 }
 
 Expr ProgressIndicatorBox::to_literal() {
-  if(!dynamic.is_dynamic())
-    return dynamic.expr();
+  if(!_dynamic.is_dynamic())
+    return _dynamic.expr();
   
-  return dynamic.get_value_now();
+  return _dynamic.get_value_now();
 }
 
 VolatileSelection ProgressIndicatorBox::dynamic_to_literal(int start, int end) {
-  dynamic = to_literal();
+  _dynamic = to_literal();
   return {this, start, end};
 }
 

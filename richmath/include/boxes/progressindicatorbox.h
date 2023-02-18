@@ -41,6 +41,9 @@ namespace richmath {
       virtual bool is_focused_widget() override;
       virtual bool is_using_dark_mode() override;
       virtual int dpi() override;
+      
+      const Interval<double> &range_interval() const { return _range_interval; }
+      double                  range_value()    const { return _range_value; }
     
     private:
       Expr to_literal();
@@ -62,11 +65,10 @@ namespace richmath {
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
     private:
-      double range_min;
-      double range_max;
-      double range_value;
-      Expr range;
-      Dynamic dynamic;
+      Interval<double> _range_interval;
+      double           _range_value;
+      Expr             _range_expr;
+      Dynamic          _dynamic;
       
       SharedPtr<BoxAnimation> animation;
   };

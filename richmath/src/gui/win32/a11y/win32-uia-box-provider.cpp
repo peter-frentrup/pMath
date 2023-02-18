@@ -10,6 +10,7 @@
 #include <boxes/gridbox.h>
 #include <boxes/inputfieldbox.h>
 #include <boxes/openerbox.h>
+#include <boxes/progressindicatorbox.h>
 #include <boxes/radiobuttonbox.h>
 #include <util/text-gathering.h>
 
@@ -17,6 +18,7 @@
 #include <gui/win32/a11y/win32-uia-grid-provider.h>
 #include <gui/win32/a11y/win32-uia-grid-item-provider.h>
 #include <gui/win32/a11y/win32-uia-invoke-provider.h>
+#include <gui/win32/a11y/win32-uia-range-value-provider.h>
 #include <gui/win32/a11y/win32-uia-selection-item-provider.h>
 #include <gui/win32/a11y/win32-uia-text-range-provider.h>
 #include <gui/win32/a11y/win32-uia-toggle-provider.h>
@@ -180,6 +182,8 @@ STDMETHODIMP Win32UiaBoxProvider::GetPatternProvider(PATTERNID patternId, IUnkno
     case UIA_InvokePatternId:        *pRetVal = static_cast<IInvokeProvider*>(       Win32UiaInvokeProvider::try_create(       get_object())); return S_OK;
     case UIA_SelectionItemPatternId: *pRetVal = static_cast<ISelectionItemProvider*>(Win32UiaSelectionItemProvider::try_create(get_object())); return S_OK;
     case UIA_TogglePatternId:        *pRetVal = static_cast<IToggleProvider*>(       Win32UiaToggleProvider::try_create(       get_object())); return S_OK;
+  
+    case UIA_RangeValuePatternId:    *pRetVal = static_cast<IRangeValueProvider*>(   Win32UiaRangeValueProvider::try_create(   get_object())); return S_OK;
   }
   
   return S_OK;
@@ -825,6 +829,10 @@ HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
   else if(dynamic_cast<RadioButtonBox*>(obj)) {
     pRetVal->vt   = VT_I4;
     pRetVal->lVal = UIA_RadioButtonControlTypeId;
+  }
+  else if(dynamic_cast<ProgressIndicatorBox*>(obj)) {
+    pRetVal->vt   = VT_I4;
+    pRetVal->lVal = UIA_ProgressBarControlTypeId;
   }
   else {
     pRetVal->vt   = VT_I4;
