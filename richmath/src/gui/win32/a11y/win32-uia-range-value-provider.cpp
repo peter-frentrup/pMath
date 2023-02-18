@@ -1,6 +1,7 @@
 #include <gui/win32/a11y/win32-uia-range-value-provider.h>
 
 #include <boxes/progressindicatorbox.h>
+#include <boxes/sliderbox.h>
 #include <eval/application.h>
 
 #include <gui/win32/ole/combase.h>
@@ -29,11 +30,19 @@ Win32UiaRangeValueProvider *Win32UiaRangeValueProvider::create(ProgressIndicator
   return new Win32UiaRangeValueProvider(box->id());
 }
 
+Win32UiaRangeValueProvider *Win32UiaRangeValueProvider::create(SliderBox *box) {
+  if(!box)
+    return nullptr;
+  
+  return new Win32UiaRangeValueProvider(box->id());
+}
+
 Win32UiaRangeValueProvider *Win32UiaRangeValueProvider::try_create(FrontEndObject *obj) {
   if(!obj)
     return nullptr;
   
   if(auto progress = dynamic_cast<ProgressIndicatorBox*>(obj)) return create(progress);
+  if(auto slider   = dynamic_cast<SliderBox*>(           obj)) return create(slider);
   
   return nullptr;
 }
@@ -82,6 +91,18 @@ STDMETHODIMP Win32UiaRangeValueProvider::SetValue(double val) {
   if(!Application::is_running_on_gui_thread())
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
+  auto obj = FrontEndObject::find(obj_ref);
+  if(!obj)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  if(auto slider = dynamic_cast<SliderBox*>(obj)) {
+    if(!slider->enabled())
+      return UIA_E_ELEMENTNOTENABLED;
+    
+    slider->range_value(val);
+    return S_OK;
+  }
+  
   return UIA_E_INVALIDOPERATION;
 }
 
@@ -104,6 +125,11 @@ STDMETHODIMP Win32UiaRangeValueProvider::get_Value(double *pRetVal) {
     return S_OK;
   }
   
+  if(auto slider = dynamic_cast<SliderBox*>(obj)) {
+    *pRetVal = slider->range_value();
+    return S_OK;
+  }
+  
   return E_NOTIMPL;
 }
 
@@ -116,6 +142,15 @@ STDMETHODIMP Win32UiaRangeValueProvider::get_IsReadOnly(BOOL *pRetVal) {
   
   if(!Application::is_running_on_gui_thread())
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  auto obj = FrontEndObject::find(obj_ref);
+  if(!obj)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  if(auto slider = dynamic_cast<SliderBox*>(obj)) {
+    *pRetVal = !slider->enabled();
+    return S_OK;
+  }
   
   *pRetVal = TRUE;
   return S_OK;
@@ -137,6 +172,11 @@ STDMETHODIMP Win32UiaRangeValueProvider::get_Maximum(double *pRetVal) {
   
   if(auto progress = dynamic_cast<ProgressIndicatorBox*>(obj)) {
     *pRetVal = progress->range_interval().to;
+    return S_OK;
+  }
+  
+  if(auto slider = dynamic_cast<SliderBox*>(obj)) {
+    *pRetVal = slider->range_interval().to;
     return S_OK;
   }
   
@@ -162,6 +202,11 @@ STDMETHODIMP Win32UiaRangeValueProvider::get_Minimum(double *pRetVal) {
     return S_OK;
   }
   
+  if(auto slider = dynamic_cast<SliderBox*>(obj)) {
+    *pRetVal = slider->range_interval().from;
+    return S_OK;
+  }
+  
   return E_NOTIMPL;
 }
 
@@ -182,6 +227,18 @@ STDMETHODIMP Win32UiaRangeValueProvider::get_LargeChange(double *pRetVal) {
 STDMETHODIMP Win32UiaRangeValueProvider::get_SmallChange(double *pRetVal) {
   if(!pRetVal)
     return HRreport(E_INVALIDARG);
+  
+  if(!Application::is_running_on_gui_thread())
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  auto obj = FrontEndObject::find(obj_ref);
+  if(!obj)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  if(auto slider = dynamic_cast<SliderBox*>(obj)) {
+    *pRetVal = slider->range_step();
+    return S_OK;
+  }
   
   *pRetVal = std::numeric_limits<double>::quiet_NaN();
   return S_OK;

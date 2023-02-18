@@ -12,6 +12,7 @@
 #include <boxes/openerbox.h>
 #include <boxes/progressindicatorbox.h>
 #include <boxes/radiobuttonbox.h>
+#include <boxes/sliderbox.h>
 #include <util/text-gathering.h>
 
 #include <gui/win32/ole/com-safe-arrays.h>
@@ -833,6 +834,10 @@ HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
   else if(dynamic_cast<ProgressIndicatorBox*>(obj)) {
     pRetVal->vt   = VT_I4;
     pRetVal->lVal = UIA_ProgressBarControlTypeId;
+  }
+  else if(dynamic_cast<SliderBox*>(obj)) {
+    pRetVal->vt   = VT_I4;
+    pRetVal->lVal = UIA_SliderControlTypeId;
   }
   else {
     pRetVal->vt   = VT_I4;

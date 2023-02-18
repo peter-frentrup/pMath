@@ -44,23 +44,28 @@ namespace richmath {
       virtual void on_mouse_up(MouseEvent &event) override;
       virtual void on_mouse_cancel() override;
       
+      const Interval<double> &range_interval() const { return _range_interval; }
+      double                  range_step()     const { return _range_step; }
+      double                  range_value()    const { return _range_value; }
+      
+      void range_value(double new_val);
+      
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::SliderBox; }
 
     private:
-      double range_min;
-      double range_max;
-      double range_step;
-      double range_value;
-      double animation_start_value;
-      double animation_start_time;
-      Expr range;
-      Dynamic dynamic;
+      Interval<double> _range_interval;
+      double           _range_step;
+      double           _range_value;
+      double           _animation_start_value;
+      double           _animation_start_time;
+      Expr             _range_expr;
+      Dynamic          _dynamic;
       
-      float thumb_width;
-      float channel_width;
+      float _thumb_width;
+      float _channel_width;
       
       enum {
         HaveDrawnBit = base::NumFlagsBits,

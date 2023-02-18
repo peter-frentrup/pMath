@@ -11,6 +11,7 @@
 
 namespace richmath {
   class ProgressIndicatorBox;
+  class SliderBox;
   
   class Win32UiaRangeValueProvider:
     public IRangeValueProvider
@@ -24,6 +25,7 @@ namespace richmath {
     
     public:
       static Win32UiaRangeValueProvider *create(ProgressIndicatorBox *box);
+      static Win32UiaRangeValueProvider *create(SliderBox            *box);
       static Win32UiaRangeValueProvider *try_create(FrontEndObject *obj);
       
       //
