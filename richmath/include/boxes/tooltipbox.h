@@ -18,8 +18,10 @@ namespace richmath {
       virtual void on_mouse_enter() override;
       virtual void on_mouse_exit() override;
       
+      Expr tooltip_boxes() const { return _tooltip_boxes; }
+      
     protected:
-      Expr tooltip_boxes;
+      Expr _tooltip_boxes;
       
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
   };

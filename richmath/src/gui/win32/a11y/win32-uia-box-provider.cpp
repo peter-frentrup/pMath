@@ -13,6 +13,7 @@
 #include <boxes/progressindicatorbox.h>
 #include <boxes/radiobuttonbox.h>
 #include <boxes/sliderbox.h>
+#include <boxes/tooltipbox.h>
 #include <util/text-gathering.h>
 
 #include <gui/win32/ole/com-safe-arrays.h>
@@ -41,6 +42,7 @@ namespace richmath {
       HRESULT get_ClassName(VARIANT *pRetVal);
       HRESULT get_ControlType(VARIANT *pRetVal);
       HRESULT get_HasKeyboardFocus(VARIANT *pRetVal);
+      HRESULT get_HelpText(VARIANT *pRetVal);
       HRESULT get_IsEnabled(VARIANT *pRetVal);
       HRESULT get_IsKeyboardFocusable(VARIANT *pRetVal);
       HRESULT get_Name(VARIANT *pRetVal);
@@ -49,6 +51,12 @@ namespace richmath {
       Win32UiaBoxProvider &self;
   };
 }
+
+namespace richmath{namespace strings{
+  extern String PlainText;
+}}
+
+extern pmath_symbol_t richmath_FE_BoxesToText;
 
 //{ class Win32UiaBoxProvider ...
 
@@ -227,6 +235,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetPropertyValue(PROPERTYID propertyId, VARIAN
       break;
     
     case UIA_HasKeyboardFocusPropertyId:    return Impl(*this).get_HasKeyboardFocus(pRetVal);
+    case UIA_HelpTextPropertyId:            return Impl(*this).get_HelpText(pRetVal);
     case UIA_IsEnabledPropertyId:           return Impl(*this).get_IsEnabled(pRetVal);
     case UIA_IsKeyboardFocusablePropertyId: return Impl(*this).get_IsKeyboardFocusable(pRetVal);
     
@@ -859,6 +868,25 @@ HRESULT Win32UiaBoxProvider::Impl::get_HasKeyboardFocus(VARIANT *pRetVal) {
       pRetVal->boolVal = VARIANT_TRUE;
   }
   
+  return S_OK;
+}
+
+HRESULT Win32UiaBoxProvider::Impl::get_HelpText(VARIANT *pRetVal) {
+  Box *box = self.get<Box>();
+  if(!box)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  if(auto tooltip = box->find_parent<TooltipBox>(true)) {
+    String text = Application::interrupt_wait(
+                    Call(Symbol(richmath_FE_BoxesToText), tooltip->tooltip_boxes(), strings::PlainText),
+                    Application::edit_interrupt_timeout).to_string();
+    
+    pRetVal->vt      = VT_BSTR;
+    pRetVal->bstrVal = SysAllocStringLen((const wchar_t*)text.buffer(), text.length());
+    return S_OK;
+  }
+  
+  pRetVal->vt = VT_EMPTY;
   return S_OK;
 }
 

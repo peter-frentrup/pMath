@@ -39,7 +39,7 @@ bool TooltipBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   _content->load_from_object(expr[1], opts);
   
-  tooltip_boxes = expr[2];
+  _tooltip_boxes = expr[2];
   
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
@@ -57,7 +57,7 @@ Expr TooltipBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   Gather::emit(content()->to_pmath(flags));
-  Gather::emit(tooltip_boxes);
+  Gather::emit(_tooltip_boxes);
   
   if(style)
     style->emit_to_pmath(false);
@@ -69,7 +69,7 @@ Expr TooltipBox::to_pmath_impl(BoxOutputFlags flags) {
 
 void TooltipBox::on_mouse_enter() {
   if(auto doc = find_parent<Document>(false))
-    doc->native()->show_tooltip(this, tooltip_boxes);
+    doc->native()->show_tooltip(this, _tooltip_boxes);
 }
 
 void TooltipBox::on_mouse_exit() {
