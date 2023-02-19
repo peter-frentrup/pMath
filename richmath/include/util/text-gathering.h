@@ -20,6 +20,7 @@ namespace richmath {
     public:
       String text;
       int max_length;
+      bool skip_string_characters_in_math : 1;
   };
 }
 

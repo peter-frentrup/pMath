@@ -13,11 +13,17 @@ namespace richmath {
     public:
       Impl(SimpleTextGather &self);
       
+      void append_box(Box *box);
+    
+    private:
+      void append_box_dispatch(Box *box);
       void append_pane(PaneSelectorBox *pane);
       void append_section(AbstractSequenceSection *sect);
       void append_section_list(SectionList *sects);
       void append_sequence(AbstractSequence *seq);
-  
+      
+      void append_text_for(AbstractSequence *seq, String str);
+    
     private:
       SimpleTextGather &self;
   };
@@ -26,33 +32,22 @@ namespace richmath {
 //{ class SimpleTextGather ...
 
 SimpleTextGather::SimpleTextGather(int maxlen)
-: max_length(maxlen)
+: max_length(maxlen),
+  skip_string_characters_in_math(false)
 {
 }
 
 void SimpleTextGather::append(Box *box) {
-  if(text.length() >= max_length)
+  if(!box)
     return;
   
-  if(auto seq = dynamic_cast<AbstractSequence*>(box)) {
-    Impl(*this).append_sequence(seq);
-    return;
-  }
+  bool old_skip_string_characters = skip_string_characters_in_math;
   
-  if(auto owner = dynamic_cast<OwnerBox*>(box)) {
-    Impl(*this).append_sequence(owner->content());
-    return;
-  }
+  skip_string_characters_in_math = !box->get_style(ShowStringCharacters, !skip_string_characters_in_math);
   
-  if(auto sect = dynamic_cast<AbstractSequenceSection*>(box)) {
-    Impl(*this).append_section(sect);
-    return;
-  }
+  Impl(*this).append_box(box);
   
-  if(auto pane = dynamic_cast<PaneSelectorBox*>(box)) {
-    Impl(*this).append_pane(pane);
-    return;
-  }
+  skip_string_characters_in_math = old_skip_string_characters;
 }
 
 void SimpleTextGather::append_space() {
@@ -103,11 +98,53 @@ inline SimpleTextGather::Impl::Impl(SimpleTextGather &self)
 {
 }
 
+void SimpleTextGather::Impl::append_box(Box *box) {
+  if(self.text.length() >= self.max_length)
+    return;
+  
+  if(!box)
+    return;
+  
+  bool box_show_string_characters = box->get_own_style(ShowStringCharacters, !self.skip_string_characters_in_math);
+  if(!box_show_string_characters != self.skip_string_characters_in_math) {
+    bool old = self.skip_string_characters_in_math;
+    self.skip_string_characters_in_math = !box_show_string_characters;
+    
+    append_box_dispatch(box);
+    
+    self.skip_string_characters_in_math = old;
+  }
+  else {
+    append_box_dispatch(box);
+  }
+}
+
+void SimpleTextGather::Impl::append_box_dispatch(Box *box) {
+  if(auto seq = dynamic_cast<AbstractSequence*>(box)) {
+    append_sequence(seq);
+    return;
+  }
+  
+  if(auto owner = dynamic_cast<OwnerBox*>(box)) {
+    append_sequence(owner->content());
+    return;
+  }
+  
+  if(auto sect = dynamic_cast<AbstractSequenceSection*>(box)) {
+    append_section(sect);
+    return;
+  }
+  
+  if(auto pane = dynamic_cast<PaneSelectorBox*>(box)) {
+    append_pane(pane);
+    return;
+  }
+}
 
 void SimpleTextGather::Impl::append_pane(PaneSelectorBox *pane) {
   int i = pane->current_selection();
   if(0 <= i && i < pane->count())
-    self.append(pane->item(i));
+    append_box(pane->item(i));
 }
 
 void SimpleTextGather::Impl::append_section(AbstractSequenceSection *sect) {
@@ -117,7 +154,7 @@ void SimpleTextGather::Impl::append_section(AbstractSequenceSection *sect) {
   }
   
   if(Box *dingbat = sect->dingbat().box_or_null()) {
-    self.append(dingbat);
+    append_box(dingbat);
     self.append_space();
   }
   
@@ -130,10 +167,10 @@ void SimpleTextGather::Impl::append_section_list(SectionList *sects) {
   if(count == 0)
     return;
   
-  self.append(sects->section(0));
+  append_box(sects->section(0));
   for(int i = 1; i < count; ++i) {
     self.append_text("\n\n");
-    self.append(sects->section(i));
+    append_box(sects->section(i));
   }
 }
 
@@ -150,12 +187,12 @@ void SimpleTextGather::Impl::append_sequence(AbstractSequence *seq) {
     int  next    = item->index();
     int  sub_len = next - start;
     if(sub_len >= self.max_length - oldlen) {
-      self.text += seq->text().part(start, self.max_length - oldlen);
+      append_text_for(seq, seq->text().part(start, self.max_length - oldlen));
       return;
     }
     
-    self.text += seq->text().part(start, sub_len);
-    self.append(item);
+    append_text_for(seq, seq->text().part(start, sub_len));
+    append_box(item);
     
     start = next + 1;
   }
@@ -163,10 +200,47 @@ void SimpleTextGather::Impl::append_sequence(AbstractSequence *seq) {
   if(int rest_len = seq->length() - start) {
     int oldlen = self.text.length();
     if(oldlen + rest_len <= self.max_length)
-      self.text += seq->text().part(start, rest_len);
+      append_text_for(seq, seq->text().part(start, rest_len));
     else
-      self.text += seq->text().part(start, self.max_length - oldlen);
+      append_text_for(seq, seq->text().part(start, self.max_length - oldlen));
   }
+}
+
+void SimpleTextGather::Impl::append_text_for(AbstractSequence *seq, String str) {
+  if(self.skip_string_characters_in_math && seq->kind() == LayoutKind::Math) {
+    const uint16_t *buf = str.buffer();
+    int             len = str.length();
+    
+    while(len > 0) {
+      int n = 0;
+      while(n < len && buf[n] != '"' && buf[n] != '\\')
+        ++n;
+      
+      if(n > 0) {
+        self.text.insert(INT_MAX, buf, n);
+        buf+= n;
+        len-= n;
+      }
+      
+      
+      if(len < 2)
+        return;
+      
+      if(buf[0] == '\\') {
+        self.text += buf[1];
+        buf+= 2;
+        len-= 2;
+      }
+      else {
+        ++buf;
+        --len;
+      }
+    }
+    
+    return;
+  }
+  
+  self.text += str;
 }
 
 //} ... class SimpleTextGather::Impl
