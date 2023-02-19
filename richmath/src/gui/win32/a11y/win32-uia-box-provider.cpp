@@ -3,16 +3,17 @@
 #include <gui/win32/a11y/win32-uia-box-provider.h>
 
 #include <eval/application.h>
-#include <boxes/abstractsequence.h>
 #include <boxes/buttonbox.h>
 #include <boxes/checkboxbox.h>
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/gridbox.h>
 #include <boxes/inputfieldbox.h>
+#include <boxes/mathsequence.h>
 #include <boxes/openerbox.h>
 #include <boxes/progressindicatorbox.h>
 #include <boxes/radiobuttonbox.h>
 #include <boxes/sliderbox.h>
+#include <boxes/textsequence.h>
 #include <boxes/tooltipbox.h>
 #include <util/text-gathering.h>
 
@@ -793,8 +794,17 @@ HRESULT Win32UiaBoxProvider::Impl::get_ClassName(VARIANT *pRetVal) {
     pRetVal->vt = VT_BSTR;
     pRetVal->bstrVal = SysAllocStringLen((const wchar_t*)sym_name.buffer(), sym_name.length());  
   }
-  else
+  else if(dynamic_cast<MathSequence*>(box)) {
+    pRetVal->vt = VT_BSTR;
+    pRetVal->bstrVal = SysAllocString(L"MathSequence"); 
+  }
+  else if(dynamic_cast<TextSequence*>(box)) {
+    pRetVal->vt = VT_BSTR;
+    pRetVal->bstrVal = SysAllocString(L"TextSequence"); 
+  }
+  else {
     pRetVal->vt = VT_EMPTY; // Fall back to default value.
+  }
   
   return S_OK;
 }

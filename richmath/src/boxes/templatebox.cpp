@@ -668,6 +668,10 @@ void TemplateBoxSlot::on_finish_editing() {
     Impl(*this).assign_content();
 }
 
+Expr TemplateBoxSlot::to_pmath_symbol() {
+  return Symbol(richmath_System_TemplateSlot);
+}
+
 Expr TemplateBoxSlot::get_current_value_of_TemplateSlotCount(FrontEndObject *obj, Expr item) {
   if(!item.is_string())
     return Symbol(richmath_System_DollarFailed);

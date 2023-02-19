@@ -118,6 +118,8 @@ namespace richmath {
       virtual void on_exit() override;
       virtual void on_finish_editing() override;
       
+      virtual Expr to_pmath_symbol() override;
+      
       static Expr get_current_value_of_TemplateSlotCount(FrontEndObject *obj, Expr item);
       static Expr get_current_value_of_HeldTemplateSlot(FrontEndObject *obj, Expr item);
       static Expr get_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item);

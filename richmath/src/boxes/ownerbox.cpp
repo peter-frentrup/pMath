@@ -16,6 +16,7 @@ extern pmath_symbol_t richmath_System_Center;
 extern pmath_symbol_t richmath_System_GridBox;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Scaled;
+extern pmath_symbol_t richmath_System_String;
 extern pmath_symbol_t richmath_System_TextData;
 extern pmath_symbol_t richmath_System_Top;
 
@@ -316,6 +317,12 @@ Expr InlineSequenceBox::to_pmath_symbol() {
     switch(content()->kind()) {
       case LayoutKind::Math: return Symbol(richmath_System_BoxData);
       case LayoutKind::Text: return Symbol(richmath_System_TextData);
+    }
+  }
+  else {
+    switch(content()->kind()) {
+      case LayoutKind::Math: return Symbol(richmath_System_List);
+      case LayoutKind::Text: return Symbol(richmath_System_String);
     }
   }
   
