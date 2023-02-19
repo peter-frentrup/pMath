@@ -149,9 +149,6 @@ Color StyledObject::get_own_style(ColorStyleOptionName n, Color fallback_result)
   if(Impl(*this).try_get_own_style_with_stylesheet(n, &result, all))
     return result;
     
-  if(all && all->base && all->get(all->base, n, &result))
-    return result;
-    
   return fallback_result;
 }
 
@@ -160,9 +157,6 @@ int StyledObject::get_own_style(IntStyleOptionName n, int fallback_result) {
   
   int result;
   if(Impl(*this).try_get_own_style_with_stylesheet(n, &result, all))
-    return result;
-    
-  if(all && all->base && all->get(all->base, n, &result))
     return result;
     
   return fallback_result;
@@ -175,9 +169,6 @@ float StyledObject::get_own_style(FloatStyleOptionName n, float fallback_result)
   if(Impl(*this).try_get_own_style_with_stylesheet(n, &result, all))
     return result;
     
-  if(all && all->base && all->get(all->base, n, &result))
-    return result;
-    
   return fallback_result;
 }
 
@@ -186,9 +177,6 @@ Length StyledObject::get_own_style(LengthStyleOptionName n, Length fallback_resu
   
   Length result;
   if(Impl(*this).try_get_own_style_with_stylesheet(n, &result, all))
-    return result;
-    
-  if(all && all->base && all->get(all->base, n, &result))
     return result;
     
   return fallback_result;
@@ -201,9 +189,6 @@ String StyledObject::get_own_style(StringStyleOptionName n, String fallback_resu
   if(Impl(*this).try_get_own_style_with_stylesheet(n, &result, all))
     return result;
     
-  if(all && all->base && all->get(all->base, n, &result))
-    return result;
-    
   return fallback_result;
 }
 
@@ -212,9 +197,6 @@ Expr StyledObject::get_own_style(ObjectStyleOptionName n, Expr fallback_result) 
   
   Expr result;
   if(Impl(*this).try_get_own_style_with_stylesheet(n, &result, all))
-    return result;
-    
-  if(all && all->base && all->get(all->base, n, &result))
     return result;
     
   return fallback_result;
