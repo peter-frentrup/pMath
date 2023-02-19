@@ -1,5 +1,6 @@
 #include <boxes/box.h>
 #include <boxes/mathsequence.h>
+#include <boxes/textsequence.h>
 
 #include <eval/application.h>
 
@@ -293,6 +294,32 @@ void Box::selection_path(Canvas &canvas, int start, int end) {
 void Box::selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) {
   if(end > count())
     end = count();
+  
+  if(auto mseq = as_inline_span()) {
+    int ii = mseq->index();
+    if(start <= ii && ii < end) {
+//      if(auto par = dynamic_cast<MathSequence*>(parent())) {
+//        int i = index();
+//        par->selection_rectangles(rects, flags, p0 /* TODO: + ... */, i, i + 1);
+//        return;
+//      }
+      mseq->selection_rectangles(rects, flags, p0, 0, mseq->length());
+      return;
+    }
+  }
+  
+  if(auto tseq = as_inline_text_span()) {
+    int ii = tseq->index();
+    if(start <= ii && ii < end) {
+//      if(auto par = dynamic_cast<TextSequence*>(parent())) {
+//        int i = index();
+//        par->selection_rectangles(rects, flags, p0 /* TODO: + ... */, i, i + 1);
+//        return;
+//      }
+      tseq->selection_rectangles(rects, flags, p0, 0, tseq->length());
+      return;
+    }
+  }
   
   for(int i = start; i < end; ++i) 
     rects.add(item(i)->extents().to_rectangle(p0));

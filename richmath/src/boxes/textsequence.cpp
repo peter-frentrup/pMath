@@ -426,7 +426,8 @@ void TextSequence::selection_rectangles(Array<RectangleF> &rects, SelectionDispl
   TextLayoutIterator iter_end = iter_start;
   iter_end.skip_forward_beyond_text_pos(this, end);
   
-  Impl(*iter_start.outermost_sequence()).outermost_selection_rectangles(rects, flags, p0, iter_start, iter_end);
+  Vector2F delta = Impl(*this).total_offest_to_index(0);
+  Impl(*iter_start.outermost_sequence()).outermost_selection_rectangles(rects, flags, p0 - delta, iter_start, iter_end);
 }
 
 void TextSequence::on_text_changed() {

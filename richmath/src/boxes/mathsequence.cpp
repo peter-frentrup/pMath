@@ -592,7 +592,8 @@ void MathSequence::selection_path(Canvas &canvas, int start, int end) {
 
 void MathSequence::selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) {
   MathSequence &outer = Impl(*this).outermost_span();
-  Impl(outer).selection_rectangles(rects, flags, p0, nullptr, {this, start, end});
+  Vector2F delta = Impl(*this).total_offest_to_index(0);
+  Impl(outer).selection_rectangles(rects, flags, p0 - delta, nullptr, {this, start, end});
 }
 
 void MathSequence::selection_path(Context &context, int start, int end) {
