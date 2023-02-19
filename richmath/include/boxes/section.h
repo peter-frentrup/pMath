@@ -128,7 +128,7 @@ namespace richmath {
     public:
       explicit ErrorSection(Expr object);
       
-      virtual SectionKind kind() { return SectionKind::Error; }
+      virtual SectionKind kind() override { return SectionKind::Error; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
@@ -209,7 +209,7 @@ namespace richmath {
       explicit MathSection();
       explicit MathSection(SharedPtr<Style> _style);
       
-      virtual SectionKind kind() { return SectionKind::Math; }
+      virtual SectionKind kind() override { return SectionKind::Math; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
@@ -221,7 +221,7 @@ namespace richmath {
       explicit TextSection();
       explicit TextSection(SharedPtr<Style> _style);
       
-      virtual SectionKind kind() { return SectionKind::Text; }
+      virtual SectionKind kind() override { return SectionKind::Text; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
@@ -234,8 +234,8 @@ namespace richmath {
     public:
       EditSection();
       
-      //virtual SectionKind kind() { return original ? original->kind : SectionKind::Math; }
-      virtual SectionKind kind() { return SectionKind::Error; }
+      //virtual SectionKind kind() override { return original ? original->kind : SectionKind::Math; }
+      virtual SectionKind kind() override { return SectionKind::Error; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
@@ -252,7 +252,7 @@ namespace richmath {
     public:
       StyleDataSection();
       
-      virtual SectionKind kind() { return SectionKind::Style; }
+      virtual SectionKind kind() override { return SectionKind::Style; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
