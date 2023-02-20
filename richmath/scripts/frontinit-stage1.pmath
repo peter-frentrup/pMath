@@ -112,7 +112,7 @@ Protect(FE`Import`PasteFileNameContentBoxes)
 
 AutoLoad(Hold(DocumentObject, FrontEndObject, FE`EvaluateDynamic, FE`AssignDynamicValue), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "frontendobject.pmath"));
-AutoLoad(Hold(FE`AttachBoxes, CreateDocument, CurrentValue, DocumentClose, DocumentDelete, DocumentGet, DocumentOpen, Documents, EvaluationBox, EvaluationDocument, SelectedDocument, SetSelectedDocument, SystemOpen, FE`SystemOpenDirectory),
+AutoLoad(Hold(FE`AttachBoxes, CreateDocument, CurrentValue, DocumentClose, DocumentDelete, DocumentGet, DocumentOpen, Documents, EvaluationBox, EvaluationDocument, FE`ScrollIntoView, SelectedDocument, SetSelectedDocument, SystemOpen, FE`SystemOpenDirectory),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "callfrontend.pmath"));
 AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, Dynamic, DynamicBox, DynamicSetting, FillBox, Filler, InputField, InputFieldBox, Opener, OpenerBox, Pane, PaneBox, Panel, PanelBox, PaneSelector, PaneSelectorBox, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Slider, SliderBox, TabView, FE`TabViewBox, ToggleSwitch, Tooltip, TooltipBox), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "guiboxes.pmath"));

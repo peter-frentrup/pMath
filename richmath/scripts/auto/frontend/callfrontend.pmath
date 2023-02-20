@@ -54,6 +54,9 @@ EvaluationBox(~~~args) /? (IsValidArgumentCount(EvaluationBox, Length@{args}, 0,
 EvaluationDocument()::= FE`CallFrontEnd(FrontEnd`EvaluationDocument())
 EvaluationDocument(~~~args) /? (IsValidArgumentCount(EvaluationDocument, Length@{args}, 0, 0);False)::= $Failed
 
+FE`ScrollIntoView(sel: ~:FrontEndObject|~:DocumentObject|~:Language`SourceLocation)::= FE`CallFrontEnd(FrontEnd`ScrollIntoView(sel))
+FE`ScrollIntoView(~~~args) /? (IsValidArgumentCount(FE`ScrollIntoView, Length@{args}, 1, 1);False)::= $Failed
+
 SelectedDocument()::= FE`CallFrontEnd(FrontEnd`SelectedDocument())
 SelectedDocument(~~args) /? (IsValidArgumentCount(SelectedDocument, Length@{args}, 0, 0);False)::= $Failed
 

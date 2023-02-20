@@ -152,9 +152,9 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr);
 Expr richmath_eval_FrontEnd_Documents(Expr expr);
 Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr);
 Expr richmath_eval_FrontEnd_KeyboardInputBox(Expr expr);
+Expr richmath_eval_FrontEnd_ScrollIntoView(Expr expr);
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr);
-Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 
 extern pmath_symbol_t richmath_Documentation_OpenDocumentationForSelection;
 extern pmath_symbol_t richmath_System_MenuItem;
@@ -1530,6 +1530,37 @@ Expr richmath_eval_FrontEnd_KeyboardInputBox(Expr expr) {
     return box->to_pmath_id();
   
   return Symbol(richmath_System_None);
+}
+
+Expr richmath_eval_FrontEnd_ScrollIntoView(Expr expr) {
+  /*  FrontEnd`ScrollIntoView(selectionOrBox)
+   */
+  size_t exprlen = expr.expr_length();
+  if(exprlen != 1)
+    return Symbol(richmath_System_DollarFailed);
+  
+  SelectionReference sel = SelectionReference::from_pmath(expr[1]);
+  Box *box = sel.get();
+  if(!box) {
+    sel.id = FrontEndReference::from_pmath(expr[1]);
+    box = sel.get();
+    if(box) {
+      sel.start = 0;
+      sel.end   = box->length();
+    }
+  }
+
+  if(!box)
+    return Symbol(richmath_System_DollarFailed);
+  
+  Document *doc = box->find_parent<Document>(true);
+  if(!doc)
+    return Symbol(richmath_System_DollarFailed);
+  
+  if(!doc->async_scroll_to(sel))
+    return Symbol(richmath_System_DollarFailed);
+  
+  return Expr();
 }
 
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {
