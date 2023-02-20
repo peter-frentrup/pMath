@@ -23,6 +23,7 @@ extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_Inherited;
+extern pmath_symbol_t richmath_System_Method;
 
 //{ class AbstractButtonBox ...
 
@@ -206,6 +207,10 @@ void ButtonBox::click() {
   fn = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(fn), this);
   
   String method = get_own_style(Method);
+  if(!method) {
+    method = String(pmath_option_value(richmath_System_ButtonBox, richmath_System_Method, PMATH_UNDEFINED));
+  }
+  
   if(method == strings::Preemptive) {
     Application::interrupt_wait_for_interactive(PMATH_CPP_MOVE(fn), this, Application::button_timeout);
   }
