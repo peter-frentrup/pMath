@@ -61,9 +61,15 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
                                         ImageSizeAction -> "Clip",
                                         LineBreakWithin -> False)},
                                 ButtonData -> matches[#, 2],
-                                ButtonFrame -> Dynamic(If(# === selIndex, "ListViewItemSelected", "ListViewItem")),
+                                ButtonFrame -> Dynamic(
+                                    If(# === selIndex) { 
+                                        "ListViewItemSelected"
+                                    } Else {
+                                        "ListViewItem"
+                                    }),
                                 ButtonFunction -> Function(
-                                    DocumentClose(popup); DocumentApply(doc,#)))
+                                    DocumentClose(popup); DocumentApply(doc,#)),
+                                BoxID -> {"ResultButton", #})
                             })) |>
                         GridBox
                 }
@@ -78,12 +84,24 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
             "UpArrowKeyDown" -> Function {
                 If(selIndex > 1) {
                     selIndex-= 1
+                    With(id := {"ResultButton", selIndex})
+                    With(popup:= popup)
+                    FE`CallFrontEnd(
+                        FE`BoxReference(popup, {id}) |>
+                        FrontEnd`BoxReferenceBoxObject |>
+                        FrontEnd`ScrollIntoView)
                 }
                 Break()
             },
             "DownArrowKeyDown" -> Function {
                 If(selIndex < Length(matches)) {
                     selIndex+= 1
+                    With(id := {"ResultButton", selIndex})
+                    With(popup:= popup)
+                    FE`CallFrontEnd(
+                        FE`BoxReference(popup, {id}) |>
+                        FrontEnd`BoxReferenceBoxObject |>
+                        FrontEnd`ScrollIntoView)
                 }
                 Break()
             },
