@@ -324,11 +324,13 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
 bool Document::request_repaint(const RectangleF &rect) {
   if(rect.contains(_extents.to_rectangle())) {
     // Whole document => also invalidate any overscroll area to accomodate for Background changes
+    has_pending_repaint(true);
     native()->invalidate();
     return true;
   }
   
   if(rect.overlaps({native()->scroll_pos(), native()->window_size()})) {
+    has_pending_repaint(true);
     native()->invalidate_rect(rect);
     return true;
   }
@@ -1200,6 +1202,9 @@ void Document::select(const VolatileSelection &sel) {
     auto_scroll_target.set(sel);
   
   Impl(*this).raw_select(sel);
+  
+  if(auto_scroll_target && !has_pending_repaint())
+    invalidate();
 }
 
 void Document::select_to(const VolatileSelection &sel) {
@@ -1231,6 +1236,9 @@ void Document::select_range(VolatileSelection from, VolatileSelection to) {
       auto_scroll_target = sel_last;
     
     Impl(*this).raw_select(from);
+    
+    if(auto_scroll_target && !has_pending_repaint())
+      invalidate();
   }
 }
 
