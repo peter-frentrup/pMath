@@ -73,6 +73,14 @@ Document({
             ButtonData :> Section(BoxData(InterpretationBox("", $Line:= 0;)), 
               "ExampleDelimiter")))), "Text"), 
         Section(
+         BoxData(FillBox(ButtonBox(StringBox("\"2 Column Table Notes\""), 
+            BaseStyle -> "Paste", 
+            ButtonData :> 
+             Section(
+              TextData({
+                GridBox({{"XXX", "XXX"}, {"XXX", "XXX"}, {"XXX", "XXX"}})}), 
+              "2ColumnTableNotes")))), "Text"), 
+        Section(
          BoxData(FillBox(ButtonBox(StyleBox(StringBox("\"Scope\""), 
              "ExampleSection"), BaseStyle -> "Paste", 
             ButtonData :> SectionGroup({Section("Scope", "ExampleSection"), 
@@ -118,13 +126,13 @@ Document({
           Section(StyleData("ReferenceHyperlink"), 
            TemplateBoxOptions -> {
              DisplayFunction -> Function(StyleBox(StringBox({"\"", #1, "\""}), 
-                "Text", FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+                "Text", FontColor -> RGBColor(0, 0, 0.8), 
                 ShowAutoStyles -> False, ShowStringCharacters -> False))}), 
           Section(StyleData("NamedCharacterHyperlink"), 
            TemplateBoxOptions -> {
              DisplayFunction -> 
               Function(StyleBox(StringBox({"\"\\\\[", #1, "]\""}), 
-                FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+                FontColor -> RGBColor(0, 0, 0.8), 
                 ShowStringCharacters -> False, ShowAutoStyles -> False))})}, 
          All)}, All)}, All)}, StyleDefinitions -> 
     "PrivateStyleDefinitions.pmathdoc", Visible -> True), Visible -> True, 
