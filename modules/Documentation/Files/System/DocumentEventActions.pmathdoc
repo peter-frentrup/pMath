@@ -1,0 +1,67 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("DocumentEventActions", "ObjectName"), 
+      Section(BoxData(TemplateBox({"DocumentEventActions"}, 
+         "UsageReference")), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({TemplateBox({"DocumentEventActions"}, 
+            "ReferenceHyperlink"), " \[Rule] {\"", StyleBox("event", "Arg"), 
+           SubscriptBox("1"), "\" \[Rule] ", StyleBox("f", "Arg"), 
+           SubscriptBox("1"), ", \"", StyleBox("event", "Arg"), 
+           SubscriptBox("2"), "\" \[Rule] ", StyleBox("f", "Arg"), 
+           SubscriptBox("2"), ", \[Ellipsis]} specifies that function ", 
+           StyleBox({"f", SubscriptBox("i")}, "Arg"), " should handle \"", 
+           StyleBox({"event", SubscriptBox("i")}, "Arg"), "\"."}), "Notes"), 
+        Section("Keyboard related events include:", "Notes"), 
+        Section(
+         TextData({
+           GridBox({{"\"KeyDown\"", "any key pressed"}, {
+              {"{\"KeyDown\", ", StyleBox("x", "Arg"), "}"}, {
+               "key ", StyleBox("x", "Arg"), " pressed"}}, {
+              StringBox("\"ReturnKeyDown\""), {
+               "enter", " ", "or", " ", "return", " ", "key", " ", 
+               "pressed"}}, {StringBox("\"EscapeKeyDown\""), {
+               "escape", " ", "key", " ", "pressed"}}, {
+              "\"LeftArrowKeyDown\"", "left arrow key pressed"}, {
+              StringBox("\"RightArrowKeyDown\""), {
+               "right", " ", "arrow", " ", "key", " ", "pressed"}}, {
+              StringBox("\"UpArrowKeyDown\""), {
+               "up", " ", "arrow", " ", "key", " ", "pressed"}}, {
+              StringBox("\"DownArrowKeyDown\""), {
+               "down", " ", "arrow", " ", "key", " ", "pressed"}}})}), 
+         "2ColumnTableNotes"), 
+        Section(
+         TextData({
+           "Handler functions may inhibit the default action by returning ", 
+           TemplateBox({"Break"}, "ReferenceHyperlink"), 
+           "() or explicitly continue with the default action with ", 
+           TemplateBox({"Continue"}, "ReferenceHyperlink"), "()."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A windoe that closes automatically when pressing escape:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"CreateDocument", "(", {
+              StringBox(
+               "\"Press \[LeftSingleGuillemet]Esc\[RightSingleGuillemet] to \
+               close\""), ",", {"\n", {"DocumentEventActions", "\[Rule]", {
+                 "{", {StringBox("\"EscapeKeyDown\""), "\[Rule]", {
+                   "Function", {
+                    "{", {
+                     "\n", {{"DocumentClose", "(", {
+                        "EvaluationDocument", "(", ")"}, ")"}, "\n"}}, "}"}}}, 
+                 "}"}}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(TemplateBox({FrontEndObject(17553774070492000891, 3519), 
+              "Untitled 1"}, "DocumentObject")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+       All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"CreateDocument"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Document"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
