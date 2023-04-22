@@ -41,8 +41,8 @@ extern pmath_symbol_t richmath_System_None;
 namespace richmath {
   class EventHandlers::Impl {
     public:
-      static Expr prepare_handler_fuction(StyledObject *obj, Expr handler);
-      static Expr prepare_handler_fuction(StyledObject *obj, Expr handler, Expr arg);
+      static Expr prepare_handler_function(StyledObject *obj, Expr handler);
+      static Expr prepare_handler_function(StyledObject *obj, Expr handler, Expr arg);
       
       static Expr find_key_down_handler(StyledObject *obj, ObjectStyleOptionName handlers, const SpecialKeyEvent &event);
       static Expr find_key_down_handler(StyledObject *obj, Expr                  handlers, const SpecialKeyEvent &event);
@@ -143,7 +143,7 @@ EventHandlerResult EventHandlers::execute_key_press_handler(StyledObject *obj, O
 
 //{ class EventHandlers::Impl ...
 
-Expr EventHandlers::Impl::prepare_handler_fuction(StyledObject *obj, Expr handler) {
+Expr EventHandlers::Impl::prepare_handler_function(StyledObject *obj, Expr handler) {
   if(!handler)
     return handler;
   
@@ -156,7 +156,7 @@ Expr EventHandlers::Impl::prepare_handler_fuction(StyledObject *obj, Expr handle
   return EvaluationContexts::prepare_namespace_for(obj->prepare_dynamic(Call(PMATH_CPP_MOVE(handler))), obj);
 }
 
-Expr EventHandlers::Impl::prepare_handler_fuction(StyledObject *obj, Expr handler, Expr arg) {
+Expr EventHandlers::Impl::prepare_handler_function(StyledObject *obj, Expr handler, Expr arg) {
   if(!handler)
     return handler;
   
@@ -190,7 +190,7 @@ Expr EventHandlers::Impl::find_key_down_handler(StyledObject *obj, Expr handlers
       return Expr();
   }
   
-  return prepare_handler_fuction(obj, PMATH_CPP_MOVE(rhs), PMATH_CPP_MOVE(key_name));
+  return prepare_handler_function(obj, PMATH_CPP_MOVE(rhs), PMATH_CPP_MOVE(key_name));
 }
 
 Expr EventHandlers::Impl::find_key_press_handler(StyledObject *obj, ObjectStyleOptionName handlers, uint32_t ch) {
@@ -214,7 +214,7 @@ Expr EventHandlers::Impl::find_key_press_handler(StyledObject *obj, Expr handler
       return Expr();
   }
   
-  return prepare_handler_fuction(obj, PMATH_CPP_MOVE(rhs), PMATH_CPP_MOVE(char_str));
+  return prepare_handler_function(obj, PMATH_CPP_MOVE(rhs), PMATH_CPP_MOVE(char_str));
 }
 
 //} ... class EventHandlers::Impl
