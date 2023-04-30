@@ -313,6 +313,26 @@ pmath_t pmath_ref(pmath_t obj) {
   return obj;
 }
 
+/**\brief Part of the destruction sequence. Do not call directly.
+   \private \memberof pmath_t
+   
+   Atomically decrements the reference counter and returns TRUE if it reached 0.
+ */
+PMATH_FORCE_INLINE
+pmath_bool_t _pmath_prepare_destroy(struct _pmath_t *ptr) {
+  if(PMATH_UNLIKELY(ptr == NULL))
+    return FALSE;
+    
+#ifdef PMATH_DEBUG_LOG
+  if(PMATH_UNLIKELY(pmath_atomic_read_uint8_aquire(&ptr->flags8) & PMATH_OBJECT_FLAGS8_TRAP_DELETED)) {
+    assert("unref deleted object" && 0);
+  }
+#endif
+
+  pmath_atomic_barrier();
+  return 1 == pmath_atomic_fetch_add(&ptr->refcount, -1);
+}
+
 /**\brief Decrements the reference counter of an object and frees its memory
           if the reference counter becomes 0.
    \memberof pmath_t
@@ -326,20 +346,9 @@ void pmath_unref(pmath_t obj) {
     return;
   
   ptr = PMATH_AS_PTR(obj);
-  if(PMATH_UNLIKELY(ptr == NULL))
-    return;
-    
-#ifdef PMATH_DEBUG_LOG
-  if(PMATH_UNLIKELY(pmath_atomic_read_uint8_aquire(&ptr->flags8) & PMATH_OBJECT_FLAGS8_TRAP_DELETED)) {
-    assert("unref deleted object" && 0);
-  }
-#endif
-  
-  pmath_atomic_barrier();
-  if(1 == pmath_atomic_fetch_add(&(ptr->refcount), -1)) { // was 1 -> is 0
+  if(_pmath_prepare_destroy(ptr)) {
     _pmath_destroy_object(obj);
   }
-  pmath_atomic_barrier();
 }
 
 #endif /* __PMATH_CORE__OBJECTS_INLINE_H__ */

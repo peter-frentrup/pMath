@@ -299,6 +299,173 @@ static void destroy_part_expression(pmath_t expr) {
   pmath_mem_free(_expr);
 }
 
+static pmath_bool_t expr_general_visit_refs(struct _pmath_expr_t *_expr, pmath_bool_t (*callback)(pmath_t *item, void *ctx), void *ctx) {
+  for(size_t i = 0; i <= _expr->length; ++i)
+    if(callback(&_expr->items[i], ctx))
+      return TRUE;
+  
+  // TODO: if(callback(&_expr->metadata, ctx)) return TRUE;
+  
+  return FALSE;
+}
+
+static pmath_bool_t expr_part_visit_refs(struct _pmath_expr_part_t *_expr, pmath_bool_t (*callback)(pmath_t *item, void *ctx), void *ctx) {
+  if(callback(&_expr->inherited.items[0], ctx))
+    return TRUE;
+  
+  // TODO: if(callback(&_expr->inherited.metadata, ctx)) return TRUE;
+  
+  // TODO: if(callback(&_expr->buffer, ctx)) return TRUE;
+  
+  return FALSE;
+}
+
+static pmath_bool_t obj_visit_refs(struct _pmath_t *obj, pmath_bool_t (*callback)(pmath_t *item, void *ctx), void *ctx) {
+  if(obj == NULL)
+    return FALSE;
+  
+  switch(obj->type_shift) {
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:      return expr_general_visit_refs((void*)obj, callback, ctx);
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: return expr_part_visit_refs(   (void*)obj, callback, ctx);
+  }
+  
+  return FALSE;
+}
+
+struct _destructor_leftmost_extraction_t {
+  struct _pmath_t *leftmost_to_be_destroyed; // dangling object
+  pmath_t         *first_free; // points to a free slot (PMATH_NULL).
+  pmath_t         *more;       // points to some still in use slot after leftmost_to_be_destroyed
+};
+
+static pmath_bool_t extract_leftmost_callback(pmath_t *next_place, void *_ctx) {
+  struct _destructor_leftmost_extraction_t *ctx = _ctx;
+  
+  if(ctx->first_free == NULL)
+    ctx->first_free = next_place;
+  
+  if(ctx->leftmost_to_be_destroyed == NULL) {
+    pmath_t next = *next_place;
+    if(pmath_is_null(next))
+      return FALSE;
+    
+    *next_place = PMATH_NULL;
+    if(pmath_is_pointer(next)) {
+      struct _pmath_t *next_ptr = PMATH_AS_PTR(next);
+      if(!_pmath_prepare_destroy(next_ptr))
+        return FALSE;
+      
+      ctx->leftmost_to_be_destroyed = next_ptr;
+    }
+    
+    return FALSE; // continue;
+  }
+  
+  ctx->more = next_place;
+  return TRUE;
+}
+
+static void destruction_extract_leftmost(struct _pmath_t *noref_obj, struct _destructor_leftmost_extraction_t *result) {
+  result->leftmost_to_be_destroyed = NULL;
+  result->first_free               = NULL;
+  result->more                     = NULL;
+  
+  if(noref_obj) {
+    assert(pmath_atomic_read_aquire(&noref_obj->refcount) == 0);
+    
+    obj_visit_refs(noref_obj, extract_leftmost_callback, result);
+  }
+}
+
+static void destroy_final_cleanup(struct _pmath_t *obj) {
+  assert(obj != NULL);
+  
+  // All items that can be visited via obj_visit_refs are now already freed and set to PMATH_NULL.
+  // TODO: No need to visit them again to call pmath_unref()
+  switch(obj->type_shift) {
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:      destroy_general_expression(PMATH_FROM_PTR(obj)); break;
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: destroy_part_expression(   PMATH_FROM_PTR(obj)); break;
+    default:                                       _pmath_destroy_object(     PMATH_FROM_PTR(obj)); break;
+  }
+}
+
+static void destroy_expr_tree(pmath_t expr) {
+  struct _pmath_t *obj = PMATH_AS_PTR(expr);
+  for(;;) {
+    struct _destructor_leftmost_extraction_t A;
+    
+    destruction_extract_leftmost(obj, &A);
+    
+    // single leaf node A
+    if(A.leftmost_to_be_destroyed == NULL) {
+      destroy_final_cleanup(obj);
+      return;
+    }
+  
+    assert(A.first_free != NULL);
+    assert(pmath_is_null(*A.first_free));
+    
+    // single linked list: A -> B
+    if(A.more == NULL) {
+      destroy_final_cleanup(obj);
+      obj = A.leftmost_to_be_destroyed;
+      continue;
+    }
+    
+    // tree:    A
+    //         / \
+    //        B   y
+    struct _destructor_leftmost_extraction_t B;
+    destruction_extract_leftmost(A.leftmost_to_be_destroyed, &B);
+    
+    // B is a leaf
+    if(B.leftmost_to_be_destroyed == NULL) {
+      destroy_final_cleanup(A.leftmost_to_be_destroyed);
+      continue;
+    }
+    
+    assert(B.first_free != NULL);
+    assert(pmath_is_null(*B.first_free));
+      
+    // B is non-trivial, has at least one child X. Will need to store A into B's subtree and visit A and X again later.
+    // Revive A (=obj)
+    assert(pmath_atomic_read_aquire(&obj->refcount) == 0);
+    //(void)pmath_atomic_fetch_add( &obj->refcount, 1);
+    pmath_atomic_write_release(     &obj->refcount, 1);
+  
+    // Revive X (=B.leftmost_to_be_destroyed)
+    assert(pmath_atomic_read_aquire(&B.leftmost_to_be_destroyed->refcount) == 0);
+    //(void)pmath_atomic_fetch_add( &B.leftmost_to_be_destroyed->refcount, 1);
+    pmath_atomic_write_release(     &B.leftmost_to_be_destroyed->refcount, 1);
+    
+    if(B.more == NULL) {
+      // B is singly linked list   obj=A            B
+      //                              / \           |
+      //                             B   y   =>     A
+      //                             |             / \
+      //                             X            X   y
+      
+      *A.first_free = PMATH_FROM_PTR(B.leftmost_to_be_destroyed);
+      *B.first_free = PMATH_FROM_PTR(obj);
+      
+      obj = A.leftmost_to_be_destroyed;
+    }
+    else {
+      // B is a tree      obj=A              B
+      //                     / \            / \
+      //                    B   y    =>    X   A
+      //                   / \                / \
+      //                  X   z              z   y
+      
+      *A.first_free = *B.more;
+      *B.more       = PMATH_FROM_PTR(obj);
+      *B.first_free = PMATH_FROM_PTR(B.leftmost_to_be_destroyed);
+      
+      obj = A.leftmost_to_be_destroyed;
+    }
+  }
+}
+
 /*============================================================================*/
 
 PMATH_API
@@ -4164,7 +4331,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void) {
     PMATH_TYPE_SHIFT_EXPRESSION_GENERAL,
     _pmath_compare_exprsym,
     hash_expression,
-    destroy_general_expression,
+    destroy_expr_tree,//destroy_general_expression,//
     _pmath_expr_equal,
     _pmath_expr_write);
 
@@ -4172,7 +4339,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void) {
     PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,
     _pmath_compare_exprsym,
     hash_expression,
-    destroy_part_expression,
+    destroy_expr_tree,//destroy_part_expression,//
     _pmath_expr_equal,
     _pmath_expr_write);
 
