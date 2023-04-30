@@ -230,6 +230,7 @@ Document::usage:= "Document(\({\"{\", {{\"section\".StyleBox(\"Arg\"), Subscript
 DocumentApply::usage:= "DocumentApply(\(StyleBox(\"document\", \"Arg\")\), \(StyleBox(\"data\", \"Arg\")\)) writes \(StyleBox(\"data\", \"Arg\")\) into a document at the current selection, replacing the first selection placeholder in \(StyleBox(\"data\", \"Arg\")\) by the current selection and then setting the cursor just after the data written."
 DocumentClose::usage:= "DocumentClose() closes the currently selected document.\nDocumentClose(\(StyleBox(\"document\", \"Arg\")\)) closes the specified document."
 DocumentDelete::usage:= "DocumentDelete() deletes the current selection.\nDocumentDelete(\(StyleBox(\"document\", \"Arg\")\)) deletes the current selection in the given document.\nDocumentDelete(\(StyleBox(\"obj\", \"Arg\")\)) deletes the specified selection or box object."
+DocumentEventActions::usage:= "DocumentEventActions is an option for Document that specifies actions to be performed upon user input events."
 DocumentGet::usage:= "DocumentGet() gives the raw boxes expression of the currently selected document.\nDocumentGet(\(StyleBox(\"document\", \"Arg\")\)) gives the raw boxes expression of the given document."
 DocumentObject::usage:= "DocumentObject(\[Ellipsis]) represents a front end document object in \(StyleBox(\"pMath\", \"TI\")\) code."
 DocumentOpen::usage:= "DocumentOpen(\"\(StyleBox(\"filename\", \"Arg\")\)\") opens an existing document with the given file name and returns the corresponding document object."
