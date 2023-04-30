@@ -109,7 +109,7 @@
 			<Item Name="refcount" IncludeView="nocast">refcount._data</Item>
 			<Item Name="flags8" IncludeView="nocast">flags8</Item>
 			<Item Name="flags16" IncludeView="nocast">flags16</Item>
-			<Item Name="flags32" Condition="sizeof(void*) > 4" IncludeView="nocast">padding_flags32</Item>
+			<Item Name="flags32" Condition="sizeof(void*) &gt; 4" IncludeView="nocast">padding_flags32</Item>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_mp_float_t">
