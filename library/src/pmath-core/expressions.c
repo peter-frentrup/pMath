@@ -389,6 +389,9 @@ static void destroy_final_cleanup(struct _pmath_t *obj) {
   }
 }
 
+// Destroy an arbitrarily nested tree structure without ever exhausting C stack space.
+// The idea is to rotate binary trees as long as there is a nontrivial left subtree.
+// See e.g. https://matklad.github.io/2022/11/18/if-a-tree-falls-in-a-forest-does-it-overflow-the-stack.html
 static void destroy_expr_tree(pmath_t expr) {
   struct _pmath_t *obj = PMATH_AS_PTR(expr);
   for(;;) {
