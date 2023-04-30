@@ -111,6 +111,7 @@ tokenHelp("\[DownArrow]")::=                "System`DownArrow"
 tokenHelp("\[Element]")::=                  "System`Element"
 tokenHelp("=")::=                           "System`Equal"
 tokenHelp(";")::=                           "System`EvaluationSequence"
+tokenHelp("\[ExponentialE]")::=             "System`ExponentialE"
 %tokenHelp("!")::=                           "System`Factorial" % or "System`Not"
 tokenHelp("!!")::=                          "System`Factorial2"
 tokenHelp("&")::=                           "System`Function"
@@ -127,6 +128,8 @@ tokenHelp("\[GreaterLess]")::=              "System`GreaterLess"
 tokenHelp("\[GreaterTilde]")::=             "System`GreaterTilde"
 tokenHelp("\[HumpDownHump]")::=             "System`HumpDownHump"
 tokenHelp("\[HumpEqual]")::=                "System`HumpEqual"
+tokenHelp("\[ImaginaryI]")::=               "System`ImaginaryI"
+tokenHelp("\[ImaginaryJ]")::=               "System`ImaginaryI"
 tokenHelp("+=")::=                          "System`Increment"
 tokenHelp("\[Infinity]")::=                 "System`Infinity"
 tokenHelp("===")::=                         "System`Identical"
@@ -182,6 +185,8 @@ tokenHelp("||")::=                          "System`Or"
 tokenHelp("[")::=                           "System`Part"
 tokenHelp("]")::=                           "System`Part"
 tokenHelp(":")::=                           "System`Pattern"
+tokenHelp("\[Pi]")::=                       "System`Pi"
+tokenHelp("\[Piecewise]")::=                "System`Piecewise"
 tokenHelp("\[Placeholder]")::=              "System`Placeholder"
 tokenHelp("+")::=                           "System`Plus"
 tokenHelp("-")::=                           "System`Plus"
@@ -407,7 +412,7 @@ Function InteractiveCreateHelpDocument() {
     SetSelectedDocument(popup);
 }
 
-CreateHelpDocument()::= CreateHelpDocument()
+CreateHelpDocument()::= CreateHelpDocument("XXX")
 CreateHelpDocument("")::= CreateHelpDocument("XXX")
 CreateHelpDocument(~sym:Symbol)::= CreateHelpDocument(SymbolName(sym))
 
