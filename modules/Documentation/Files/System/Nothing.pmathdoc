@@ -1,0 +1,102 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Nothing", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Nothing"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Nothing"}, "ReferenceHyperlink"), 
+           " is removed as part of the standard evaluation proecess. It \
+           remains unchanged in expressions that are held."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Occurences of ", 
+           TemplateBox({"Nothing"}, "ReferenceHyperlink"), 
+           " get automatically removed from lists:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"{", {"a", ",", "b", ",", "Nothing", ",", "c", ",", 
+              "Nothing", ",", " ", "d", ",", "e", ",", "Nothing"}, "}"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({"Remove an element from a list by repacing it with ", 
+             TemplateBox({"Nothing"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({{"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, 
+                "}"}, "|>", {"Replace", "(", {"c", "\[Rule]", "Nothing"}, 
+                ")"}}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"a", ",", "b", ",", "d", ",", "e"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Nothing"}, "ReferenceHyperlink"), 
+           " is removed whenever it appears in a list:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"{", {{"{", {"a", ",", "b", ",", "Nothing"}, "}"}, 
+              ",", "c", ",", {"{", {"Nothing", ",", "d"}, "}"}, ",", 
+              "Nothing"}, "}"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {{"{", {"a", ",", "b"}, "}"}, ",", "c", ",", {
+               "{", "d", "}"}}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Nothing"}, "ReferenceHyperlink"), 
+             " is not removed from other respressions:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"f", "(", {"a", ",", "Nothing", ",", {
+                 "g", "(", {"Nothing", ",", "b"}, ")"}, ",", "c"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"f", "(", {"a", ",", "Nothing", ",", {
+                 "g", "(", {"Nothing", ",", "b"}, ")"}, ",", "c"}, ")"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({"When ", TemplateBox({"Nothing"}, "ReferenceHyperlink"), 
+             " appears as a head, it reduces to the ", 
+             TemplateBox({"Nothing"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Nothing", "(", {"a", ",", "b"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("Nothing"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Nothing"}, "ReferenceHyperlink"), 
+           " is removed as part of the standard evaluation process:"}), 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Hold", "(", {
+              "{", {"a", ",", "b", ",", "Nothing", ",", "c", ",", {
+                "Nothing", "(", "d", ")"}}, "}"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"Hold", "(", {
+              "{", {"a", ",", "b", ",", "Nothing", ",", "c", ",", {
+                "Nothing", "(", "d", ")"}}, "}"}, ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({{"$History", "(", {"-", "1"}, ")"}, "|>", 
+             "ReleaseHold"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"a", ",", "b", ",", "c"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Sequence"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"List"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Missing"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"None"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

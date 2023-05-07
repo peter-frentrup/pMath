@@ -1,0 +1,125 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Undefined", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Undefined"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"Expressions like ", 
+           TemplateBox({"ConditionalExpression"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ", ", TemplateBox({"False"}, 
+            "ReferenceHyperlink"), ") give ", 
+           TemplateBox({"Undefined"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(
+         TextData({"If ", TemplateBox({"Undefined"}, "ReferenceHyperlink"), 
+           " appears as an argument to a mathematical function, equation, \
+           inequality, or boolean operation, the result will be ", 
+           TemplateBox({"Undefined"}, "ReferenceHyperlink"), "."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Certain mathematical functions give ", 
+           TemplateBox({"Undefined"}, "ReferenceHyperlink"), 
+           " if no useful limiting value can be defined:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Gamma", "(", {"-", "\[Infinity]"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("Undefined"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({Section(BoxData({"Sign", "(", {"1", "/", "0"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData({
+             TemplateBox({
+               TemplateBox({MessageName -> HoldForm(Power::"infy"), 
+                 Message -> StringForm("Infinite expression `1` encountered.", 
+                   Button(HoldForm(1/0), SetSelectedDocument(Automatic, 
+                     Language`SourceLocation(
+                      FrontEndObject(14533082760547869802, 841), 5 .. 8)), 
+                    BaseStyle -> "Hyperlink")), 
+                 Stack -> {
+                   {"Head" -> Sign, "Location" -> 
+                     Language`SourceLocation(
+                      FrontEndObject(14533082760547869802, 841), 0 .. 9)}, {
+                    "Head" -> Power, "Location" -> 
+                     Language`SourceLocation(
+                      FrontEndObject(14533082760547869802, 841), 5 .. 8)}, {
+                    "Head" -> Message}, {"Head" -> SectionPrint}}}, 
+                "MessageMenuButton"), {"Power", "::", StringBox("\"infy\"")}}, 
+              "RowDefault"), ":", " ", InterpretationBox(
+              StringBox("\"Infinite expression ", 
+               ButtonBox(FractionBox("1", "0"), BaseStyle -> "Hyperlink", 
+                ButtonFunction -> Function(SetSelectedDocument(Automatic, 
+                   Language`SourceLocation(
+                    FrontEndObject(14533082760547869802, 841), 5 .. 8)))), 
+               " encountered.\""), 
+              StringForm("Infinite expression `1` encountered.", 
+               Button(HoldForm(1/0), SetSelectedDocument(Automatic, 
+                 Language`SourceLocation(FrontEndObject(14533082760547869802, 
+                   841), 5 .. 8)), BaseStyle -> "Hyperlink")), 
+              Editable -> False)}), "Message", SectionGenerated -> True), 
+          Section(BoxData("Undefined"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"ConditionalExpression"}, 
+              "ReferenceHyperlink"), " with a ", 
+             TemplateBox({"False"}, "ReferenceHyperlink"), 
+             " condition gives ", TemplateBox({"Undefined"}, 
+              "ReferenceHyperlink"), ":"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"ConditionalExpression", "(", {
+                "a", ",", "False"}, ")"}), "Input", 
+             SectionLabel -> "in [3]:"), Section(BoxData("Undefined"), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Undefined"}, "ReferenceHyperlink"), 
+             " is automatically forwared through mathematical functions:"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"1", "+", "Undefined"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("Undefined"), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData({"Sin", "(", "Undefined", ")"}), "Input", 
+             SectionLabel -> "in [2]:"), Section(BoxData("Undefined"), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Boolean expressions can be ", 
+             TemplateBox({"Undefined"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"1", "<", "Undefined"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("Undefined"), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData({"Or", "(", {"Undefined", ",", "True"}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData("Undefined"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({"Functions with attribute ", 
+           TemplateBox({"DefiniteFunction"}, "ReferenceHyperlink"), 
+           " automatically give ", TemplateBox({"Undefined"}, 
+            "ReferenceHyperlink"), " when one of their arguments is ", 
+           TemplateBox({"Undefined"}, "ReferenceHyperlink"), "."}), 
+         "ExampleText"), 
+        Section(BoxData({"SetAttributes", "(", {"f", ",", "DefiniteFunction"}, 
+           ")"}), "Input", SectionLabel -> "in [1]:"), 
+        SectionGroup({
+          Section(BoxData({"f", "(", {"4", ",", " ", "Undefined"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData("Undefined"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"DefiniteFunction"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ConditionalExpression"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"ComplexInfinity"}, "ReferenceHyperlink")}), 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)
