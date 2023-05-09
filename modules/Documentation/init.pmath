@@ -20,23 +20,26 @@ $DocumentationPath:= {ToFileName(DirectoryName($Input), "Files")}
 
 Function FindDocumentationPages(~part:String) {
     Flatten@{
-        $DocumentationPath.FileNames("System"
-            ).FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True
-            ).Map(Function(FileNameSplit(#).Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True) -> #)),
-        $DocumentationPath.FileNames(~~~s /? s =!= "System").Map(
-            Function({
-                #.FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True
-                    ).Map(Function(
+        $DocumentationPath |> FileNames("System") |>
+            FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True) |>
+            Map(Function(FileNameSplit(#).Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True) -> #)),
+        $DocumentationPath |> FileNames("(Guides)") |>
+            FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True) |>
+            Map(Function("Guides\[U+25B8]" ++ FileNameSplit(#).Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True) -> #)),
+        $DocumentationPath |> FileNames(~~~s /? s =!= "System" && s =!= "(Guides)") |>
+            Map(Function({
+                # |> FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True) |>
+                    Map(Function(
                         With({path:= FileNameSplit(#)},
-                            path[-2] ++ path.Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True)
+                            path[-2] ++ "`" ++ path.Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True)
                         ) -> #)),
-                #.FileNames("*").FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True
-                    ).Map(Function(
+                # |> FileNames("*") |> 
+                    FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True) |>
+                    Map(Function(
                         With({path:= FileNameSplit(#)},
-                            path[-3] ++ path[-2] ++ path.Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True)
+                            path[-3] ++ "`" ++ path[-2] ++ "`" ++ path.Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True)
                         ) -> #))
-            })
-        )
+            }))
     }
 }
 
