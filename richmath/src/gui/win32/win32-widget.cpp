@@ -1336,9 +1336,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_RBUTTONDOWN: {
           MouseEvent event;
           
-          event.left   = message == WM_LBUTTONDOWN;
-          event.middle = message == WM_MBUTTONDOWN;
-          event.right  = message == WM_RBUTTONDOWN;
+          event.left      = message == WM_LBUTTONDOWN;
+          event.middle    = message == WM_MBUTTONDOWN;
+          event.right     = message == WM_RBUTTONDOWN;
+          event.ctrl_key  = 0 != (wParam & MK_CONTROL);
+          event.shift_key = 0 != (wParam & MK_SHIFT);
           
           event.position.x = (int16_t)( lParam & 0xFFFF);
           event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
@@ -1370,9 +1372,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             event.device == DeviceKind::Mouse ? "mouse" : (event.device == DeviceKind::Pen ? "pen" : "touch"),
             event.id);
             
-          event.left   = message == WM_LBUTTONUP;
-          event.middle = message == WM_MBUTTONUP;
-          event.right  = message == WM_RBUTTONUP;
+          event.left      = message == WM_LBUTTONUP;
+          event.middle    = message == WM_MBUTTONUP;
+          event.right     = message == WM_RBUTTONUP;
+          event.ctrl_key  = 0 != (wParam & MK_CONTROL);
+          event.shift_key = 0 != (wParam & MK_SHIFT);
           
           POINT pt;
           pt.x = (int16_t)( lParam & 0xFFFF);
@@ -1395,9 +1399,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           MouseEvent event;
           event.device = Win32Touch::get_mouse_message_source(&event.id);
           
-          event.left   = (wParam & MK_LBUTTON) != 0;
-          event.middle = (wParam & MK_MBUTTON) != 0;
-          event.right  = (wParam & MK_RBUTTON) != 0;
+          event.left      = 0 != (wParam & MK_LBUTTON);
+          event.middle    = 0 != (wParam & MK_MBUTTON);
+          event.right     = 0 != (wParam & MK_RBUTTON);
+          event.ctrl_key  = 0 != (wParam & MK_CONTROL);
+          event.shift_key = 0 != (wParam & MK_SHIFT);
           
           event.position.x = (int16_t)( lParam & 0xFFFF);
           event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
@@ -1612,9 +1618,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 
                 MouseEvent event;
                 
-                event.left   = (GetKeyState(VK_LBUTTON) & ~1);
-                event.middle = (GetKeyState(VK_MBUTTON) & ~1);
-                event.right  = (GetKeyState(VK_RBUTTON) & ~1);
+                event.left      = 0 != (GetKeyState(VK_LBUTTON) & ~1);
+                event.middle    = 0 != (GetKeyState(VK_MBUTTON) & ~1);
+                event.right     = 0 != (GetKeyState(VK_RBUTTON) & ~1);
+                event.ctrl_key  = 0 != (GetKeyState(VK_CONTROL) & ~1);
+                event.shift_key = 0 != (GetKeyState(VK_SHIFT)   & ~1);
                 
                 event.position = map_native_point_to_document(mouse);
                 

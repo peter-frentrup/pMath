@@ -39,6 +39,8 @@ MouseEvent::MouseEvent()
     left(false),
     middle(false),
     right(false),
+    ctrl_key(false),
+    shift_key(false),
     origin(nullptr)
 {
 }

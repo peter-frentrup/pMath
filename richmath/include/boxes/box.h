@@ -43,9 +43,11 @@ namespace richmath {
       Point      position;
       int        id;
       DeviceKind device;
-      bool       left;
-      bool       middle;
-      bool       right;
+      bool       left      : 1;
+      bool       middle    : 1;
+      bool       right     : 1;
+      bool       ctrl_key  : 1;
+      bool       shift_key : 1;
       
       Box *origin;
   };
