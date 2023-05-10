@@ -781,8 +781,12 @@ void Document::on_mouse_down(MouseEvent &event) {
         // maybe drag & drop
         drag_status = DragStatus::MayDrag;
       }
-      else if(mouse_sel.selectable())
-        select(mouse_sel);
+      else if(mouse_sel.selectable()) {
+        if(event.shift_key)
+          select_to(mouse_sel);
+        else
+          select(mouse_sel);
+      }
     }
     
     mouse_history.down_sel = sel_first;
