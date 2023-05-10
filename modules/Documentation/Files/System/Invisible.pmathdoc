@@ -1,0 +1,66 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Invisible", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Invisible"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Invisible"}, "ReferenceHyperlink"), 
+           "(", StyleBox("expr", "Arg"), 
+           ") spans both horizontal and vertical dimensions of ", 
+           StyleBox("expr", "Arg"), "."}), "Notes"), 
+        Section(TextData({TemplateBox({"Invisible"}, "ReferenceHyperlink"), 
+           "(", StyleBox("expr", "Arg"), 
+           ") has the same baseline alignment as ", StyleBox("expr", "Arg"), 
+           "."}), "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Display blank space the same size as some expression:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Framed", "(", {
+              "Invisible", "(", 
+              FractionBox(SqrtBox({{"x", SuperscriptBox("2")}, "+", {
+                  "y", SuperscriptBox("2")}}), "4"), ")"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            FrameBox(
+             StyleBox(FractionBox(
+               SqrtBox({{"x", SuperscriptBox("2")}, "+", {
+                  "y", SuperscriptBox("2")}}), "4"), ShowContents -> False, 
+              StripOnInput -> False))), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        Section("The same expression in visible form:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Framed", "(", 
+             FractionBox(SqrtBox({{"x", SuperscriptBox("2")}, "+", {
+                 "y", SuperscriptBox("2")}}), "4"), ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData(
+            FrameBox(FractionBox(
+              SqrtBox({{"x", SuperscriptBox("2")}, "+", {
+                 "y", SuperscriptBox("2")}}), "4"))), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+       All), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         TextData({"Use ", TemplateBox({"Spacer"}, "ReferenceHyperlink"), 
+           " to display blank space specified in printer\[HighNineQuote]s \
+           points:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Framed", "(", {
+              "Spacer", "(", {"{", {"60", ",", "30"}, "}"}, ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(FrameBox(TemplateBox({{60, 30}}, "Spacer"))), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Spacer"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ShowContents"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"ShowStringCharacters"}, "ReferenceHyperlink")}), 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)

@@ -63,10 +63,31 @@ Document({
                "}"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData({"{", {"x", ",", FillBox(""), ",", "y"}, "}"}), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All)}, All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+           All)}, All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         TextData({"Use ", TemplateBox({"Invisible"}, "ReferenceHyperlink"), 
+           " to display blank space that has the same size as some other \
+           construct:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             "{", {{"Framed", "(", {"Invisible", "(", StringBox("\"xxxx\""), 
+                ")"}, ")"}, ",", {"Framed", "(", StringBox("\"xxxx\""), ")"}}, 
+             "}"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              FrameBox(StyleBox(StringBox("\"xxxx\""), ShowContents -> False, 
+                StripOnInput -> False)), ",", 
+              FrameBox(StringBox("\"xxxx\""))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Pane"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-         TemplateBox({"ImageSize"}, "ReferenceHyperlink")}), "SeeAlso")}, 
-     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+         TemplateBox({"Invisible"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ImageSize"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
