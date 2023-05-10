@@ -1341,6 +1341,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.right     = message == WM_RBUTTONDOWN;
           event.ctrl_key  = 0 != (wParam & MK_CONTROL);
           event.shift_key = 0 != (wParam & MK_SHIFT);
+          event.alt_key   = 0 != (GetKeyState(VK_MENU) & ~1);
           
           event.position.x = (int16_t)( lParam & 0xFFFF);
           event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
@@ -1377,6 +1378,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.right     = message == WM_RBUTTONUP;
           event.ctrl_key  = 0 != (wParam & MK_CONTROL);
           event.shift_key = 0 != (wParam & MK_SHIFT);
+          event.alt_key   = 0 != (GetKeyState(VK_MENU) & ~1);
           
           POINT pt;
           pt.x = (int16_t)( lParam & 0xFFFF);
@@ -1404,6 +1406,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.right     = 0 != (wParam & MK_RBUTTON);
           event.ctrl_key  = 0 != (wParam & MK_CONTROL);
           event.shift_key = 0 != (wParam & MK_SHIFT);
+          event.alt_key   = 0 != (GetKeyState(VK_MENU) & ~1);
           
           event.position.x = (int16_t)( lParam & 0xFFFF);
           event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
@@ -1622,6 +1625,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 event.middle    = 0 != (GetKeyState(VK_MBUTTON) & ~1);
                 event.right     = 0 != (GetKeyState(VK_RBUTTON) & ~1);
                 event.ctrl_key  = 0 != (GetKeyState(VK_CONTROL) & ~1);
+                event.alt_key   = 0 != (GetKeyState(VK_MENU)    & ~1);
                 event.shift_key = 0 != (GetKeyState(VK_SHIFT)   & ~1);
                 
                 event.position = map_native_point_to_document(mouse);

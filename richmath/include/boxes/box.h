@@ -47,6 +47,7 @@ namespace richmath {
       bool       middle    : 1;
       bool       right     : 1;
       bool       ctrl_key  : 1;
+      bool       alt_key   : 1;
       bool       shift_key : 1;
       
       Box *origin;

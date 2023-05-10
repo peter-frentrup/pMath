@@ -40,6 +40,7 @@ MouseEvent::MouseEvent()
     middle(false),
     right(false),
     ctrl_key(false),
+    alt_key(false),
     shift_key(false),
     origin(nullptr)
 {

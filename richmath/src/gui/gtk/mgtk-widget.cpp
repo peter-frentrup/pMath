@@ -759,6 +759,7 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
   me.left      = false;
   me.middle    = false;
   me.right     = false;
+  me.alt_key   = false;
   me.ctrl_key  = false;
   me.shift_key = false;
   
@@ -1340,6 +1341,7 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
   me.middle    = event->button == 2;
   me.right     = event->button == 3;
   me.ctrl_key  = 0 != (event->state & GDK_CONTROL_MASK);
+  me.alt_key   = 0 != (event->state & GDK_MOD1_MASK);
   me.shift_key = 0 != (event->state & GDK_SHIFT_MASK);
   me.position = scroll_pos() + Vector2F(event->x, event->y) / scale_factor();
   
@@ -1376,6 +1378,7 @@ bool MathGtkWidget::on_button_release(GdkEvent *e) {
   me.middle    = event->button == 2;
   me.right     = event->button == 3;
   me.ctrl_key  = 0 != (event->state & GDK_CONTROL_MASK);
+  me.alt_key   = 0 != (event->state & GDK_MOD1_MASK);
   me.shift_key = 0 != (event->state & GDK_SHIFT_MASK);
   me.position = scroll_pos() + Vector2F(event->x, event->y) / scale_factor();
   
@@ -1408,6 +1411,7 @@ bool MathGtkWidget::on_motion_notify(GdkEvent *e) {
   me.middle    = 0 != (event->state & GDK_BUTTON2_MASK);
   me.right     = 0 != (event->state & GDK_BUTTON3_MASK);
   me.ctrl_key  = 0 != (event->state & GDK_CONTROL_MASK);
+  me.alt_key   = 0 != (event->state & GDK_MOD1_MASK);
   me.shift_key = 0 != (event->state & GDK_SHIFT_MASK);
   me.position = scroll_pos() + Vector2F(event->x, event->y) / scale_factor();
   
