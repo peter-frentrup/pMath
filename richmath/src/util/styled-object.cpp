@@ -19,6 +19,7 @@ namespace {
 }
 
 extern pmath_symbol_t richmath_System_Inherited;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_SingleMatch;
 
 static bool StyleName_is_FontSize(StyleOptionName name);
@@ -238,7 +239,12 @@ void ActiveStyledObject::update_cause(Expr cause) {
 }
 
 bool ActiveStyledObject::is_option_supported(StyleOptionName key) {
-  return allowed_options().lookup(Style::get_name(key), Expr{PMATH_UNDEFINED}) != PMATH_UNDEFINED;
+  Expr name = Style::get_name(key);
+  if(name[0] == richmath_System_List) { // {opt, subopts...}
+    return allowed_options().lookup(name[1], Expr{PMATH_UNDEFINED}) != PMATH_UNDEFINED;
+  }
+  else
+    return allowed_options().lookup(PMATH_CPP_MOVE(name), Expr{PMATH_UNDEFINED}) != PMATH_UNDEFINED;
 }
 
 //} ... class ActiveStyledObject
