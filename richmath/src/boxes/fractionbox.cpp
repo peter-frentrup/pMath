@@ -54,7 +54,7 @@ bool FractionBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   reset_style();
   if(!style)
-    style = new Style(options_expr);
+    style = new StyleData(options_expr);
   else
     style->add_pmath(options_expr);
     

@@ -69,7 +69,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     style->add_pmath(options);
   }
   else if(options != PMATH_UNDEFINED)
-    style = new Style(options);
+    style = new StyleData(options);
   
   if(expr.expr_length() >= 1) {
     Expr dyn_expr = expr[1];
@@ -132,7 +132,7 @@ Expr CheckboxBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void CheckboxBox::reset_style() {
-  Style::reset(style, strings::Checkbox);
+  StyleData::reset(style, strings::Checkbox);
 }
 
 void CheckboxBox::dynamic_finished(Expr info, Expr result) {

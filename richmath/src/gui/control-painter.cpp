@@ -1020,7 +1020,7 @@ void ControlPainter::paint_scroll_indicator(
   canvas.fill();
 }
 
-void ControlPainter::system_font_style(ControlContext &control, Style *style) {
+void ControlPainter::system_font_style(ControlContext &control, StyleData *style) {
 }
 
 Color ControlPainter::selection_color(ControlContext &control) {

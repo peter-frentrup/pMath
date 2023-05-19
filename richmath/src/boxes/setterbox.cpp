@@ -118,7 +118,7 @@ Expr SetterBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void SetterBox::reset_style() {
-  Style::reset(style, strings::Setter);
+  StyleData::reset(style, strings::Setter);
 }
 
 void SetterBox::on_mouse_down(MouseEvent &event) {

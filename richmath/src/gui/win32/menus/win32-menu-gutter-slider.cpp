@@ -93,8 +93,8 @@ void Win32MenuGutterSlider::initialize(HWND hwnd, HMENU menu) {
   if(Document *doc = Menus::current_document()) {
     DWORD style = GetWindowLongW(control, GWL_STYLE);
     if(StyledObject *obj = Impl(*this).resolve_scope(doc)) {
-      StyleOptionName key = Style::get_key(lhs);
-      StyleType type = Style::get_type(key);
+      StyleOptionName key = StyleData::get_key(lhs);
+      StyleType type = StyleData::get_type(key);
       if(type == StyleType::Number) {
         float val = obj->get_style((FloatStyleOptionName)key, NAN);
         Array<float> values;

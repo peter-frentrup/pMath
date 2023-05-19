@@ -110,14 +110,14 @@ void CurrentValue::init() {
   register_provider(strings::DocumentScreenDpi,              Impl::get_DocumentScreenDpi);
   register_provider(String("DynamicUpdateCauseLocation"),    Impl::get_DynamicUpdateCauseLocation);
   register_provider(Symbol(richmath_System_Editable),        Impl::get_Editable,
-                                                             Style::put_current_style_value);
+                                                             StyleData::put_current_style_value);
   register_provider(strings::MouseOver,                      Impl::get_MouseOver);
   register_provider(strings::MouseOverBox,                   Document::get_current_value_of_MouseOverBox);
   register_provider(Symbol(richmath_System_Section),         Impl::get_parent_box<Section>);
   register_provider(strings::SectionGroupOpen,               Impl::get_SectionGroupOpen,
                                                              Impl::put_SectionGroupOpen);
   register_provider(Symbol(richmath_System_Selectable),      Impl::get_Selectable,
-                                                             Style::put_current_style_value);
+                                                             StyleData::put_current_style_value);
   register_provider(strings::SelectedMenuCommand,            Impl::get_SelectedMenuCommand);
   register_provider(strings::StyleDefinitionsOwner,          Impl::get_StyleDefinitionsOwner_object);
   register_provider(Symbol(richmath_System_TemplateBox),     TemplateBox::get_current_value_of_TemplateBox);
@@ -387,7 +387,7 @@ Expr CurrentValueImpl::get_Editable(FrontEndObject *obj, Expr item) {
     return box->editable();
   } 
   
-  return Style::get_current_style_value(obj, PMATH_CPP_MOVE(item));
+  return StyleData::get_current_style_value(obj, PMATH_CPP_MOVE(item));
 }
 
 Expr CurrentValueImpl::get_MouseOver(FrontEndObject *obj, Expr item) {
@@ -403,7 +403,7 @@ Expr CurrentValueImpl::get_MouseOver(FrontEndObject *obj, Expr item) {
     // ensure that get/set of InternalUsesCurrentValueOfMouseOver below will not cause reevaluation
     Dynamic::current_observer_id = FrontEndReference::None;
     if(!box->style)
-      box->style = new Style();
+      box->style = new StyleData();
       
     int observer_kind = ObserverKindNone;
     box->style->get(InternalUsesCurrentValueOfMouseOver, &observer_kind);
@@ -439,7 +439,7 @@ Expr CurrentValueImpl::get_DocumentScreenDpi(FrontEndObject *obj, Expr item) {
 }
 
 Expr CurrentValueImpl::get_ControlFont_data(FrontEndObject *obj, Expr item) {
-  SharedPtr<Style> style = new Style();
+  SharedPtr<StyleData> style = new StyleData();
   ControlPainter::std->system_font_style(ControlContext::find(dynamic_cast<Box*>(obj)), style.ptr());
   
   AutoResetCurrentObserver guard;
@@ -495,7 +495,7 @@ Expr CurrentValueImpl::get_Selectable(FrontEndObject *obj, Expr item) {
   if(Box *box = dynamic_cast<Box*>(obj)) 
     return box->selectable() ? Symbol(richmath_System_True) : Symbol(richmath_System_False);
   
-  return Style::get_current_style_value(obj, PMATH_CPP_MOVE(item));
+  return StyleData::get_current_style_value(obj, PMATH_CPP_MOVE(item));
 }
 
 Expr CurrentValueImpl::get_SelectedMenuCommand(FrontEndObject *obj, Expr item) {

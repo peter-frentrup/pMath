@@ -53,7 +53,7 @@ void MathGtkTooltipWindow::after_construction() {
   gtk_widget_set_can_focus(_widget, FALSE);
   
   if(!document()->style)
-    document()->style = new Style;
+    document()->style = new StyleData;
   document()->style->set(Editable,           false);
   document()->style->set(Selectable,         AutoBoolFalse);
   document()->style->set(ShowSectionBracket, AutoBoolFalse);

@@ -262,7 +262,7 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     style->add_pmath(options);
   }
   else if(options != PMATH_UNDEFINED)
-    style = new Style(options);
+    style = new StyleData(options);
     
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;

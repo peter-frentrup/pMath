@@ -192,8 +192,8 @@ void GraphicsBox::set_user_default_options(Expr rules) {
   if(rules.expr_length() > 0) {
     user_has_changed_size(true);
     
-    SharedPtr<Style> old_style = style;
-    style = new Style();
+    SharedPtr<StyleData> old_style = style;
+    style = new StyleData();
     reset_style();
     style->add_pmath(rules);
     style->merge(old_style);
@@ -423,7 +423,7 @@ void GraphicsBox::paint(Context &context) {
 }
 
 void GraphicsBox::reset_style() {
-  Style::reset(style, strings::Graphics);
+  StyleData::reset(style, strings::Graphics);
 }
 
 Expr GraphicsBox::to_pmath_symbol() {

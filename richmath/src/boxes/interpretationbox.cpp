@@ -12,7 +12,7 @@ extern pmath_symbol_t richmath_System_InterpretationBox;
 InterpretationBox::InterpretationBox(AbstractSequence *content)
   : base(content)
 {
-  style = new Style;
+  style = new StyleData;
   style->set(Editable, false);
 }
 
@@ -31,7 +31,7 @@ void InterpretationBox::reset_style() {
   if(style)
     style->clear();
   else
-    style = new Style;
+    style = new StyleData;
     
   style->set(Editable, false);
 }
@@ -58,7 +58,7 @@ bool InterpretationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
       style->add_pmath(options_expr);
     }
     else
-      style = new Style(options_expr);
+      style = new StyleData(options_expr);
   }
   
   finish_load_from_object(PMATH_CPP_MOVE(expr));

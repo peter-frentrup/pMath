@@ -66,7 +66,7 @@ namespace richmath {
         Margins<float> *outer,
         Margins<float> *inner) override;
       
-      virtual void system_font_style(ControlContext &context, Style *style) override;
+      virtual void system_font_style(ControlContext &context, StyleData *style) override;
       
       virtual Color selection_color(ControlContext &context) override;
       Color win32_button_face_color(bool dark);

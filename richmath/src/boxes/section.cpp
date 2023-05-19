@@ -43,7 +43,7 @@ namespace richmath { namespace strings {
 
 //{ class Section ...
 
-Section::Section(SharedPtr<Style> _style)
+Section::Section(SharedPtr<StyleData> _style)
   : Box(),
     y_offset(0),
     top_margin(3),
@@ -208,7 +208,7 @@ bool Section::edit_selection(SelectionReference &selection, EditAction action) {
         style->set(SectionLabel, String());
     }
     else {
-      style = new Style;
+      style = new StyleData;
       style->set(SectionLabel, String());
     }
     
@@ -250,7 +250,7 @@ bool Section::edit_selection(SelectionReference &selection, EditAction action) {
         style->set(SectionGenerated, false);
     }
     else {
-      style = new Style;
+      style = new StyleData;
       style->set(SectionGenerated, false);
     }
     
@@ -325,7 +325,7 @@ VolatileSelection ErrorSection::mouse_selection(Point pos, bool *was_inside_star
 
 //{ class AbstractSequenceSection ...
 
-AbstractSequenceSection::AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style)
+AbstractSequenceSection::AbstractSequenceSection(AbstractSequence *content, SharedPtr<StyleData> _style)
   : Section(_style),
     _content(content)
 {
@@ -739,15 +739,15 @@ float AbstractSequenceSection::get_em() {
 //{ class MathSection ...
 
 MathSection::MathSection()
-  : AbstractSequenceSection(new MathSequence, new Style)
+  : AbstractSequenceSection(new MathSequence, new StyleData)
 {
 }
 
-MathSection::MathSection(SharedPtr<Style> _style)
+MathSection::MathSection(SharedPtr<StyleData> _style)
   : AbstractSequenceSection(new MathSequence, _style)
 {
   if(!style)
-    style = new Style;
+    style = new StyleData;
 }
 
 bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -788,15 +788,15 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 //{ class TextSection ...
 
 TextSection::TextSection()
-  : AbstractSequenceSection(new TextSequence, new Style)
+  : AbstractSequenceSection(new TextSequence, new StyleData)
 {
 }
 
-TextSection::TextSection(SharedPtr<Style> _style)
+TextSection::TextSection(SharedPtr<StyleData> _style)
   : AbstractSequenceSection(new TextSequence, _style)
 {
   if(!style)
-    style = new Style;
+    style = new StyleData;
 }
 
 bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -838,7 +838,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 //{ class EditSection ...
 
 EditSection::EditSection()
-  : MathSection(new Style(strings::Edit)),
+  : MathSection(new StyleData(strings::Edit)),
     original(nullptr)
 {
 }
@@ -900,7 +900,7 @@ Expr EditSection::to_pmath_impl(BoxOutputFlags flags) {
 //{ class StyleDataSection ...
 
 StyleDataSection::StyleDataSection()
-  : AbstractSequenceSection(new MathSequence, new Style)
+  : AbstractSequenceSection(new MathSequence, new StyleData)
 {
 }
 
@@ -910,7 +910,7 @@ StyleDataSection::StyleDataSection()
    One possibility is that each StyleDataSection `sds` has a Stylesheet that represents the all
    style definitions upto and including `sds`.
    When the `sds` needs to recalculate a style, it searches the previous StyleDataSection`s
-   Stylesheet, obtains its previous Style `old_style` of the same name, creates a new merged
+   Stylesheet, obtains its previous StyleData `old_style` of the same name, creates a new merged
    copy of `old_style` and its own local definitions (Box::style) and stores that in its own
    Stylesheet.
    The problem is to know when to recalculate a style. Maybe styles should be observable

@@ -191,7 +191,7 @@ void PaneSelectorBox::paint(Context &context) {
 }
 
 void PaneSelectorBox::reset_style() {
-  Style::reset(style, strings::PaneSelector);
+  StyleData::reset(style, strings::PaneSelector);
 }
 
 Box *PaneSelectorBox::remove(int *index) {

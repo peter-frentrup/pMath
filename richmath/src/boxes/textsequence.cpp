@@ -1295,7 +1295,7 @@ void TextSequence::Impl::AttributeWriter::visit_box(TextSequence *seq, Box *box)
   
   if(auto sub = box->as_inline_text_span()) {
     visit_inline_sequence(sub);
-    // TODO: add PangeAttributes for Style box
+    // TODO: add PangeAttributes for StyleData box
     return;
   }
   

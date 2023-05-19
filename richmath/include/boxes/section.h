@@ -14,7 +14,7 @@ namespace richmath {
     Error,
     Math,
     Text,
-    Style
+    StyleData
   };
   
   /* Every section has a SectionGroupPrecedence (SGP) option to specify how deep
@@ -62,7 +62,7 @@ namespace richmath {
     protected:
       virtual ~Section();
     public:
-      Section(SharedPtr<Style> _style);
+      Section(SharedPtr<StyleData> _style);
       
       virtual SectionKind kind() = 0;
       
@@ -155,7 +155,7 @@ namespace richmath {
     protected:
       virtual ~AbstractSequenceSection();
     public:
-      explicit AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style);
+      explicit AbstractSequenceSection(AbstractSequence *content, SharedPtr<StyleData> _style);
       
       AbstractSequence *content() {return _content; };
       
@@ -207,7 +207,7 @@ namespace richmath {
   class MathSection : public AbstractSequenceSection {
     public:
       explicit MathSection();
-      explicit MathSection(SharedPtr<Style> _style);
+      explicit MathSection(SharedPtr<StyleData> _style);
       
       virtual SectionKind kind() override { return SectionKind::Math; }
       
@@ -219,7 +219,7 @@ namespace richmath {
   class TextSection final : public AbstractSequenceSection {
     public:
       explicit TextSection();
-      explicit TextSection(SharedPtr<Style> _style);
+      explicit TextSection(SharedPtr<StyleData> _style);
       
       virtual SectionKind kind() override { return SectionKind::Text; }
       
@@ -252,7 +252,7 @@ namespace richmath {
     public:
       StyleDataSection();
       
-      virtual SectionKind kind() override { return SectionKind::Style; }
+      virtual SectionKind kind() override { return SectionKind::StyleData; }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

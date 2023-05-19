@@ -827,7 +827,7 @@ bool MathGtkControlPainter::container_hover_repaint(ControlContext &control, Con
   return ControlPainter::container_hover_repaint(control, type);
 }
  
-void MathGtkControlPainter::system_font_style(ControlContext &control, Style *style) {
+void MathGtkControlPainter::system_font_style(ControlContext &control, StyleData *style) {
   GtkStyleContext *gsc = get_control_theme(control, ContainerType::PushButton, true);
   
   if(!gsc) {

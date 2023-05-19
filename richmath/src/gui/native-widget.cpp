@@ -146,7 +146,7 @@ void NativeWidget::set_custom_scale(float s) {
   Document *doc = document();
   if(doc && doc->style){
     SharedPtr<Stylesheet> stylesheet = doc->stylesheet();
-    SharedPtr<Style> doc_base_style = stylesheet->find_parent_style(doc->style);
+    SharedPtr<StyleData> doc_base_style = stylesheet->find_parent_style(doc->style);
     
     float docScaleDefault = ScaleDefault;
     stylesheet->get(doc_base_style, Magnification, &docScaleDefault);

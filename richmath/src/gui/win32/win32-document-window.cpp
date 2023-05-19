@@ -278,7 +278,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
         0, 0, 10, 10,
         parent)
     {
-      Style::reset(document()->style, strings::Docked);
+      StyleData::reset(document()->style, strings::Docked);
     }
     
     void reload(Expr content, bool *change_flag) {
@@ -385,7 +385,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
     virtual void paint_background(Canvas &canvas) override {
       if(Color color = get_textcolor()) {
         if(!document()->style)
-          document()->style = new Style();
+          document()->style = new StyleData();
         
         document()->style->set(FontColor, color);
       }
@@ -484,7 +484,7 @@ class richmath::Win32GlassDock: public Win32Dock {
   protected:
     void set_textshadows() {
       if(!document()->style)
-        document()->style = new Style();
+        document()->style = new StyleData();
         
       document()->style->set(TextShadow, shadows);
     }

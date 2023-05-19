@@ -130,7 +130,7 @@ Expr PanelBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void PanelBox::reset_style() {
-  Style::reset(style, strings::Panel);
+  StyleData::reset(style, strings::Panel);
 }
 
 void PanelBox::on_enter() {

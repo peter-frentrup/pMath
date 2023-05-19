@@ -149,7 +149,7 @@ DONE:
 StyleBox::StyleBox(AbstractSequence *content)
   : base(content)
 {
-  style = new Style;
+  style = new StyleData;
 }
 
 bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -176,7 +176,7 @@ bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(expr[2].is_string()) {
     if(!style)
-      style = new Style();
+      style = new StyleData();
     
     style->set_pmath(BaseStyleName, expr[2]);
   }
@@ -185,7 +185,7 @@ bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     if(style)
       style->add_pmath(options);
     else
-      style = new Style(options);
+      style = new StyleData(options);
       
     int i;
     if(style->get(AutoNumberFormating, &i)) {
@@ -238,14 +238,14 @@ Expr StyleBox::to_pmath_impl(BoxOutputFlags flags) {
 TagBox::TagBox(AbstractSequence *content)
   : base(content)
 {
-  style = new Style();
+  style = new StyleData();
 }
 
 TagBox::TagBox(AbstractSequence *content, Expr _tag)
   : base(content),
   tag(_tag)
 {
-  style = new Style();
+  style = new StyleData();
   reset_style();
 }
 
@@ -269,7 +269,7 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(style)
     style->add_pmath(options_expr);
   else if(options_expr != PMATH_UNDEFINED)
-    style = new Style(options_expr);
+    style = new StyleData(options_expr);
   
   int i;
   if(style->get(AutoNumberFormating, &i)) {
@@ -292,7 +292,7 @@ void TagBox::reset_style() {
   
   if(tag.is_string()) {
     if(!style)
-      style = new Style();
+      style = new StyleData();
     
     style->set(BaseStyleName, String(tag));
   }

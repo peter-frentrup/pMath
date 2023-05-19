@@ -125,7 +125,7 @@ Expr RadioButtonBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void RadioButtonBox::reset_style() {
-  Style::reset(style, strings::RadioButton);
+  StyleData::reset(style, strings::RadioButton);
 }
 
 void RadioButtonBox::dynamic_finished(Expr info, Expr result) {

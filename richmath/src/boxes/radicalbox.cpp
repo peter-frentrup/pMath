@@ -52,7 +52,7 @@ bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     style->add_pmath(options);
   }
   else if(options != PMATH_UNDEFINED)
-    style = new Style(options);
+    style = new StyleData(options);
   
   _radicand->load_from_object(expr[1], opts);
   

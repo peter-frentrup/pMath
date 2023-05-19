@@ -17,7 +17,7 @@
 
 
 namespace richmath {
-  class Style;
+  class StyleData;
   class Stylesheet;
   class SyntaxState;
   
@@ -114,12 +114,12 @@ namespace richmath {
       explicit ContextState(Context &context): ctx(context) {}
       
       // does not change the color:
-      void begin(SharedPtr<Style> style);
+      void begin(SharedPtr<StyleData> style);
       
-      void apply_layout_styles(SharedPtr<Style> style);
+      void apply_layout_styles(SharedPtr<StyleData> style);
       
       // does not change the color:
-      void apply_non_layout_styles(SharedPtr<Style> style);
+      void apply_non_layout_styles(SharedPtr<StyleData> style);
       
       void end();
       

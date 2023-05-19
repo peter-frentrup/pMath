@@ -2212,7 +2212,7 @@ bool Win32ControlPainter::control_glow_margins(
   return ControlPainter::control_glow_margins(control, type, state, outer, inner);
 }
 
-void Win32ControlPainter::system_font_style(ControlContext &control, Style *style) {
+void Win32ControlPainter::system_font_style(ControlContext &control, StyleData *style) {
   NONCLIENTMETRICSW nonclientmetrics;
   LOGFONTW *logfont = nullptr;
   

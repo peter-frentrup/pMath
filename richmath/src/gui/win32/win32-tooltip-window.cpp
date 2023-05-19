@@ -46,7 +46,7 @@ void Win32TooltipWindow::after_construction() {
   base::after_construction();
   
   if(!document()->style)
-    document()->style = new Style;
+    document()->style = new StyleData;
   
   document()->style->set(Editable,            false);
   document()->style->set(Selectable,          AutoBoolFalse);

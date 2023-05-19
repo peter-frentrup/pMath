@@ -27,7 +27,7 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
     if(auto s = obj->own_style()) {
       bool emit_all = true;
       if(len == 2) {
-        StyleOptionName key = Style::get_key(expr[2]);
+        StyleOptionName key = StyleData::get_key(expr[2]);
         if(key.is_valid()) {
           s->emit_pmath(key);
           emit_all = false;
@@ -84,7 +84,7 @@ Expr richmath_eval_FrontEnd_SetOptions(Expr expr) {
     options.set(0, Symbol(richmath_System_List));
     
     if(!obj->style)
-      obj->style = new Style();
+      obj->style = new StyleData();
       
     obj->style->add_pmath(options, false);
     obj->on_style_changed(true); // TODO: check if only non-layout options were affected

@@ -569,7 +569,7 @@ void Application::gui_print_section(Expr expr) {
     session->current_job->adjust_output_style(sect);
   
   if(!sect->style)
-    sect->style = new Style();
+    sect->style = new StyleData();
   
   if(!sect->style->contains(SectionGenerated))
     sect->style->set(SectionGenerated, true);

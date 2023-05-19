@@ -100,7 +100,7 @@ Expr OpenerBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void OpenerBox::reset_style() {
-  Style::reset(style, strings::Opener);
+  StyleData::reset(style, strings::Opener);
 }
 
 void OpenerBox::dynamic_finished(Expr info, Expr result) {

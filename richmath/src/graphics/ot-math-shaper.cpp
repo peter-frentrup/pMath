@@ -1674,9 +1674,9 @@ SharedPtr<OTMathShaperImpl> OTMathShaperImpl::try_load(String name, FontStyle st
       /* The synthesized italics font seems to get an horizontal shear of about x:= 0.33,
         meaning that
         RawBoxes@TransformationBox(
-          ToBoxes@Style("ff",FontSlant->Plain,72),
+          ToBoxes@StyleData("ff",FontSlant->Plain,72),
           BoxTransformation->{{1,x},{0,1}})
-        looks like Style("ff",FontSlant->Italic,72) for Cambria Math on Windows 7.
+        looks like StyleData("ff",FontSlant->Italic,72) for Cambria Math on Windows 7.
       
         Since a glyphs accent height is typically not 1em, but about 0.5em, we further
         multiply by that factor to not spread glyphs too much

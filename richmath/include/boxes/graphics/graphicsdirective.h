@@ -22,7 +22,7 @@ namespace richmath {
       virtual void find_extends(GraphicsBounds &bounds) override {}
       virtual void paint(GraphicsDrawingContext &gc) override;
       
-      virtual SharedPtr<Style> own_style() final override { return _style; };
+      virtual SharedPtr<StyleData> own_style() final override { return _style; };
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;
     
@@ -45,7 +45,7 @@ namespace richmath {
       void must_update(bool value) { change_flag(MustUpdateBit, value); }
       
     private:
-      SharedPtr<Style> _style;
+      SharedPtr<StyleData> _style;
       PartialDynamic   _dynamic;
       Expr             _latest_directives;
   };

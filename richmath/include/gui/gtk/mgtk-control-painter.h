@@ -54,7 +54,7 @@ namespace richmath {
         
       virtual bool container_hover_repaint(ControlContext &control, ContainerType type) override;
       
-      virtual void system_font_style(ControlContext &control, Style *style) override;
+      virtual void system_font_style(ControlContext &control, StyleData *style) override;
       
     public:
       GtkStyleContext *get_control_theme(ControlContext &control, ContainerType type, bool foreground = false);

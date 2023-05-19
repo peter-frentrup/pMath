@@ -190,7 +190,7 @@ bool InputJob::start() {
       label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
       
     if(!section->style)
-      section->style = new Style;
+      section->style = new StyleData;
     section->style->set(SectionLabel, label + line.to_string() + String("]:"));
     section->invalidate();
   }

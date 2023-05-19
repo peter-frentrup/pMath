@@ -443,7 +443,7 @@ static void load_math_shapers() {
 static void init_stylesheet() {
   Stylesheet::Default = new Stylesheet;
   
-  Stylesheet::Default->base = new Style;
+  Stylesheet::Default->base = new StyleData;
   Stylesheet::Default->base->set(Background,             Color::None);
   Stylesheet::Default->base->set(ColorForGraphics,       Color::Black);
   Stylesheet::Default->base->set(FontColor,              Color::None);

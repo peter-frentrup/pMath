@@ -621,7 +621,7 @@ void DocumentCurrentValueProvider::init() {
   CurrentValue::register_provider(strings::DocumentFileName,           get_DocumentFileName,     put_DocumentFileName);
   CurrentValue::register_provider(strings::DocumentFullFileName,       get_DocumentFullFileName, put_DocumentFullFileName);
   CurrentValue::register_provider(strings::PageWidthCharacters,        get_PageWidthCharacters);
-  CurrentValue::register_provider(Symbol(richmath_System_WindowTitle), get_WindowTitle,           Style::put_current_style_value);
+  CurrentValue::register_provider(Symbol(richmath_System_WindowTitle), get_WindowTitle,           StyleData::put_current_style_value);
 }
 
 void DocumentCurrentValueProvider::done() {
@@ -747,7 +747,7 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
     
     Length font_size = SymbolicSize::Invalid;
     
-    SharedPtr<Style> output_style = nullptr;
+    SharedPtr<StyleData> output_style = nullptr;
     if(auto section = box->find_parent<Section>(true)) {
       output_style = section->style;
       
@@ -809,7 +809,7 @@ Expr DocumentCurrentValueProvider::get_WindowTitle(FrontEndObject *obj, Expr ite
     }
   }
   
-  return Style::get_current_style_value(obj, PMATH_CPP_MOVE(item));
+  return StyleData::get_current_style_value(obj, PMATH_CPP_MOVE(item));
 }
 
 //} ... class DocumentCurrentValueProvider

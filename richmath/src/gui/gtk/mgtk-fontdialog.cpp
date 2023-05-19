@@ -18,7 +18,7 @@ extern pmath_symbol_t richmath_System_List;
 
 #if GTK_MAJOR_VERSION >= 3
 
-static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
+static Expr font_chooser_dialog_show(SharedPtr<StyleData> initial_style) {
   GtkFontChooserDialog *dialog;
   GtkFontChooser       *chooser;
 
@@ -86,7 +86,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {
-        SharedPtr<Style> result_style = new Style();
+        SharedPtr<StyleData> result_style = new StyleData();
 
         PangoFontDescription *desc;
 
@@ -162,7 +162,7 @@ static Expr split_family_names(const char *str_utf8){
   return e;
 }
 
-static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
+static Expr font_selection_dialog_show(SharedPtr<StyleData> initial_style) {
   GtkFontSelectionDialog *dialog;
   GtkFontSelection       *widget;
 
@@ -227,7 +227,7 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {
-        SharedPtr<Style> result_style = new Style();
+        SharedPtr<StyleData> result_style = new StyleData();
 
         if(char *desc_str = gtk_font_selection_dialog_get_font_name(dialog)) {
           PangoFontDescription *desc;
@@ -274,7 +274,7 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
 
 #endif
 
-Expr MathGtkFontDialog::show(SharedPtr<Style> initial_style) {
+Expr MathGtkFontDialog::show(SharedPtr<StyleData> initial_style) {
 #if GTK_MAJOR_VERSION >= 3
   return font_chooser_dialog_show(initial_style);
 #else

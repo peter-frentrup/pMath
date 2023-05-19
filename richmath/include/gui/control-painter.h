@@ -11,7 +11,7 @@
 namespace richmath {
   class Box;
   class Canvas;
-  class Style;
+  class StyleData;
   
   enum class ContainerType : uint8_t {
     None,
@@ -189,7 +189,7 @@ namespace richmath {
         bool    horz,
         bool    vert);
         
-      virtual void system_font_style(ControlContext &control, Style *style);
+      virtual void system_font_style(ControlContext &control, StyleData *style);
       
       virtual Color selection_color(ControlContext &control);
       

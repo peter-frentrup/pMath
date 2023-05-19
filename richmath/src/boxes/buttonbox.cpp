@@ -142,7 +142,7 @@ Expr ButtonBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void ButtonBox::reset_style() {
-  Style::reset(style, strings::Button);
+  StyleData::reset(style, strings::Button);
 }
 
 void ButtonBox::click() {

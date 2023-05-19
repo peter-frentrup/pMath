@@ -101,7 +101,7 @@ Win32AttachedPopupWindow::~Win32AttachedPopupWindow() {
 void Win32AttachedPopupWindow::after_construction() {
   base::after_construction();
   
-  Style::reset(document()->style, strings::AttachedPopupWindow);
+  StyleData::reset(document()->style, strings::AttachedPopupWindow);
   
   if(Document *owner = owner_document()) {
     document()->stylesheet(owner->stylesheet());

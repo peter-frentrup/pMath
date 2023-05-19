@@ -63,7 +63,7 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   
   reset_style();
   if(!style)
-    style = new Style(options_expr);
+    style = new StyleData(options_expr);
   else
     style->add_pmath(options_expr);
     
@@ -169,7 +169,7 @@ void FrameBox::paint(Context &context) {
 }
 
 void FrameBox::reset_style() {
-  Style::reset(style, strings::Framed);
+  StyleData::reset(style, strings::Framed);
 }
 
 Expr FrameBox::to_pmath_symbol() {

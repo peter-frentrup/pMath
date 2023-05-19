@@ -161,7 +161,7 @@ Section *BoxFactory::create_empty_section(SectionKind kind) {
   switch(kind) {
     case SectionKind::Error: break;
     case SectionKind::Math:  return new MathSection();
-    case SectionKind::Style: return new StyleDataSection();
+    case SectionKind::StyleData: return new StyleDataSection();
     case SectionKind::Text:  return new TextSection();
   }
   return new ErrorSection(Expr());
@@ -175,7 +175,7 @@ SectionKind BoxFactory::kind_of_section(Expr expr) {
     
     Expr content_head = content[0];
     if(content_head == richmath_System_BoxData)   return SectionKind::Math;
-    if(content_head == richmath_System_StyleData) return SectionKind::Style;
+    if(content_head == richmath_System_StyleData) return SectionKind::StyleData;
     if(content_head == richmath_System_TextData)  return SectionKind::Text;
     if(content_head == richmath_System_List)      return SectionKind::Text;
   }

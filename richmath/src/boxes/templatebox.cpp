@@ -114,7 +114,7 @@ static T *search_next_box(Box *start, LogicalDirection direction, Box *stop_pare
 TemplateBox::TemplateBox(AbstractSequence *content)
   : base(content)
 {
-  style = new Style();
+  style = new StyleData();
 }
 
 bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {

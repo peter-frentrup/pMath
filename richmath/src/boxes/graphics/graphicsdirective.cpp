@@ -47,7 +47,7 @@ namespace richmath {
     public:
       Impl(GraphicsDirective &self) : self{self} {}
       
-      static void apply_to_style(Expr directive, Style &style);
+      static void apply_to_style(Expr directive, StyleData &style);
       static void apply_to_context(Expr directive, GraphicsDrawingContext &gc);
       static bool decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor);
       static bool decode_dash_offset(double &offset, Expr obj, float scale_factor);
@@ -65,14 +65,14 @@ namespace richmath {
 
 GraphicsDirective::GraphicsDirective()
   : base(),
-    _style(new Style()),
+    _style(new StyleData()),
     _dynamic(this, Expr())
 {
 }
 
 GraphicsDirective::GraphicsDirective(Expr expr)
   : base(),
-    _style(new Style()),
+    _style(new StyleData()),
     _dynamic(this, expr)
 {
 }
@@ -168,7 +168,7 @@ void GraphicsDirective::dynamic_finished(Expr info, Expr result) {
 
 //{ class GraphicsDirective::Impl ...
 
-void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
+void GraphicsDirective::Impl::apply_to_style(Expr directive, StyleData &style) {
   if(directive[0] == richmath_System_Directive) {
     for(auto item : directive.items())
       apply_to_style(item, style);
@@ -234,7 +234,7 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
   }
   
   if(directive[0] == richmath_System_CapForm) {
-    int val = Style::decode_enum(directive[1], CapForm, -1);
+    int val = StyleData::decode_enum(directive[1], CapForm, -1);
     if(val >= 0 && gc.canvas().dash_count() == 0) {
       gc.canvas().cap_form((enum CapForm)val);
     }
@@ -249,9 +249,9 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
         int capform_val = (int)CapFormButt;
         if(directive.expr_length() == 3) {
           if(directive[3][0] == richmath_System_CapForm)
-            capform_val = Style::decode_enum(directive[3][1], CapForm, -1);
+            capform_val = StyleData::decode_enum(directive[3][1], CapForm, -1);
           else
-            capform_val = Style::decode_enum(directive[3], CapForm, -1);
+            capform_val = StyleData::decode_enum(directive[3], CapForm, -1);
         }
         
         if(capform_val >= 0) {

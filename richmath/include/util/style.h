@@ -519,19 +519,19 @@ namespace richmath {
     float float_value;
   };
   
-  class Style: public Observable, public Shareable {
+  class StyleData: public Observable, public Shareable {
     friend class StyleImpl;
     public:
-      Style();
-      Style(Expr options);
-      virtual ~Style();
+      StyleData();
+      StyleData(Expr options);
+      virtual ~StyleData();
       
       void clear();
-      static void reset(SharedPtr<Style> &style, String base_style_name);
+      static void reset(SharedPtr<StyleData> &style, String base_style_name);
       
       void add_pmath(Expr options, bool amend = true);
       
-      void merge(SharedPtr<Style> other);
+      void merge(SharedPtr<StyleData> other);
       static bool contains_inherited(Expr expr);
       static Expr merge_style_values(StyleOptionName n, Expr newer, Expr older);
       static Expr finish_style_merge(StyleOptionName n, Expr value);
@@ -605,33 +605,33 @@ namespace richmath {
       Stylesheet();
       virtual ~Stylesheet() override;
       
-      SharedPtr<Style> find_parent_style(SharedPtr<Style> s);
+      SharedPtr<StyleData> find_parent_style(SharedPtr<StyleData> s);
       
       // each get() ignores base:
-      bool get(SharedPtr<Style> s, ColorStyleOptionName  n, Color  *value);
-      bool get(SharedPtr<Style> s, IntStyleOptionName    n, int    *value);
-      bool get(SharedPtr<Style> s, FloatStyleOptionName  n, float  *value);
-      bool get(SharedPtr<Style> s, LengthStyleOptionName n, Length *value);
-      bool get(SharedPtr<Style> s, StringStyleOptionName n, String *value);
-      bool get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   *value);
+      bool get(SharedPtr<StyleData> s, ColorStyleOptionName  n, Color  *value);
+      bool get(SharedPtr<StyleData> s, IntStyleOptionName    n, int    *value);
+      bool get(SharedPtr<StyleData> s, FloatStyleOptionName  n, float  *value);
+      bool get(SharedPtr<StyleData> s, LengthStyleOptionName n, Length *value);
+      bool get(SharedPtr<StyleData> s, StringStyleOptionName n, String *value);
+      bool get(SharedPtr<StyleData> s, ObjectStyleOptionName n, Expr   *value);
       
-      Expr get_pmath(SharedPtr<Style> s, StyleOptionName n);
+      Expr get_pmath(SharedPtr<StyleData> s, StyleOptionName n);
       
-      bool update_dynamic(SharedPtr<Style> s, StyledObject *parent);
+      bool update_dynamic(SharedPtr<StyleData> s, StyledObject *parent);
       
       using IterBoxReferences = MultiMap<Expr, FrontEndReference>::ValuesIterable;
       static IterBoxReferences find_registered_box(Expr box_id);
       static void update_box_registry(StyledObject *obj);
       //static void unregister_box(StyledObject *obj);
       
-      Color  get_or_default(SharedPtr<Style> s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      int    get_or_default(SharedPtr<Style> s, IntStyleOptionName n,    int    fallback_result = 0) {           get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      float  get_or_default(SharedPtr<Style> s, FloatStyleOptionName n,  float  fallback_result = 0.0f) {        get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      Length get_or_default(SharedPtr<Style> s, LengthStyleOptionName n, Length fallback_result = Length(0.0)) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      String get_or_default(SharedPtr<Style> s, StringStyleOptionName n, String fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      String get_or_default(SharedPtr<Style> s, StringStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, String{}); }
-      Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, Expr{}); }
+      Color  get_or_default(SharedPtr<StyleData> s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      int    get_or_default(SharedPtr<StyleData> s, IntStyleOptionName n,    int    fallback_result = 0) {           get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      float  get_or_default(SharedPtr<StyleData> s, FloatStyleOptionName n,  float  fallback_result = 0.0f) {        get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      Length get_or_default(SharedPtr<StyleData> s, LengthStyleOptionName n, Length fallback_result = Length(0.0)) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      String get_or_default(SharedPtr<StyleData> s, StringStyleOptionName n, String fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      Expr   get_or_default(SharedPtr<StyleData> s, ObjectStyleOptionName n, Expr   fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      String get_or_default(SharedPtr<StyleData> s, StringStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, String{}); }
+      Expr   get_or_default(SharedPtr<StyleData> s, ObjectStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, Expr{}); }
       
       Expr name() { return _name; }
       void unregister();
@@ -666,14 +666,14 @@ namespace richmath {
     public:
       static SharedPtr<Stylesheet> Default;
       
-      Hashtable<String, SharedPtr<Style> > styles;
+      Hashtable<String, SharedPtr<StyleData> > styles;
     
     private:
       Hashset<SharedPtr<Stylesheet>> used_stylesheets;
       mutable Hashset<FrontEndReference> users;
       
     public:
-      SharedPtr<Style> base;
+      SharedPtr<StyleData> base;
       
     private:
       Expr _name;

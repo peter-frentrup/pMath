@@ -418,12 +418,12 @@ namespace {
 namespace richmath {
   class StyleImpl {
     private:
-      StyleImpl(Style &_self) : self(_self) {
+      StyleImpl(StyleData &_self) : self(_self) {
       }
       
     public:
-      static StyleImpl of(Style &_self);
-      static const StyleImpl of(const Style &_self);
+      static StyleImpl of(StyleData &_self);
+      static const StyleImpl of(const StyleData &_self);
       
       static bool is_for_color( StyleOptionName n) { return ((int)n & 0x70000) == 0x00000; }
       static bool is_for_int(   StyleOptionName n) { return ((int)n & 0x70000) == 0x10000; }
@@ -530,16 +530,16 @@ namespace richmath {
       Expr raw_get_pmath_ruleset(    StyleOptionName n, Expr inherited) const;
       
     private:
-      Style &self;
+      StyleData &self;
   };
 }
 
-StyleImpl StyleImpl::of(Style &_self) {
+StyleImpl StyleImpl::of(StyleData &_self) {
   return StyleImpl(_self);
 }
 
-const StyleImpl StyleImpl::of(const Style &_self) {
-  return StyleImpl(const_cast<Style&>(_self));
+const StyleImpl StyleImpl::of(const StyleData &_self) {
+  return StyleImpl(const_cast<StyleData&>(_self));
 }
 
 bool StyleImpl::raw_get_color(StyleOptionName n, Color *value) const {
@@ -721,7 +721,7 @@ void StyleImpl::collect_unused_dynamic(Hashtable<StyleOptionName, Expr> &dynamic
   }
 }
 
-int Style::decode_enum(Expr expr, IntStyleOptionName n, int def) {
+int StyleData::decode_enum(Expr expr, IntStyleOptionName n, int def) {
   StyleType type = StyleInformation::get_type(n);
   
   switch(type) {
@@ -2112,9 +2112,9 @@ Expr FlagsStyleConverter::to_expr(int val) {
 
 //} ... class FlagsStyleConverter
 
-//{ class Style ...
+//{ class StyleData ...
 
-Style::Style()
+StyleData::StyleData()
   : Shareable()
 {
   SET_EXPLICIT_BASE_DEBUG_TAG(Observable, typeid(*this).name());
@@ -2123,7 +2123,7 @@ Style::Style()
   StyleInformation::add_style();
 }
 
-Style::Style(Expr options)
+StyleData::StyleData(Expr options)
   : Shareable()
 {
   SET_EXPLICIT_BASE_DEBUG_TAG(Observable, typeid(*this).name());
@@ -2133,12 +2133,12 @@ Style::Style(Expr options)
   add_pmath(options);
 }
 
-Style::~Style() {
+StyleData::~StyleData() {
   clear();
   StyleInformation::remove_style();
 }
 
-void Style::clear() {
+void StyleData::clear() {
   auto impl = StyleImpl::of(*this);
   Expr old_boxid;
   if(impl.raw_get_expr(InternalRegisteredBoxID, &old_boxid)) {
@@ -2148,10 +2148,10 @@ void Style::clear() {
     auto owner = FrontEndObject::find_cast<StyledObject>(owner_ref);
     
     if(!owner) {
-      pmath_debug_print_object("[Style::clear: cannot find owning object for BoxID -> ", old_boxid.get(), "]\n");
+      pmath_debug_print_object("[StyleData::clear: cannot find owning object for BoxID -> ", old_boxid.get(), "]\n");
     }
     else if(owner->own_style() && owner->own_style().ptr() != this) {
-      pmath_debug_print("[?!? Style::clear: box #%d = %p has style %p != %p which claims so with ",
+      pmath_debug_print("[?!? StyleData::clear: box #%d = %p has style %p != %p which claims so with ",
         (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(owner->id()),
         owner,
         owner->own_style().ptr(),
@@ -2164,13 +2164,13 @@ void Style::clear() {
     if(owner) {
       bool did_remove = box_registry.remove(old_boxid, owner->id());
       if(did_remove) {
-        pmath_debug_print("[Style::clear: unregistered box #%d = %p with old ", 
+        pmath_debug_print("[StyleData::clear: unregistered box #%d = %p with old ", 
           (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(owner->id()), 
           owner);
         pmath_debug_print_object(" BoxID -> ", old_boxid.get(), "]\n");
       } 
       else {
-        pmath_debug_print("[Style::clear: did not find box #%d = %p by its old ", 
+        pmath_debug_print("[StyleData::clear: did not find box #%d = %p by its old ", 
           (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(owner->id()), 
           owner);
         pmath_debug_print_object(" BoxID -> ", old_boxid.get(), "]\n");
@@ -2184,9 +2184,9 @@ void Style::clear() {
   object_values.clear();
 }
 
-void Style::reset(SharedPtr<Style> &style, String base_style_name) {
+void StyleData::reset(SharedPtr<StyleData> &style, String base_style_name) {
   if(!style) {
-    style = new Style();
+    style = new StyleData();
     style->set(BaseStyleName, PMATH_CPP_MOVE(base_style_name));
     return;
   }
@@ -2212,12 +2212,12 @@ void Style::reset(SharedPtr<Style> &style, String base_style_name) {
     style->remove(InternalHasPendingDynamic);
 }
 
-void Style::add_pmath(Expr options, bool amend) {
+void StyleData::add_pmath(Expr options, bool amend) {
   if(StyleImpl::of(*this).add_pmath(PMATH_CPP_MOVE(options), amend))
     notify_all();
 }
 
-void Style::merge(SharedPtr<Style> other) {
+void StyleData::merge(SharedPtr<StyleData> other) {
   int_float_values.merge(other->int_float_values);
   
   Expr old_unknown_sym;
@@ -2240,7 +2240,7 @@ void Style::merge(SharedPtr<Style> other) {
   notify_all();
 }
 
-bool Style::contains_inherited(Expr expr) {
+bool StyleData::contains_inherited(Expr expr) {
   if(expr == richmath_System_Inherited)
     return true;
     
@@ -2256,15 +2256,15 @@ bool Style::contains_inherited(Expr expr) {
   return false;
 }
 
-Expr Style::merge_style_values(StyleOptionName n, Expr newer, Expr older) {
+Expr StyleData::merge_style_values(StyleOptionName n, Expr newer, Expr older) {
   return StyleImpl::merge_style_values(n, PMATH_CPP_MOVE(newer), PMATH_CPP_MOVE(older));
 }
 
-Expr Style::finish_style_merge(StyleOptionName n, Expr value) {
+Expr StyleData::finish_style_merge(StyleOptionName n, Expr value) {
   return StyleImpl::finish_style_merge(n, PMATH_CPP_MOVE(value));
 }
 
-bool Style::get(ColorStyleOptionName n, Color *value) const {
+bool StyleData::get(ColorStyleOptionName n, Color *value) const {
   register_observer();
   if(StyleImpl::of(*this).raw_get_color(n, value)) 
     return true;
@@ -2273,7 +2273,7 @@ bool Style::get(ColorStyleOptionName n, Color *value) const {
   return false;
 }
 
-bool Style::get(IntStyleOptionName n, int *value) const {
+bool StyleData::get(IntStyleOptionName n, int *value) const {
   register_observer();
   if(StyleImpl::of(*this).raw_get_int(n, value))
     return true;
@@ -2282,7 +2282,7 @@ bool Style::get(IntStyleOptionName n, int *value) const {
   return false;
 }
 
-bool Style::get(FloatStyleOptionName n, float *value) const {
+bool StyleData::get(FloatStyleOptionName n, float *value) const {
   register_observer();
   if(StyleImpl::of(*this).raw_get_float(n, value))
     return true;
@@ -2291,7 +2291,7 @@ bool Style::get(FloatStyleOptionName n, float *value) const {
   return false;
 }
 
-bool Style::get(LengthStyleOptionName n, Length *value) const {
+bool StyleData::get(LengthStyleOptionName n, Length *value) const {
   register_observer();
   if(StyleImpl::of(*this).raw_get_length(n, value))
     return true;
@@ -2300,7 +2300,7 @@ bool Style::get(LengthStyleOptionName n, Length *value) const {
   return false;
 }
 
-bool Style::get(StringStyleOptionName n, String *value) const {
+bool StyleData::get(StringStyleOptionName n, String *value) const {
   register_observer();
   if(StyleImpl::of(*this).raw_get_string(n, value))
     return true;
@@ -2309,7 +2309,7 @@ bool Style::get(StringStyleOptionName n, String *value) const {
   return false;
 }
 
-bool Style::get(ObjectStyleOptionName n, Expr *value) const {
+bool StyleData::get(ObjectStyleOptionName n, Expr *value) const {
   register_observer();
   if(StyleImpl::of(*this).raw_get_expr(n, value))
     return true;
@@ -2318,7 +2318,7 @@ bool Style::get(ObjectStyleOptionName n, Expr *value) const {
   return false;
 }
 
-void Style::set(ColorStyleOptionName n, Color value) {
+void StyleData::set(ColorStyleOptionName n, Color value) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2330,7 +2330,7 @@ void Style::set(ColorStyleOptionName n, Color value) {
     notify_all();
 }
 
-void Style::set(IntStyleOptionName n, int value) {
+void StyleData::set(IntStyleOptionName n, int value) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2342,7 +2342,7 @@ void Style::set(IntStyleOptionName n, int value) {
     notify_all();
 }
 
-void Style::set(FloatStyleOptionName n, float value) {
+void StyleData::set(FloatStyleOptionName n, float value) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2354,7 +2354,7 @@ void Style::set(FloatStyleOptionName n, float value) {
     notify_all();
 }
 
-void Style::set(LengthStyleOptionName n, Length value) {
+void StyleData::set(LengthStyleOptionName n, Length value) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2366,7 +2366,7 @@ void Style::set(LengthStyleOptionName n, Length value) {
     notify_all();
 }
 
-void Style::set(StringStyleOptionName n, String value) {
+void StyleData::set(StringStyleOptionName n, String value) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2381,7 +2381,7 @@ void Style::set(StringStyleOptionName n, String value) {
     StyleImpl::of(*this).raw_set_int(InternalHasPendingDynamic, true);
 }
 
-void Style::set(ObjectStyleOptionName n, Expr value) {
+void StyleData::set(ObjectStyleOptionName n, Expr value) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2393,7 +2393,7 @@ void Style::set(ObjectStyleOptionName n, Expr value) {
     notify_all();
 }
 
-void Style::remove(ColorStyleOptionName n) {
+void StyleData::remove(ColorStyleOptionName n) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2405,7 +2405,7 @@ void Style::remove(ColorStyleOptionName n) {
     notify_all();
 }
 
-void Style::remove(IntStyleOptionName n) {
+void StyleData::remove(IntStyleOptionName n) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2417,7 +2417,7 @@ void Style::remove(IntStyleOptionName n) {
     notify_all();
 }
 
-void Style::remove(FloatStyleOptionName n) {
+void StyleData::remove(FloatStyleOptionName n) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2429,7 +2429,7 @@ void Style::remove(FloatStyleOptionName n) {
     notify_all();
 }
 
-void Style::remove(LengthStyleOptionName n) {
+void StyleData::remove(LengthStyleOptionName n) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2441,7 +2441,7 @@ void Style::remove(LengthStyleOptionName n) {
     notify_all();
 }
 
-void Style::remove(StringStyleOptionName n) {
+void StyleData::remove(StringStyleOptionName n) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2453,7 +2453,7 @@ void Style::remove(StringStyleOptionName n) {
     notify_all();
 }
 
-void Style::remove(ObjectStyleOptionName n) {
+void StyleData::remove(ObjectStyleOptionName n) {
   StyleOptionName key{n};
   RICHMATH_ASSERT(key.is_literal());
   
@@ -2466,7 +2466,7 @@ void Style::remove(ObjectStyleOptionName n) {
 }
 
 
-bool Style::modifies_size(StyleOptionName style_name) {
+bool StyleData::modifies_size(StyleOptionName style_name) {
   switch((int)style_name) {
     case AutoDelete:
     case ContinuousAction:
@@ -2512,35 +2512,35 @@ bool Style::modifies_size(StyleOptionName style_name) {
   return true;
 }
 
-unsigned int Style::count() const {
+unsigned int StyleData::count() const {
   return int_float_values.size() + object_values.size();
 }
 
-bool Style::is_style_name(Expr n) {
+bool StyleData::is_style_name(Expr n) {
   return StyleInformation::get_key(n).is_valid();
 }
 
-StyleOptionName Style::get_key(Expr n) {
+StyleOptionName StyleData::get_key(Expr n) {
   return StyleInformation::get_key(n);
 }
 
-Expr Style::get_name(StyleOptionName n) {
+Expr StyleData::get_name(StyleOptionName n) {
   return StyleInformation::get_name(n);
 }
 
-StyleType Style::get_type(StyleOptionName n) {
+StyleType StyleData::get_type(StyleOptionName n) {
   return StyleInformation::get_type(n);
 }
 
-Expr Style::get_current_style_value(FrontEndObject *obj, Expr item) {
+Expr StyleData::get_current_style_value(FrontEndObject *obj, Expr item) {
   return StyleInformation::get_current_style_value(obj, PMATH_CPP_MOVE(item));
 }
 
-bool Style::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
+bool StyleData::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
   return StyleInformation::put_current_style_value(obj, PMATH_CPP_MOVE(item), PMATH_CPP_MOVE(rhs));
 }
 
-bool Style::set_pmath(StyleOptionName n, Expr obj) {
+bool StyleData::set_pmath(StyleOptionName n, Expr obj) {
   if(StyleImpl::of(*this).set_pmath(n, obj)) {
     notify_all();
     return true;
@@ -2548,7 +2548,7 @@ bool Style::set_pmath(StyleOptionName n, Expr obj) {
   return false;
 }
 
-Expr Style::get_pmath(StyleOptionName key) const {
+Expr StyleData::get_pmath(StyleOptionName key) const {
   // RICHMATH_ASSERT(key.is_literal())
   
   register_observer();
@@ -2558,12 +2558,12 @@ Expr Style::get_pmath(StyleOptionName key) const {
   return result;
 }
 
-void Style::emit_pmath(StyleOptionName n) const {
+void StyleData::emit_pmath(StyleOptionName n) const {
   register_observer();
   return StyleImpl::of(*this).emit_definition(n);
 }
 
-void Style::emit_to_pmath(bool with_inherited) const {
+void StyleData::emit_to_pmath(bool with_inherited) const {
   auto impl = StyleImpl::of(*this);
   
   register_observer();
@@ -2733,7 +2733,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   }
 }
 
-//} ... class Style
+//} ... class StyleData
 
 //{ class Stylesheet ...
 
@@ -2749,7 +2749,7 @@ namespace richmath {
     public:
       void reload(Expr expr);
       void add(Expr expr);
-      bool update_dynamic(SharedPtr<Style> s, StyledObject *parent);
+      bool update_dynamic(SharedPtr<StyleData> s, StyledObject *parent);
       
       static void add_remove_stylesheet(int delta);
       
@@ -2952,7 +2952,7 @@ void Stylesheet::reload(Expr expr) {
   StylesheetImpl(*this).reload(expr);
 }
 
-SharedPtr<Style> Stylesheet::find_parent_style(SharedPtr<Style> s) {
+SharedPtr<StyleData> Stylesheet::find_parent_style(SharedPtr<StyleData> s) {
   if(!s.is_valid())
     return nullptr;
     
@@ -2964,7 +2964,7 @@ SharedPtr<Style> Stylesheet::find_parent_style(SharedPtr<Style> s) {
 }
 
 template<typename N, typename T>
-static bool Stylesheet_get_simple(Stylesheet *self, SharedPtr<Style> s, N n, T *value) {
+static bool Stylesheet_get_simple(Stylesheet *self, SharedPtr<StyleData> s, N n, T *value) {
   for(int count = 20; count && s; --count) {
     if(s->get(n, value))
       return true;
@@ -2975,27 +2975,27 @@ static bool Stylesheet_get_simple(Stylesheet *self, SharedPtr<Style> s, N n, T *
   return false;
 }
 
-bool Stylesheet::get(SharedPtr<Style> s, ColorStyleOptionName n, Color *value) {
+bool Stylesheet::get(SharedPtr<StyleData> s, ColorStyleOptionName n, Color *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<Style> s, IntStyleOptionName n, int *value) {
+bool Stylesheet::get(SharedPtr<StyleData> s, IntStyleOptionName n, int *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<Style> s, FloatStyleOptionName n, float *value) {
+bool Stylesheet::get(SharedPtr<StyleData> s, FloatStyleOptionName n, float *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<Style> s, LengthStyleOptionName n, Length *value) {
+bool Stylesheet::get(SharedPtr<StyleData> s, LengthStyleOptionName n, Length *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<Style> s, StringStyleOptionName n, String *value) {
+bool Stylesheet::get(SharedPtr<StyleData> s, StringStyleOptionName n, String *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
+bool Stylesheet::get(SharedPtr<StyleData> s, ObjectStyleOptionName n, Expr *value) {
   if(StyleInformation::get_type(n) == StyleType::AnyFlatList) {
     Expr result = get_pmath(s, n);
     if(result != richmath_System_Inherited) {
@@ -3007,11 +3007,11 @@ bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
+Expr Stylesheet::get_pmath(SharedPtr<StyleData> s, StyleOptionName n) {
   Expr result = Symbol(richmath_System_Inherited);
   
-  for(int count = 20; count && s && Style::contains_inherited(result); --count) {
-    result = Style::merge_style_values(n, PMATH_CPP_MOVE(result), s->get_pmath(n));
+  for(int count = 20; count && s && StyleData::contains_inherited(result); --count) {
+    result = StyleData::merge_style_values(n, PMATH_CPP_MOVE(result), s->get_pmath(n));
     
     s = find_parent_style(s);
   }
@@ -3019,7 +3019,7 @@ Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
   return result;
 }
 
-bool Stylesheet::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
+bool Stylesheet::update_dynamic(SharedPtr<StyleData> s, StyledObject *parent) {
   return StylesheetImpl(*this).update_dynamic(s, parent);
 }
 
@@ -3051,7 +3051,7 @@ void StylesheetImpl::add(Expr expr) {
     currently_loading.remove(self._name);
 }
 
-bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
+bool StylesheetImpl::update_dynamic(SharedPtr<StyleData> s, StyledObject *parent) {
   if(!s || !parent)
     return false;
     
@@ -3064,7 +3064,7 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
     if(s_impl.raw_get_int(InternalHasNewBaseStyle, &i) && i) {
       s_impl.raw_set_int(InternalHasNewBaseStyle, false);
       
-      SharedPtr<Style> tmp = self.find_parent_style(s);
+      SharedPtr<StyleData> tmp = self.find_parent_style(s);
       for(int count = 20; count && tmp; --count) {
         if(StyleImpl::of(*tmp.ptr()).raw_get_int(InternalHasPendingDynamic, &i) && i) {
           has_parent_pending_dynamic = true;
@@ -3087,7 +3087,7 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
   
   Hashtable<StyleOptionName, Expr> dynamic_styles;
   
-  SharedPtr<Style> tmp = s;
+  SharedPtr<StyleData> tmp = s;
   for(int count = 20; count && tmp; --count) {
     StyleImpl::of(*tmp.ptr()).collect_unused_dynamic(dynamic_styles);
     
@@ -3101,7 +3101,7 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
     
   bool resize = false;
   for(const auto &e : dynamic_styles.entries()) {
-    if(Style::modifies_size(e.key.to_literal())) {
+    if(StyleData::modifies_size(e.key.to_literal())) {
       resize = true;
       break;
     }
@@ -3173,14 +3173,14 @@ void StylesheetImpl::add_section(Expr expr) {
       Expr base_sd(pmath_option_value(richmath_System_StyleData, richmath_System_StyleDefinitions, data_opts.get()));
       
       if(base_sd == richmath_System_Automatic) {
-        if(SharedPtr<Style> *style_ptr = self.styles.search(String(data))) {
+        if(SharedPtr<StyleData> *style_ptr = self.styles.search(String(data))) {
           (*style_ptr)->add_pmath(options);
           return;
         }
       }
       else if(base_sd[0] == richmath_System_StyleData) {
-        if(SharedPtr<Style> *base_style_ptr = self.styles.search(String(base_sd[1]))) {
-          SharedPtr<Style> style = new Style();
+        if(SharedPtr<StyleData> *base_style_ptr = self.styles.search(String(base_sd[1]))) {
+          SharedPtr<StyleData> style = new StyleData();
           style->merge(*base_style_ptr);
           style->add_pmath(options);
           self.styles.set(String(data), style);
@@ -3190,7 +3190,7 @@ void StylesheetImpl::add_section(Expr expr) {
 //            else if(base_sd != richmath_System_None)
 //              return;
       
-      SharedPtr<Style> style = new Style(options);
+      SharedPtr<StyleData> style = new StyleData(options);
       self.styles.set(String(data), style);
       
       return;
@@ -3203,12 +3203,12 @@ void StylesheetImpl::add_section(Expr expr) {
         stylesheet->users.add(self.id());
         
         for(auto &other : stylesheet->styles.entries()) {
-          SharedPtr<Style> *mine = self.styles.search(other.key);
+          SharedPtr<StyleData> *mine = self.styles.search(other.key);
           if(mine) {
             (*mine)->merge(other.value);
           }
           else {
-            SharedPtr<Style> copy = new Style();
+            SharedPtr<StyleData> copy = new StyleData();
             copy->merge(other.value);
             self.styles.set(other.key, copy);
           }
@@ -3723,9 +3723,9 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
   if(item[0] == richmath_System_List) {
     size_t item_len = item.expr_length();
     for(size_t k_len = item_len; k_len > 0; --k_len) {
-      StyleOptionName key = Style::get_key(item.items(1, k_len));
+      StyleOptionName key = StyleData::get_key(item.items(1, k_len));
       if(!key && k_len == 1)
-        key = Style::get_key(item[1]);
+        key = StyleData::get_key(item[1]);
       
       if(key) {
         Expr res = styled_obj->get_pmath_style(key);
@@ -3745,7 +3745,7 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
     } 
   }
   
-  if(StyleOptionName key = Style::get_key(item)) 
+  if(StyleOptionName key = StyleData::get_key(item)) 
     return styled_obj->get_pmath_style(key);
   
   return Symbol(richmath_System_DollarFailed);
@@ -3759,7 +3759,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   if(item[0] == richmath_System_List && item.expr_length() == 1)
     item = item[1];
     
-  StyleOptionName key = Style::get_key(item);
+  StyleOptionName key = StyleData::get_key(item);
   if(!key.is_valid())
     return false;
   
@@ -3770,7 +3770,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
     if(rhs == richmath_System_Inherited)
       return true;
     
-    styled_obj->style = new Style();
+    styled_obj->style = new StyleData();
   }
   
   bool any_change = false;
@@ -3784,7 +3784,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   any_change = styled_obj->style->set_pmath(key, PMATH_CPP_MOVE(rhs)) || any_change;
   
   if(any_change)
-    styled_obj->on_style_changed(Style::modifies_size(key));
+    styled_obj->on_style_changed(StyleData::modifies_size(key));
   
   return true;
 }

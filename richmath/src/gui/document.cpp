@@ -1006,7 +1006,7 @@ void Document::on_key_press(uint32_t unichar) {
       
         if(selection_start() == initial_seq->length()) {
           AbstractSequenceSection *new_sect;
-          SharedPtr<Style>         new_style = new Style();
+          SharedPtr<StyleData>         new_style = new StyleData();
           
           Expr new_style_expr = sect->get_style(DefaultReturnCreatedSectionStyle, Symbol(richmath_System_DefaultNewSectionStyle));
           if(new_style_expr == richmath_System_DefaultNewSectionStyle) 
@@ -2085,7 +2085,7 @@ void Document::set_selection_style(Expr options) {
       Section *sect = section(i);
       
       if(!sect->style)
-        sect->style = new Style();
+        sect->style = new StyleData();
         
       String old_basestyle = sect->get_own_style(BaseStyleName);
       
@@ -2234,7 +2234,7 @@ bool Document::split_section(bool do_it) {
     if(!do_it)
       return true;
       
-    SharedPtr<Style> new_style = new Style();
+    SharedPtr<StyleData> new_style = new StyleData();
     new_style->merge(sect->style);
     
     AbstractSequenceSection *new_sect;
@@ -2251,7 +2251,7 @@ bool Document::split_section(bool do_it) {
     new_sect->content()->insert(0, seq, e, seq->length());
     
     if(sel.start < sel.end) {
-      new_style = new Style();
+      new_style = new StyleData();
       new_style->merge(sect->style);
       
       if(dynamic_cast<MathSection *>(sect))
@@ -2330,7 +2330,7 @@ bool Document::split_section(bool do_it) {
             
             any_split = true;
             if(do_it) {
-              SharedPtr<Style> new_style = new Style();
+              SharedPtr<StyleData> new_style = new StyleData();
               new_style->merge(sect->style);
               
               AbstractSequenceSection *new_sect;
@@ -3396,7 +3396,7 @@ bool Document::load_stylesheet() {
 }
 
 void Document::reset_style() {
-  Style::reset(style, strings::Document);
+  StyleData::reset(style, strings::Document);
 }
 
 bool Document::is_option_supported(StyleOptionName key) {
@@ -4264,7 +4264,7 @@ bool Document::Impl::prepare_insert(bool include_previous_word) {
         style_expr = self.section(new_index - 1)->get_own_style(BaseStyleName);
     }
     
-    SharedPtr<Style> section_style = new Style(style_expr);
+    SharedPtr<StyleData> section_style = new StyleData(style_expr);
     if(new_index > 0 && !section_style->contains(BaseStyleName)) {
       section_style->set(BaseStyleName, self.section(new_index - 1)->get_own_style(BaseStyleName));
     }

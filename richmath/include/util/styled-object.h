@@ -12,7 +12,7 @@ namespace richmath {
       class Impl;
     public:
       virtual StyledObject *style_parent() = 0;
-      virtual SharedPtr<Style> own_style() { return nullptr; }
+      virtual SharedPtr<StyleData> own_style() { return nullptr; }
       
       virtual SharedPtr<Stylesheet> stylesheet();
       
@@ -61,10 +61,10 @@ namespace richmath {
   
   class ActiveStyledObject : public StyledObject {
     public:
-      SharedPtr<Style> style;
+      SharedPtr<StyleData> style;
       
     public:
-      virtual SharedPtr<Style> own_style() final override { return style; };
+      virtual SharedPtr<StyleData> own_style() final override { return style; };
       
       virtual Expr update_cause() final override;
       virtual void update_cause(Expr cause) final override;

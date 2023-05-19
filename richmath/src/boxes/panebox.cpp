@@ -71,7 +71,7 @@ bool PaneBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void PaneBox::reset_style() {
-  Style::reset(style, strings::Pane);
+  StyleData::reset(style, strings::Pane);
 }
 
 Expr PaneBox::to_pmath_symbol() { 

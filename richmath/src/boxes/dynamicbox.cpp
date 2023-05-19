@@ -27,7 +27,7 @@ extern pmath_symbol_t richmath_Internal_DynamicRemove;
 AbstractDynamicBox::AbstractDynamicBox(AbstractSequence *content)
   : OwnerBox(content)
 {
-  if(!style) style = new Style();
+  if(!style) style = new StyleData();
 }
 
 AbstractDynamicBox::~AbstractDynamicBox() {

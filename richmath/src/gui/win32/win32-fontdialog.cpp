@@ -16,7 +16,7 @@ extern pmath_symbol_t richmath_System_List;
 
 //{ class Win32FontDialog ...
 
-Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
+Expr Win32FontDialog::show(SharedPtr<StyleData> initial_style) {
 
   LOGFONTW logfontw;
   memset(&logfontw, 0, sizeof(LOGFONTW));
@@ -95,7 +95,7 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
   }
   
   if(ChooseFontW(&data)) {
-    SharedPtr<Style> result_style = new Style();
+    SharedPtr<StyleData> result_style = new StyleData();
     
     if(!(data.Flags & CF_NOFACESEL)){
       result_style->set(FontFamilies, String::FromUcs2((const uint16_t*)logfontw.lfFaceName));

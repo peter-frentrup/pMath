@@ -245,7 +245,7 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     {
       SET_BASE_DEBUG_TAG(typeid(*this).name());
      
-      Style::reset(document()->style, strings::Docked);
+      StyleData::reset(document()->style, strings::Docked);
     }
     
     void reload(Expr content) {
@@ -337,7 +337,7 @@ class MathGtkTitlebarDock: public MathGtkDock {
   protected:
     virtual void paint_canvas(Canvas &canvas, bool resize_only) override {
       if(!document()->style)
-        document()->style = new Style();
+        document()->style = new StyleData();
       
 #    if GTK_CHECK_VERSION(3, 0, 0)
       if(!resize_only) {

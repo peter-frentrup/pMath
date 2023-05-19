@@ -317,7 +317,7 @@ void InputFieldBox::paint_content(Context &context) {
 }
 
 void InputFieldBox::reset_style() {
-  Style::reset(style, strings::InputField);
+  StyleData::reset(style, strings::InputField);
 }
 
 bool InputFieldBox::scroll_to(const RectangleF &rect) {

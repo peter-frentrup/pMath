@@ -337,7 +337,7 @@ Expr SliderBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void SliderBox::reset_style() {
-  Style::reset(style, strings::Slider);
+  StyleData::reset(style, strings::Slider);
 }
 
 VolatileSelection SliderBox::mouse_selection(Point pos, bool *was_inside_start) {

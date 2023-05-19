@@ -1717,8 +1717,8 @@ void MathGtkMenuSliderRegion::paint(GtkWidget *menu, Canvas &canvas, FrontEndRef
       ctx, canvas, ContainerType::VerticalSliderChannel, ControlState::Normal, channel_rect);
     
     if(auto obj = resolve_scope(doc)) {
-      StyleOptionName key = Style::get_key(lhs);
-      StyleType type = Style::get_type(key);
+      StyleOptionName key = StyleData::get_key(lhs);
+      StyleType type = StyleData::get_type(key);
       if(type == StyleType::Number) {
         float val = obj->get_style((FloatStyleOptionName)key, NAN);
         Array<float> values;

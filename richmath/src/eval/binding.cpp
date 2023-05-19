@@ -804,7 +804,7 @@ static bool has_style(ActiveStyledObject *obj, StyleOptionName name, Expr rhs) {
 }
 
 static MenuCommandStatus can_set_style(Expr cmd) {
-  StyleOptionName lhs_key = Style::get_key(cmd[1]);
+  StyleOptionName lhs_key = StyleData::get_key(cmd[1]);
   if(!lhs_key.is_valid())
     return MenuCommandStatus(false);
   
@@ -1622,7 +1622,7 @@ static bool similar_section_below_cmd(Expr cmd) {
   }
   
   if(dynamic_cast<AbstractSequenceSection *>(box)) {
-    SharedPtr<Style> style = new Style;
+    SharedPtr<StyleData> style = new StyleData;
     style->merge(static_cast<Section *>(box)->style);
     style->remove(SectionLabel);
     style->remove(SectionGenerated);

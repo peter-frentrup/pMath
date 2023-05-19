@@ -181,7 +181,7 @@ void ContainerWidgetBox::paint(Context &context) {
 }
 
 void ContainerWidgetBox::reset_style() {
-  Style::reset(style, strings::ControlStyle);
+  StyleData::reset(style, strings::ControlStyle);
 }
 
 void ContainerWidgetBox::on_mouse_enter() {
