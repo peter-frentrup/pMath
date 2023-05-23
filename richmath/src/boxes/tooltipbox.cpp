@@ -30,12 +30,8 @@ bool TooltipBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   /* now success is guaranteed */
   
-  if(style) {
-    reset_style();
-    style->add_pmath(options);
-  }
-  else if(options != PMATH_UNDEFINED)
-    style = new StyleData(options);
+  reset_style();
+  style.add_pmath(options);
     
   _content->load_from_object(expr[1], opts);
   
@@ -59,8 +55,7 @@ Expr TooltipBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather::emit(content()->to_pmath(flags));
   Gather::emit(_tooltip_boxes);
   
-  if(style)
-    style->emit_to_pmath(false);
+  style.emit_to_pmath(false);
     
   Expr result = g.end();
   result.set(0, Symbol(richmath_System_TooltipBox));

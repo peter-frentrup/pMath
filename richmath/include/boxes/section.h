@@ -62,7 +62,7 @@ namespace richmath {
     protected:
       virtual ~Section();
     public:
-      Section(SharedPtr<StyleData> _style);
+      Section(Style _style);
       
       virtual SectionKind kind() = 0;
       
@@ -155,7 +155,7 @@ namespace richmath {
     protected:
       virtual ~AbstractSequenceSection();
     public:
-      explicit AbstractSequenceSection(AbstractSequence *content, SharedPtr<StyleData> _style);
+      explicit AbstractSequenceSection(AbstractSequence *content, Style _style);
       
       AbstractSequence *content() {return _content; };
       
@@ -207,7 +207,7 @@ namespace richmath {
   class MathSection : public AbstractSequenceSection {
     public:
       explicit MathSection();
-      explicit MathSection(SharedPtr<StyleData> _style);
+      explicit MathSection(Style _style);
       
       virtual SectionKind kind() override { return SectionKind::Math; }
       
@@ -219,7 +219,7 @@ namespace richmath {
   class TextSection final : public AbstractSequenceSection {
     public:
       explicit TextSection();
-      explicit TextSection(SharedPtr<StyleData> _style);
+      explicit TextSection(Style _style);
       
       virtual SectionKind kind() override { return SectionKind::Text; }
       

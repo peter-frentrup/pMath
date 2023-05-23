@@ -101,14 +101,14 @@ Win32AttachedPopupWindow::~Win32AttachedPopupWindow() {
 void Win32AttachedPopupWindow::after_construction() {
   base::after_construction();
   
-  StyleData::reset(document()->style, strings::AttachedPopupWindow);
+  document()->style.reset(strings::AttachedPopupWindow);
   
   if(Document *owner = owner_document()) {
     document()->stylesheet(owner->stylesheet());
   }
   
-  document()->style->set(Visible,                         true);
-  document()->style->set(InternalHasModifiedWindowOption, true);
+  document()->style.set(Visible,                         true);
+  document()->style.set(InternalHasModifiedWindowOption, true);
   document()->select(nullptr, 0, 0);
 }
 
@@ -181,7 +181,7 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
   Win32Widget *owner_wid = Impl(*this).owner_widget();
   if(!owner_wid) {
     pmath_debug_print("[Win32AttachedPopupWindow: lost owner window]\n");
-    document()->style->set(ClosingAction, ClosingActionDelete);
+    document()->style.set(ClosingAction, ClosingActionDelete);
     close();
     return;
   }
@@ -255,7 +255,7 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
   }
   else {
     pmath_debug_print("[Win32AttachedPopupWindow: lost anchor]\n");
-    document()->style->set(ClosingAction, ClosingActionDelete);
+    document()->style.set(ClosingAction, ClosingActionDelete);
     close();
   }
 }
@@ -297,7 +297,7 @@ void Win32AttachedPopupWindow::paint_canvas(Canvas &canvas, bool resize_only) {
 void Win32AttachedPopupWindow::on_close() {
   switch(document()->get_style(ClosingAction)) {
     case ClosingActionHide: {
-        document()->style->set(Visible, false);
+        document()->style.set(Visible, false);
         invalidate_options();
       }
       return;

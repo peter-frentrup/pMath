@@ -51,7 +51,7 @@ bool OpenerBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
 
   reset_style();
-  style->add_pmath(options);
+  style.add_pmath(options);
   
   Expr dyn_expr = expr[1];
   if(dynamic.expr() != dyn_expr || has(opts, BoxInputFlags::ForceResetDynamic)) {
@@ -88,10 +88,10 @@ Expr OpenerBox::to_pmath_impl(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s == strings::Opener)
+    if(style.get(BaseStyleName, &s) && s == strings::Opener)
       with_inherited = false;
     
-    style->emit_to_pmath(with_inherited);
+    style.emit_to_pmath(with_inherited);
   }
     
   Expr result = gather.end();
@@ -100,7 +100,7 @@ Expr OpenerBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void OpenerBox::reset_style() {
-  StyleData::reset(style, strings::Opener);
+  style.reset(strings::Opener);
 }
 
 void OpenerBox::dynamic_finished(Expr info, Expr result) {

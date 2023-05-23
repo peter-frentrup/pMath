@@ -10,11 +10,11 @@ using namespace richmath;
 namespace {
   template<typename N, typename T>
   struct Stylesheet_get {
-    static bool impl(SharedPtr<Stylesheet> all, SharedPtr<StyleData> style, N n, T *result);
+    static bool impl(SharedPtr<Stylesheet> all, Style style, N n, T *result);
   };
   
   struct Stylesheet_get_pmath {
-    static bool impl(SharedPtr<Stylesheet> all, SharedPtr<StyleData> style, StyleOptionName n, Expr *result);
+    static bool impl(SharedPtr<Stylesheet> all, Style style, StyleOptionName n, Expr *result);
   };
 }
 
@@ -55,14 +55,14 @@ namespace richmath {
         N                      n, 
         T                     *result,
         SharedPtr<Stylesheet>  all,
-        bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<StyleData>, N, T *) = Stylesheet_get<N, T>::impl
+        bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, Style, N, T *) = Stylesheet_get<N, T>::impl
       );
     
       template<typename N, typename T>
       bool try_get_own_style(
         N      n, 
         T     *result,
-        bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<StyleData>, N, T *) = Stylesheet_get<N, T>::impl
+        bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, Style, N, T *) = Stylesheet_get<N, T>::impl
       ) {
         return try_get_own_style_with_stylesheet(n, result, self.stylesheet(), Stylesheet_get_);
       }
@@ -71,7 +71,7 @@ namespace richmath {
       T get_style(
         N      n,
         T      result,
-        bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<StyleData>, N, T *) = Stylesheet_get<N, T>::impl);
+        bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, Style, N, T *) = Stylesheet_get<N, T>::impl);
       
   };
 }
@@ -212,8 +212,7 @@ Expr StyledObject::get_own_style(ObjectStyleOptionName n) {
 }
 
 void StyledObject::reset_style() {
-  if(auto style = own_style())
-    style->clear();
+  own_style().clear();
 }
 
 //} ... class StyledObject
@@ -228,14 +227,10 @@ Expr ActiveStyledObject::update_cause() {
 }
 
 void ActiveStyledObject::update_cause(Expr cause) {
-  if(!style) {
-    if(!cause)
-      return;
-    
-    style = new StyleData;
-  }
+  if(!style && !cause)
+    return;
   
-  style->set(InternalUpdateCause, PMATH_CPP_MOVE(cause));
+  style.set(InternalUpdateCause, PMATH_CPP_MOVE(cause));
 }
 
 bool ActiveStyledObject::is_option_supported(StyleOptionName key) {
@@ -256,7 +251,6 @@ FrontEndSession::FrontEndSession(StyledObject *owner)
     _owner_or_limbo_next{owner}
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
-  style = new StyleData();
 }
 
 Expr FrontEndSession::allowed_options() {
@@ -286,7 +280,7 @@ bool StyledObject::Impl::try_get_own_style_with_stylesheet(
   N                      n, 
   T                     *result,
   SharedPtr<Stylesheet>  all,
-  bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<StyleData>, N, T *)
+  bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, Style, N, T *)
 ) {
   if(Stylesheet_get_(all, self.own_style(), n, result))
     return true;
@@ -314,7 +308,7 @@ template<typename N, typename T>
 T StyledObject::Impl::get_style(
   N      n,
   T      result,
-  bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<StyleData>, N, T *)
+  bool (*Stylesheet_get_)(SharedPtr<Stylesheet>, Style, N, T *)
 ) {
   SharedPtr<Stylesheet> all = self.stylesheet();  
   if(try_get_own_style_with_stylesheet(n, &result, all, Stylesheet_get_))
@@ -348,20 +342,20 @@ T StyledObject::Impl::get_style(
 //} ... class StyledObject::Impl
 
 template<typename N, typename T>
-bool Stylesheet_get<N,T>::impl(SharedPtr<Stylesheet> all, SharedPtr<StyleData> style, N n, T *result){
+bool Stylesheet_get<N,T>::impl(SharedPtr<Stylesheet> all, Style style, N n, T *result){
   if(all)
     return all->get(style, n, result);
   else if(style)
-    return style->get(n, result);
+    return style.get(n, result);
   else
     return false;
 }
 
-bool Stylesheet_get_pmath::impl(SharedPtr<Stylesheet> all, SharedPtr<StyleData> style, StyleOptionName n, Expr *result) {
+bool Stylesheet_get_pmath::impl(SharedPtr<Stylesheet> all, Style style, StyleOptionName n, Expr *result) {
   if(all) 
     *result = StyleData::merge_style_values(n, PMATH_CPP_MOVE(*result), all->get_pmath(style, n));
   else if(style)
-    *result = StyleData::merge_style_values(n, PMATH_CPP_MOVE(*result), style->get_pmath(n));
+    *result = StyleData::merge_style_values(n, PMATH_CPP_MOVE(*result), style.get_pmath(n));
   else
     return false;
   return !StyleData::contains_inherited(*result);

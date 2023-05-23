@@ -568,11 +568,8 @@ void Application::gui_print_section(Expr expr) {
   if(session && session->current_job)
     session->current_job->adjust_output_style(sect);
   
-  if(!sect->style)
-    sect->style = new StyleData();
-  
-  if(!sect->style->contains(SectionGenerated))
-    sect->style->set(SectionGenerated, true);
+  if(!sect->style.contains(SectionGenerated))
+    sect->style.set(SectionGenerated, true);
 }
 
 static void update_control_active(bool value) {
@@ -986,7 +983,7 @@ Document *Application::try_create_document() {
 #endif
   
   if(doc) {
-    doc->style->set(StyleDefinitions, String("Default.pmathdoc"));
+    doc->style.set(StyleDefinitions, String("Default.pmathdoc"));
   }
   return doc;
 }
@@ -1003,7 +1000,7 @@ Document *Application::try_create_document(Expr data) {
   if(data.expr_length() >= 1) {
     Expr options(pmath_options_extract_ex(data.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     if(options.is_expr())
-      doc->style->add_pmath(options);
+      doc->style.add_pmath(options);
       
     Expr sections = data[1];
     if(sections[0] != richmath_System_List)
@@ -1079,8 +1076,8 @@ Document *Application::open_new_document(String full_filename) {
   if(!doc->selectable())
     doc->select(nullptr, 0, 0);
     
-  doc->style->set(Visible,                         true);
-  doc->style->set(InternalHasModifiedWindowOption, true);
+  doc->style.set(Visible,                         true);
+  doc->style.set(InternalHasModifiedWindowOption, true);
   doc->on_style_changed(true);
   //doc->native()->bring_to_front();
   return doc;
@@ -1753,8 +1750,8 @@ namespace {
           else if(Document *doc = dynamic_cast<Document*>(feo)){
             // update document ...
             
-            doc->style->set(InternalLastStyleDefinitions, Expr());
-            doc->style->set(InternalHasModifiedWindowOption, true);
+            doc->style.set(InternalLastStyleDefinitions, Expr());
+            doc->style.set(InternalHasModifiedWindowOption, true);
             doc->on_style_changed(true);
           }
           else {

@@ -246,7 +246,7 @@ int Box::child_script_level(int index, const int *opt_ambient_script_level) {
         }
       }
     }
-    else if(style->get(ScriptLevel, &ambient_script_level))
+    else if(style.get(ScriptLevel, &ambient_script_level))
       return ambient_script_level;
   }
   
@@ -529,7 +529,7 @@ Expr Box::prepare_dynamic(Expr expr) {
 
 void Box::dynamic_updated() {
   if(style) {
-    style->flag_pending_dynamic();
+    style.flag_pending_dynamic();
     request_repaint_all();
   }
 }
@@ -636,8 +636,7 @@ void Box::on_mouse_enter() {
     dynamic_updated();
   
   if(i & ObserverKindOther) {
-    if(style)
-      style->notify_all();
+    style.notify_all();
   }
 }
 
@@ -647,8 +646,7 @@ void Box::on_mouse_exit() {
     dynamic_updated();
   
   if(i & ObserverKindOther) {
-    if(style)
-      style->notify_all();
+    style.notify_all();
   }
 }
 

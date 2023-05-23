@@ -12,8 +12,7 @@ extern pmath_symbol_t richmath_System_InterpretationBox;
 InterpretationBox::InterpretationBox(AbstractSequence *content)
   : base(content)
 {
-  style = new StyleData;
-  style->set(Editable, false);
+  style.set(Editable, false);
 }
 
 InterpretationBox::InterpretationBox(AbstractSequence *content, Expr _interpretation)
@@ -28,12 +27,8 @@ MathSequence *InterpretationBox::as_inline_span() {
 }
 
 void InterpretationBox::reset_style() {
-  if(style)
-    style->clear();
-  else
-    style = new StyleData;
-    
-  style->set(Editable, false);
+  style.clear();
+  style.set(Editable, false);
 }
 
 bool InterpretationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -52,14 +47,8 @@ bool InterpretationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _content->load_from_object(expr[1], opts);
   interpretation = expr[2];
   
-  if(options_expr != PMATH_UNDEFINED) {
-    if(style) {
-      reset_style();
-      style->add_pmath(options_expr);
-    }
-    else
-      style = new StyleData(options_expr);
-  }
+  reset_style();
+  style.add_pmath(options_expr);
   
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
@@ -74,7 +63,7 @@ Expr InterpretationBox::to_pmath_impl(BoxOutputFlags flags) {
   
   g.emit(_content->to_pmath(flags));
   g.emit(interpretation);
-  style->emit_to_pmath();
+  style.emit_to_pmath();
   
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_InterpretationBox));

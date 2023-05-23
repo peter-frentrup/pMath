@@ -144,8 +144,6 @@ RotationBox::RotationBox(AbstractSequence *content)
   : base(content),
     _angle(0)
 {
-  if(!style)
-    style = new StyleData;
 }
 
 bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -163,7 +161,7 @@ bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   _content->load_from_object(expr[1], opts);
   reset_style();
-  style->add_pmath(options);
+  style.add_pmath(options);
   angle(
     Expr(pmath_option_value(
            richmath_System_RotationBox,
@@ -243,10 +241,7 @@ bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
   
   reset_style();
-  if(style)
-    style->add_pmath(options);
-  else
-    style = new StyleData(options);
+  style.add_pmath(options);
     
   _content->load_from_object(expr[1], opts);
   

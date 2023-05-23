@@ -62,10 +62,7 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   /* now success is guaranteed */
   
   reset_style();
-  if(!style)
-    style = new StyleData(options_expr);
-  else
-    style->add_pmath(options_expr);
+  style.add_pmath(options_expr);
     
   _content->load_from_object(expr[1], options);
   
@@ -169,7 +166,7 @@ void FrameBox::paint(Context &context) {
 }
 
 void FrameBox::reset_style() {
-  StyleData::reset(style, strings::Framed);
+  style.reset(strings::Framed);
 }
 
 Expr FrameBox::to_pmath_symbol() {
@@ -189,10 +186,10 @@ Expr FrameBox::to_pmath_impl(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s == strings::Framed)
+    if(style.get(BaseStyleName, &s) && s == strings::Framed)
       with_inherited = false;
     
-    style->emit_to_pmath(with_inherited);
+    style.emit_to_pmath(with_inherited);
   }
   
   Expr e = g.end();

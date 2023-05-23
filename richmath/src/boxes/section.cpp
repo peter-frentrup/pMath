@@ -43,7 +43,7 @@ namespace richmath { namespace strings {
 
 //{ class Section ...
 
-Section::Section(SharedPtr<StyleData> _style)
+Section::Section(Style _style)
   : Box(),
     y_offset(0),
     top_margin(3),
@@ -58,7 +58,7 @@ Section::Section(SharedPtr<StyleData> _style)
 
 Section::~Section() {
   int defines_eval_ctx = false;
-  if(style && style->get(InternalDefinesEvaluationContext, &defines_eval_ctx) && defines_eval_ctx)
+  if(style.get(InternalDefinesEvaluationContext, &defines_eval_ctx) && defines_eval_ctx)
     EvaluationContexts::context_source_deleted(this);
 }
 
@@ -196,26 +196,20 @@ bool Section::edit_selection(SelectionReference &selection, EditAction action) {
   if( get_style(SectionLabel).length() > 0 &&
       get_style(SectionLabelAutoDelete))
   {
-    if(style) {
-      String s;
-      
-      if(style->get(SectionLabel, &s)) {
-        style->remove(SectionLabel);
-        if(get_style(SectionLabel).length() > 0)
-          style->set(SectionLabel, String());
-      }
-      else
-        style->set(SectionLabel, String());
-    }
-    else {
-      style = new StyleData;
-      style->set(SectionLabel, String());
-    }
+    String s;
     
+    if(style.get(SectionLabel, &s)) {
+      style.remove(SectionLabel);
+      if(get_style(SectionLabel).length() > 0)
+        style.set(SectionLabel, String());
+    }
+    else
+      style.set(SectionLabel, String());
+
     invalidate();
   }
   
-  if(style && get_style(SectionEditDuplicate)) {
+  if(get_style(SectionEditDuplicate)) {
     if(auto slist = dynamic_cast<SectionList *>(parent())) {
       slist->set_open_close_group(index(), true);
       
@@ -233,26 +227,20 @@ bool Section::edit_selection(SelectionReference &selection, EditAction action) {
     if(style_expr.is_null() && parent())
       style_expr = parent()->get_style(DefaultDuplicateSectionStyle);
       
-    style->add_pmath(style_expr);
+    style.add_pmath(style_expr);
     invalidate();
   }
   
   if(get_style(SectionGenerated)) {
-    if(style) {
-      int i;
-      
-      if(style->get(SectionGenerated, &i)) {
-        style->remove(SectionGenerated);
-        if(get_style(SectionGenerated))
-          style->set(SectionGenerated, false);
-      }
-      else
-        style->set(SectionGenerated, false);
+    int i;
+    
+    if(style.get(SectionGenerated, &i)) {
+      style.remove(SectionGenerated);
+      if(get_style(SectionGenerated))
+        style.set(SectionGenerated, false);
     }
-    else {
-      style = new StyleData;
-      style->set(SectionGenerated, false);
-    }
+    else
+      style.set(SectionGenerated, false);
     
     invalidate();
   }
@@ -325,7 +313,7 @@ VolatileSelection ErrorSection::mouse_selection(Point pos, bool *was_inside_star
 
 //{ class AbstractSequenceSection ...
 
-AbstractSequenceSection::AbstractSequenceSection(AbstractSequence *content, SharedPtr<StyleData> _style)
+AbstractSequenceSection::AbstractSequenceSection(AbstractSequence *content, Style _style)
   : Section(_style),
     _content(content)
 {
@@ -600,14 +588,12 @@ Expr AbstractSequenceSection::to_pmath_impl(BoxOutputFlags flags) {
   Gather::emit(cont);
   
   String s;
-  
-  if(style && style->get(BaseStyleName, &s))
+  if(style.get(BaseStyleName, &s))
     Gather::emit(s);
   else
     Gather::emit(strings::EmptyString);
     
-  if(style)
-    style->emit_to_pmath();
+  style.emit_to_pmath(false);
     
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_Section));
@@ -739,15 +725,13 @@ float AbstractSequenceSection::get_em() {
 //{ class MathSection ...
 
 MathSection::MathSection()
-  : AbstractSequenceSection(new MathSequence, new StyleData)
+  : AbstractSequenceSection(new MathSequence, Style())
 {
 }
 
-MathSection::MathSection(SharedPtr<StyleData> _style)
+MathSection::MathSection(Style _style)
   : AbstractSequenceSection(new MathSequence, _style)
 {
-  if(!style)
-    style = new StyleData;
 }
 
 bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -769,8 +753,8 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     stylename = strings::Input;
     
   reset_style();
-  style->add_pmath(options);
-  style->set(BaseStyleName, stylename);
+  style.add_pmath(options);
+  style.set(BaseStyleName, stylename);
   
   opts = BoxInputFlags::Default;
   if(get_own_style(AutoNumberFormating))
@@ -788,15 +772,13 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 //{ class TextSection ...
 
 TextSection::TextSection()
-  : AbstractSequenceSection(new TextSequence, new StyleData)
+  : AbstractSequenceSection(new TextSequence, Style())
 {
 }
 
-TextSection::TextSection(SharedPtr<StyleData> _style)
+TextSection::TextSection(Style _style)
   : AbstractSequenceSection(new TextSequence, _style)
 {
-  if(!style)
-    style = new StyleData;
 }
 
 bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -819,8 +801,8 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     stylename = strings::Input;
     
   reset_style();
-  style->add_pmath(options);
-  style->set(BaseStyleName, stylename);
+  style.add_pmath(options);
+  style.set(BaseStyleName, stylename);
   
   opts = BoxInputFlags::Default;
   if(get_own_style(AutoNumberFormating))
@@ -838,7 +820,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 //{ class EditSection ...
 
 EditSection::EditSection()
-  : MathSection(new StyleData(strings::Edit)),
+  : MathSection(Style(strings::Edit)),
     original(nullptr)
 {
 }
@@ -900,7 +882,7 @@ Expr EditSection::to_pmath_impl(BoxOutputFlags flags) {
 //{ class StyleDataSection ...
 
 StyleDataSection::StyleDataSection()
-  : AbstractSequenceSection(new MathSequence, new StyleData)
+  : AbstractSequenceSection(new MathSequence, Style())
 {
 }
 
@@ -914,7 +896,7 @@ StyleDataSection::StyleDataSection()
    copy of `old_style` and its own local definitions (Box::style) and stores that in its own
    Stylesheet.
    The problem is to know when to recalculate a style. Maybe styles should be observable
-   (like symbols are by `FrontEndObject`s).
+   (like symbols are by `FrontEndObject`s). TODO: they are already!
  */
 bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != richmath_System_Section)
@@ -950,7 +932,7 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 //    _style_definitions_base_name = String();
   
   reset_style();
-  style->add_pmath(options);
+  style.add_pmath(options);
   
   opts = BoxInputFlags::Default;
   if(get_own_style(AutoNumberFormating))
@@ -974,7 +956,7 @@ Expr StyleDataSection::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   Gather::emit(style_data);
-  style->emit_to_pmath(true);
+  style.emit_to_pmath(true);
   
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_Section));

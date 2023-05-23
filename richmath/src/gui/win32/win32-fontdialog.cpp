@@ -16,7 +16,7 @@ extern pmath_symbol_t richmath_System_List;
 
 //{ class Win32FontDialog ...
 
-Expr Win32FontDialog::show(SharedPtr<StyleData> initial_style) {
+Expr Win32FontDialog::show(Style initial_style) {
 
   LOGFONTW logfontw;
   memset(&logfontw, 0, sizeof(LOGFONTW));
@@ -32,7 +32,7 @@ Expr Win32FontDialog::show(SharedPtr<StyleData> initial_style) {
     data.Flags |= CF_INITTOLOGFONTSTRUCT;
     
     Expr families;
-    if(initial_style->get(FontFamilies, &families)) {
+    if(initial_style.get(FontFamilies, &families)) {
       String family(families);
       
       if(families[0] == richmath_System_List){
@@ -54,7 +54,7 @@ Expr Win32FontDialog::show(SharedPtr<StyleData> initial_style) {
       data.Flags |= CF_NOFACESEL;
       
     Length size = SymbolicSize::Invalid;
-    if(initial_style->get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
+    if(initial_style.get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
       data.iPointSize = (int)(10 * size.explicit_abs_value() + 0.5);
       
       // ChooseFontW() is not per-monitor-DPI-aware:
@@ -66,8 +66,8 @@ Expr Win32FontDialog::show(SharedPtr<StyleData> initial_style) {
     int weight = FontWeightPlain;
     int slant  = FontSlantPlain;
     
-    bool has_weight = initial_style->get(FontWeight, &weight);
-    bool has_slant  = initial_style->get(FontSlant, &slant);
+    bool has_weight = initial_style.get(FontWeight, &weight);
+    bool has_slant  = initial_style.get(FontSlant, &slant);
     if(has_weight || has_slant) {
       logfontw.lfWeight = (weight == FontWeightBold) ? FW_BOLD : FW_NORMAL;
       logfontw.lfItalic = (slant  == FontSlantItalic);
@@ -95,23 +95,23 @@ Expr Win32FontDialog::show(SharedPtr<StyleData> initial_style) {
   }
   
   if(ChooseFontW(&data)) {
-    SharedPtr<StyleData> result_style = new StyleData();
-    
+    Style result_style;
+
     if(!(data.Flags & CF_NOFACESEL)){
-      result_style->set(FontFamilies, String::FromUcs2((const uint16_t*)logfontw.lfFaceName));
+      result_style.set(FontFamilies, String::FromUcs2((const uint16_t*)logfontw.lfFaceName));
     }
     
     if(!(data.Flags & CF_NOSTYLESEL)) {
-      result_style->set(FontWeight, logfontw.lfWeight >= FW_BOLD ? FontWeightBold  : FontWeightPlain);
-      result_style->set(FontSlant,  logfontw.lfItalic            ? FontSlantItalic : FontSlantPlain);
+      result_style.set(FontWeight, logfontw.lfWeight >= FW_BOLD ? FontWeightBold  : FontWeightPlain);
+      result_style.set(FontSlant,  logfontw.lfItalic            ? FontSlantItalic : FontSlantPlain);
     }
     
     if(!(data.Flags & CF_NOSIZESEL) && data.iPointSize > 0){
-      result_style->set(FontSize, Length(data.iPointSize / 10.0));
+      result_style.set(FontSize, Length(data.iPointSize / 10.0));
     }
     
     Gather g;
-    result_style->emit_to_pmath(false);
+    result_style.emit_to_pmath(false);
     return g.end();
   }
   

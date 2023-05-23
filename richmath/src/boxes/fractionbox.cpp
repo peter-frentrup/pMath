@@ -53,10 +53,7 @@ bool FractionBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
   
   reset_style();
-  if(!style)
-    style = new StyleData(options_expr);
-  else
-    style->add_pmath(options_expr);
+  style.add_pmath(options_expr);
     
   _numerator->load_from_object(  expr[1], opts);
   _denominator->load_from_object(expr[2], opts);
@@ -161,25 +158,17 @@ Expr FractionBox::to_pmath_symbol() {
 }
 
 Expr FractionBox::to_pmath_impl(BoxOutputFlags flags) {
-  if(style) {
-    Gather g;
-    
-    Gather::emit(_numerator->to_pmath(flags));
-    Gather::emit(_denominator->to_pmath(flags));
+  Gather g;
   
-    bool with_inherited = true;
-    style->emit_to_pmath(with_inherited);
-    
-    Expr e = g.end();
-    e.set(0, Symbol(richmath_System_FractionBox));
-    return e;
-  }
-  else {
-    return Call(
-             Symbol(richmath_System_FractionBox),
-             _numerator->to_pmath(flags),
-             _denominator->to_pmath(flags));
-  }
+  Gather::emit(_numerator->to_pmath(flags));
+  Gather::emit(_denominator->to_pmath(flags));
+
+  bool with_inherited = true;
+  style.emit_to_pmath(with_inherited);
+  
+  Expr e = g.end();
+  e.set(0, Symbol(richmath_System_FractionBox));
+  return e;
 }
 
 Box *FractionBox::move_vertical(

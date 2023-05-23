@@ -76,8 +76,7 @@ Expr PartialDynamic::get_value_now() {
   bool synchronous_updating;
   Expr eval = Impl(*this).get_dyncall_unevaluated(synchronous_updating);
   
-  if(auto style = _owner->own_style()) 
-    style->remove(InternalUsesCurrentValueOfMouseOver);
+  _owner->own_style().remove(InternalUsesCurrentValueOfMouseOver);
 
   return Impl(*this).eval_finish_now(PMATH_CPP_MOVE(eval));
 }
@@ -94,8 +93,7 @@ void PartialDynamic::get_value_later(Expr job_info) {
   bool synchronous_updating;
   Expr eval = Impl(*this).get_dyncall_unevaluated(synchronous_updating);
   
-  if(auto style = _owner->own_style()) 
-    style->remove(InternalUsesCurrentValueOfMouseOver);
+  _owner->own_style().remove(InternalUsesCurrentValueOfMouseOver);
   
   Application::add_job(new DynamicEvaluationJob(PMATH_CPP_MOVE(job_info), PMATH_CPP_MOVE(eval), _owner));
 }
@@ -110,7 +108,7 @@ bool PartialDynamic::get_value(Expr *result, Expr job_info) {
   Expr eval = Impl(*this).get_dyncall_unevaluated(synchronous_updating);
   
   if(auto style = _owner->own_style()) 
-    style->remove(InternalUsesCurrentValueOfMouseOver);
+    style.remove(InternalUsesCurrentValueOfMouseOver);
   
   if(synchronous_updating) {
     *result = Impl(*this).eval_finish_now(PMATH_CPP_MOVE(eval));

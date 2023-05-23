@@ -523,7 +523,7 @@ namespace richmath {
     friend class StyleImpl;
     public:
       StyleData();
-      StyleData(Expr options);
+      explicit StyleData(Expr options);
       virtual ~StyleData();
       
       void clear();
@@ -599,39 +599,109 @@ namespace richmath {
       Hashtable<StyleOptionName, Expr>          object_values;
   };
   
+  class Style {
+    public:
+      Style() : data(nullptr) {}
+      Style(decltype(nullptr)) : data(nullptr) {}
+      explicit Style(SharedPtr<StyleData> data) : data(PMATH_CPP_MOVE(data)) {}
+      explicit Style(Expr options) : data(new StyleData(PMATH_CPP_MOVE(options))) {}
+
+      static Style New() { Style s; s.reset_new(); return s; }
+
+      Style copy() const { Style s; if(data) { s.data = new StyleData(); s.data->merge(data); } return s; }
+      
+      void add_pmath(Expr options, bool amend = true) { if(!data) { if(options.expr_length() == 0) return; data = new StyleData(); } data->add_pmath(PMATH_CPP_MOVE(options), amend); }
+      void merge(Style other) { if(!other) return; if(!data) { data = new StyleData(); } data->merge(other.data); }
+
+      void clear() { if(data) data->clear(); }
+      void reset_new() { data = new StyleData(); }
+      void reset() { data = nullptr; }
+      void reset(String base_style_name) { StyleData::reset(data, PMATH_CPP_MOVE(base_style_name)); }
+      
+      bool is_valid() const { return data.is_valid(); }
+      explicit operator bool() const { return data.is_valid(); }
+
+      bool get(ColorStyleOptionName  n, Color  *value) const { return data ? data->get(n, value) : false; }
+      bool get(IntStyleOptionName    n, int    *value) const { return data ? data->get(n, value) : false; }
+      bool get(FloatStyleOptionName  n, float  *value) const { return data ? data->get(n, value) : false; }
+      bool get(LengthStyleOptionName n, Length *value) const { return data ? data->get(n, value) : false; }
+      bool get(StringStyleOptionName n, String *value) const { return data ? data->get(n, value) : false; }
+      bool get(ObjectStyleOptionName n, Expr   *value) const { return data ? data->get(n, value) : false; }
+    
+      Expr get_pmath(StyleOptionName n) const;
+      
+      bool get_dynamic(StyleOptionName n, Expr *value) const { return data ? data->get_dynamic(n, value) : false; }
+      
+      bool contains(ColorStyleOptionName  n) const { return data && data->contains(n); }
+      bool contains(IntStyleOptionName    n) const { return data && data->contains(n); }
+      bool contains(FloatStyleOptionName  n) const { return data && data->contains(n); }
+      bool contains(LengthStyleOptionName n) const { return data && data->contains(n); }
+      bool contains(StringStyleOptionName n) const { return data && data->contains(n); }
+      bool contains(ObjectStyleOptionName n) const { return data && data->contains(n); }
+      
+      void set(ColorStyleOptionName  n, Color  value) { if(!data) { data = new StyleData(); } data->set(n, value); }
+      void set(IntStyleOptionName    n, int    value) { if(!data) { data = new StyleData(); } data->set(n, value); }
+      void set(FloatStyleOptionName  n, float  value) { if(!data) { data = new StyleData(); } data->set(n, value); }
+      void set(LengthStyleOptionName n, Length value) { if(!data) { data = new StyleData(); } data->set(n, value); }
+      void set(StringStyleOptionName n, String value) { if(!data) { data = new StyleData(); } data->set(n, PMATH_CPP_MOVE(value)); }
+      void set(ObjectStyleOptionName n, Expr   value) { if(!data) { data = new StyleData(); } data->set(n, PMATH_CPP_MOVE(value)); }
+      
+      bool set_pmath(StyleOptionName n, Expr obj) { if(!data) { data = new StyleData(); } return data->set_pmath(n, PMATH_CPP_MOVE(obj)); }
+      
+      void remove(ColorStyleOptionName  n) { if(data) data->remove(n); }
+      void remove(IntStyleOptionName    n) { if(data) data->remove(n); }
+      void remove(FloatStyleOptionName  n) { if(data) data->remove(n); }
+      void remove(LengthStyleOptionName n) { if(data) data->remove(n); }
+      void remove(StringStyleOptionName n) { if(data) data->remove(n); }
+      void remove(ObjectStyleOptionName n) { if(data) data->remove(n); }
+      
+      void emit_to_pmath(bool with_inherited = false) const { if(data) data->emit_to_pmath(with_inherited); }
+      void emit_pmath(StyleOptionName n) const { if(data) { data->emit_pmath(n); } };
+      
+      void flag_pending_dynamic() { if(data) { data->flag_pending_dynamic(); } }
+      
+      void register_observer() const {                     if(data) { data->register_observer(); } }
+      void register_observer(FrontEndReference id) const { if(data) { data->register_observer(id); } }
+      
+      void notify_all() { if(data) { data->notify_all(); } }
+
+    public:
+      SharedPtr<StyleData> data;
+  };
+  
   class Stylesheet: public FrontEndObject, public Shareable {
       friend class StylesheetImpl;
     public:
       Stylesheet();
       virtual ~Stylesheet() override;
       
-      SharedPtr<StyleData> find_parent_style(SharedPtr<StyleData> s);
+      Style find_parent_style(Style s);
       
       // each get() ignores base:
-      bool get(SharedPtr<StyleData> s, ColorStyleOptionName  n, Color  *value);
-      bool get(SharedPtr<StyleData> s, IntStyleOptionName    n, int    *value);
-      bool get(SharedPtr<StyleData> s, FloatStyleOptionName  n, float  *value);
-      bool get(SharedPtr<StyleData> s, LengthStyleOptionName n, Length *value);
-      bool get(SharedPtr<StyleData> s, StringStyleOptionName n, String *value);
-      bool get(SharedPtr<StyleData> s, ObjectStyleOptionName n, Expr   *value);
+      bool get(Style s, ColorStyleOptionName  n, Color  *value);
+      bool get(Style s, IntStyleOptionName    n, int    *value);
+      bool get(Style s, FloatStyleOptionName  n, float  *value);
+      bool get(Style s, LengthStyleOptionName n, Length *value);
+      bool get(Style s, StringStyleOptionName n, String *value);
+      bool get(Style s, ObjectStyleOptionName n, Expr   *value);
       
-      Expr get_pmath(SharedPtr<StyleData> s, StyleOptionName n);
+      Expr get_pmath(Style s, StyleOptionName n);
       
-      bool update_dynamic(SharedPtr<StyleData> s, StyledObject *parent);
+      bool update_dynamic(Style s, StyledObject *parent);
       
       using IterBoxReferences = MultiMap<Expr, FrontEndReference>::ValuesIterable;
       static IterBoxReferences find_registered_box(Expr box_id);
       static void update_box_registry(StyledObject *obj);
       //static void unregister_box(StyledObject *obj);
       
-      Color  get_or_default(SharedPtr<StyleData> s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      int    get_or_default(SharedPtr<StyleData> s, IntStyleOptionName n,    int    fallback_result = 0) {           get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      float  get_or_default(SharedPtr<StyleData> s, FloatStyleOptionName n,  float  fallback_result = 0.0f) {        get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      Length get_or_default(SharedPtr<StyleData> s, LengthStyleOptionName n, Length fallback_result = Length(0.0)) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      String get_or_default(SharedPtr<StyleData> s, StringStyleOptionName n, String fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      Expr   get_or_default(SharedPtr<StyleData> s, ObjectStyleOptionName n, Expr   fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
-      String get_or_default(SharedPtr<StyleData> s, StringStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, String{}); }
-      Expr   get_or_default(SharedPtr<StyleData> s, ObjectStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, Expr{}); }
+      Color  get_or_default(Style s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      int    get_or_default(Style s, IntStyleOptionName n,    int    fallback_result = 0) {           get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      float  get_or_default(Style s, FloatStyleOptionName n,  float  fallback_result = 0.0f) {        get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      Length get_or_default(Style s, LengthStyleOptionName n, Length fallback_result = Length(0.0)) { get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      String get_or_default(Style s, StringStyleOptionName n, String fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      Expr   get_or_default(Style s, ObjectStyleOptionName n, Expr   fallback_result) {               get(PMATH_CPP_MOVE(s), n, &fallback_result); return fallback_result; }
+      String get_or_default(Style s, StringStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, String{}); }
+      Expr   get_or_default(Style s, ObjectStyleOptionName n) { return get_or_default(PMATH_CPP_MOVE(s), n, Expr{}); }
       
       Expr name() { return _name; }
       void unregister();
@@ -666,14 +736,14 @@ namespace richmath {
     public:
       static SharedPtr<Stylesheet> Default;
       
-      Hashtable<String, SharedPtr<StyleData> > styles;
+      Hashtable<String, Style > styles;
     
     private:
       Hashset<SharedPtr<Stylesheet>> used_stylesheets;
       mutable Hashset<FrontEndReference> users;
       
     public:
-      SharedPtr<StyleData> base;
+      Style base;
       
     private:
       Expr _name;

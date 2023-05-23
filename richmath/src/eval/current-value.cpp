@@ -402,20 +402,18 @@ Expr CurrentValueImpl::get_MouseOver(FrontEndObject *obj, Expr item) {
   if(auto observer_id = Dynamic::current_observer_id) {
     // ensure that get/set of InternalUsesCurrentValueOfMouseOver below will not cause reevaluation
     Dynamic::current_observer_id = FrontEndReference::None;
-    if(!box->style)
-      box->style = new StyleData();
       
     int observer_kind = ObserverKindNone;
-    box->style->get(InternalUsesCurrentValueOfMouseOver, &observer_kind);
+    box->style.get(InternalUsesCurrentValueOfMouseOver, &observer_kind);
     if(box->id() == observer_id) 
       observer_kind |= ObserverKindSelf;
     else 
       observer_kind |= ObserverKindOther;
     
-    box->style->set(InternalUsesCurrentValueOfMouseOver, observer_kind);
+    box->style.set(InternalUsesCurrentValueOfMouseOver, observer_kind);
     
     if(box->id() != observer_id)
-      box->style->register_observer(observer_id);
+      box->style.register_observer(observer_id);
     
     Dynamic::current_observer_id = observer_id;
   }
@@ -439,19 +437,15 @@ Expr CurrentValueImpl::get_DocumentScreenDpi(FrontEndObject *obj, Expr item) {
 }
 
 Expr CurrentValueImpl::get_ControlFont_data(FrontEndObject *obj, Expr item) {
-  SharedPtr<StyleData> style = new StyleData();
-  ControlPainter::std->system_font_style(ControlContext::find(dynamic_cast<Box*>(obj)), style.ptr());
+  Style style = Style::New();
+  ControlPainter::std->system_font_style(ControlContext::find(dynamic_cast<Box*>(obj)), style.data.ptr());
   
   AutoResetCurrentObserver guard;
-  if(item == strings::ControlsFontFamily)
-    return style->get_pmath(FontFamilies);
-  if(item == strings::ControlsFontSlant)
-    return style->get_pmath(FontSlant);
-  if(item == strings::ControlsFontWeight)
-    return style->get_pmath(FontWeight);
-  if(item == strings::ControlsFontSize)
-    return style->get_pmath(FontSize);
-    
+  if(item == strings::ControlsFontFamily) return style.get_pmath(FontFamilies);
+  if(item == strings::ControlsFontSlant)  return style.get_pmath(FontSlant);
+  if(item == strings::ControlsFontWeight) return style.get_pmath(FontWeight);
+  if(item == strings::ControlsFontSize)   return style.get_pmath(FontSize);
+  
   return Symbol(richmath_System_DollarFailed);
 }
 

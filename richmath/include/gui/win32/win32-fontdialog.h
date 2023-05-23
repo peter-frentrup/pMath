@@ -13,7 +13,7 @@ namespace richmath {
     public:
       Win32FontDialog() = delete;
 
-      static pmath::Expr show(SharedPtr<StyleData> initial_style = nullptr);
+      static pmath::Expr show(Style initial_style = nullptr);
   };
 }
 

@@ -119,7 +119,7 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _continue_assign_dynamic_event = nullptr;
   
   reset_style();
-  style->add_pmath(options);
+  style.add_pmath(options);
   
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
@@ -317,7 +317,7 @@ void InputFieldBox::paint_content(Context &context) {
 }
 
 void InputFieldBox::reset_style() {
-  StyleData::reset(style, strings::InputField);
+  style.reset(strings::InputField);
 }
 
 bool InputFieldBox::scroll_to(const RectangleF &rect) {
@@ -379,10 +379,10 @@ Expr InputFieldBox::to_pmath_impl(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s == strings::InputField)
+    if(style.get(BaseStyleName, &s) && s == strings::InputField)
       with_inherited = false;
     
-    style->emit_to_pmath(with_inherited);
+    style.emit_to_pmath(with_inherited);
   }
   
   Expr result = g.end();

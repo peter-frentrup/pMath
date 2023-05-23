@@ -72,12 +72,8 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     must_update(true);
   }
   
-  if(style) {
-    reset_style();
-    style->add_pmath(options);
-  }
-  else if(options != PMATH_UNDEFINED)
-    style = new StyleData(options);
+  reset_style();
+  style.add_pmath(options);
     
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;

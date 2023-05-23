@@ -502,10 +502,8 @@ Expr Dynamic::Impl::get_value_now() {
     return call;
   }
   
-  if(auto style = self._owner->own_style()) {
-    style->remove(InternalUsesCurrentValueOfMouseOver);
-  }
-
+  self._owner->own_style().remove(InternalUsesCurrentValueOfMouseOver);
+  
   call = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(call), EvaluationContexts::resolve_context(self.owner()));
   
   auto old_eval_id = Dynamic::current_observer_id;
@@ -530,9 +528,7 @@ void Dynamic::Impl::get_value_later(Expr job_info) {
     return;
   }
   
-  if(auto style = self._owner->own_style()) {
-    style->remove(InternalUsesCurrentValueOfMouseOver);
-  }
+  self._owner->own_style().remove(InternalUsesCurrentValueOfMouseOver);
   
   Application::add_job(new DynamicEvaluationJob(PMATH_CPP_MOVE(job_info), PMATH_CPP_MOVE(call), self._owner));
 }

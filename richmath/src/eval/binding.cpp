@@ -797,7 +797,7 @@ static bool has_style(ActiveStyledObject *obj, StyleOptionName name, Expr rhs) {
     if(!obj->style)
       return true;
     
-    return obj->style->get_pmath(name) == rhs;
+    return obj->style.get_pmath(name) == rhs;
   }
 
   return obj->get_pmath_style(name) == rhs;
@@ -1578,7 +1578,7 @@ static bool select_all_cmd(Expr cmd) {
 
 static bool set_style_cmd(Expr cmd) {
   if(Menus::current_scope == MenuCommandScope::FrontEndSession) {
-    Application::front_end_session->style->add_pmath(cmd);
+    Application::front_end_session->style.add_pmath(cmd);
     for(auto win : CommonDocumentWindow::All) {
       win->content()->on_style_changed(true);
     }
@@ -1602,7 +1602,7 @@ static bool set_style_cmd(Expr cmd) {
       }
     }
     
-    doc->style->add_pmath(cmd);
+    doc->style.add_pmath(cmd);
     doc->on_style_changed(true);
     return true;
   }
@@ -1622,10 +1622,9 @@ static bool similar_section_below_cmd(Expr cmd) {
   }
   
   if(dynamic_cast<AbstractSequenceSection *>(box)) {
-    SharedPtr<StyleData> style = new StyleData;
-    style->merge(static_cast<Section *>(box)->style);
-    style->remove(SectionLabel);
-    style->remove(SectionGenerated);
+    Style style = static_cast<Section *>(box)->style.copy();
+    style.remove(SectionLabel);
+    style.remove(SectionGenerated);
     
     Section *section;
     //if(!dynamic_cast<TextSection *>(box))

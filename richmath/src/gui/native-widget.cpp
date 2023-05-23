@@ -146,17 +146,17 @@ void NativeWidget::set_custom_scale(float s) {
   Document *doc = document();
   if(doc && doc->style){
     SharedPtr<Stylesheet> stylesheet = doc->stylesheet();
-    SharedPtr<StyleData> doc_base_style = stylesheet->find_parent_style(doc->style);
+    Style doc_base_style = stylesheet->find_parent_style(doc->style);
     
     float docScaleDefault = ScaleDefault;
     stylesheet->get(doc_base_style, Magnification, &docScaleDefault);
     
     if(docScaleDefault == _custom_scale_factor) {
       pmath_debug_print("[skip Magnification -> %f]\n", _custom_scale_factor);
-      doc->style->remove(Magnification);
+      doc->style.remove(Magnification);
     }
     else {
-      doc->style->set(Magnification, _custom_scale_factor);
+      doc->style.set(Magnification, _custom_scale_factor);
     }
   }
   
@@ -234,7 +234,7 @@ void NativeWidget::on_idle_after_edit() {
   Document *owner = owner_document();
   if(owner && owner->native()->stylesheet_document() == _document) {
     Expr expr = _document->to_pmath(BoxOutputFlags::Default | BoxOutputFlags::NoNewSymbols);
-    owner->style->set_pmath(StyleDefinitions, expr);
+    owner->style.set_pmath(StyleDefinitions, expr);
     owner->on_style_changed(true); // TODO: check if a layout-style was changed
   }
 }

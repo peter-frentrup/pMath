@@ -69,7 +69,7 @@ bool PaneSelectorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   // now success is guaranteed
   
   reset_style();
-  style->add_pmath(options);
+  style.add_pmath(options);
   
   int total_num_panes = (int)pane_rules.expr_length();
   if(!default_pane.is_null())
@@ -191,7 +191,7 @@ void PaneSelectorBox::paint(Context &context) {
 }
 
 void PaneSelectorBox::reset_style() {
-  StyleData::reset(style, strings::PaneSelector);
+  style.reset(strings::PaneSelector);
 }
 
 Box *PaneSelectorBox::remove(int *index) {
@@ -250,10 +250,10 @@ Expr PaneSelectorBox::to_pmath_impl(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s == strings::PaneSelector)
+    if(style.get(BaseStyleName, &s) && s == strings::PaneSelector)
       with_inherited = false;
     
-    style->emit_to_pmath(with_inherited);
+    style.emit_to_pmath(with_inherited);
   }
   
   Expr expr = g.end();

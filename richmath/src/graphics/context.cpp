@@ -18,11 +18,11 @@ namespace richmath {
     public:
       Impl(ContextState &self) : self{self} {}
       
-      void apply_syntax(SharedPtr<StyleData> style);
+      void apply_syntax(Style style);
     
     private:
       void ensure_new_syntax(SharedPtr<GeneralSyntaxInfo> &new_syntax) const;
-      void set_syntax_color(SharedPtr<StyleData> style, SharedPtr<GeneralSyntaxInfo> &new_syntax, int glyph_style_index, ColorStyleOptionName color_style_name) const;
+      void set_syntax_color(Style style, SharedPtr<GeneralSyntaxInfo> &new_syntax, int glyph_style_index, ColorStyleOptionName color_style_name) const;
       
     private:
       ContextState &self;
@@ -320,7 +320,7 @@ void Context::for_each_selection(std::function<void(const VolatileSelection&)> f
 
 //{ class ContextState ...
 
-void ContextState::begin(SharedPtr<StyleData> style) {
+void ContextState::begin(const Style &style) {
   old_cursor_color           = ctx.cursor_color;
   old_color                  = ctx.canvas().get_color();
   old_fontsize               = ctx.canvas().get_font_size();
@@ -342,7 +342,7 @@ void ContextState::begin(SharedPtr<StyleData> style) {
   apply_non_layout_styles(style);
 }
 
-void ContextState::apply_layout_styles(SharedPtr<StyleData> style) {
+void ContextState::apply_layout_styles(const Style &style) {
   if(!style)
     return;
   
@@ -475,7 +475,7 @@ void ContextState::apply_layout_styles(SharedPtr<StyleData> style) {
   }
 }
 
-void ContextState::apply_non_layout_styles(SharedPtr<StyleData> style) {
+void ContextState::apply_non_layout_styles(const Style &style) {
   if(!style)
     return;
   
@@ -540,7 +540,7 @@ void ContextState::end() {
 
 //{ class ContextState::Impl ...
 
-void ContextState::Impl::apply_syntax(SharedPtr<StyleData> style) {
+void ContextState::Impl::apply_syntax(Style style) {
   SharedPtr<GeneralSyntaxInfo> new_syntax = nullptr;
   
   set_syntax_color(style, new_syntax, GlyphStyleSpecialStringPart,  CharacterNameSyntaxColor);
@@ -573,7 +573,7 @@ void ContextState::Impl::ensure_new_syntax(SharedPtr<GeneralSyntaxInfo> &new_syn
   }
 }
 
-void ContextState::Impl::set_syntax_color(SharedPtr<StyleData> style, SharedPtr<GeneralSyntaxInfo> &new_syntax, int glyph_style_index, ColorStyleOptionName color_style_name) const {
+void ContextState::Impl::set_syntax_color(Style style, SharedPtr<GeneralSyntaxInfo> &new_syntax, int glyph_style_index, ColorStyleOptionName color_style_name) const {
   Color c;
   if(self.ctx.stylesheet->get(style, color_style_name, &c)) {
     ensure_new_syntax(new_syntax);

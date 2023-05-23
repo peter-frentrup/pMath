@@ -256,7 +256,7 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
   MathGtkWidget *owner_wid = _content_area->owner_widget();
   if(!owner_wid) {
     pmath_debug_print("[MathGtkAttachedPopupWindow: lost owner window]\n");
-    content()->style->set(ClosingAction, ClosingActionDelete);
+    content()->style.set(ClosingAction, ClosingActionDelete);
     close();
     return;
   }
@@ -383,7 +383,7 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
   }
   else {
     pmath_debug_print("[MathGtkAttachedPopupWindow: lost anchor]\n");
-    content()->style->set(ClosingAction, ClosingActionDelete);
+    content()->style.set(ClosingAction, ClosingActionDelete);
     close();
   }
 }
@@ -456,7 +456,7 @@ bool MathGtkAttachedPopupWindow::on_delete(GdkEvent *e) {
   pmath_debug_print("[MathGtkAttachedPopupWindow::on_delete %p]\n", this);
   switch(content()->get_style(ClosingAction)) {
     case ClosingActionHide: {
-        content()->style->set(Visible, false);
+        content()->style.set(Visible, false);
         invalidate_options();
       }
       return true;
@@ -754,14 +754,14 @@ MathGtkPopupContentArea::~MathGtkPopupContentArea() {
 void MathGtkPopupContentArea::after_construction() {
   base::after_construction();
   
-  StyleData::reset(document()->style, strings::AttachedPopupWindow);
+  document()->style.reset(strings::AttachedPopupWindow);
   
   if(Document *owner = owner_document()) {
     document()->stylesheet(owner->stylesheet());
   }
   
-  document()->style->set(Visible,                         true);
-  document()->style->set(InternalHasModifiedWindowOption, true);
+  document()->style.set(Visible,                         true);
+  document()->style.set(InternalHasModifiedWindowOption, true);
   document()->select(nullptr, 0, 0);
 }
 

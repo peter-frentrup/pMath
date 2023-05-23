@@ -52,11 +52,9 @@ void MathGtkTooltipWindow::after_construction() {
 //  gtk_widget_set_events(  _widget, GDK_EXPOSURE_MASK);
   gtk_widget_set_can_focus(_widget, FALSE);
   
-  if(!document()->style)
-    document()->style = new StyleData;
-  document()->style->set(Editable,           false);
-  document()->style->set(Selectable,         AutoBoolFalse);
-  document()->style->set(ShowSectionBracket, AutoBoolFalse);
+  document()->style.set(Editable,           false);
+  document()->style.set(Selectable,         AutoBoolFalse);
+  document()->style.set(ShowSectionBracket, AutoBoolFalse);
   document()->select(nullptr, 0, 0);
   
   base::after_construction();

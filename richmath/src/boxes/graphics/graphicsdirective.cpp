@@ -47,7 +47,7 @@ namespace richmath {
     public:
       Impl(GraphicsDirective &self) : self{self} {}
       
-      static void apply_to_style(Expr directive, StyleData &style);
+      static void apply_to_style(Expr directive, Style &style);
       static void apply_to_context(Expr directive, GraphicsDrawingContext &gc);
       static bool decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor);
       static bool decode_dash_offset(double &offset, Expr obj, float scale_factor);
@@ -113,7 +113,7 @@ bool GraphicsDirective::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
   
   if(_dynamic.expr() != expr) {
-    _style->clear();
+    _style.reset();
     _dynamic = expr;
     _latest_directives = Expr();
     must_update(true);
@@ -168,7 +168,7 @@ void GraphicsDirective::dynamic_finished(Expr info, Expr result) {
 
 //{ class GraphicsDirective::Impl ...
 
-void GraphicsDirective::Impl::apply_to_style(Expr directive, StyleData &style) {
+void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
   if(directive[0] == richmath_System_Directive) {
     for(auto item : directive.items())
       apply_to_style(item, style);
@@ -405,8 +405,8 @@ bool GraphicsDirective::Impl::change_directives(Expr new_directives) {
     return false;
   
   self._latest_directives = new_directives;
-  self._style->clear();
-  apply_to_style(PMATH_CPP_MOVE(new_directives), *self._style.ptr());
+  self._style.reset();
+  apply_to_style(PMATH_CPP_MOVE(new_directives), self._style);
   return true;
 }
 

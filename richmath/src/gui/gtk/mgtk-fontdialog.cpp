@@ -18,7 +18,7 @@ extern pmath_symbol_t richmath_System_List;
 
 #if GTK_MAJOR_VERSION >= 3
 
-static Expr font_chooser_dialog_show(SharedPtr<StyleData> initial_style) {
+static Expr font_chooser_dialog_show(Style initial_style) {
   GtkFontChooserDialog *dialog;
   GtkFontChooser       *chooser;
 
@@ -43,7 +43,7 @@ static Expr font_chooser_dialog_show(SharedPtr<StyleData> initial_style) {
 
     desc = pango_font_description_new();
     Expr families;
-    if(initial_style->get(FontFamilies, &families)) {
+    if(initial_style.get(FontFamilies, &families)) {
       String family(families);
       
       if(families[0] == richmath_System_List) {
@@ -61,15 +61,15 @@ static Expr font_chooser_dialog_show(SharedPtr<StyleData> initial_style) {
     }
     
     Length size = SymbolicSize::Invalid;
-    if(initial_style->get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
+    if(initial_style.get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
       pango_font_description_set_absolute_size(desc, size.explicit_abs_value() * PANGO_SCALE);
     }
 
     int weight = FontWeightPlain;
     int slant  = FontSlantPlain;
 
-    bool has_weight = initial_style->get(FontWeight, &weight);
-    bool has_slant  = initial_style->get(FontSlant, &slant);
+    bool has_weight = initial_style.get(FontWeight, &weight);
+    bool has_slant  = initial_style.get(FontSlant, &slant);
     if(has_weight || has_slant) {
       pango_font_description_set_style( desc, slant  != FontSlantPlain ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
       pango_font_description_set_weight(desc, weight >= FontWeightBold ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
@@ -86,7 +86,7 @@ static Expr font_chooser_dialog_show(SharedPtr<StyleData> initial_style) {
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {
-        SharedPtr<StyleData> result_style = new StyleData();
+        Style result_style;
 
         PangoFontDescription *desc;
 
@@ -95,25 +95,25 @@ static Expr font_chooser_dialog_show(SharedPtr<StyleData> initial_style) {
           PangoFontMask set_fields = pango_font_description_get_set_fields(desc);
 
           if(const char *utf8_name = pango_font_description_get_family(desc))
-            result_style->set(FontFamilies, String::FromUtf8(utf8_name));
+            result_style.set(FontFamilies, String::FromUtf8(utf8_name));
 
           if(set_fields & PANGO_FONT_MASK_WEIGHT) {
             PangoWeight weight = pango_font_description_get_weight(desc);
 
-            result_style->set(FontWeight, weight >= PANGO_WEIGHT_BOLD ? FontWeightBold  : FontWeightPlain);
+            result_style.set(FontWeight, weight >= PANGO_WEIGHT_BOLD ? FontWeightBold  : FontWeightPlain);
           }
 
           if(set_fields & PANGO_FONT_MASK_STYLE) {
             PangoStyle style = pango_font_description_get_style(desc);
 
-            result_style->set(FontSlant, style == PANGO_STYLE_NORMAL ? FontSlantPlain : FontSlantItalic);
+            result_style.set(FontSlant, style == PANGO_STYLE_NORMAL ? FontSlantPlain : FontSlantItalic);
           }
 
           if(set_fields & PANGO_FONT_MASK_SIZE) {
             int size = pango_font_description_get_size(desc);
 
             if(size > 0)
-              result_style->set(FontSize, Length((float)size / PANGO_SCALE));
+              result_style.set(FontSize, Length((float)size / PANGO_SCALE));
           }
 
           pango_font_description_free(desc);
@@ -122,7 +122,7 @@ static Expr font_chooser_dialog_show(SharedPtr<StyleData> initial_style) {
         gtk_widget_destroy(GTK_WIDGET(dialog));
 
         Gather g;
-        result_style->emit_to_pmath(false);
+        result_style.emit_to_pmath(false);
         return g.end();
       }
   }
@@ -162,7 +162,7 @@ static Expr split_family_names(const char *str_utf8){
   return e;
 }
 
-static Expr font_selection_dialog_show(SharedPtr<StyleData> initial_style) {
+static Expr font_selection_dialog_show(Style initial_style) {
   GtkFontSelectionDialog *dialog;
   GtkFontSelection       *widget;
 
@@ -176,7 +176,7 @@ static Expr font_selection_dialog_show(SharedPtr<StyleData> initial_style) {
     desc = pango_font_description_new();
     
     Expr families;
-    if(initial_style->get(FontFamilies, &families)) {
+    if(initial_style.get(FontFamilies, &families)) {
       String family(families);
       
       if(families[0] == richmath_System_List){
@@ -198,15 +198,15 @@ static Expr font_selection_dialog_show(SharedPtr<StyleData> initial_style) {
     }
 
     Length size = SymbolicSize::Invalid;
-    if(initial_style->get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
+    if(initial_style.get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
       pango_font_description_set_absolute_size(desc, size.explicit_abs_value() * PANGO_SCALE);
     }
 
     int weight = FontWeightPlain;
     int slant  = FontSlantPlain;
 
-    bool has_weight = initial_style->get(FontWeight, &weight);
-    bool has_slant  = initial_style->get(FontSlant, &slant);
+    bool has_weight = initial_style.get(FontWeight, &weight);
+    bool has_slant  = initial_style.get(FontSlant, &slant);
     if(has_weight || has_slant) {
       pango_font_description_set_style( desc, slant  != FontSlantPlain ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
       pango_font_description_set_weight(desc, weight >= FontWeightBold ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
@@ -227,8 +227,8 @@ static Expr font_selection_dialog_show(SharedPtr<StyleData> initial_style) {
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {
-        SharedPtr<StyleData> result_style = new StyleData();
-
+        Style result_style;
+        
         if(char *desc_str = gtk_font_selection_dialog_get_font_name(dialog)) {
           PangoFontDescription *desc;
           PangoFontMask         set_fields;
@@ -237,22 +237,22 @@ static Expr font_selection_dialog_show(SharedPtr<StyleData> initial_style) {
           set_fields = pango_font_description_get_set_fields(desc);
 
           if(const char *utf8_name = pango_font_description_get_family(desc))
-            result_style->set(FontFamilies, split_family_names(utf8_name));
+            result_style.set(FontFamilies, split_family_names(utf8_name));
 
           if(set_fields & PANGO_FONT_MASK_WEIGHT) {
             PangoWeight weight = pango_font_description_get_weight(desc);
-            result_style->set(FontWeight, weight >= PANGO_WEIGHT_BOLD ? FontWeightBold  : FontWeightPlain);
+            result_style.set(FontWeight, weight >= PANGO_WEIGHT_BOLD ? FontWeightBold  : FontWeightPlain);
           }
 
           if(set_fields & PANGO_FONT_MASK_STYLE) {
             PangoStyle style = pango_font_description_get_style(desc);
-            result_style->set(FontSlant, style == PANGO_STYLE_NORMAL ? FontSlantPlain : FontSlantItalic);
+            result_style.set(FontSlant, style == PANGO_STYLE_NORMAL ? FontSlantPlain : FontSlantItalic);
           }
 
           if(set_fields & PANGO_FONT_MASK_SIZE) {
             int size = pango_font_description_get_size(desc);
             if(size > 0)
-              result_style->set(FontSize, Length((float)size / PANGO_SCALE));
+              result_style.set(FontSize, Length((float)size / PANGO_SCALE));
           }
 
           pango_font_description_free(desc);
@@ -262,7 +262,7 @@ static Expr font_selection_dialog_show(SharedPtr<StyleData> initial_style) {
         gtk_widget_destroy(GTK_WIDGET(dialog));
 
         Gather g;
-        result_style->emit_to_pmath(false);
+        result_style.emit_to_pmath(false);
         return g.end();
       }
   }
@@ -274,11 +274,11 @@ static Expr font_selection_dialog_show(SharedPtr<StyleData> initial_style) {
 
 #endif
 
-Expr MathGtkFontDialog::show(SharedPtr<StyleData> initial_style) {
+Expr MathGtkFontDialog::show(Style initial_style) {
 #if GTK_MAJOR_VERSION >= 3
-  return font_chooser_dialog_show(initial_style);
+  return font_chooser_dialog_show(PMATH_CPP_MOVE(initial_style));
 #else
-  return font_selection_dialog_show(initial_style);
+  return font_selection_dialog_show(PMATH_CPP_MOVE(initial_style));
 #endif
 }
 

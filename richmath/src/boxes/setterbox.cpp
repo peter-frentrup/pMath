@@ -62,7 +62,7 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _content->load_from_object(expr[3], opts);
   
   reset_style();
-  style->add_pmath(options);
+  style.add_pmath(options);
     
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
@@ -106,10 +106,10 @@ Expr SetterBox::to_pmath_impl(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s == strings::Setter)
+    if(style.get(BaseStyleName, &s) && s == strings::Setter)
       with_inherited = false;
     
-    style->emit_to_pmath(with_inherited);
+    style.emit_to_pmath(with_inherited);
   }
   
   Expr e = g.end();
@@ -118,7 +118,7 @@ Expr SetterBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void SetterBox::reset_style() {
-  StyleData::reset(style, strings::Setter);
+  style.reset(strings::Setter);
 }
 
 void SetterBox::on_mouse_down(MouseEvent &event) {

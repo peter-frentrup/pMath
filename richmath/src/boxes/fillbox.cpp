@@ -34,10 +34,10 @@ bool FillBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
   if(style) {
     reset_style();
-    style->add_pmath(options);
+    style.add_pmath(options);
   }
   else if(options != PMATH_UNDEFINED)
-    style = new StyleData(options);
+    style = Style(options);
   
   _content->load_from_object(expr[1], opts);
   _weight = 1.0f; // loaded from style on resize
@@ -79,12 +79,9 @@ Expr FillBox::to_pmath_impl(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Parseable) && get_own_style(StripOnInput, true))
     return _content->to_pmath(flags);
   
-  if(!style)
-    return Call(Symbol(richmath_System_FillBox), _content->to_pmath(flags));
-  
   Gather g;
   g.emit(_content->to_pmath(flags));
-  style->emit_to_pmath(false);
+  style.emit_to_pmath(false);
 
   Expr expr = g.end();
   expr.set(0, Symbol(richmath_System_FillBox));

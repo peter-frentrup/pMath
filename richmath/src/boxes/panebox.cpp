@@ -63,15 +63,14 @@ bool PaneBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   content()->load_from_object(expr[1], opts);
   
   reset_style();
-  if(options != PMATH_UNDEFINED) 
-    style->add_pmath(options);
+  style.add_pmath(options);
   
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
 
 void PaneBox::reset_style() {
-  StyleData::reset(style, strings::Pane);
+  style.reset(strings::Pane);
 }
 
 Expr PaneBox::to_pmath_symbol() { 
@@ -87,10 +86,10 @@ Expr PaneBox::to_pmath_impl(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s == strings::Pane)
+    if(style.get(BaseStyleName, &s) && s == strings::Pane)
       with_inherited = false;
     
-    style->emit_to_pmath(with_inherited);
+    style.emit_to_pmath(with_inherited);
   }
   
   Expr e = g.end();

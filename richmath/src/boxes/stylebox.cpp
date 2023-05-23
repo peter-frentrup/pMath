@@ -149,7 +149,6 @@ DONE:
 StyleBox::StyleBox(AbstractSequence *content)
   : base(content)
 {
-  style = new StyleData;
 }
 
 bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -171,29 +170,20 @@ bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   /* now success is guaranteed */
   
-  if(style)
-    style->clear();
+  style.clear();
   
   if(expr[2].is_string()) {
-    if(!style)
-      style = new StyleData();
-    
-    style->set_pmath(BaseStyleName, expr[2]);
+    style.set_pmath(BaseStyleName, expr[2]);
   }
   
-  if(options != PMATH_UNDEFINED) {
-    if(style)
-      style->add_pmath(options);
+  style.add_pmath(options);
+    
+  int i;
+  if(style.get(AutoNumberFormating, &i)) {
+    if(i)
+      opts |= BoxInputFlags::FormatNumbers;
     else
-      style = new StyleData(options);
-      
-    int i;
-    if(style->get(AutoNumberFormating, &i)) {
-      if(i)
-        opts |= BoxInputFlags::FormatNumbers;
-      else
-        opts -= BoxInputFlags::FormatNumbers;
-    }
+      opts -= BoxInputFlags::FormatNumbers;
   }
   
   _content->load_from_object(expr[1], opts);
@@ -217,14 +207,14 @@ Expr StyleBox::to_pmath_impl(BoxOutputFlags flags) {
   
   Expr e;
   bool with_inherited = true;
-  if(style && !style->get_dynamic(BaseStyleName, &e)) {
+  if(style && !style.get_dynamic(BaseStyleName, &e)) {
     String s;
-    if(style->get(BaseStyleName, &s)) {
+    if(style.get(BaseStyleName, &s)) {
       with_inherited = false;
       Gather::emit(s);
     }
   }
-  style->emit_to_pmath(with_inherited);
+  style.emit_to_pmath(with_inherited);
   
   e = g.end();
   e.set(0, Symbol(richmath_System_StyleBox));
@@ -238,14 +228,12 @@ Expr StyleBox::to_pmath_impl(BoxOutputFlags flags) {
 TagBox::TagBox(AbstractSequence *content)
   : base(content)
 {
-  style = new StyleData();
 }
 
 TagBox::TagBox(AbstractSequence *content, Expr _tag)
   : base(content),
   tag(_tag)
 {
-  style = new StyleData();
   reset_style();
 }
 
@@ -266,13 +254,10 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   tag = expr[2];
   
   reset_style();
-  if(style)
-    style->add_pmath(options_expr);
-  else if(options_expr != PMATH_UNDEFINED)
-    style = new StyleData(options_expr);
+  style.add_pmath(options_expr);
   
   int i;
-  if(style->get(AutoNumberFormating, &i)) {
+  if(style.get(AutoNumberFormating, &i)) {
     if(i)
       opts |= BoxInputFlags::FormatNumbers;
     else
@@ -286,15 +271,10 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void TagBox::reset_style() {
-  if(style) {
-    style->clear();
-  }
+  style.clear();
   
   if(tag.is_string()) {
-    if(!style)
-      style = new StyleData();
-    
-    style->set(BaseStyleName, String(tag));
+    style.set(BaseStyleName, String(tag));
   }
 }
 
@@ -307,8 +287,7 @@ Expr TagBox::to_pmath_impl(BoxOutputFlags flags) {
   
   g.emit(_content->to_pmath(flags));
   g.emit(tag);
-  if(style)
-    style->emit_to_pmath(false);
+  style.emit_to_pmath(false);
   
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_TagBox));

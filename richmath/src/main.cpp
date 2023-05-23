@@ -137,15 +137,16 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
 
 #ifdef NDEBUG
 #  if defined(PMATH_64BIT)
-    static_assert(sizeof(Array<void*>)              ==  8,  "");
-    static_assert(sizeof(Array<bool>)               ==  8,  "");
-    static_assert(sizeof(RleArray<void*>)           ==  8,  "");
+    static_assert(sizeof(Array<void*>)              ==   8, "");
+    static_assert(sizeof(Array<bool>)               ==   8, "");
+    static_assert(sizeof(RleArray<void*>)           ==   8, "");
     static_assert(sizeof(Matrix<void*>)             ==  16, ""); // 8 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(Dynamic)                   ==  24, ""); // 8 + 8 + 4 (enum where 1 byte would suffice) + 4 PADDING BYTES AT END
     static_assert(sizeof(PartialDynamic)            ==  24, ""); // 8 + 8 + 8
     static_assert(sizeof(FrontEndReference)         ==   4, "");
     static_assert(sizeof(FrontEndObject)            ==  16, ""); // 8 + 4 + 4
     static_assert(sizeof(StyledObject)              ==  16, "");
+    static_assert(sizeof(Style)                     ==   8, "");
     static_assert(sizeof(ActiveStyledObject)        ==  24, ""); // (16) + 8
     static_assert(sizeof(BoxSize)                   ==  12, ""); // 3*4
     static_assert(sizeof(Box)                       ==  48, ""); // (24) + 8 + 4 + 12
@@ -218,6 +219,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(FrontEndReference)         ==   4, "");
     static_assert(sizeof(FrontEndObject)            ==  12, ""); // 4 + 4 + 4
     static_assert(sizeof(StyledObject)              ==  12, "");
+    static_assert(sizeof(Style)                     ==   4, "");
     static_assert(sizeof(ActiveStyledObject)        ==  16, ""); // (12) + 4
     static_assert(sizeof(BoxSize)                   ==  12, ""); // 3*4
     static_assert(sizeof(Box)                       ==  36, ""); // (16) + 12 + 4 + 4
@@ -436,135 +438,134 @@ static void load_math_shapers() {
     }
   }
   
-  Application::front_end_session->style->set(MathFontFamily, def_name);
+  Application::front_end_session->style.set(MathFontFamily, def_name);
   MathShaper::available_shapers.default_value = def;
 }
 
 static void init_stylesheet() {
   Stylesheet::Default = new Stylesheet;
   
-  Stylesheet::Default->base = new StyleData;
-  Stylesheet::Default->base->set(Background,             Color::None);
-  Stylesheet::Default->base->set(ColorForGraphics,       Color::Black);
-  Stylesheet::Default->base->set(FontColor,              Color::None);
-  Stylesheet::Default->base->set(SectionFrameColor,      Color::None);
+  Stylesheet::Default->base.set(Background,             Color::None);
+  Stylesheet::Default->base.set(ColorForGraphics,       Color::Black);
+  Stylesheet::Default->base.set(FontColor,              Color::None);
+  Stylesheet::Default->base.set(SectionFrameColor,      Color::None);
   
-  Stylesheet::Default->base->set(FontSlant,              FontSlantPlain);
-  Stylesheet::Default->base->set(FontWeight,             FontWeightPlain);
+  Stylesheet::Default->base.set(FontSlant,              FontSlantPlain);
+  Stylesheet::Default->base.set(FontWeight,             FontWeightPlain);
   
-  Stylesheet::Default->base->set(ButtonSource,           ButtonSourceAutomatic);
+  Stylesheet::Default->base.set(ButtonSource,           ButtonSourceAutomatic);
   
-  Stylesheet::Default->base->set(AutoDelete,                          false);
-  Stylesheet::Default->base->set(AutoNumberFormating,                 true);
-  Stylesheet::Default->base->set(AutoSpacing,                         false);
-  Stylesheet::Default->base->set(ClosingAction,                       ClosingActionDelete);
-  //Stylesheet::Default->base->set(ContinuousAction,                    false);
-  Stylesheet::Default->base->set(Editable,                            true);
-  Stylesheet::Default->base->set(Enabled,                             AutoBoolAutomatic);
-  Stylesheet::Default->base->set(Evaluatable,                         false);
-  Stylesheet::Default->base->set(InternalUsesCurrentValueOfMouseOver, ObserverKindNone);
-  Stylesheet::Default->base->set(LineBreakWithin,                     true);
-  Stylesheet::Default->base->set(RemovalConditions,                   0);
-  Stylesheet::Default->base->set(ReturnCreatesNewSection,             false);
-  Stylesheet::Default->base->set(Saveable,                            true);
-  Stylesheet::Default->base->set(SectionEditDuplicate,                false);
-  Stylesheet::Default->base->set(SectionEditDuplicateMakesCopy,       false);
-  Stylesheet::Default->base->set(SectionGenerated,                    false);
-  Stylesheet::Default->base->set(Selectable,                          AutoBoolAutomatic);
-  Stylesheet::Default->base->set(ShowAutoStyles,                      false);
-  Stylesheet::Default->base->set(SectionLabelAutoDelete,              true);
-  Stylesheet::Default->base->set(ShowSectionBracket,                  true);
-  Stylesheet::Default->base->set(ShowStringCharacters,                true);
-  Stylesheet::Default->base->set(Visible,                             true);
+  Stylesheet::Default->base.set(AutoDelete,                          false);
+  Stylesheet::Default->base.set(AutoNumberFormating,                 true);
+  Stylesheet::Default->base.set(AutoSpacing,                         false);
+  Stylesheet::Default->base.set(ClosingAction,                       ClosingActionDelete);
+  //Stylesheet::Default->base.set(ContinuousAction,                    false);
+  Stylesheet::Default->base.set(Editable,                            true);
+  Stylesheet::Default->base.set(Enabled,                             AutoBoolAutomatic);
+  Stylesheet::Default->base.set(Evaluatable,                         false);
+  Stylesheet::Default->base.set(InternalUsesCurrentValueOfMouseOver, ObserverKindNone);
+  Stylesheet::Default->base.set(LineBreakWithin,                     true);
+  Stylesheet::Default->base.set(RemovalConditions,                   0);
+  Stylesheet::Default->base.set(ReturnCreatesNewSection,             false);
+  Stylesheet::Default->base.set(Saveable,                            true);
+  Stylesheet::Default->base.set(SectionEditDuplicate,                false);
+  Stylesheet::Default->base.set(SectionEditDuplicateMakesCopy,       false);
+  Stylesheet::Default->base.set(SectionGenerated,                    false);
+  Stylesheet::Default->base.set(Selectable,                          AutoBoolAutomatic);
+  Stylesheet::Default->base.set(ShowAutoStyles,                      false);
+  Stylesheet::Default->base.set(SectionLabelAutoDelete,              true);
+  Stylesheet::Default->base.set(ShowSectionBracket,                  true);
+  Stylesheet::Default->base.set(ShowStringCharacters,                true);
+  Stylesheet::Default->base.set(Visible,                             true);
   
-  Stylesheet::Default->base->set(AspectRatio,                   0); // non-positive means Automatic
-  Stylesheet::Default->base->set(GridBoxColumnSpacing,          0.4);
-  Stylesheet::Default->base->set(GridBoxRowSpacing,             0.5);
-  Stylesheet::Default->base->set(Magnification,                 1.0);
+  Stylesheet::Default->base.set(AspectRatio,                   0); // non-positive means Automatic
+  Stylesheet::Default->base.set(GridBoxColumnSpacing,          0.4);
+  Stylesheet::Default->base.set(GridBoxRowSpacing,             0.5);
+  Stylesheet::Default->base.set(Magnification,                 1.0);
   
-  Stylesheet::Default->base->set(FontSize,                      SymbolicSize::Automatic);
-  Stylesheet::Default->base->set(PointSize,                     SymbolicSize::Automatic);
-  Stylesheet::Default->base->set(Thickness,                     SymbolicSize::Automatic);
+  Stylesheet::Default->base.set(FontSize,                      SymbolicSize::Automatic);
+  Stylesheet::Default->base.set(PointSize,                     SymbolicSize::Automatic);
+  Stylesheet::Default->base.set(Thickness,                     SymbolicSize::Automatic);
   
-//  Stylesheet::Default->base->set(FrameMarginLeft,               SymbolicSize::Automatic);
-//  Stylesheet::Default->base->set(FrameMarginRight,              SymbolicSize::Automatic);
-//  Stylesheet::Default->base->set(FrameMarginTop,                SymbolicSize::Automatic);
-//  Stylesheet::Default->base->set(FrameMarginBottom,             SymbolicSize::Automatic);
+//  Stylesheet::Default->base.set(FrameMarginLeft,               SymbolicSize::Automatic);
+//  Stylesheet::Default->base.set(FrameMarginRight,              SymbolicSize::Automatic);
+//  Stylesheet::Default->base.set(FrameMarginTop,                SymbolicSize::Automatic);
+//  Stylesheet::Default->base.set(FrameMarginBottom,             SymbolicSize::Automatic);
 
-//  Stylesheet::Default->base->set(PlotRangePaddingLeft,          SymbolicSize::Automatic);
-//  Stylesheet::Default->base->set(PlotRangePaddingRight,         SymbolicSize::Automatic);
-//  Stylesheet::Default->base->set(PlotRangePaddingTop,           SymbolicSize::Automatic);
-//  Stylesheet::Default->base->set(PlotRangePaddingBottom,        SymbolicSize::Automatic);
+//  Stylesheet::Default->base.set(PlotRangePaddingLeft,          SymbolicSize::Automatic);
+//  Stylesheet::Default->base.set(PlotRangePaddingRight,         SymbolicSize::Automatic);
+//  Stylesheet::Default->base.set(PlotRangePaddingTop,           SymbolicSize::Automatic);
+//  Stylesheet::Default->base.set(PlotRangePaddingBottom,        SymbolicSize::Automatic);
 
-  Stylesheet::Default->base->set(SectionMarginLeft,             Length(7.0));
-  Stylesheet::Default->base->set(SectionMarginRight,            Length(7.0));
-  Stylesheet::Default->base->set(SectionMarginTop,              Length(4.0));
-  Stylesheet::Default->base->set(SectionMarginBottom,           Length(4.0));
+  Stylesheet::Default->base.set(SectionMarginLeft,             Length(7.0));
+  Stylesheet::Default->base.set(SectionMarginRight,            Length(7.0));
+  Stylesheet::Default->base.set(SectionMarginTop,              Length(4.0));
+  Stylesheet::Default->base.set(SectionMarginBottom,           Length(4.0));
 
-  Stylesheet::Default->base->set(SectionFrameLeft,              Length(0.0));
-  Stylesheet::Default->base->set(SectionFrameRight,             Length(0.0));
-  Stylesheet::Default->base->set(SectionFrameTop,               Length(0.0));
-  Stylesheet::Default->base->set(SectionFrameBottom,            Length(0.0));
+  Stylesheet::Default->base.set(SectionFrameLeft,              Length(0.0));
+  Stylesheet::Default->base.set(SectionFrameRight,             Length(0.0));
+  Stylesheet::Default->base.set(SectionFrameTop,               Length(0.0));
+  Stylesheet::Default->base.set(SectionFrameBottom,            Length(0.0));
   
-  Stylesheet::Default->base->set(SectionFrameLabelMarginLeft,   Length(3.0));
-  Stylesheet::Default->base->set(SectionFrameLabelMarginRight,  Length(3.0));
-  Stylesheet::Default->base->set(SectionFrameLabelMarginTop,    Length(3.0));
-  Stylesheet::Default->base->set(SectionFrameLabelMarginBottom, Length(3.0));
+  Stylesheet::Default->base.set(SectionFrameLabelMarginLeft,   Length(3.0));
+  Stylesheet::Default->base.set(SectionFrameLabelMarginRight,  Length(3.0));
+  Stylesheet::Default->base.set(SectionFrameLabelMarginTop,    Length(3.0));
+  Stylesheet::Default->base.set(SectionFrameLabelMarginBottom, Length(3.0));
   
-  Stylesheet::Default->base->set(SectionFrameMarginLeft,        Length(0.0));
-  Stylesheet::Default->base->set(SectionFrameMarginRight,       Length(0.0));
-  Stylesheet::Default->base->set(SectionFrameMarginTop,         Length(0.0));
-  Stylesheet::Default->base->set(SectionFrameMarginBottom,      Length(0.0));
+  Stylesheet::Default->base.set(SectionFrameMarginLeft,        Length(0.0));
+  Stylesheet::Default->base.set(SectionFrameMarginRight,       Length(0.0));
+  Stylesheet::Default->base.set(SectionFrameMarginTop,         Length(0.0));
+  Stylesheet::Default->base.set(SectionFrameMarginBottom,      Length(0.0));
   
-  Stylesheet::Default->base->set(SectionGroupPrecedence,        0);
-  Stylesheet::Default->base->set(WindowProgress,                0);
+  Stylesheet::Default->base.set(SectionGroupPrecedence,        0);
+  Stylesheet::Default->base.set(WindowProgress,                0);
   
-  Stylesheet::Default->base->set(ContextMenu,               List());
-  Stylesheet::Default->base->set(DockedSectionsBottom,      List());
-  Stylesheet::Default->base->set(DockedSectionsBottomGlass, List());
-  Stylesheet::Default->base->set(DockedSectionsTop,         List());
-  Stylesheet::Default->base->set(DockedSectionsTopGlass,    List());
-  Stylesheet::Default->base->set(DocumentEventActions,      List());
-  Stylesheet::Default->base->set(DragDropContextMenu,       List());
-  Stylesheet::Default->base->set(FontFamilies,              List());
-  Stylesheet::Default->base->set(GeneratedSectionStyles, List());
-  Stylesheet::Default->base->set(InputAliases,              List());
-  Stylesheet::Default->base->set(InputAutoReplacements,     List());
+  Stylesheet::Default->base.set(ContextMenu,               List());
+  Stylesheet::Default->base.set(DockedSectionsBottom,      List());
+  Stylesheet::Default->base.set(DockedSectionsBottomGlass, List());
+  Stylesheet::Default->base.set(DockedSectionsTop,         List());
+  Stylesheet::Default->base.set(DockedSectionsTopGlass,    List());
+  Stylesheet::Default->base.set(DocumentEventActions,      List());
+  Stylesheet::Default->base.set(DragDropContextMenu,       List());
+  Stylesheet::Default->base.set(FontFamilies,              List());
+  Stylesheet::Default->base.set(GeneratedSectionStyles, List());
+  Stylesheet::Default->base.set(InputAliases,              List());
+  Stylesheet::Default->base.set(InputAutoReplacements,     List());
   
-  Stylesheet::Default->base->set_pmath(Initialization,   Symbol(richmath_System_None));
-  Stylesheet::Default->base->set_pmath(Deinitialization, Symbol(richmath_System_None));
+  Stylesheet::Default->base.set_pmath(Initialization,   Symbol(richmath_System_None));
+  Stylesheet::Default->base.set_pmath(Deinitialization, Symbol(richmath_System_None));
   
-  Stylesheet::Default->base->set(EvaluationContext,         strings::Global_namespace);
-  Stylesheet::Default->base->set(SectionLabel,              "");
-  Stylesheet::Default->base->set(SectionEvaluationFunction, Symbol(richmath_System_Identity));
+  Stylesheet::Default->base.set(EvaluationContext,         strings::Global_namespace);
+  Stylesheet::Default->base.set(SectionLabel,              "");
+  Stylesheet::Default->base.set(SectionEvaluationFunction, Symbol(richmath_System_Identity));
   
-  Stylesheet::Default->base->set_pmath(Method,
-                                       Expr(pmath_option_value(
-                                           richmath_System_ButtonBox,
-                                           richmath_System_Method,
-                                           PMATH_UNDEFINED)));
+  Stylesheet::Default->base.set_pmath(Method,
+                                      Expr(pmath_option_value(
+                                          richmath_System_ButtonBox,
+                                          richmath_System_Method,
+                                          PMATH_UNDEFINED)));
   
-  Stylesheet::Default->base->set(ButtonFunction,
+  Stylesheet::Default->base.set(ButtonFunction,
                                  Expr(pmath_option_value(
                                         richmath_System_ButtonBox,
                                         richmath_System_ButtonFunction,
                                         PMATH_UNDEFINED)));
                                         
-//  Stylesheet::Default->base->set(FontFeatures,
-//                                 List(Rule(String("ssty"), Symbol(richmath_System_Automatic))));
+//  Stylesheet::Default->base.set(FontFeatures,
+//                                List(Rule(String("ssty"), Symbol(richmath_System_Automatic))));
 
 //  Stylesheet::Default->styles.set("SystemResetStyle", Stylesheet::Default->base);
 
-  Application::front_end_session->style->set(DebugFollowMouse, false);
-  Application::front_end_session->style->set(DebugSelectionBounds, false);
+  Application::front_end_session->style.set(DebugFollowMouse, false);
+  Application::front_end_session->style.set(DebugSelectionBounds, false);
 #ifdef NDEBUG
-  Application::front_end_session->style->set(DebugColorizeChanges, false);
+  Application::front_end_session->style.set(DebugColorizeChanges, false);
 #else
-  Application::front_end_session->style->set(DebugColorizeChanges, true);
+  Application::front_end_session->style.set(DebugColorizeChanges, true);
 #endif
 
-  Application::front_end_session->style->set(ScriptLevel,           0);
-  Application::front_end_session->style->set(ScriptSizeMultipliers, Symbol(richmath_System_Automatic));
+  Application::front_end_session->style.set(ScriptLevel,           0);
+  Application::front_end_session->style.set(ScriptSizeMultipliers, Symbol(richmath_System_Automatic));
 }
 
 static bool have_visible_documents() {

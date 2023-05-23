@@ -2150,11 +2150,11 @@ void StyleData::clear() {
     if(!owner) {
       pmath_debug_print_object("[StyleData::clear: cannot find owning object for BoxID -> ", old_boxid.get(), "]\n");
     }
-    else if(owner->own_style() && owner->own_style().ptr() != this) {
+    else if(owner->own_style() && owner->own_style().data.ptr() != this) {
       pmath_debug_print("[?!? StyleData::clear: box #%d = %p has style %p != %p which claims so with ",
         (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(owner->id()),
         owner,
-        owner->own_style().ptr(),
+        owner->own_style().data.ptr(),
         this);
       pmath_debug_print_object("BoxID -> ", old_boxid.get(), "]\n");
       
@@ -2735,6 +2735,17 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
 
 //} ... class StyleData
 
+//{ class Style ...
+
+Expr Style::get_pmath(StyleOptionName n) const {
+  if(!data)
+    return Symbol(richmath_System_Inherited);
+  
+  return data->get_pmath(n);
+}
+
+//} ... class Style
+
 //{ class Stylesheet ...
 
 SharedPtr<Stylesheet> Stylesheet::Default;
@@ -2749,7 +2760,7 @@ namespace richmath {
     public:
       void reload(Expr expr);
       void add(Expr expr);
-      bool update_dynamic(SharedPtr<StyleData> s, StyledObject *parent);
+      bool update_dynamic(Style s, StyledObject *parent);
       
       static void add_remove_stylesheet(int delta);
       
@@ -2813,13 +2824,14 @@ void Stylesheet::update_box_registry(StyledObject *obj) {
     else
       obj->has_box_id(false);
     
+    // TODO: why do we know that s.data != nullptr ?
     if(new_box_id) {
-      StyleImpl::of(*s.ptr()).raw_set_expr(InternalRegisteredBoxID, new_box_id);
-      StyleImpl::of(*s.ptr()).raw_set_int(InternalRegisteredBoxReference, (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()));
+      StyleImpl::of(*s.data.ptr()).raw_set_expr(InternalRegisteredBoxID, new_box_id);
+      StyleImpl::of(*s.data.ptr()).raw_set_int(InternalRegisteredBoxReference, (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()));
     }
     else {
-      StyleImpl::of(*s.ptr()).raw_remove(InternalRegisteredBoxID);
-      StyleImpl::of(*s.ptr()).raw_remove(InternalRegisteredBoxReference);
+      StyleImpl::of(*s.data.ptr()).raw_remove(InternalRegisteredBoxID);
+      StyleImpl::of(*s.data.ptr()).raw_remove(InternalRegisteredBoxReference);
     }
     
     if(old_box_id) {
@@ -2833,30 +2845,6 @@ void Stylesheet::update_box_registry(StyledObject *obj) {
     }
   }
 }
-
-/*void Stylesheet::unregister_box(StyledObject *obj) {
-  if(!obj)
-    return;
-  
-  auto style = obj->own_style();
-  if(!style) {
-    if(obj->has_box_id()) {
-      pmath_debug_print("[no BoxID found for box #%d = %p]\n", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
-    }
-    return;
-  }
-  
-  if(Expr box_id = obj->get_own_style(InternalRegisteredBoxID)) {
-    bool did_remove = box_registry.remove(box_id, obj->id());
-    if(!did_remove) {
-      pmath_debug_print("[did not find box #%d = %p by its old BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
-      pmath_debug_print_object(" -> ", box_id.get(), "]\n");
-    }
-  }
-  else {
-    pmath_debug_print("[no BoxID found for box #%d = %p]\n", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
-  }
-}*/
 
 void Stylesheet::unregister() {
   if(_name.is_valid()) {
@@ -2952,21 +2940,18 @@ void Stylesheet::reload(Expr expr) {
   StylesheetImpl(*this).reload(expr);
 }
 
-SharedPtr<StyleData> Stylesheet::find_parent_style(SharedPtr<StyleData> s) {
-  if(!s.is_valid())
-    return nullptr;
-    
+Style Stylesheet::find_parent_style(Style s) {
   String inherited;
-  if(s->get(BaseStyleName, &inherited))
+  if(s.get(BaseStyleName, &inherited))
     return styles[inherited];
     
   return nullptr;
 }
 
 template<typename N, typename T>
-static bool Stylesheet_get_simple(Stylesheet *self, SharedPtr<StyleData> s, N n, T *value) {
+static bool Stylesheet_get_simple(Stylesheet *self, Style s, N n, T *value) {
   for(int count = 20; count && s; --count) {
-    if(s->get(n, value))
+    if(s.get(n, value))
       return true;
       
     s = self->find_parent_style(s);
@@ -2975,27 +2960,27 @@ static bool Stylesheet_get_simple(Stylesheet *self, SharedPtr<StyleData> s, N n,
   return false;
 }
 
-bool Stylesheet::get(SharedPtr<StyleData> s, ColorStyleOptionName n, Color *value) {
+bool Stylesheet::get(Style s, ColorStyleOptionName n, Color *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<StyleData> s, IntStyleOptionName n, int *value) {
+bool Stylesheet::get(Style s, IntStyleOptionName n, int *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<StyleData> s, FloatStyleOptionName n, float *value) {
+bool Stylesheet::get(Style s, FloatStyleOptionName n, float *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<StyleData> s, LengthStyleOptionName n, Length *value) {
+bool Stylesheet::get(Style s, LengthStyleOptionName n, Length *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<StyleData> s, StringStyleOptionName n, String *value) {
+bool Stylesheet::get(Style s, StringStyleOptionName n, String *value) {
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-bool Stylesheet::get(SharedPtr<StyleData> s, ObjectStyleOptionName n, Expr *value) {
+bool Stylesheet::get(Style s, ObjectStyleOptionName n, Expr *value) {
   if(StyleInformation::get_type(n) == StyleType::AnyFlatList) {
     Expr result = get_pmath(s, n);
     if(result != richmath_System_Inherited) {
@@ -3007,11 +2992,11 @@ bool Stylesheet::get(SharedPtr<StyleData> s, ObjectStyleOptionName n, Expr *valu
   return Stylesheet_get_simple(this, s, n, value);
 }
 
-Expr Stylesheet::get_pmath(SharedPtr<StyleData> s, StyleOptionName n) {
+Expr Stylesheet::get_pmath(Style s, StyleOptionName n) {
   Expr result = Symbol(richmath_System_Inherited);
   
   for(int count = 20; count && s && StyleData::contains_inherited(result); --count) {
-    result = StyleData::merge_style_values(n, PMATH_CPP_MOVE(result), s->get_pmath(n));
+    result = StyleData::merge_style_values(n, PMATH_CPP_MOVE(result), s.get_pmath(n));
     
     s = find_parent_style(s);
   }
@@ -3019,7 +3004,7 @@ Expr Stylesheet::get_pmath(SharedPtr<StyleData> s, StyleOptionName n) {
   return result;
 }
 
-bool Stylesheet::update_dynamic(SharedPtr<StyleData> s, StyledObject *parent) {
+bool Stylesheet::update_dynamic(Style s, StyledObject *parent) {
   return StylesheetImpl(*this).update_dynamic(s, parent);
 }
 
@@ -3051,11 +3036,11 @@ void StylesheetImpl::add(Expr expr) {
     currently_loading.remove(self._name);
 }
 
-bool StylesheetImpl::update_dynamic(SharedPtr<StyleData> s, StyledObject *parent) {
+bool StylesheetImpl::update_dynamic(Style s, StyledObject *parent) {
   if(!s || !parent)
     return false;
     
-  StyleImpl s_impl = StyleImpl::of(*s.ptr());
+  StyleImpl s_impl = StyleImpl::of(*s.data.ptr());
   
   int i;
   if(!s_impl.raw_get_int(InternalHasPendingDynamic, &i) || !i) {
@@ -3064,9 +3049,9 @@ bool StylesheetImpl::update_dynamic(SharedPtr<StyleData> s, StyledObject *parent
     if(s_impl.raw_get_int(InternalHasNewBaseStyle, &i) && i) {
       s_impl.raw_set_int(InternalHasNewBaseStyle, false);
       
-      SharedPtr<StyleData> tmp = self.find_parent_style(s);
+      Style tmp = self.find_parent_style(s);
       for(int count = 20; count && tmp; --count) {
-        if(StyleImpl::of(*tmp.ptr()).raw_get_int(InternalHasPendingDynamic, &i) && i) {
+        if(StyleImpl::of(*tmp.data.ptr()).raw_get_int(InternalHasPendingDynamic, &i) && i) {
           has_parent_pending_dynamic = true;
           break;
         }
@@ -3087,9 +3072,9 @@ bool StylesheetImpl::update_dynamic(SharedPtr<StyleData> s, StyledObject *parent
   
   Hashtable<StyleOptionName, Expr> dynamic_styles;
   
-  SharedPtr<StyleData> tmp = s;
+  Style tmp = s;
   for(int count = 20; count && tmp; --count) {
-    StyleImpl::of(*tmp.ptr()).collect_unused_dynamic(dynamic_styles);
+    StyleImpl::of(*tmp.data.ptr()).collect_unused_dynamic(dynamic_styles);
     
     tmp = self.find_parent_style(tmp);
   }
@@ -3173,16 +3158,15 @@ void StylesheetImpl::add_section(Expr expr) {
       Expr base_sd(pmath_option_value(richmath_System_StyleData, richmath_System_StyleDefinitions, data_opts.get()));
       
       if(base_sd == richmath_System_Automatic) {
-        if(SharedPtr<StyleData> *style_ptr = self.styles.search(String(data))) {
-          (*style_ptr)->add_pmath(options);
+        if(Style *style_ptr = self.styles.search(String(data))) {
+          style_ptr->add_pmath(options);
           return;
         }
       }
       else if(base_sd[0] == richmath_System_StyleData) {
-        if(SharedPtr<StyleData> *base_style_ptr = self.styles.search(String(base_sd[1]))) {
-          SharedPtr<StyleData> style = new StyleData();
-          style->merge(*base_style_ptr);
-          style->add_pmath(options);
+        if(Style *base_style_ptr = self.styles.search(String(base_sd[1]))) {
+          Style style = base_style_ptr->copy();
+          style.add_pmath(options);
           self.styles.set(String(data), style);
           return;
         }
@@ -3190,8 +3174,7 @@ void StylesheetImpl::add_section(Expr expr) {
 //            else if(base_sd != richmath_System_None)
 //              return;
       
-      SharedPtr<StyleData> style = new StyleData(options);
-      self.styles.set(String(data), style);
+      self.styles.set(String(data), Style(options));
       
       return;
     }
@@ -3203,13 +3186,13 @@ void StylesheetImpl::add_section(Expr expr) {
         stylesheet->users.add(self.id());
         
         for(auto &other : stylesheet->styles.entries()) {
-          SharedPtr<StyleData> *mine = self.styles.search(other.key);
+          Style *mine = self.styles.search(other.key);
           if(mine) {
-            (*mine)->merge(other.value);
+            mine->merge(other.value);
           }
           else {
-            SharedPtr<StyleData> copy = new StyleData();
-            copy->merge(other.value);
+            Style copy = Style::New();
+            copy.merge(other.value);
             self.styles.set(other.key, copy);
           }
         }
@@ -3769,8 +3752,6 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   if(!styled_obj->style) {
     if(rhs == richmath_System_Inherited)
       return true;
-    
-    styled_obj->style = new StyleData();
   }
   
   bool any_change = false;
@@ -3778,10 +3759,10 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
     // Reset the style so that calling CurrentValue(...):= {..., Inherited, ...} multiple times
     // will not repeatedly fill in the previous value.
     if(rhs != richmath_System_Inherited) {
-      any_change = styled_obj->style->set_pmath(key, Symbol(richmath_System_Inherited)) || any_change;
+      any_change = styled_obj->style.set_pmath(key, Symbol(richmath_System_Inherited)) || any_change;
     }
   }
-  any_change = styled_obj->style->set_pmath(key, PMATH_CPP_MOVE(rhs)) || any_change;
+  any_change = styled_obj->style.set_pmath(key, PMATH_CPP_MOVE(rhs)) || any_change;
   
   if(any_change)
     styled_obj->on_style_changed(StyleData::modifies_size(key));

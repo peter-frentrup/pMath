@@ -245,7 +245,7 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     {
       SET_BASE_DEBUG_TAG(typeid(*this).name());
      
-      StyleData::reset(document()->style, strings::Docked);
+      document()->style.reset(strings::Docked);
     }
     
     void reload(Expr content) {
@@ -298,9 +298,9 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     virtual void after_construction() override {
       base::after_construction();
       
-      document()->style->set(Editable,           false); // redirect Print() to console
-      document()->style->set(Selectable,         AutoBoolFalse);
-      document()->style->set(ShowSectionBracket, AutoBoolFalse);
+      document()->style.set(Editable,           false); // redirect Print() to console
+      document()->style.set(Selectable,         AutoBoolFalse);
+      document()->style.set(ShowSectionBracket, AutoBoolFalse);
       
       document()->select(nullptr, 0, 0);
     }
@@ -336,9 +336,6 @@ class MathGtkTitlebarDock: public MathGtkDock {
     
   protected:
     virtual void paint_canvas(Canvas &canvas, bool resize_only) override {
-      if(!document()->style)
-        document()->style = new StyleData();
-      
 #    if GTK_CHECK_VERSION(3, 0, 0)
       if(!resize_only) {
         if(GtkStyleContext *ctx = gtk_widget_get_style_context(_widget)) {
@@ -346,7 +343,7 @@ class MathGtkTitlebarDock: public MathGtkDock {
           gtk_style_context_get_color(ctx, GTK_STATE_FLAG_NORMAL, &fg);
           
           if(fg.alpha > 0)
-            document()->style->set(FontColor, Color::from_rgb(fg.red, fg.green, fg.blue));
+            document()->style.set(FontColor, Color::from_rgb(fg.red, fg.green, fg.blue));
         }
         
         bool has_text_shadow = false;
@@ -355,14 +352,14 @@ class MathGtkTitlebarDock: public MathGtkDock {
             Expr text_shadow = MathGtkCss::parse_text_shadow(gtk_widget_get_style_context(titlebar));
             if(text_shadow.expr_length() > 0) {
               pmath_debug_print_object("[found text-shadow: ", text_shadow.get(), "]\n");
-              document()->style->set(TextShadow, PMATH_CPP_MOVE(text_shadow));
+              document()->style.set(TextShadow, PMATH_CPP_MOVE(text_shadow));
               has_text_shadow = true;
             }
           }
         }
         
         if(!has_text_shadow)
-          document()->style->remove(TextShadow);
+          document()->style.remove(TextShadow);
       }
 #    endif
       
@@ -797,8 +794,8 @@ void MathGtkDocumentWindow::after_construction() {
 
   title(String());
   
-  document()->style->set(Visible,                         true);
-  document()->style->set(InternalHasModifiedWindowOption, true);
+  document()->style.set(Visible,                         true);
+  document()->style.set(InternalHasModifiedWindowOption, true);
   update_dark_mode();
   Impl::register_theme_observer();
   Impl(*this).on_auto_hide_menu(true);
@@ -1373,7 +1370,7 @@ bool MathGtkDocumentWindow::on_delete(GdkEvent *e) {
         if(all_closed)
           break;
         
-        document()->style->set(Visible, false);
+        document()->style.set(Visible, false);
         invalidate_options();
       }
       return true;
@@ -1494,12 +1491,12 @@ bool MathGtkDocumentWindow::on_scroll(GdkEvent *e) {
 }
 
 bool MathGtkDocumentWindow::on_map(GdkEvent *e) {
-  document()->style->set(Visible, true);
+  document()->style.set(Visible, true);
   return false;
 }
 
 bool MathGtkDocumentWindow::on_unmap(GdkEvent *e) {
-  document()->style->set(Visible, false);
+  document()->style.set(Visible, false);
   invalidate_popup_window_positions();
   return false;
 }

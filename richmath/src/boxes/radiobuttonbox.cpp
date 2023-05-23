@@ -71,7 +71,7 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     dynamic = Symbol(richmath_System_False);
     
   reset_style();
-  style->add_pmath(options);
+  style.add_pmath(options);
     
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
@@ -109,10 +109,10 @@ Expr RadioButtonBox::to_pmath_impl(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s == strings::RadioButton)
+    if(style.get(BaseStyleName, &s) && s == strings::RadioButton)
       with_inherited = false;
     
-    style->emit_to_pmath(with_inherited);
+    style.emit_to_pmath(with_inherited);
   }
   
   Expr result = gather.end();
@@ -125,7 +125,7 @@ Expr RadioButtonBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void RadioButtonBox::reset_style() {
-  StyleData::reset(style, strings::RadioButton);
+  style.reset(strings::RadioButton);
 }
 
 void RadioButtonBox::dynamic_finished(Expr info, Expr result) {

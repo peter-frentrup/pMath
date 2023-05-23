@@ -257,12 +257,8 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     }
   }
   
-  if(style) {
-    reset_style();
-    style->add_pmath(options);
-  }
-  else if(options != PMATH_UNDEFINED)
-    style = new StyleData(options);
+  reset_style();
+  style.add_pmath(options);
     
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
@@ -785,9 +781,7 @@ Expr GridBox::to_pmath_impl(BoxOutputFlags flags, int start, int end) {
   
   Gather g;
   g.emit(mat);
-  
-  if(style)
-    style->emit_to_pmath();
+  style.emit_to_pmath();
     
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_GridBox));

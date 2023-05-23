@@ -687,9 +687,7 @@ static bool begin_edit_section(
   int index = section->index();
     
   EditSection *edit = new EditSection;
-  if(!edit->style)
-    edit->style = new StyleData;
-  edit->style->set(SectionGroupPrecedence, section->get_style(SectionGroupPrecedence));
+  edit->style.set(SectionGroupPrecedence, section->get_style(SectionGroupPrecedence));
   edit->swap_id(section);
   
   Expr obj(section->to_pmath(BoxOutputFlags::WithDebugMetadata));

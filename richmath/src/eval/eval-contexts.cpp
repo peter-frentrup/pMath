@@ -212,7 +212,7 @@ void EvaluationContexts::Impl::remember_that_object_defines_context(StyledObject
   if(!style) // TODO: create if necessary 
     return;
   
-  style->set(InternalDefinesEvaluationContext, true);
+  style.set(InternalDefinesEvaluationContext, true);
 }
 
 String EvaluationContexts::Impl::generate_context_name(StyledObject *obj) {

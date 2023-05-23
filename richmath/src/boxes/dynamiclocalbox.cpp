@@ -68,7 +68,7 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   reset_style();
   if(options != PMATH_UNDEFINED) 
-    style->add_pmath(options);
+    style.add_pmath(options);
   
   if(_public_symbols != symbols) {
     // TODO: call previous deinitialization
@@ -119,8 +119,8 @@ Expr DynamicLocalBox::to_pmath_impl(BoxOutputFlags flags) {
   
   Gather::emit(_public_symbols);
   Gather::emit(content()->to_pmath(flags));
-  style->set(DynamicLocalValues, Impl(*this).collect_definitions());
-  style->emit_to_pmath();
+  style.set(DynamicLocalValues, Impl(*this).collect_definitions());
+  style.emit_to_pmath();
   
   Expr expr = g.end();
   expr.set(0, Symbol(richmath_System_DynamicLocalBox));

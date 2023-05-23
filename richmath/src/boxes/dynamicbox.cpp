@@ -27,7 +27,7 @@ extern pmath_symbol_t richmath_Internal_DynamicRemove;
 AbstractDynamicBox::AbstractDynamicBox(AbstractSequence *content)
   : OwnerBox(content)
 {
-  if(!style) style = new StyleData();
+  if(!style) style = Style::New();
 }
 
 AbstractDynamicBox::~AbstractDynamicBox() {
@@ -54,7 +54,7 @@ VolatileSelection AbstractDynamicBox::dynamic_to_literal(int start, int end) {
 }
 
 void AbstractDynamicBox::reset_style() {
-  style->clear();
+  style.reset();
 }
 
 void AbstractDynamicBox::before_paint_inline(Context &context) {
@@ -81,9 +81,9 @@ void AbstractDynamicBox::ensure_init() {
                     ctx),
                   ctx);
   if(deinit)
-    style->set(InternalDeinitialization, PMATH_CPP_MOVE(deinit));
+    style.set(InternalDeinitialization, PMATH_CPP_MOVE(deinit));
   else
-    style->set(InternalDeinitialization, Symbol(richmath_System_None));
+    style.set(InternalDeinitialization, Symbol(richmath_System_None));
   
   Expr init_call = get_own_style(Initialization);
   if(init_call == richmath_System_None)
@@ -137,9 +137,7 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   /* now success is guaranteed */
   reset_style();
-  if(options[0] == richmath_System_List) {
-    style->add_pmath(options);
-  }
+  style.add_pmath(options);
   
   expr.set(0, Symbol(richmath_System_Dynamic)); // TODO: update the Dynamic expr when a style changes
   
@@ -228,7 +226,7 @@ Expr DynamicBox::to_pmath_impl(BoxOutputFlags flags) {
   
   Gather g;
   Gather::emit(dynamic.expr()[1]);
-  style->emit_to_pmath(false);
+  style.emit_to_pmath(false);
   Expr expr = g.end();
   
   expr.set(0, Symbol(richmath_System_DynamicBox));

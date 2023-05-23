@@ -169,8 +169,8 @@ bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   Expr user_options = get_user_options();
   
   reset_style();
-  style->add_pmath(options);
-  style->add_pmath(user_options);
+  style.add_pmath(options);
+  style.add_pmath(user_options);
   
   elements.load_from_object(expr[1], opts);
   invalidate();
@@ -182,8 +182,8 @@ bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 void GraphicsBox::reset_user_options() {
   user_has_changed_size(false);
   if(style) {
-    style->remove(ImageSizeHorizontal);
-    style->remove(ImageSizeVertical);
+    style.remove(ImageSizeHorizontal);
+    style.remove(ImageSizeVertical);
     invalidate();
   }
 }
@@ -192,11 +192,11 @@ void GraphicsBox::set_user_default_options(Expr rules) {
   if(rules.expr_length() > 0) {
     user_has_changed_size(true);
     
-    SharedPtr<StyleData> old_style = style;
-    style = new StyleData();
+    Style old_style = style;
+    style.reset_new();
     reset_style();
-    style->add_pmath(rules);
-    style->merge(old_style);
+    style.add_pmath(rules);
+    style.merge(old_style);
   }
 }
 
@@ -206,8 +206,8 @@ Expr GraphicsBox::get_user_options() {
     
   Gather g;
   
-  style->emit_pmath(AspectRatio);
-  style->emit_pmath(ImageSizeCommon);
+  style.emit_pmath(AspectRatio);
+  style.emit_pmath(ImageSizeCommon);
   
   return g.end();
 }
@@ -423,7 +423,7 @@ void GraphicsBox::paint(Context &context) {
 }
 
 void GraphicsBox::reset_style() {
-  StyleData::reset(style, strings::Graphics);
+  style.reset(strings::Graphics);
 }
 
 Expr GraphicsBox::to_pmath_symbol() {
@@ -434,7 +434,7 @@ Expr GraphicsBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   Gather::emit(elements.to_pmath(flags));
-  style->emit_to_pmath(false);
+  style.emit_to_pmath(false);
   
   Expr result = g.end();
   result.set(0, Symbol(richmath_System_GraphicsBox));
@@ -616,12 +616,12 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
       }
       
       if(mouse_over_part == GraphicsPartSizeBottom) {
-        style->set(ImageSizeHorizontal, SymbolicSize::Automatic);
-        style->set(ImageSizeVertical,   Length(h));
+        style.set(ImageSizeHorizontal, SymbolicSize::Automatic);
+        style.set(ImageSizeVertical,   Length(h));
       }
       else {
-        style->set(ImageSizeHorizontal, Length(w));
-        style->set(ImageSizeVertical,   SymbolicSize::Automatic);
+        style.set(ImageSizeHorizontal, Length(w));
+        style.set(ImageSizeVertical,   SymbolicSize::Automatic);
       }
       
       user_has_changed_size(true);

@@ -288,7 +288,7 @@ Document::~Document() {
   Impl(*this).delete_all_popup_windows();
   
   int defines_eval_ctx = false;
-  if(style && style->get(InternalDefinesEvaluationContext, &defines_eval_ctx) && defines_eval_ctx)
+  if(style.get(InternalDefinesEvaluationContext, &defines_eval_ctx) && defines_eval_ctx)
     EvaluationContexts::context_source_deleted(this);
 }
 
@@ -309,7 +309,7 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
     return false;
     
   reset_style();
-  style->add_pmath(PMATH_CPP_MOVE(options_expr));
+  style.add_pmath(PMATH_CPP_MOVE(options_expr));
   load_stylesheet();
   
   sections_expr = Call(Symbol(richmath_System_SectionGroup), PMATH_CPP_MOVE(sections_expr), Symbol(richmath_System_All));
@@ -354,12 +354,12 @@ void Document::invalidate() {
 
 void Document::on_style_changed(bool layout_affected) {
   if(layout_affected || get_own_style(InternalRequiresChildResize)) {
-    style->set(InternalRequiresChildResize, false);
+    style.set(InternalRequiresChildResize, false);
     invalidate_all();
   }
   
   if(get_own_style(InternalHasModifiedWindowOption)) {
-    style->set(InternalHasModifiedWindowOption, false);
+    style.set(InternalHasModifiedWindowOption, false);
     
     native()->invalidate_options();
   }
@@ -1006,7 +1006,7 @@ void Document::on_key_press(uint32_t unichar) {
       
         if(selection_start() == initial_seq->length()) {
           AbstractSequenceSection *new_sect;
-          SharedPtr<StyleData>         new_style = new StyleData();
+          Style                    new_style;
           
           Expr new_style_expr = sect->get_style(DefaultReturnCreatedSectionStyle, Symbol(richmath_System_DefaultNewSectionStyle));
           if(new_style_expr == richmath_System_DefaultNewSectionStyle) 
@@ -1014,16 +1014,16 @@ void Document::on_key_press(uint32_t unichar) {
           if(new_style_expr == richmath_System_Automatic)
             new_style_expr = sect->get_own_style(BaseStyleName);
 
-          new_style->add_pmath(PMATH_CPP_MOVE(new_style_expr));
-          if(!new_style->contains(BaseStyleName)) {
-            new_style->set(BaseStyleName, sect->get_own_style(BaseStyleName));
+          new_style.add_pmath(PMATH_CPP_MOVE(new_style_expr));
+          if(!new_style.contains(BaseStyleName)) {
+            new_style.set(BaseStyleName, sect->get_own_style(BaseStyleName));
           }
           
           String lang;
           if(context.stylesheet)
             lang = context.stylesheet->get_or_default(new_style, LanguageCategory);
           else
-            new_style->get(LanguageCategory, &lang);
+            new_style.get(LanguageCategory, &lang);
             
           if(lang == strings::NaturalLanguage)
             new_sect = new TextSection(new_style);
@@ -2084,12 +2084,9 @@ void Document::set_selection_style(Expr options) {
     for(int i = start; i < end; ++i) {
       Section *sect = section(i);
       
-      if(!sect->style)
-        sect->style = new StyleData();
-        
       String old_basestyle = sect->get_own_style(BaseStyleName);
       
-      sect->style->add_pmath(options);
+      sect->style.add_pmath(options);
       
       if(old_basestyle != sect->get_own_style(BaseStyleName))
         sect = Impl(*this).auto_make_text_or_math(sect);
@@ -2128,7 +2125,7 @@ void Document::set_selection_style(Expr options) {
     
     if(!style_box) {
       style_box = new StyleBox(seq->create_similar());
-      style_box->style->add_pmath(options);
+      style_box->style.add_pmath(options);
       style_box->content()->insert(0, seq, start, end);
       
       seq->insert(end, style_box);
@@ -2137,7 +2134,7 @@ void Document::set_selection_style(Expr options) {
       move_to(style_box->content(), style_box->content()->length());
     }
     
-    style_box->style->add_pmath(options);
+    style_box->style.add_pmath(options);
     style_box->invalidate();
     return;
   }
@@ -2233,15 +2230,12 @@ bool Document::split_section(bool do_it) {
       
     if(!do_it)
       return true;
-      
-    SharedPtr<StyleData> new_style = new StyleData();
-    new_style->merge(sect->style);
     
     AbstractSequenceSection *new_sect;
     if(dynamic_cast<MathSection *>(sect))
-      new_sect = new MathSection(new_style);
+      new_sect = new MathSection(sect->style.copy());
     else
-      new_sect = new TextSection(new_style);
+      new_sect = new TextSection(sect->style.copy());
       
     int e = sel.end;
     if(sel.start == e && seq->char_at(e) == '\n')
@@ -2251,13 +2245,10 @@ bool Document::split_section(bool do_it) {
     new_sect->content()->insert(0, seq, e, seq->length());
     
     if(sel.start < sel.end) {
-      new_style = new StyleData();
-      new_style->merge(sect->style);
-      
       if(dynamic_cast<MathSection *>(sect))
-        new_sect = new MathSection(new_style);
+        new_sect = new MathSection(sect->style.copy());
       else
-        new_sect = new TextSection(new_style);
+        new_sect = new TextSection(sect->style.copy());
         
       insert(sect->index() + 1, new_sect);
       new_sect->content()->insert(0, seq, sel.start, sel.end);
@@ -2330,14 +2321,11 @@ bool Document::split_section(bool do_it) {
             
             any_split = true;
             if(do_it) {
-              SharedPtr<StyleData> new_style = new StyleData();
-              new_style->merge(sect->style);
-              
               AbstractSequenceSection *new_sect;
               if(dynamic_cast<MathSection *>(sect))
-                new_sect = new MathSection(new_style);
+                new_sect = new MathSection(sect->style.copy());
               else
-                new_sect = new TextSection(new_style);
+                new_sect = new TextSection(sect->style.copy());
               
               insert(sect->index() + 1, new_sect);
               new_sect->content()->insert(0, seq, next_non_nl, len);
@@ -3387,7 +3375,7 @@ bool Document::load_stylesheet() {
     if(new_stylesheet) {
       new_stylesheet->add_user(this);
       context.stylesheet = new_stylesheet;
-      style->set(InternalLastStyleDefinitions, styledef);
+      style.set(InternalLastStyleDefinitions, styledef);
       invalidate_all();
       return true;
     }
@@ -3396,7 +3384,7 @@ bool Document::load_stylesheet() {
 }
 
 void Document::reset_style() {
-  StyleData::reset(style, strings::Document);
+  style.reset(strings::Document);
 }
 
 bool Document::is_option_supported(StyleOptionName key) {
@@ -3416,7 +3404,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     update_dynamic_styles(context);
     
     if(get_own_style(InternalRequiresChildResize)) {
-      style->set(InternalRequiresChildResize, false);
+      style.set(InternalRequiresChildResize, false);
       if(resize_only) {
         invalidate_all();
       }
@@ -3649,7 +3637,7 @@ Expr Document::to_pmath_impl(BoxOutputFlags flags) {
   
   Gather::emit(List(content));
   
-  style->emit_to_pmath(false);
+  style.emit_to_pmath(false);
   
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_Document));
@@ -4264,13 +4252,13 @@ bool Document::Impl::prepare_insert(bool include_previous_word) {
         style_expr = self.section(new_index - 1)->get_own_style(BaseStyleName);
     }
     
-    SharedPtr<StyleData> section_style = new StyleData(style_expr);
-    if(new_index > 0 && !section_style->contains(BaseStyleName)) {
-      section_style->set(BaseStyleName, self.section(new_index - 1)->get_own_style(BaseStyleName));
+    Style section_style = Style(style_expr);
+    if(new_index > 0 && !section_style.contains(BaseStyleName)) {
+      section_style.set(BaseStyleName, self.section(new_index - 1)->get_own_style(BaseStyleName));
     }
 
     String lang;
-    if(!section_style->get(LanguageCategory, &lang)) {
+    if(!section_style.get(LanguageCategory, &lang)) {
       if(auto all = self.stylesheet())
         lang = all->get_or_default(section_style, LanguageCategory);
     }
@@ -5071,7 +5059,7 @@ void Document::Impl::delete_orphaned_popup_windows() {
   self._attached_popup_windows.length(len);
   for(auto doc_id : orphaned) {
     if(auto doc = FrontEndObject::find_cast<Document>(doc_id)) {
-      doc->style->set(ClosingAction, ClosingActionDelete);
+      doc->style.set(ClosingAction, ClosingActionDelete);
       doc->native()->close();
     }
   }
@@ -5085,7 +5073,7 @@ void Document::Impl::delete_all_popup_windows() {
   
   for(auto &popup : popups) {
     if(auto doc = popup.popup_document()) {
-      doc->style->set(ClosingAction, ClosingActionDelete);
+      doc->style.set(ClosingAction, ClosingActionDelete);
       doc->native()->close();
     }
   }

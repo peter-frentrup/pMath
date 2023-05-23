@@ -262,9 +262,9 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
       
       RICHMATH_ASSERT(document()->style.is_valid());
       
-      document()->style->set(Editable,           false); // redirect Print() to console
-      document()->style->set(Selectable,         AutoBoolFalse);
-      document()->style->set(ShowSectionBracket, AutoBoolFalse);
+      document()->style.set(Editable,           false); // redirect Print() to console
+      document()->style.set(Selectable,         AutoBoolFalse);
+      document()->style.set(ShowSectionBracket, AutoBoolFalse);
       
       document()->select(nullptr, 0, 0);
     }
@@ -278,7 +278,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
         0, 0, 10, 10,
         parent)
     {
-      StyleData::reset(document()->style, strings::Docked);
+      document()->style.reset(strings::Docked);
     }
     
     void reload(Expr content, bool *change_flag) {
@@ -384,10 +384,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
     
     virtual void paint_background(Canvas &canvas) override {
       if(Color color = get_textcolor()) {
-        if(!document()->style)
-          document()->style = new StyleData();
-        
-        document()->style->set(FontColor, color);
+        document()->style.set(FontColor, color);
       }
       
       base::paint_background(canvas);
@@ -466,7 +463,7 @@ class richmath::Win32GlassDock: public Win32Dock {
     virtual void after_construction() override {
       base::after_construction();
       
-      document()->style->set(Background, Color::None);
+      document()->style.set(Background, Color::None);
       
       reload_shadows(Win32HighDpi::get_dpi_for_window(_hwnd));
       set_textshadows();
@@ -483,10 +480,7 @@ class richmath::Win32GlassDock: public Win32Dock {
     
   protected:
     void set_textshadows() {
-      if(!document()->style)
-        document()->style = new StyleData();
-        
-      document()->style->set(TextShadow, shadows);
+      document()->style.set(TextShadow, shadows);
     }
     
     virtual Color get_textcolor() override {
@@ -503,8 +497,7 @@ class richmath::Win32GlassDock: public Win32Dock {
     }
     
     void remove_textshadows() {
-      if(document()->style)
-        document()->style->remove(TextShadow);
+      document()->style.remove(TextShadow);
     }
     
     virtual void paint_background(Canvas &canvas) override {
@@ -741,8 +734,8 @@ void Win32DocumentWindow::after_construction() {
   on_theme_changed();
   title(String());
   
-  working_area()->document()->style->set(Visible,                         true);
-  working_area()->document()->style->set(InternalHasModifiedWindowOption, true);
+  working_area()->document()->style.set(Visible,                         true);
+  working_area()->document()->style.set(InternalHasModifiedWindowOption, true);
 }
 
 Win32DocumentWindow::~Win32DocumentWindow() {
@@ -1211,7 +1204,7 @@ void Win32DocumentWindow::on_close() {
         if(all_closed)
           break;
         
-        document()->style->set(Visible, false);
+        document()->style.set(Visible, false);
         invalidate_options();
       }
       return;
@@ -1500,7 +1493,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         } break;
       
       case WM_SHOWWINDOW: {
-          document()->style->set(Visible, !!wParam);
+          document()->style.set(Visible, !!wParam);
         } break;
         
       case WM_MOUSEACTIVATE: {

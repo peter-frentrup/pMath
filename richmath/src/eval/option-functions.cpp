@@ -29,7 +29,7 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
       if(len == 2) {
         StyleOptionName key = StyleData::get_key(expr[2]);
         if(key.is_valid()) {
-          s->emit_pmath(key);
+          s.emit_pmath(key);
           emit_all = false;
           add_defaults = false;
           need_filter = false;
@@ -37,7 +37,7 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
       }
       
       if(emit_all)
-        s->emit_to_pmath(true);
+        s.emit_to_pmath(true);
     }
       
     Expr options = gather.end();
@@ -82,11 +82,8 @@ Expr richmath_eval_FrontEnd_SetOptions(Expr expr) {
   if(obj) {
     Expr options = Expr(pmath_expr_get_item_range(expr.get(), 2, SIZE_MAX));
     options.set(0, Symbol(richmath_System_List));
-    
-    if(!obj->style)
-      obj->style = new StyleData();
       
-    obj->style->add_pmath(options, false);
+    obj->style.add_pmath(options, false);
     obj->on_style_changed(true); // TODO: check if only non-layout options were affected
     
     return options;

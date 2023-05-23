@@ -429,7 +429,7 @@ Document *DocumentsImpl::open_private_style_definitions(Document *doc, bool crea
                        Rule(Symbol(richmath_System_StyleDefinitions), stylesheet))),
                    Rule(Symbol(richmath_System_StyleDefinitions), String("PrivateStyleDefinitions.pmathdoc")));
     
-    doc->style->set(StyleDefinitions, stylesheet);
+    doc->style.set(StyleDefinitions, stylesheet);
   }
   
   if(stylesheet[0] != richmath_System_Document)
@@ -747,7 +747,7 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
     
     Length font_size = SymbolicSize::Invalid;
     
-    SharedPtr<StyleData> output_style = nullptr;
+    Style output_style = nullptr;
     if(auto section = box->find_parent<Section>(true)) {
       output_style = section->style;
       
@@ -973,8 +973,8 @@ const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_styles() {
   for(const auto &entry : latest_stylesheet->styles.entries()) {
     StyleItem item;
     
-    if(entry.value->get(MenuSortingValue, &item.sorting_value) && item.sorting_value > 0) {
-      if(!entry.value->get(MenuCommandKey, &item.command_key))
+    if(entry.value.get(MenuSortingValue, &item.sorting_value) && item.sorting_value > 0) {
+      if(!entry.value.get(MenuCommandKey, &item.command_key))
         item.command_key = 0;
       
       item.name = entry.key;
@@ -1220,12 +1220,12 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
   if(!popup_doc)
     return Symbol(richmath_System_DollarFailed);
   
-  popup_doc->style->set_pmath(ControlPlacement, expr[2]);
+  popup_doc->style.set_pmath(ControlPlacement, expr[2]);
   
   // FIXME: this is duplicated in Application::try_create_document():
   Expr options(pmath_options_extract_ex(expr.get(), 3, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_expr())
-    popup_doc->style->add_pmath(options);
+    popup_doc->style.add_pmath(options);
     
   Expr sections = expr[3];
   if(sections[0] != richmath_System_List)

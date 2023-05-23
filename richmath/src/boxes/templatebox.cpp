@@ -114,7 +114,6 @@ static T *search_next_box(Box *start, LogicalDirection direction, Box *stop_pare
 TemplateBox::TemplateBox(AbstractSequence *content)
   : base(content)
 {
-  style = new StyleData();
 }
 
 bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -137,9 +136,9 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   arguments = args;
   _tag = tag;
   is_content_loaded(false);
-  style->clear();
-  style->add_pmath(options);
-  style->set_pmath(BaseStyleName, tag);
+  style.clear();
+  style.add_pmath(options);
+  style.set_pmath(BaseStyleName, tag);
   
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   if(change_args)
@@ -421,7 +420,7 @@ Expr TemplateBox::to_pmath_impl(BoxOutputFlags flags) {
   g.emit(args);
   g.emit(_tag);
   
-  style->emit_to_pmath(false);
+  style.emit_to_pmath(false);
   
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_TemplateBox));

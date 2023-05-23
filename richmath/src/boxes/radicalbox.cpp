@@ -46,13 +46,9 @@ bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   Expr options(pmath_options_extract_ex(expr.get(), last_non_opt, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
-    
-  if(style){
-    reset_style();
-    style->add_pmath(options);
-  }
-  else if(options != PMATH_UNDEFINED)
-    style = new StyleData(options);
+  
+  reset_style();
+  style.add_pmath(options);
   
   _radicand->load_from_object(expr[1], opts);
   
@@ -230,8 +226,7 @@ Expr RadicalBox::to_pmath_impl(BoxOutputFlags flags) {
   if(_exponent)
     Gather::emit(_exponent->to_pmath(flags));
   
-  if(style)
-    style->emit_to_pmath(false);
+  style.emit_to_pmath(false);
   
   Expr result = g.end();
   if(_exponent)

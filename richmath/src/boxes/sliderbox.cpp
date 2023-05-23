@@ -185,7 +185,7 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   }
   
   reset_style();
-  style->add_pmath(options);
+  style.add_pmath(options);
     
   _range_expr       = new_range;
   _range_interval   = new_range_interval;
@@ -325,10 +325,10 @@ Expr SliderBox::to_pmath_impl(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s == strings::Slider)
+    if(style.get(BaseStyleName, &s) && s == strings::Slider)
       with_inherited = false;
     
-    style->emit_to_pmath(with_inherited);
+    style.emit_to_pmath(with_inherited);
   }
   
   Expr result = g.end();
@@ -337,7 +337,7 @@ Expr SliderBox::to_pmath_impl(BoxOutputFlags flags) {
 }
 
 void SliderBox::reset_style() {
-  StyleData::reset(style, strings::Slider);
+  style.reset(strings::Slider);
 }
 
 VolatileSelection SliderBox::mouse_selection(Point pos, bool *was_inside_start) {
@@ -351,8 +351,7 @@ void SliderBox::dynamic_updated() {
     
   must_update(true);
   
-  if(style) 
-    style->flag_pending_dynamic();
+  style.flag_pending_dynamic();
   
   request_repaint_all();
 }
