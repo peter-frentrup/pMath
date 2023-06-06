@@ -89,7 +89,7 @@ namespace richmath {
       return VolatileLocation(box, (dir == LogicalDirection::Forward) ? end : start ); 
     }
     
-    int length() { return end - start; }
+    int length() const { return end - start; }
     
     explicit operator bool() const { return box != nullptr; }
     bool is_empty() const { return !box || start == end; }
