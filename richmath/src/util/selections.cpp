@@ -26,6 +26,7 @@ namespace {
       
     private:
       void expand_default();
+      void expand_sections();
       void expand_math();
       void expand_text();
   };
@@ -746,6 +747,8 @@ void VolatileSelectionImpl::expand() {
     expand_math();
   else if(dynamic_cast<TextSequence *>(self.box))
     expand_text();
+  else if(dynamic_cast<SectionList *>(self.box))
+    expand_sections();
   else
     expand_default();
 }
@@ -754,7 +757,7 @@ void VolatileSelectionImpl::expand_default() {
   int index = self.box->index();
   Box *box2 = self.box->parent();
   while(box2) {
-    if(dynamic_cast<AbstractSequence *>(box2)) {
+    if(dynamic_cast<AbstractSequence*>(box2) || dynamic_cast<SectionList*>(box2)) {
       if(box2->selectable()) {
         self.box = box2;
         self.start = index;
@@ -766,6 +769,43 @@ void VolatileSelectionImpl::expand_default() {
     index = box2->index();
     box2 = box2->parent();
   }
+}
+
+void VolatileSelectionImpl::expand_sections() {
+  SectionList *slist = (SectionList*)self.box;
+  
+  int old_len = self.length();
+  if(old_len == slist->length()) {
+    expand_default();
+    return;
+  }
+  
+  if(old_len == 0) {
+    if(self.start > 0)
+      self.start--;
+    
+    if(self.end < slist->length())
+      self.end++; 
+  }
+  
+  int s = self.start;
+  if(s >= slist->length())
+    s = slist->length() - 1;
+  
+  while(s >= 0) {
+    const SectionGroupInfo &group = slist->group_info(s);
+    
+    if(group.end + 1 >= self.end && group.end + 1 - s > old_len) {
+      self.start = s;
+      self.end   = group.end + 1;
+      return;
+    }
+    
+    s = group.first;
+  }
+  
+  self.start = 0;
+  self.end   = slist->length();
 }
 
 void VolatileSelectionImpl::expand_math() {
