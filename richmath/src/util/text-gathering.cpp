@@ -14,13 +14,15 @@ namespace richmath {
       Impl(SimpleTextGather &self);
       
       void append_box(Box *box);
+      void append_box(Box *box, int start, int end);
     
     private:
-      void append_box_dispatch(Box *box);
-      void append_pane(PaneSelectorBox *pane);
-      void append_section(AbstractSequenceSection *sect);
-      void append_section_list(SectionList *sects);
-      void append_sequence(AbstractSequence *seq);
+      void append_box_dispatch(Box                     *box,   int start, int end);
+      void append_pane(        PaneSelectorBox         *pane);
+      void append_section(     AbstractSequenceSection *sect);
+      void append_section_list(SectionList             *sects, int start, int end);
+      void append_sequence(    AbstractSequence        *seq);
+      void append_sequence(    AbstractSequence        *seq,   int start, int end);
       
       void append_text_for(AbstractSequence *seq, String str);
     
@@ -46,6 +48,19 @@ void SimpleTextGather::append(Box *box) {
   skip_string_characters_in_math = !box->get_style(ShowStringCharacters, !skip_string_characters_in_math);
   
   Impl(*this).append_box(box);
+  
+  skip_string_characters_in_math = old_skip_string_characters;
+}
+
+void SimpleTextGather::append(const VolatileSelection &sel) {
+  if(!sel)
+    return;
+  
+  bool old_skip_string_characters = skip_string_characters_in_math;
+  
+  skip_string_characters_in_math = !sel.box->get_style(ShowStringCharacters, !skip_string_characters_in_math);
+  
+  Impl(*this).append_box(sel.box, sel.start, sel.end);
   
   skip_string_characters_in_math = old_skip_string_characters;
 }
@@ -99,10 +114,17 @@ inline SimpleTextGather::Impl::Impl(SimpleTextGather &self)
 }
 
 void SimpleTextGather::Impl::append_box(Box *box) {
+  if(!box)
+    return;
+  
+  append_box(box, 0, box->length());
+}
+
+void SimpleTextGather::Impl::append_box(Box *box, int start, int end) {
   if(self.text.length() >= self.max_length)
     return;
   
-  if(!box)
+  if(!box || start >= end)
     return;
   
   bool box_show_string_characters = box->get_own_style(ShowStringCharacters, !self.skip_string_characters_in_math);
@@ -110,18 +132,18 @@ void SimpleTextGather::Impl::append_box(Box *box) {
     bool old = self.skip_string_characters_in_math;
     self.skip_string_characters_in_math = !box_show_string_characters;
     
-    append_box_dispatch(box);
+    append_box_dispatch(box, start, end);
     
     self.skip_string_characters_in_math = old;
   }
   else {
-    append_box_dispatch(box);
+    append_box_dispatch(box, start, end);
   }
 }
 
-void SimpleTextGather::Impl::append_box_dispatch(Box *box) {
+void SimpleTextGather::Impl::append_box_dispatch(Box *box, int start, int end) {
   if(auto seq = dynamic_cast<AbstractSequence*>(box)) {
-    append_sequence(seq);
+    append_sequence(seq, start, end);
     return;
   }
   
@@ -132,6 +154,11 @@ void SimpleTextGather::Impl::append_box_dispatch(Box *box) {
   
   if(auto sect = dynamic_cast<AbstractSequenceSection*>(box)) {
     append_section(sect);
+    return;
+  }
+  
+  if(auto slist = dynamic_cast<SectionList*>(box)) {
+    append_section_list(slist, start, end);
     return;
   }
   
@@ -161,23 +188,26 @@ void SimpleTextGather::Impl::append_section(AbstractSequenceSection *sect) {
   append_sequence(sect->content());
 }
 
-void SimpleTextGather::Impl::append_section_list(SectionList *sects) {
-  int count = sects->count();
-  
-  if(count == 0)
+void SimpleTextGather::Impl::append_section_list(SectionList *sects, int start, int end) {
+  if(start >= end)
     return;
   
-  append_box(sects->section(0));
-  for(int i = 1; i < count; ++i) {
+  append_box(sects->section(start));
+  for(int i = start + 1; i < end; ++i) {
     self.append_text("\n\n");
     append_box(sects->section(i));
   }
 }
 
 void SimpleTextGather::Impl::append_sequence(AbstractSequence *seq) {
+  append_sequence(seq, 0, seq->length());
+}
+
+void SimpleTextGather::Impl::append_sequence(AbstractSequence *seq, int start, int end) {
   seq->ensure_boxes_valid();
   
-  int start = 0;
+  int items_count = seq->count();
+  
   for(int i = 0; i < seq->count(); ++i) {
     int oldlen = self.text.length();
     if(oldlen >= self.max_length)
@@ -185,6 +215,11 @@ void SimpleTextGather::Impl::append_sequence(AbstractSequence *seq) {
     
     Box *item    = seq->item(i);
     int  next    = item->index();
+    if(next < start)
+      continue;
+    if(next >= end)
+      break;
+    
     int  sub_len = next - start;
     if(sub_len >= self.max_length - oldlen) {
       append_text_for(seq, seq->text().part(start, self.max_length - oldlen));
@@ -197,7 +232,7 @@ void SimpleTextGather::Impl::append_sequence(AbstractSequence *seq) {
     start = next + 1;
   }
   
-  if(int rest_len = seq->length() - start) {
+  if(int rest_len = end - start) {
     int oldlen = self.text.length();
     if(oldlen + rest_len <= self.max_length)
       append_text_for(seq, seq->text().part(start, rest_len));

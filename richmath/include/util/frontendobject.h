@@ -15,6 +15,7 @@ namespace richmath {
       bool is_valid() const { return !!_id; }
       explicit operator bool() const { return is_valid(); }
       
+      static FrontEndReference of(FrontEndObject *obj);
       static FrontEndReference from_pmath(Expr expr);
       static FrontEndReference from_pmath_raw(Expr expr);
       
@@ -141,6 +142,10 @@ namespace richmath {
         MaximumFlagsBits = 8 * sizeof(_flags)
       };
   };
+  
+  inline FrontEndReference FrontEndReference::of(FrontEndObject *obj) {
+    return obj ? obj->id() : FrontEndReference::None;
+  }
   
   // http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Nifty_Counter
   static struct FrontEndObjectInitializer {

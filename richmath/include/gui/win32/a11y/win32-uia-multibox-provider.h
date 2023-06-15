@@ -1,5 +1,5 @@
-#ifndef RICHMATH__GUI__WIN32__A11Y__WIN32_UIA_BOX_PROVIDER_H__INCLUDED
-#define RICHMATH__GUI__WIN32__A11Y__WIN32_UIA_BOX_PROVIDER_H__INCLUDED
+#ifndef RICHMATH__GUI__WIN32__A11Y__WIN32_UIA_MULTIBOX_PROVIDER_H__INCLUDED
+#define RICHMATH__GUI__WIN32__A11Y__WIN32_UIA_MULTIBOX_PROVIDER_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -7,13 +7,18 @@
 
 
 #include <uiautomationcore.h>
-#include <util/frontendobject.h>
+#include <util/selections.h>
 #include <gui/win32/ole/comsidechannel.h>
+
 
 namespace richmath {
   class Box;
   
-  class Win32UiaBoxProvider : 
+  /// A provider for multiple boxes in a row.
+  /// Win32UiaMultiBoxProvider is used for implied constructs like SectionGroup, which have no single backing box, but are implied.
+  /// Conceptually, a Win32UiaBoxProvider(box) is similar to Win32UiaMultiBoxProvider(box, 0..box.length()), 
+  /// but Win32UiaMultiBoxProvider supports fewer Pattern Providers, becuase it is only "part of a whole".
+  class Win32UiaMultiBoxProvider : 
       public IRawElementProviderSimple, 
       public IRawElementProviderFragment,
       public IRawElementProviderFragmentRoot,
@@ -22,13 +27,15 @@ namespace richmath {
   {
       class Impl;
     protected:
-      explicit Win32UiaBoxProvider(FrontEndReference obj_ref);
-      Win32UiaBoxProvider(const Win32UiaBoxProvider&) = delete;
+      explicit Win32UiaMultiBoxProvider(SelectionReference sel_ref);
+      Win32UiaMultiBoxProvider(const Win32UiaMultiBoxProvider&) = delete;
       
-      virtual ~Win32UiaBoxProvider();
+      virtual ~Win32UiaMultiBoxProvider();
     
     public:
-      static Win32UiaBoxProvider *create(Box *box);
+      static Win32UiaMultiBoxProvider *create_multi(VolatileSelection sel);
+      static IRawElementProviderFragment *create_multi_or_inner_single(VolatileSelection sel);
+      static IRawElementProviderFragment *create_multi_or_outer_single(VolatileSelection sel);
       
       //
       // IUnknown methods
@@ -78,13 +85,17 @@ namespace richmath {
       STDMETHODIMP GetCaretRange(BOOL *isActive, ITextRangeProvider **pRetVal) override;
       
     public:
-      FrontEndObject *get_object();
-      template <typename T> T *get() { return dynamic_cast<T*>(get_object()); }
+      SelectionReference get() { return sel_ref; }
+      VolatileSelection get_now() { return sel_ref.get_all(); }
+      
+      static VolatileSelection find_outer_range(IRawElementProviderSimple *obj);
+      
+      static HRESULT NavigateImpl(const VolatileSelection &own_sel, enum NavigateDirection direction, IRawElementProviderFragment **pRetVal);
       
     private:
       LONG refcount;
-      FrontEndReference obj_ref;
+      SelectionReference sel_ref;
   };
 }
 
-#endif // RICHMATH__GUI__WIN32__A11Y__WIN32_UIA_BOX_PROVIDER_H__INCLUDED
+#endif // RICHMATH__GUI__WIN32__A11Y__WIN32_UIA_MULTIBOX_PROVIDER_H__INCLUDED

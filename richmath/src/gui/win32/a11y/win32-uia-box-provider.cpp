@@ -1,6 +1,7 @@
 #include <initguid.h>
 
 #include <gui/win32/a11y/win32-uia-box-provider.h>
+#include <gui/win32/a11y/win32-uia-multibox-provider.h>
 
 #include <eval/application.h>
 #include <boxes/buttonbox.h>
@@ -47,6 +48,8 @@ namespace richmath {
       HRESULT get_IsEnabled(VARIANT *pRetVal);
       HRESULT get_IsKeyboardFocusable(VARIANT *pRetVal);
       HRESULT get_Name(VARIANT *pRetVal);
+      
+      static Box *navigate_simple(Box *box, enum NavigateDirection direction);
       
     private:
       Win32UiaBoxProvider &self;
@@ -163,7 +166,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetPatternProvider(PATTERNID patternId, IUnkno
   if(!pRetVal)
     return HRreport(E_INVALIDARG);
   
-  if(!Application::is_running_on_gui_thread())
+  if(!Application::is_running_on_gui_thread()) // should not happen, because we specify ProviderOptions_UseComThreading
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   *pRetVal = nullptr;
@@ -289,68 +292,31 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
   if(!box)
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
-  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::Navigate(%d)]\n", this, obj_ref, direction);
   *pRetVal = nullptr;
-  switch(direction) {
-    case NavigateDirection_Parent: {
-        if(Box *parent = box->parent()) 
-          *pRetVal = Win32UiaBoxProvider::create(parent);
-      } return S_OK;
-    
-    case NavigateDirection_NextSibling: {
-        if(Box *parent = box->parent()) {
-          if(auto parseq = dynamic_cast<AbstractSequence*>(parent)) {
-            int count = parent->count();
-            for(int i = 0; i < count; ++i) {
-              Box *item = parent->item(i);
-              if(item == box) {
-                if(i + 1 < count)
-                  *pRetVal = Win32UiaBoxProvider::create(parent->item(i + 1));
-                return S_OK;
-              }
-            }
-          }
-          else {
-            int i = box->index();
-            if(i + 1 < parent->count())
-              *pRetVal = Win32UiaBoxProvider::create(parent->item(i + 1));
-          }
-        }
-      } return S_OK;
-    
-    case NavigateDirection_PreviousSibling: {
-        if(Box *parent = box->parent()) {
-          if(auto parseq = dynamic_cast<AbstractSequence*>(parent)) {
-            int count = parent->count();
-            for(int i = 0; i < count; ++i) {
-              Box *item = parent->item(i);
-              if(item == box) {
-                if(i > 0)
-                  *pRetVal = Win32UiaBoxProvider::create(parent->item(i - 1));
-                return S_OK;
-              }
-            }
-          }
-          else {
-            int i = box->index();
-            if(i > 0)
-              *pRetVal = Win32UiaBoxProvider::create(parent->item(i - 1));
-          }
-        }
-      } return S_OK;
-    
-    case NavigateDirection_FirstChild: {
-        if(int count = box->count())
-          *pRetVal = Win32UiaBoxProvider::create(box->item(0));
-      } return S_OK;
-      
-    case NavigateDirection_LastChild: {
-        if(int count = box->count())
-          *pRetVal = Win32UiaBoxProvider::create(box->item(count - 1));
-      } return S_OK;
+  
+  if(dynamic_cast<SectionList*>(box)) {
+    return Win32UiaMultiBoxProvider::NavigateImpl(VolatileSelection(box, 0, box->length()), direction, pRetVal);
   }
   
-  return HRreport(E_INVALIDARG);
+  Box *parent = box->parent();
+  if(dynamic_cast<SectionList*>(parent)) {
+    switch(direction) {
+      case NavigateDirection_Parent:
+      case NavigateDirection_NextSibling:
+      case NavigateDirection_PreviousSibling:
+        return Win32UiaMultiBoxProvider::NavigateImpl(VolatileSelection(box, 0).expanded_to_parent(), direction, pRetVal);
+      
+      case NavigateDirection_FirstChild:
+      case NavigateDirection_LastChild:
+      default: break;
+    }
+  }
+  
+  Box *res = Impl::navigate_simple(box, direction);
+  //fprintf(stderr, "[Win32UiaBoxProvider::Impl::navigate_simple(%p/%d, %d) = %p/%d]", box, FrontEndReference::of(box), direction, res, FrontEndReference::of(res));
+  if(res)
+    *pRetVal = Win32UiaBoxProvider::create(res);
+  return S_OK;
 }
 
 //
@@ -367,19 +333,25 @@ STDMETHODIMP Win32UiaBoxProvider::GetRuntimeId(SAFEARRAY **pRetVal) {
   if(!box)
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
-  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetRuntimeId()]\n", this, obj_ref);
+  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetRuntimeId()]", this, obj_ref);
   *pRetVal = nullptr;
   if(box->parent()) {
     int rId[] = { UiaAppendRuntimeId, (int)(uint32_t)(uintptr_t)FrontEndReference::unsafe_cast_to_pointer(obj_ref) };
+    
+    //fprintf(stderr, "[= {%d, %d}]\n", rId[0], rId[1]);
+    
     SAFEARRAY *psa = SafeArrayCreateVector(VT_I4, 0, 2);
     if(!psa)
       return E_OUTOFMEMORY;
     
-    for(long i = 0; i < 2; ++i) {
+    for(LONG i = 0; i < 2; ++i) {
       SafeArrayPutElement(psa, &i, (void*)&(rId[i]));
     }
     
     *pRetVal = psa;
+  }
+  else {
+    //fprintf(stderr, "[= null]\n");
   }
   
   return S_OK;
@@ -474,8 +446,13 @@ STDMETHODIMP Win32UiaBoxProvider::ElementProviderFromPoint(double x, double y, I
     receiver = sel.box;
   
   if(receiver == doc) {
-    AddRef();
-    *pRetVal = this;
+    if(sel.length() == 0) {
+      AddRef();
+      *pRetVal = this;
+    }
+    else {
+      *pRetVal =  Win32UiaMultiBoxProvider::create_multi(sel);
+    }
   }
   else if(receiver) 
     *pRetVal = Win32UiaBoxProvider::create(receiver);
@@ -550,7 +527,7 @@ STDMETHODIMP Win32UiaBoxProvider::GetVisibleRanges(SAFEARRAY **pRetVal) {
   if(!box)
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
-  fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetVisibleRanges()]\n", this, obj_ref);
+  //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::GetVisibleRanges()]\n", this, obj_ref);
   // FIXME: collect all continuous ranges that are visible
   ComBase<ITextRangeProvider> range;
   range.attach(new Win32UiaTextRangeProvider(SelectionReference(box, 0, box->length())));
@@ -574,17 +551,13 @@ STDMETHODIMP Win32UiaBoxProvider::RangeFromChild(IRawElementProviderSimple *chil
   //fprintf(stderr, "[%p(%d)->Win32UiaBoxProvider::RangeFromChild(%p)]\n", this, obj_ref, childElement);
   
   *pRetVal = nullptr;
-  FrontEndObject *child_feo = find(childElement);
-  if(!child_feo)
+  VolatileSelection range = Win32UiaMultiBoxProvider::find_outer_range(childElement);
+  if(!range)
     return S_OK;
   
-  if(auto *child_box = dynamic_cast<Box*>(child_feo)) {
-    VolatileSelection range(child_box, 0);
-    range.expand_to_parent();
-    if(this_box->is_parent_of(range.box)) {
-      *pRetVal = new Win32UiaTextRangeProvider(SelectionReference(range));
-      return S_OK;
-    }
+  if(this_box->is_parent_of(range.box)) {
+    *pRetVal = new Win32UiaTextRangeProvider(SelectionReference(range));
+    return S_OK;
   }
   
   return S_OK;
@@ -691,14 +664,6 @@ FrontEndObject *Win32UiaBoxProvider::get_object() {
   return FrontEndObject::find(obj_ref);
 }
 
-FrontEndObject *Win32UiaBoxProvider::find(IRawElementProviderSimple *obj) {
-  ComBase<ComSideChannelBase> cppChild = ComSideChannelBase::from_iunk(obj);
-  if(auto childObj = dynamic_cast<Win32UiaBoxProvider*>(cppChild.get())) {
-    return FrontEndObject::find(childObj->obj_ref);
-  }
-  return nullptr;
-}
-
 //} ... class Win32UiaBoxProvider
 
 //{ class Win32UiaBoxProvider::Impl ...
@@ -767,13 +732,10 @@ HRESULT Win32UiaBoxProvider::Impl::get_BoundingRectangle(VARIANT *pRetVal) {
   if(!pRetVal)
     return HRreport(E_INVALIDARG);
   
+  pRetVal->vt = VT_EMPTY;
+  
   UiaRect rect;
   HR(get_BoundingRectangle(&rect));
-  
-  pRetVal->vt = VT_EMPTY;
-  Box *box = self.get<Box>();
-  if(!box)
-    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
   if(rect.width == 0 && rect.height == 0)
     return S_OK; // default = empty rect = invisible
@@ -934,6 +896,61 @@ HRESULT Win32UiaBoxProvider::Impl::get_Name(VARIANT *pRetVal) {
   pRetVal->vt = VT_BSTR;
   pRetVal->bstrVal = SysAllocStringLen((const wchar_t*)name.text.buffer(), name.text.length());
   return S_OK;
+}
+
+Box *Win32UiaBoxProvider::Impl::navigate_simple(Box *box, enum NavigateDirection direction) {
+  if(!box)
+    return nullptr;
+  
+  switch(direction) {
+    case NavigateDirection_Parent: return box->parent();
+    
+    case NavigateDirection_NextSibling: {
+        if(Box *parent = box->parent()) {
+          if(auto parseq = dynamic_cast<AbstractSequence*>(parent)) {
+            int count = parent->count();
+            for(int i = 0; i < count; ++i) {
+              Box *item = parent->item(i);
+              if(item == box) 
+                return (i + 1 < count) ? parent->item(i + 1) : nullptr;
+            }
+          }
+          else {
+            int i = box->index();
+            if(i + 1 < parent->count())
+              return parent->item(i + 1);
+          }
+        }
+      } return nullptr;
+    
+    case NavigateDirection_PreviousSibling: {
+        if(Box *parent = box->parent()) {
+          if(auto parseq = dynamic_cast<AbstractSequence*>(parent)) {
+            int count = parent->count();
+            for(int i = 0; i < count; ++i) {
+              Box *item = parent->item(i);
+              if(item == box) 
+                return (i > 0) ? parent->item(i - 1) : nullptr;
+            }
+          }
+          else {
+            int i = box->index();
+            if(i > 0)
+              return parent->item(i - 1);
+          }
+        }
+      } return nullptr;
+    
+    case NavigateDirection_FirstChild: 
+      if(int count = box->count()) return box->item(0);
+      else                         return nullptr;
+      
+    case NavigateDirection_LastChild:
+      if(int count = box->count()) return box->item(count - 1);
+      else                         return nullptr;
+  }
+  
+  return nullptr;
 }
 
 //} ... class Win32UiaBoxProvider::Impl

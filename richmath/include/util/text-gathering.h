@@ -3,15 +3,16 @@
 
 #include <util/pmath-extra.h>
 
+#include <util/selections.h>
+
 namespace richmath {
-  class Box;
-  
   class SimpleTextGather {
       class Impl;
     public:
       explicit SimpleTextGather(int maxlen);
       
       void append(Box *box);
+      void append(const VolatileSelection &sel);
       
       void append_space();
       void append_text(String str);
