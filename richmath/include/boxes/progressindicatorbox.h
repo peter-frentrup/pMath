@@ -28,6 +28,8 @@ namespace richmath {
       
       virtual Expr to_pmath_symbol() override;
       
+      virtual void reset_style() override;
+      
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
       virtual void dynamic_updated() override;
@@ -64,6 +66,8 @@ namespace richmath {
     
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::ProgressIndicatorBox; }
+
     private:
       Interval<double> _range_interval;
       double           _range_value;

@@ -127,6 +127,7 @@ extern pmath_symbol_t richmath_System_Plain;
 extern pmath_symbol_t richmath_System_PlotRange;
 extern pmath_symbol_t richmath_System_PlotRangePadding;
 extern pmath_symbol_t richmath_System_PointSize;
+extern pmath_symbol_t richmath_System_ProgressIndicatorBoxOptions;
 extern pmath_symbol_t richmath_System_PureArgument;
 extern pmath_symbol_t richmath_System_Range;
 extern pmath_symbol_t richmath_System_RemovalConditions;
@@ -2667,6 +2668,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(PlotRange);
   impl.emit_definition(PlotRangePaddingLeft);
   impl.emit_definition(PointSize);
+  impl.emit_definition(ProgressIndicatorBoxOptions);
   impl.emit_definition(ReturnCreatesNewSection);
   impl.emit_definition(Saveable);
   impl.emit_definition(ScriptLevel);
@@ -3253,6 +3255,7 @@ void StyleInformation::add_style() {
     add_ruleset_head(PaneBoxOptions,                Symbol( richmath_System_PaneBoxOptions));
     add_ruleset_head(PanelBoxOptions,               Symbol( richmath_System_PanelBoxOptions));
     add_ruleset_head(PatternVariableStyle,          strings::PatternVariableStyle);
+    add_ruleset_head(ProgressIndicatorBoxOptions,   Symbol( richmath_System_ProgressIndicatorBoxOptions));
     add_ruleset_head(SetterBoxOptions,              Symbol( richmath_System_SetterBoxOptions));
     add_ruleset_head(SliderBoxOptions,              Symbol( richmath_System_SliderBoxOptions));
     add_ruleset_head(StringStyle,                   strings::StringStyle);
@@ -3435,7 +3438,11 @@ void StyleInformation::add_style() {
     // PaneBoxDefaultImageSizeHorizontal
     // PaneBoxDefaultImageSizeVertical
     
-    add(StyleType::Size,            SliderBoxDefaultImageSizeCommon,    List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_ImageSize)));
+    add(StyleType::Size,            ProgressIndicatorBoxDefaultImageSizeCommon, List(Symbol(richmath_System_ProgressIndicatorBoxOptions), Symbol(richmath_System_ImageSize)));
+    // ProgressIndicatorBoxDefaultImageSizeHorizontal
+    // ProgressIndicatorBoxDefaultImageSizeVertical
+    
+    add(StyleType::Size,            SliderBoxDefaultImageSizeCommon,  List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_ImageSize)));
     // SliderBoxDefaultImageSizeHorizontal
     // SliderBoxDefaultImageSizeVertical
     

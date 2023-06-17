@@ -218,6 +218,11 @@ Options(PaneSelector):= Options(PaneSelectorBox):= {
     BoxID -> None,
     Enabled -> Automatic }
 
+Options(ProgressIndicator):= Options(ProgressIndicatorBox):= {
+    BaseStyle -> "ProgressIndicator", 
+    BoxID -> None,
+    ImageSize -> Automatic }
+
 Options(RadioButton):= Options(RadioButtonBox):= { 
     BaseStyle -> "RadioButton",
     BoxID -> None,
@@ -276,6 +281,7 @@ Options(Style):= Options(StyleBox):= {
     PanelBoxOptions -> Inherited,
     "PatternVariableStyle" -> Inherited,
     Placeholder -> Inherited,
+    ProgressIndicatorBoxOptions -> Inherited,
     ScriptLevel -> Inherited,
     ScriptSizeMultipliers -> Inherited,
     Selectable -> Inherited,
@@ -406,6 +412,8 @@ Options(Section):= {
         ImageSizeAction -> "ShrinkToFit"},
     "PatternVariableStyle" -> { FontColor -> Inherited },
     Placeholder -> Automatic,    % only valid for StyleData-sections
+    ProgressIndicatorBoxOptions -> {
+        ImageSize -> Automatic },
     RemovalConditions -> None,   % only valid for StyleData-sections
     ReturnCreatesNewSection -> Inherited,
     Saveable -> Inherited,       % only valid for StyleData-sections

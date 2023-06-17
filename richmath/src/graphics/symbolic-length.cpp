@@ -14,21 +14,23 @@ extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Small;
 extern pmath_symbol_t richmath_System_Tiny;
 
-//                                                                                 Automatic  Tiny   Small  Medium  Large
-const LengthConversionFactors LengthConversionFactors::Zero {                         0,        0,     0,      0,     0 };
-const LengthConversionFactors LengthConversionFactors::FontSizeInPt {                12.0f,     6,     9,     12,    24 };
-const LengthConversionFactors LengthConversionFactors::SectionMargins {               0.0f,   0.125,   0.25,   0.5,   1 };
-const LengthConversionFactors LengthConversionFactors::GraphicsSize {                 0,        8,    14,     22,    40 };
-const LengthConversionFactors LengthConversionFactors::NormalDashingInPt {           3.0,      1.5,   3.0,    6.0,  12.0 };
-const LengthConversionFactors LengthConversionFactors::PointSizeInPt {                2.5,      1,   1.75,    3.0,  5.25 };
-const LengthConversionFactors LengthConversionFactors::SimpleDashingOnInPt {         1.75,     0.75,  1.75,   3.75,  7.5 };
-const LengthConversionFactors LengthConversionFactors::SimpleDashingOffInPt {        3.5,      2.25,  3.5,    5.25,  9.75 };
-const LengthConversionFactors LengthConversionFactors::SliderLengthScale {            1,       0.5,   0.75,    1,    2 };
-const LengthConversionFactors LengthConversionFactors::SliderThicknessScale   {       1,       0.5,   0.75,    1,    1.25 };
-const LengthConversionFactors LengthConversionFactors::ThicknessInPt {               1.0,      0.5,   0.75,   1.5,   3.0 };
-const LengthConversionFactors LengthConversionFactors::ToggleSwitchLengthScale {      1,       0.67,  0.8,     1,    1.25 };
-const LengthConversionFactors LengthConversionFactors::ToggleSwitchThicknessScale {   1,       0.67,  0.8,     1,    1.25 };
-const LengthConversionFactors LengthConversionFactors::PlotRangePadding {            0.04,     0.01,  0.02,   0.04,  0.08 };
+//                                                                                            Automatic  Tiny   Small  Medium  Large
+const LengthConversionFactors LengthConversionFactors::Zero {                                    0,        0,     0,      0,     0 };
+const LengthConversionFactors LengthConversionFactors::FontSizeInPt {                           12.0f,     6,     9,     12,    24 };
+const LengthConversionFactors LengthConversionFactors::SectionMargins {                          0.0f,   0.125,   0.25,   0.5,   1 };
+const LengthConversionFactors LengthConversionFactors::GraphicsSize {                            0,        8,    14,     22,    40 };
+const LengthConversionFactors LengthConversionFactors::NormalDashingInPt {                      3.0,      1.5,   3.0,    6.0,  12.0 };
+const LengthConversionFactors LengthConversionFactors::PointSizeInPt {                          2.5,       1,    1.75,   3.0,  5.25 };
+const LengthConversionFactors LengthConversionFactors::ProgressIndicatorLengthScale {            1,       0.5,   0.75,    1,    2 };
+const LengthConversionFactors LengthConversionFactors::ProgressIndicatorThicknessScale   {       1,       0.5,   0.75,    1,    1.25 };
+const LengthConversionFactors LengthConversionFactors::SimpleDashingOnInPt {                    1.75,     0.75,  1.75,   3.75,  7.5 };
+const LengthConversionFactors LengthConversionFactors::SimpleDashingOffInPt {                   3.5,      2.25,  3.5,    5.25,  9.75 };
+const LengthConversionFactors LengthConversionFactors::SliderLengthScale {                       1,       0.5,   0.75,    1,    2 };
+const LengthConversionFactors LengthConversionFactors::SliderThicknessScale   {                  1,       0.5,   0.75,    1,    1.25 };
+const LengthConversionFactors LengthConversionFactors::ThicknessInPt {                          1.0,      0.5,   0.75,   1.5,   3.0 };
+const LengthConversionFactors LengthConversionFactors::ToggleSwitchLengthScale {                 1,       0.67,  0.8,     1,    1.25 };
+const LengthConversionFactors LengthConversionFactors::ToggleSwitchThicknessScale {              1,       0.67,  0.8,     1,    1.25 };
+const LengthConversionFactors LengthConversionFactors::PlotRangePadding {                       0.04,     0.01,  0.02,   0.04,  0.08 };
 
 static double convert_float_to_nice_double(float f);
 

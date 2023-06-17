@@ -24,6 +24,8 @@ namespace richmath {
     static const LengthConversionFactors GraphicsSize;
     static const LengthConversionFactors NormalDashingInPt;
     static const LengthConversionFactors PointSizeInPt;
+    static const LengthConversionFactors ProgressIndicatorLengthScale;
+    static const LengthConversionFactors ProgressIndicatorThicknessScale;
     static const LengthConversionFactors SimpleDashingOnInPt;
     static const LengthConversionFactors SimpleDashingOffInPt;
     static const LengthConversionFactors SliderLengthScale;

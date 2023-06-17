@@ -162,9 +162,13 @@ paneSelectorListToBoxes(~values: List)::= With({indices:= Array(Length(Unevaluat
 	Unevaluated({indices, values}).MapThread(Function(,paneSelectorRuleToBoxes(#1 -> #2),HoldAllComplete)))
 
 
-MakeBoxes(ProgressIndicator())::=                                     ProgressIndicatorBox(0, 0..1) /? allowGuiBoxes
-MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1) /? allowGuiBoxes
-MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max))::= ProgressIndicatorBox(val, min..max) /? allowGuiBoxes
+MakeBoxes(~x: ProgressIndicator)::= makeProgressIndicatorBox(x) /? allowGuiBoxes
+Attributes(makeProgressIndicatorBox):= {HoldAllComplete}
+makeProgressIndicatorBox(ProgressIndicator(                                      options:OptionsPattern()))::= ProgressIndicatorBox(0,   0..1,     options)
+makeProgressIndicatorBox(ProgressIndicator(~val ? isNumberOrDynamic,             options:OptionsPattern()))::= ProgressIndicatorBox(val, 0..1,     options)
+makeProgressIndicatorBox(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max, options:OptionsPattern()))::= ProgressIndicatorBox(val, min..max, options)
+makeProgressIndicatorBox(~x)::= makeCallBoxes(x)
+
 
 MakeBoxes(RadioButton())::=                                         RadioButtonBox(False) /? allowGuiBoxes
 MakeBoxes(RadioButton(~state))::=                                   RadioButtonBox(state) /? allowGuiBoxes
@@ -322,8 +326,8 @@ paneSelectorRuleToExpr(~paneboxes)::= wrapHoldCompleteAsHOLD @ MakeExpression(pa
 
 paneSelectorListToExpr(~rules: List)::= rules.Map(paneSelectorRuleToExpr)
 
-ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, 0..1))::=   HoldComplete(ProgressIndicator(val))
-ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, ~range))::= HoldComplete(ProgressIndicator(val, range))
+ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, 0..1,   options:OptionsPattern()))::= HoldComplete(ProgressIndicator(val,        options))
+ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, ~range, options:OptionsPattern()))::= HoldComplete(ProgressIndicator(val, range, options))
 
 RadioButtonBox/: MakeExpression(RadioButtonBox(~state))::=                                   HoldComplete(RadioButton(state))
 RadioButtonBox/: MakeExpression(RadioButtonBox(~state, ~value, options:OptionsPattern()))::= HoldComplete(RadioButton(state, value, options))
@@ -337,7 +341,7 @@ SetterBox/: MakeExpression(SetterBox(~var, ~value, ~labelBoxes, options:OptionsP
 			)
 		)
 
-SliderBox/: MakeExpression(SliderBox(~val, 0..1,   options:OptionsPattern()))::= HoldComplete(Slider(val, options))
+SliderBox/: MakeExpression(SliderBox(~val, 0..1,   options:OptionsPattern()))::= HoldComplete(Slider(val,        options))
 SliderBox/: MakeExpression(SliderBox(~val, ~range, options:OptionsPattern()))::= HoldComplete(Slider(val, range, options))
 
 

@@ -22,6 +22,11 @@ namespace std {
 #  define NAN  (std::numeric_limits<double>::quiet_NaN())
 #endif
 
+namespace richmath {
+  namespace strings {
+    extern String ProgressIndicator;
+  }
+}
 //{ class ProgressIndicatorBox ...
 
 ProgressIndicatorBox::ProgressIndicatorBox()
@@ -87,12 +92,21 @@ bool ProgressIndicatorBox::expand(const BoxSize &size) {
 
 void ProgressIndicatorBox::resize(Context &context) {
   float em = context.canvas().get_font_size();
+    
+  Length wlen = get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
+  Length hlen = get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
+  if(hlen == SymbolicSize::Automatic && wlen.is_symbolic())
+    hlen = wlen;
+  
   _extents.ascent  = 0.5 * em * 1.5;
   _extents.descent = 0;
   _extents.width   = 6 * em * 1.5;
   
   ControlPainter::std->calc_container_size(*this, context.canvas(), ContainerType::ProgressIndicatorBackground, &_extents);
-  //ControlPainter::std->calc_container_size(*this, context.canvas(), ContainerType::ProgressIndicatorBar, &size);
+  //ControlPainter::std->calc_container_size(*this, context.canvas(), ContainerType::ProgressIndicatorBar, &_extents);
+  
+  _extents.width  = wlen.resolve(_extents.width,    LengthConversionFactors::ProgressIndicatorLengthScale,    context.width);
+  _extents.ascent = hlen.resolve(_extents.height(), LengthConversionFactors::ProgressIndicatorThicknessScale, context.width);
   
   float h = _extents.height();
   _extents.ascent = 0.25 * em + 0.5 * h;
@@ -160,16 +174,32 @@ Expr ProgressIndicatorBox::to_pmath_symbol() {
 }
 
 Expr ProgressIndicatorBox::to_pmath_impl(BoxOutputFlags flags) {
-  Expr val;
+  Gather g;
+  
   if(has(flags, BoxOutputFlags::Literal))
-    val = to_literal();
+    Gather::emit(to_literal());
   else
-    val = _dynamic.expr();
+    Gather::emit(_dynamic.expr());
+  
+  Gather::emit(_range_expr);
+  
+  if(style) {
+    bool with_inherited = true;
     
-  return Call(
-           Symbol(richmath_System_ProgressIndicatorBox),
-           val,
-           _range_expr);
+    String s;
+    if(style.get(BaseStyleName, &s) && s == strings::ProgressIndicator)
+      with_inherited = false;
+    
+    style.emit_to_pmath(with_inherited);
+  }
+  
+  Expr result = g.end();
+  result.set(0, Symbol(richmath_System_ProgressIndicatorBox));
+  return result;
+}
+
+void ProgressIndicatorBox::reset_style() {
+  style.reset(strings::ProgressIndicator);
 }
 
 VolatileSelection ProgressIndicatorBox::mouse_selection(Point pos, bool *was_inside_start) {

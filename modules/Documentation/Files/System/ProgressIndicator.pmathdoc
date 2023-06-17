@@ -15,10 +15,68 @@ Document({
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A progress indicator showning 70% progress:", "ExampleText"), 
         SectionGroup({Section(BoxData({"ProgressIndicator", "(", "0.7", ")"}), 
-           "Input", SectionLabel -> "in [2]:"), 
+           "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData(ProgressIndicatorBox(0.7, 0 .. 1)), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
-       All), SectionGroup({Section("Scope", "ExampleSection"), 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+       All), SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("ImageSize", "ExampleSubsection"), 
+          Section("Symbolic sizes:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"ProgressIndicator", "(", {
+                  "0.7", ",", {"ImageSize", "\[Rule]", "s"}}, ")"}, ",", {
+                 "s", "\[Rule]", {"{", {"Automatic", ",", "Tiny", ",", 
+                   "Small", ",", "Medium", ",", "Large"}, "}"}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {ProgressIndicatorBox(0.7, 0 .. 1, 
+                 ImageSize -> {Automatic, Automatic}), ",", 
+                ProgressIndicatorBox(0.7, 0 .. 1, 
+                 ImageSize -> {Tiny, Automatic}), ",", 
+                ProgressIndicatorBox(0.7, 0 .. 1, 
+                 ImageSize -> {Small, Automatic}), ",", 
+                ProgressIndicatorBox(0.7, 0 .. 1, 
+                 ImageSize -> {Medium, Automatic}), ",", 
+                ProgressIndicatorBox(0.7, 0 .. 1, 
+                 ImageSize -> {Large, Automatic})}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Explicit size:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"ProgressIndicator", "(", {
+                  "0.7", ",", {"ImageSize", "\[Rule]", "200"}}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(ProgressIndicatorBox(0.7, 0 .. 1, 
+                 ImageSize -> {200, Automatic})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Specify an explicit height:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"ProgressIndicator", "(", {
+                  "0.7", ",", {"ImageSize", "\[Rule]", {
+                    "{", {"150", ",", "50"}, "}"}}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(ProgressIndicatorBox(0.7, 0 .. 1, 
+                 ImageSize -> {150, 50})), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Relative size:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"ProgressIndicator", "(", {
+                  "0.7", ",", {"ImageSize", "\[Rule]", {
+                    "Scaled", "(", "1", ")"}}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(ProgressIndicatorBox(0.7, 0 .. 1, 
+                 ImageSize :> {Scaled(1), Automatic})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1)}, 1), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Use the default range 0 to 1:", "ExampleText"), 
         SectionGroup({
           Section(
@@ -27,9 +85,8 @@ Document({
                ")"}, ",", {"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}}, 
              "}"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
-           BoxData({
-             "{", {ProgressIndicatorBox(Dynamic(Section$$458`x), 0 .. 1), ",", 
-              SliderBox(Dynamic(Section$$458`x), 0 .. 1)}, "}"}), "Output", 
+           BoxData({"{", {ProgressIndicatorBox(Dynamic($Context`x), 0 .. 1), 
+              ",", SliderBox(Dynamic($Context`x), 0 .. 1)}, "}"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -45,10 +102,10 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData({
-               "{", {ProgressIndicatorBox(Dynamic(Section$$462`x), 0 .. 100), 
-                ",", SliderBox(Dynamic(Section$$462`x), 0 .. 100)}, "}"}), 
-             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All)}, All)}, 1), SectionGroup({
+               "{", {ProgressIndicatorBox(Dynamic($Context`x), 0 .. 100), ",", 
+                SliderBox(Dynamic($Context`x), 0 .. 100)}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), SectionGroup({
         Section("Properties & Relations", "ExampleSection"), 
         Section(
          "On some systems, the each window can have a progress indicator (e.g. \
@@ -70,7 +127,20 @@ Document({
                0 .. 1), ",", 
               SliderBox(Dynamic(CurrentValue(EvaluationDocument(), 
                  "WindowProgress")), 0 .. 1)}, "}"}), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({TemplateBox({"ProgressIndicator"}, "ReferenceHyperlink"), 
+             " gets resized automatically by ", 
+             TemplateBox({"Filler"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Filler", "(", {"ProgressIndicator", "(", "0.7", 
+                ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(FillBox(ProgressIndicatorBox(0.7, 0 .. 1), 
+               StripOnInput -> False)), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Slider"}, "ReferenceHyperlink"), 
