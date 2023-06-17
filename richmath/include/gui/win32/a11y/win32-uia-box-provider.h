@@ -80,7 +80,9 @@ namespace richmath {
     public:
       FrontEndObject *get_object();
       template <typename T> T *get() { return dynamic_cast<T*>(get_object()); }
-      
+
+      static HRESULT NavigatePopupsImpl(Box *box, enum NavigateDirection direction, IRawElementProviderFragment **pRetVal);
+
     private:
       LONG refcount;
       FrontEndReference obj_ref;

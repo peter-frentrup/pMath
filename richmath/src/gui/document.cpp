@@ -247,6 +247,7 @@ namespace richmath {
       //{ attached boxes
     public:
       bool attach_popup_window(const SelectionReference &anchor, Document *popup_window);
+      Document *find_next_attached_popup_window_for(Box *anchor_box, Document *prev, LogicalDirection dir);
       void popup_window_closed(FrontEndReference popup_window_id);
       void invalidate_popup_window_positions();
       void delete_orphaned_popup_windows();
@@ -3671,6 +3672,10 @@ void Document::invalidate_popup_window_positions() {
   Impl(*this).invalidate_popup_window_positions();
 }
 
+Document *Document::find_next_attached_popup_window_for(Box *anchor_box, Document *prev, LogicalDirection dir) {
+  return Impl(*this).find_next_attached_popup_window_for(anchor_box, prev, dir);
+}
+
 //} ... class Document
 
 //{ class Document::Impl ...
@@ -5007,8 +5012,51 @@ bool Document::Impl::attach_popup_window(const SelectionReference &anchor, Docum
   if(!self.is_parent_of(anchor_box))
     return false;
   
+  anchor_box->probably_has_attached_popup(true);
   self._attached_popup_windows.add(popup);
   return true;
+}
+
+Document *Document::Impl::find_next_attached_popup_window_for(Box *anchor_box, Document *prev, LogicalDirection dir) {
+  if(!self.is_parent_of(anchor_box))
+    return nullptr;
+  
+  if(!anchor_box->probably_has_attached_popup())
+    return nullptr;
+  
+  bool return_next = false;
+  Document *last_visited = nullptr;
+  
+  FrontEndReference anchor_id = anchor_box->id();
+  for(const BoxAttchmentPopup &attachment : self._attached_popup_windows) {
+    if(attachment.anchor.id == anchor_id) {
+      if(Document *popup = attachment.popup_document()) {
+        if(return_next)
+          return popup;
+        
+        if(prev == popup) {
+          if(dir == LogicalDirection::Backward)
+            return last_visited;
+          else
+            return_next = true;
+        }
+        else if(prev == nullptr) {
+          if(dir == LogicalDirection::Forward) 
+            return popup;
+        }
+        
+        last_visited = popup;
+      }
+    }
+  }
+  
+  if(!last_visited)
+    anchor_box->probably_has_attached_popup(false);
+  
+  if(prev == nullptr)
+    return last_visited;
+  else
+    return nullptr; // next after last = null
 }
 
 void Document::Impl::popup_window_closed(FrontEndReference popup_window_id) {

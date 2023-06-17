@@ -191,6 +191,8 @@ namespace richmath {
       void popup_window_closed(FrontEndReference popup_window_id);
       void invalidate_popup_window_positions();
       
+      Document *find_next_attached_popup_window_for(Box *anchor_box, Document *prev, LogicalDirection dir);
+      
     public:
       Document *main_document; // not owned
       

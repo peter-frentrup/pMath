@@ -152,6 +152,7 @@ namespace richmath {
   };
   
   class Box: public ActiveStyledObject {
+      using base = ActiveStyledObject;
       friend class BoxAdopter;
     protected:
       virtual ~Box();
@@ -434,7 +435,17 @@ namespace richmath {
       static FunctionChain<Box*, Expr> *on_finish_load_from_object;
       static int max_box_output_depth;
       
+      bool probably_has_attached_popup() {       return get_flag(ProbablyHasAttachedPopup); }
+      void probably_has_attached_popup(bool value) { change_flag(ProbablyHasAttachedPopup, value); }
+      
     protected:
+      enum {
+        ProbablyHasAttachedPopup = base::NumFlagsBits,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
       void adopt(Box *child, int i);
       void abandon(Box *child);
       BoxAdopter make_adoptor() { return BoxAdopter(*this); }

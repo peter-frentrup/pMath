@@ -315,7 +315,31 @@ STDMETHODIMP Win32UiaMultiBoxProvider::get_HostRawElementProvider(IRawElementPro
 // IRawElementProviderFragment::Navigate
 //
 STDMETHODIMP Win32UiaMultiBoxProvider::Navigate(enum NavigateDirection direction, IRawElementProviderFragment **pRetVal) {
-  return NavigateImpl(get_now(), direction, pRetVal);
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+  
+  if(!Application::is_running_on_gui_thread())
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  VolatileSelection own_sel = get_now();
+  if(!own_sel)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  switch(direction) {
+    case NavigateDirection_Parent:
+    case NavigateDirection_LastChild:
+    case NavigateDirection_FirstChild:
+    case NavigateDirection_PreviousSibling:
+      return HRreport(NavigateImpl(own_sel, direction, pRetVal));
+    
+    case NavigateDirection_NextSibling:
+      HR(NavigateImpl(own_sel, direction, pRetVal));
+      if(*pRetVal) return S_OK;
+      HR(Win32UiaBoxProvider::NavigatePopupsImpl(own_sel.box, NavigateDirection_FirstChild, pRetVal));
+      return S_OK;
+  }
+  
+  return S_OK;
 }
 
 HRESULT Win32UiaMultiBoxProvider::NavigateImpl(const VolatileSelection &own_sel, enum NavigateDirection direction, IRawElementProviderFragment **pRetVal) {

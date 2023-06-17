@@ -27,6 +27,7 @@
 #include <gui/win32/a11y/win32-uia-text-range-provider.h>
 #include <gui/win32/a11y/win32-uia-toggle-provider.h>
 #include <gui/win32/win32-widget.h>
+#include <gui/win32/win32-attached-popup-window.h>
 
 #include <propvarutil.h>
 #include <uiautomation.h>
@@ -49,7 +50,11 @@ namespace richmath {
       HRESULT get_IsKeyboardFocusable(VARIANT *pRetVal);
       HRESULT get_Name(VARIANT *pRetVal);
       
+      static HRESULT try_navigate_children(Box *box, enum NavigateDirection direction, IRawElementProviderFragment **pRetVal);
+      static HRESULT try_navigate_popups(  Box *box, enum NavigateDirection direction, IRawElementProviderFragment **pRetVal);
+
       static Box *navigate_simple(Box *box, enum NavigateDirection direction);
+      static Box *navigate_popups(Box *box, enum NavigateDirection direction);
       
     private:
       Win32UiaBoxProvider &self;
@@ -292,31 +297,53 @@ STDMETHODIMP Win32UiaBoxProvider::Navigate(enum NavigateDirection direction, IRa
   if(!box)
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
-  *pRetVal = nullptr;
-  
-  if(dynamic_cast<SectionList*>(box)) {
-    return Win32UiaMultiBoxProvider::NavigateImpl(VolatileSelection(box, 0, box->length()), direction, pRetVal);
-  }
-  
-  Box *parent = box->parent();
-  if(dynamic_cast<SectionList*>(parent)) {
-    switch(direction) {
-      case NavigateDirection_Parent:
-      case NavigateDirection_NextSibling:
-      case NavigateDirection_PreviousSibling:
-        return Win32UiaMultiBoxProvider::NavigateImpl(VolatileSelection(box, 0).expanded_to_parent(), direction, pRetVal);
+  switch(direction) {
+    case NavigateDirection_LastChild:
+      HR(Impl::try_navigate_popups(box, direction, pRetVal));
+      if(*pRetVal) return S_OK;
+      HR(Impl::try_navigate_children(box, direction, pRetVal));
+      return S_OK;
+    
+    case NavigateDirection_FirstChild:
+    case NavigateDirection_Parent:
+      HR(Impl::try_navigate_children(box, direction, pRetVal));
+      if(*pRetVal) return S_OK;
+      HR(Impl::try_navigate_popups(box, direction, pRetVal));
+      return S_OK;
       
-      case NavigateDirection_FirstChild:
-      case NavigateDirection_LastChild:
-      default: break;
-    }
+    case NavigateDirection_NextSibling:
+      HR(Impl::try_navigate_children(box, direction, pRetVal));
+      if(*pRetVal) return S_OK;
+      if(auto parent = box->parent())
+        HR(Impl::try_navigate_popups(parent, NavigateDirection_FirstChild, pRetVal));
+      else
+        HR(Impl::try_navigate_popups(box, direction, pRetVal));
+      return S_OK;
+    
+    case NavigateDirection_PreviousSibling:
+      HR(Impl::try_navigate_children(box, direction, pRetVal));
+      if(*pRetVal) return S_OK;
+      HR(Impl::try_navigate_popups(box, direction, pRetVal));
+      if(*pRetVal) return S_OK;
+      if(auto parent = Impl::navigate_popups(box, NavigateDirection_Parent))
+        HR(Impl::try_navigate_children(parent, NavigateDirection_LastChild, pRetVal));
+      return S_OK;
   }
   
-  Box *res = Impl::navigate_simple(box, direction);
-  //fprintf(stderr, "[Win32UiaBoxProvider::Impl::navigate_simple(%p/%d, %d) = %p/%d]", box, FrontEndReference::of(box), direction, res, FrontEndReference::of(res));
-  if(res)
-    *pRetVal = Win32UiaBoxProvider::create(res);
   return S_OK;
+}
+
+HRESULT Win32UiaBoxProvider::NavigatePopupsImpl(Box *box, enum NavigateDirection direction, IRawElementProviderFragment **pRetVal) {
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+  
+  if(!Application::is_running_on_gui_thread())
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  if(!box)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  return Impl::try_navigate_popups(box, direction, pRetVal);
 }
 
 //
@@ -451,7 +478,7 @@ STDMETHODIMP Win32UiaBoxProvider::ElementProviderFromPoint(double x, double y, I
       *pRetVal = this;
     }
     else {
-      *pRetVal =  Win32UiaMultiBoxProvider::create_multi(sel);
+      *pRetVal =  Win32UiaMultiBoxProvider::create_multi_or_inner_single(sel);
     }
   }
   else if(receiver) 
@@ -820,6 +847,10 @@ HRESULT Win32UiaBoxProvider::Impl::get_ControlType(VARIANT *pRetVal) {
     pRetVal->vt   = VT_I4;
     pRetVal->lVal = UIA_SliderControlTypeId;
   }
+  else if(dynamic_cast<PaneBox*>(obj) || dynamic_cast<PanelBox*>(obj) || dynamic_cast<PaneSelectorBox*>(obj)) {
+    pRetVal->vt   = VT_I4;
+    pRetVal->lVal = UIA_PaneControlTypeId;
+  }
   else {
     pRetVal->vt   = VT_I4;
     pRetVal->lVal = UIA_GroupControlTypeId;
@@ -898,6 +929,54 @@ HRESULT Win32UiaBoxProvider::Impl::get_Name(VARIANT *pRetVal) {
   return S_OK;
 }
 
+HRESULT Win32UiaBoxProvider::Impl::try_navigate_children(Box *box, enum NavigateDirection direction, IRawElementProviderFragment **pRetVal) {
+  if(!box)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  *pRetVal = nullptr;
+  
+  if(dynamic_cast<SectionList*>(box)) {
+    return HRreport(Win32UiaMultiBoxProvider::NavigateImpl(VolatileSelection(box, 0, box->length()), direction, pRetVal));
+  }
+  
+  Box *parent = box->parent();
+  if(dynamic_cast<SectionList*>(parent)) {
+    switch(direction) {
+      case NavigateDirection_Parent:
+        HR(Win32UiaMultiBoxProvider::NavigateImpl(VolatileSelection(box, 0).expanded_to_parent(), direction, pRetVal));
+        if(!*pRetVal)
+          *pRetVal = Win32UiaBoxProvider::create(parent);
+        return S_OK;
+      
+      case NavigateDirection_NextSibling:
+      case NavigateDirection_PreviousSibling:
+        return HRreport(Win32UiaMultiBoxProvider::NavigateImpl(VolatileSelection(box, 0).expanded_to_parent(), direction, pRetVal));
+        
+      case NavigateDirection_FirstChild:
+      case NavigateDirection_LastChild:
+      default: break;
+    }
+  }
+  
+  Box *res = Impl::navigate_simple(box, direction);
+  
+  //fprintf(stderr, "[Win32UiaBoxProvider::Impl::navigate_simple(%p/%d, %d) = %p/%d]", box, FrontEndReference::of(box), direction, res, FrontEndReference::of(res));
+  if(res)
+    *pRetVal = Win32UiaBoxProvider::create(res);
+  
+  return S_OK;
+}
+
+HRESULT Win32UiaBoxProvider::Impl::try_navigate_popups(Box *box, enum NavigateDirection direction, IRawElementProviderFragment **pRetVal) {
+  *pRetVal = nullptr;
+  if(auto last_popup = Impl::navigate_popups(box, direction)) {
+    *pRetVal = Win32UiaBoxProvider::create(last_popup);
+    return S_OK;
+  }
+  
+  return S_OK;
+}
+
 Box *Win32UiaBoxProvider::Impl::navigate_simple(Box *box, enum NavigateDirection direction) {
   if(!box)
     return nullptr;
@@ -948,6 +1027,43 @@ Box *Win32UiaBoxProvider::Impl::navigate_simple(Box *box, enum NavigateDirection
     case NavigateDirection_LastChild:
       if(int count = box->count()) return box->item(count - 1);
       else                         return nullptr;
+  }
+  
+  return nullptr;
+}
+
+Box *Win32UiaBoxProvider::Impl::navigate_popups(Box *box, enum NavigateDirection direction) {
+  if(!box)
+    return nullptr;
+  
+  Document *doc = box->find_parent<Document>(true);
+  if(!doc)
+    return nullptr;
+  
+  switch(direction) {
+    case NavigateDirection_FirstChild: return doc->find_next_attached_popup_window_for(box, nullptr, LogicalDirection::Forward);
+    case NavigateDirection_LastChild:  return doc->find_next_attached_popup_window_for(box, nullptr, LogicalDirection::Backward);
+  }
+  
+  if(doc != box)
+    return nullptr;
+  
+  auto popup_wid = dynamic_cast<Win32AttachedPopupWindow*>(doc->native());
+  if(!popup_wid)
+    return nullptr;
+  
+  Box *anchor = popup_wid->source_box();
+  if(!anchor)
+    return nullptr;
+  
+  Document *anchor_doc = anchor->find_parent<Document>(true);
+  if(!anchor_doc)
+    return nullptr;
+  
+  switch(direction) {
+    case NavigateDirection_Parent:          return anchor;
+    case NavigateDirection_NextSibling:     return anchor_doc->find_next_attached_popup_window_for(anchor, doc, LogicalDirection::Forward);
+    case NavigateDirection_PreviousSibling: return anchor_doc->find_next_attached_popup_window_for(anchor, doc, LogicalDirection::Backward);
   }
   
   return nullptr;
