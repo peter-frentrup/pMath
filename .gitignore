@@ -37,3 +37,4 @@
 *.bmarks
 .directory
 /.VSCodeCounter/
+*.srctrl*
