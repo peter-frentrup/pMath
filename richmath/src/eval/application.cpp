@@ -743,6 +743,10 @@ void Application::done() {
 //      cn.sem->post();
   }
   
+#ifdef RICHMATH_USE_WIN32_GUI
+  UiaDisconnectAllProviders();
+#endif
+  
   eval_cache.clear();
   CurrentValue::done();
   application_filename = String();
