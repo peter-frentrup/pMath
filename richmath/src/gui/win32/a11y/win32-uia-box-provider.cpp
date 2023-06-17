@@ -11,6 +11,9 @@
 #include <boxes/inputfieldbox.h>
 #include <boxes/mathsequence.h>
 #include <boxes/openerbox.h>
+#include <boxes/panebox.h>
+#include <boxes/panelbox.h>
+#include <boxes/paneselectorbox.h>
 #include <boxes/progressindicatorbox.h>
 #include <boxes/radiobuttonbox.h>
 #include <boxes/sliderbox.h>
