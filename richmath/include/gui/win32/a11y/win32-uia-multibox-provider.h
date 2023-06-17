@@ -23,6 +23,7 @@ namespace richmath {
       public IRawElementProviderFragment,
       public IRawElementProviderFragmentRoot,
       public ITextProvider2, 
+      public IExpandCollapseProvider,
       public ComSideChannelBase 
   {
       class Impl;
@@ -77,12 +78,19 @@ namespace richmath {
       STDMETHODIMP RangeFromPoint(struct UiaPoint point, ITextRangeProvider **pRetVal) override;
       STDMETHODIMP get_DocumentRange(ITextRangeProvider **pRetVal) override;
       STDMETHODIMP get_SupportedTextSelection(enum SupportedTextSelection *pRetVal) override;
-        
+      
       //
       // ITextProvider2 methods
       //
       STDMETHODIMP RangeFromAnnotation(IRawElementProviderSimple *annotationElement, ITextRangeProvider **pRetVal) override;
       STDMETHODIMP GetCaretRange(BOOL *isActive, ITextRangeProvider **pRetVal) override;
+      
+      //
+      // IExpandCollapseProvider methods
+      //
+      STDMETHODIMP Expand(void) override;
+      STDMETHODIMP Collapse(void) override;
+      STDMETHODIMP get_ExpandCollapseState(enum ExpandCollapseState *pRetVal) override;
       
     public:
       SelectionReference get() { return sel_ref; }

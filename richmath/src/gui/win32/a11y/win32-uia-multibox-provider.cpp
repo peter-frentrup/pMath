@@ -125,6 +125,11 @@ STDMETHODIMP Win32UiaMultiBoxProvider::QueryInterface(REFIID iid, void **ppvObje
     *ppvObject = static_cast<ITextProvider2*>(this);
     return S_OK;
   }
+  else if(iid == IID_IExpandCollapseProvider) {
+    AddRef();
+    *ppvObject = static_cast<IExpandCollapseProvider*>(this);
+    return S_OK;
+  }
   else if(iid == IID_IRichmathComSideChannel) {
     AddRef();
     *ppvObject = static_cast<IRichmathComSideChannel*>(this);
@@ -185,7 +190,7 @@ STDMETHODIMP Win32UiaMultiBoxProvider::GetPatternProvider(PATTERNID patternId, I
     case UIA_TextPatternId:
     case UIA_TextPattern2Id: 
       if(VolatileSelection sel = get_now()) {
-        if(dynamic_cast<AbstractSequence*>(sel.box) || dynamic_cast<Document*>(sel.box)) {
+        if(dynamic_cast<AbstractSequence*>(sel.box) || dynamic_cast<SectionList*>(sel.box)) {
           *pRetVal = static_cast<ITextProvider2 *>(this);
           (*pRetVal)->AddRef();
           return S_OK;
@@ -215,6 +220,16 @@ STDMETHODIMP Win32UiaMultiBoxProvider::GetPatternProvider(PATTERNID patternId, I
 //    case UIA_TogglePatternId:        *pRetVal = static_cast<IToggleProvider*>(       Win32UiaToggleProvider::try_create(       get_object())); return S_OK;
 //  
 //    case UIA_RangeValuePatternId:    *pRetVal = static_cast<IRangeValueProvider*>(   Win32UiaRangeValueProvider::try_create(   get_object())); return S_OK;
+  
+    case UIA_ExpandCollapsePatternId: 
+      if(VolatileSelection sel = get_now()) {
+        if(dynamic_cast<SectionList*>(sel.box)) {
+            *pRetVal = static_cast<IExpandCollapseProvider *>(this);
+            (*pRetVal)->AddRef();
+            return S_OK;
+        }
+      }
+      return S_OK;
   }
   
   return S_OK;
@@ -542,6 +557,9 @@ STDMETHODIMP Win32UiaMultiBoxProvider::GetFocus(IRawElementProviderFragment **pR
 // ITextProvider::GetSelection
 //
 STDMETHODIMP Win32UiaMultiBoxProvider::GetSelection(SAFEARRAY **pRetVal) {
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+  
   if(!Application::is_running_on_gui_thread())
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
@@ -577,6 +595,9 @@ STDMETHODIMP Win32UiaMultiBoxProvider::GetVisibleRanges(SAFEARRAY **pRetVal) {
 // ITextProvider::RangeFromChild
 //
 STDMETHODIMP Win32UiaMultiBoxProvider::RangeFromChild(IRawElementProviderSimple *childElement, ITextRangeProvider **pRetVal) {
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+  
   if(!Application::is_running_on_gui_thread())
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
@@ -611,6 +632,9 @@ STDMETHODIMP Win32UiaMultiBoxProvider::RangeFromPoint(struct UiaPoint point, ITe
 // ITextProvider::get_DocumentRange
 //
 STDMETHODIMP Win32UiaMultiBoxProvider::get_DocumentRange(ITextRangeProvider **pRetVal) {
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+  
   if(!Application::is_running_on_gui_thread())
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
@@ -625,6 +649,9 @@ STDMETHODIMP Win32UiaMultiBoxProvider::get_DocumentRange(ITextRangeProvider **pR
 // ITextProvider::get_SupportedTextSelection
 //
 STDMETHODIMP Win32UiaMultiBoxProvider::get_SupportedTextSelection(enum SupportedTextSelection *pRetVal) {
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+  
   if(!Application::is_running_on_gui_thread())
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
@@ -636,6 +663,9 @@ STDMETHODIMP Win32UiaMultiBoxProvider::get_SupportedTextSelection(enum Supported
 // ITextProvider2::RangeFromAnnotation
 //
 STDMETHODIMP Win32UiaMultiBoxProvider::RangeFromAnnotation(IRawElementProviderSimple *annotationElement, ITextRangeProvider **pRetVal) {
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+  
   if(!Application::is_running_on_gui_thread())
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
@@ -647,6 +677,9 @@ STDMETHODIMP Win32UiaMultiBoxProvider::RangeFromAnnotation(IRawElementProviderSi
 // ITextProvider2::GetCaretRange
 //
 STDMETHODIMP Win32UiaMultiBoxProvider::GetCaretRange(BOOL *isActive, ITextRangeProvider **pRetVal) {
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+  
   if(!Application::is_running_on_gui_thread())
     return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
   
@@ -667,6 +700,81 @@ STDMETHODIMP Win32UiaMultiBoxProvider::GetCaretRange(BOOL *isActive, ITextRangeP
   sel.start = sel.end;
   *pRetVal  = new Win32UiaTextRangeProvider(SelectionReference(sel));
   *isActive = doc->native()->is_focused_widget();
+  
+  return S_OK;
+}
+
+//
+// IExpandCollapseProvider::Expand
+//
+STDMETHODIMP Win32UiaMultiBoxProvider::Expand(void) {
+  if(!Application::is_running_on_gui_thread())
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  VolatileSelection own_sel = get_now();
+  if(!own_sel)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+    
+  if(auto slist = dynamic_cast<SectionList*>(own_sel.box)) {
+    if(own_sel.start >= slist->length())
+      return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+    
+    slist->set_open_close_group(own_sel.start, true);
+    
+    return S_OK;
+  }
+  
+  return HRreport(E_NOTIMPL);
+}
+
+//
+// IExpandCollapseProvider::Collapse
+//
+STDMETHODIMP Win32UiaMultiBoxProvider::Collapse(void) {
+  if(!Application::is_running_on_gui_thread())
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  VolatileSelection own_sel = get_now();
+  if(!own_sel)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+    
+  if(auto slist = dynamic_cast<SectionList*>(own_sel.box)) {
+    if(own_sel.start >= slist->length())
+      return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+    
+    slist->set_open_close_group(own_sel.start, false);
+    
+    return S_OK;
+  }
+  
+  return HRreport(E_NOTIMPL);
+}
+
+//
+// IExpandCollapseProvider::get_ExpandCollapseState
+//
+STDMETHODIMP Win32UiaMultiBoxProvider::get_ExpandCollapseState(enum ExpandCollapseState *pRetVal) {
+  if(!pRetVal)
+    return HRreport(E_INVALIDARG);
+  
+  if(!Application::is_running_on_gui_thread())
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  VolatileSelection own_sel = get_now();
+  if(!own_sel)
+    return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+  
+  *pRetVal = ExpandCollapseState_LeafNode;
+  if(auto slist = dynamic_cast<SectionList*>(own_sel.box)) {
+    if(own_sel.start >= slist->length())
+      return HRreport(UIA_E_ELEMENTNOTAVAILABLE);
+      
+    const SectionGroupInfo &group = slist->group_info(own_sel.start);
+    
+    if(     group.close_rel <  0) *pRetVal = ExpandCollapseState_Expanded;
+    else if(group.close_rel == 0) *pRetVal = ExpandCollapseState_Collapsed;
+    else                          *pRetVal = ExpandCollapseState_PartiallyExpanded;
+  }
   
   return S_OK;
 }
