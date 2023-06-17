@@ -294,6 +294,10 @@ Document::~Document() {
 }
 
 StyledObject *Document::style_parent() {
+  if(auto working_area_doc = native()->working_area_document()) {
+    if(working_area_doc != this)
+      return working_area_doc;
+  }
   return Application::front_end_session;
 }
 

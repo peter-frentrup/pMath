@@ -298,6 +298,7 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     virtual void after_construction() override {
       base::after_construction();
       
+      document()->style.set(Background,         Color::None);
       document()->style.set(Editable,           false); // redirect Print() to console
       document()->style.set(Selectable,         AutoBoolFalse);
       document()->style.set(ShowSectionBracket, AutoBoolFalse);

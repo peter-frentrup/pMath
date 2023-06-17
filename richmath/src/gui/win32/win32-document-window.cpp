@@ -262,6 +262,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
       
       RICHMATH_ASSERT(document()->style.is_valid());
       
+      document()->style.set(Background,         Color::None);
       document()->style.set(Editable,           false); // redirect Print() to console
       document()->style.set(Selectable,         AutoBoolFalse);
       document()->style.set(ShowSectionBracket, AutoBoolFalse);
