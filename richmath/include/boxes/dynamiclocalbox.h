@@ -1,5 +1,5 @@
-#ifndef __BOYES__DYNAMICLOCALBOX_H__
-#define __BOYES__DYNAMICLOCALBOX_H__
+#ifndef RICHMATH__BOYES__DYNAMICLOCALBOX_H__INCLUDED
+#define RICHMATH__BOYES__DYNAMICLOCALBOX_H__INCLUDED
 
 #include <boxes/dynamicbox.h>
 
@@ -32,4 +32,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOYES__DYNAMICLOCALBOX_H__
+#endif // RICHMATH__BOYES__DYNAMICLOCALBOX_H__INCLUDED

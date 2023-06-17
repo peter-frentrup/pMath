@@ -1,5 +1,5 @@
-#ifndef __RESOURCES_H__
-#define __RESOURCES_H__
+#ifndef RICHMATH__RESOURCES_H__INCLUDED
+#define RICHMATH__RESOURCES_H__INCLUDED
 
 #define ICO_APP_MAIN 1
 #define ICO_FILE     2
@@ -25,4 +25,4 @@
 #define BMP_PIN32       203
 
 
-#endif // __RESOURCES_H__
+#endif // RICHMATH__RESOURCES_H__INCLUDED

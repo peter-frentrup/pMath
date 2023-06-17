@@ -1,5 +1,5 @@
-#ifndef __GUI__CONTROL_PAINTER_H_
-#define __GUI__CONTROL_PAINTER_H_
+#ifndef RICHMATH__GUI__CONTROL_PAINTER_H__INCLUDED
+#define RICHMATH__GUI__CONTROL_PAINTER_H__INCLUDED
 
 #include <graphics/animation.h>
 #include <graphics/margins.h>
@@ -250,4 +250,4 @@ namespace richmath {
   };
 }
 
-#endif // __GUI__CONTROL_PAINTER_H_
+#endif // RICHMATH__GUI__CONTROL_PAINTER_H__INCLUDED

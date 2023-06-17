@@ -1,5 +1,5 @@
-#ifndef __RICHMATH__UTIL__AUTOVALUERESET_H_
-#define __RICHMATH__UTIL__AUTOVALUERESET_H_
+#ifndef RICHMATH__UTIL__AUTOVALUERESET_H__INCLUDED
+#define RICHMATH__UTIL__AUTOVALUERESET_H__INCLUDED
 
 namespace richmath {
   template<typename T>
@@ -25,4 +25,4 @@ namespace richmath {
   };
 }
 
-#endif // __RICHMATH__UTIL__AUTOVALUERESET_H_
+#endif // RICHMATH__UTIL__AUTOVALUERESET_H__INCLUDED

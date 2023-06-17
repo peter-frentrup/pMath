@@ -1,5 +1,5 @@
-#ifndef __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
-#define __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
+#ifndef RICHMATH__EVAL__DYNAMIC_H__INCLUDED
+#define RICHMATH__EVAL__DYNAMIC_H__INCLUDED
 
 #include <util/pmath-extra.h>
 #include <util/style.h>
@@ -83,4 +83,4 @@ namespace richmath {
   };
 };
 
-#endif // __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
+#endif // RICHMATH__EVAL__DYNAMIC_H__INCLUDED

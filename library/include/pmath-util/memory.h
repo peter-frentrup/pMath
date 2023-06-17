@@ -1,5 +1,5 @@
-#ifndef __PATH_UTIL__MEMORY_H__
-#define __PATH_UTIL__MEMORY_H__
+#ifndef __PMATH_UTIL__MEMORY_H__
+#define __PMATH_UTIL__MEMORY_H__
 
 #include <pmath-config.h>
 #include <pmath-types.h>
@@ -123,4 +123,4 @@ PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void);
 PMATH_PRIVATE void         _pmath_memory_manager_done(void);
 #endif
 
-#endif /* __PATH_UTIL__MEMORY_H__ */
+#endif /* __PMATH_UTIL__MEMORY_H__ */

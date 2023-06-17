@@ -1,5 +1,5 @@
-#ifndef __RICHMATHRICHMATH__EVAL__OBSERVABLE_H__INCLUDED
-#define __RICHMATHRICHMATH__EVAL__OBSERVABLE_H__INCLUDED
+#ifndef RICHMATH__EVAL__OBSERVABLE_H__INCLUDED
+#define RICHMATH__EVAL__OBSERVABLE_H__INCLUDED
 
 #include <util/frontendobject.h>
 
@@ -74,4 +74,4 @@ namespace richmath {
   } TheObservatoryInitializer;
 }
 
-#endif // __RICHMATHRICHMATH__EVAL__OBSERVABLE_H__INCLUDED
+#endif // RICHMATH__EVAL__OBSERVABLE_H__INCLUDED

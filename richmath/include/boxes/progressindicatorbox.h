@@ -1,5 +1,5 @@
-#ifndef __RICHMATH__PROGRESSINDICATOR_H__
-#define __RICHMATH__PROGRESSINDICATOR_H__
+#ifndef RICHMATH__BOXES__PROGRESSINDICATORBOX_H__INCLUDED
+#define RICHMATH__BOXES__PROGRESSINDICATORBOX_H__INCLUDED
 
 #include <boxes/box.h>
 #include <eval/dynamic.h>
@@ -74,4 +74,4 @@ namespace richmath {
   };
 };
 
-#endif // __RICHMATH__PROGRESSINDICATOR_H__
+#endif // RICHMATH__BOXES__PROGRESSINDICATORBOX_H__INCLUDED
