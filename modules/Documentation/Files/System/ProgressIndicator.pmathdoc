@@ -1,0 +1,79 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ProgressIndicator", "ObjectName"), 
+      Section(BoxData(TemplateBox({"ProgressIndicator"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({TemplateBox({"ProgressIndicator"}, "ReferenceHyperlink"), 
+           "(\[Ellipsis]) displays as a progress indicator going from left to \
+           right. It does not allow for direct manipulation."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A progress indicator showning 70% progress:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"ProgressIndicator", "(", "0.7", ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData(ProgressIndicatorBox(0.7, 0 .. 1)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+       All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Use the default range 0 to 1:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             "{", {{"ProgressIndicator", "(", {"Dynamic", "(", "x", ")"}, 
+               ")"}, ",", {"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}}, 
+             "}"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {ProgressIndicatorBox(Dynamic(Section$$458`x), 0 .. 1), ",", 
+              SliderBox(Dynamic(Section$$458`x), 0 .. 1)}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use a fixed range from 0 to 100:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"ProgressIndicator", "(", {
+                  {"Dynamic", "(", "x", ")"}, ",", {"0", "..", "100"}}, ")"}, 
+                ",", {"Slider", "(", {{"Dynamic", "(", "x", ")"}, ",", {
+                   "0", "..", "100"}}, ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {ProgressIndicatorBox(Dynamic(Section$$462`x), 0 .. 100), 
+                ",", SliderBox(Dynamic(Section$$462`x), 0 .. 100)}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         "On some systems, the each window can have a progress indicator (e.g. \
+         in the task-bar button on Windows):", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             "{", {{"ProgressIndicator", "(", {
+                "Dynamic", "(", {"CurrentValue", "(", 
+                 StringBox("\"WindowProgress\""), ")"}, ")"}, ")"}, ",", {
+               "Slider", "(", {"Dynamic", "(", {
+                 "CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, ",", 
+                  StringBox("\"WindowProgress\"")}, ")"}, ")"}, ")"}}, "}"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              ProgressIndicatorBox(Dynamic(CurrentValue("WindowProgress")), 
+               0 .. 1), ",", 
+              SliderBox(Dynamic(CurrentValue(EvaluationDocument(), 
+                 "WindowProgress")), 0 .. 1)}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Slider"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Echo"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
