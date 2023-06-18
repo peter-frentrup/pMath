@@ -271,7 +271,8 @@ void UnderoverscriptBox::after_items_resize(Context &context) {
     &_underscript_offset,
     &_overscript_offset,
     underscript_is_stretched(),
-    overscript_is_stretched());
+    overscript_is_stretched(),
+    (AutoBoolValues)get_own_style(LimitsPositioning, AutoBoolAutomatic));
     
   _extents = _base->extents();
   if(_base_offset_x > 0)

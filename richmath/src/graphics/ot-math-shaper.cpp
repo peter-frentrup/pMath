@@ -956,7 +956,8 @@ void OTMathShaper::accent_positions(
   Vector2F          *underscript_offset,
   Vector2F          *overscript_offset,
   bool               under_is_stretched,
-  bool               over_is_stretched
+  bool               over_is_stretched,
+  AutoBoolValues     limits_positioning
 ) {
   float pt = context.canvas().get_font_size() / impl->units_per_em;
   uint16_t base_char = 0;
@@ -965,23 +966,33 @@ void OTMathShaper::accent_positions(
     
   bool is_integral = pmath_char_is_integral(base_char);
   
-  // actually do subscript/superscript
-  if(!under_is_stretched && !over_is_stretched && context.script_level > 0 && is_integral) {
-    script_positions(
-      context, base->extents().ascent, base->extents().descent,
-      under, over,
-      &underscript_offset->y, &overscript_offset->y);
-      
-    script_corrections(
-      context, base_char, base->glyph_array()[0],
-      under, over, 
-      underscript_offset->y, overscript_offset->y,
-      &underscript_offset->x, &overscript_offset->x);
-      
-    *base_x = 0;
-    underscript_offset->x += base->extents().width;
-    overscript_offset->x += base->extents().width;
-    return;
+  if(!under_is_stretched && !over_is_stretched) {
+    bool use_subsuper = false;
+    
+    switch(limits_positioning) {
+      case AutoBoolTrue:      use_subsuper = true;  break;
+      case AutoBoolFalse:     use_subsuper = false; break;
+      default:
+      case AutoBoolAutomatic: use_subsuper = context.script_level > 0 && is_integral; break;
+    }
+    
+    if(use_subsuper) {
+      script_positions(
+        context, base->extents().ascent, base->extents().descent,
+        under, over,
+        &underscript_offset->y, &overscript_offset->y);
+        
+      script_corrections(
+        context, base_char, base->glyph_array()[0],
+        under, over, 
+        underscript_offset->y, overscript_offset->y,
+        &underscript_offset->x, &overscript_offset->x);
+        
+      *base_x = 0;
+      underscript_offset->x += base->extents().width;
+      overscript_offset->x += base->extents().width;
+      return;
+    }
   }
   
   underscript_offset->y = base->extents().descent;

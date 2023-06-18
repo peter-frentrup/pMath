@@ -4,6 +4,7 @@
 #include <eval/observable.h>
 #include <graphics/color.h>
 #include <graphics/symbolic-length.h>
+#include <util/autobool.h>
 #include <util/multimap.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
@@ -34,12 +35,6 @@ namespace richmath {
     TemplateBox          = 0x01000000,
     UnderoverscriptBox   = 0x01100000,
     UnderscriptBox       = 0x01200000,
-  };
-  
-  enum AutoBoolValues {
-    AutoBoolFalse = 0,
-    AutoBoolTrue = 1,
-    AutoBoolAutomatic = 2
   };
   
   enum ClosingActionValues {

@@ -1292,7 +1292,8 @@ void SimpleMathShaper::accent_positions(
   Vector2F          *underscript_offset,
   Vector2F          *overscript_offset,
   bool               under_is_stretched,
-  bool               over_is_stretched
+  bool               over_is_stretched,
+  AutoBoolValues     limits_positioning
 ) {
   uint16_t base_char = 0;
   if(base->length() == 1)
@@ -1300,22 +1301,32 @@ void SimpleMathShaper::accent_positions(
     
   bool is_integral = pmath_char_is_integral(base_char);
   
-  if(!under_is_stretched && !over_is_stretched && context.script_level > 0 && is_integral) {
-    script_positions(
-      context, base->extents().ascent, base->extents().descent,
-      under, over,
-      &underscript_offset->y, &overscript_offset->y);
-      
-    script_corrections(
-      context, base_char, base->glyph_array()[0],
-      under, over, 
-      underscript_offset->y,  overscript_offset->y,
-      &underscript_offset->x, &overscript_offset->x);
-      
-    *base_x = 0;
-    underscript_offset->x += base->extents().width;
-    overscript_offset->x += base->extents().width;
-    return;
+  if(!under_is_stretched && !over_is_stretched) {
+    bool use_subsuper = false;
+    
+    switch(limits_positioning) {
+      case AutoBoolTrue:      use_subsuper = true;  break;
+      case AutoBoolFalse:     use_subsuper = false; break;
+      case AutoBoolAutomatic: use_subsuper = context.script_level > 0 && is_integral; break;
+    }
+    
+    if(use_subsuper) {
+      script_positions(
+        context, base->extents().ascent, base->extents().descent,
+        under, over,
+        &underscript_offset->y, &overscript_offset->y);
+        
+      script_corrections(
+        context, base_char, base->glyph_array()[0],
+        under, over, 
+        underscript_offset->y,  overscript_offset->y,
+        &underscript_offset->x, &overscript_offset->x);
+        
+      *base_x = 0;
+      underscript_offset->x += base->extents().width;
+      overscript_offset->x += base->extents().width;
+      return;
+    }
   }
   
   float em = context.canvas().get_font_size();

@@ -8,6 +8,7 @@
 #include <graphics/rectangle.h>
 
 #include <util/array.h>
+#include <util/autobool.h>
 #include <util/hashtable.h>
 #include <util/sharedptr.h>
 
@@ -245,7 +246,8 @@ namespace richmath {
         Vector2F          *underscript_offset,
         Vector2F          *overscript_offset,
         bool               under_is_stretched,
-        bool               over_is_stretched) = 0;
+        bool               over_is_stretched,
+        AutoBoolValues     limits_positioning) = 0;
         
       virtual void script_positions(
         Context           &context,
@@ -352,7 +354,8 @@ namespace richmath {
         Vector2F          *underscript_offset,
         Vector2F          *overscript_offset,
         bool               under_is_stretched,
-        bool               over_is_stretched) override;
+        bool               over_is_stretched,
+        AutoBoolValues     limits_positioning) override;
         
       virtual void script_positions(
         Context           &context,

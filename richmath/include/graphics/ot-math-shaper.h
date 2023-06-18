@@ -68,7 +68,8 @@ namespace richmath {
         Vector2F          *underscript_offset,
         Vector2F          *overscript_offset,
         bool               under_is_stretched,
-        bool               over_is_stretched) override;
+        bool               over_is_stretched,
+        AutoBoolValues     limits_positioning) override;
         
       virtual void script_positions(
         Context           &context,
