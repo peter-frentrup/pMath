@@ -966,14 +966,14 @@ void OTMathShaper::accent_positions(
     
   bool is_integral = pmath_char_is_integral(base_char);
   
-  if(!under_is_stretched && !over_is_stretched) {
+  if(!under_is_stretched && !over_is_stretched && context.script_level > 0) {
     bool use_subsuper = false;
     
     switch(limits_positioning) {
-      case AutoBoolTrue:      use_subsuper = true;  break;
-      case AutoBoolFalse:     use_subsuper = false; break;
       default:
-      case AutoBoolAutomatic: use_subsuper = context.script_level > 0 && is_integral; break;
+      case AutoBoolAutomatic: use_subsuper = is_integral; break;
+      case AutoBoolTrue:      use_subsuper = true;        break;
+      case AutoBoolFalse:     use_subsuper = false;       break;
     }
     
     if(use_subsuper) {
