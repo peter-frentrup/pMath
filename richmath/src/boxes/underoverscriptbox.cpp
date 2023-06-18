@@ -78,7 +78,8 @@ UnderoverscriptBox::~UnderoverscriptBox() {
 
 bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] == richmath_System_OverscriptBox) {
-    if(expr.expr_length() != 2)
+    Expr options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+    if(options.is_null())
       return false;
       
     if(_underscript) {
@@ -94,12 +95,16 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _base->load_from_object(      expr[1], opts);
     _overscript->load_from_object(expr[2], opts);
     
+    reset_style();
+    style.add_pmath(options);
+    
     finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
   
   if(expr[0] == richmath_System_UnderscriptBox) {
-    if(expr.expr_length() != 2)
+    Expr options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+    if(options.is_null())
       return false;
       
     if(_overscript) {
@@ -115,12 +120,16 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _base->load_from_object(       expr[1], opts);
     _underscript->load_from_object(expr[2], opts);
     
+    reset_style();
+    style.add_pmath(options);
+    
     finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
   
   if(expr[0] == richmath_System_UnderoverscriptBox) {
-    if(expr.expr_length() != 3)
+    Expr options = Expr(pmath_options_extract_ex(expr.get(), 3, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+    if(options.is_null())
       return false;
       
     if(!_underscript)
@@ -135,6 +144,9 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _base->load_from_object(       expr[1], opts);
     _underscript->load_from_object(expr[2], opts);
     _overscript->load_from_object( expr[3], opts);
+    
+    reset_style();
+    style.add_pmath(options);
     
     finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
