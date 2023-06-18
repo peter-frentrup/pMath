@@ -25,12 +25,15 @@ namespace richmath {
     GraphicsBox          = 0x00700000,
     GridBox              = 0x00800000,
     InputFieldBox        = 0x00900000,
-    PaneBox              = 0x00A00000,
-    PanelBox             = 0x00B00000,
-    ProgressIndicatorBox = 0x00C00000,
-    SetterBox            = 0x00D00000,
-    SliderBox            = 0x00E00000,
-    TemplateBox          = 0x00F00000,
+    OverscriptBox        = 0x00A00000,
+    PaneBox              = 0x00B00000,
+    PanelBox             = 0x00C00000,
+    ProgressIndicatorBox = 0x00D00000,
+    SetterBox            = 0x00E00000,
+    SliderBox            = 0x00F00000,
+    TemplateBox          = 0x01000000,
+    UnderoverscriptBox   = 0x01100000,
+    UnderscriptBox       = 0x01200000,
   };
   
   enum AutoBoolValues {
@@ -128,6 +131,7 @@ namespace richmath {
     InternalRegisteredBoxReference, // FrontEndReference
     InternalRequiresChildResize,
     InternalUsesCurrentValueOfMouseOver, // ObserverKindXXX
+    LimitsPositioning, // AutoBoolXXX
     LineBreakWithin,
     MenuCommandKey,
     MenuSortingValue,
@@ -176,6 +180,10 @@ namespace richmath {
     
     InputFieldBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    
+    OverscriptBoxDefaultLimitsPositioning      = LimitsPositioning + (int)DefaultStyleOptionOffsets::OverscriptBox,
+    UnderoverscriptBoxDefaultLimitsPositioning = LimitsPositioning + (int)DefaultStyleOptionOffsets::UnderoverscriptBox,
+    UnderscriptBoxDefaultLimitsPositioning     = LimitsPositioning + (int)DefaultStyleOptionOffsets::UnderscriptBox,
     
     PaneBoxDefaultImageSizeAction = ImageSizeAction + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultLineBreakWithin = LineBreakWithin + (int)DefaultStyleOptionOffsets::PaneBox,
@@ -367,12 +375,15 @@ namespace richmath {
     GraphicsBoxOptions,
     GridBoxOptions,
     InputFieldBoxOptions,
+    OverscriptBoxOptions,
     PaneBoxOptions,
     PanelBoxOptions,
     ProgressIndicatorBoxOptions,
     SetterBoxOptions,
     SliderBoxOptions,
     TemplateBoxOptions,
+    UnderoverscriptBoxOptions,
+    UnderscriptBoxOptions,
     
     InternalDeinitialization,
     Deinitialization,

@@ -11,6 +11,27 @@ extern pmath_symbol_t richmath_System_OverscriptBox;
 extern pmath_symbol_t richmath_System_UnderoverscriptBox;
 extern pmath_symbol_t richmath_System_UnderscriptBox;
 
+namespace richmath {
+  namespace strings {
+    extern String Overscript;
+    extern String Underoverscript;
+    extern String Underscript;
+  }
+}
+
+namespace richmath {
+  class UnderoverscriptBox::Impl {
+    public:
+      explicit Impl(UnderoverscriptBox &self);
+      
+      bool base_style_name_is_default();
+      String default_base_style_name();
+      
+    private:
+      UnderoverscriptBox &self;
+  };
+}
+
 static inline bool char_is_vertical_paren(uint16_t ch) {
   return ch == 0x23B4
          || ch == 0x23B5
@@ -299,6 +320,8 @@ void UnderoverscriptBox::paint(Context &context) {
 }
 
 Box *UnderoverscriptBox::remove(int *index) {
+  bool use_default_base_style_name = Impl(*this).base_style_name_is_default();
+  
   if(*index == 0) {
     if(_base->length() == 0) {
       if(auto seq = dynamic_cast<AbstractSequence*>(parent())) {
@@ -328,6 +351,9 @@ Box *UnderoverscriptBox::remove(int *index) {
         _underscript = nullptr;
         adopt(_overscript, 1);
         invalidate();
+        
+        if(use_default_base_style_name)
+          style.set(BaseStyleName, Impl(*this).default_base_style_name());
       }
       
       return move_logical(LogicalDirection::Backward, false, index);
@@ -337,6 +363,9 @@ Box *UnderoverscriptBox::remove(int *index) {
       _overscript->safe_destroy();
       _overscript = nullptr;
       invalidate();
+      
+      if(use_default_base_style_name)
+        style.set(BaseStyleName, Impl(*this).default_base_style_name());
     }
     return move_logical(LogicalDirection::Backward, false, index);
   }
@@ -357,6 +386,8 @@ Box *UnderoverscriptBox::remove(int *index) {
 }
 
 void UnderoverscriptBox::complete() {
+  bool use_default_base_style_name = Impl(*this).base_style_name_is_default();
+  
   if(!_underscript) {
     _underscript = new MathSequence;
     adopt(_underscript, 1);
@@ -367,6 +398,9 @@ void UnderoverscriptBox::complete() {
     _overscript = new MathSequence;
     adopt(_overscript, 2);
   }
+  
+  if(use_default_base_style_name)
+    style.set(BaseStyleName, Impl(*this).default_base_style_name());
 }
 
 Expr UnderoverscriptBox::to_pmath_symbol() {
@@ -380,24 +414,28 @@ Expr UnderoverscriptBox::to_pmath_symbol() {
 }
 
 Expr UnderoverscriptBox::to_pmath_impl(BoxOutputFlags flags) {
-  if(_underscript) {
-    if(_overscript)
-      return Call(
-               Symbol(richmath_System_UnderoverscriptBox),
-               _base->to_pmath(flags),
-               _underscript->to_pmath(flags),
-               _overscript->to_pmath(flags));
-               
-    return Call(
-             Symbol(richmath_System_UnderscriptBox),
-             _base->to_pmath(flags),
-             _underscript->to_pmath(flags));
-  }
+  Gather g;
   
-  return Call(
-           Symbol(richmath_System_OverscriptBox),
-           _base->to_pmath(flags),
-           _overscript->to_pmath(flags));
+  Gather::emit(_base->to_pmath(flags));
+  
+  if(_underscript) Gather::emit(_underscript->to_pmath(flags));
+  if(_overscript)  Gather::emit(_overscript->to_pmath(flags));
+  
+  style.emit_to_pmath(!Impl(*this).base_style_name_is_default());
+  
+  Expr result = g.end();
+  result.set(0, to_pmath_symbol());
+  return result;
+}
+
+DefaultStyleOptionOffsets UnderoverscriptBox::get_default_styles_offset() {
+  if(_underscript && !_overscript) return DefaultStyleOptionOffsets::UnderoverscriptBox;
+  if(_overscript && !_underscript) return DefaultStyleOptionOffsets::OverscriptBox;
+  return DefaultStyleOptionOffsets::UnderoverscriptBox;
+}
+
+void UnderoverscriptBox::reset_style() {
+  style.reset(Impl(*this).default_base_style_name());
 }
 
 Box *UnderoverscriptBox::move_vertical(
@@ -522,3 +560,27 @@ void UnderoverscriptBox::child_transformation(
 }
 
 //} ... class UnderoverscriptBox
+
+//{ class UnderoverscriptBox::Impl ...
+
+inline UnderoverscriptBox::Impl::Impl(UnderoverscriptBox &self)
+: self{self}
+{
+}
+
+bool UnderoverscriptBox::Impl::base_style_name_is_default() {
+  String s;
+  if(!self.style.get(BaseStyleName, &s)) 
+    return false;
+  
+  return s == default_base_style_name();
+}
+
+String UnderoverscriptBox::Impl::default_base_style_name() {
+  if(self._underscript && !self._overscript)  return strings::Underscript;
+  if(self._overscript  && !self._underscript) return strings::Overscript;
+  
+  return strings::Underoverscript;
+}
+
+//} ... class UnderoverscriptBox::Impl

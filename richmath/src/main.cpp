@@ -464,6 +464,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base.set(Enabled,                             AutoBoolAutomatic);
   Stylesheet::Default->base.set(Evaluatable,                         false);
   Stylesheet::Default->base.set(InternalUsesCurrentValueOfMouseOver, ObserverKindNone);
+  Stylesheet::Default->base.set(LimitsPositioning,                   AutoBoolAutomatic);
   Stylesheet::Default->base.set(LineBreakWithin,                     true);
   Stylesheet::Default->base.set(RemovalConditions,                   0);
   Stylesheet::Default->base.set(ReturnCreatesNewSection,             false);

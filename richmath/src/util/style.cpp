@@ -109,6 +109,7 @@ extern pmath_symbol_t richmath_System_Italic;
 extern pmath_symbol_t richmath_System_JoinForm;
 extern pmath_symbol_t richmath_System_LanguageCategory;
 extern pmath_symbol_t richmath_System_Left;
+extern pmath_symbol_t richmath_System_LimitsPositioning;
 extern pmath_symbol_t richmath_System_LineBreakWithin;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Magnification;
@@ -119,6 +120,7 @@ extern pmath_symbol_t richmath_System_Method;
 extern pmath_symbol_t richmath_System_NCache;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Opacity;
+extern pmath_symbol_t richmath_System_OverscriptBoxOptions;
 extern pmath_symbol_t richmath_System_PaneBoxOptions;
 extern pmath_symbol_t richmath_System_PanelBoxOptions;
 extern pmath_symbol_t richmath_System_Part;
@@ -177,6 +179,8 @@ extern pmath_symbol_t richmath_System_Top;
 extern pmath_symbol_t richmath_System_TrackedSymbols;
 extern pmath_symbol_t richmath_System_True;
 extern pmath_symbol_t richmath_System_Unassign;
+extern pmath_symbol_t richmath_System_UnderoverscriptBoxOptions;
+extern pmath_symbol_t richmath_System_UnderscriptBoxOptions;
 extern pmath_symbol_t richmath_System_UnsavedVariables;
 extern pmath_symbol_t richmath_System_Visible;
 extern pmath_symbol_t richmath_System_WholeSectionGroupOpener;
@@ -2651,6 +2655,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(JoinForm);
   impl.emit_definition(KeywordSymbolStyle);
   impl.emit_definition(LanguageCategory);
+  impl.emit_definition(LimitsPositioning);
   impl.emit_definition(LineBreakWithin);
   impl.emit_definition(LocalScopeConflictStyle);
   impl.emit_definition(LocalVariableStyle);
@@ -2661,6 +2666,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(MenuSortingValue);
   impl.emit_definition(Method);
   impl.emit_definition(OccurenceHighlightStyle);
+  impl.emit_definition(OverscriptBoxOptions);
   impl.emit_definition(PaneBoxOptions);
   impl.emit_definition(PanelBoxOptions);
   impl.emit_definition(PatternVariableStyle);
@@ -2709,6 +2715,8 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Tooltip);
   impl.emit_definition(TrackedSymbols);
   impl.emit_definition(UndefinedSymbolStyle);
+  impl.emit_definition(UnderoverscriptBoxOptions);
+  impl.emit_definition(UnderscriptBoxOptions);
   impl.emit_definition(UnknownOptionStyle);
   impl.emit_definition(UnsavedVariables);
   impl.emit_definition(Visible);
@@ -3252,6 +3260,7 @@ void StyleInformation::add_style() {
     add_ruleset_head(LocalVariableStyle,            strings::LocalVariableStyle);
     add_ruleset_head(MatchingBracketHighlightStyle, strings::MatchingBracketHighlightStyle);
     add_ruleset_head(OccurenceHighlightStyle,       strings::OccurenceHighlightStyle);
+    add_ruleset_head(OverscriptBoxOptions,          Symbol( richmath_System_OverscriptBoxOptions));
     add_ruleset_head(PaneBoxOptions,                Symbol( richmath_System_PaneBoxOptions));
     add_ruleset_head(PanelBoxOptions,               Symbol( richmath_System_PanelBoxOptions));
     add_ruleset_head(PatternVariableStyle,          strings::PatternVariableStyle);
@@ -3263,6 +3272,8 @@ void StyleInformation::add_style() {
     add_ruleset_head(SyntaxErrorStyle,              strings::SyntaxErrorStyle);
     add_ruleset_head(TemplateBoxOptions,            Symbol( richmath_System_TemplateBoxOptions));
     add_ruleset_head(UndefinedSymbolStyle,          strings::UndefinedSymbolStyle);
+    add_ruleset_head(UnderoverscriptBoxOptions,     Symbol( richmath_System_UnderoverscriptBoxOptions));
+    add_ruleset_head(UnderscriptBoxOptions,         Symbol( richmath_System_UnderscriptBoxOptions));
     add_ruleset_head(UnknownOptionStyle,            strings::UnknownOptionStyle);
     
     {
@@ -3364,6 +3375,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            Editable,                         Symbol( richmath_System_Editable));
     add(StyleType::AutoBool,        Enabled,                          Symbol( richmath_System_Enabled));
     add(StyleType::Bool,            Evaluatable,                      Symbol( richmath_System_Evaluatable));
+    add(StyleType::AutoBool,        LimitsPositioning,                Symbol( richmath_System_LimitsPositioning));
     add(StyleType::Bool,            LineBreakWithin,                  Symbol( richmath_System_LineBreakWithin));
     add(StyleType::Bool,            Placeholder,                      Symbol( richmath_System_Placeholder));
     add(StyleType::Bool,            ReturnCreatesNewSection,          Symbol( richmath_System_ReturnCreatesNewSection));
@@ -3399,7 +3411,11 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            InputFieldBoxDefaultContinuousAction, List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
     add(StyleType::Bool,            InputFieldBoxDefaultEnabled,          List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));
     
-    add(StyleType::Bool,            PaneBoxDefaultLineBreakWithin,        List(Symbol(richmath_System_PaneBoxOptions), Symbol( richmath_System_LineBreakWithin)));
+    add(StyleType::AutoBool,        OverscriptBoxDefaultLimitsPositioning,      List(Symbol(richmath_System_OverscriptBoxOptions),      Symbol( richmath_System_LimitsPositioning)));
+    add(StyleType::AutoBool,        UnderoverscriptBoxDefaultLimitsPositioning, List(Symbol(richmath_System_UnderoverscriptBoxOptions), Symbol( richmath_System_LimitsPositioning)));
+    add(StyleType::AutoBool,        UnderscriptBoxDefaultLimitsPositioning,     List(Symbol(richmath_System_UnderscriptBoxOptions),     Symbol( richmath_System_LimitsPositioning)));
+    
+    add(StyleType::Bool,            PaneBoxDefaultLineBreakWithin,    List(Symbol(richmath_System_PaneBoxOptions), Symbol( richmath_System_LineBreakWithin)));
     
     add(StyleType::AutoBool,        PanelBoxDefaultContentPadding,    List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_ContentPadding)));
     add(StyleType::Bool,            PanelBoxDefaultEnabled,           List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Enabled)));

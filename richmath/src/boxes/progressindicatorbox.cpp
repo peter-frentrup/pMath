@@ -27,6 +27,7 @@ namespace richmath {
     extern String ProgressIndicator;
   }
 }
+
 //{ class ProgressIndicatorBox ...
 
 ProgressIndicatorBox::ProgressIndicatorBox()

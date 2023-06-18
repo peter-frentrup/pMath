@@ -9,6 +9,7 @@ namespace richmath {
   
   class UnderoverscriptBox final : public Box {
       using BaseClass = Box;
+      class Impl;
     protected:
       virtual ~UnderoverscriptBox();
     public:
@@ -37,6 +38,8 @@ namespace richmath {
       
       virtual Expr to_pmath_symbol() override;
       
+      virtual void reset_style() override;
+      
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
@@ -64,6 +67,8 @@ namespace richmath {
       void underscript_is_stretched(bool value) { change_flag(UnderscriptIsStretchedBit, value); }
     
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override;
       
     private:
       MathSequence *_base;

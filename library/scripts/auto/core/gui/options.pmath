@@ -277,6 +277,7 @@ Options(Style):= Options(StyleBox):= {
     "MatchingBracketHighlightStyle" -> Inherited,
     MathFontFamily -> Inherited,
     "OccurenceHighlightStyle" -> Inherited,
+    OverscriptBoxOptions -> Inherited,
     PaneBoxOptions -> Inherited,
     PanelBoxOptions -> Inherited,
     "PatternVariableStyle" -> Inherited,
@@ -297,6 +298,8 @@ Options(Style):= Options(StyleBox):= {
     TemplateBoxOptions -> Inherited,
     TextShadow -> Inherited, % TODO: does not work any more
     "UndefinedSymbolStyle" -> Inherited,
+    UnderoverscriptBoxOptions -> Inherited,
+    UnderscriptBoxOptions -> Inherited,
     "UnknownOptionStyle" -> Inherited}
 
 Options(Section):= {
@@ -400,6 +403,7 @@ Options(Section):= {
     MenuCommandKey -> None,
     MenuSortingValue -> Inherited,
     "OccurenceHighlightStyle" -> { Background -> Inherited, Opacity -> Inherited },
+    OverscriptBoxOptions -> { LimitsPositioning -> Inherited },
     PaneBoxOptions -> {
         BaselinePosition -> Automatic,
         ImageSize -> Automatic},
@@ -461,6 +465,8 @@ Options(Section):= {
         Tooltip -> Automatic},
     TextShadow -> None,
     "UndefinedSymbolStyle" -> { FontColor -> Inherited },
+    UnderoverscriptBoxOptions -> { LimitsPositioning -> Inherited },
+    UnderscriptBoxOptions -> {     LimitsPositioning -> Inherited },
     "UnknownOptionStyle" -> { FontColor -> Inherited },
     Visible -> True,             % only valid for StyleData-sections
     WholeSectionGroupOpener -> False,

@@ -5,7 +5,8 @@ System`Private`MakeLimitsExpression
 System`Private`MakeScriptsExpression
 System`Private`MakeJuxtapositionExpression
 
-Options(SqrtBox):= Options(RadicalBox):= { SurdForm->False }
+Options(SqrtBox):= Options(RadicalBox):= { SurdForm -> False }
+Options(OverscriptBox):= Options(UnderoverscriptBox):= Options(UnderscriptBox):= { LimitsPositioning -> Automatic }
 
 Unprotect(
     System`Private`MakeLimitsExpression, 
