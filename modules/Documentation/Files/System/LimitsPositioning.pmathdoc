@@ -1,0 +1,123 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("LimitsPositioning", "ObjectName"), 
+      Section(BoxData(TemplateBox({"LimitsPositioning"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({TemplateBox({"UnderoverscriptBox"}, "ReferenceHyperlink"), 
+           "(", StyleBox("x", "Arg"), ", ", StyleBox("y", "Arg"), ", ", 
+           StyleBox("z", "Arg"), ", ", TemplateBox({"LimitsPositioning"}, 
+            "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"False"}, "ReferenceHyperlink"), 
+           ") is always displayed with explicit underscripts and overscripts, \
+           as ", BoxData(UnderoverscriptBox("x", "y", "z", 
+             LimitsPositioning -> False)), "."}), "Notes"), 
+        Section(
+         TextData({TemplateBox({"UnderoverscriptBox"}, "ReferenceHyperlink"), 
+           "(", StyleBox("x", "Arg"), ", ", StyleBox("y", "Arg"), ", ", 
+           StyleBox("z", "Arg"), ", ", TemplateBox({"LimitsPositioning"}, 
+            "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"True"}, "ReferenceHyperlink"), ") displays as ", 
+           BoxData(UnderoverscriptBox("x", "y", "z", 
+             LimitsPositioning -> False)), " when large, i.e. for ", 
+           TemplateBox({"ScriptLevel"}, "ReferenceHyperlink"), " = ", 
+           BoxData("0"), ", and as ", 
+           BoxData(UnderoverscriptBox("x", "y", "z", 
+             LimitsPositioning -> True)), " when small, i.e. for ", 
+           TemplateBox({"ScriptLevel"}, "ReferenceHyperlink"), 
+           " \[GreaterEqual] ", BoxData("1"), "."}), "Notes"), 
+        Section(TextData({"With the default setting ", 
+           TemplateBox({"LimitsPositioning"}, "ReferenceHyperlink"), 
+           " \[Rule] ", TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+           " the display of ", TemplateBox({"UnderoverscriptBox"}, 
+            "ReferenceHyperlink"), "(", StyleBox("x", "Arg"), ", ", 
+           StyleBox("y", "Arg"), ", ", StyleBox("z", "Arg"), ") depends on ", 
+           StyleBox("x", "Arg"), ". If ", StyleBox("x", "Arg"), 
+           " is an integral sign like ", TemplateBox({"Integral"}, 
+            "NamedCharacterHyperlink"), ", then effectively ", 
+           TemplateBox({"LimitsPositioning"}, "ReferenceHyperlink"), 
+           " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+           " is used, otherwise ", TemplateBox({"LimitsPositioning"}, 
+            "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"False"}, "ReferenceHyperlink"), " is used."}), 
+         "Notes"), 
+        Section(
+         TextData({TemplateBox({"LimitsPositioning"}, "ReferenceHyperlink"), 
+           " is ignored for special horizontally stretching accents like \
+           overbars."}), "Notes")}, All), Section("", "SectionFooterSpacer")}, 
+     All), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Prepare some boxes to show the different meanings:", 
+         "ExampleText"), 
+        Section(
+         BoxData({
+           {"boxes", "\[Assign]", {"FractionBox", "(", {
+              {"{", {{"UnderoverscriptBox", "(", {
+                  StringBox("\"x\""), ",", StringBox("\"0\""), ",", 
+                  StringBox("\"1\"")}, ")"}, ",", StringBox("\"+\""), ",", {
+                 "UnderoverscriptBox", "(", {StringBox("\"\[Sum]\""), ",", 
+                  StringBox("\"0\""), ",", StringBox("\"1\"")}, ")"}}, "}"}, 
+              ",", {"UnderoverscriptBox", "(", {
+                StringBox("\"\[Integral]\""), ",", StringBox("\"0\""), ",", 
+                StringBox("\"1\"")}, ")"}}, ")"}}, ";"}), "Input", 
+         SectionLabel -> "in [1]:"), 
+        Section(TextData({"With ", TemplateBox({"LimitsPositioning"}, 
+            "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"True"}, "ReferenceHyperlink"), 
+           ", the under- and overscripts are displayed after the base:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"SectionPrint", "(", {
+              "Section", "(", {{"BoxData", "(", "boxes", ")"}, ",", 
+               StringBox("\"Output\""), ",", {"UnderoverscriptBoxOptions", 
+                "\[Rule]", {"{", {"LimitsPositioning", "\[Rule]", "True"}, 
+                 "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData(FractionBox({UnderoverscriptBox("x", "0", "1"), "+", 
+              UnderoverscriptBox("\[Sum]", "0", "1")}, 
+             UnderoverscriptBox("\[Integral]", "0", "1"))), "Output", 
+           SectionGenerated -> True, UnderoverscriptBoxOptions -> {
+             LimitsPositioning -> True})}, All), 
+        Section(TextData({"With ", TemplateBox({"LimitsPositioning"}, 
+            "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"False"}, "ReferenceHyperlink"), 
+           ", the under- and overscripts are displayed below and above the \
+           base:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"SectionPrint", "(", {
+              "Section", "(", {{"BoxData", "(", "boxes", ")"}, ",", 
+               StringBox("\"Output\""), ",", {"UnderoverscriptBoxOptions", 
+                "\[Rule]", {"{", {"LimitsPositioning", "\[Rule]", "False"}, 
+                 "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [3]:"), 
+          Section(BoxData(FractionBox({UnderoverscriptBox("x", "0", "1"), "+", 
+              UnderoverscriptBox("\[Sum]", "0", "1")}, 
+             UnderoverscriptBox("\[Integral]", "0", "1"))), "Output", 
+           SectionGenerated -> True, UnderoverscriptBoxOptions -> {
+             LimitsPositioning -> False})}, All), 
+        Section(TextData({"With the default ", 
+           TemplateBox({"LimitsPositioning"}, "ReferenceHyperlink"), 
+           " \[Rule] ", TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+           ", the positioning depends on the base character:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"SectionPrint", "(", {
+              "Section", "(", {{"BoxData", "(", "boxes", ")"}, ",", 
+               StringBox("\"Output\""), ",", {"UnderoverscriptBoxOptions", 
+                "\[Rule]", {"{", {"LimitsPositioning", "\[Rule]", 
+                  "Automatic"}, "}"}}}, ")"}, ")"}), "Input", 
+           SectionLabel -> "in [4]:"), 
+          Section(BoxData(FractionBox({UnderoverscriptBox("x", "0", "1"), "+", 
+              UnderoverscriptBox("\[Sum]", "0", "1")}, 
+             UnderoverscriptBox("\[Integral]", "0", "1"))), "Output", 
+           SectionGenerated -> True, UnderoverscriptBoxOptions -> {
+             LimitsPositioning -> Automatic})}, All)}, All), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"UnderoverscriptBox"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UnderscriptBox"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"OverscriptBox"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ScriptLevel"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
