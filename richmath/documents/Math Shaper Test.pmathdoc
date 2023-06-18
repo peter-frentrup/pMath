@@ -3,25 +3,34 @@
 Document({
   SectionGroup({Section("Math Shaper Test", "Title"), 
     SectionGroup({
-      Section(BoxData({"Dynamic", "(", {
-          "SetterBar", "(", {
-           {"Dynamic", "(", {"CurrentValue", "(", {
-              {"EvaluationDocument", "(", ")"}, ",", "MathFontFamily"}, ")"}, 
-            ")"}, ",", {
-            {"CurrentValue", "(", StringBox("\"AvailableMathFonts\""), ")"}, 
-            ".", "Map", "(", {"s", "\[Function]", {
-              "(", {"s", "\[Rule]", {
-                "Style", "(", {"s", ",", {"FontFamily", "\[Rule]", "s"}}, 
-                ")"}}, ")"}}, ")"}}, ")"}, ")"}), "Input", 
-       SectionLabel -> "in [1]:"), 
       Section(
-       BoxData(
-        DynamicBox(
-         ToBoxes(SetterBar(Dynamic(CurrentValue(EvaluationDocument(), 
-             MathFontFamily)), Map(CurrentValue("AvailableMathFonts"), 
-            Function({$Context`s}, 
-             $Context`s -> Style($Context`s, FontFamily -> $Context`s))))))), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 2), 
+       BoxData({"Row", "(", {
+          "{", {
+           {"Dynamic", "(", {"SetterBar", "(", {
+              {"Dynamic", "(", {"CurrentValue", "(", {
+                 {"EvaluationDocument", "(", ")"}, ",", "MathFontFamily"}, 
+                ")"}, ")"}, ",", {
+               {"CurrentValue", "(", StringBox("\"AvailableMathFonts\""), 
+                ")"}, ".", "Map", "(", {"s", "\[Function]", {
+                 "(", {"s", "\[Rule]", {
+                   "Style", "(", {"s", ",", {"FontFamily", "\[Rule]", "s"}}, 
+                   ")"}}, ")"}}, ")"}}, ")"}, ")"}, ",", {
+            "Button", "(", {StringBox("\"Reset\""), ",", {
+              {"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, ",", 
+                "MathFontFamily"}, ")"}, "\[Assign]", "Inherited"}}, ")"}}, 
+          "}"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+      Section(
+       BoxData(TemplateBox({
+          DynamicBox(
+           ToBoxes(SetterBar(Dynamic(CurrentValue(EvaluationDocument(), 
+               MathFontFamily)), Map(CurrentValue("AvailableMathFonts"), 
+              Function({$Context`s}, 
+               $Context`s -> Style($Context`s, FontFamily -> $Context`s)))))), 
+          ButtonBox(StringBox("\"Reset\""), 
+           ButtonFunction -> 
+            Function(CurrentValue(EvaluationDocument(), MathFontFamily):= 
+              Inherited))}, "RowDefault")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [1]:")}, 2), 
     Section(
      BoxData(
       /\/({
@@ -172,6 +181,16 @@ Document({
         "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), ")"}}), "DisplayFormula"), 
+    Section(
+     BoxData({{"f", "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), 
+        ")"}, " ", " ", {
+        "f", "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}}), ")"}, " ", " ", {
+        "f", "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}}), ")"}, " ", " ", {
+        "f", "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}}), 
+        ")"}}), "DisplayFormula"), 
     Section(
      BoxData({
        {"[", {
@@ -441,16 +460,15 @@ Document({
      "DisplayFormula"), 
     Section(
      BoxData(/\/({{{"\[LeftArrow]", " ", "\[UpArrow]"}, " ", "\[Rule]", " ", {
-          {{{{{{{{{{{{{{{{{{"\[DownArrow]", " ", "\[LeftRightArrow]"}, " ", 
-                           "\[UpperLeftArrow]"}, " ", "\[UpperRightArrow]"}, 
-                         " ", "\[LowerRightArrow]"}, " ", 
-                        "\[LowerLeftArrow]"}, " ", "\[Function]"}, " ", 
-                      "\[U+21C0]"}, " ", "\[DoubleLeftArrow]"}, " ", 
-                    "\[DoubleRightArrow]"}, " ", "\[DoubleLeftRightArrow]"}, 
-                  " ", "\[U+21DC]"}, " ", "\[U+21DD]"}, "\[U+27F5]"}, " ", 
-               "\[U+27F6]"}, " ", "\[U+27F7]"}, " ", "\[U+27F8]"}, " ", 
-            "\[U+27F9]"}, " ", "\[U+27FA]"}, " ", "\[RuleDelayed]"}}, ","}, 
-       "\n", {
+          {{{{{"\[DownArrow]", " ", "\[LeftRightArrow]"}, " ", 
+              "\[UpperLeftArrow]"}, " ", "\[UpperRightArrow]"}, " ", 
+            "\[LowerRightArrow]"}, " ", "\[LowerLeftArrow]", " ", {
+            {{{{{{{{{{{"\[Function]", " ", "\[U+21C0]"}, " ", 
+                      "\[DoubleLeftArrow]"}, " ", "\[DoubleRightArrow]"}, " ", 
+                    "\[DoubleLeftRightArrow]"}, " ", "\[U+21DC]"}, " ", 
+                  "\[U+21DD]"}, "\[U+27F5]"}, " ", "\[U+27F6]"}, " ", 
+               "\[U+27F7]"}, " ", "\[U+27F8]"}, " ", "\[U+27F9]"}, " ", 
+            "\[U+27FA]"}}, " ", "\[RuleDelayed]"}}, ","}, "\n", {
         {{{{{"\[ForAll]", " ", {"\[PartialD]", " ", {
                "\[Exists]", " ", {"\[NotExists]", " ", {
                  "\[EmptySet]", " ", "\[Del]", " ", "\[Element]", " ", 
@@ -495,13 +513,13 @@ Document({
          "\[VerticalEllipsis]", " ", "\[CenterEllipsis]", " ", 
          "\[AscendingEllipsis]", " ", "\[DescendingEllipsis]", " ", {
           {"\[LeftCeiling]", " ", "\[RightCeiling]"}, " ", {
-           "\[LeftFloor]", " ", "\[RightFloor]"}, " ", "\[LeftAngleBracket]", 
-          " ", "\[RightAngleBracket]", " ", "\[OverBracket]", " ", 
-          "\[UnderBracket]", " ", "\[OverParenthesis]", " ", 
-          "\[UnderParenthesis]", " ", "\[OverBrace]", " ", "\[UnderBrace]", 
-          " ", " ", {"\[LeftDoubleBracket]", " ", "\[RightDoubleBracket]"}, 
-          " ", {"\[LeftBracketingBar]", " ", "\[RightBracketingBar]"}, " ", {
-           "\[LeftDoubleBracketingBar]", " ", 
+           "\[LeftFloor]", " ", "\[RightFloor]"}, " ", {
+           "\[LeftAngleBracket]", " ", "\[RightAngleBracket]"}, " ", 
+          "\[OverBracket]", " ", "\[UnderBracket]", " ", "\[OverParenthesis]", 
+          " ", "\[UnderParenthesis]", " ", "\[OverBrace]", " ", 
+          "\[UnderBrace]", " ", " ", {"\[LeftDoubleBracket]", " ", 
+           "\[RightDoubleBracket]"}, " ", {"\[LeftBracketingBar]", " ", 
+           "\[RightBracketingBar]"}, " ", {"\[LeftDoubleBracketingBar]", " ", 
            "\[RightDoubleBracketingBar]"}}}}, "\n", {
         "\[Dagger]", " ", "\[DoubleDagger]", " ", "\[Ellipsis]", " ", 
         "\[Prime]", " ", "\[DoublePrime]", " ", "\[TriplePrime]", " ", 
