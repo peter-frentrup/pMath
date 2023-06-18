@@ -65,9 +65,9 @@ static void packed_double_array_minmax_with(pmath_packed_array_t array, double *
     return;
   }
   
-  length = *pmath_packed_array_get_sizes(array);
-  step_size = *pmath_packed_array_get_steps(array);
-  data = pmath_packed_array_read(array, NULL, 0);
+  length    = *pmath_packed_array_get_sizes(array);
+  step_size = *pmath_packed_array_get_steps(array) / sizeof(double);
+  data      = pmath_packed_array_read(array, NULL, 0);
   for(i = 0; i < length * step_size; ++i) {
     *inout_min = minf(*inout_min, data[i]);
     *inout_max = maxf(*inout_max, data[i]);
@@ -91,9 +91,9 @@ static void packed_int32_array_minmax_with(pmath_packed_array_t array, int32_t *
     return;
   }
   
-  length = *pmath_packed_array_get_sizes(array);
-  step_size = *pmath_packed_array_get_steps(array);
-  data = pmath_packed_array_read(array, NULL, 0);
+  length    = *pmath_packed_array_get_sizes(array);
+  step_size = *pmath_packed_array_get_steps(array) / sizeof(int32_t);
+  data      = pmath_packed_array_read(array, NULL, 0);
   for(i = 0; i < length * step_size; ++i) {
     *inout_min = mini(*inout_min, data[i]);
     *inout_max = maxi(*inout_max, data[i]);
