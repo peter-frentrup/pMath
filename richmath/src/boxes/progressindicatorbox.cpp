@@ -129,7 +129,7 @@ void ProgressIndicatorBox::paint(Context &context) {
     }
   }
   
-  Point pos = context.canvas().current_pos();
+  Point pos = context.canvas().align_point(context.canvas().current_pos(), false);
   ControlPainter::std->draw_container(
     *this,
     context.canvas(),
