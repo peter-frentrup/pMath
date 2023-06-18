@@ -6,6 +6,8 @@
 
 
 namespace richmath {
+  class FrontEndObject;
+  
   class FrontEndReference {
       friend class FrontEndObject;
       friend class FrontEndReferenceImpl;
