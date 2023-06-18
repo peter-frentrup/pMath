@@ -201,6 +201,8 @@ namespace richmath {
   
   class MathShaper: public TextShaper {
     public:
+      static const float SpanMaxRestrictedSizeFactor;
+
       virtual float flattened_accent_base_height(Context &context) = 0;
       
       virtual bool horizontal_stretch_char(

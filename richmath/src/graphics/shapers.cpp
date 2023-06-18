@@ -656,6 +656,7 @@ SharedPtr<TextShaper> CharBoxTextShaper::set_style(FontStyle style) {
 
 //{ class MathShaper ...
 
+const float MathShaper::SpanMaxRestrictedSizeFactor = 1.5f; 
 Hashtable<String, SharedPtr<MathShaper> > MathShaper::available_shapers;
 
 SharedPtr<MathShaper> MathShaper::math_set_style(FontStyle style) {
@@ -1183,6 +1184,9 @@ void SimpleMathShaper::vertical_stretch_char(
                     &special_center);
                     
   float em = context.canvas().get_font_size();
+  float max_height = Infinity;
+  if(!full_stretch)
+    max_height = MathShaper::SpanMaxRestrictedSizeFactor * em;
   
   for(int i = 0; i < count; ++i) {
     context.canvas().set_font_face(font(fonts[i]));
@@ -1190,17 +1194,17 @@ void SimpleMathShaper::vertical_stretch_char(
     cg.index = glyphs[i];
     context.canvas().glyph_extents(&cg, 1, &cte);
     
-    if((ascent - em * 0.2 <= -cte.y_bearing && descent - em * 0.2 <= cte.height + cte.y_bearing)
+    bool is_large_enough = full_stretch ? ascent + descent <= cte.height : max_height <= cte.height;
+    if(is_large_enough
         || (i == count - 1
-            && (((!top || !bottom) && (!upper || !lower))
-                || ! full_stretch)))
+            && (((!top || !bottom) && (!upper || !lower)) || !full_stretch)))
     {
-      result->index = cg.index;
-      result->composed = 0;
+      result->index          = cg.index;
+      result->composed       = 0;
       result->is_normal_text = 0;
-      result->fontinfo = fonts[i];
-      result->x_offset = 0;
-      result->right = cte.x_advance;
+      result->fontinfo       = fonts[i];
+      result->x_offset       = 0;
+      result->right          = cte.x_advance;
       return;
     }
   }
@@ -1218,10 +1222,10 @@ void SimpleMathShaper::vertical_stretch_char(
     else
       h = 2 * (descent + d);
       
-    result->composed = 1;
+    result->composed      = 1;
     result->is_normal_text = 0;
-    result->fontinfo = fontindex;
-    result->x_offset = 0;
+    result->fontinfo       = fontindex;
+    result->x_offset       = 0;
     
     cg.index = top;
     context.canvas().glyph_extents(&cg, 1, &cte);
@@ -1245,12 +1249,12 @@ void SimpleMathShaper::vertical_stretch_char(
         cg.index = upper;
         context.canvas().glyph_extents(&cg, 1, &cte);
         
-        result->index = UnknownGlyph;
-        result->composed = 1;
+        result->index          = UnknownGlyph;
+        result->composed       = 1;
         result->is_normal_text = 0;
-        result->fontinfo = ulfontindex;
-        result->x_offset = 0;
-        result->right = cte.x_advance;
+        result->fontinfo       = ulfontindex;
+        result->x_offset       = 0;
+        result->right          = cte.x_advance;
         return;
       }
       
@@ -1263,19 +1267,19 @@ void SimpleMathShaper::vertical_stretch_char(
     
     if(h < 0) h = 0;
     result->ext.num_extenders = (uint16_t)round(divide(h, cte.height));
-    result->ext.rel_overlap = 0;
+    result->ext.rel_overlap   = 0;
   }
   else {
     cg.index = top;
     context.canvas().glyph_extents(&cg, 1, &cte);
     
     result->ext.num_extenders = 0;
-    result->ext.rel_overlap = 0;
-    result->composed = 1;
-    result->is_normal_text = 0;
-    result->fontinfo = fontindex;
-    result->x_offset = 0;
-    result->right = cte.x_advance;
+    result->ext.rel_overlap   = 0;
+    result->composed          = 1;
+    result->is_normal_text    = 0;
+    result->fontinfo          = fontindex;
+    result->x_offset          = 0;
+    result->right             = cte.x_advance;
   }
 }
 

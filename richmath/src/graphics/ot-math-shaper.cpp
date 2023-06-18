@@ -2066,7 +2066,7 @@ void OTMathShaperImpl::vertical_stretch_char(
   
   float max = Infinity;
   if(!full_stretch)
-    max = 2 * em;
+    max = MathShaper::SpanMaxRestrictedSizeFactor * em;
     
   if(var) {
     cairo_text_extents_t cte;
