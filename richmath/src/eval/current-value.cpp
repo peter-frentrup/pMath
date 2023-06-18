@@ -478,7 +478,9 @@ bool CurrentValueImpl::put_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr
   }
   
   if(rhs == richmath_System_False) {
-    slist->set_open_close_group(sec->index(), false);
+    // Only close if that sections starts a group, otherwise the outer group would be closed.
+    if(sec->group_info().end > sec->index())
+      slist->set_open_close_group(sec->index(), false);
     return true;
   }
   
