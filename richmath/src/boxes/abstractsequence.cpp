@@ -68,16 +68,23 @@ void AbstractSequence::ensure_boxes_valid() {
 }
 
 VolatileSelection AbstractSequence::normalize_selection(int start, int end) {
-  if(start <= 0)
+  int len = str.length();
+  if(start < 0)
     start = 0;
+  else if(start >= len)
+    start = len;
+  else if(start > 0 && is_utf16_high(str[start - 1]))
+    --start;
   
-  if(end >= str.length())
-    end = str.length();
-  else if(is_utf16_low(str[end])) {
+  if(end < 0)
+    end = 0;
+  else if(end >= len)
+    end = len;
+  else if(is_utf16_low(str[end]))
     ++end;
-    if(start > 0 && is_utf16_high(str[start - 1]))
-      --start;
-  }
+  
+  if(end < start)
+    end = start;
 
   return {this, start, end};
 }
