@@ -82,6 +82,8 @@ namespace richmath {
     VolatileSelection(const VolatileLocation &loc) : box(loc.box), start(loc.index), end(loc.index) {}
     VolatileSelection(Box *box, int index) : box(box), start(index), end(index) {}
     VolatileSelection(Box *box, int start, int end) : box(box), start(start), end(end) {}
+
+    static VolatileSelection all_of(Box *box);
     
     VolatileLocation start_only() const { return VolatileLocation(box, start); }
     VolatileLocation end_only() const {   return VolatileLocation(box, end); }
@@ -106,6 +108,9 @@ namespace richmath {
     bool is_inside_string() const;
     
     Box *contained_box() const;
+
+    /// Convert to a single token or SyntaxForm. NULL if not a single token.
+    String syntax_form() const;
     
     bool operator==(const VolatileSelection &other) const { 
       return other.box == box && other.start == start && other.end == end;

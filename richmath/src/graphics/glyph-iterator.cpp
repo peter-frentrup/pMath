@@ -11,6 +11,39 @@ GlyphIterator::GlyphIterator(MathSequence &seq)
 {
 }
 
+bool GlyphIterator::is_left_bracket() const {
+//  if(pmath_char_is_left(current_char()))
+//    return true;
+  return Tokenizer::is_left_bracket(find_syntax_form());
+}
+
+bool GlyphIterator::is_right_bracket() const {
+//  if(pmath_char_is_right(current_char()))
+//    return true;
+  return Tokenizer::is_right_bracket(find_syntax_form());
+}
+
+bool GlyphIterator::is_bracket() const {
+  return Tokenizer::is_bracket(find_syntax_form());
+}
+
+String GlyphIterator::find_syntax_form() const {
+  MathSequence *outermost = outermost_sequence();
+  
+  VolatileSelection tok_sel(current_sequence(), text_index(), find_next_token());
+  String result = tok_sel.syntax_form();
+  while(tok_sel && tok_sel.box != outermost) {
+    tok_sel.expand_to_parent();
+
+    if(Box *box = tok_sel.contained_box()) {
+      if(String syntax_form = VolatileSelection(box, 0).expanded_to_parent().syntax_form())
+        result = syntax_form;
+    }
+  }
+  
+  return result;
+}
+
 void GlyphIterator::move_by_glyphs(int delta) {
   ARRAY_ASSERT(delta >= 0 || glyph_index() + delta >= 0);
   

@@ -64,7 +64,9 @@ uint32_t richmath::unicode_to_utf32(String s) {
   return 0xFFFFFFFFU;
 }
 
-Expr richmath::expand_string_boxes(String s) {
+//{ class Tokenizer ...
+
+Expr Tokenizer::expand_string_boxes(String s) {
   const uint16_t *buf = s.buffer();
   const int len = s.length();
   
@@ -116,6 +118,47 @@ Expr richmath::expand_string_boxes(String s) {
     return result[1];
   return result;
 }
+
+bool Tokenizer::is_left_bracket(String tok) {
+  switch(analyse(tok)) {
+    case PMATH_TOK_LEFT:
+    case PMATH_TOK_LEFTCALL:
+      return true;
+  }
+
+  return tok.length() == 1 && tok[0] == PMATH_CHAR_PIECEWISE;
+}
+
+bool Tokenizer::is_right_bracket(String tok) {
+  return analyse(tok) == PMATH_TOK_RIGHT;
+}
+
+bool Tokenizer::is_bracket(uint16_t ch) {
+  if(ch == PMATH_CHAR_PIECEWISE)
+    return true;
+  
+  switch(pmath_token_analyse(&ch, 1, nullptr)) {
+    case PMATH_TOK_LEFT:
+    case PMATH_TOK_LEFTCALL:
+    case PMATH_TOK_RIGHT:
+      return true;
+  }
+
+  return false;
+}
+
+bool Tokenizer::is_bracket(String tok) {
+  switch(analyse(tok)) {
+    case PMATH_TOK_LEFT:
+    case PMATH_TOK_LEFTCALL:
+    case PMATH_TOK_RIGHT:
+      return true;
+  }
+
+  return tok.length() == 1 && tok[0] == PMATH_CHAR_PIECEWISE;
+}
+
+//} ... class Tokenizer
 
 //{ class SpanArray ...
 

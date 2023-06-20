@@ -23,11 +23,15 @@ namespace richmath {
       
       int glyph_count() const { return _basic_iter.outermost_sequence()->glyph_array().length(); }
       
-      MathSequence *current_sequence() const { return _basic_iter.current_sequence(); }
-      uint16_t      current_char() const {     return _basic_iter.current_char(); }
-      Box          *current_box() const {      return _basic_iter.current_box(); }
-      GlyphInfo    &current_glyph() const {    return all_glyphs()[glyph_index()]; }
-      VolatileLocation current_location() const { return {current_sequence(), text_index()}; }
+      MathSequence     *current_sequence() const { return _basic_iter.current_sequence(); }
+      uint16_t          current_char() const {     return _basic_iter.current_char(); }
+      Box              *current_box() const {      return _basic_iter.current_box(); }
+      GlyphInfo        &current_glyph() const {    return all_glyphs()[glyph_index()]; }
+      VolatileLocation  current_location() const { return {current_sequence(), text_index()}; }
+
+      bool is_left_bracket() const;
+      bool is_right_bracket() const;
+      bool is_bracket() const;
       
       const Array<GlyphInfo> &all_glyphs() const { return _basic_iter.outermost_sequence()->glyph_array(); };
       MathSequence *outermost_sequence() const { return _basic_iter.outermost_sequence(); }
@@ -44,7 +48,8 @@ namespace richmath {
       const uint16_t *text_end() const { return text_buffer_raw() + text_buffer_length(); }
       
       ArrayView<const uint16_t> find_token() const { return ArrayView<const uint16_t>{find_next_token() - text_index(), text_at_glyph()}; }
-      
+      String                    find_syntax_form() const;
+
       int find_token_end() const;
       int find_next_token() const;
       

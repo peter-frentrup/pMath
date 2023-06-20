@@ -118,7 +118,6 @@ namespace richmath {
     public:
       static pmath_bool_t subsuperscriptbox_at_index(int i, void *_data);
       static pmath_string_t underoverscriptbox_at_index(int i, void *_data);
-      static pmath_string_t syntaxform_or_null(Box *box);
       static void syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err);
       static pmath_t box_at_index(int i, void *_data);
       static pmath_t add_debug_metadata(
@@ -181,8 +180,10 @@ namespace richmath {
           explicit VerticalStretcher(Context &context, MathSequence &seq);
           
           void stretch_all(GlyphHeights &core_heights, GlyphHeights &heights);
-          
+
         private:
+          static bool can_stretch_char(uint16_t ch);
+
           void stretch_outermost_span(GlyphHeights &core_heights, GlyphHeights &heights);
           void stretch_span(                  MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights);
           void stretch_span_start(            MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights);
@@ -1193,9 +1194,8 @@ int MathSequence::matching_fence(int pos) {
   int len = str.length();
   if(pos < 0 || pos >= len)
     return -1;
-    
-  const uint16_t *buf = str.buffer();
-  if(pmath_char_is_left(buf[pos]) || pmath_char_is_right(buf[pos])) {
+  
+  if(Tokenizer::is_bracket(VolatileSelection(this, pos, pos+1).syntax_form())) {
     SpanExpr *span = new SpanExpr(pos, this);
     
     while(span) {
@@ -1649,55 +1649,30 @@ pmath_bool_t MathSequence::Impl::subsuperscriptbox_at_index(int i, void *_data) 
 pmath_string_t MathSequence::Impl::underoverscriptbox_at_index(int i, void *_data) {
   ScanData *data = (ScanData *)_data;
   
+  Box *box = nullptr;
   int start = data->current_box;
   while(data->current_box < data->sequence->boxes.length()) {
-    if(data->sequence->boxes[data->current_box]->index() == i) {
-      pmath_string_t str = syntaxform_or_null(data->sequence->boxes[data->current_box]);
-      if(!pmath_is_null(str))
-        return str;
+    Box *next_box = data->sequence->boxes[data->current_box];
+    if(next_box->index() == i) {
+      box = next_box;
+      break;
     }
     ++data->current_box;
   }
-  
-  data->current_box = 0;
-  while(data->current_box < start) {
-    if(data->sequence->boxes[data->current_box]->index() == i) {
-      pmath_string_t str = syntaxform_or_null(data->sequence->boxes[data->current_box]);
-      if(!pmath_is_null(str))
-        return str;
-    }
-    ++data->current_box;
-  }
-  
-  return PMATH_NULL;
-}
 
-pmath_string_t MathSequence::Impl::syntaxform_or_null(Box *box) {
-  if(auto uo = dynamic_cast<UnderoverscriptBox *>(box))
-    return pmath_ref(uo->base()->text().get_as_string());
-  
-  if(auto obo = dynamic_cast<OwnerBox*>(box)) {
-    Expr syntax_form = obo->get_own_style(SyntaxForm, Symbol(richmath_System_Automatic));
-    if(syntax_form.is_string()) 
-      return syntax_form.release();
-    
-    if(syntax_form == richmath_System_Automatic || obo->get_own_style(StripOnInput, false)) {
-      if(auto content = dynamic_cast<MathSequence*>(obo->content())) {
-        if(content->length() == 1 && content->text()[0] == PMATH_CHAR_BOX) 
-          return syntaxform_or_null(content->item(0));
-        
-        content->ensure_spans_valid();
-        if(content->span_array().next_token(0) == content->span_array().length())
-          return pmath_ref(content->text().get());
-        else
-          return PMATH_NULL;
+  if(!box) {
+    data->current_box = 0;
+    while(data->current_box < start) {
+      Box *next_box = data->sequence->boxes[data->current_box];
+      if(next_box->index() == i) {
+        box = next_box;
+        break;
       }
+      ++data->current_box;
     }
-    
-    return PMATH_NULL;
   }
-  
-  return PMATH_NULL;
+
+  return VolatileSelection(box, 0).expanded_to_parent().syntax_form().release();
 }
 
 void MathSequence::Impl::syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err) {
@@ -2680,6 +2655,26 @@ void MathSequence::Impl::VerticalStretcher::stretch_all(GlyphHeights &core_heigh
 
 void MathSequence::Impl::VerticalStretcher::stretch_outermost_span(GlyphHeights &core_heights, GlyphHeights &heights) {
   ARRAY_ASSERT(iter.has_more_glyphs());
+
+  // For single tokens wrappend in TagBox(...) etc., move up the TagBox/... to support constructs like TagBox(")",None,SyntaxForm->"(")
+  MathSequence *outermost = iter.outermost_sequence();
+  MathSequence *cur_seq   = iter.current_sequence();
+  if(cur_seq != outermost && iter.text_index() == 0) {
+    VolatileSelection sel(cur_seq, 0);
+    sel.expand_to_parent();
+    while(sel) {
+      if(auto outer = dynamic_cast<MathSequence*>(sel.box)) {
+        if(outer == outermost || outer->length() > 1) { // outer contains more than sel
+          stretch_span(outer, outer->span_array()[sel.start], core_heights, heights);
+          return;
+        }
+      }
+      if(sel.box == outermost)
+        break;
+      sel.expand_to_parent();
+    }
+  }
+
   stretch_span(iter.current_sequence(), iter.text_span_array()[iter.text_index()], core_heights, heights);
 }
 
@@ -2733,148 +2728,170 @@ void MathSequence::Impl::VerticalStretcher::stretch_span(MathSequence *span_seq,
 void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights) {
   ARRAY_ASSERT(span);
   
-  if(!span.next()) {
-    uint16_t ch = iter.current_char();
+  if(auto next = span.next()) {
+    stretch_span(span_seq, next, core_heights, heights);
+    return;
+  }
+  
+  MathSequence *cur_seq = iter.current_sequence();
+  if(cur_seq != span_seq && span_seq->is_parent_of(cur_seq)) {
+    if(iter.text_index() == 0) {
+      VolatileSelection sel(cur_seq, 0);
+      sel.expand_to_parent();
+      while(sel && sel.box != span_seq) {
+        if(auto outer = dynamic_cast<MathSequence*>(sel.box)) {
+          if(outer->length() > 1) { // outer contains more than sel
+            stretch_span(outer, outer->span_array()[sel.start], core_heights, heights);
+            return;
+          }
+        }
+        sel.expand_to_parent();
+      }
+    }
+  }
+
+  uint16_t ch = iter.current_char();
+  
+  int span_end = span.end();
+  
+  if(ch == '"') {
+    iter.skip_forward_to_glyph_after_current_text_pos(span_end + 1);
+    return;
+  }
+  
+  // TODO: we should not need to look at the SyntaxForm in VerticalStretcher and instead stretch any character that is stretchable
+  String start_syntax_form = iter.find_syntax_form();
+  if(auto box = iter.current_box()) {
+    auto underover = dynamic_cast<UnderoverscriptBox*>(box);
+    if(underover && underover->base()->length() == 1 && underover->base()->glyph_array().length() == 1)
+      ch = underover->base()->str[0];
+  }
+  
+  auto start_iter = iter;
+  
+  if(Tokenizer::is_left_bracket(start_syntax_form)) { // usually ==pmath_char_is_left(ch)
+    GlyphHeights inner_core_heights {};
+    GlyphHeights inner_heights {};
     
-    int span_end = span.end();
-    
-    if(ch == '"') {
-      iter.skip_forward_to_glyph_after_current_text_pos(span_end + 1);
-      return;
+    iter.move_next_token();
+    while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end && !pmath_char_is_right(iter.current_char())) {
+      stretch_outermost_span(inner_core_heights, inner_heights);
     }
     
+    float overhang_a = (inner_heights.ascent - inner_core_heights.ascent) * UnderoverscriptOverhangCoverage;
+    float overhang_d = (inner_heights.descent - inner_core_heights.descent) * UnderoverscriptOverhangCoverage;
+    
+    float new_ca = inner_heights.ascent + overhang_a;
+    float new_cd = inner_heights.descent + overhang_d;
+    
+    bool full_stretch = true;
+    if(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
+      uint16_t end_ch          = iter.current_char();
+      String   end_syntax_form = iter.find_syntax_form();
+      if(Tokenizer::is_right_bracket(end_syntax_form)) { // usually ==pmath_char_is_right(end_ch)
+        if(ch == '{' && end_ch == '}')
+          full_stretch = false;
+        //if(start_syntax_form.equals("{") && end_syntax_form.equals("}"))
+        //  full_stretch = false;
+
+        isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
+        context.math_shaper->vertical_stretch_char(
+          context, new_ca, new_cd, full_stretch, end_ch, &iter.current_glyph());
+          
+        iter.move_next_token();
+      }
+    }
+    
+    // caution: ch might come from an UnderOverscriptBox
+    isp.switch_to_sequence(context, start_iter.current_sequence(), DisplayStage::Layout);
+    context.math_shaper->vertical_stretch_char(
+      context, new_ca, new_cd, full_stretch, ch, &start_iter.current_glyph());
+      
+    if(heights.ascent  < inner_heights.ascent)  heights.ascent  = inner_heights.ascent;
+    if(heights.descent < inner_heights.descent) heights.descent = inner_heights.descent;
+      
+    if(core_heights.ascent  < new_ca) core_heights.ascent  = new_ca;
+    if(core_heights.descent < new_cd) core_heights.descent = new_cd;
+  }
+  else if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) {
+    GlyphHeights inner_core_heights {};
+    
+    UnderoverscriptBox *underover = nullptr;
+    SubsuperscriptBox *subsuper = nullptr;
     if(auto box = iter.current_box()) {
-      auto underover = dynamic_cast<UnderoverscriptBox*>(box);
-      if(underover && underover->base()->length() == 1 && underover->base()->glyph_array().length() == 1)
-        ch = underover->base()->str[0];
+      underover = dynamic_cast<UnderoverscriptBox*>(box);
+      ARRAY_ASSERT(underover != nullptr); // otherwise ch would be a CHAR_BOX, see above.
+      iter.move_next_token();
+    }
+    else {
+      iter.move_next_token();
+      if(auto box = iter.current_box()) { // Note: checking iter.has_more_glyphs() not neccessary
+        subsuper = dynamic_cast<SubsuperscriptBox *>(box);
+        if(subsuper)
+          iter.move_next_token();
+      }
     }
     
-    auto start_iter = iter;
+    while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
+      stretch_outermost_span(inner_core_heights, heights);
+    }
+    
+    isp.switch_to_sequence(context, start_iter.current_sequence(), DisplayStage::Layout);
+    if(underover) {
+      ARRAY_ASSERT(underover->base()->glyph_array().length() == 1);
       
-    if(pmath_char_is_left(ch)) {
-      GlyphHeights inner_core_heights {};
-      GlyphHeights inner_heights {};
+      GlyphInfo &gi = underover->base()->glyph_array()[0];
       
-      iter.move_next_token();
-      while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end && !pmath_char_is_right(iter.current_char())) {
-        stretch_outermost_span(inner_core_heights, inner_heights);
-      }
-      
-      float overhang_a = (inner_heights.ascent - inner_core_heights.ascent) * UnderoverscriptOverhangCoverage;
-      float overhang_d = (inner_heights.descent - inner_core_heights.descent) * UnderoverscriptOverhangCoverage;
-      
-      float new_ca = inner_heights.ascent + overhang_a;
-      float new_cd = inner_heights.descent + overhang_d;
-      
-      bool full_stretch = true;
-      if(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
-        uint16_t end_ch = iter.current_char();
-        
-        if(pmath_char_is_right(end_ch)) {
-          if(ch == '{' && end_ch == '}')
-            full_stretch = false;
-          
-          isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
-          context.math_shaper->vertical_stretch_char(
-            context, new_ca, new_cd, full_stretch, end_ch, &iter.current_glyph());
-            
-          iter.move_next_token();
-        }
-      }
-      
-      // caution: ch might come from an UnderOverscriptBox
-      isp.switch_to_sequence(context, start_iter.current_sequence(), DisplayStage::Layout);
       context.math_shaper->vertical_stretch_char(
-        context, new_ca, new_cd, full_stretch, ch, &start_iter.current_glyph());
+        context,
+        inner_core_heights.ascent,
+        inner_core_heights.descent,
+        true, 
+        ch, &gi);
         
-      if(heights.ascent  < inner_heights.ascent)  heights.ascent  = inner_heights.ascent;
-      if(heights.descent < inner_heights.descent) heights.descent = inner_heights.descent;
+      context.math_shaper->vertical_glyph_size(
+        context, ch, gi,
+        &underover->base()->_extents.ascent,
+        &underover->base()->_extents.descent);
         
-      if(core_heights.ascent  < new_ca) core_heights.ascent  = new_ca;
-      if(core_heights.descent < new_cd) core_heights.descent = new_cd;
+      underover->base()->_extents.width = gi.right;
+      
+      underover->after_items_resize(context);
+      
+      start_iter.current_glyph().right = underover->extents().width;
+      
+      underover->base()->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
+      underover->extents().bigger_y(             &heights.ascent,      &heights.descent);
     }
-    else if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) {
-      GlyphHeights inner_core_heights {};
+    else {
+      GlyphInfo &gi = start_iter.current_glyph();
       
-      UnderoverscriptBox *underover = nullptr;
-      SubsuperscriptBox *subsuper = nullptr;
-      if(auto box = iter.current_box()) {
-        underover = dynamic_cast<UnderoverscriptBox*>(box);
-        ARRAY_ASSERT(underover != nullptr); // otherwise ch would be a CHAR_BOX, see above.
-        iter.move_next_token();
-      }
-      else {
-        iter.move_next_token();
-        if(auto box = iter.current_box()) { // Note: checking iter.has_more_glyphs() not neccessary
-          subsuper = dynamic_cast<SubsuperscriptBox *>(box);
-          if(subsuper)
-            iter.move_next_token();
-        }
-      }
+      context.math_shaper->vertical_stretch_char(
+        context,
+        inner_core_heights.ascent,
+        inner_core_heights.descent,
+        true,
+        ch, &gi);
+        
+      BoxSize size;
+      context.math_shaper->vertical_glyph_size(
+        context, ch, gi,
+        &size.ascent,
+        &size.descent);
+        
+      size.bigger_y(&core_heights.ascent, &core_heights.descent);
+      size.bigger_y(     &heights.ascent,      &heights.descent);
       
-      while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
-        stretch_outermost_span(inner_core_heights, heights);
+      if(subsuper) {
+        subsuper->stretch(context, size);
+        subsuper->extents().bigger_y(&heights.ascent, &heights.descent);
+        
+        subsuper->adjust_x(context, ch, gi);
       }
-      
-      isp.switch_to_sequence(context, start_iter.current_sequence(), DisplayStage::Layout);
-      if(underover) {
-        ARRAY_ASSERT(underover->base()->glyph_array().length() == 1);
-        
-        GlyphInfo &gi = underover->base()->glyph_array()[0];
-        
-        context.math_shaper->vertical_stretch_char(
-          context,
-          inner_core_heights.ascent,
-          inner_core_heights.descent,
-          true, 
-          ch, &gi);
-          
-        context.math_shaper->vertical_glyph_size(
-          context, ch, gi,
-          &underover->base()->_extents.ascent,
-          &underover->base()->_extents.descent);
-          
-        underover->base()->_extents.width = gi.right;
-        
-        underover->after_items_resize(context);
-        
-        start_iter.current_glyph().right = underover->extents().width;
-        
-        underover->base()->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
-        underover->extents().bigger_y(             &heights.ascent,      &heights.descent);
-      }
-      else {
-        GlyphInfo &gi = start_iter.current_glyph();
-        
-        context.math_shaper->vertical_stretch_char(
-          context,
-          inner_core_heights.ascent,
-          inner_core_heights.descent,
-          true,
-          ch, &gi);
-          
-        BoxSize size;
-        context.math_shaper->vertical_glyph_size(
-          context, ch, gi,
-          &size.ascent,
-          &size.descent);
-          
-        size.bigger_y(&core_heights.ascent, &core_heights.descent);
-        size.bigger_y(     &heights.ascent,      &heights.descent);
-        
-        if(subsuper) {
-          subsuper->stretch(context, size);
-          subsuper->extents().bigger_y(&heights.ascent, &heights.descent);
-          
-          subsuper->adjust_x(context, ch, gi);
-        }
-      }
-      
-      if(core_heights.ascent  < inner_core_heights.ascent)  core_heights.ascent  = inner_core_heights.ascent;
-      if(core_heights.descent < inner_core_heights.descent) core_heights.descent = inner_core_heights.descent;
     }
-    else
-      stretch_span(span_seq, span.next(), core_heights, heights);
+    
+    if(core_heights.ascent  < inner_core_heights.ascent)  core_heights.ascent  = inner_core_heights.ascent;
+    if(core_heights.descent < inner_core_heights.descent) core_heights.descent = inner_core_heights.descent;
   }
   else
     stretch_span(span_seq, span.next(), core_heights, heights);
@@ -2921,7 +2938,7 @@ void MathSequence::Impl::VerticalStretcher::try_stretch_division_span_rest(MathS
 void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights) {
   int span_end = span.end();
   while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
-    if(pmath_char_is_left(iter.current_char())) {
+    if(iter.is_left_bracket()) {
       // NOTE: old code checked if there was a span starting here instead of looking for operand start
       if(!iter.is_operand_start())
         break; // opening parenthesis in function call "f(..." or "x.f(..."
@@ -4256,7 +4273,7 @@ void MathSequence::Impl::PenalizeBreaks::visit_span(MathSequence *span_seq, Span
   }
   
   int start = iter.glyph_index();
-  if(pmath_char_is_left(iter.current_char())) {
+  if(iter.is_left_bracket()) {
     penalty_array[start] += WordPenalty + DepthPenalty;
   }
   
@@ -4270,7 +4287,8 @@ void MathSequence::Impl::PenalizeBreaks::visit_span(MathSequence *span_seq, Span
     if(index_in_seq > span_end)
       break;
     
-    switch(iter.current_char()) {
+    auto token = iter.find_syntax_form();
+    switch(iter.current_char()) { // TODO: consider only the syntax_form (=token) ?
       case ';': dec_penalty = DepthPenalty; break;
       
       case PMATH_CHAR_ASSIGN:
@@ -4300,7 +4318,7 @@ void MathSequence::Impl::PenalizeBreaks::visit_span(MathSequence *span_seq, Span
         } break;
         
       default:
-        if(pmath_char_is_left(iter.current_char())) {
+        if(Tokenizer::is_left_bracket(token)) {
           if(iter.is_operand_start())
             penalty_array[iter.glyph_index()] += WordPenalty;
           else
@@ -4308,7 +4326,7 @@ void MathSequence::Impl::PenalizeBreaks::visit_span(MathSequence *span_seq, Span
             
           depth = func_depth;
         }
-        else if(pmath_char_is_right(iter.current_char())) {
+        else if(Tokenizer::is_right_bracket(token)) {
           penalty_array[iter.glyph_index() - 1] += WordPenalty;
         }
     }

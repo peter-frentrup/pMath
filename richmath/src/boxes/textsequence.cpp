@@ -464,7 +464,7 @@ void TextSequence::load_from_object(Expr obj, BoxInputFlags options) {
     obj = TemplateBoxSlot::prepare_boxes(obj);
     
   if(obj.is_string())
-    obj = expand_string_boxes(String(PMATH_CPP_MOVE(obj)));
+    obj = Tokenizer::expand_string_boxes(String(PMATH_CPP_MOVE(obj)));
     
   int next_box = 0;
   

@@ -25,11 +25,23 @@ namespace richmath {
   // 0xFFFFFFFFU on error
   uint32_t unicode_to_utf32(String s);
   
-  Expr expand_string_boxes(String s);
-  
   inline ArrayView<const uint16_t> buffer_view(const String &s) {         return ArrayView<const uint16_t>(s.length(),             s.buffer()); }
   inline ArrayView<const uint16_t> buffer_view(const pmath_string_t &s) { return ArrayView<const uint16_t>(pmath_string_length(s), pmath_string_buffer(&s)); }
-    
+  
+  class Tokenizer {
+    public:
+      static Expr expand_string_boxes(String s);
+      static pmath_token_t analyse(String                    token, int *prec = nullptr) { return pmath_token_analyse(token.buffer(), token.length(), prec); }
+      static pmath_token_t analyse(ArrayView<const uint16_t> token, int *prec = nullptr) { return pmath_token_analyse(token.items(),  token.length(), prec); }
+      
+      static bool is_left_bracket(uint16_t ch) { return pmath_char_is_left(ch); }
+      static bool is_left_bracket(String tok);
+      static bool is_right_bracket(uint16_t ch) { return pmath_char_is_right(ch); }
+      static bool is_right_bracket(String tok);
+      static bool is_bracket(uint16_t ch);
+      static bool is_bracket(String tok);
+  };
+
   class Span {
     public:
       Span(pmath_span_t *data): _data(data) {}

@@ -5,10 +5,12 @@
 #include <boxes/mathsequence.h>
 #include <boxes/sectionlist.h>
 #include <boxes/textsequence.h>
+#include <boxes/underoverscriptbox.h>
 
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_Range;
 extern pmath_symbol_t richmath_Language_SourceLocation;
 
@@ -227,6 +229,10 @@ bool VolatileLocation::find_selection_placeholder(LogicalDirection direction, co
 
 //{ class VolatileSelection ...
 
+VolatileSelection VolatileSelection::all_of(Box *box) {
+  return {box, 0, box ? box->length() : 0}; 
+}
+
 bool VolatileSelection::visually_contains(VolatileSelection other) const {
   if(is_empty())
     return *this == other;
@@ -323,6 +329,30 @@ Box *VolatileSelection::contained_box() const {
     return box->item(start);
     
   return nullptr;
+}
+
+String VolatileSelection::syntax_form() const {
+  if(Box *inner_box = contained_box()) {
+    if(auto uo = dynamic_cast<UnderoverscriptBox *>(inner_box))
+      return uo->base()->text();
+    
+    if(auto obo = dynamic_cast<OwnerBox*>(inner_box)) {
+      Expr syntax_form = obo->get_own_style(SyntaxForm, Symbol(richmath_System_Automatic));
+      if(syntax_form.is_string()) 
+        return String(PMATH_CPP_MOVE(syntax_form));
+      
+      if(syntax_form == richmath_System_Automatic || obo->get_own_style(StripOnInput, false)) 
+        return VolatileSelection::all_of(obo->content()).syntax_form();
+    }
+  }
+
+  if(auto content = dynamic_cast<MathSequence*>(box)) {
+    content->ensure_spans_valid();
+    if(content->span_array().next_token(start) == end)
+      return content->text().part(start, end - start);
+  }
+
+  return String();
 }
 
 Expr VolatileSelection::to_pmath(BoxOutputFlags flags) const {

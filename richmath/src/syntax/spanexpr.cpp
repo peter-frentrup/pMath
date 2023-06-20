@@ -349,11 +349,13 @@ pmath_token_t SpanExpr::as_token(int *prec) {
     return PMATH_TOK_NONE;
   }
   
+  // TODO: use Tokenizer::analyze(VolatileSelection::syntax_form())
+  
   if(count() == 0)
     return pmath_token_analyse(_sequence->text().buffer() + _start, length(), prec);
     
   if(count() == 1)
-    return item(0)->as_token((prec));
+    return item(0)->as_token(prec);
     
   if(Box *b = as_box()) {
     if(dynamic_cast<SubsuperscriptBox *>(b)) {
