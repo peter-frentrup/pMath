@@ -3050,8 +3050,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_nonspan_box(Box *box, GlyphH
 }
 
 void MathSequence::Impl::VerticalStretcher::size_nonspan_token(MathSequence *span_seq, GlyphHeights &heights) {
-  int next_token = iter.find_next_token();
-  ARRAY_ASSERT(iter.text_index() < next_token);
+  int next_token = iter.index_in_sequence(span_seq, 0) + iter.find_next_token() - iter.text_index();
   
   while(iter.index_in_sequence(span_seq, next_token) < next_token) {
     isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
@@ -4138,7 +4137,7 @@ void MathSequence::Impl::IndentLines::visit_token(MathSequence *span_seq, int de
     }
   }
   else {
-    int next_token = iter.find_next_token();
+    int next_token = iter.index_in_sequence(span_seq, 0) + iter.find_next_token() - iter.text_index();
     
     indention_array[iter.glyph_index()] = depth;
     iter.move_next_glyph();
@@ -4478,7 +4477,7 @@ void MathSequence::Impl::PenalizeBreaks::visit_token(MathSequence *span_seq, int
     return;
   }
   
-  int token_end = iter.find_token_end();
+  int token_end = iter.index_in_sequence(span_seq, 0) + iter.find_token_end() - iter.text_index();
   
   while(iter.index_in_sequence(span_seq, token_end) < token_end) {
     penalty_array[iter.glyph_index()] += depth * DepthPenalty + WordPenalty;
