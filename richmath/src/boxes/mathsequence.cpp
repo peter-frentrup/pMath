@@ -182,7 +182,8 @@ namespace richmath {
           void stretch_all(GlyphHeights &core_heights, GlyphHeights &heights);
 
         private:
-          static bool can_stretch_char(uint16_t ch);
+          void stretch_char_and_continue(const GlyphHeights &inner_core_heights, bool full, VolatileLocation stop, GlyphHeights &outer_core_heights, GlyphHeights &outer_heights);
+          void stretch_char_at(const GlyphIterator &char_pos, const GlyphHeights &inner_core_heights, bool full, VolatileLocation stop, GlyphHeights &outer_core_heights, GlyphHeights &outer_heights);
 
           void stretch_outermost_span(GlyphHeights &core_heights, GlyphHeights &heights);
           void stretch_span(                  MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights);
@@ -2653,6 +2654,98 @@ void MathSequence::Impl::VerticalStretcher::stretch_all(GlyphHeights &core_heigh
   isp.switch_to_sequence(context, iter.outermost_sequence(), DisplayStage::Layout);
 }
 
+/// Stretch the current character at 'iter' to cover @arg inner_core_heights as much as possible (depending on @arg full).
+/// Afterwards, move iter to next relevant token and extend @arg core_heights and @arg outer_heights accordingly.
+void MathSequence::Impl::VerticalStretcher::stretch_char_and_continue(const GlyphHeights &inner_core_heights, bool full, VolatileLocation stop, GlyphHeights &outer_core_heights, GlyphHeights &outer_heights) {
+  if(auto underover = dynamic_cast<UnderoverscriptBox*>(iter.current_box())) {
+    // TODO: support StyleBox etc. inside UnderoverscriptBox
+
+    if(underover->base()->length() != 1) {
+      iter.move_next_token();
+      return;
+    }
+      
+    //RICHMATH_ASSERT(uobox->base()->glyph_array().length() == 1);
+    if(underover->base()->glyph_array().length() != 1) {
+      iter.move_next_token();
+      return;
+    }
+
+    uint16_t   ch = underover->base()->text()[0];
+    GlyphInfo &gi = underover->base()->glyph_array()[0];
+    
+    // Caution: not the underover->base() ...
+    isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
+    
+    context.math_shaper->vertical_stretch_char(
+      context,
+      inner_core_heights.ascent,
+      inner_core_heights.descent,
+      full, 
+      ch, &gi);
+        
+    context.math_shaper->vertical_glyph_size(
+      context, ch, gi,
+      &underover->base()->_extents.ascent,
+      &underover->base()->_extents.descent);
+        
+    underover->base()->_extents.width = gi.right;
+    
+    underover->after_items_resize(context);
+    
+    iter.current_glyph().right = underover->extents().width;
+    
+    underover->base()->extents().bigger_y(&outer_core_heights.ascent, &outer_core_heights.descent);
+    underover->extents().bigger_y(             &outer_heights.ascent,      &outer_heights.descent);
+
+    iter.move_next_token();
+  }
+  else {
+    uint16_t   ch = iter.current_char();
+    GlyphInfo &gi = iter.current_glyph();
+  
+    isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
+    
+    context.math_shaper->vertical_stretch_char(
+      context,
+      inner_core_heights.ascent,
+      inner_core_heights.descent,
+      full,
+      ch, &gi);
+      
+    BoxSize size;
+    context.math_shaper->vertical_glyph_size(
+      context, ch, gi,
+      &size.ascent,
+      &size.descent);
+      
+    size.bigger_y(&outer_core_heights.ascent, &outer_core_heights.descent);
+    size.bigger_y(     &outer_heights.ascent,      &outer_heights.descent);
+    
+    iter.move_next_token();
+    if(iter.index_in_sequence(dynamic_cast<MathSequence*>(stop.box), stop.index) < stop.index) {
+      if(auto subsuper = dynamic_cast<SubsuperscriptBox*>(iter.current_box())) {
+        iter.move_next_token();
+
+        subsuper->stretch(context, size);
+        subsuper->extents().bigger_y(&outer_heights.ascent, &outer_heights.descent);
+
+        // not in old code:
+        //subsuper->extents().bigger_y(&outer_core_heights.ascent, &outer_core_heights.descent);
+        
+        subsuper->adjust_x(context, ch, gi);
+      }
+    }
+  }
+}
+
+void MathSequence::Impl::VerticalStretcher::stretch_char_at(const GlyphIterator &char_pos, const GlyphHeights &inner_core_heights, bool full, VolatileLocation stop, GlyphHeights &outer_core_heights, GlyphHeights &outer_heights) {
+  auto tmp = iter;
+  iter = char_pos;
+  stretch_char_and_continue(inner_core_heights, full, stop, outer_core_heights, outer_heights);
+  iter = tmp;
+}
+
 void MathSequence::Impl::VerticalStretcher::stretch_outermost_span(GlyphHeights &core_heights, GlyphHeights &heights) {
   ARRAY_ASSERT(iter.has_more_glyphs());
 
@@ -2695,26 +2788,8 @@ void MathSequence::Impl::VerticalStretcher::stretch_span(MathSequence *span_seq,
     uint16_t ch = iter.current_char();
     if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) { 
       // Bigop that does not start a span. This happens when no further text comes afterwards. 
-      GlyphInfo &gi = iter.current_glyph();
-      isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
-      
-      context.math_shaper->vertical_stretch_char(
-        context, 0, 0,
-        true,
-        ch, &gi);
-        
-      GlyphHeights size;
-      context.math_shaper->vertical_glyph_size(
-        context, ch, gi,
-        &size.ascent,
-        &size.descent);
-        
-      if(core_heights.ascent  < size.ascent)  core_heights.ascent  = size.ascent;
-      if(core_heights.descent < size.descent) core_heights.descent = size.descent;
-      if(     heights.ascent  < size.ascent)       heights.ascent  = size.ascent;
-      if(     heights.descent < size.descent)      heights.descent = size.descent;
-      
-      iter.move_next_token();
+
+      stretch_char_and_continue({0.0f, 0.0f}, true, {nullptr, 0}, core_heights, heights);
       return;
     }
   }
@@ -2726,7 +2801,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span(MathSequence *span_seq,
 }
 
 void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights) {
-  ARRAY_ASSERT(span);
+  RICHMATH_ASSERT(span);
   
   if(auto next = span.next()) {
     stretch_span(span_seq, next, core_heights, heights);
@@ -2784,6 +2859,10 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
     float new_ca = inner_heights.ascent + overhang_a;
     float new_cd = inner_heights.descent + overhang_d;
     
+    // Old code also did not *measure* stretched parentheses to adjust core_heights,heights.
+    // But it recognized SubsuperscriptBox then only later in stretch_nonspan_box and then adjusted core_heights,heights accordingly
+    // We disregard such a SuperscriptNox now only if it is after the end of the span.
+
     bool full_stretch = true;
     if(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
       uint16_t end_ch          = iter.current_char();
@@ -2794,19 +2873,12 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
         //if(start_syntax_form.equals("{") && end_syntax_form.equals("}"))
         //  full_stretch = false;
 
-        isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
-        context.math_shaper->vertical_stretch_char(
-          context, new_ca, new_cd, full_stretch, end_ch, &iter.current_glyph());
-          
-        iter.move_next_token();
+        stretch_char_and_continue({new_ca, new_cd}, full_stretch, {span_seq, span_end + 1}, core_heights, heights);
       }
     }
     
-    // caution: ch might come from an UnderOverscriptBox
-    isp.switch_to_sequence(context, start_iter.current_sequence(), DisplayStage::Layout);
-    context.math_shaper->vertical_stretch_char(
-      context, new_ca, new_cd, full_stretch, ch, &start_iter.current_glyph());
-      
+    stretch_char_at(start_iter, {new_ca, new_cd}, full_stretch, {span_seq, span_end + 1}, core_heights, heights);
+    
     if(heights.ascent  < inner_heights.ascent)  heights.ascent  = inner_heights.ascent;
     if(heights.descent < inner_heights.descent) heights.descent = inner_heights.descent;
       
@@ -2816,79 +2888,16 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
   else if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) {
     GlyphHeights inner_core_heights {};
     
-    UnderoverscriptBox *underover = nullptr;
-    SubsuperscriptBox *subsuper = nullptr;
-    if(auto box = iter.current_box()) {
-      underover = dynamic_cast<UnderoverscriptBox*>(box);
-      ARRAY_ASSERT(underover != nullptr); // otherwise ch would be a CHAR_BOX, see above.
+    iter.move_next_token();
+    if(dynamic_cast<SubsuperscriptBox *>(iter.current_box())) { // Note: checking iter.has_more_glyphs() not neccessary
       iter.move_next_token();
-    }
-    else {
-      iter.move_next_token();
-      if(auto box = iter.current_box()) { // Note: checking iter.has_more_glyphs() not neccessary
-        subsuper = dynamic_cast<SubsuperscriptBox *>(box);
-        if(subsuper)
-          iter.move_next_token();
-      }
     }
     
     while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
       stretch_outermost_span(inner_core_heights, heights);
     }
     
-    isp.switch_to_sequence(context, start_iter.current_sequence(), DisplayStage::Layout);
-    if(underover) {
-      ARRAY_ASSERT(underover->base()->glyph_array().length() == 1);
-      
-      GlyphInfo &gi = underover->base()->glyph_array()[0];
-      
-      context.math_shaper->vertical_stretch_char(
-        context,
-        inner_core_heights.ascent,
-        inner_core_heights.descent,
-        true, 
-        ch, &gi);
-        
-      context.math_shaper->vertical_glyph_size(
-        context, ch, gi,
-        &underover->base()->_extents.ascent,
-        &underover->base()->_extents.descent);
-        
-      underover->base()->_extents.width = gi.right;
-      
-      underover->after_items_resize(context);
-      
-      start_iter.current_glyph().right = underover->extents().width;
-      
-      underover->base()->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
-      underover->extents().bigger_y(             &heights.ascent,      &heights.descent);
-    }
-    else {
-      GlyphInfo &gi = start_iter.current_glyph();
-      
-      context.math_shaper->vertical_stretch_char(
-        context,
-        inner_core_heights.ascent,
-        inner_core_heights.descent,
-        true,
-        ch, &gi);
-        
-      BoxSize size;
-      context.math_shaper->vertical_glyph_size(
-        context, ch, gi,
-        &size.ascent,
-        &size.descent);
-        
-      size.bigger_y(&core_heights.ascent, &core_heights.descent);
-      size.bigger_y(     &heights.ascent,      &heights.descent);
-      
-      if(subsuper) {
-        subsuper->stretch(context, size);
-        subsuper->extents().bigger_y(&heights.ascent, &heights.descent);
-        
-        subsuper->adjust_x(context, ch, gi);
-      }
-    }
+    stretch_char_at(start_iter, inner_core_heights, true, {span_seq, span_end + 1}, core_heights, heights);
     
     if(core_heights.ascent  < inner_core_heights.ascent)  core_heights.ascent  = inner_core_heights.ascent;
     if(core_heights.descent < inner_core_heights.descent) core_heights.descent = inner_core_heights.descent;
@@ -2915,24 +2924,7 @@ void MathSequence::Impl::VerticalStretcher::try_stretch_division_span_rest(MathS
   while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end)
     stretch_outermost_span(core_heights, heights);
   
-  GlyphInfo &gi = division_iter.current_glyph();
-  isp.switch_to_sequence(context, division_iter.current_sequence(), DisplayStage::Layout);
-  context.math_shaper->vertical_stretch_char(
-    context,
-    core_heights.ascent  - 0.1 * span_seq->em,
-    core_heights.descent - 0.1 * span_seq->em,
-    true,
-    ch, &gi);
-    
-  BoxSize size;
-  context.math_shaper->vertical_glyph_size(
-    context,
-    ch, gi,
-    &size.ascent,
-    &size.descent);
-    
-  size.bigger_y(&core_heights.ascent, &core_heights.descent);
-  size.bigger_y(     &heights.ascent,      &heights.descent);
+  stretch_char_at(division_iter, {core_heights.ascent  - 0.1f * span_seq->em, core_heights.descent  - 0.1f * span_seq->em}, true, {span_seq, span_end + 1}, core_heights, heights);
 }
 
 void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights) {
@@ -2962,17 +2954,15 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span
     float new_ca = inner_heights.ascent  + overhang_a;
     float new_cd = inner_heights.descent + overhang_d;
     
+    // Old code also did not *measure* stretched parentheses to adjust core_heights, heights
+    // But it recognized SubsuperscriptBox then only later in stretch_nonspan_box and then adjusted core_heights,heights accordingly
+    // We disregard such a SuperscriptNox now only if it is after the end of the span.
+    
     if(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) { // closing parenthesis
-      isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
-      context.math_shaper->vertical_stretch_char(
-        context, new_ca, new_cd, false, iter.current_char(), &iter.current_glyph());
-      
-      iter.move_next_token();
+      stretch_char_and_continue({new_ca, new_cd}, false, {span_seq, span_end + 1}, core_heights, heights);
     }
     
-    isp.switch_to_sequence(context, call_paren_start.current_sequence(), DisplayStage::Layout);
-    context.math_shaper->vertical_stretch_char(
-      context, new_ca, new_cd, false, call_paren_start.current_char(), &call_paren_start.current_glyph());
+    stretch_char_at(call_paren_start, {new_ca, new_cd}, false, {span_seq, span_end + 1}, core_heights, heights);
       
     if(heights.ascent  < inner_heights.ascent)  heights.ascent  = inner_heights.ascent;
     if(heights.descent < inner_heights.descent) heights.descent = inner_heights.descent;
@@ -3012,6 +3002,8 @@ void MathSequence::Impl::VerticalStretcher::stretch_nonspan_box(Box *box, GlyphH
     
     subsup->extents().bigger_y(&heights.ascent,      &heights.descent);
     subsup->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
+    
+    iter.move_next_token();
   }
   else if(auto underover = dynamic_cast<UnderoverscriptBox *>(box)) {
     uint16_t ch = 0;
@@ -3019,34 +3011,17 @@ void MathSequence::Impl::VerticalStretcher::stretch_nonspan_box(Box *box, GlyphH
     if(underover->base()->length() == 1 && underover->base()->glyph_array().length() == 1)
       ch = underover->base()->text()[0];
     
-    isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
     if(iter.is_operand_start() && (pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch))) { // bigop that starts no span
-      GlyphInfo &gi = underover->base()->glyph_array()[0];
-      
-      context.math_shaper->vertical_stretch_char(
-        context, 0, 0,
-        true,
-        ch, &gi);
-        
-      context.math_shaper->vertical_glyph_size(
-        context, ch, gi,
-        &underover->base()->_extents.ascent,
-        &underover->base()->_extents.descent);
-        
-      underover->base()->_extents.width = gi.right;
-      
-      underover->after_items_resize(context);
-      
-      iter.current_glyph().right = underover->extents().width;
+      stretch_char_and_continue({0.0f, 0.0f}, true, {nullptr, 0}, core_heights, heights);
     }
-    
-    underover->base()->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
+    else
+      iter.move_next_token();
   }
-  else
+  else {
     box->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
-  
+    iter.move_next_token();
+  }
   box->extents().bigger_y(&heights.ascent, &heights.descent);
-  iter.move_next_token();
 }
 
 void MathSequence::Impl::VerticalStretcher::size_nonspan_token(MathSequence *span_seq, GlyphHeights &heights) {
