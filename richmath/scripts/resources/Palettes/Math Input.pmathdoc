@@ -25,43 +25,44 @@ Document({
          "\"\[AliasIndicator]surd\[AliasIndicator]\"", "\n", 
          "\"Real \({\"n\"}\)\(SuperscriptBox(\"th\")\) root\""}), 
        "\[SpanFromLeft]"}, {
-       TooltipBox(ButtonBox({"\[Integral]", "\[SelectionPlaceholder]", 
-          "\[DifferentialD]", "\[Placeholder]"}), 
+       TooltipBox(
+        ButtonBox({"\[Integral]", {"\[SelectionPlaceholder]", {
+            "\[DifferentialD]", "\[Placeholder]"}}}), 
         "\"\[AliasIndicator]intt\[AliasIndicator]\""), "\[SpanFromLeft]", 
        "\[SpanFromLeft]", 
        ButtonBox({"\[PartialD]", SubscriptBox("\[Placeholder]"), 
          "\[SelectionPlaceholder]"}), "\[SpanFromLeft]"}, {
        TooltipBox(
-        ButtonBox({"\[Integral]", SubsuperscriptBox("\[SelectionPlaceholder]", 
-           "\[Placeholder]"), "\[Placeholder]", "\[DifferentialD]", 
-          "\[Placeholder]"}), "\"\[AliasIndicator]dintt\[AliasIndicator]\""), 
-       "\[SpanFromLeft]", "\[SpanFromLeft]", 
+        ButtonBox({"\[Integral]", SubsuperscriptBox("\[Placeholder]", 
+           "\[Placeholder]"), {"\[SelectionPlaceholder]", {
+            "\[DifferentialD]", "\[Placeholder]"}}}), 
+        "\"\[AliasIndicator]dintt\[AliasIndicator]\""), "\[SpanFromLeft]", 
+       "\[SpanFromLeft]", 
        ButtonBox({"\[PartialD]", 
          SubscriptBox({"\[Placeholder]", ",", "\[Placeholder]"}), 
          "\[SelectionPlaceholder]"}), "\[SpanFromLeft]"}, {
        TooltipBox(
         ButtonBox({UnderoverscriptBox("\[Sum]", {
-            "\[SelectionPlaceholder]", "=", "\[Placeholder]"}, 
-           "\[Placeholder]"), "\[Placeholder]"}), 
+            "\[Placeholder]", "=", "\[Placeholder]"}, "\[Placeholder]"), 
+          "\[SelectionPlaceholder]"}), 
         "\"\[AliasIndicator]sumt\[AliasIndicator]\""), "\[SpanFromLeft]", 
        "\[SpanFromLeft]", 
        TooltipBox(
         ButtonBox({UnderoverscriptBox("\[Product]", {
-            "\[SelectionPlaceholder]", "=", "\[Placeholder]"}, 
-           "\[Placeholder]"), "\[Placeholder]"}), 
+            "\[Placeholder]", "=", "\[Placeholder]"}, "\[Placeholder]"), 
+          "\[SelectionPlaceholder]"}), 
         "\"\[AliasIndicator]prodt\[AliasIndicator]\""), "\[SpanFromLeft]"}, {
        StyleBox(
         ButtonBox({
           "(", GridBox({{"\[Placeholder]", "\[Placeholder]"}, {
              "\[Placeholder]", "\[Placeholder]"}}), ")"}), 
-        GridBoxColumnSpacing -> 0.20000000298023224`, 
-        GridBoxRowSpacing -> 0.25`), "\[SpanFromLeft]", "\[SpanFromLeft]", 
+        GridBoxColumnSpacing -> 0.2, GridBoxRowSpacing -> 0.25), 
+       "\[SpanFromLeft]", "\[SpanFromLeft]", 
        TooltipBox(
         StyleBox(ButtonBox({"\[Piecewise]", 
            GridBox({{"\[Placeholder]", "\[Placeholder]"}, {
               "\[Placeholder]", "\[Placeholder]"}})}), 
-         GridBoxColumnSpacing -> 0.20000000298023224`, 
-         GridBoxRowSpacing -> 0.25`), 
+         GridBoxColumnSpacing -> 0.2, GridBoxRowSpacing -> 0.25), 
         "\"\[AliasIndicator]pw\[AliasIndicator], Ctrl+Comma, Ctrl+Enter\""), 
        "\[SpanFromLeft]"}, {
        TooltipBox(ButtonBox("\[Pi]"), 
@@ -198,7 +199,6 @@ Document({
      AllowScriptLevelChange -> False)), "Output", 
    ButtonBoxOptions -> {ButtonFrame -> "Palette", 
      ButtonFunction -> Function(DocumentApply(SelectedDocument(), #1))}, 
-   FontSize -> 9, GridBoxColumnSpacing -> 0.10000000149011612`, 
-   GridBoxRowSpacing -> 0.10000000149011612`, SectionMargins -> 0)}, 
- StyleDefinitions -> "Palette.pmathdoc", Visible -> True, 
- WindowTitle -> "Math Input")
+   FontSize -> 9, GridBoxColumnSpacing -> 0.1, GridBoxRowSpacing -> 0.1, 
+   SectionMargins -> 0)}, StyleDefinitions -> "Palette.pmathdoc", 
+ Visible -> True, WindowTitle -> "Math Input")
