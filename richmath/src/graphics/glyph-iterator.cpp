@@ -7,8 +7,19 @@ using namespace richmath;
 
 GlyphIterator::GlyphIterator(MathSequence &seq)
   : _basic_iter{seq, seq.glyph_to_text_iter(), seq.glyph_to_inline_sequence_iter()},
-    _semantic_style_iter{seq.semantic_styles_array().begin()}
+    _semantic_style_iter{seq.semantic_styles_array().begin()},
+    _semantic_style_owner{&seq}
 {
+}
+
+GlyphIterator::style_iter_t GlyphIterator::semantic_style_iter() const {
+  auto seq = current_sequence();
+  if(_semantic_style_owner != seq) {
+    _semantic_style_owner = seq;
+    _semantic_style_iter  = seq->semantic_styles_array().begin();
+  }
+  _semantic_style_iter.rewind_to(text_index()); 
+  return _semantic_style_iter;
 }
 
 bool GlyphIterator::is_left_bracket() const {

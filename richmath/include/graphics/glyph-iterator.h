@@ -14,7 +14,7 @@ namespace richmath {
       int text_index() const {  return _basic_iter.text_index(); }
       
       // caution: methods may invalidate later iterators.
-      style_iter_t semantic_style_iter() const { _semantic_style_iter.rewind_to(text_index()); return _semantic_style_iter; }
+      style_iter_t semantic_style_iter() const;
       SyntaxGlyphStyle semantic_style() const { return semantic_style_iter().get(); }
       
       bool has_more_glyphs() const { return glyph_index() < glyph_count(); }
@@ -66,8 +66,9 @@ namespace richmath {
       void move_deepest_span_end();
       
     private:
-      BasicSequenceIterator<MathSequence> _basic_iter;
-      mutable style_iter_t                _semantic_style_iter;
+      BasicSequenceIterator<MathSequence>  _basic_iter;
+      mutable style_iter_t                 _semantic_style_iter;
+      mutable MathSequence                *_semantic_style_owner;
   };
   
   inline void GlyphIterator::move_next_token() {
