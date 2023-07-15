@@ -9,8 +9,40 @@
 
 extern pmath_symbol_t pmath_System_List;
 
-// list will be freed, wrap_head won't
-pmath_t get_keys(pmath_t list, pmath_t wrap_head) {
+static pmath_t get_keys(pmath_t list, pmath_t wrap_head);
+
+PMATH_PRIVATE pmath_t builtin_keys(pmath_expr_t expr) {
+  /*  Keys({rule1, rule2, ...})
+      Keys(rules, head)
+  */
+  size_t exprlen = pmath_expr_length(expr);
+  pmath_t list;
+  pmath_t wrap_head;
+  
+  if(exprlen < 1 || exprlen > 2) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 2);
+    return expr;
+  }
+  
+  if(exprlen == 2)
+    wrap_head = pmath_expr_get_item(expr, 2);
+  else
+    wrap_head = PMATH_UNDEFINED;
+  
+  list = pmath_expr_get_item(expr, 1);
+  list = get_keys(list, wrap_head);
+  if(pmath_is_null(list)){
+    pmath_unref(wrap_head);
+    return expr;
+  }
+  
+  pmath_unref(wrap_head);
+  pmath_unref(expr);
+  return list;
+}
+
+/// list will be freed, wrap_head won't
+static pmath_t get_keys(pmath_t list, pmath_t wrap_head) {
   pmath_dispatch_table_t disp;
   size_t i;
   
@@ -46,35 +78,5 @@ pmath_t get_keys(pmath_t list, pmath_t wrap_head) {
     list = pmath_expr_set_item(list, i, item);
   }
   
-  return list;
-}
-
-PMATH_PRIVATE pmath_t builtin_keys(pmath_expr_t expr) {
-  /*  Keys({rule1, rule2, ...})
-      Keys(rules, head)
-  */
-  size_t exprlen = pmath_expr_length(expr);
-  pmath_t list;
-  pmath_t wrap_head;
-  
-  if(exprlen < 1 || exprlen > 2) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 2);
-    return expr;
-  }
-  
-  if(exprlen == 2)
-    wrap_head = pmath_expr_get_item(expr, 2);
-  else
-    wrap_head = PMATH_UNDEFINED;
-  
-  list = pmath_expr_get_item(expr, 1);
-  list = get_keys(list, wrap_head);
-  if(pmath_is_null(list)){
-    pmath_unref(wrap_head);
-    return expr;
-  }
-  
-  pmath_unref(wrap_head);
-  pmath_unref(expr);
   return list;
 }
