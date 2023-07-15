@@ -187,6 +187,10 @@ namespace richmath {
        */
       pmath_token_t as_token(int *prec = nullptr);
       
+      /** Get the SyntaxForm (if avalable) token.
+       */
+      String as_syntax_form();
+      
       /** Get the prefix precedence of the token span.
           \param defprec The precedence as returned via as_token().
        */
@@ -209,6 +213,11 @@ namespace richmath {
        */
       bool is_operand() { return _start <= _end && _sequence->span_array().is_operand_start(_start); }
       
+      /** Get the range of a sub-span or token.
+          \param i A sub-span/token index between 0 and count()-1
+       */
+      VolatileSelection item_range(int i);
+      
       /** Get the first character of a sub-span or token.
           \param i A sub-span/token index between 0 and count()-1
        */
@@ -223,6 +232,11 @@ namespace richmath {
           \param i A sub-span/token index between 0 and count()-1
        */
       String item_as_text(int i);
+      
+      /** Get the SyntaxForm of a sub-span or token.
+          \param i A sub-span/token index between 0 and count()-1
+       */
+      String item_as_syntax_form(int i);
       
       /** Get the box represented by a sub-span or token.
           \param i A sub-span/token index between 0 and count()-1

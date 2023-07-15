@@ -1682,9 +1682,8 @@ void MathSequence::Impl::syntax_error(pmath_string_t code, int pos, void *_data,
   if(!data->sequence->get_style(ShowAutoStyles))
     return;
   
-  ArrayView<const uint16_t> buf = buffer_view(code);
   if(err) {
-    if(pos < data->sequence->length()) {
+    if(pos < data->sequence->length() && data->sequence->length() > 1) {
       data->sequence->semantic_styles.find(pos).reset_range(GlyphStyleSyntaxError, 1);
     }
   }

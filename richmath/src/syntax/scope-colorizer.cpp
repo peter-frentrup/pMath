@@ -1507,9 +1507,10 @@ bool SyntaxColorizerImpl::colorize_single_token(SpanExpr *se) {
     SpanExpr *parent = se->parent();
     
     if( !parent ||
-        !pmath_char_is_right(parent->item_as_char(parent->count() - 1)))
+        (!pmath_char_is_right(parent->item_as_char(parent->count() - 1)) &&
+        !Tokenizer::is_right_bracket(parent->item_as_syntax_form(parent->count() - 1))))
     {
-      if(pmath_right_fence(se->as_char()) != 0) {
+      if(pmath_right_fence(ch) != 0) {
         painter.move_to(se->start());
         painter.paint_until(GlyphStyleSyntaxError, se->start() + 1);
         return true;
@@ -1528,9 +1529,16 @@ bool SyntaxColorizerImpl::colorize_single_token(SpanExpr *se) {
       return true;
     }
     
-    for(int i = parent->count() - 1; i >= 0; --i)
+    for(int i = parent->count() - 1; i >= 0; --i) {
       if(pmath_right_fence(parent->item_as_char(i)) == ch)
         return true;
+      
+      String item_syntax_form = parent->item_as_syntax_form(i);
+      if(item_syntax_form.length() == 1) {
+        if(pmath_right_fence(item_syntax_form.buffer()[0]) == ch)
+          return true;
+      }
+    }
     
     painter.move_to(se->start());
     painter.paint_until(GlyphStyleSyntaxError, se->start() + 1);

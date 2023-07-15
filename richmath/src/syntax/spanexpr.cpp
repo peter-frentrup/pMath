@@ -389,6 +389,21 @@ pmath_token_t SpanExpr::as_token(int *prec) {
   return PMATH_TOK_NAME2;
 }
 
+String SpanExpr::as_syntax_form() {
+  VolatileSelection tok_sel = range();
+  String result = tok_sel.syntax_form();
+  while(tok_sel) {
+    tok_sel.expand_to_parent();
+
+    if(Box *box = tok_sel.contained_box()) {
+      if(String syntax_form = VolatileSelection(box, 0).expanded_to_parent().syntax_form())
+        result = syntax_form;
+    }
+  }
+  
+  return result;
+}
+
 int SpanExpr::as_prefix_prec(int defprec) {
   if(count() == 0) {
     int prec = pmath_token_prefix_precedence(
@@ -582,6 +597,27 @@ FINISH:
   return prec;
 }
 
+VolatileSelection SpanExpr::item_range(int i) {
+  if(_items[i])
+    return _items[i]->range();
+  
+  VolatileSelection sel(_sequence, _items_pos[i]);
+  if(sel.start == _start && _span.next()) {
+    sel.end = _span.next().end();
+  }
+  else if(sel.start > _start && _sequence->span_array()[sel.start]) {
+    sel.end = _sequence->span_array()[sel.start].end();
+  }
+  else {
+    sel.end = sel.start;
+    while(sel.end <= _end && !_sequence->span_array().is_token_end(sel.end))
+      sel.end++;
+  }
+  
+  sel.end++;
+  return sel;
+}
+
 uint16_t SpanExpr::item_first_char(int i) {
   if(_items[i])
     return _items[i]->first_char();
@@ -632,6 +668,21 @@ String SpanExpr::item_as_text(int i) {
   }
   
   return _sequence->text().part(s, end + 1 - s);
+}
+
+String SpanExpr::item_as_syntax_form(int i) {
+  VolatileSelection tok_sel = item_range(i);
+  String result = tok_sel.syntax_form();
+  while(tok_sel) {
+    tok_sel.expand_to_parent();
+
+    if(Box *box = tok_sel.contained_box()) {
+      if(String syntax_form = VolatileSelection(box, 0).expanded_to_parent().syntax_form())
+        result = syntax_form;
+    }
+  }
+  
+  return result;
 }
 
 Box *SpanExpr::item_as_box(int i) {
