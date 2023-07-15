@@ -100,6 +100,7 @@ General::vecmatn:= "Argument `1` is neither a nonempty real vector nor a nonempt
 
 /* level and part specification errors */
 General::level:= "`1` is no valid level specification."
+General::list1:= "`1` is not a valid list of rules or of nestest lists of rules."
 General::partd:= "The part specification `1` is longer than the object's depth."
 General::pspec:= "`1` is no valid part specification."
 General::partw:= "`1` has no part `2`."

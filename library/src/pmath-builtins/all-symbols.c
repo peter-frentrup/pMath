@@ -369,6 +369,7 @@ PMATH_PRIVATE pmath_t builtin_mapindexed(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mapthread(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_max(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mean(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_merge(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_min(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_minmax(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_most(                         pmath_expr_t expr);
@@ -708,6 +709,7 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_mapindexed,                  PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_mapthread,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_mean,                        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_merge,                       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_min,                         PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_minmax,                      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_most,                        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -1076,6 +1078,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Max,                          builtin_max)
   BIND_DOWN(   pmath_System_Mean,                         builtin_mean)
   BIND_DOWN(   pmath_System_MemoryUsage,                  builtin_memoryusage)
+  BIND_DOWN(   pmath_System_Merge,                        builtin_merge)
   BIND_DOWN(   pmath_System_Message,                      builtin_message)
   BIND_DOWN(   pmath_System_DollarMessageCount,           builtin_messagecount)
   BIND_DOWN(   pmath_System_MessageName,                  builtin_messagename)

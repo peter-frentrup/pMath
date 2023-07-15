@@ -1409,6 +1409,9 @@
 		<Unit filename="src/pmath-builtins/lists/mean.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/lists/merge.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/lists/nest.c">
 			<Option compilerVar="CC" />
 		</Unit>
