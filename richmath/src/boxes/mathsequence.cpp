@@ -2849,7 +2849,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
     GlyphHeights inner_heights {};
     
     iter.move_next_token();
-    while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end && !pmath_char_is_right(iter.current_char())) {
+    while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end && !iter.is_right_bracket()) {
       stretch_outermost_span(inner_core_heights, inner_heights);
     }
     
@@ -2945,7 +2945,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span
     GlyphHeights inner_heights {};
     
     iter.move_next_token();
-    while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end && !pmath_char_is_right(iter.current_char()))
+    while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end && !iter.is_right_bracket())
       stretch_outermost_span(inner_core_heights, inner_heights);
     
     float overhang_a = (inner_heights.ascent - inner_core_heights.ascent) * UnderoverscriptOverhangCoverage;
