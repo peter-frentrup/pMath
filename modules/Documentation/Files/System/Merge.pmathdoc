@@ -1,0 +1,108 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Merge", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Merge"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Merge"}, "ReferenceHyperlink"), 
+           " can operate on arbitrily nested lists of rules."}), "Notes"), 
+        Section(TextData({TemplateBox({"Merge"}, "ReferenceHyperlink"), 
+           " compares left-hand sides by structural identity. It does not \
+           perform pattern mtching or canonicalization."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(
+         "Merge two lists of rules by summing values for identical keys:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Merge", "(", {
+              {"{", {
+                {"{", {{"a", "\[Rule]", "1"}, ",", {"b", "\[Rule]", "2"}}, 
+                 "}"}, ",", {"{", {{"b", "\[Rule]", "40"}, ",", {
+                   "a", "\[Rule]", "30"}}, "}"}}, "}"}, ",", "Total"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {{"a", "\[Rule]", "31"}, ",", {
+               "b", "\[Rule]", "42"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Combine rules into lists:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Merge", "(", {
+                {"{", {
+                  {"{", {{"a", "\[Rule]", "1"}, ",", {"b", "\[Rule]", "2"}}, 
+                   "}"}, ",", {"{", {{"b", "\[Rule]", "40"}, ",", {
+                     "a", "\[Rule]", "30"}}, "}"}}, "}"}, ",", "Identity"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {{"a", "\[Rule]", {"{", {"1", ",", "30"}, "}"}}, 
+                ",", {"b", "\[Rule]", {"{", {"2", ",", "40"}, "}"}}}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           "Combine rules in a single list with identical left-hand sides:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Merge", "(", {
+                {"{", {{"a", "\[Rule]", "x"}, ",", {"b", "\[Rule]", "y"}, ",", 
+                  {"a", "\[Rule]", "z"}}, "}"}, ",", "f"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {{"a", "\[Rule]", {"f", "(", {"{", {"x", ",", "z"}, "}"}, 
+                  ")"}}, ",", {"b", "\[Rule]", {"f", "(", {"{", "y", "}"}, 
+                  ")"}}}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"RuleDelayed"}, "ReferenceHyperlink"), 
+           " is retained:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Merge", "(", {
+              {"{", {{"{", {{"a", "\[RuleDelayed]", {"1", "+", "1"}}, ",", {
+                   "b", "\[RuleDelayed]", {"2", "+", "2"}}}, "}"}, ",", {
+                 "{", {{"a", "\[RuleDelayed]", {"3", "+", "3"}}, ",", {
+                   "c", "\[RuleDelayed]", {"4", "+", "4"}}}, "}"}}, "}"}, ",", 
+              "f"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {{"a", "\[RuleDelayed]", {
+                "f", "(", {"{", {{"1", "+", "1"}, ",", {"3", "+", "3"}}, "}"}, 
+                ")"}}, ",", {"b", "\[RuleDelayed]", {
+                "f", "(", {"{", {"2", "+", "2"}, "}"}, ")"}}, ",", {
+               "c", "\[RuleDelayed]", {"f", "(", {"{", {"4", "+", "4"}, "}"}, 
+                ")"}}}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"If rules with head ", 
+             TemplateBox({"Rule"}, "ReferenceHyperlink"), " and with head ", 
+             TemplateBox({"RuleDelayed"}, "ReferenceHyperlink"), 
+             " are combined, the last one wins:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Merge", "(", {
+                {"{", {{"{", {{"a", "\[RuleDelayed]", {"1", "+", "1"}}, ",", {
+                     "b", "\[Rule]", "2"}}, "}"}, ",", {
+                   "{", {{"a", "\[Rule]", "3"}, ",", {
+                     "b", "\[RuleDelayed]", {"4", "+", "4"}}}, "}"}}, "}"}, 
+                ",", "f"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {{"a", "\[Rule]", {"f", "(", {"{", {"2", ",", "3"}, "}"}, 
+                  ")"}}, ",", {"b", "\[RuleDelayed]", {
+                  "f", "(", {"{", {"2", ",", {"4", "+", "4"}}, "}"}, ")"}}}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Transpose"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
