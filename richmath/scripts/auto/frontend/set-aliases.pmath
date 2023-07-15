@@ -704,6 +704,13 @@
 		"l||" -> "\[LeftDoubleBracketingBar]",
 		"r||" -> "\[RightDoubleBracketingBar]",
 
+		"left)" -> TagBox(")", None, SyntaxForm -> "("),
+		"left]" -> TagBox("]", None, SyntaxForm -> "["),
+		"left}" -> TagBox("}", None, SyntaxForm -> "{"),
+		"right(" -> TagBox("(", None, SyntaxForm -> ")"),
+		"right[" -> TagBox("[", None, SyntaxForm -> "]"),
+		"right{" -> TagBox("{", None, SyntaxForm -> "}"),
+
 		"lmoustache" -> "\[U+23B0]",
 		"rmoustache" -> "\[U+23B1]",
 		
