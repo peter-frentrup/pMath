@@ -1,0 +1,94 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("First", "ObjectName"), 
+      Section(BoxData(TemplateBox({"First"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"First"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ") is equivalent to ", 
+           StyleBox("expr", "Arg"), "[", BoxData("1"), "]."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Extract the first element of a list:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"First", "(", {"{", {"a", ",", "b", ",", "c"}, 
+              "}"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("a"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Extract the first row of a matrix:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"First", "(", {
+                "{", {{"{", {"a", ",", "b", ",", "c"}, "}"}, ",", {
+                  "{", {"d", ",", "e", ",", "f"}, "}"}, ",", {
+                  "{", {"g", ",", "h", ",", "i"}, "}"}}, "}"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"a", ",", "b", ",", "c"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"First"}, "ReferenceHyperlink"), 
+             " operates on general expressions:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"First", "(", {{"a", SuperscriptBox("2")}, "+", {
+                 "b", SuperscriptBox("2")}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"a", SuperscriptBox("2")}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({TemplateBox({"First"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ") is equivalent to ", 
+           StyleBox("expr", "Arg"), "[", BoxData("1"), "]:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"First", "(", {"{", {"a", ",", "b", ",", "c"}, 
+              "}"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("a"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({{"{", {"a", ",", "b", ",", "c"}, "}"}, "[", "1", 
+             "]"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData("a"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({"The expression is evaluated before ", 
+           TemplateBox({"First"}, "ReferenceHyperlink"), " gets applied:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"First", "(", {{"b", SuperscriptBox("2")}, "+", {
+               "a", SuperscriptBox("2")}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"a", SuperscriptBox("2")}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"First"}, "ReferenceHyperlink"), 
+             " operates on the ", TemplateBox({"FullForm"}, 
+              "ReferenceHyperlink"), " of expressions:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"First", "(", {
+                "1", "/", {"x", SuperscriptBox("2")}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("x"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"FullForm", "(", {
+                "1", "/", {"x", SuperscriptBox("2")}}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData(StyleBox({"Power", "(", {"x", ",", {"-", "2"}}, 
+                ")"}, AutoDelete -> True, ShowStringCharacters -> True)), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+           All)}, All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Last"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Part"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Rest"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Take"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
