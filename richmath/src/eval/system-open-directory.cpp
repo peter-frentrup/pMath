@@ -1,9 +1,13 @@
 #include <util/filesystem.h>
 #include <util/array.h>
 
+#include <gui/documents.h>
+#include <eval/application.h>
+
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/ole/combase.h>
 #  include <gui/win32/ole/filesystembinddata.h>
+#  include <gui/win32/win32-widget.h>
 #  include <shlobj.h>
 #endif
 
@@ -103,6 +107,17 @@ static HRESULT win32_system_open_directory(String dir, Expr items) {
   if(!dir)
     return E_OUTOFMEMORY;
   
+  HWND hwnd = nullptr;
+  Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
+  if(!doc)
+    doc = Documents::selected_document();
+  
+  if(doc) {
+    if(auto widget = dynamic_cast<Win32Widget *>(doc->native())) {
+      hwnd = GetAncestor(widget->hwnd(), GA_ROOT);
+    }
+  } 
+
   ComHashPtr<ITEMIDLIST> folder_pidl;
   HR(CreateSimplePidl(find_data, dir.buffer_wchar(), folder_pidl.get_address_of()));
   
@@ -115,13 +130,26 @@ static HRESULT win32_system_open_directory(String dir, Expr items) {
     ComHashPtr<ITEMIDLIST> idl;
     name+= String::FromChar(0);
     if(name) {
-      if(HRbool(folder->ParseDisplayName(nullptr, nullptr, const_cast<wchar_t*>(name.buffer_wchar()), nullptr, idl.get_address_of(), nullptr))) {
+      if(HRbool(folder->ParseDisplayName(hwnd, nullptr, const_cast<wchar_t*>(name.buffer_wchar()), nullptr, idl.get_address_of(), nullptr))) {
         item_idls.add(PMATH_CPP_MOVE(idl));
       }
     }
   }
   
-  HR(SHOpenFolderAndSelectItems(folder_pidl.get(), item_idls.length(), (const ITEMIDLIST**)item_idls.items(), 0));
+  if(item_idls.length()) {
+    HR(SHOpenFolderAndSelectItems(folder_pidl.get(), item_idls.length(), (const ITEMIDLIST**)item_idls.items(), 0));
+  }
+  else {
+    SHELLEXECUTEINFOW info = {0};
+    info.cbSize   = sizeof(info);
+    info.fMask    = SEE_MASK_IDLIST;
+    info.lpVerb   = L"explore";
+    info.lpIDList = folder_pidl.get();
+    info.nShow    = SW_SHOW;
+    info.hwnd     = hwnd;
+    if(!ShellExecuteExW(&info))
+      return HRreport(E_FAIL);
+  }
   return S_OK;
 }
 

@@ -1082,10 +1082,16 @@ bool SelectDocumentMenuImpl::locate_window(Expr submenu_cmd, Expr item_cmd) {
     auto doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(item_cmd[1]));
     if(doc) {
       Expr expr;
-      if(String path = doc->native()->full_filename()) 
+      if(String dir = doc->native()->directory()) {
+        if(String fname = doc->native()->filename())
+          expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), PMATH_CPP_MOVE(dir), List(PMATH_CPP_MOVE(fname)));
+        else if(String path = doc->native()->full_filename()) 
+          expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), PMATH_CPP_MOVE(path));
+        else
+          expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), PMATH_CPP_MOVE(dir), List());
+      }
+      else if(String path = doc->native()->full_filename()) 
         expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), PMATH_CPP_MOVE(path));
-      else if(String dir = doc->native()->directory())
-        expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), PMATH_CPP_MOVE(dir), List());
       else
         return false;
       
