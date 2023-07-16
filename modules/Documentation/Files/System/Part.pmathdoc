@@ -1,0 +1,404 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Part", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Part"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"Use ", StyleBox("expr", "Arg"), "[", 
+           StyleBox("spec", "Arg"), "]\[Assign] ", StyleBox("value", "Arg"), 
+           " to modify part of an expression."}), "Notes"), 
+        Section(TextData({"Part ", BoxData("0"), 
+           " of an expression is its head."}), "Notes"), 
+        Section(
+         TextData({"Common ", TemplateBox({"Range"}, "ReferenceHyperlink"), 
+           " specifications of parts include:"}), "Notes"), 
+        Section(
+         TextData({
+           GridBox({
+             {{StyleBox("expr", "Arg"), "[", StyleBox("m", "Arg"), " ..]"}, {
+               "parts ", StyleBox("m", "Arg"), ", ", StyleBox("m", "Arg"), 
+               "+1, etc. through the end"}}, {
+              {StyleBox("expr", "Arg"), "[.. ", StyleBox("n", "Arg"), "]"}, {
+               "parts 1 through ", StyleBox("n", "Arg")}}, {
+              {StyleBox("expr", "Arg"), "[.. ", 
+               TemplateBox({"UpTo"}, "ReferenceHyperlink"), "(", 
+               StyleBox("n", "Arg"), ")]"}, {
+               "parts 1 through ", StyleBox("n", "Arg"), " if available"}}, {
+              {StyleBox("expr", "Arg"), "[.., ", StyleBox("j", "Arg"), 
+               "] or ", StyleBox("expr", "Arg"), "[", 
+               TemplateBox({"All"}, "ReferenceHyperlink"), ", ", 
+               StyleBox("j", "Arg"), "]"}, {"column ", StyleBox("j", "Arg"), 
+               " of a matrix ", StyleBox("expr", "Arg")}}, {
+              {StyleBox("expr", "Arg"), "[", StyleBox("m", "Arg"), 
+               SubscriptBox("1"), " .. ", StyleBox("n", "Arg"), 
+               SubscriptBox("1"), ", ", StyleBox("m", "Arg"), 
+               SubscriptBox("2"), " .. ", StyleBox("n", "Arg"), 
+               SubscriptBox("2"), "]"}, "submatrix"}})}), 
+         "2ColumnTableNotes"), 
+        Section(TextData({StyleBox("expr", "Arg"), "[\"", 
+           StyleBox("key", "Arg"), 
+           "\"] extracts a value from a list of rules that corresponds to a \
+           string key (left-hand side). ", StyleBox("expr", "Arg"), "[", 
+           TemplateBox({"Key"}, "ReferenceHyperlink"), "(", 
+           StyleBox("k", "Arg"), 
+           ")] can be used to extract values with any key."}), "Notes"), 
+        Section(TextData({"\"", StyleBox("key\"", "Arg"), " or ", 
+           TemplateBox({"Key"}, "ReferenceHyperlink"), "(", 
+           StyleBox("k", "Arg"), 
+           ") and integer or range specifications can be mixed."}), "Notes"), 
+        Section(TextData({TemplateBox({"Part"}, "ReferenceHyperlink"), 
+           " has attribute ", TemplateBox({"NHoldRest"}, 
+            "ReferenceHyperlink"), "."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Pick out an element from a list:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({{"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, "}"}, 
+             "[", "4", "]"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("d"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Pick out a sequence of parts:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({{"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, 
+                "}"}, "[", {"2", "..", "4"}, "]"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"b", ",", "c", ",", "d"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           "Extract the value corresponding to key \"a\" from a list of \
+           rules:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"{", {{StringBox("\"a\""), "\[Rule]", "123"}, ",", {
+                  StringBox("\"b\""), "\[Rule]", "456"}}, "}"}, "[", 
+               StringBox("\"a\""), "]"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("123"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Pick out an element from a matrix:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"{", {{"{", {"a", ",", "b", ",", "c"}, "}"}, ",", {
+                  "{", {"d", ",", "e", ",", "f"}, "}"}, ",", {
+                  "{", {"g", ",", "h", ",", "i"}, "}"}}, "}"}, "[", {
+                "2", ",", "3"}, "]"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("f"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Pick out the third row of a matrix:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"{", {{"{", {"a", ",", "b", ",", "c"}, "}"}, ",", {
+                  "{", {"d", ",", "e", ",", "f"}, "}"}, ",", {
+                  "{", {"g", ",", "h", ",", "i"}, "}"}}, "}"}, "[", "3", 
+               "]"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"g", ",", "h", ",", "i"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Pick out the third column of a matrix:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"{", {{"{", {"a", ",", "b", ",", "c"}, "}"}, ",", {
+                  "{", {"d", ",", "e", ",", "f"}, "}"}, ",", {
+                  "{", {"g", ",", "h", ",", "i"}, "}"}}, "}"}, "[", {
+                "All", ",", "3"}, "]"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"c", ",", "f", ",", "i"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("The second last element of a list:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({{"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, 
+                "}"}, "[", {"-", "2"}, "]"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("d"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        SectionGroup({Section("Single-Level Specifcations", 
+           "ExampleSubsection"), Section("A list of parts:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({{"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, 
+                "}"}, "[", {"{", {"1", ",", "4", ",", "2", ",", {"-", "1"}, 
+                 ",", "1", ",", {"-", "1"}}, "}"}, "]"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"a", ",", "d", ",", "b", ",", "e", ",", 
+                "a", ",", "e"}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("The first part in a list of rules is a rule:", 
+             "ExampleText"), SectionGroup({
+              Section(
+               BoxData({
+                 {"{", {{"1", "\[Rule]", "a"}, ",", {"2", "\[Rule]", "b"}}, 
+                  "}"}, "[", "1", "]"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData({"1", "\[Rule]", "a"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+            Section(TextData({"The part associated with key ", BoxData("1"), 
+               ":"}), "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({
+                 {"{", {{"1", "\[Rule]", "a"}, ",", {"2", "\[Rule]", "b"}}, 
+                  "}"}, "[", {"Key", "(", "1", ")"}, "]"}), "Input", 
+               SectionLabel -> "in [2]:"), Section(BoxData("a"), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Consecutive parts of a list of rules:", "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({
+                 {"{", {{StringBox("\"a\""), "\[Rule]", "1"}, ",", {
+                    StringBox("\"b\""), "\[Rule]", "2"}, ",", {
+                    StringBox("\"c\""), "\[Rule]", "3"}, ",", {
+                    StringBox("\"d\""), "\[Rule]", "4"}}, "}"}, "[", {
+                  "1", "..", "2"}, "]"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData({"{", {{StringBox("\"a\""), "\[Rule]", "1"}, 
+                  ",", {StringBox("\"b\""), "\[Rule]", "2"}}, "}"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({
+          Section("Multi-Level Specifcations", "ExampleSubsection"), 
+          Section("Pick out part of a matrix:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"{", {{"{", {"a", ",", "b", ",", "c"}, "}"}, ",", {
+                  "{", {"d", ",", "e", ",", "f"}, "}"}, ",", {
+                  "{", {"g", ",", "h", ",", "i"}, "}"}}, "}"}, "[", {
+                "2", ",", "3"}, "]"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("f"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          Section(
+           "This is the same as extracting first extracting the second row: ", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               {"{", {{"{", {"a", ",", "b", ",", "c"}, "}"}, ",", {
+                  "{", {"d", ",", "e", ",", "f"}, "}"}, ",", {
+                  "{", {"g", ",", "h", ",", "i"}, "}"}}, "}"}, "[", "2", 
+               "]"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData({"{", {"d", ",", "e", ",", "f"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+          Section("And from that extracting the third sub-element:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({{"{", {"d", ",", "e", ",", "f"}, "}"}, "[", "3", 
+               "]"}), "Input", SectionLabel -> "in [3]:"), 
+            Section(BoxData("f"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [3]:")}, All)}, 1)}, 1), 
+      SectionGroup({Section("Applications", "ExampleSection"), 
+        Section("Reassign a part:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"m", "\[Assign]", {
+              "{", {{"{", {"a", ",", "b"}, "}"}, ",", {
+                "{", {"c", ",", "d"}, "}"}}, "}"}}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {{"{", {"a", ",", "b"}, "}"}, ",", {
+               "{", {"c", ",", "d"}, "}"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({{"m", "[", {"2", ",", "2"}, "]"}, "\[Assign]", 
+             "x"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData("x"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({Section(BoxData("m"), "Input", 
+           SectionLabel -> "in [3]:"), 
+          Section(BoxData({"{", {{"{", {"a", ",", "b"}, "}"}, ",", {
+               "{", {"c", ",", "x"}, "}"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Ressign a sequence of parts:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"v", "\[Assign]", {
+                "{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, "}"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"a", ",", "b", ",", "c", ",", "d", ",", 
+                "e"}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({{"v", "[", {"2", "..", "4"}, "]"}, "\[Assign]", 
+               "x"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData("x"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All), 
+          SectionGroup({Section(BoxData("v"), "Input", 
+             SectionLabel -> "in [3]:"), 
+            Section(BoxData({"{", {"a", ",", "x", ",", "x", ",", "x", ",", 
+                "e"}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [3]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Change a value in a list of rules:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"dict", "\[Assign]", {
+                "{", {{StringBox("\"a\""), "\[Rule]", "1"}, ",", {
+                  StringBox("\"b\""), "\[Rule]", "2"}}, "}"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {{StringBox("\"a\""), "\[Rule]", "1"}, ",", {
+                 StringBox("\"b\""), "\[Rule]", "2"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({{"dict", "[", StringBox("\"a\""), "]"}, 
+               "\[Assign]", "3"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData("3"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All), 
+          SectionGroup({Section(BoxData("dict"), "Input", 
+             SectionLabel -> "in [3]:"), 
+            Section(BoxData({"{", {{StringBox("\"a\""), "\[Rule]", "3"}, ",", {
+                 StringBox("\"b\""), "\[Rule]", "2"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Add a value to a list of rules:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"dict", "\[Assign]", {
+                "{", {{StringBox("\"a\""), "\[Rule]", "1"}, ",", {
+                  StringBox("\"c\""), "\[Rule]", "3"}}, "}"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {{StringBox("\"a\""), "\[Rule]", "1"}, ",", {
+                 StringBox("\"c\""), "\[Rule]", "3"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({{"dict", "[", StringBox("\"b\""), "]"}, 
+               "\[Assign]", "2"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData("2"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All), 
+          SectionGroup({Section(BoxData("dict"), "Input", 
+             SectionLabel -> "in [3]:"), 
+            Section(BoxData({"{", {{StringBox("\"a\""), "\[Rule]", "1"}, ",", {
+                 StringBox("\"c\""), "\[Rule]", "3"}, ",", {
+                 StringBox("\"b\""), "\[Rule]", "2"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Remove a value from a list of rules:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"dict", "\[Assign]", {
+                "{", {{StringBox("\"a\""), "\[Rule]", "1"}, ",", {
+                  StringBox("\"b\""), "\[Rule]", "2"}, ",", {
+                  StringBox("\"c\""), "\[Rule]", "3"}}, "}"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {{StringBox("\"a\""), "\[Rule]", "1"}, ",", {
+                 StringBox("\"b\""), "\[Rule]", "2"}, ",", {
+                 StringBox("\"c\""), "\[Rule]", "3"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section(BoxData({{"dict", "[", StringBox("\"b\""), "]"}, 
+             "\[Assign]", "."}), "Input", SectionLabel -> "in [2]:"), 
+          SectionGroup({Section(BoxData("dict"), "Input", 
+             SectionLabel -> "in [3]:"), 
+            Section(BoxData({"{", {{StringBox("\"a\""), "\[Rule]", "1"}, ",", {
+                 StringBox("\"c\""), "\[Rule]", "3"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
+         All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Part"}, "ReferenceHyperlink"), 
+           " works with any expression, not just lists:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {"f", "(", {{"g", "(", {"a", ",", "b"}, ")"}, ",", {
+                "h", "(", {"c", ",", "d"}, ")"}}, ")"}, "[", {"2", ",", "1"}, 
+             "]"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("c"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {"{", {{"x", "\[Rule]", "11"}, ",", {"y", "\[Rule]", "22"}}, 
+              "}"}, "[", {"1", ",", "2"}, "]"}), "Input", 
+           SectionLabel -> "in [3]:"), Section(BoxData("11"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        Section(TextData({TemplateBox({"Part"}, "ReferenceHyperlink"), 
+           " operatres on the ", TemplateBox({"FullForm"}, 
+            "ReferenceHyperlink"), " of expressions:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"(", {"x", "/", "y"}, ")"}, "[", "2", "]"}), 
+           "Input", SectionLabel -> "in [4]:"), 
+          Section(BoxData(FractionBox("1", "y")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"FullForm", "(", {"x", "/", "y"}, ")"}), "Input", 
+           SectionLabel -> "in [5]:"), 
+          Section(
+           BoxData(StyleBox({"Times", "(", {
+               "x", ",", {"Power", "(", {"y", ",", {"-", "1"}}, ")"}}, ")"}, 
+             AutoDelete -> True, ShowStringCharacters -> True)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({
+             "The \[HighSixQuote]zeroth\[HighNineQuote] part of an expression \
+             is its ", TemplateBox({"Head"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({{"(", {"a", "+", "b", "+", "c"}, ")"}, "[", "0", 
+               "]"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("Plus"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({{"{", {"1", ",", "2", ",", "3"}, "}"}, "[", "0", 
+               "]"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData("List"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(
+         "If an expression contains held parts, extraction may cause them to \
+         evaluate:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"Hold", "(", {{"2", "x"}, "+", {"2", " ", "3"}}, 
+              ")"}, "[", "1", "]"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"6", "+", {"2", "x"}}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        Section(
+         "This may cause difference between direct extraction of a sub-part \
+         and successive part extraction:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"Hold", "(", {{"2", "x"}, "+", {"2", " ", "3"}}, 
+              ")"}, "[", {"1", ",", "2"}, "]"}), "Input", 
+           SectionLabel -> "in [2]:"), Section(BoxData("6"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(
+           BoxData({{{"Hold", "(", {{"2", "x"}, "+", {"2", " ", "3"}}, ")"}, 
+              "[", "1", "]"}, "[", "2", "]"}), "Input", 
+           SectionLabel -> "in [3]:"), Section(BoxData({"2", "x"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Length"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Head"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UpTo"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
