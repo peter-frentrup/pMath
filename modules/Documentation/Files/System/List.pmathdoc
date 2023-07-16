@@ -2,7 +2,9 @@
 
 Document({
   SectionGroup({
-    SectionGroup({Section("List", "ObjectName"), 
+    SectionGroup({
+      Section(TextData({"List (", BoxData({"{", "\[Ellipsis]", "}"}), ")"}), 
+       "ObjectName"), 
       Section(BoxData(TemplateBox({"List"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
@@ -308,5 +310,8 @@ Document({
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
          TemplateBox({"Listable"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Function"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Part"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Lookup"}, 
           "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
  StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

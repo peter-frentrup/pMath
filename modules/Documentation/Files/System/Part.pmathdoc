@@ -2,7 +2,9 @@
 
 Document({
   SectionGroup({
-    SectionGroup({Section("Part", "ObjectName"), 
+    SectionGroup({
+      Section(TextData({"Part (", BoxData({"[", "\[Ellipsis]", "]"}), ")"}), 
+       "ObjectName"), 
       Section(BoxData(TemplateBox({"Part"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
@@ -395,10 +397,20 @@ Document({
            SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section(TextData({TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+      Section(TextData({TemplateBox({"Extract"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Take"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"First"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Last"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ReplacePart"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Position"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Length"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
          TemplateBox({"Head"}, "ReferenceHyperlink"), 
-         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UpTo"}, 
-          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Range"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"UpTo"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
