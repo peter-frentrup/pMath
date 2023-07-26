@@ -301,7 +301,7 @@ getSwitchCases({"\[RawNewline]"***})::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***, ~inner:List})::= getSwitchCases(inner)
 getSwitchCases({{"Case", "(", ~pattern, ")"}, {"{", ~block, "}"}, ~~~more})::=
 	Join(
-		MakeExpression({pattern, ":>", block}),
+		MakeExpression({pattern, ":>", makeBlockExpression(block)}),
 		getSwitchCases({more}))
 getSwitchCases({~case, "\[RawNewline]", ~~~more})::= Join(getSwitchCases(case), getSwitchCases({more}))
 getSwitchCases(~other)::= (
