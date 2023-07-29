@@ -1084,10 +1084,29 @@ void ScopeColorizerImpl::colorize_block(SpanExpr *se) {
           colorize_scoping_block(head_call, se, &ScopeColorizerImpl::symdef_parameter_colorize_spanexpr);
           return;
         }
-        if(name->equals("While") || name->equals("Switch") || name->equals("Case") || name->equals("If")) {
+        if(name->equals("While") || name->equals("Switch") || name->equals("If")) {
           colorize_spanexpr(head_call.span());
-          colorize_keyword(head_call.function_head());
+          colorize_keyword(name);
           colorize_block_body(se->item(1));
+          return;
+        }
+        if(name->equals("Case")) {
+          // Case(...) { ... }  is syntactic sugar for  ... :> Block { ... }  
+          // TODO: Case is only valid directly inside a Switch(...) {...} block
+          
+          SharedPtr<ScopePos> next_scope = state.new_scope();
+          state.new_scope();
+          
+          bool old_in_pattern = state.in_pattern;
+          state.in_pattern = true;
+          
+          colorize_spanexpr(head_call.span()); // Case(...)
+          colorize_keyword(name);
+          
+          state.in_pattern = old_in_pattern;
+          
+          colorize_block_body(se->item(1));
+          state.current_pos = next_scope;
           return;
         }
       }
