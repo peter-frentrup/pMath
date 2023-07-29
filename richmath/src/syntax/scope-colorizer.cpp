@@ -435,21 +435,34 @@ bool ScopeColorizerImpl::prepare_symbol_colorization(int start, SymbolKind kind,
 }
 
 void ScopeColorizerImpl::symdef_colorize_spanexpr(SpanExpr *se, SymbolKind kind) { // "x"  "x:=y"
-  if( se->count() >= 2 &&
-      se->count() <= 3 &&
-      pmath_char_is_name(se->item_first_char(0)))
-  {
-    if(se->item_as_char(1) == PMATH_CHAR_ASSIGN        ||
+  if( se->count() >= 2 && se->count() <= 3) {
+    if( se->item_as_char(1) == PMATH_CHAR_ASSIGN        ||
         se->item_as_char(1) == PMATH_CHAR_ASSIGNDELAYED ||
         se->item_equals(1, ":=")                        ||
         se->item_equals(1, "::="))
     {
-      symbol_colorize(se->item_pos(0), kind);
+      if(pmath_char_is_name(se->item_first_char(0))) {
+        symbol_colorize(se->item_pos(0), kind);
+        return;
+      }
+      
+      auto lhs = se->item(0);
+      if(FunctionCallSpan::is_list(lhs)) { // "{x, ...} := ..."
+        FunctionCallSpan lhs_list(lhs);
+        
+        for(int i = 1; i <= lhs_list.list_length(); ++i) {
+          symdef_colorize_spanexpr(lhs_list.list_element(i), kind);
+        }
+        
+        return;
+      }
+      
       return;
     }
   }
   
-  symbol_colorize(se->start(), kind);
+  if(pmath_char_is_name(se->first_char()))
+    symbol_colorize(se->start(), kind);
 }
 
 void ScopeColorizerImpl::symdeflist_colorize_spanexpr(SpanExpr *se, SymbolKind kind) { // "{symdefs ...}"
