@@ -21,7 +21,10 @@ $DocumentationPath:= {ToFileName(DirectoryName($Input), "Files")}
 Function FindDocumentationPages(~part:String) {
     Flatten@{
         $DocumentationPath |> FileNames("System") |>
-            FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True) |>
+            FileNames(part ++ ".pmathdoc", IgnoreCase->True) |>
+            Map(Function(FileNameSplit(#).Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True) -> #)),
+        $DocumentationPath |> FileNames("System") |>
+            FileNames(((~~ ++ part ++ ~~~) | (~~~ ++ part ++ ~~)) ++ ".pmathdoc", IgnoreCase->True) |>
             Map(Function(FileNameSplit(#).Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True) -> #)),
         $DocumentationPath |> FileNames("(Guides)") |>
             FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True) |>
