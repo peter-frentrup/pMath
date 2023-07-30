@@ -10,11 +10,11 @@ Function FE`InsertSpecial(~doc) {
     insertSpecialAt(doc, selboxes, Developer`GetDebugMetadata(selboxes))
 }
 
-getInputAliasesFor(~)::= CurrentValue(InputAliases)
+getInputAliasesFor(~, ~)::= CurrentValue(InputAliases)
 
-Function getInputAliasesFor(Language`SourceLocation(~feo:FrontEndObject, ~range)) {
+Function getInputAliasesFor(~selboxes, Language`SourceLocation(~feo:FrontEndObject, ~range)) {
      With(allMacros:= CurrentValue(feo, InputAliases) |> Cases(Except(~ -> ("\[Placeholder]" | "\[SelectionPlaceholder]"))))
-     If(Match(range, ~x .. ~x)) {
+     If(Match(range, ~x .. ~x) || selboxes === "\[Placeholder]" || selboxes === "\[SelectionPlaceholder]") {
         allMacros
      } Else {
         allMacros |>
@@ -24,7 +24,7 @@ Function getInputAliasesFor(Language`SourceLocation(~feo:FrontEndObject, ~range)
 }
 
 Function insertSpecialAt(~doc, ~selboxes, ~loc) {
-    With(allMacros:= getInputAliasesFor(loc))
+    With(allMacros:= getInputAliasesFor(selboxes, loc))
     Local(popup:= $Failed, macroName:= "", matches:= {}, allowEmpty:= False, selIndex:= 0)
     popup:= FE`AttachBoxes(loc, Bottom, {
         Section(
