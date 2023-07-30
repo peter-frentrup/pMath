@@ -379,7 +379,7 @@ Options(Section):= {
         PlotRange -> Inherited,
         PlotRangePadding -> Inherited},
     GridBoxColumnSpacing -> 0.5,
-    GridBoxBoxOptions -> {
+    GridBoxOptions -> {
         AllowScriptLevelChange -> True},
     GridBoxRowSpacing -> 0.5,
     "ImplicitOperatorStyle" -> { FontColor -> Inherited },
