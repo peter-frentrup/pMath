@@ -75,6 +75,28 @@ class BasicWin32Window::Impl {
     void paint_themed_system_buttons(HDC hdc_bitmap);
     void paint_themed_caption(HDC hdc_bitmap);
     
+    class CaptionToolbarPainter {
+      public:
+        explicit CaptionToolbarPainter(BasicWin32Window &self, int h, int dpi);
+        ~CaptionToolbarPainter();
+        
+        ControlState button_state(int i);
+        void paint(HDC hdc, const RECT &rect, const Win32CaptionButton &button, ControlState state);
+      
+      private:
+        void paint_separator(HDC hdc, const RECT &rect);
+        void paint_button(HDC hdc, const RECT &rect, ControlState state);
+        void paint_proxy_icon(HDC hdc, const RECT &rect);
+        void paint_label(HDC hdc, RECT rect, const Win32CaptionButton &button, ControlState state);
+        
+      private:
+        BasicWin32Window &self;
+        HFONT             symbols_font;
+        HANDLE            toolbar_theme;
+        int               height;
+        int               dpi;
+    };
+    
   private:
     BasicWin32Window &self;
 };
@@ -2854,10 +2876,6 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
       
       center_caption = content_alignment != 0;
     }
-
-    // TODO: temporarily scale GDI context to 96 dpi coordinates to write propper font size.
-    //int map_mode = GetMapMode(hdc_bitmap);
-    //SetMapMode(hdc_bitmap, MM_LOENGLISH);
     
     Win32Themes::MARGINS nc;
     ::get_nc_margins(self._hwnd, &nc, dpi);
@@ -2868,135 +2886,20 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
     RECT btn_rect = menu;
     btn_rect.left = menu.right;
     
-    int btn_extra_top    = MulDiv(2, dpi, 96);
-    int btn_extra_bottom = MulDiv(4, dpi, 96);
-    btn_rect.top    -= btn_extra_top;
-    btn_rect.bottom += btn_extra_bottom;
     
-    HFONT symbols_font = CreateFontW(
-                           menu.bottom - menu.top,//log_font.lfHeight,
-                           0,
-                           0,
-                           0,
-                           FW_NORMAL,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           DEFAULT_CHARSET,
-                           OUT_DEFAULT_PRECIS,
-                           CLIP_DEFAULT_PRECIS,
-                           ANTIALIASED_QUALITY,//DEFAULT_QUALITY,//
-                           DEFAULT_PITCH | FF_DONTCARE,
-                           Win32Themes::symbol_font_name());
+    CaptionToolbarPainter toolbar(self, menu.bottom - menu.top, dpi);
     
-    HANDLE toolbar_theme = Win32ControlPainter::win32_painter.get_control_theme(
-                             self, ContainerType::PaletteButton, ControlState::Normal, nullptr, nullptr);
+    btn_rect.top    -= MulDiv(2, dpi, 96);
+    btn_rect.bottom += MulDiv(4, dpi, 96);
+    
     int i = -1;
     for(auto &button : self.extra_caption_buttons()) {
-      int w = MulDiv(button.dx_96dpi, dpi, 96);
       ++i;
       
-      btn_rect.right += w;
-      
-      if(button.flags & Win32CaptionButton::Separator) {
-        int part = 5; // TP_SEPARATOR
-        int state = 1; // TS_NORMAL
-        
-        SIZE size = {0, 0};
-        Win32Themes::GetThemePartSize(toolbar_theme, hdc_bitmap, part, state, nullptr, Win32Themes::TS_TRUE, &size);
-        
-        if(size.cx == 0)
-          size.cx = w;
-        
-        RECT separator_rect;
-        separator_rect.left = btn_rect.left + (w - size.cx) / 2;
-        separator_rect.right = separator_rect.left + size.cx;
-        separator_rect.top    = btn_rect.top    + btn_extra_top;
-        separator_rect.bottom = btn_rect.bottom - btn_extra_bottom;
-        
-        Win32Themes::DrawThemeBackground(
-          toolbar_theme,
-          hdc_bitmap,
-          part,
-          state,
-          &separator_rect,
-          nullptr);
-      }
-      
-      if(button.flags & Win32CaptionButton::Button) {
-        int state = 1; // TP_NORMAL
-        if(i == self._hit_test_extra_button) {
-          if(self._hit_test_mouse_down == self._hit_test_mouse_over)
-            state = 3; // TP_PRESSED
-          else
-            state = 2; // TP_HOT
-        }
-        
-        Win32Themes::DrawThemeBackground(
-          toolbar_theme,
-          hdc_bitmap,
-          1, // TP_BUTTON
-          state,
-          &btn_rect,
-          nullptr);
-      }
-      
-      if(button.flags & Win32CaptionButton::ProxyIcon) {
-        int icon_w = Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
-        int icon_h = Win32HighDpi::get_system_metrics_for_dpi(SM_CYSMICON, dpi);
-        
-        HICON icon = (HICON)LoadImageW(GetModuleHandleW(nullptr), MAKEINTRESOURCEW(ICO_FILE),
-                                       IMAGE_ICON,
-                                       icon_w, icon_h,
-                                       LR_DEFAULTCOLOR);
-        if(icon) {
-          DrawIconEx(
-            hdc_bitmap,
-            btn_rect.left + (btn_rect.right - btn_rect.left - icon_w) / 2,
-            btn_rect.top  + (btn_rect.bottom - btn_rect.top - icon_h) / 2,
-            icon,
-            icon_w,
-            icon_h,
-            0,
-            nullptr,
-            DI_NORMAL);
-          
-          DestroyIcon(icon);
-        }
-      }
-      
-      if(button.label) {
-        HFONT tmp = nullptr;
-        if(button.flags & Win32CaptionButton::UseIconFont) {
-          tmp = (HFONT)SelectObject(hdc_bitmap, symbols_font);
-        }
-        
-        int dx = 0;
-        if(i == self._hit_test_extra_button && self._hit_test_mouse_down == self._hit_test_mouse_over) {
-          dx = MulDiv(1, dpi, 96);
-          OffsetRect(&btn_rect, dx, 0);
-        }
-        
-        
-        Win32Themes::DrawThemeTextEx(
-          theme,
-          hdc_bitmap,
-          0, 0,
-          button.label, -1,
-          DT_CENTER | DT_VCENTER | DT_SINGLELINE,
-          &btn_rect,
-          &dtt_opts);
-        
-        OffsetRect(&btn_rect, -dx, 0);
-        
-        if(tmp) 
-          (void)SelectObject(hdc_bitmap, tmp);
-      }
-      
+      btn_rect.right += MulDiv(button.dx_96dpi, dpi, 96);
+      toolbar.paint(hdc_bitmap, btn_rect, button, toolbar.button_state(i));
       btn_rect.left = btn_rect.right;
     }
-    
-    DeleteObject(symbols_font);
     
     int flags = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
     
@@ -3004,7 +2907,6 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
       flags |= DT_CENTER;
 
       RECT calc_rect = {0};
-      //calc_rect.right = buttons.right;
 
       dtt_opts.dwFlags |= DTT_CALCRECT;
 
@@ -3210,6 +3112,152 @@ void BasicWin32Window::Impl::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
 }
 
 //} ... class BasicWin32Window::Impl
+
+//{ ... class BasicWin32Window::Impl::CaptionToolbarPainter
+
+BasicWin32Window::Impl::CaptionToolbarPainter::CaptionToolbarPainter(BasicWin32Window &self, int h, int dpi)
+: self(self),
+  height(h),
+  dpi(dpi)
+{
+  symbols_font = CreateFontW(
+                   h, 0, 0, 0,
+                   FW_NORMAL,
+                   FALSE,
+                   FALSE,
+                   FALSE,
+                   DEFAULT_CHARSET,
+                   OUT_DEFAULT_PRECIS,
+                   CLIP_DEFAULT_PRECIS,
+                   ANTIALIASED_QUALITY,//DEFAULT_QUALITY,//
+                   DEFAULT_PITCH | FF_DONTCARE,
+                   Win32Themes::symbol_font_name());
+                           
+  toolbar_theme = Win32ControlPainter::win32_painter.get_control_theme(
+                    self, ContainerType::PaletteButton, ControlState::Normal, nullptr, nullptr);
+}
+
+BasicWin32Window::Impl::CaptionToolbarPainter::~CaptionToolbarPainter() {
+  DeleteObject(symbols_font);
+}
+
+ControlState BasicWin32Window::Impl::CaptionToolbarPainter::button_state(int i) {
+  if(i != self._hit_test_extra_button)
+    return ControlState::Normal;
+  else if(self._hit_test_mouse_down == self._hit_test_mouse_over)
+    return ControlState::PressedHovered;
+  else
+    return ControlState::Hovered;
+}
+    
+void BasicWin32Window::Impl::CaptionToolbarPainter::paint(HDC hdc, const RECT &rect, const Win32CaptionButton &button, ControlState state) {
+  if(button.flags & Win32CaptionButton::Separator) paint_separator( hdc, rect);
+  if(button.flags & Win32CaptionButton::Button)    paint_button(    hdc, rect, state);
+  if(button.flags & Win32CaptionButton::ProxyIcon) paint_proxy_icon(hdc, rect);
+  if(button.label)                                 paint_label(     hdc, rect, button, state);
+}
+
+void BasicWin32Window::Impl::CaptionToolbarPainter::paint_separator(HDC hdc, const RECT &rect) {
+  int theme_part  = 5; // TP_SEPARATOR
+  int theme_state = 1; // TS_NORMAL
+  
+  SIZE size = {0, 0};
+  Win32Themes::GetThemePartSize(toolbar_theme, hdc, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size);
+  
+  if(size.cx == 0)
+    size.cx = rect.right - rect.left;
+  
+  RECT separator_rect;
+  separator_rect.left   = rect.left + (rect.right - rect.left - size.cx) / 2;
+  separator_rect.right  = separator_rect.left + size.cx;
+  separator_rect.top    = rect.top    + MulDiv(2, dpi, 96);
+  separator_rect.bottom = rect.bottom - MulDiv(2, dpi, 96);
+  
+  Win32Themes::DrawThemeBackground(
+    toolbar_theme,
+    hdc,
+    theme_part,
+    theme_state,
+    &separator_rect,
+    nullptr);
+}
+
+void BasicWin32Window::Impl::CaptionToolbarPainter::paint_button(HDC hdc, const RECT &rect, ControlState state) {
+  int theme_state = 1;
+  switch(state) {
+    case ControlState::Pressed:
+    case ControlState::PressedHovered: theme_state = 3; break; // TP_PRESSED
+    case ControlState::Hot:
+    case ControlState::Hovered:        theme_state = 2; break; // TP_HOT
+    default:
+    case ControlState::Normal:         theme_state = 1; break; // TP_NORMAL
+  }
+  
+  Win32Themes::DrawThemeBackground(
+    toolbar_theme,
+    hdc,
+    1, // TP_BUTTON
+    theme_state,
+    &rect,
+    nullptr);
+}
+
+void BasicWin32Window::Impl::CaptionToolbarPainter::paint_proxy_icon(HDC hdc, const RECT &rect) {
+  int icon_w = Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
+  int icon_h = Win32HighDpi::get_system_metrics_for_dpi(SM_CYSMICON, dpi);
+  
+  HICON icon = (HICON)LoadImageW(GetModuleHandleW(nullptr), MAKEINTRESOURCEW(ICO_FILE),
+                                 IMAGE_ICON,
+                                 icon_w, icon_h,
+                                 LR_DEFAULTCOLOR);
+  if(icon) {
+    DrawIconEx(
+      hdc,
+      rect.left + (rect.right - rect.left - icon_w) / 2,
+      rect.top  + (rect.bottom - rect.top - icon_h) / 2,
+      icon,
+      icon_w,
+      icon_h,
+      0,
+      nullptr,
+      DI_NORMAL);
+    
+    DestroyIcon(icon);
+  }
+}
+
+void BasicWin32Window::Impl::CaptionToolbarPainter::paint_label(HDC hdc, RECT rect, const Win32CaptionButton &button, ControlState state) {
+  HFONT tmp = nullptr;
+  if(button.flags & Win32CaptionButton::UseIconFont) {
+    tmp = (HFONT)SelectObject(hdc, symbols_font);
+  }
+  
+  int dx = 0;
+  if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
+    dx = MulDiv(1, dpi, 96);
+    OffsetRect(&rect, dx, 0);
+  }
+  
+  Win32Themes::DTTOPTS dtt_opts = {};
+  dtt_opts.dwSize    = sizeof(dtt_opts);
+  dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
+  dtt_opts.iGlowSize = MulDiv(10, dpi, 96);
+  dtt_opts.crText    = self.title_font_color(true, dpi, self._active, self._use_dark_mode);
+  
+  Win32Themes::DrawThemeTextEx(
+    toolbar_theme, //theme, <--- window theme ?
+    hdc,
+    0, 0,
+    button.label, -1,
+    DT_CENTER | DT_VCENTER | DT_SINGLELINE,
+    &rect,
+    &dtt_opts);
+  
+  if(tmp) 
+    (void)SelectObject(hdc, tmp);
+}
+
+//} ... class BasicWin32Window::Impl::CaptionToolbarPainter
 
 //{ class Win32BlurBehindWindow ...
 
