@@ -15,7 +15,8 @@
 
 		"button" -> ButtonBox("\[SelectionPlaceholder]"),
 		"italic" -> StyleBox("\[SelectionPlaceholder]", FontSlant->Italic),
-		"repeat" -> FillBox("\[SelectionPlaceholder]"),
+		"fill" -> FillBox("\[SelectionPlaceholder]"),
+		"repeat" -> FillBox({"\[InvisibleSpace]", "\[SelectionPlaceholder]"}),
 		"hfill" -> FillBox(" "),
 		"framed" -> FrameBox("\[SelectionPlaceholder]"),
 		"highlighted" -> TemplateBox({"\[SelectionPlaceholder]"}, "Highlighted"),
