@@ -483,20 +483,33 @@ Section *Application::try_make_output(SectionKind kind) {
         doc->insert(removal.from, new_sect);
         removal.from++;
         removal.to++;
+        
+        if(doc->selection_box() == doc) {
+          int s = doc->selection_start();
+          int e = doc->selection_end();
+          int index = new_sect->index();
+          
+          if(index <= s || index <= e) {
+            if(index <= s) ++s;
+            if(index <= e) ++e;
+            
+            doc->select(doc, s, e);
+          }
+        }
       }
       
       if(removal.length() > 0 && doc->selection_box() == doc) {
-        int start = doc->selection_start();
-        int end   = doc->selection_end();
+        int s = doc->selection_start();
+        int e = doc->selection_end();
         
-        if(removal.from < start || removal.from < end) {
-          if(     removal.to   <= start) start-= removal.length();
-          else if(removal.from <= start) start = removal.from;
+        if(removal.from < s || removal.from < e) {
+          if(     removal.to   <= s) s-= removal.length();
+          else if(removal.from <= s) s = removal.from;
           
-          if(     removal.to   <= end) end-= removal.length();
-          else if(removal.from <= end) end = removal.from;
+          if(     removal.to   <= e) e-= removal.length();
+          else if(removal.from <= e) e = removal.from;
           
-          doc->select(doc, start, end);
+          doc->select(doc, s, e);
         }
       }
       
@@ -513,19 +526,6 @@ Section *Application::try_make_output(SectionKind kind) {
       print_pos = pos;
     }
     pmath_atomic_unlock(&print_pos_lock);
-    
-    if(doc->selection_box() == doc) {
-      int s = doc->selection_start();
-      int e = doc->selection_end();
-      int index = new_sect->index();
-      
-      if(index <= s || index <= e) {
-        if(s >= index) ++s;
-        if(e >= index) ++e;
-        
-        doc->select(doc, s, e);
-      }
-    }
     
     return new_sect;
   }
