@@ -48,6 +48,7 @@ namespace richmath {
       virtual bool horizontal_stretch_char(
         Context        &context,
         float           width,
+        SmallerOrLarger rounding,
         const uint16_t  ch,
         GlyphInfo      *result) override;
         

@@ -420,6 +420,7 @@ namespace richmath {
       void stretch_glyph_assembly(
         Context                    &context,
         float                       width,
+        SmallerOrLarger             rounding,
         Array<MathGlyphPartRecord> *parts,
         GlyphInfo                  *result);
       
@@ -684,7 +685,7 @@ void OTMathShaper::decode_token(
       }
       
       result->index = 0;
-      impl->stretch_glyph_assembly(context, 0, lig, result);
+      impl->stretch_glyph_assembly(context, 0, SmallerOrLarger::Larger, lig, result);
       
       str   += char_len;
       result += char_len;
@@ -866,6 +867,7 @@ void OTMathShaper::show_glyph(
 bool OTMathShaper::horizontal_stretch_char(
   Context        &context,
   float           width,
+  SmallerOrLarger rounding,
   const uint16_t  ch,
   GlyphInfo      *result
 ) {
@@ -873,6 +875,7 @@ bool OTMathShaper::horizontal_stretch_char(
 //    return math_set_style(style - Italic)->horizontal_stretch_char(
 //             context,
 //             width,
+//             rounding,
 //             ch,
 //             result);
 //  }
@@ -883,26 +886,48 @@ bool OTMathShaper::horizontal_stretch_char(
     cairo_text_extents_t cte;
     cairo_glyph_t        cg;
     
+    GlyphInfo prev_gi = *result;
+
     context.canvas().set_font_face(font(0));
     cg.x = 0;
     cg.y = 0;
-    result->fontinfo       = 0;
-    result->x_offset       = 0;
-    result->composed       = 0;
-    result->is_normal_text = 0;
+    bool is_first = true;
     for(const auto &part : *var) {
       cg.index = part.glyph;
       context.canvas().glyph_extents(&cg, 1, &cte);
       
+      GlyphInfo new_gi;
+      new_gi.fontinfo       = 0;
+      new_gi.index          = cg.index;
+      new_gi.composed       = 0;
+      new_gi.is_normal_text = 0;
+      new_gi.x_offset       = 0;
+      new_gi.right          = cte.x_advance;
+
       result->index = cg.index;
       result->right = cte.x_advance;//part.advance * em / impl->units_per_em;
-      if(width <= cte.x_advance)
-        return true;
+      if(width <= cte.x_advance) {
+        if(rounding == SmallerOrLarger::Smaller) {
+          if(!is_first) {
+            *result = prev_gi;
+            return true;
+          }
+          else
+            return false;
+        }
+        else {
+          *result = new_gi;
+          return true;
+        }
+      }
+
+      prev_gi = new_gi;
+      is_first = false;
     }
   }
   
   if(auto ass = impl->get_horz_assembly(ch, glyph)) {
-    impl->stretch_glyph_assembly(context, width, ass, result);
+    impl->stretch_glyph_assembly(context, width, rounding, ass, result);
     return true;
   }
   else if(var)
@@ -2005,6 +2030,7 @@ Array<MathGlyphPartRecord> *OTMathShaperImpl::get_horz_assembly(uint32_t ch, uin
 void OTMathShaperImpl::stretch_glyph_assembly(
   Context                    &context,
   float                       width,
+  SmallerOrLarger             rounding,
   Array<MathGlyphPartRecord> *parts,
   GlyphInfo                  *result
 ) {
@@ -2015,11 +2041,6 @@ void OTMathShaperImpl::stretch_glyph_assembly(
   float overlap  = min_connector_overlap * pt;
   
   context.canvas().set_font_face(text_shaper->font(0));
-  result->fontinfo           = 0;
-  result->x_offset           = 0;
-  result->composed           = 1;
-  result->horizontal_stretch = 1;
-  result->is_normal_text     = 0;
   
   for(const auto &part : *parts) {
     if(part.flags & MGPRF_Extender) {
@@ -2032,11 +2053,25 @@ void OTMathShaperImpl::stretch_glyph_assembly(
       non_ext_w -= overlap;
     }
   }
+
+  if(rounding == SmallerOrLarger::Smaller && width < non_ext_w) {
+    return;
+  }
   
+  result->fontinfo           = 0;
+  result->x_offset           = 0;
+  result->composed           = 1;
+  result->horizontal_stretch = 1;
+  result->is_normal_text     = 0;
   result->ext.num_extenders = 0;
   result->ext.rel_overlap = 0;
   if(extenders) {
-    int count = round((width - non_ext_w) / ext_w);
+    int count;
+    
+    if(rounding == SmallerOrLarger::Smaller)
+      count = (int)floor((width - non_ext_w) / ext_w);
+    else
+      count = (int)round((width - non_ext_w) / ext_w);
     
     if(count >= 0)
       result->ext.num_extenders = count;

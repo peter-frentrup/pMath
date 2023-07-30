@@ -1025,12 +1025,13 @@ void SimpleMathShaper::show_glyph(
 bool SimpleMathShaper::horizontal_stretch_char(
   Context        &context,
   float           width,
+  SmallerOrLarger rounding,
   const uint16_t  ch,
   GlyphInfo      *result
 ) {
   if(get_style().italic) {
     return math_set_style(get_style() - Italic)->horizontal_stretch_char(
-             context, width, ch, result);
+             context, width, rounding, ch, result);
   }
   
   if(result->right >= width)
@@ -1051,22 +1052,38 @@ bool SimpleMathShaper::horizontal_stretch_char(
                     &middle,
                     &right,
                     &special_center);
-                    
+  
+  GlyphInfo prev_gi = *result;
   for(int i = 0; i < count; ++i) {
     context.canvas().set_font_face(font(fonts[i]));
     
     cg.index = glyphs[i];
     context.canvas().glyph_extents(&cg, 1, &cte);
     
+    GlyphInfo new_gi;
+    new_gi.fontinfo       = fonts[i];
+    new_gi.index          = cg.index;
+    new_gi.composed       = 0;
+    new_gi.is_normal_text = 0;
+    new_gi.x_offset       = 0;
+    new_gi.right          = cte.x_advance;
+
     if(width <= cte.x_advance || (i == count - 1 && (!left || !right))) {
-      result->fontinfo = fonts[i];
-      result->index = cg.index;
-      result->composed = 0;
-      result->is_normal_text = 0;
-      result->x_offset = 0;
-      result->right = cte.x_advance;
-      return true;
+      if(rounding == SmallerOrLarger::Smaller && width < cte.x_advance) {
+        if(i > 0) {
+          *result = prev_gi;
+          return true;
+        }
+        else
+          return false;
+      }
+      else {
+        *result = new_gi;
+        return true;
+      }
     }
+    
+    prev_gi = new_gi;
   }
   
   if(!left && !middle && !right && !special_center)
@@ -1097,7 +1114,6 @@ bool SimpleMathShaper::horizontal_stretch_char(
       w -= cte.x_advance;
     }
     
-    
     if(special_center) {
       cg.index = special_center;
       context.canvas().glyph_extents(&cg, 1, &cte);
@@ -1111,7 +1127,15 @@ bool SimpleMathShaper::horizontal_stretch_char(
     cg.index = middle;
     context.canvas().glyph_extents(&cg, 1, &cte);
     
-    if(w < 0) w = 0;
+    if(w < 0) {
+      if(rounding == SmallerOrLarger::Smaller) {
+        *result = prev_gi;
+        return true;
+      }
+      else  
+        w = 0;
+    }
+
     result->ext.num_extenders = (uint16_t)floor(divide(w, cte.x_advance));
     result->ext.rel_overlap = 0;
     result->right += result->ext.num_extenders * cte.x_advance;
@@ -1137,14 +1161,19 @@ bool SimpleMathShaper::horizontal_stretch_char(
       context.canvas().glyph_extents(&cg, 1, &cte);
       result->right += cte.x_advance;
     }
-    
-    result->ext.num_extenders = 0;
-    result->ext.rel_overlap = 0;
-    result->composed = 1;
-    result->is_normal_text = 0;
-    result->horizontal_stretch = 1;
-    result->fontinfo = fontindex;
-    result->x_offset = 0;
+
+    if(rounding == SmallerOrLarger::Smaller && result->right > width) {
+      *result = prev_gi;
+    }
+    else {
+      result->ext.num_extenders  = 0;
+      result->ext.rel_overlap    = 0;
+      result->composed           = 1;
+      result->is_normal_text     = 0;
+      result->horizontal_stretch = 1;
+      result->fontinfo           = fontindex;
+      result->x_offset           = 0;
+    }
   }
   
   return true;

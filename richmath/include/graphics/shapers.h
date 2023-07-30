@@ -15,6 +15,11 @@
 
 namespace richmath {
   class Context;
+
+  enum class SmallerOrLarger : char {
+    Smaller,
+    Larger,
+  };
   
   class BoxSize {
     public:
@@ -209,6 +214,7 @@ namespace richmath {
       virtual bool horizontal_stretch_char(
         Context        &context,
         float           width,
+        SmallerOrLarger rounding,
         const uint16_t  ch,
         GlyphInfo      *result) = 0;
         
@@ -334,6 +340,7 @@ namespace richmath {
       virtual bool horizontal_stretch_char(
         Context        &context,
         float           width,
+        SmallerOrLarger rounding,
         const uint16_t  ch,
         GlyphInfo      *result) override;
         
