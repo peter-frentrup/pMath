@@ -154,6 +154,7 @@ Document({
              SectionLabel -> "out [1]:")}, All)}, All)}, All)}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(
-       TextData({TemplateBox({"ScriptSizeMultipliers"}, 
+       TextData({TemplateBox({"ScriptSizeMultipliers"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"AllowScriptLevelChange"}, 
           "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
  StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
