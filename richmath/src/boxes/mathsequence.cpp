@@ -387,17 +387,20 @@ bool MathSequence::expand(Context &context, const BoxSize &size) {
     }
     else {
       bool any_change = false;
-
-      InlineSpanPainting isp(this);
-      isp.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Layout);
       
-      any_change = context.math_shaper->horizontal_stretch_char(context, size.width, SmallerOrLarger::Smaller, iter.current_char(), &iter.current_glyph());
-      if(any_change) {
-        Impl(*this).calculate_line_heights(context, isp);
-        Impl(*this).calculate_total_extents_from_lines();
+      auto inner = iter.current_sequence();
+      if(inner->parent() && inner->parent()->fill_weight() > 0) {
+        InlineSpanPainting isp(this);
+        isp.switch_to_sequence(context, inner, DisplayStage::Layout);
+        
+        any_change = context.math_shaper->horizontal_stretch_char(context, size.width, SmallerOrLarger::Smaller, iter.current_char(), &iter.current_glyph());
+        if(any_change) {
+          Impl(*this).calculate_line_heights(context, isp);
+          Impl(*this).calculate_total_extents_from_lines();
+        }
+        
+        isp.switch_to_sequence(context, this, DisplayStage::Layout);
       }
-      
-      isp.switch_to_sequence(context, this, DisplayStage::Layout);
       return any_change;
     }
   }
