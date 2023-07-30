@@ -15,7 +15,7 @@ namespace richmath {
       // Box::try_create<FillBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
       virtual void paint_content(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;

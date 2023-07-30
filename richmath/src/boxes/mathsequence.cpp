@@ -254,9 +254,11 @@ namespace richmath {
       //{ horizontal stretching (variable width)
     public:
       bool hstretch_lines( // return whether there was any height change
-        float  width,
-        float  window_width,
-        float *unfilled_width);
+        Context            &context, 
+        InlineSpanPainting &isp,
+        float               width,
+        float               window_width,
+        float              *unfilled_width);
       
       //}
       
@@ -368,14 +370,14 @@ float MathSequence::fill_weight() {
   return 0.0f;
 }
 
-bool MathSequence::expand(const BoxSize &size) {
+bool MathSequence::expand(Context &context, const BoxSize &size) {
   if(inline_span())
     return false;
   
   if(glyphs.length() == 1) {
     GlyphIterator iter = Impl(*this).glyph_iterator();
     if(auto box = iter.current_box()) {
-      if(box->expand(size)) {
+      if(box->expand(context, size)) {
         _extents = box->extents();
         glyphs[0].right  = _extents.width;
         lines[0].ascent  = _extents.ascent;
@@ -387,10 +389,13 @@ bool MathSequence::expand(const BoxSize &size) {
   else {
     float uw;
     float w = _extents.width;
+    InlineSpanPainting isp(this);
     
-    bool height_changes = Impl(*this).hstretch_lines(size.width, size.width, &uw);
+    bool height_changes = Impl(*this).hstretch_lines(context, isp, size.width, size.width, &uw);
     //if(height_changes)
     //  Impl(*this).calculate_line_heights( ? context ? );
+    
+    isp.switch_to_sequence(context, this, DisplayStage::Layout);
     
     Impl(*this).calculate_total_extents_from_lines();
     return w != _extents.width;
@@ -490,6 +495,8 @@ void MathSequence::resize(Context &context) {
   Impl(*this).split_lines(context);
   if(dynamic_cast<Section *>(parent())) {
     Impl(*this).hstretch_lines(
+      context,
+      isp,
       context.width,
       context.section_content_window_width,
       &context.sequence_unfilled_width);
@@ -2075,9 +2082,11 @@ void MathSequence::Impl::apply_glyph_substitutions(Context &context) {
 }
 
 bool MathSequence::Impl::hstretch_lines( // return whether there was any height change
-  float width,
-  float window_width,
-  float *unfilled_width
+  Context            &context, 
+  InlineSpanPainting &isp,
+  float               width,
+  float               window_width,
+  float              *unfilled_width
 ) {
   bool has_any_height_change = false;
   *unfilled_width = -HUGE_VAL;
@@ -2128,7 +2137,8 @@ bool MathSequence::Impl::hstretch_lines( // return whether there was any height 
               dx -= size.width;
               
               size.width = white * weight / total_fill_weight;
-              filler->expand(size);
+              isp.switch_to_sequence(context, pos.current_sequence(), DisplayStage::Layout);
+              filler->expand(context, size);
               dx += filler->extents().width;
               
               auto fa = filler->extents().ascent;

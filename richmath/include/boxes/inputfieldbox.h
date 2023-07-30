@@ -25,7 +25,7 @@ namespace richmath {
       
       virtual ControlState calc_state(Context &context) override;
       
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
       virtual void paint_content(Context &context) override;
       
       virtual void reset_style() override;

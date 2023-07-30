@@ -139,7 +139,7 @@ ControlState InputFieldBox::calc_state(Context &context) {
   return base::calc_state(context);
 }
 
-bool InputFieldBox::expand(const BoxSize &size) {
+bool InputFieldBox::expand(Context &context, const BoxSize &size) {
   _extents = size;
   return true;
 }

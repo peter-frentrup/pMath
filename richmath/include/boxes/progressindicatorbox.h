@@ -21,7 +21,7 @@ namespace richmath {
       virtual int count() override { return 0; }
       virtual int length() override { return 0; }
       
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;
       virtual Box *remove(int *index) override { return this; }

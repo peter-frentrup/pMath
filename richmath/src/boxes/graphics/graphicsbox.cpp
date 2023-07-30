@@ -222,7 +222,7 @@ int GraphicsBox::count() {
   return 6;
 }
 
-bool GraphicsBox::expand(const BoxSize &size) {
+bool GraphicsBox::expand(Context &context, const BoxSize &size) {
   auto seq = dynamic_cast<MathSequence*>(parent());
   if(seq && seq->length() == 1) {
     if(dynamic_cast<FillBox *>(seq->parent())) {

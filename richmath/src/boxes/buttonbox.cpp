@@ -47,8 +47,8 @@ void AbstractButtonBox::resize_default_baseline(Context &context) {
   context.width = old_width;
 }
 
-bool AbstractButtonBox::expand(const BoxSize &size) {
-  base::expand(size);
+bool AbstractButtonBox::expand(Context &context, const BoxSize &size) {
+  base::expand(context, size);
   _extents.merge(size);
   cx = (_extents.width - _content->extents().width) / 2;
   return true;

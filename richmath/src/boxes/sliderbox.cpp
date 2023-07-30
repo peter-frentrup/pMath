@@ -212,8 +212,8 @@ ControlState SliderBox::calc_state(Context &context) {
   return ControlState::Normal;
 }
 
-bool SliderBox::expand(const BoxSize &size) {
-  base::expand(size);
+bool SliderBox::expand(Context &context, const BoxSize &size) {
+  base::expand(context, size);
   _extents.merge(size);
   return true;
 }

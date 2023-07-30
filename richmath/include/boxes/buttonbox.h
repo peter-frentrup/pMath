@@ -15,7 +15,7 @@ namespace richmath {
       virtual ContainerType default_container_type() { return ContainerType::PushButton; }
       
     public:
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
       
       virtual void on_mouse_down(MouseEvent &event) override;
       virtual void on_mouse_move(MouseEvent &event) override;

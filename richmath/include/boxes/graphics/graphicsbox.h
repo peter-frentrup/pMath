@@ -44,7 +44,7 @@ namespace richmath {
       virtual void invalidate() override;
       virtual bool request_repaint(const RectangleF &rect) override;
       
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;
       

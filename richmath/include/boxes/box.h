@@ -246,7 +246,7 @@ namespace richmath {
       virtual float last_glyph_width() { return 0.0f; }
       
       virtual int child_script_level(int index, const int *opt_ambient_script_level);
-      virtual bool expand(const BoxSize &size) { return false; }
+      virtual bool expand(Context &context, const BoxSize &size) { return false; }
       bool update_dynamic_styles(Context &context);
       virtual void resize_inline(Context &context) {}
       virtual void resize(Context &context) = 0;

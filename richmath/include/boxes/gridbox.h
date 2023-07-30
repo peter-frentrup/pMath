@@ -138,7 +138,7 @@ namespace richmath {
       GridBox *grid() { return (GridBox*)parent(); }
       
       virtual float fill_weight() override;
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       
@@ -276,7 +276,7 @@ namespace richmath {
       void remove_cols(int xindex, int count);
       
       virtual int child_script_level(int index, const int *opt_ambient_script_level) final override;
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;
       virtual void selection_path(Canvas &canvas, int start, int end) override;

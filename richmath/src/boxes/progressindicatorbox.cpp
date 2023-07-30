@@ -85,7 +85,7 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-bool ProgressIndicatorBox::expand(const BoxSize &size) {
+bool ProgressIndicatorBox::expand(Context &context, const BoxSize &size) {
   _extents.width = size.width;
   
   return true;

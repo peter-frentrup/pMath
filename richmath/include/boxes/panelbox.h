@@ -14,7 +14,7 @@ namespace richmath {
       
       virtual ControlState calc_state(Context &context) override;
       
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
       
       virtual Expr to_pmath_symbol() override;
       

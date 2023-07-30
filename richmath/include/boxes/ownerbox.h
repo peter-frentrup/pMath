@@ -60,7 +60,7 @@ namespace richmath {
     public:
       explicit ExpandableOwnerBox(AbstractSequence *content = nullptr) : OwnerBox(content) {}
       
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
   };
   
   class InlineSequenceBox final : public OwnerBox {

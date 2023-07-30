@@ -32,9 +32,9 @@ namespace richmath {
       Impl(GridBox &_self) : self(_self) {}
       
       int resize_items(Context &context);
-      void simple_spacing(float em);
-      void expand_colspans(int span_count);
-      void expand_rowspans(int span_count);
+      void simple_spacing(Context &context, float em);
+      void expand_colspans(Context &context, int span_count);
+      void expand_rowspans(Context &context, int span_count);
       
       float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
       void adjust_baseline(float em);
@@ -73,8 +73,8 @@ float GridItem::fill_weight() {
   return content()->fill_weight();
 }
 
-bool GridItem::expand(const BoxSize &size) {
-  _content->expand(size);
+bool GridItem::expand(Context &context, const BoxSize &size) {
+  _content->expand(context, size);
   _extents = size;
   return true;
 }
@@ -347,7 +347,7 @@ int GridBox::child_script_level(int index, const int *opt_ambient_script_level) 
   return ambient_level;
 }
 
-bool GridBox::expand(const BoxSize &size) {
+bool GridBox::expand(Context &context, const BoxSize &size) {
   if(size.width < _extents.width)
     return false;
     
@@ -394,7 +394,7 @@ bool GridBox::expand(const BoxSize &size) {
       float new_width = total_fill_width * w / total_weight + gi->_span_right * colspacing;
       if(new_item_size.width < new_width) {
         new_item_size.width = new_width;
-        gi->expand(new_item_size);
+        gi->expand(context, new_item_size);
       }
       else {
         // TODO: Cannot shrink box. Probably need to reduce total_fill_width for remaining FillBox'es
@@ -406,9 +406,9 @@ bool GridBox::expand(const BoxSize &size) {
   if(auto seq = dynamic_cast<AbstractSequence*>(parent()))
     em = seq->get_em();
   
-  Impl(*this).simple_spacing(em);
-  Impl(*this).expand_colspans(span_count);
-  Impl(*this).expand_rowspans(span_count);
+  Impl(*this).simple_spacing(context, em);
+  Impl(*this).expand_colspans(context, span_count);
+  Impl(*this).expand_rowspans(context, span_count);
   Impl(*this).adjust_baseline(em);
   return true;
 }
@@ -429,9 +429,9 @@ void GridBox::resize(Context &context) {
   int span_count = Impl(*this).resize_items(context);
   context.width = w;
   
-  Impl(*this).simple_spacing(em);
-  Impl(*this).expand_colspans(span_count);
-  Impl(*this).expand_rowspans(span_count);
+  Impl(*this).simple_spacing(context, em);
+  Impl(*this).expand_colspans(context, span_count);
+  Impl(*this).expand_rowspans(context, span_count);
   
   Impl(*this).adjust_baseline(em);
   
@@ -1217,7 +1217,7 @@ int GridBox::Impl::resize_items(Context &context) {
   return span_count;
 }
 
-void GridBox::Impl::simple_spacing(float em) {
+void GridBox::Impl::simple_spacing(Context &context, float em) {
   float right = 0;//colspacing / 2;
   self.xpos.length(self.items.cols());
   
@@ -1283,7 +1283,7 @@ void GridBox::Impl::simple_spacing(float em) {
         right = self._extents.width;// - colspacing;
         
       size.width = right - self.xpos[x];
-      gi->expand(size);
+      gi->expand(context, size);
     }
     
     self.ypos[y] = bottom;
@@ -1309,7 +1309,7 @@ void GridBox::Impl::simple_spacing(float em) {
             
           size.descent += bottom - self.ypos[y + 1];
           
-          gi->expand(size);
+          gi->expand(context, size);
           
           if(--num_span_down_items == 0)
             return;
@@ -1319,7 +1319,7 @@ void GridBox::Impl::simple_spacing(float em) {
   }
 }
 
-void GridBox::Impl::expand_colspans(int span_count) {
+void GridBox::Impl::expand_colspans(Context &context, int span_count) {
   int first_span = 0;
   while(span_count-- > 0 && first_span < self.count()) {
     for(int x = 0; x < self.cols(); ++x) {
@@ -1339,7 +1339,7 @@ void GridBox::Impl::expand_colspans(int span_count) {
             BoxSize size = gi->extents();
             size.width = w;
             
-            gi->expand(size);
+            gi->expand(context, size);
           }
           else if(gi->index() >= first_span && w < gi->extents().width) {
             float delta = gi->extents().width - w;
@@ -1359,7 +1359,7 @@ void GridBox::Impl::expand_colspans(int span_count) {
                 BoxSize size = gi2->extents();
                 size.width += delta;
                 
-                gi2->expand(size);
+                gi2->expand(context, size);
               }
             }
             
@@ -1375,7 +1375,7 @@ void GridBox::Impl::expand_colspans(int span_count) {
   }
 }
 
-void GridBox::Impl::expand_rowspans(int span_count) {
+void GridBox::Impl::expand_rowspans(Context &context, int span_count) {
   int first_span = 0;
   while(span_count-- > 0 && first_span < self.count()) {
     for(int y = 0; y < self.rows(); ++y) {
@@ -1397,7 +1397,7 @@ void GridBox::Impl::expand_rowspans(int span_count) {
             size.ascent +=  half;
             size.descent += half; // = h - size.ascent;
             
-            gi->expand(size);
+            gi->expand(context, size);
           }
           else if(gi->index() >= first_span &&
                   h < gi->extents().height())
@@ -1422,7 +1422,7 @@ void GridBox::Impl::expand_rowspans(int span_count) {
                 size.ascent +=  delta / 2;
                 size.descent += delta / 2;
                 
-                gi2->expand(size);
+                gi2->expand(context, size);
               }
             }
             

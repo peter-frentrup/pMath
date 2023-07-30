@@ -34,7 +34,7 @@ namespace richmath {
       virtual AbstractSequence *create_similar() override { return create(); }
       
       virtual float fill_weight() override;
-      virtual bool expand(const BoxSize &size) override;
+      virtual bool expand(Context &context, const BoxSize &size) override;
       virtual void resize(Context &context) override;
       virtual void colorize_scope(SyntaxState &state) override;
       virtual void before_paint_inline(Context &context) override;

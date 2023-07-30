@@ -46,8 +46,8 @@ bool FillBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-bool FillBox::expand(const BoxSize &size) {
-  _content->expand(size);
+bool FillBox::expand(Context &context, const BoxSize &size) {
+  _content->expand(context, size);
   _extents = _content->extents();
   _extents.merge(size);
   cx = 0;

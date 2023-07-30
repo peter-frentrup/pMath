@@ -191,25 +191,36 @@ bool OwnerBox::edit_selection(SelectionReference &selection, EditAction action) 
 
 //{ class ExpandableOwnerBox ...
 
-bool ExpandableOwnerBox::expand(const BoxSize &size) {
+bool ExpandableOwnerBox::expand(Context &context, const BoxSize &size) {
   BoxSize size2 = size;
   float dw = _extents.width - _content->extents().width;
   float t = _extents.ascent  - _content->extents().ascent;
   float b = _extents.descent - _content->extents().descent;
-  size2.width -= dw;
-  size2.ascent -= t;
+  size2.width   -= dw;
+  size2.ascent  -= t;
   size2.descent -= b;
   
-  if(_content->expand(size2)) {
-    _extents = _content->extents();
-    _extents.width += dw;
-    _extents.ascent += t;
+  bool any_change = false;
+  if(style) {
+    ContextState cc(context);
+    cc.begin(nullptr);
+    cc.apply_layout_styles(style);
+
+    any_change = _content->expand(context, size2);
+
+    cc.end();
+  }
+  else
+    any_change = _content->expand(context, size2);
+
+  if(any_change) {
+    _extents          = _content->extents();
+    _extents.width   += dw;
+    _extents.ascent  += t;
     _extents.descent += b;
-    
-    return true;
   }
   
-  return false;
+  return any_change;
 }
 
 //} ... class ExpandableOwnerBox

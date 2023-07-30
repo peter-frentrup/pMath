@@ -80,8 +80,8 @@ ControlState PanelBox::calc_state(Context &context) {
   return base::calc_state(context);
 }
 
-bool PanelBox::expand(const BoxSize &size) {
-  base::expand(size);
+bool PanelBox::expand(Context &context, const BoxSize &size) {
+  base::expand(context, size);
   _extents = size;
   cx = (_extents.width - _content->extents().width) / 2;
   return true;
