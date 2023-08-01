@@ -2370,14 +2370,14 @@ bool Document::merge_sections(bool do_it) {
   AbstractSequenceSection *first_sect = dynamic_cast<AbstractSequenceSection *>(item(start));
   if( !first_sect                                   ||
       !first_sect->selectable(0)                    ||
-      !first_sect->get_own_style(Editable, false))
+      !first_sect->get_own_style(Editable, true))
   {
     return false;
   }
   for(int i = start + 1; i < end; ++i) {
     AbstractSequenceSection *sect = dynamic_cast<AbstractSequenceSection *>(item(i));
     
-    if(!sect || !sect->get_own_style(Editable, false))
+    if(!sect || !sect->get_own_style(Editable, true))
       return false;
   }
   
