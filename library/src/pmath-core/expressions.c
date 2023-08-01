@@ -763,8 +763,17 @@ PMATH_API pmath_t pmath_expr_extract_item(
     pmath_t item = expr_part_ptr->inherited.items[index];
 
     if(pmath_refcount(expr) == 1) {
-      expr_part_ptr->inherited.items[index] = PMATH_UNDEFINED;
-      return item;
+      uint8_t  flags8  = pmath_atomic_read_uint8_aquire( &expr_part_ptr->inherited.inherited.inherited.inherited.flags8);
+      if(flags8 & PMATH_OBJECT_FLAGS8_VALID) {
+        pmath_debug_print_object("[pmath_expr_extract_item: keep do not rip apart expr with recount==1 because of VALID flag: ", expr, "]\n");
+      }
+      else {
+        // Do not edit in-place if e.g. the VALID flag is set, because the flag would get lost when re-inserting the item, even if that did not change.
+
+        // TODO: also check that metadata is NULL?
+        expr_part_ptr->inherited.items[index] = PMATH_UNDEFINED;
+        return item;
+      }
     }
 
     return pmath_ref(item);
@@ -949,7 +958,6 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           reset_expr_flags(old_expr);
           clear_metadata(old_expr);
           touch_expr(old_expr);
-
           return expr;
         }
 
