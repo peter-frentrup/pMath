@@ -27,6 +27,7 @@ extern pmath_symbol_t pmath_System_MessageName;
 extern pmath_symbol_t pmath_System_Plus;
 extern pmath_symbol_t pmath_System_Return;
 extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_SystemException;
 extern pmath_symbol_t pmath_System_Unevaluated;
 
 // pmath_maxrecursion is in pmath-objects.h
@@ -385,15 +386,18 @@ static pmath_t evaluate_expression(
           PMATH_C_STRING("reclim")));
     }
     
-    expr = pmath_expr_new_extended(pmath_ref(pmath_System_Hold), 1, expr);
-    _pmath_expr_update(expr);
-    return expr;
+    stack_frame.debug_metadata = pmath_get_debug_metadata(expr);
+    pmath_unref(expr);
+    expr = pmath_expr_new_extended(pmath_ref(pmath_System_SystemException), 1, PMATH_C_STRING("RecursionLimit"));
+    expr = pmath_try_set_debug_metadata(expr, stack_frame.debug_metadata);
+    pmath_throw(expr);
+    return PMATH_NULL;
   }
   
   current_thread->evaldepth++;
-  stack_frame.head          = PMATH_NULL;
-  stack_frame.debug_metadata    = pmath_get_debug_metadata(expr);
-  stack_frame.next          = current_thread->stack_info;
+  stack_frame.head           = PMATH_NULL;
+  stack_frame.debug_metadata = pmath_get_debug_metadata(expr);
+  stack_frame.next           = current_thread->stack_info;
   current_thread->stack_info = &stack_frame;
   
   head             = evaluate(pmath_expr_get_item(expr, 0), current_thread);
