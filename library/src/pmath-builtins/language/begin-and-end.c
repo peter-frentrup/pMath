@@ -339,7 +339,7 @@ static void check_name_clashes(pmath_string_t new_namespace) {
         pmath_message(pmath_System_General, "shdw", 3,
                       pmath_ref(name),
                       pmath_build_value("(oo)",
-                                        pmath_string_part(name, 0, len + 1),
+                                        pmath_string_part(pmath_ref(name), 0, len + 1),
                                         pmath_ref(new_namespace)),
                       pmath_ref(new_namespace));
       }
