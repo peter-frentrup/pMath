@@ -444,7 +444,7 @@ static pmath_t assign_part(
 
 static pmath_bool_t check_list_of_rules(pmath_expr_t list) {
   if(!pmath_is_list_of_rules(list)) { // not a list of rules
-    pmath_message(PMATH_NULL, "partw", 1, pmath_ref(list));
+    pmath_message(PMATH_NULL, "reps", 1, pmath_ref(list));
     return FALSE;
   }
   
