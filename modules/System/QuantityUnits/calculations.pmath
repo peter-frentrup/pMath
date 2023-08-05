@@ -1,0 +1,38 @@
+BeginPackage("System`QuantityUnits`")
+
+Begin("System`QuantityUnits`Private`")
+
+
+Quantity/: Power(~q:Quantity ? IsValidQuantity, ~y) ::= With({res:= QuantityPower(q, y)}, res /? res =!= $Failed)
+
+Quantity/: (~q1:Quantity ? IsValidQuantity) * (~q2:Quantity ? IsValidQuantity)::= With({res:= QuantityTimes(q1, q2)}, res /? res =!= $Failed)
+Quantity/: ~x?IsNumeric * (~q:Quantity ? IsValidQuantity)::= With({res:= QuantityTimesMagnitude(x, q)}, res /? res =!= $Failed)
+
+QuantityPower(HoldPattern(Quantity(~mag, ~unit)), y: (~:Integer | ~:Rational | ~:Real))::= newValidQuanitity(mag^y, unit^y)
+%QuantityPower(HoldPattern(Quantity(~mag, ~unit)), ~y)::= Quantity(mag^y, unit^y)
+QuantityPower(~~~):= $Failed
+
+
+QuantityTimes(~~~):= $Failed
+Function QuantityTimes(HoldPattern(Quantity(~mag1, ~unit1)) ? IsValidQuantity, HoldPattern(Quantity(~mag2, ~unit2))) {
+    With(unit:= unit1 * unit2)
+    If(IsNumeric(unit)) {
+        Return(mag1 * mag2 * unit)
+    }
+
+    % TODO: Simplify Quantity(1, "Meters") / Quantity(2, "Centimeters")  to 50 instead of Quantity(1/2, "Meters"/"Centimeters")
+    %With(unitGroups:= unit |> 
+    %    Cases(~u:String :> (System`QuantityUnits`$AllUnits[u, "UnitDimensions"] -> u), 0..) |> 
+    %    Merge(Union))
+
+    newValidQuanitity(mag1 * mag2, unit)
+}
+
+QuantityTimesMagnitude(1, ~):= $Failed
+QuantityTimesMagnitude(~~~):= $Failed
+QuantityTimesMagnitude(~mag1, HoldPattern(Quantity(~mag2, ~unit2)))::= newValidQuanitity(mag1 * mag2, unit2)
+
+
+End()
+
+EndPackage()

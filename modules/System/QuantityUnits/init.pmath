@@ -1,0 +1,139 @@
+BeginPackage("System`QuantityUnits`")
+
+IsValidQuantity
+IsSimpleUnit
+ParseUnitString
+ParseUnit
+DecomposeUnitFactors
+RecombineUnitFactors
+
+$AllUnits
+
+
+Begin("System`QuantityUnits`Private`")
+
+Quantity::unkunit:= "Unable to interpret unit specification `1`."
+
+IsValidQuantity(~):= False
+IsValidQuantity(~q: Quantity) ::= System`Private`IsValid(Unevaluated(q))
+
+
+newValidQuanitity(~mag, ~unit)::= System`Private`SetValid(Unevaluated(Quantity(mag, unit)), True)
+
+q: Quantity(~val, ~unit) /? !IsValidQuantity(Unevaluated(q)) ::= 
+	With({res:= tryMakeQuanitiy(q)}, res /? res =!= $Failed)
+Quantity(~~~args) /? (IsValidArgumentCount(Quantity, Length(Hold(args)), 2, 2); False) := $Failed
+
+SetAttributes(tryMakeQuanitiy, HoldAll)
+tryMakeQuanitiy(~~~) ::= $Failed
+Function tryMakeQuanitiy(q: Quantity(~mag, ~unit)) {
+	With(uf:= ParseUnit(unit))
+
+	If(uf === $Failed) {
+		Message(Quantity::unkunit, unit)
+		Return($Failed)
+	}
+
+	newValidQuanitity(mag, RecombineUnitFactors(uf))
+}
+
+
+BADUNIT
+
+SetAttributes(IsKnownUnit, HoldAll)
+IsKnownUnit(~~~args) /? (IsValidArgumentCount(IsKnownUnit, Length(Hold(args)), 1, 1); False) := $Failed
+IsKnownUnit(~unit)::= Position(DecomposeUnitFactors(unit), BADUNIT) === {}
+
+
+QuantityUnit(~~~args) /? (IsValidArgumentCount(QuantityUnit, Length(Hold(args)), 1, 1); False) := $Failed
+QuantityUnit(Quantity(~, ~unit) ? IsValidQuantity)::= unit
+
+QuantityMagnitude(~~~args) /? (IsValidArgumentCount(QuantityMagnitude, Length(Hold(args)), 1, 1); False) := $Failed
+QuantityMagnitude(Quantity(~mag, ~) ? IsValidQuantity)::= mag
+
+UnitDimensions(~~~args) /? (IsValidArgumentCount(UnitDimensions, Length(Hold(args)), 1, 1); False) := $Failed
+UnitDimensions(~x)::= With({res:= tryGetUnitDimensions(x)}, res /? res =!= $Failed)
+
+Function tryGetUnitDimensions(HoldPattern(Quantity(~, ~unit) ? IsValidQuantity)) {
+	unit |> Replace(~u:String :> $AllUnits[u, "UnitDimensions"]) |>
+		ReplaceRepeated(~n?IsNumeric * ~x :> x) |>
+		Replace({ Times :> List, Power :> Rule }, Heads->True) |> 
+		{ ~x:List :> x, ~r:Rule :> {r}, ~u:String :> {u -> 1}, ~ -> {} } |> 
+		Map({~r:Rule :> r, ~u :> (u -> 1)})
+}
+tryGetUnitDimensions(~unit?IsNumeric)::= {}
+Function tryGetUnitDimensions(~unit) {
+	With(uf:= ParseUnit(unit))
+
+	If(uf === $Failed) {
+		Return($Failed)
+	}
+
+	tryGetUnitDimensions(Quantity(1, unit))
+}
+
+% collectUnitsByDimension(~unit) ::= unit |> 
+% 	Replace(Times -> List, Heads -> True) |> 
+% 	Replace(~u:String^?n :> (System`QuantityUnits`$AllUnits[u, "UnitDimensions"] -> u^n)) |> 
+% 	List |> 
+% 	Merge(Function(# |> Apply(Times)))
+
+fundamentalUnitValue(~unit)::= unit |> Replace(~u:String :> System`QuantityUnits`$AllUnits[u, "FundamentalUnitValue"])
+
+
+Get(ToFileName({DirectoryName($Input)}, "define-units.pmath"));
+
+
+$AllShortUnits:= {}
+$AllUnits |> Scan({(~name -> ~attr) :> ($AllShortUnits[Key(attr["UnitShortName"])] := name)})
+$AllShortUnits[Key(None)]:= .
+
+SetAttributes(IsSimpleUnit, HoldAll)
+IsSimpleUnit(~s:String)::= Lookup($AllUnits, s, $Failed) =!= $Failed
+IsSimpleUnit(~):= False
+
+SetAttributes(ParseUnit, HoldAll)
+Function ParseUnit(~unit) {
+	With(uf:= DecomposeUnitFactors(unit))
+	If(Position(uf, BADUNIT) === {}) {
+		Return(uf)
+	}
+
+	With(pu:= ParseUnitString(unit))
+	If(pu =!= $Failed) {
+		Return(pu)
+	}
+
+	$Failed
+}
+
+SetAttributes(ParseUnitString, HoldAll)
+ParseUnitString(~):= $Failed
+Function ParseUnitString(~s:String) {
+	If(IsSimpleUnit(s)) {
+		Return({s -> 1})
+	}
+	With(name:= Lookup($AllShortUnits, s, None))
+	If(name =!= None) {
+		Return({name -> 1})
+	}
+
+	$Failed
+}
+
+SetAttributes(DecomposeUnitFactors, HoldAll)
+%DecomposeUnitFactors(~?IsReal):= {}
+DecomposeUnitFactors(~u):= {BADUNIT(u) -> 1}
+DecomposeUnitFactors(~u:String ? IsSimpleUnit)::= {u -> 1} 
+DecomposeUnitFactors(~base ^ (n: (~:Integer|~:Rational|~:Real)))::= DecomposeUnitFactors(base) |> Map({(~u -> ~m) :> (u -> m * n)})
+DecomposeUnitFactors(~product : Times)::= product |> Apply(List) |> Map(DecomposeUnitFactors) |> Apply(Join)
+
+RecombineUnitFactors(~list)::= list |> Replace({Rule -> Power, List -> Times}, Heads -> True)
+
+
+Get(ToFileName({DirectoryName($Input)}, "calculations.pmath"));
+
+
+End()
+
+EndPackage()
