@@ -3,6 +3,14 @@ BeginPackage("System`QuantityUnits`")
 Begin("System`QuantityUnits`Private`")
 
 
+% A good source of information on unit calculations is the Frink languange by Alan Eliasen
+%	(https://frinklang.org/)
+%	Especially https://frinklang.org/frinkdata/units.txt
+%
+% Note that Frinklang converts everything to base units and calculates with these.
+% That is easier and more efficient, but we want to be able to keep getting e.g.
+% 5cm back when we calculate 4cm + 1cm.
+
 unitData("Meters"):= {
 	"FundamentalUnitValue" -> "Meters",
 	"UnitDimensions" -> "LengthUnit",
