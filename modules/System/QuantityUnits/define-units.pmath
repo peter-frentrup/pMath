@@ -169,7 +169,7 @@ addDerivedUnit("Henries", "Webers" / "Amperes", "H")
 addSIPrefixes("Henries", "henries")
 
 addDerivedUnit("Farads", "Coulombs" / "Volts", "F")
-addSIPrefixes("Farads", "Farads")
+addSIPrefixes("Farads", "farads")
 
 addDerivedUnit("Steradians", "Radians"^2, "sr")
 addSIPrefixes("Steradians", "steradians")
@@ -210,7 +210,7 @@ addDerivedUnit("AngularDegrees", Pi "Radians" / 180, "\[Degree]")
 addDerivedUnit("Arcminutes", "AngularDegrees" / 60, "'")
 addDerivedUnit("Arcseconds", "Arcminutes" / 60, "''")
 
-addDerivedUnit("AstronomicalUnit", 149597870700 "Meter", "AU")
+addDerivedUnit("AstronomicalUnit", 149597870700 "Meters", "AU")
 addSIPrefixes("AstronomicalUnit", "astronomicalUnit")
 
 
