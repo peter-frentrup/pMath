@@ -27,6 +27,10 @@ unitData("Seconds"):= {
 	"FundamentalUnitValue" -> "Seconds",
 	"UnitDimensions" -> "TimeUnit",
 	"UnitShortName" -> "s" }
+unitData("Minutes"):= {
+	"FundamentalUnitValue" -> 60 * "Seconds",
+	"UnitDimensions" -> "TimeUnit",
+	"UnitShortName" -> "s" }
 unitData("Hours"):= {
 	"FundamentalUnitValue" -> 60 * 60 * "Seconds",
 	"UnitDimensions" -> "TimeUnit",
