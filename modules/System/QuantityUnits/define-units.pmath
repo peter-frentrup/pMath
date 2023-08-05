@@ -3,117 +3,115 @@ BeginPackage("System`QuantityUnits`")
 Begin("System`QuantityUnits`Private`")
 
 
-$AllUnits:= {
-	"Meters" -> {
-		"FundamentalUnitValue" -> "Meters",
-		"UnitDimensions" -> "LengthUnit",
-		"UnitShortName" -> "m" },
-	"Amperes" -> {
-		"FundamentalUnitValue" -> "Amperes",
-		"UnitDimensions" -> "ElectricCurrentUnit",
-		"UnitShortName" -> "A" },
-	"Kelvins" -> {
-		"FundamentalUnitValue" -> "Kelvins",
-		"UnitDimensions" -> "TemperatureUnit",
-		"UnitShortName" -> "K" },
-	"Moles" -> {
-		"FundamentalUnitValue" -> "Moles",
-		"UnitDimensions" -> "AmountUnit",
-		"UnitShortName" -> "mol" },
-	"Candelas" -> {
-		"FundamentalUnitValue" -> "Candelas",
-		"UnitDimensions" -> "LuminousIntensityUnit",
-		"UnitShortName" -> "cd" },
-	"Seconds" -> {
-		"FundamentalUnitValue" -> "Seconds",
-		"UnitDimensions" -> "TimeUnit",
-		"UnitShortName" -> "s" },
-	"Hours" -> {
-		"FundamentalUnitValue" -> 60 * 60 * "Seconds",
-		"UnitDimensions" -> "TimeUnit",
-		"UnitShortName" -> "h" },
-	"Days" -> {
-		"FundamentalUnitValue" -> 24 * 60 * 60 * "Seconds",
-		"UnitDimensions" -> "TimeUnit",
-		"UnitShortName" -> "d" },
-	"Weeks" -> {
-		"FundamentalUnitValue" -> 7 * 24 * 60 * 60 * "Seconds",
-		"UnitDimensions" -> "TimeUnit",
-		"UnitShortName" -> None },
-	"Kilograms" -> {
-		"FundamentalUnitValue" -> "Kilograms",
-		"UnitDimensions" -> "MassUnit",
-		"UnitShortName" -> "kg" },
-	"Grams" -> {
-		"FundamentalUnitValue" -> "Kilograms" / 1000,
-		"UnitDimensions" -> "MassUnit",
-		"UnitShortName" -> "g" },
-	"Radians" -> {
-		"FundamentalUnitValue" -> "Radians", % actually Meters/Meters
-		"UnitDimensions" -> "AngleUnit",
-		"UnitShortName" -> "rad" },
-	"Bits" -> {
-		"FundamentalUnitValue" -> "Bits",
-		"UnitDimensions" -> "InformationUnit",
-		"UnitShortName" -> "b" },
-	"Bytes" -> {
-		"FundamentalUnitValue" -> 8 "Bits",
-		"UnitDimensions" -> "InformationUnit",
-		"UnitShortName" -> "B" }
-}
+unitData("Meters"):= {
+	"FundamentalUnitValue" -> "Meters",
+	"UnitDimensions" -> "LengthUnit",
+	"UnitShortName" -> "m" }
+unitData("Amperes"):= {
+	"FundamentalUnitValue" -> "Amperes",
+	"UnitDimensions" -> "ElectricCurrentUnit",
+	"UnitShortName" -> "A" }
+unitData("Kelvins"):= {
+	"FundamentalUnitValue" -> "Kelvins",
+	"UnitDimensions" -> "TemperatureUnit",
+	"UnitShortName" -> "K" }
+unitData("Moles"):= {
+	"FundamentalUnitValue" -> "Moles",
+	"UnitDimensions" -> "AmountUnit",
+	"UnitShortName" -> "mol" }
+unitData("Candelas"):= {
+	"FundamentalUnitValue" -> "Candelas",
+	"UnitDimensions" -> "LuminousIntensityUnit",
+	"UnitShortName" -> "cd" }
+unitData("Seconds"):= {
+	"FundamentalUnitValue" -> "Seconds",
+	"UnitDimensions" -> "TimeUnit",
+	"UnitShortName" -> "s" }
+unitData("Hours"):= {
+	"FundamentalUnitValue" -> 60 * 60 * "Seconds",
+	"UnitDimensions" -> "TimeUnit",
+	"UnitShortName" -> "h" }
+unitData("Days"):= {
+	"FundamentalUnitValue" -> 24 * 60 * 60 * "Seconds",
+	"UnitDimensions" -> "TimeUnit",
+	"UnitShortName" -> "d" }
+unitData("Weeks"):= {
+	"FundamentalUnitValue" -> 7 * 24 * 60 * 60 * "Seconds",
+	"UnitDimensions" -> "TimeUnit",
+	"UnitShortName" -> None }
+unitData("Kilograms"):= {
+	"FundamentalUnitValue" -> "Kilograms",
+	"UnitDimensions" -> "MassUnit",
+	"UnitShortName" -> "kg" }
+unitData("Grams"):= {
+	"FundamentalUnitValue" -> "Kilograms" / 1000,
+	"UnitDimensions" -> "MassUnit",
+	"UnitShortName" -> "g" }
+unitData("Radians"):= {
+	"FundamentalUnitValue" -> "Radians", % actually Meters/Meters
+	"UnitDimensions" -> "AngleUnit",
+	"UnitShortName" -> "rad" }
+unitData("Bits"):= {
+	"FundamentalUnitValue" -> "Bits",
+	"UnitDimensions" -> "InformationUnit",
+	"UnitShortName" -> "b" }
+unitData("Bytes"):= {
+	"FundamentalUnitValue" -> 8 "Bits",
+	"UnitDimensions" -> "InformationUnit",
+	"UnitShortName" -> "B" }
 
 Function addSIPrefixes(~name, ~namebase) {
-	With(attr:= $AllUnits[name])
+	With(attr:= unitData(name))
 	With(fundamental:= attr["FundamentalUnitValue"])
 	With(dim:=         attr["UnitDimensions"])
 	With(short:=       attr["UnitShortName"])
 	
-	$AllUnits["Quecto" ++ namebase]:= { "FundamentalUnitValue" -> fundamental / 1000^10, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "q" ++ short) }
-	$AllUnits["Ronto" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental / 1000^9,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "r" ++ short) }
-	$AllUnits["Yocto" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental / 1000^8,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "y" ++ short) }
-	$AllUnits["Zepto" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental / 1000^7,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "z" ++ short) }
-	$AllUnits["Atto" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental / 1000^6,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "a" ++ short) }
-	$AllUnits["Femto" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental / 1000^5,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "f" ++ short) }
-	$AllUnits["Pico" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental / 1000^4,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "p" ++ short) }
-	$AllUnits["Nano" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental / 1000^3,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "n" ++ short) }
-	$AllUnits["Micro" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental / 1000^2,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "\[Mu]" ++ short) }
-	$AllUnits["Milli" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental / 1000,    "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "m" ++ short) }
-	$AllUnits["Centi" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental / 100,     "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "c" ++ short) }
-	$AllUnits["Deci" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental / 10,      "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "d" ++ short) }
-	$AllUnits["Deca" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental * 10,      "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "da" ++ short) }
-	$AllUnits["Hecto" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental * 100,     "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "h" ++ short) }
-	$AllUnits["Kilo" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental * 1000,    "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "k" ++ short) }
-	$AllUnits["Mega" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental * 1000^2,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "M" ++ short) }
-	$AllUnits["Giga" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental * 1000^3,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "G" ++ short) }
-	$AllUnits["Tera" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental * 1000^4,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "T" ++ short) }
-	$AllUnits["Peta" ++ namebase]:=   { "FundamentalUnitValue" -> fundamental * 1000^5,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "P" ++ short) }
-	$AllUnits["Exa" ++ namebase]:=    { "FundamentalUnitValue" -> fundamental * 1000^6,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "E" ++ short) }
-	$AllUnits["Zetta" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental * 1000^7,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Z" ++ short) }
-	$AllUnits["Yotta" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental * 1000^8,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Y" ++ short) }
-	$AllUnits["Ronna" ++ namebase]:=  { "FundamentalUnitValue" -> fundamental * 1000^9,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "R" ++ short) }
-	$AllUnits["Quetta" ++ namebase]:= { "FundamentalUnitValue" -> fundamental * 1000^10, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Q" ++ short) }
+	unitData("Quecto" ++ namebase):= { "FundamentalUnitValue" -> fundamental / 1000^10, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "q" ++ short) }
+	unitData("Ronto" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000^9,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "r" ++ short) }
+	unitData("Yocto" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000^8,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "y" ++ short) }
+	unitData("Zepto" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000^7,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "z" ++ short) }
+	unitData("Atto" ++ namebase):=   { "FundamentalUnitValue" -> fundamental / 1000^6,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "a" ++ short) }
+	unitData("Femto" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000^5,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "f" ++ short) }
+	unitData("Pico" ++ namebase):=   { "FundamentalUnitValue" -> fundamental / 1000^4,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "p" ++ short) }
+	unitData("Nano" ++ namebase):=   { "FundamentalUnitValue" -> fundamental / 1000^3,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "n" ++ short) }
+	unitData("Micro" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000^2,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "\[Mu]" ++ short) }
+	unitData("Milli" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000,    "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "m" ++ short) }
+	unitData("Centi" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 100,     "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "c" ++ short) }
+	unitData("Deci" ++ namebase):=   { "FundamentalUnitValue" -> fundamental / 10,      "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "d" ++ short) }
+	unitData("Deca" ++ namebase):=   { "FundamentalUnitValue" -> fundamental * 10,      "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "da" ++ short) }
+	unitData("Hecto" ++ namebase):=  { "FundamentalUnitValue" -> fundamental * 100,     "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "h" ++ short) }
+	unitData("Kilo" ++ namebase):=   { "FundamentalUnitValue" -> fundamental * 1000,    "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "k" ++ short) }
+	unitData("Mega" ++ namebase):=   { "FundamentalUnitValue" -> fundamental * 1000^2,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "M" ++ short) }
+	unitData("Giga" ++ namebase):=   { "FundamentalUnitValue" -> fundamental * 1000^3,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "G" ++ short) }
+	unitData("Tera" ++ namebase):=   { "FundamentalUnitValue" -> fundamental * 1000^4,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "T" ++ short) }
+	unitData("Peta" ++ namebase):=   { "FundamentalUnitValue" -> fundamental * 1000^5,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "P" ++ short) }
+	unitData("Exa" ++ namebase):=    { "FundamentalUnitValue" -> fundamental * 1000^6,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "E" ++ short) }
+	unitData("Zetta" ++ namebase):=  { "FundamentalUnitValue" -> fundamental * 1000^7,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Z" ++ short) }
+	unitData("Yotta" ++ namebase):=  { "FundamentalUnitValue" -> fundamental * 1000^8,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Y" ++ short) }
+	unitData("Ronna" ++ namebase):=  { "FundamentalUnitValue" -> fundamental * 1000^9,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "R" ++ short) }
+	unitData("Quetta" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 1000^10, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Q" ++ short) }
 }
 
 Function addBinarySILikePrefixes(~name, ~namebase) {
-	With(attr:= $AllUnits[name])
+	With(attr:= unitData(name))
 	With(fundamental:= attr["FundamentalUnitValue"])
 	With(dim:=         attr["UnitDimensions"])
 	With(short:=       attr["UnitShortName"])
 
-	$AllUnits["Kibi" ++ namebase]:= { "FundamentalUnitValue" -> fundamental * 2^10, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ki" ++ short) }
-	$AllUnits["mebi" ++ namebase]:= { "FundamentalUnitValue" -> fundamental * 2^20, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Mi" ++ short) }
-	$AllUnits["gibi" ++ namebase]:= { "FundamentalUnitValue" -> fundamental * 2^30, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Gi" ++ short) }
-	$AllUnits["tebi" ++ namebase]:= { "FundamentalUnitValue" -> fundamental * 2^40, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ti" ++ short) }
-	$AllUnits["pebi" ++ namebase]:= { "FundamentalUnitValue" -> fundamental * 2^50, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Pi" ++ short) }
-	$AllUnits["exbi" ++ namebase]:= { "FundamentalUnitValue" -> fundamental * 2^60, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ei" ++ short) }
-	$AllUnits["zebi" ++ namebase]:= { "FundamentalUnitValue" -> fundamental * 2^70, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Zi" ++ short) }
-	$AllUnits["yobi" ++ namebase]:= { "FundamentalUnitValue" -> fundamental * 2^80, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Yi" ++ short) }
+	unitData("Kibi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^10, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ki" ++ short) }
+	unitData("mebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^20, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Mi" ++ short) }
+	unitData("gibi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^30, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Gi" ++ short) }
+	unitData("tebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^40, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ti" ++ short) }
+	unitData("pebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^50, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Pi" ++ short) }
+	unitData("exbi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^60, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ei" ++ short) }
+	unitData("zebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^70, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Zi" ++ short) }
+	unitData("yobi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^80, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Yi" ++ short) }
 }
 
 Function addDerivedUnit(~name, ~product, ~shortname) {
-	$AllUnits[name]:= {
-		"FundamentalUnitValue" -> product |> Replace({~u:String :> $AllUnits[u, "FundamentalUnitValue"]}),
-		"UnitDimensions" -> product |> Replace({~u:String :> $AllUnits[u, "UnitDimensions"]}) |> Replace(~n?IsReal * ~x :> x),
+	unitData(name):= {
+		"FundamentalUnitValue" -> product |> Replace({~u:String :> unitData(u)["FundamentalUnitValue"]}),
+		"UnitDimensions" -> product |> Replace({~u:String :> unitData(u)["UnitDimensions"]}) |> Replace(~n?IsReal * ~x :> x),
 		"UnitShortName" -> shortname }
 }
 
@@ -222,6 +220,8 @@ addSIPrefixes("Electronvolts", "electronvolts")
 % FIXME: using interval but should use something like an Around() for measurement uncertainty
 addDerivedUnit("AtomicMassUnit", 1.660539066[60+/-50]*^-27 "Kilograms", "u")
 
+
+$AllUnits:= DownRules(unitData) |> Map({HoldPattern(Literal(HoldPattern)(~(~s)) :> ~v) :> (s->v)})
 
 End()
 
