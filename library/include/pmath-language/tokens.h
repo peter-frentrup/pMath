@@ -181,6 +181,7 @@ static PMATH_INLINE pmath_bool_t pmath_token_maybe_rest(pmath_token_t tok) {
          tok != PMATH_TOK_NAME    &&
          tok != PMATH_TOK_NAME2   &&
          tok != PMATH_TOK_DIGIT   &&
+         tok != PMATH_TOK_STRING  &&
          tok != PMATH_TOK_PREFIX  &&
          tok != PMATH_TOK_PRETEXT &&
          tok != PMATH_TOK_LEFT    &&
