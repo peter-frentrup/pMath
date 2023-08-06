@@ -54,7 +54,8 @@ namespace {
       
       bool prepare_symbol_colorization(int start, SymbolKind kind, int &end, SyntaxGlyphStyle &style);
       int symbol_colorize(int start, SymbolKind kind);
-      void symdef_colorize_spanexpr(SpanExpr *se, SymbolKind kind); // "x"  "x:=y"
+      void symdef_colorize_spanexpr(SpanExpr *se, SymbolKind kind); // "x"  "x:=y"  "{{x,y},z}:=w"
+      void symlist_colorize_spanexpr(SpanExpr *se, SymbolKind kind); // "x"  "{x,y}"
       void symdeflist_colorize_spanexpr(SpanExpr *se, SymbolKind kind); // "{symdefs ...}"
       void replacement_colorize_spanexpr(SpanExpr *se, SymbolKind kind); // "x->value"
       void colorize_keyword(SpanExpr *se);
@@ -441,27 +442,24 @@ void ScopeColorizerImpl::symdef_colorize_spanexpr(SpanExpr *se, SymbolKind kind)
         se->item_equals(1, ":=")                        ||
         se->item_equals(1, "::="))
     {
-      if(pmath_char_is_name(se->item_first_char(0))) {
-        symbol_colorize(se->item_pos(0), kind);
-        return;
-      }
-      
-      auto lhs = se->item(0);
-      if(FunctionCallSpan::is_list(lhs)) { // "{x, ...} := ..."
-        FunctionCallSpan lhs_list(lhs);
-        
-        for(int i = 1; i <= lhs_list.list_length(); ++i) {
-          symdef_colorize_spanexpr(lhs_list.list_element(i), kind);
-        }
-        
-        return;
-      }
-      
+      symlist_colorize_spanexpr(se->item(0), kind);
       return;
     }
   }
   
   if(pmath_char_is_name(se->first_char()))
+    symbol_colorize(se->start(), kind);
+}
+
+void ScopeColorizerImpl::symlist_colorize_spanexpr(SpanExpr *se, SymbolKind kind) {
+  if(FunctionCallSpan::is_list(se)) { // "{x, ...}"
+    FunctionCallSpan list(se);
+    
+    for(int i = 1; i <= list.list_length(); ++i) {
+      symlist_colorize_spanexpr(list.list_element(i), kind);
+    }
+  }
+  else if(pmath_char_is_name(se->first_char())) 
     symbol_colorize(se->start(), kind);
 }
 
