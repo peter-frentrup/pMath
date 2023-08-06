@@ -1,17 +1,13 @@
 BeginPackage("System`QuantityUnits`")
 
 QuantityProduct
-QuantityTimesMagnitude
-QuantityTimesQuantity
 
 Begin("System`QuantityUnits`Private`")
 
 
 Quantity/: Power(~q:Quantity ? IsValidQuantity, ~y) ::= With({res:= QuantityPower(q, y)}, res /? res =!= $Failed)
 
-Quantity/: (~q1:Quantity ? IsValidQuantity) * (~q2:Quantity ? IsValidQuantity)::= With({res:= QuantityTimesQuantity(q1, q2)}, res /? res =!= $Failed)
-Quantity/: ~x?IsNumeric * (~q:Quantity ? IsValidQuantity)::= With({res:= QuantityTimesMagnitude(x, q)}, res /? res =!= $Failed)
-%Quantity/: Literal(Times)(~~~x, ~q:Quantity, ~~~y) ::= With({res:= QuantityProduct({x,q,y})}, res /? res =!= $Failed)
+Quantity/: Literal(Times)(~~~x, ~q:Quantity, ~~~y) ::= With({res:= QuantityProduct({x,q,y})}, res /? res =!= $Failed)
 % Note: assigning Quantity /: Literal(Times)(~~~x) ::= ...  is not possible because the symbol Quantity must appear in the pattern and so pMath does not know whether to assign it to the UpRules or SubRules
 
 QuantityPower(HoldPattern(Quantity(~mag, ~unit)), y: (~:Integer | ~:Rational | ~:Real))::= newValidQuanitity(mag^y, unit^y)
@@ -19,7 +15,7 @@ QuantityPower(HoldPattern(Quantity(~mag, ~unit)), y: (~:Integer | ~:Rational | ~
 QuantityPower(~~~):= $Failed
 
 
-AutoLoad(Hold(QuantityProduct, QuantityTimesMagnitude, QuantityTimesQuantity),
+AutoLoad(Hold(QuantityProduct),
     ToFileName({DirectoryName($Input)}, "products.pmath"))
 
 

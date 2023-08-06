@@ -1,21 +1,9 @@
 BeginPackage("System`QuantityUnits`")
 
-QuantityTimesMagnitude
-QuantityTimesQuantity
-
 Begin("System`QuantityUnits`Private`")
 
 
-QuantityTimesMagnitude(1, ~):= $Failed
-QuantityTimesMagnitude(~~~):= $Failed
-QuantityTimesMagnitude(~mag1, HoldPattern(Quantity(~mag2, ~unit2)))::= newValidQuanitity(mag1 * mag2, unit2)
-
-
-QuantityTimesQuantity(~~~):= $Failed
-QuantityTimesQuantity(HoldPattern(Quantity(~mag1, ~unit1)) ? IsValidQuantity, HoldPattern(Quantity(~mag2, ~unit2))) ::= ConsolidateValidQuantityUnits(mag1 * mag2, unit1 * unit2)
-
-
-% Not currently used
+% Returns $Failed insetad of Times @@ factorList if it cannot simplify the product. 
 Function QuantityProduct(~factorList) {
     With({{{null, units}, magnitudes}, others}:= factorList |> 
         Scan({
