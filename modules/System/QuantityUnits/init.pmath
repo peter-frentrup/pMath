@@ -7,6 +7,8 @@ ParseUnit
 DecomposeUnitFactors
 RecombineUnitFactors
 
+ConsolidateValidQuantityUnits
+
 $AllUnits
 
 
@@ -131,6 +133,8 @@ DecomposeUnitFactors(~product : Times)::= product |> Apply(List) |> Map(Decompos
 RecombineUnitFactors(~list)::= list |> Replace({Rule -> Power, List -> Times}, Heads -> True)
 
 
+AutoLoad(Hold(ConsolidateValidQuantityUnits),
+	ToFileName({DirectoryName($Input)}, "simplify.pmath"))
 Get(ToFileName({DirectoryName($Input)}, "calculations.pmath"));
 
 

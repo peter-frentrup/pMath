@@ -1,7 +1,7 @@
 BeginPackage("System`QuantityUnits`")
 
 QuantityTimesMagnitude
-QuantityTimes
+QuantityTimesQuantity
 
 Begin("System`QuantityUnits`Private`")
 
@@ -11,64 +11,36 @@ QuantityTimesMagnitude(~~~):= $Failed
 QuantityTimesMagnitude(~mag1, HoldPattern(Quantity(~mag2, ~unit2)))::= newValidQuanitity(mag1 * mag2, unit2)
 
 
-QuantityTimes(~~~):= $Failed
-Function QuantityTimes(HoldPattern(Quantity(~mag1, ~unit1)) ? IsValidQuantity, HoldPattern(Quantity(~mag2, ~unit2))) {
-    With(mag:= mag1 * mag2, unit:= unit1 * unit2)
-    If(IsNumeric(unit)) {
-        Return(mag * unit)
-    }
+QuantityTimesQuantity(~~~):= $Failed
+QuantityTimesQuantity(HoldPattern(Quantity(~mag1, ~unit1)) ? IsValidQuantity, HoldPattern(Quantity(~mag2, ~unit2))) ::= ConsolidateValidQuantityUnits(mag1 * mag2, unit1 * unit2)
 
-    With(unitCases:= reducedUnitsCases(unit))
+
+% Not currently used
+Function QuantityProduct(~factorList) {
+    With({{{null, units}, magnitudes}, others}:= factorList |> 
+        Scan({
+            HoldPattern(Quantity(~mag, ~unit)) ? IsValidQuantity :> (Emit(unit, UNIT); Emit(mag, MAGNITUDE)),
+            ~x ? IsNumeric :> Emit(x, MAGNITUDE),
+            ~x :> Emit(x, OTHER)
+        }) |> 
+        Gather(UNIT) |> 
+        Gather(MAGNITUDE) |> 
+        Gather(OTHER))
     
-    If(Length(unitCases) === 1) {
-        With(newUnit:= First(unitCases))
-
-        If(IsNumeric(newUnit)) {
-            Return(mag * newUnit)
+    If(units === {}) {
+        Return($Failed)
+    }
+    
+    If(Length(units) === 1) {
+        If(Length(magnitudes) <= 1) {
+            Return($Failed)
         }
-
-        With(factor:= newUnit.Replace(~:String -> 1, 0..))
-
-        Return(newValidQuanitity(factor * mag, newUnit / factor))
+        Return((Times @@ others) * newValidQuanitity(Times @@ magnitudes, units.First))
     }
     
-    % Chose best of the cases, which minimizes Abs(Log(factor * mag))
-    With(factors:= unitCases.Replace(~:String -> 1, 0..))
-    With({newMag, newUnit}:= {mag * factors, unitCases / factors} |> Transpose |> 
-            SortBy(Function(Abs(Log(N(First(#)))))) |> First)
-
-    newValidQuanitity(newMag, newUnit)
+    (Times @@ others) * ConsolidateValidQuantityUnits(Times @@ magnitudes, Times @@ units)
 }
 
-
-
-% Reduces units that are just numeric factors of each other and gives all possible choises of such reductions.
-Function reducedUnitsCases(~unit) {
-    With(unitGroups:= unit |> 
-        Cases(~u:String :> ($AllUnits[u, "UnitDimensions"] -> u), 0..) |> 
-        Merge(Union))
-    With(unitChoices:= unitGroups |> Select(Function(Length(#[2]) > 1)) |> Part(All, 2))
-    With(unitNoChoice:= unitGroups |> Select(Function(Length(#[2]) === 1)) |> Part(All, 2, 1) |> Apply(Times))
-    
-    unitNoChoice * reducedUnitsCasesEach(unit / unitNoChoice, unitChoices)
-}
-
-reducedUnitsCasesEach(~unit, {}) ::= {unit}
-reducedUnitsCasesEach(~unit, {~group, ~~~rest})::=
-    reduceUnitGroup(unit, group) |> 
-        Union |> 
-        Map(Function(reducedUnitsCasesEach(#, {rest}))) |> 
-        Flatten
-
-Function reduceUnitGroup(~unit, ~group) {
-    group |> 
-        Map({~u :> Block {
-            With(fu:= $AllUnits[u, "FundamentalUnitValue"]) 
-            With(rules:= group |> Cases(Except(u)) |>
-                Map(Function(# -> $AllUnits[#, "FundamentalUnitValue"]/fu * u)))
-            unit |> Replace(rules, 0..)
-        }})
-}
 
 End()
 
