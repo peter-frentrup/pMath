@@ -1,5 +1,8 @@
 BeginPackage("System`QuantityUnits`")
 
+QuantityTimes
+QuantityTimesMagnitude
+
 Begin("System`QuantityUnits`Private`")
 
 
@@ -13,70 +16,8 @@ QuantityPower(HoldPattern(Quantity(~mag, ~unit)), y: (~:Integer | ~:Rational | ~
 QuantityPower(~~~):= $Failed
 
 
-QuantityTimes(~~~):= $Failed
-Function QuantityTimes(HoldPattern(Quantity(~mag1, ~unit1)) ? IsValidQuantity, HoldPattern(Quantity(~mag2, ~unit2))) {
-    With(mag:= mag1 * mag2, unit:= unit1 * unit2)
-    If(IsNumeric(unit)) {
-        Return(mag * unit)
-    }
-
-    With(unitCases:= Echo(reducedUnitsCases(unit)))
-    
-    If(Length(unitCases) === 1) {
-        With(newUnit:= First(unitCases))
-
-        If(IsNumeric(newUnit)) {
-            Return(mag * newUnit)
-        }
-
-        With(factor:= newUnit.Replace(~:String -> 1, 0..))
-
-        Return(newValidQuanitity(factor * mag, newUnit / factor))
-    }
-    
-    % Chose best of the cases, which minimizes Abs(Log(factor * mag))
-    With(factors:= unitCases.Replace(~:String -> 1, 0..))
-    With({newMag, newUnit}:= {mag * factors, unitCases / factors} |> Transpose |> 
-            SortBy(Function(Abs(Log(N(First(#)))))) |> First)
-
-    newValidQuanitity(newMag, newUnit)
-}
-
-
-
-QuantityTimesMagnitude(1, ~):= $Failed
-QuantityTimesMagnitude(~~~):= $Failed
-QuantityTimesMagnitude(~mag1, HoldPattern(Quantity(~mag2, ~unit2)))::= newValidQuanitity(mag1 * mag2, unit2)
-
-
-% Reduces units that are just numeric factors of each other and gives all possible choises of such reductions.
-Function reducedUnitsCases(~unit) {
-    With(unitGroups:= unit |> 
-        Cases(~u:String :> ($AllUnits[u, "UnitDimensions"] -> u), 0..) |> 
-        Merge(Union))
-    With(unitChoices:= unitGroups |> Select(Function(Length(#[2]) > 1)) |> Part(All, 2))
-    With(unitNoChoice:= unitGroups |> Select(Function(Length(#[2]) === 1)) |> Part(All, 2, 1) |> Apply(Times))
-    
-    unitNoChoice * reducedUnitsCasesEach(unit / unitNoChoice, unitChoices)
-}
-
-reducedUnitsCasesEach(~unit, {}) ::= {unit}
-reducedUnitsCasesEach(~unit, {~group, ~~~rest})::=
-    reduceUnitGroup(unit, group) |> 
-        Union |> 
-        Map(Function(reducedUnitsCasesEach(#, {rest}))) |> 
-        Flatten
-
-Function reduceUnitGroup(~unit, ~group) {
-    group |> 
-        Map({~u :> Block {
-            With(fu:= $AllUnits[u, "FundamentalUnitValue"]) 
-            With(rules:= group |> Cases(Except(u)) |>
-                Map(Function(# -> $AllUnits[#, "FundamentalUnitValue"]/fu * u)))
-            unit |> Replace(rules, 0..)
-        }})
-}
-
+AutoLoad(Hold(QuantityTimes, QuantityTimesMagnitude),
+    ToFileName({DirectoryName($Input)}, "products.pmath"))
 
 
 End()
