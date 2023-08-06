@@ -86,7 +86,7 @@ Function addSIPrefixes(~name, ~namebase) {
 	unitData("Femto" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000^5,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "f" ++ short) }
 	unitData("Pico" ++ namebase):=   { "FundamentalUnitValue" -> fundamental / 1000^4,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "p" ++ short) }
 	unitData("Nano" ++ namebase):=   { "FundamentalUnitValue" -> fundamental / 1000^3,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "n" ++ short) }
-	unitData("Micro" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000^2,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "\[Mu]" ++ short) }
+	unitData("Micro" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000^2,  "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "\[Micro]" ++ short) }
 	unitData("Milli" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 1000,    "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "m" ++ short) }
 	unitData("Centi" ++ namebase):=  { "FundamentalUnitValue" -> fundamental / 100,     "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "c" ++ short) }
 	unitData("Deci" ++ namebase):=   { "FundamentalUnitValue" -> fundamental / 10,      "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "d" ++ short) }
@@ -163,7 +163,7 @@ addSIPrefixes("Watts", "watts")
 addDerivedUnit("Volts", "Watts" / "Amperes", "V")
 addSIPrefixes("Volts", "volts")
 
-addDerivedUnit("Ohms", "Volts" / "Amperes", "\[CapitalOmega]")
+addDerivedUnit("Ohms", "Volts" / "Amperes", "\[CapitalOmega]") % TODO: Note that U+2126 OHM SIGN is legacy and not recommendend by the Unicode Standard (14.0) 
 addSIPrefixes("Ohms", "ohms")
 
 addDerivedUnit("Siemens", "Amperes" / "Volts", "S")
