@@ -883,6 +883,8 @@ static void init_pattern_variables(
   pmath_t pattern,               // wont be freed
   pmath_hashtable_t table);
 
+static pmath_symbol_attributes_t pattern_attributes(pmath_t pattern);
+
 static match_kind_t match_atom(
   pattern_info_t  *info,
   pmath_t          pat,          // wont be freed
@@ -990,14 +992,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
   info.func         = obj;
 
   info.pattern_variables = NULL;
-//  info.pattern_variables = pmath_ht_create(&ht_pattern_variable_class, 0);
-//  if(!info.pattern_variables) {
-//    pmath_unref(pattern);
-//    return FALSE;
-//  }
-//
-//  init_pattern_variables(info.pattern, info.pattern_variables);
-
+  
   info.options      = PMATH_NULL;
 
   info.assoc_start  = 1;
@@ -1008,27 +1003,21 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
 
   funclen = 1;
 
-  if(pmath_is_expr(info.func)) {
-    pmath_t head = pmath_expr_get_item(info.func, 0);
+  if(pmath_is_expr(info.func)) { // BUG (issue #151)! We must use *pattern* head to decide attributes 
+    pmath_symbol_attributes_t attrib = pattern_attributes(info.pattern);
+    
     funclen = pmath_expr_length(info.func);
 
-    if(pmath_is_symbol(head)) {
-      pmath_symbol_attributes_t attrib = pmath_symbol_get_attributes(head);
-
-      info.associative = (attrib & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
-      if((attrib & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC) != 0) {
-        info.symmetric = TRUE;
-        info.arg_usage = (char *)pmath_mem_alloc(funclen);
-        if(!info.arg_usage) {
-          pmath_unref(head);
-          pmath_unref(pattern);
-          //pmath_ht_destroy(info.pattern_variables);
-          return FALSE;
-        }
+    info.associative = (attrib & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
+    info.symmetric   = (attrib & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC) != 0;
+    if(info.symmetric) {
+      info.arg_usage = (char *)pmath_mem_alloc(funclen);
+      if(!info.arg_usage) {
+        pmath_unref(pattern);
+        return FALSE;
       }
+      memset(info.arg_usage, NOT_IN_USE, funclen);
     }
-
-    pmath_unref(head);
   }
 
   kind = match_atom(&info, info.pattern, info.func, 0, 0);
@@ -1180,6 +1169,21 @@ static void init_pattern_variables(
       pmath_unref(item);
     }
   }
+}
+
+static pmath_symbol_attributes_t pattern_attributes(pmath_t pattern) {
+  if(!pmath_is_expr(pattern))
+    return 0;
+  
+  pmath_t head = pmath_expr_get_item(pattern, 0);
+  if(pmath_is_symbol(head)) {
+    pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(head);
+    pmath_unref(head);
+    return attr;
+  }
+
+  pmath_unref(head);
+  return 0;
 }
 
 static match_kind_t match_atom_to_typed_singlematch(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
@@ -1883,12 +1887,7 @@ static match_kind_t match_atom_to_keyvaluepattern(pattern_info_t *info, pmath_t 
 }
 
 static match_kind_t match_atom_to_other_function(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
-  pmath_symbol_attributes_t attr = 0;
-  pmath_t head = pmath_expr_get_item(pat, 0);
-  if(pmath_is_symbol(head))
-    attr = pmath_symbol_get_attributes(head);
-  
-  pmath_unref(head);
+  pmath_symbol_attributes_t attr = pattern_attributes(pat);
   if(attr & PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY) {
     match_kind_t kind;
 
@@ -2705,7 +2704,14 @@ static match_kind_t match_func_symmetric(
         "[%s, %d] data->info->symmetric is expected to be TRUE. "
         "Maybe another thread changed the Symmetric attribute of the function?", __FILE__, __LINE__);
     }
-    memcpy(data->info->arg_usage, args_in_use, flen);
+    else if(data->info->arg_usage) {
+      memcpy(data->info->arg_usage, args_in_use, flen);
+    }
+    else {
+      pmath_debug_print(
+        "[%s, %d] data->info->arg_usage is expected to be non-NULL. "
+        "Maybe another thread changed the Symmetric attribute of the function?", __FILE__, __LINE__);
+    }
   }
   else {
     for(i = 0; i < flen; ++i) {
@@ -2726,13 +2732,15 @@ static match_kind_t match_func(
   pmath_expr_t     pat,
   pmath_expr_t     func
 ) {
-  pmath_t phead = pmath_expr_get_item(pat, 0);
-  pmath_t old_head = info->current_head;
   match_kind_t kind;
-
+  pmath_t old_head = info->current_head;
   info->current_head = pmath_expr_get_item(func, 0);
-
-  kind = match_atom(info, phead, info->current_head, 0, pmath_expr_length(func));
+  {
+    pmath_t phead = pmath_expr_get_item(pat, 0);
+    kind = match_atom(info, phead, info->current_head, 0, pmath_expr_length(func));
+    pmath_unref(phead);
+  }
+  
   if(kind == PMATH_MATCH_KIND_LOCAL) {
     match_func_data_t data;
 
@@ -2743,20 +2751,14 @@ static match_kind_t match_func(
     ++indented;
 #endif
 
+    pmath_symbol_attributes_t attrib = pattern_attributes(pat);
     memset(&data, 0, sizeof(data));
-    data.info = info;
-    data.pat  = pat;
-    data.func = func;
-    data.associative = FALSE;
-    data.one_identity = FALSE;
-    data.symmetric = FALSE;
-    if(pmath_is_symbol(phead)) {
-      pmath_symbol_attributes_t attrib = pmath_symbol_get_attributes(phead);
-
-      data.associative  = (attrib & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
-      data.one_identity = (attrib & PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY) != 0;
-      data.symmetric    = (attrib & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)   != 0;
-    }
+    data.info         = info;
+    data.pat          = pat;
+    data.func         = func;
+    data.associative  = (attrib & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
+    data.one_identity = (attrib & PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY) != 0;
+    data.symmetric    = (attrib & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)   != 0;
 
     if(!info->symmetric && info->associative && pmath_same(func, info->func))
       info->assoc_start = 1;
@@ -2778,7 +2780,6 @@ static match_kind_t match_func(
 #endif
   }
 
-  pmath_unref(phead);
   pmath_unref(info->current_head);
   info->current_head = old_head;
   return kind;
