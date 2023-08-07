@@ -16,10 +16,8 @@ Function QuantityPlus(HoldPattern(Quantity(~mag1, ~unit1)), HoldPattern(Quantity
         Return($Failed)
     }
 
-    % TODO: choose best from unit1 and unit2 so that
-    % Quantity(1, "Meters") + Quantity(4, "Centimeters") 
-    % gives Quantity(104, "Centimeters") instead of Quantity(26/25, "Meters")
-    newValidQuanitity(mag1 + mag2 * ratio, unit1)
+    %newValidQuanitity(mag1 + mag2 * ratio, unit1)
+    ConsolidateValidQuantityUnits(mag1 + mag2 * ratio, unit1, unit2)
 }
 
 

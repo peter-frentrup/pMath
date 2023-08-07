@@ -5,12 +5,13 @@ ConsolidateValidQuantityUnits
 Begin("System`QuantityUnits`Private`")
 
 
-Function ConsolidateValidQuantityUnits(~mag, ~unit) {
+% unit may contain numeric factors
+Function ConsolidateValidQuantityUnits(~mag, ~unit, ?otherAllowedUnits:{}) {
     If(IsNumeric(unit)) {
         Return(mag * unit)
     }
 
-    With(unitCases:= reducedUnitsCases(unit))
+    With(unitCases:= reducedUnitsCases(unit, otherAllowedUnits))
     
     If(Length(unitCases) === 1) {
         With(newUnit:= First(unitCases))
@@ -37,8 +38,8 @@ Function ConsolidateValidQuantityUnits(~mag, ~unit) {
 
 
 % Reduces units that are just numeric factors of each other and gives all possible choises of such reductions.
-Function reducedUnitsCases(~unit) {
-    With(unitGroups:= unit |> 
+Function reducedUnitsCases(~unit, ~otherAllowedUnits) {
+    With(unitGroups:= {unit, otherAllowedUnits} |> 
         Cases(~u:String :> ($AllUnits[u, "UnitDimensions"] -> u), 0..) |> 
         Merge(Union))
     With(unitChoices:= unitGroups |> Select(Function(Length(#[2]) > 1)) |> Part(All, 2))
