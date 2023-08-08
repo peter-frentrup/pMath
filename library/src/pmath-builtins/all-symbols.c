@@ -41,38 +41,41 @@
 /*============================================================================*/
 
 //{ builtins from src/pmath-builtins/arithmetic/ ...
-PMATH_PRIVATE pmath_t builtin_abs(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_approximate(     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_arg(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_binomial(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_chop(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_complex(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_conjugate(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_exp(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_factorial(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_factorial2(      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_fractionalpart(  pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_gamma(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_im(              pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_log(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_loggamma(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_mod(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_plus(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_polygamma(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_power(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_powermod(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_precision(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_product(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_quotient(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_re(              pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_rescale(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_round_functions( pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_setprecision(    pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sign(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sqrt(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sum(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_times(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_abs(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_approximate(          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_arg(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_binomial(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_chop(                 pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_complex(              pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_conjugate(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_denominator(          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_directedinfinity(     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_exp(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_factorial(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_factorial2(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_fractionalpart(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_gamma(                pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_im(                   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_log(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_loggamma(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_mod(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_numerator(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_numerator_denominator(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_plus(                 pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_polygamma(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_power(                pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_powermod(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_precision(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_product(              pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_quotient(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_re(                   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_rescale(              pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_round_functions(      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_setprecision(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sign(                 pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sqrt(                 pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sum(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_times(                pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_bool_t builtin_approximate_e(               pmath_t *obj, double prec);
 PMATH_PRIVATE pmath_bool_t builtin_approximate_eulergamma(      pmath_t *obj, double prec);
@@ -546,38 +549,41 @@ pmath_bool_t pmath_register_approx_code(
 
 static pmath_bool_t init_builtin_security_doormen(void) {
 #define CHECK(x)  if(!(x)) return FALSE
-  CHECK( pmath_security_register_doorman(builtin_abs,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_approximate,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_arg,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_binomial,         PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_chop,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_complex,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_conjugate,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_directedinfinity, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_exp,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_factorial,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_factorial2,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_fractionalpart,   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_gamma,            PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_im,               PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_log,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_loggamma,         PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_mod,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_plus,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_polygamma,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_power,            PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_powermod,         PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_precision,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_product,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_quotient,         PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_re,               PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_rescale,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_round_functions,  PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_setprecision,     PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_sign,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_sqrt,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_sum,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_times,            PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_abs,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_approximate,           PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_arg,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_binomial,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_chop,                  PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_complex,               PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_conjugate,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_denominator,           PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_directedinfinity,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_exp,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_factorial,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_factorial2,            PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_fractionalpart,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_gamma,                 PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_im,                    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_log,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_loggamma,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_mod,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_numerator,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_numerator_denominator, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_plus,                  PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_polygamma,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_power,                 PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_powermod,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_precision,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_product,               PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_quotient,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_re,                    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_rescale,               PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_round_functions,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_setprecision,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_sign,                  PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_sqrt,                  PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_sum,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_times,                 PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
 
   CHECK( pmath_security_register_doorman(builtin_approximate_e,                PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_approximate_eulergamma,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -943,6 +949,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Decrement,                    builtin_dec_or_inc_or_postdec_or_postinc)
   BIND_DOWN(   pmath_System_Default,                      builtin_default)
   BIND_DOWN(   pmath_System_DefaultRules,                 builtin_symbol_rules)
+  BIND_DOWN(   pmath_System_Denominator,                  builtin_denominator)
   BIND_DOWN(   pmath_System_Depth,                        builtin_depth)
   BIND_DOWN(   pmath_System_Det,                          builtin_det)
   BIND_DOWN(   pmath_System_DiagonalMatrix,               builtin_diagonalmatrix)
@@ -1099,6 +1106,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Not,                          builtin_not)
   BIND_DOWN(   pmath_System_Norm,                         builtin_norm)
   BIND_DOWN(   pmath_System_NRules,                       builtin_symbol_rules)
+  BIND_DOWN(   pmath_System_Numerator,                    builtin_numerator)
+  BIND_DOWN(   pmath_System_NumeratorDenominator,         builtin_numerator_denominator)
   BIND_DOWN(   pmath_System_Off,                          builtin_on_or_off)
   BIND_DOWN(   pmath_System_On,                           builtin_on_or_off)
   BIND_DOWN(   pmath_System_Or,                           builtin_or)
