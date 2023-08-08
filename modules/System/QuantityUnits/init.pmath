@@ -6,6 +6,7 @@ ParseUnitString
 ParseUnit
 DecomposeUnitFactors
 RecombineUnitFactors
+FormatQuantity
 
 ConsolidateValidQuantityUnits
 
@@ -40,6 +41,8 @@ Function tryMakeQuanitiy(q: Quantity(~mag, ~unit)) {
 	newValidQuanitity(mag, RecombineUnitFactors(uf))
 }
 
+SetAttributes(FormatQuantity, HoldAll)
+Quantity /: Format(HoldPattern(q: Quantity(~mag, ~unit)) /? IsValidQuantity(Unevaluated(q)))::= FormatQuantity(mag, unit)
 
 BADUNIT
 
@@ -49,10 +52,10 @@ IsKnownUnit(~unit)::= Position(DecomposeUnitFactors(unit), BADUNIT) === {}
 
 
 QuantityUnit(~~~args) /? (IsValidArgumentCount(QuantityUnit, Length(Hold(args)), 1, 1); False) := $Failed
-QuantityUnit(Quantity(~, ~unit) ? IsValidQuantity)::= unit
+QuantityUnit(HoldPattern(Quantity(~, ~unit) ? IsValidQuantity))::= unit
 
 QuantityMagnitude(~~~args) /? (IsValidArgumentCount(QuantityMagnitude, Length(Hold(args)), 1, 1); False) := $Failed
-QuantityMagnitude(Quantity(~mag, ~) ? IsValidQuantity)::= mag
+QuantityMagnitude(HoldPattern(Quantity(~mag, ~) ? IsValidQuantity))::= mag
 
 UnitDimensions(~~~args) /? (IsValidArgumentCount(UnitDimensions, Length(Hold(args)), 1, 1); False) := $Failed
 UnitDimensions(~x)::= With({res:= tryGetUnitDimensions(x)}, res /? res =!= $Failed)
@@ -136,6 +139,8 @@ RecombineUnitFactors(~list)::= list |> Replace({Rule -> Power, List -> Times}, H
 
 AutoLoad(Hold(ConsolidateValidQuantityUnits),
 	ToFileName({DirectoryName($Input)}, "simplify.pmath"))
+AutoLoad(Hold(FormatQuantity),
+	ToFileName({DirectoryName($Input)}, "formatting.pmath"))
 Get(ToFileName({DirectoryName($Input)}, "calculations.pmath"));
 
 

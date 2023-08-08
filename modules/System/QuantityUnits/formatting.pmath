@@ -1,0 +1,24 @@
+BeginPackage("System`QuantityUnits`")
+
+Begin("System`QuantityUnits`Private`")
+
+
+Function FormatQuantity(~mag, ~unit) {
+    With({num, den}:= NumeratorDenominator(unit) |> 
+        Replace(~s:String :> With({abbrev:= $AllUnits[s, "UnitShortName"]}, abbrev /? abbrev =!= None), 0..))
+    If(den === 1) {
+        HoldForm(HoldForm(mag) num)
+    } Else {
+        With(dinv:= 1/den |> Replace( ~b^~e :> HoldForm(b^HoldForm(e)), 0..))
+        If(num === 1) {
+            HoldForm(HoldForm(mag) HoldForm(dinv))
+        } Else {
+            HoldForm(HoldForm(mag) num HoldForm(dinv))
+        }
+    }
+}
+
+
+End()
+
+EndPackage()
