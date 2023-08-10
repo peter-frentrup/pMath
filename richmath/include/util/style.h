@@ -144,6 +144,7 @@ namespace richmath {
     ShowContents,
     ShowSectionBracket, // AutoBoolXXX
     ShowStringCharacters,
+    SingleLetterItalics,
     StripOnInput,
     SurdForm,
     SynchronousUpdating, // AutoBoolXXX

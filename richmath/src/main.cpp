@@ -473,10 +473,11 @@ static void init_stylesheet() {
   Stylesheet::Default->base.set(SectionEditDuplicateMakesCopy,       false);
   Stylesheet::Default->base.set(SectionGenerated,                    false);
   Stylesheet::Default->base.set(Selectable,                          AutoBoolAutomatic);
-  Stylesheet::Default->base.set(ShowAutoStyles,                      false);
   Stylesheet::Default->base.set(SectionLabelAutoDelete,              true);
+  Stylesheet::Default->base.set(ShowAutoStyles,                      false);
   Stylesheet::Default->base.set(ShowSectionBracket,                  true);
   Stylesheet::Default->base.set(ShowStringCharacters,                true);
+  Stylesheet::Default->base.set(SingleLetterItalics,                 true);
   Stylesheet::Default->base.set(Visible,                             true);
   
   Stylesheet::Default->base.set(AspectRatio,                   0); // non-positive means Automatic

@@ -139,6 +139,7 @@ namespace richmath {
       bool                  old_math_spacing : 1;
       bool                  old_show_auto_styles : 1;
       bool                  old_show_string_characters : 1;
+      bool                  old_single_letter_italics : 1;
       bool                  old_suppress_output : 1;
       bool                  have_font_feature_set : 1;
       

@@ -91,6 +91,7 @@ Options(CreateDocument):= Options(Document):= {
     ShowAutoStyles -> Inherited,
     ShowSectionBracket -> Inherited,
     ShowStringCharacters -> Inherited,
+    SingleLetterItalics -> Inherited,
     SliderBoxOptions -> Inherited,
     "StringStyle" -> Inherited,
     StyleDefinitions -> Inherited,
@@ -290,6 +291,7 @@ Options(Style):= Options(StyleBox):= {
     ShowAutoStyles -> Inherited,
     ShowContents -> Inherited,
     ShowStringCharacters -> Inherited,
+    SingleLetterItalics -> Inherited,
     SliderBoxOptions -> Inherited,
     "StringStyle" -> Inherited,
     StripOnInput -> True,
@@ -447,6 +449,7 @@ Options(Section):= {
     ShowContents -> True,
     ShowSectionBracket -> True,
     ShowStringCharacters -> True,
+    SingleLetterItalics -> True,
     SliderBoxOptions -> {
         Appearance -> Automatic,
         ContinuousAction -> True,

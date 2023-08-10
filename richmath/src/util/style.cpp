@@ -163,6 +163,7 @@ extern pmath_symbol_t richmath_System_ShowAutoStyles;
 extern pmath_symbol_t richmath_System_ShowContents;
 extern pmath_symbol_t richmath_System_ShowSectionBracket;
 extern pmath_symbol_t richmath_System_ShowStringCharacters;
+extern pmath_symbol_t richmath_System_SingleLetterItalics;
 extern pmath_symbol_t richmath_System_SliderBoxOptions;
 extern pmath_symbol_t richmath_System_StripOnInput;
 extern pmath_symbol_t richmath_System_StyleData;
@@ -2699,6 +2700,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ShowContents);
   impl.emit_definition(ShowSectionBracket);
   impl.emit_definition(ShowStringCharacters);
+  impl.emit_definition(SingleLetterItalics);
   impl.emit_definition(SliderBoxOptions);
   impl.emit_definition(StripOnInput);
   impl.emit_definition(StringStyle);
@@ -3390,6 +3392,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            ShowContents,                     Symbol( richmath_System_ShowContents));
     add(StyleType::AutoBool,        ShowSectionBracket,               Symbol( richmath_System_ShowSectionBracket));
     add(StyleType::Bool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));
+    add(StyleType::Bool,            SingleLetterItalics,              Symbol( richmath_System_SingleLetterItalics));
     add(StyleType::Bool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));
     add(StyleType::Bool,            SurdForm,                         Symbol( richmath_System_SurdForm));
     add(StyleType::AutoBool,        SynchronousUpdating,              Symbol( richmath_System_SynchronousUpdating));
@@ -3642,6 +3645,7 @@ bool StyleInformation::requires_child_resize(StyleOptionName key) {
          literal_key == ShowAutoStyles ||
          literal_key == ShowSectionBracket ||
          literal_key == ShowStringCharacters ||
+         literal_key == SingleLetterItalics ||
          literal_key == FontSize ||
          literal_key == Magnification ||
          literal_key == ScriptSizeMultipliers ||

@@ -333,6 +333,7 @@ void ContextState::begin(const Style &style) {
   old_math_spacing           = ctx.math_spacing;
   old_show_auto_styles       = ctx.show_auto_styles;
   old_show_string_characters = ctx.show_string_characters;
+  old_single_letter_italics  = ctx.single_letter_italics;
   have_font_feature_set      = false;
   
   old_antialiasing           = (cairo_antialias_t) - 1;
@@ -473,6 +474,10 @@ void ContextState::apply_layout_styles(const Style &style) {
   if(ctx.stylesheet->get(style, ShowStringCharacters, &i)) {
     ctx.show_string_characters = i;
   }
+  
+  if(ctx.stylesheet->get(style, SingleLetterItalics, &i)) {
+    ctx.single_letter_italics = i;
+  }
 }
 
 void ContextState::apply_non_layout_styles(const Style &style) {
@@ -519,6 +524,7 @@ void ContextState::end() {
   ctx.script_level             = old_script_level;
   ctx.show_string_characters   = old_show_string_characters;
   ctx.show_auto_styles         = old_show_auto_styles;
+  ctx.single_letter_italics    = old_single_letter_italics;
   ctx.math_spacing             = old_math_spacing;
   ctx.math_shaper              = old_math_shaper;
   ctx.text_shaper              = old_text_shaper;

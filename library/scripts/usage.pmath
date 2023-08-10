@@ -789,6 +789,7 @@ ShowContents::usage:= "ShowContents is an option for StyleBox that specifies whe
 ShowDefinition::usage:= "??\(StyleBox(\"symbol\", \"Arg\")\)\(\" or \"\)ShowDefinition(\(StyleBox(\"symbol\", \"Arg\")\)) prints the definitions assigned to a symbol."
 ShowSectionBracket::usage:= "ShowSectionBracket is an option for Section which specifies whether its section bracket should be shown."
 ShowStringCharacters::usage:= "ShowStringCharacters is an option for Section and Style which specifies whether unescaped quotes and backslashes inside strings should be visible or not."
+SingleLetterItalics::usage:= "SingleLetterItalics is an option for Section and Style which specifies whether single-letter names should be displayed in italics."
 Sign::usage:= "Sign(\(StyleBox(\"x\", \"Arg\")\)) gives -1, 0 or 1 depending on whether \(StyleBox(\"x\", \"Arg\")\) is negative, zero or positive."
 Sin::usage:= "Sin(\(StyleBox(\"z\", \"Arg\")\)) gives the sine of \(StyleBox(\"z\", \"Arg\")\)."
 Sinc::usage:= "Sinc(\(StyleBox(\"z\", \"Arg\")\)) gives the cardinal sine function \({\"sinc\", \"(\", {StyleBox(\"z\", \"Arg\")}, \")\"}\)."
