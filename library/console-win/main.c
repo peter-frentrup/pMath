@@ -672,6 +672,31 @@ static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er
   return FALSE;
 }
 
+static BOOL mark_mode_key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er) {
+  if(er->bKeyDown) {
+    switch(er->wVirtualKeyCode) {
+      case VK_F1: {
+          int line_len;
+          int pos;
+          wchar_t *mark_line = hyper_console_get_mark_mode_line(&line_len, &pos);
+          if(mark_line) {
+            int start = find_name_start(mark_line, pos);
+            int end   = find_name_end(  mark_line, pos, line_len);
+            
+            if(start < end) {
+              PMATH_RUN_ARGS("System`ShowDefinition(`1`)", "(U#)", mark_line + start, end - start);
+            }
+            else
+              PMATH_RUN("System`Con`PrintHelpMessage()");
+            
+            hyper_console_free_memory(mark_line);
+          }
+        } return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 // Reads a line from stdin without the ending "\n".
 static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   struct hyper_console_settings_t settings;
@@ -686,6 +711,7 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   settings.auto_completion = auto_complete_pmath;
   settings.line_continuation_prompt = continuation_prompt;
   settings.key_event_filter = key_event_filter_for_pmath;
+  settings.mark_mode_key_event_filter = mark_mode_key_event_filter_for_pmath;
   settings.tab_width = 4;
   settings.first_tab_column = (int)wcslen(continuation_prompt);
   
