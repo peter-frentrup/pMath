@@ -57,7 +57,7 @@ PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
   }
   
   // TODO: do not copy content via write but reference text directly
-  // maybe pmath_file_set_textbuffer() suffeces, because we threw away the binary file.
+  // maybe pmath_file_set_textbuffer() suffices, because we threw away the binary file.
   pmath_file_writetext(text_stream, pmath_string_buffer(&text), pmath_string_length(text));
   pmath_unref(text);
   
@@ -68,7 +68,7 @@ PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
     " Options(`1`),"
     " If(`2` =!= /\\/, {PageWidth->`2`}, {}));"
     "Protect(`1`)",
-    "(oooo)",
+    "(oo)",
     pmath_ref(text_stream),
     pmath_ref(page_width));
   
