@@ -20,6 +20,7 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_WIN32_FONT" />
@@ -77,6 +78,7 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
@@ -138,6 +140,7 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
@@ -195,6 +198,7 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
@@ -253,6 +257,7 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DRICHMATH_USE_WIN32_FONT" />
@@ -313,6 +318,7 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
@@ -625,6 +631,7 @@
 					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="`pkg-config gtk+-2.0 --cflags`" />
 					<Add option="-DPMATH_DEBUG_LOG" />
@@ -661,6 +668,7 @@
 					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-mcx16" />
 					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="-Wpointer-arith" />
@@ -699,6 +707,7 @@
 					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="`pkg-config gtk+-3.0 --cflags`" />
 					<Add option="-DPMATH_DEBUG_LOG" />
@@ -737,6 +746,7 @@
 					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-mcx16" />
 					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="`pkg-config gtk+-3.0 --cflags`" />

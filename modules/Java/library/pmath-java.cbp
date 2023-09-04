@@ -21,10 +21,11 @@
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -54,10 +55,11 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -86,10 +88,11 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -119,10 +122,11 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -151,10 +155,11 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -322,9 +327,10 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O2" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-fno-exceptions" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -355,9 +361,10 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-O2" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-fno-exceptions" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -450,13 +457,14 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
@@ -484,13 +492,14 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O2" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
@@ -517,13 +526,14 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
@@ -551,13 +561,14 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-O2" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>

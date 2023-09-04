@@ -22,6 +22,7 @@
 					<Add option="-Wno-undef" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
@@ -55,6 +56,7 @@
 					<Add option="-Wno-undef" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
@@ -90,6 +92,7 @@
 					<Add option="-Wno-undef" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
@@ -123,6 +126,7 @@
 					<Add option="-Wno-undef" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
@@ -292,6 +296,7 @@
 					<Add option="-Wno-undef" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fvisibility=hidden" />
@@ -325,9 +330,10 @@
 					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
@@ -358,10 +364,11 @@
 					<Add option="-march=core2" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
 				</Compiler>
 				<Linker>
@@ -391,9 +398,10 @@
 					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>

@@ -16,11 +16,12 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
@@ -39,10 +40,11 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
@@ -62,11 +64,12 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
@@ -85,10 +88,11 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-O3" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
@@ -186,13 +190,14 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=i686" />
+					<Add option="-g" />
+					<Add option="-fPIC" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
-					<Add option="-g" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-fvisibility=hidden" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
@@ -210,12 +215,13 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fvisibility=hidden" />
+					<Add option="-fPIC" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
@@ -234,13 +240,14 @@
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-fPIC" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-g" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-fvisibility=hidden" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
@@ -258,12 +265,13 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-O3" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>

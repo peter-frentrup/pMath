@@ -28,6 +28,7 @@
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
@@ -85,6 +86,7 @@
 					<Add option="-Wall" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
@@ -140,6 +142,7 @@
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
@@ -197,6 +200,7 @@
 					<Add option="-Wall" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
@@ -481,11 +485,12 @@
 					<Add option="-O3" />
 					<Add option="-Wall" />
 					<Add option="-march=i686" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
-					<Add option="-mthreads" />
-					<Add option="-mms-bitfields" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
@@ -538,12 +543,13 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-fPIC" />
+					<Add option="-fno-stack-protector" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
-					<Add option="-fno-stack-protector" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
@@ -606,12 +612,13 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-fPIC" />
+					<Add option="-fno-stack-protector" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
-					<Add option="-fno-stack-protector" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
@@ -671,13 +678,14 @@
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=core2" />
+					<Add option="-fPIC" />
+					<Add option="-g" />
+					<Add option="-fno-stack-protector" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
-					<Add option="-g" />
-					<Add option="-fno-stack-protector" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
@@ -739,13 +747,14 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-O3" />
+					<Add option="-fPIC" />
+					<Add option="-g" />
+					<Add option="-fno-stack-protector" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
-					<Add option="-fPIC" />
-					<Add option="-g" />
-					<Add option="-fno-stack-protector" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
@@ -945,6 +954,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/nexttoward.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-builtins/arithmetic/numerator-denominator.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/plus.c">

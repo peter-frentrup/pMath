@@ -14,11 +14,12 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
@@ -36,11 +37,12 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-mthreads" />
-					<Add option="-mms-bitfields" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
@@ -59,11 +61,12 @@
 				<Option compiler="gnu_gcc_x64_compiler" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
@@ -81,11 +84,12 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-O3" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-mthreads" />
-					<Add option="-mms-bitfields" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
@@ -187,11 +191,12 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-mthreads" />
-					<Add option="-mms-bitfields" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
@@ -211,10 +216,11 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-g" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-g" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
@@ -237,6 +243,7 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
@@ -261,10 +268,11 @@
 				<Option compiler="gnu_gcc_x64_compiler" />
 				<Compiler>
 					<Add option="-march=core2" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-g" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-g" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />
@@ -288,10 +296,11 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-O3" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-g" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-g" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />

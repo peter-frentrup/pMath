@@ -21,6 +21,7 @@
 					<Add option="-std=c++14" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 				</Compiler>
 				<Linker>
@@ -48,6 +49,7 @@
 					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-std=c++14" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
@@ -78,6 +80,7 @@
 					<Add option="-std=c++14" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 				</Compiler>
 				<Linker>
@@ -105,6 +108,7 @@
 					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-std=c++14" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
@@ -235,10 +239,11 @@
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
 					<Add option="-std=c++11" />
-					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
 				</Compiler>
 				<Linker>
@@ -267,9 +272,10 @@
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
 					<Add option="-std=c++11" />
-					<Add option="-fPIC" />
 					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
@@ -298,11 +304,12 @@
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
 					<Add option="-std=c++11" />
-					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-Wno-unused-local-typedefs" />
-					<Add option="-fno-exceptions" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
 				</Compiler>
 				<Linker>
@@ -331,9 +338,10 @@
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
 					<Add option="-std=c++11" />
-					<Add option="-fPIC" />
 					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fno-strict-aliasing" />
+					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
