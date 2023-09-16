@@ -118,7 +118,7 @@ composeHeldExpr(~sym, HoldComplete(~~~a))::=
 composeHeldExpr(~sym, HoldComplete(~~~a), HoldComplete(~~~b), ~~~c:HoldComplete)::=
 	composeHeldExpr(sym, HoldComplete(a,b), c)
 composeHeldExpr(~~~args)::= (
-	Message(composeHeldExpr::inv, {args})
+	%Message(composeHeldExpr::inv, {args})
 	$Failed)
 
 composeHeldExprHeldHead(HoldComplete(~h), HoldComplete(~~~a))::= 
@@ -126,8 +126,15 @@ composeHeldExprHeldHead(HoldComplete(~h), HoldComplete(~~~a))::=
 composeHeldExprHeldHead(~h, HoldComplete(~~~a), HoldComplete(~~~b), ~~~c:HoldComplete)::= 
 	composeHeldExprHeldHead(h, HoldComplete(a,b), c)
 composeHeldExprHeldHead(~~~args)::= (
-	Message(composeHeldExprHeldHead::inv, {args})
+	%Message(composeHeldExprHeldHead::inv, {args})
 	$Failed)
+
+joinHoldCompletesOrFail(HoldComplete(~~~x), HoldComplete(~~~y))::= HoldComplete(x, y)
+joinHoldCompletesOrFail(~, ~):= $Failed
+
+SetAttributes(joinHoldCompletesOrFailEarly, HoldRest)
+joinHoldCompletesOrFailEarly(~x: HoldComplete, ~y)::= joinHoldCompletesOrFail(x, y)
+joinHoldCompletesOrFailEarly(~, ~):= $Failed
 
 withDebugMetadataOf(~result, ~boxes)::=
 	With({debugMetadata:= GetDebugMetadata(boxes)},
@@ -300,14 +307,16 @@ getSwitchCases("\[RawNewline]")::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***})::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***, ~inner:List})::= getSwitchCases(inner)
 getSwitchCases({{"Case", "(", ~pattern, ")"}, {"{", ~block, "}"}, ~~~more})::=
-	Join(
+	joinHoldCompletesOrFailEarly(
 		MakeExpression({pattern, ":>", makeBlockExpression(block)}),
 		getSwitchCases({more}))
-getSwitchCases({~case, "\[RawNewline]", ~~~more})::= Join(getSwitchCases(case), getSwitchCases({more}))
+getSwitchCases({~case, "\[RawNewline]", ~~~more})::= joinHoldCompletesOrFailEarly(getSwitchCases(case), getSwitchCases({more}))
+getSwitchCases({~other})::= (
+	Message(Syntax::switchcase, other)
+	$Failed)
 getSwitchCases(~other)::= (
 	Message(Syntax::switchcase, other)
-	HoldComplete()
-	)
+	$Failed)
 tryMakeSwitchBlock(~)::= $Failed
 tryMakeSwitchBlock(boxes: {{"Switch", "(", ~expr, ")"}, casesblock: {"{", ?cases:{}, "}"}})::=
 	composeHeldExprHeldHead(

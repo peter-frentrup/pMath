@@ -124,6 +124,7 @@ Syntax::nxtf:= "\[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] cannot be followe
 Syntax::more:= "Incomplete expression; more input needed."
 Syntax::moref:= "Unexpected end of file (probably unfinished expression). (Line `1` in `2`)"
 Syntax::stresc:= "Invalid string escape \\`1`."
+Syntax::switchcase:= "Case(\(StyleBox(\"pat\", \"Arg\")\)){\(StyleBox(\"block\", \"Arg\")\)} expected in Switch block, but found `1`."
 
 Messages::name:= Message::name:= "Message name `1` is not of the form symbol::name."
 Messages::str:= Message::str:= "`1` can only be set to a string, but not to `2`."
