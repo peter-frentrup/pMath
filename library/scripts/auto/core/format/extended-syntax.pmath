@@ -306,17 +306,14 @@ tryMakeIfBlock(boxes: {{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else
 getSwitchCases("\[RawNewline]")::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***})::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***, ~inner:List})::= getSwitchCases(inner)
-getSwitchCases({{"Case", "(", ~pattern, ")"}, {"{", ~block, "}"}, ~~~more})::=
+getSwitchCases({cpat: {"Case", "(", ~pattern, ")"}, cblock: {"{", ~block, "}"}, ~~~more})::=
 	joinHoldCompletesOrFailEarly(
-		MakeExpression({pattern, ":>", makeBlockExpression(block)}),
+		MakeExpression({pattern, ":>", makeBlockExpression(block)}).SetDebugMetadataAt(
+			extendSourceLocationEnd(GetDebugMetadata(cpat), GetDebugMetadata(cblock)), 1),
 		getSwitchCases({more}))
 getSwitchCases({~case, "\[RawNewline]", ~~~more})::= joinHoldCompletesOrFailEarly(getSwitchCases(case), getSwitchCases({more}))
-getSwitchCases({~other})::= (
-	Message(Syntax::switchcase, other)
-	$Failed)
-getSwitchCases(~other)::= (
-	Message(Syntax::switchcase, other)
-	$Failed)
+getSwitchCases({~other})::= (Message(Syntax::switchcase, other); $Failed)
+getSwitchCases( ~other )::= (Message(Syntax::switchcase, other); $Failed)
 tryMakeSwitchBlock(~)::= $Failed
 tryMakeSwitchBlock(boxes: {{"Switch", "(", ~expr, ")"}, casesblock: {"{", ?cases:{}, "}"}})::=
 	composeHeldExprHeldHead(
