@@ -35,7 +35,7 @@ Function SourceHyperlinkMessageArgumentFormatter(~arg) {
 	}
 	
 	With(src:= Developer`GetDebugMetadata(arg))
-	With(makeButton:=  sourceLocationButtonBuilder(src))
+	With(makeButton:= sourceLocationButtonBuilder(src))
 
 	Return(makeButton @ arg)
 }
@@ -110,8 +110,9 @@ Function sourceLocationButtonBuilder(~src) {
 		Return(Identity)
 	}
 
+	% func() contains 'src', so we wrap InputForm around it to inhibit invoking our custom Format() rule again if used e.g. in ToString()
 	Function(
-		Button(#, func(), BaseStyle->"Hyperlink")
+		Button(#, InputForm(func()), BaseStyle->"Hyperlink")
 	).Replace(HoldPattern(Function(~body)()) :> body)
 }
 
