@@ -122,12 +122,12 @@ Syntax::bgnf:= "An expression cannot begin with \[HighSixDoubleQuote]`1`\[HighNi
 Syntax::block:= "Unrecognized block-level construct `1`." 
 Syntax::blockhead:= "Unrecognized block-level construct `1` { \[Ellipsis] }." 
 Syntax::blockname:= "Unrecognized block construct `1`."
+Syntax::caseblock:= "Case(\(StyleBox(\"pat\", \"Arg\")\)){\(StyleBox(\"block\", \"Arg\")\)} expected in `1` block, but found `2`."
 Syntax::nxt:= MakeExpression::nxt:= "\[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] cannot be followed by \[HighSixDoubleQuote]`2`\[HighNineDoubleQuote]."
 Syntax::nxtf:= "\[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] cannot be followed by \[HighSixDoubleQuote]`2`\[HighNineDoubleQuote]. (Line `3` in `4`)"
 Syntax::more:= "Incomplete expression; more input needed."
 Syntax::moref:= "Unexpected end of file (probably unfinished expression). (Line `1` in `2`)"
 Syntax::stresc:= "Invalid string escape \\`1`."
-Syntax::switchcase:= "Case(\(StyleBox(\"pat\", \"Arg\")\)){\(StyleBox(\"block\", \"Arg\")\)} expected in Switch block, but found `1`."
 
 Messages::name:= Message::name:= "Message name `1` is not of the form symbol::name."
 Messages::str:= Message::str:= "`1` can only be set to a string, but not to `2`."
