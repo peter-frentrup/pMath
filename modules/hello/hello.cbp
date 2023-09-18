@@ -22,7 +22,6 @@
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
 				<Linker>
@@ -45,7 +44,6 @@
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
@@ -70,7 +68,6 @@
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
 				<Linker>
@@ -93,7 +90,6 @@
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
@@ -196,7 +192,6 @@
 					<Add option="-fvisibility=hidden" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
 				<Linker>
@@ -220,7 +215,6 @@
 					<Add option="-fPIC" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
@@ -244,7 +238,6 @@
 					<Add option="-fPIC" />
 					<Add option="-fvisibility=hidden" />
 					<Add option="-g" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
@@ -270,7 +263,6 @@
 					<Add option="-fvisibility=hidden" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 				</Compiler>

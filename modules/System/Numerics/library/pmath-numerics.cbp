@@ -23,7 +23,6 @@
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
@@ -61,7 +60,6 @@
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#gmp_32.include)" />
@@ -101,7 +99,6 @@
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add directory="$(#gmp_64.include)" />
 					<Add directory="$(#mpfr_64.include)" />
@@ -139,7 +136,6 @@
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#gmp_64.include)" />
@@ -332,7 +328,6 @@
 					<Add option="-Wno-undef" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-fPIC" />
@@ -373,7 +368,6 @@
 					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-fPIC" />
@@ -414,7 +408,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
 					<Add option="-g" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-fPIC" />
@@ -453,7 +446,6 @@
 					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-fPIC" />

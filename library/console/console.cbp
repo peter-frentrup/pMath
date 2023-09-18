@@ -17,7 +17,6 @@
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
 				<Linker>
@@ -38,7 +37,6 @@
 					<Add option="-O2" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
@@ -156,7 +154,6 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-g" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
 				<Linker>
@@ -179,7 +176,6 @@
 				<Option compiler="gnu_gcc_x64_compiler" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />
 				</Compiler>

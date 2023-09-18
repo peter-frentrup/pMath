@@ -20,7 +20,6 @@
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
 				<Linker>
@@ -43,7 +42,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
@@ -67,7 +65,6 @@
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
 				<Linker>
@@ -90,7 +87,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
@@ -197,7 +193,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
@@ -221,7 +216,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
 				<Linker>
@@ -247,7 +241,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 				</Compiler>
 				<Linker>
@@ -273,7 +266,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />
 				</Compiler>
@@ -301,7 +293,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />
 				</Compiler>

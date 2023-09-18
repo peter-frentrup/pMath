@@ -19,7 +19,6 @@
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add directory="$(#hypercon_32.include)" />
 				</Compiler>
@@ -49,7 +48,6 @@
 					<Add option="-Wall" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#hypercon_32.include)" />
@@ -80,7 +78,6 @@
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add directory="$(#hypercon_64.include)" />
 				</Compiler>
@@ -110,7 +107,6 @@
 					<Add option="-Wall" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
-					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#hypercon_64.include)" />
