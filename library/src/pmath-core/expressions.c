@@ -2854,16 +2854,14 @@ static void write_expr_ex(
     goto INPUTFORM;
 
   if(pmath_same(head, pmath_System_BaseForm)) {
-    pmath_t item;
-    uint8_t old_base_flags;
     pmath_thread_t thread = pmath_thread_get_current();
 
     if(exprlen != 2 || !thread)
       goto FULLFORM;
 
-    old_base_flags = thread->base_flags;
+    uint8_t old_base_flags = thread->base_flags;
     
-    item = pmath_expr_get_item(expr, 2);
+    pmath_t item = pmath_expr_get_item(expr, 2);
     
     if(pmath_same(item, pmath_System_Automatic)) {
       pmath_unref(item);
@@ -2888,9 +2886,7 @@ static void write_expr_ex(
       _pmath_write_impl(info, pmath_System_ComplexInfinity);
     }
     else if(exprlen == 1) {
-      pmath_t direction;
-
-      direction = pmath_expr_get_item(expr, 1);
+      pmath_t direction = pmath_expr_get_item(expr, 1);
       if(pmath_equals(direction, PMATH_FROM_INT32(1))) {
         _pmath_write_impl(info, pmath_System_Infinity);
       }
@@ -2915,26 +2911,22 @@ static void write_expr_ex(
       goto FULLFORM;
   }
   else if(pmath_same(head, pmath_System_FullForm)) {
-    pmath_t item;
-    int old_options = info->options;
-
     if(exprlen != 1)
       goto FULLFORM;
 
-    item = pmath_expr_get_item(expr, 1);
+    pmath_t item = pmath_expr_get_item(expr, 1);
+    int old_options = info->options;
     info->options |= PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS;
     _pmath_write_impl(info, item);
     info->options = old_options;
     pmath_unref(item);
   }
   else if(pmath_same(head, pmath_System_InputForm)) {
-    pmath_t item;
-    int old_options = info->options;
-
     if(exprlen != 1)
       goto FULLFORM;
 
-    item = pmath_expr_get_item(expr, 1);
+    pmath_t item = pmath_expr_get_item(expr, 1);
+    int old_options = info->options;
     info->options |= PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR;
     _pmath_write_impl(info, item);
     info->options = old_options;
@@ -2944,54 +2936,47 @@ static void write_expr_ex(
           pmath_same(head, pmath_System_OutputForm) ||
           pmath_same(head, pmath_System_StandardForm))
   {
-    pmath_t item;
     if(exprlen != 1)
       goto FULLFORM;
 
-    item = pmath_expr_get_item(expr, 1);
+    pmath_t item = pmath_expr_get_item(expr, 1);
     write_ex(info, priority, item);
     pmath_unref(item);
   }
   else if(pmath_same(head, pmath_System_LinearSolveFunction)) {
-    pmath_t item;
-    char s[100];
-
     if(exprlen <= 1)
       goto FULLFORM;
 
-    item = pmath_expr_get_item(expr, 1);
+    pmath_t item = pmath_expr_get_item(expr, 1);
 
     write_ex(info, PMATH_PREC_CALL, head);
     WRITE_CSTR("(");
     _pmath_write_impl(info, item);
 
+    char s[100];
     snprintf(s, sizeof(s), ", <<%u>>)", (int)(exprlen - 1));
     WRITE_CSTR(s);
 
     pmath_unref(item);
   }
   else if(pmath_same(head, pmath_System_LongForm)) {
-    pmath_t item;
-    int old_options = info->options;
-
     if(exprlen != 1)
       goto FULLFORM;
 
-    item = pmath_expr_get_item(expr, 1);
-    info->options |= PMATH_WRITE_OPTIONS_FULLNAME;
+    pmath_t item    = pmath_expr_get_item(expr, 1);
+    int old_options = info->options;
+    info->options  |= PMATH_WRITE_OPTIONS_FULLNAME;
     _pmath_write_impl(info, item);
     info->options = old_options;
     pmath_unref(item);
   }
   else if(pmath_same(head, pmath_Developer_PackedArrayForm)) {
-    pmath_t item;
-    int old_options = info->options;
-
     if(exprlen != 1)
       goto FULLFORM;
 
-    item = pmath_expr_get_item(expr, 1);
-    info->options |= PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
+    pmath_t item    = pmath_expr_get_item(expr, 1);
+    int old_options = info->options;
+    info->options  |= PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
     _pmath_write_impl(info, item);
     info->options = old_options;
     pmath_unref(item);
@@ -3002,20 +2987,17 @@ static void write_expr_ex(
     }
   }
   else if(pmath_same(head, pmath_System_Colon)) {
-    pmath_t item;
-    size_t i;
-
     if(exprlen < 2)
       goto FULLFORM;
 
     if(priority > PMATH_PREC_REL)
       WRITE_CSTR("(");
 
-    for(i = 1; i <= exprlen; i++) {
+    for(size_t i = 1; i <= exprlen; i++) {
       if(i > 1)
         write_spaced_operator(info, 0x2236, ":");
 
-      item = pmath_expr_get_item(expr, i);
+      pmath_t item = pmath_expr_get_item(expr, i);
       write_ex(info, PMATH_PREC_REL + 1, item);
       pmath_unref(item);
     }
