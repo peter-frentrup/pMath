@@ -147,7 +147,7 @@ Document({
                    StyleBox("cond", FontSlant -> Italic), SubscriptBox("2")}}, 
                  "}"}, ",", "\[Ellipsis]"}, "}"}), ")"}}})}), 
        "DefinitionBox"), 
-      Section("Two-dimensional input forms with build-in evaluation rules.", 
+      Section("Two-dimensional input forms with built-in evaluation rules.", 
        "Caption")}, All), 
     SectionGroup({Section("Statement blocks", "Section"), 
       Section(
