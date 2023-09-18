@@ -160,8 +160,8 @@ Document({
               Section(BoxData("8"), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All), 
             Section(TextData({TemplateBox({"Switch"}, "ReferenceHyperlink"), 
-               " provides an alternative syntax:"}), "ExampleText"), 
-            SectionGroup({
+               " provides an alternative syntax for immediate evaluation:"}), 
+             "ExampleText"), SectionGroup({
               Section(
                BoxData({"Hold", "(", {{"Switch", "(", {"2", ",", "3"}, ")"}, {
                    "{", {
@@ -178,9 +178,33 @@ Document({
                      {"PatternSequence", "(", {{"~", "x"}, ",", {"~", "y"}}, 
                       ")"}, "\[RuleDelayed]", {"x", SuperscriptBox("y")}}}, 
                    "}"}, "(", {"2", ",", "3"}, ")"}, ")"}), "Output", 
-               SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
-           All)}, 1), SectionGroup({
-          Section("Constructing Lists", "ExampleSubsection"), 
+               SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+            Section(
+             TextData({"A ", TemplateBox({"Function"}, "ReferenceHyperlink"), 
+               " block containing only ", TemplateBox({"Case"}, 
+                "ReferenceHyperlink"), 
+               " blocks is actually just a list of rules rather than a ", 
+               TemplateBox({"Function"}, "ReferenceHyperlink"), 
+               "(\[Ellipsis]) expression:"}), "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({"Function", {
+                  "{", {
+                   "\n", {
+                    {{{"Case", "(", {"0", ",", "0"}, ")"}, {
+                       "{", StringBox("\"well...\""), "}"}}, "\n", {
+                      {"Case", "(", {{"~", "x"}, ",", {"~", "y"}}, ")"}, {
+                       "{", {"x", SuperscriptBox("y")}, "}"}}}, "\n"}}, 
+                  "}"}}), "Input", SectionLabel -> "in [3]:"), 
+              Section(
+               BoxData({
+                 "{", {{{"PatternSequence", "(", {"0", ",", "0"}, ")"}, 
+                   "\[RuleDelayed]", StringBox("\"well...\"")}, ",", {
+                   {"PatternSequence", "(", {{"~", "x"}, ",", {"~", "y"}}, 
+                    ")"}, "\[RuleDelayed]", {"x", SuperscriptBox("y")}}}, 
+                 "}"}), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [3]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("Constructing Lists", "ExampleSubsection"), 
           Section(
            TextData({"Construct a list consisting of a range of values with ", 
              TemplateBox({"Range"}, "ReferenceHyperlink"), " and ", 

@@ -242,6 +242,31 @@ Document({
       Section(
        TextData({
          GridBox({
+           {{BoxData({"Function", {
+                "{", {"\n", {StyleBox("body", FontSlant -> Italic), "\n"}}, 
+                "}"}}), "\n"}, 
+            "an anonymous function with arguments #1, #2, etc."}, {
+            {BoxData({{"Function", "(", {"a", ",", "b", ",", "\[Ellipsis]"}, 
+                ")"}, {"{", {"\n", {StyleBox("body", FontSlant -> Italic), 
+                  "\n"}}, "}"}}), "\n"}, 
+            "an anonymous function with named arguments"}, {
+            {BoxData({"Function", {
+                "{", {
+                 "\n", {
+                  {{{"Case", "(", {StyleBox("pattern", FontSlant -> Italic), 
+                      SubscriptBox("1")}, ")"}, {
+                     "{", {"\n", {{StyleBox("body", FontSlant -> Italic), 
+                        SubscriptBox("1")}, "\n"}}, "}"}}, "\n", {
+                    {"Case", "(", {StyleBox("pattern", FontSlant -> Italic), 
+                      SubscriptBox("2")}, ")"}, {
+                     "{", {"\n", {{StyleBox("body", FontSlant -> Italic), 
+                        SubscriptBox("2")}, "\n"}}, "}"}}, "\n", 
+                   "\[Ellipsis]"}, "\n"}}, "}"}})}, 
+            "an anonymous function with pattern matching"}})}), 
+       "DefinitionBox"), Section("Unnamed function constructs.", "Caption"), 
+      Section(
+       TextData({
+         GridBox({
            {{BoxData({
                {"Local", "(", StyleBox("variables", FontSlant -> Italic), 
                 ")"}, {"{", {"\n", {StyleBox("block", FontSlant -> Italic), 

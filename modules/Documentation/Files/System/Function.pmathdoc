@@ -177,8 +177,7 @@ Document({
             Section(BoxData(TemplateBox({{"2", "\[Rule]", "1"}}, 
                "RowDefault")), "Print", SectionGenerated -> True), 
             Section(BoxData(TemplateBox({{"2", "\[Rule]", "2"}}, 
-               "RowDefault")), "Print", SectionGenerated -> True)}, All), 
-          SectionGroup({
+               "RowDefault")), "Print", SectionGenerated -> True), 
             Section(BoxData(TemplateBox({{"3", "\[Rule]", "1"}}, 
                "RowDefault")), "Print", SectionGenerated -> True), 
             Section(BoxData(TemplateBox({{"3", "\[Rule]", "2"}}, 
@@ -189,10 +188,10 @@ Document({
         Section("Preserve arguments in unevaluated form:", "ExampleText"), 
         SectionGroup({
           Section(BoxData({{"Hold", "(", {"x", ",", "$MaxMachineNumber"}, 
-              ")"}, "|>", "Select", "(", {
-              "Function", "(", {"sym", ",", {{"Namespace", "(", "sym", ")"}, 
-                "===", StringBox("\"System`\"")}, ",", "HoldAll"}, ")"}, 
-             ")"}), "Input", SectionLabel -> "in [1]:"), 
+              ")"}, "|>", {"Select", "(", {
+               "Function", "(", {"sym", ",", {{"Namespace", "(", "sym", ")"}, 
+                 "===", StringBox("\"System`\"")}, ",", "HoldAll"}, ")"}, 
+              ")"}}), "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData({"Hold", "(", "$MaxMachineNumber", ")"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
@@ -260,11 +259,12 @@ Document({
                 ",", {"{", {"e", ",", "2"}, "}"}, ",", {
                  "{", {"r", ",", "5"}, "}"}, ",", {"{", {"e", ",", "8"}, "}"}, 
                 ",", {"{", {"t", ",", "3"}, "}"}, ",", {
-                 "{", {"p", ",", "13"}, "}"}}, "}"}, "|>", {"\n", "Sort"}, 
-              "(", {"Function", "(", {{{"#", "1"}, "[", "2", "]"}, "<", {
-                 {"#", "2"}, "[", "2", "]"}}, ")"}, ")"}, "|>", {"\n", "Map"}, 
-             "(", {"Function", "(", {"#", "[", "1", "]"}, ")"}, ")"}), 
-           "Input", SectionLabel -> "in [1]:"), 
+                 "{", {"p", ",", "13"}, "}"}}, "}"}, "|>", {
+               "\n", {"Sort", "(", {"Function", "(", {
+                  {{"#", "1"}, "[", "2", "]"}, "<", {
+                   {"#", "2"}, "[", "2", "]"}}, ")"}, ")"}}}, "|>", {
+              "\n", {"Map", "(", {"Function", "(", {"#", "[", "1", "]"}, ")"}, 
+               ")"}}}), "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData({"{", {"P", ",", "e", ",", "t", ",", "e", ",", "r", 
               ",", "F", ",", "r", ",", "e", ",", "n", ",", "t", ",", "r", ",", 
               "u", ",", "p"}, "}"}), "Output", SectionGenerated -> True, 
@@ -274,5 +274,7 @@ Document({
       Section(TextData({TemplateBox({"PureArgument"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Map"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-         TemplateBox({"Apply"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
-   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+         TemplateBox({"Apply"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"List"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
