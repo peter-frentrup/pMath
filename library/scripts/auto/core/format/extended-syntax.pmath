@@ -232,7 +232,7 @@ tryMakeFunctionBlock(~)::= $Failed
 % TODO: support type annotations, for example `Function add(x -> Real, y -> Real) -> Real { x+y }`
 % Caution, ` ` binds stronger than `->`:       \________________________________/    \__________/
 %
-tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"{", ~body, "}"}})::=
+tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"{", ?body:{}, "}"}})::=
 	composeHeldExpr(
 		AssignDelayed,
 		MakeExpression(lhs),
@@ -242,7 +242,7 @@ tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"{", ~body,
 %
 % Function name(~arg) Where(cond) { body }
 %
-tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"Where", "(", ~cond, ")"}, {"{", ~body, "}"}})::=
+tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"Where", "(", ~cond, ")"}, {"{", ?body:{}, "}"}})::=
 	composeHeldExpr(
 		AssignDelayed,
 		composeHeldExpr(
@@ -255,7 +255,7 @@ tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"Where", "(
 %
 % Function(arg) { body }
 %
-tryMakeFunctionBlock(boxes: {{"Function", "(", ~args, ")"}, {"{", ~body, "}"}}) ::=
+tryMakeFunctionBlock(boxes: {{"Function", "(", ~args, ")"}, {"{", ?body:{}, "}"}}) ::=
 	composeHeldExpr(
 		Function,
 		MakeExpression({"{", args, "}"}.withDebugMetadataOf(args)),
@@ -264,7 +264,7 @@ tryMakeFunctionBlock(boxes: {{"Function", "(", ~args, ")"}, {"{", ~body, "}"}}) 
 %
 % Function { body }
 %
-tryMakeFunctionBlock(boxes: {"Function", {"{", ~body, "}"}}) ::=
+tryMakeFunctionBlock(boxes: {"Function", {"{", ?body:{}, "}"}}) ::=
 	composeHeldExpr(
 		Function,
 		makeBlockExpression(body)).withDebugMetadataOf(boxes)
@@ -306,7 +306,7 @@ tryMakeIfBlock(boxes: {{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else
 getSwitchCases("\[RawNewline]")::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***})::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***, ~inner:List})::= getSwitchCases(inner)
-getSwitchCases({cpat: {"Case", "(", ~pattern, ")"}, cblock: {"{", ~block, "}"}, ~~~more})::=
+getSwitchCases({cpat: {"Case", "(", ~pattern, ")"}, cblock: {"{", ?block:{}, "}"}, ~~~more})::=
 	joinHoldCompletesOrFailEarly(
 		MakeExpression({pattern, ":>", makeBlockExpression(block)}).SetDebugMetadataAt(
 			extendSourceLocationEnd(GetDebugMetadata(cpat), GetDebugMetadata(cblock)), 1),
