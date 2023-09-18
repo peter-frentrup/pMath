@@ -210,7 +210,7 @@ asHeldCondition(p: HoldComplete(~~~))::=
 System`Private`MakeJuxtapositionExpression(boxes: {~~, {"{", ~~~}, ~~~})::= 
 	If($HaveExtendedSyntax, tryMakeBlockExpression(boxes), Default, Default)
 
-tryMakeBlockExpression(~)::= $Failed
+tryMakeBlockExpression(~boxes)::= (generateBadBlockMessage(boxes); $Failed)
 tryMakeBlockExpression(boxes: {"Function", ~~~})::= tryMakeFunctionBlock(boxes)
 tryMakeBlockExpression(boxes: {{"Function", ~~~}, ~~~})::= tryMakeFunctionBlock(boxes)
 tryMakeBlockExpression(boxes: {{"If", ~~~}, ~~~})::= tryMakeIfBlock(boxes)
@@ -222,6 +222,11 @@ tryMakeBlockExpression(boxes: {"Try", ~~~})::= tryMakeTryBlock(boxes)
 tryMakeBlockExpression(boxes: {{"Local", ~~~}, ~~~})::= tryMakeLocalBlock(boxes)
 tryMakeBlockExpression(boxes: {{"With", ~~~}, ~~~})::= tryMakeWithBlock(boxes)
 
+
+%generateBadBlockMessage({~name:String, ~~~})::= Message(Syntax::blockname, name)
+%generateBadBlockMessage({{~name:String, ~~~}, ~~~})::= Message(Syntax::blockname, name)
+generateBadBlockMessage({~head, {"{", ~~~}})::= Message(Syntax::blockhead, RawBoxes(head).SetDebugMetadataAt(GetDebugMetadata(head)))
+generateBadBlockMessage(~boxes)::= Message(Syntax::block, RawBoxes(boxes).SetDebugMetadataAt(GetDebugMetadata(boxes)))
 
 tryMakeFunctionBlock(~)::= $Failed
 %
