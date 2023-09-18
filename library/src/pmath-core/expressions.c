@@ -60,6 +60,7 @@ extern pmath_symbol_t pmath_System_AssignDelayed;
 extern pmath_symbol_t pmath_System_AssignWith;
 extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_BaseForm;
+extern pmath_symbol_t pmath_System_Button;
 extern pmath_symbol_t pmath_System_Colon;
 extern pmath_symbol_t pmath_System_ColonForm;
 extern pmath_symbol_t pmath_System_Complex;
@@ -118,6 +119,7 @@ extern pmath_symbol_t pmath_System_TestPattern;
 extern pmath_symbol_t pmath_System_Thread;
 extern pmath_symbol_t pmath_System_Times;
 extern pmath_symbol_t pmath_System_TimesBy;
+extern pmath_symbol_t pmath_System_Tooltip;
 extern pmath_symbol_t pmath_System_True;
 extern pmath_symbol_t pmath_System_Undefined;
 extern pmath_symbol_t pmath_System_Unequal;
@@ -3257,7 +3259,28 @@ static void write_expr_ex(
     if(priority > PMATH_PREC_DIFF)
       WRITE_CSTR(")");
   }
-else INPUTFORM:
+  else if(pmath_same(head, pmath_System_Button)) {
+    if(exprlen < 1)
+      goto FULLFORM;
+    
+    write_ex(info, PMATH_PREC_CALL, head);
+    WRITE_CSTR("(");
+    
+    pmath_t item = pmath_expr_get_item(expr, 1);
+   _pmath_write_impl(info, item);
+    pmath_unref(item);
+    
+    WRITE_CSTR(")");
+  }
+  else if(pmath_same(head, pmath_System_Tooltip)) {
+    if(exprlen < 1)
+      goto FULLFORM;
+    
+    pmath_t item = pmath_expr_get_item(expr, 1);
+   _pmath_write_impl(info, item);
+    pmath_unref(item);
+  }
+  else INPUTFORM:
     if(exprlen == 2 && /*=========================================*/
         (pmath_same(head, pmath_System_Assign)        ||
          pmath_same(head, pmath_System_AssignDelayed) ||
