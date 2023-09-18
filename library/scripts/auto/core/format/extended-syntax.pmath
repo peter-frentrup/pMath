@@ -267,12 +267,14 @@ tryMakeFunctionBlock(boxes: {{"Function", "(", ~args, ")"}, {"{", ?body:{}, "}"}
 		makeBlockExpression(body)).withDebugMetadataOf(boxes)
 
 %
-% Function { body }
+% Function { body }    or    Function { Case(pat1) { body1 } Case(pat2) { body2 } ... }
 %
 tryMakeFunctionBlock(boxes: {"Function", {"{", ?body:{}, "}"}}) ::=
-	composeHeldExpr(
-		Function,
-		makeBlockExpression(body)).withDebugMetadataOf(boxes)
+	If(hasSwitchCases({body}),
+		composeHeldExpr(List, getSwitchCases({body}))
+	, % else
+		composeHeldExpr(Function, makeBlockExpression(body))
+	).withDebugMetadataOf(boxes)
 
 
 tryMakeIfBlock(~)::= $Failed
@@ -325,6 +327,11 @@ tryMakeSwitchBlock(boxes: {{"Switch", "(", ~expr, ")"}, casesblock: {"{", ?cases
 		composeHeldExpr(List, getSwitchCases({cases})) |> withDebugMetadataOf(casesblock),
 		MakeExpression(expr)
 	) |> withDebugMetadataOf(boxes)
+
+hasSwitchCases(~):= False
+hasSwitchCases({"\[RawNewline]"***, ~inner:List})::= hasSwitchCases(inner)
+hasSwitchCases({cpat: {"Case", "(", ~, ")"}, cblock: {"{", ?block:{}, "}"}, ~~~}):= True
+hasSwitchCases({~case, "\[RawNewline]", ~~~more})::= Or(hasSwitchCases(case), hasSwitchCases({more}))
 
 
 tryMakeWhileBlock(~)::= $Failed
