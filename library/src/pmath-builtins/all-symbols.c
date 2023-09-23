@@ -94,7 +94,8 @@ PMATH_PRIVATE pmath_t builtin_internal_realballmidpointradius(pmath_expr_t expr)
 PMATH_PRIVATE pmath_t builtin_internal_signbit(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/ ...
-PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_hasassignedrules(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(  pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_isheld(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_call_isheld(     pmath_expr_t expr);
@@ -886,6 +887,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   BIND_DOWN(   pmath_Developer_FromPackedArray,           builtin_developer_frompackedarray)
   BIND_DOWN(   pmath_Developer_GetDebugMetadata,          builtin_developer_getdebugmetadata)
+  BIND_DOWN(   pmath_Developer_HasAssignedRules,          builtin_developer_hasassignedrules)
   BIND_DOWN(   pmath_Developer_HasBuiltinCode,            builtin_developer_hasbuiltincode)
   BIND_DOWN(   pmath_Developer_IsPackedArray,             builtin_developer_ispackedarray)
   BIND_DOWN(   pmath_Developer_SetDebugMetadataAt,        builtin_developer_setdebugmetadataat)

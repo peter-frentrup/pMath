@@ -169,7 +169,8 @@ CopyFile::fdir:= DeleteFile::fdir:= RenameFile::fdir:= "`1` is a directory; a fi
 
 DefaultRules::vlist:= DownRules::vlist:= OwnRules::vlist:= SubRules::vlist:= UpRules::vlist:= "Cannot set `1` to `2`; value must be a list of rules."
 
-Developer`HasBuiltinCode::norul:= "Unknown code type `1`. It must be one of {DownRules, NRules, SubRules, UpRules}."
+Developer`HasAssignedRules::norul:= "Unknown rule type `1`. It must be any of {DefaultRules, DownRules, FormatRules, NRules, SubRules, UpRules}."
+Developer`HasBuiltinCode::norul:= "Unknown code type `1`. It must be any of {DownRules, NRules, SubRules, UpRules}."
 Developer`FromPackedArray::punpack:= "Unpacking array with dimensions `2` in call to `1`."
 Developer`FromPackedArray::punpack1:= "Unpacking array with dimensions `1`."
 

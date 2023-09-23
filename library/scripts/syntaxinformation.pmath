@@ -642,6 +642,7 @@
 {"Developer`",{
 {"FromPackedArray", {"ArgumentCount" -> 1}},
 {"GetDebugMetadata", {"ArgumentCount" -> 1..}},
+{"HasAssignedRules", {"ArgumentCount" -> 1..2}},
 {"HasBuiltinCode", {"ArgumentCount" -> 1..2}},
 {"IsPackedArray", {"ArgumentCount" -> 1..2}},
 {"PackedArrayForm", {"ArgumentCount" -> 1}},

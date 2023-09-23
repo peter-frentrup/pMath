@@ -68,7 +68,7 @@ PMATH_ATTRIBUTE_NONNULL(1)
 void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules);
 
 /*============================================================================*/
-/* the callback function will be called while non-reentrant locks are hold!!! */
+/* the callback function will be called while non-reentrant locks are held!!! */
 
 enum pmath_visit_result_t {
   PMATH_VISIT_ABORT = 0,
@@ -120,6 +120,10 @@ void _pmath_symbol_rules_remove_all(
   pmath_t                       replacement);  // wont be freed
 
 /*============================================================================*/
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_NONNULL(1)
+pmath_bool_t _pmath_rulecache_is_empty(struct _pmath_rulecache_t *rc);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)

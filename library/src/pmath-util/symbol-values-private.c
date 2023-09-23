@@ -635,6 +635,26 @@ static pmath_bool_t _pmath_multirule_find(
 }
 
 PMATH_PRIVATE
+pmath_bool_t _pmath_rulecache_is_empty(struct _pmath_rulecache_t *rc) {
+  assert(rc != NULL);
+  
+  if(pmath_atomic_read_aquire(&rc->_table)) {
+    pmath_hashtable_t table = rulecache_table_lock(rc);
+    
+    int count = pmath_ht_count(table);
+    
+    rulecache_table_unlock(rc, table);
+    if(count != 0)
+      return FALSE;
+  }
+  
+  pmath_t more = _pmath_object_atomic_read(&rc->_more);
+  pmath_unref(more);
+  
+  return pmath_is_null(more);
+}
+
+PMATH_PRIVATE
 pmath_bool_t _pmath_rulecache_find(
   struct _pmath_rulecache_t *rc,
   pmath_t                   *inout

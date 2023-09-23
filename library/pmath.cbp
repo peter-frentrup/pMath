@@ -577,16 +577,6 @@
 					<Add library="rpcrt4" />
 					<Add library="shell32" />
 					<Add library="zdll" />
-					<Add library="advapi32" />
-					<Add library="arb" />
-					<Add library="flint" />
-					<Add library="mpfr" />
-					<Add library="mpir" />
-					<Add library="iconv" />
-					<Add library="pcre16" />
-					<Add library="rpcrt4" />
-					<Add library="shell32" />
-					<Add library="zdll" />
 					<Add directory="$(#gmp_32.lib)" />
 					<Add directory="$(#mpfr_32.lib)" />
 					<Add directory="$(#flint_32.lib)" />
@@ -1011,6 +1001,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/control/definitions/divideby-and-timesby.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-builtins/control/definitions/hasassignedrules.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/control/definitions/hasbuiltincode.c">
