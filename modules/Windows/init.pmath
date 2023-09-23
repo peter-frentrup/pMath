@@ -7,7 +7,7 @@ Windows`RegGetValue
 Windows`RegEnumKeys
 Windows`RegEnumValues
 Windows`Win64Version
-Windows`$ComMultiThreadedAppartment
+Windows`$ComMultiThreadedApartment
 
 Windows`Editors`OpenTextFile
 
@@ -17,8 +17,8 @@ Begin("Windows`Private`")
 General::hresult:= "Error `1` encounted: `2`"
 SHGetKnownFolderPath::unk:= "`1` is not a known folder. See $KnownFolders."
 
-If(Hold($ComMultiThreadedAppartment) =!= Hold @@ List @ $ComMultiThreadedAppartment) {
-    $ComMultiThreadedAppartment:= Automatic
+If(Hold($ComMultiThreadedApartment) =!= Hold @@ List @ $ComMultiThreadedApartment) {
+    $ComMultiThreadedApartment:= Automatic
 }
 
 Options(HandleHResultError):= {Head -> General, "HResult" -> 0, "Description" -> "No description available."}

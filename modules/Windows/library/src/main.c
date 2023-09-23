@@ -27,7 +27,7 @@ static void init_com(void) {
   DWORD mode = COINIT_APARTMENTTHREADED;
   HRESULT res;
   
-  pmath_t mode_obj = pmath_evaluate(pmath_ref(p4win_Windows_DollarComMultiThreadedAppartment));
+  pmath_t mode_obj = pmath_evaluate(pmath_ref(p4win_Windows_DollarComMultiThreadedApartment));
   if(pmath_same(mode_obj, p4win_System_True))
     mode = COINIT_MULTITHREADED;
   else if(pmath_same(mode_obj, p4win_System_False))
