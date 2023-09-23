@@ -3251,6 +3251,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
         return pmath_ref(pmath_System_DollarFailed);
       }
       
+      pmath_unref(box);
       return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new_extended(f, 1, arg1));
     }
     
