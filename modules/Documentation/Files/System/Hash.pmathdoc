@@ -1,0 +1,110 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Hash", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Hash"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"The integer given by ", 
+           TemplateBox({"Hash"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), 
+           ") is used internally to speed up value lookups, e.g. in ", 
+           TemplateBox({"Lookup"}, "ReferenceHyperlink"), "."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        SectionGroup({
+          Section(BoxData({"Hash", "(", StringBox("\"abcde\""), ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("86835167"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Arbitrary expressions can be used:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Hash", "(", {
+                "f", "(", {{"g", "(", ")"}, ",", "6", ",", "Pi"}, ")"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("2980234924"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section("Distinct hash codes come from distinct inputs:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"{", {{"Hash", "(", "123", ")"}, ",", {
+               "Hash", "(", "124", ")"}}, "}"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"3592667072", ",", "2402952805"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(
+           BoxData({
+             "{", {{"Hash", "(", {{"x", SuperscriptBox("2")}, "+", "5"}, ")"}, 
+              ",", {"Hash", "(", {{"x", SuperscriptBox("2.0")}, "+", "5"}, 
+               ")"}}, "}"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"2602073244", ",", "3647659824"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Distinct inputs may give the same hash codes:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"{", {{"Hash", "(", "193296", ")"}, ",", {
+                 "Hash", "(", "338074", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"3697115200", ",", "3697115200"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, 1), SectionGroup({
+        Section("Neat Examples", "ExampleSection"), 
+        Section("Find hash collisions for six digit numbers:", "ExampleText"), 
+        Section(BoxData({{"h", "(", "~", ")"}, "\[AssignDelayed]", "None"}), 
+         "Input", SectionLabel -> "in [1]:"), 
+        Section(BoxData({"Function", " ", {"checkHash", "(", {"~", "x"}, ")"}, 
+           {"{", {
+             "\n", {
+              {{"With", "(", {"hash", "\[Assign]", {"Hash", "(", "x", ")"}}, 
+                ")"}, "\n", {"With", "(", {"other", "\[Assign]", {
+                  "h", "(", "hash", ")"}}, ")"}, "\n", {
+                {"If", "(", {"other", "===", "None"}, ")"}, {
+                 "{", {"\n", {{{"h", "(", "hash", ")"}, "\[Assign]", "x"}, 
+                   "\n"}}, "}"}, "Else", " ", {
+                 "If", "(", {"other", "=!=", "x"}, ")"}, {
+                 "{", {
+                  "\n", {{"Print", "(", {StringBox("\"Collision: \""), ",", {
+                      "HoldForm", "(", {{"Hash", "(", "other", ")"}, "=", {
+                        "Hash", "(", "x", ")"}, "=", "hash"}, ")"}}, ")"}, 
+                   "\n"}}, "}"}}}, "\n"}}, "}"}}), "Input", 
+         SectionLabel -> "in [2]:"), 
+        SectionGroup({
+          Section(
+           BoxData({{"Do", "(", {"i", "\[Rule]", {"100000", "..", "999999"}}, 
+              ")"}, {"{", {"checkHash", "(", "i", ")"}, "}"}}), "Input", 
+           SectionLabel -> "in [3]:"), 
+          Section(BoxData(TemplateBox({StringBox("\"Collision: \""), {
+               {"Hash", "(", {"193296"}, ")"}, "=", {
+                "Hash", "(", {"338074"}, ")"}, "=", "3697115200"}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({StringBox("\"Collision: \""), {
+               {"Hash", "(", {"357526"}, ")"}, "=", {
+                "Hash", "(", {"431517"}, ")"}, "=", "65966753"}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({StringBox("\"Collision: \""), {
+               {"Hash", "(", {"142460"}, ")"}, "=", {
+                "Hash", "(", {"469422"}, ")"}, "=", "1848214175"}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({StringBox("\"Collision: \""), {
+               {"Hash", "(", {"478069"}, ")"}, "=", {
+                "Hash", "(", {"598604"}, ")"}, "=", "19592229"}}, 
+             "RowDefault")), "Print", SectionGenerated -> True)}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Identical"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"LeafCount"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"ByteCount"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Lookup"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
