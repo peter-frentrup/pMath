@@ -29,9 +29,7 @@ Function FE`SymbolInfo(~name:String) {
 		/* todo: use Developer`HasBuiltinCode to distinguish functions from other symbols */
 		Return(Namespace @@ sym =!= "Global`"
 			|| Attributes @@ sym =!= {} 
-			|| DownRules @@ sym =!= {} 
-			|| UpRules @@ sym =!= {} 
-			|| SubRules @@ sym =!= {} 
+			|| {HoldComplete(~s) :> Developer`HasAssignedRules(s, {DownRules, UpRules, SubRules}) ~:>False} @ sym 
 			|| OwnRules @@ sym =!= {});
 	},
 	Syntax)
