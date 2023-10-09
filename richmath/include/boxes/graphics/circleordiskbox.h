@@ -5,13 +5,13 @@
 #include <util/interval.h>
 
 namespace richmath {
-  class CircleBox final : public GraphicsElement {
+  class CircleOrDiskBox final : public GraphicsElement {
       class Impl;
     protected:
-      virtual ~CircleBox();
+      virtual ~CircleOrDiskBox();
     public:
       static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;
-      static CircleBox *try_create(Expr expr, BoxInputFlags opts);
+      static CircleOrDiskBox *try_create(Expr expr, BoxInputFlags opts);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
@@ -27,7 +27,7 @@ namespace richmath {
       Interval<double> angles;
       
     protected:
-      CircleBox();
+      CircleOrDiskBox();
       
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
   };

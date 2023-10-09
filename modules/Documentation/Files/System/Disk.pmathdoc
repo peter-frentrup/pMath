@@ -1,0 +1,235 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Disk", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Disk"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({
+           "Angles are measured in radians counterclockwise from the positive \
+           ", StyleBox("x", "Arg"), " direction."}), "Notes"), 
+        Section(TextData({TemplateBox({"Disk"}, "ReferenceHyperlink"), 
+           "() is equivalent to ", 
+           BoxData({TemplateBox({"Disk"}, "ReferenceHyperlink"), "(", {
+              "{", {"0", ",", "0"}, "}"}, ")"}), "."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A unit disk:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Graphics", "(", {"Disk", "(", ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(GraphicsBox({DiskBox()})), "Output", 
+           GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("A disk sector:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "Disk", "(", {{"{", {"0", ",", "0"}, "}"}, ",", "1", ",", {
+                  {"Pi", "/", "6"}, "..", {"3", {"Pi", "/", "4"}}}}, ")"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({DiskBox({0, 0}, 1, 1/6*Pi .. 3/4*Pi)})), 
+             "Output", GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("An elliptical disk:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "Disk", "(", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                  "{", {"2", ",", "1"}, "}"}}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(GraphicsBox({DiskBox({0, 0}, {2, 1})})), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Specify radii:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Graphics", "(", {
+              "{", {"Red", ",", {"Disk", "(", {
+                 {"{", {"0", ",", "0"}, "}"}, ",", "3"}, ")"}, ",", "Green", 
+               ",", {"Disk", "(", {{"{", {"0", ",", "0"}, "}"}, ",", "2"}, 
+                ")"}, ",", "Blue", ",", {
+                "Disk", "(", {{"{", {"0", ",", "0"}, "}"}, ",", "1"}, ")"}}, 
+              "}"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(GraphicsBox({RGBColor(1, 0, 0), DiskBox({0, 0}, 3), 
+              RGBColor(0, 1, 0), DiskBox({0, 0}, 2), RGBColor(0, 0, 1), 
+              DiskBox({0, 0}, 1)})), "Output", 
+           GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Specify centers:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "{", {"Red", ",", {"Disk", "(", {
+                   {"{", {"0", ",", "0"}, "}"}, ",", "1"}, ")"}, ",", "Green", 
+                 ",", {"Disk", "(", {{"{", {"1", ",", "1"}, "}"}, ",", "1"}, 
+                  ")"}, ",", "Blue", ",", {
+                  "Disk", "(", {{"{", {"2", ",", "2"}, "}"}, ",", "1"}, ")"}}, 
+                "}"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({RGBColor(1, 0, 0), DiskBox({0, 0}, 1), 
+                RGBColor(0, 1, 0), DiskBox({1, 1}, 1), RGBColor(0, 0, 1), 
+                DiskBox({2, 2}, 1)})), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("A disk sector:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "{", {"Disk", "(", {{"{", {"0", ",", "0"}, "}"}, ",", "1", 
+                  ",", {"0", "..", {"4", {"Pi", "/", "3"}}}}, ")"}, "}"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(GraphicsBox({DiskBox({0, 0}, 1, 0 .. 4/3*Pi)})), 
+             "Output", GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "{", {"Disk", "(", {{"{", {"0", ",", "0"}, "}"}, ",", "1", 
+                  ",", {{"4", {"Pi", "/", "3"}}, "..", "0"}}, ")"}, "}"}, 
+               ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(GraphicsBox({DiskBox({0, 0}, 1, 4/3*Pi .. 0)})), 
+             "Output", GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Elliptical disks:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "{", {"Red", ",", {"Disk", "(", {
+                   {"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"3", ",", "1"}, "}"}}, ")"}, ",", "Green", ",", {
+                  "Disk", "(", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"2", ",", {"3", "/", "2"}}, "}"}}, ")"}, ",", 
+                 "Blue", ",", {"Disk", "(", {{"{", {"0", ",", "0"}, "}"}, ",", 
+                   {"{", {"1", ",", "2"}, "}"}}, ")"}}, "}"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({RGBColor(1, 0, 0), DiskBox({0, 0}, {3, 1}), 
+                RGBColor(0, 1, 0), DiskBox({0, 0}, {2, 3/2}), 
+                RGBColor(0, 0, 1), DiskBox({0, 0}, {1, 2})})), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {Small, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Short form for a unit disk at the origin:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                {"Disk", "(", ")"}, ",", {"Frame", "\[Rule]", "True"}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(GraphicsBox({DiskBox()}, Frame -> True)), 
+             "Output", GraphicsBoxOptions -> {
+               ImageSize -> {Small, Automatic}}, SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+        Section("Random disks:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Graphics", "(", {
+              "Table", "(", {
+               {"{", {{"Hue", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
+                  "Disk", "(", {{"RandomReal", "(", {"4", ",", "2"}, ")"}, 
+                   ",", {"RandomReal", "(", ")"}}, ")"}}, "}"}, ",", "40"}, 
+              ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({
+              {Hue(0.792683506358904), 
+               DiskBox({1.468117300754444`, 0.6080836529380882`}, 
+                0.5715784311103631`)}, {Hue(0.24542501757284652`), 
+               DiskBox({1.2275443718620314`, 2.3662833625188058`}, 
+                0.3408118948259111`)}, {Hue(0.7616117865302542`), 
+               DiskBox({3.03221321684731, 2.970154591829648`}, 
+                0.06705244113395858`)}, {Hue(0.18334980789569966`), 
+               DiskBox({3.133540030331044`, 2.055710926581406`}, 
+                0.032077423554323636`)}, {Hue(0.6780537311337438`), 
+               DiskBox({1.3657888809223153`, 2.128226556887808`}, 
+                0.5280760727086395`)}, {Hue(0.8607263109044622`), 
+               DiskBox({1.3505921902302238`, 3.828407123590181`}, 
+                0.7568078210929262`)}, {Hue(0.4377681959778864`), 
+               DiskBox({1.4647006163461604`, 2.367622579599995`}, 
+                0.22359943784046632`)}, {Hue(0.7574087949189331`), 
+               DiskBox({0.694093915020364, 1.7509085501159727`}, 
+                0.1837305769340719`)}, {Hue(0.8000046962727644`), 
+               DiskBox({2.5126136471282496`, 3.7727402866958153`}, 
+                0.3564179296101536`)}, {Hue(0.0011126690668268324`), 
+               DiskBox({0.16256216163451676`, 1.4379168134646836`}, 
+                0.3085392770151024`)}, {Hue(0.5723475062231699`), 
+               DiskBox({2.0053979122374743`, 1.6637616274141012`}, 
+                0.5183303741637658`)}, {Hue(0.5191968526237686`), 
+               DiskBox({1.2009809737211228`, 1.0104152678860636`}, 
+                0.6929711501412826`)}, {Hue(0.9796435001453737`), 
+               DiskBox({2.8806639303129216`, 0.15202789277264595`}, 
+                0.622100457472609)}, {Hue(0.617611848559525), 
+               DiskBox({3.236509659326916`, 0.5992819262941995`}, 
+                0.3128472233905374`)}, {Hue(0.6141332780848051`), 
+               DiskBox({2.623283142037337`, 0.019606934193909797`}, 
+                0.3977695576108683`)}, {Hue(0.7648638947278106`), 
+               DiskBox({2.86055720194867, 1.5509474364066018`}, 
+                0.11096190603843237`)}, {Hue(0.8216740216429548`), 
+               DiskBox({1.00696972061924, 0.7098055825530731`}, 
+                0.0883846932960538)}, {Hue(0.8842216651464875`), 
+               DiskBox({0.10579668631712646`, 1.9719315435318814`}, 
+                0.48314645045114124`)}, {Hue(0.6487794552592567`), 
+               DiskBox({0.15500042982953266`, 2.3115455940788667`}, 
+                0.09508064231517022`)}, {Hue(0.2667261057303987`), 
+               DiskBox({0.6783203776881237`, 2.9325910796799994`}, 
+                0.6247678740112244`)}, {Hue(0.4304418310599033`), 
+               DiskBox({0.16652445055919163`, 1.3877769432084026`}, 
+                0.9813758582275165`)}, {Hue(0.4483265933741891`), 
+               DiskBox({3.8486850057998874`, 1.7212821425156561`}, 
+                0.383992545545668)}, {Hue(0.249142978750864), 
+               DiskBox({1.1516289444029755`, 3.172200335662803`}, 
+                0.6691122332542812`)}, {Hue(0.9373775831563256`), 
+               DiskBox({0.664118391000625, 0.6220003780341172`}, 
+                0.8205326425638381`)}, {Hue(0.7510631179812076`), 
+               DiskBox({2.7952647326619138`, 0.9126110876277527`}, 
+                0.5550993007937931`)}, {Hue(0.36598354330191285`), 
+               DiskBox({3.168887436382702`, 1.5177656565784292`}, 
+                0.3165323721219421`)}, {Hue(0.12926685943364769`), 
+               DiskBox({0.48152097913084235`, 2.819496875858773`}, 
+                0.6285303578323819`)}, {Hue(0.5537853170049918`), 
+               DiskBox({0.706285567807305, 0.3777410053518584`}, 
+                0.07834789232705353`)}, {Hue(0.685838070436858), 
+               DiskBox({1.0053333978590424`, 2.4365952299065126`}, 
+                0.92737514791584)}, {Hue(0.47820432101834154`), 
+               DiskBox({3.672763562330202`, 2.033380256223823`}, 
+                0.7503145908262172`)}, {Hue(0.35269496605019934`), 
+               DiskBox({0.1223090012131296`, 0.3916918161027936`}, 
+                0.152258147715724)}, {Hue(0.3420090606163567`), 
+               DiskBox({1.8811826966813952`, 1.363600014215974`}, 
+                0.6719053745489227`)}, {Hue(0.10066980264598258`), 
+               DiskBox({1.8905892462307952`, 2.674740817409508`}, 
+                0.5672298887153673`)}, {Hue(0.7186454073250932`), 
+               DiskBox({2.8439175511023596`, 2.409706521771226`}, 
+                0.2445097726644686`)}, {Hue(0.13105839073403458`), 
+               DiskBox({3.4741758780016188`, 1.4266037484104879`}, 
+                0.9367289887863963`)}, {Hue(0.521952794485792), 
+               DiskBox({3.2124017360274255`, 0.7725473280573478`}, 
+                0.5132350195796581`)}, {Hue(0.0556170392706119), 
+               DiskBox({3.4679924225820895`, 2.918352933694895`}, 
+                0.7564689993775233`)}, {Hue(0.18221353033142795`), 
+               DiskBox({2.951599126686791`, 1.2413976227224457`}, 
+                0.7867172896030294`)}, {Hue(0.3737704382401723`), 
+               DiskBox({2.1173876662625424`, 2.456478296937164`}, 
+                0.13593635162647744`)}, {Hue(0.27708088895399996`), 
+               DiskBox({0.5061542987873722`, 0.9496166746489076`}, 
+                0.25199507196248694`)}})), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Circle"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Graphics"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

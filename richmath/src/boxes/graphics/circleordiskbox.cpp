@@ -1,4 +1,4 @@
-#include <boxes/graphics/circlebox.h>
+#include <boxes/graphics/circleordiskbox.h>
 
 #include <boxes/graphics/graphicsdrawingcontext.h>
 #include <graphics/canvas.h>
@@ -18,14 +18,14 @@
 #endif
 
 namespace richmath {
-  class CircleBox::Impl {
+  class CircleOrDiskBox::Impl {
     public:
-      explicit Impl(CircleBox &self);
+      explicit Impl(CircleOrDiskBox &self);
       
       bool transform_to_std_circle(cairo_matrix_t &mat);
       
     private:
-      CircleBox &self;
+      CircleOrDiskBox &self;
   };
 }
 
@@ -33,14 +33,15 @@ using namespace richmath;
 using namespace std;
 
 extern pmath_symbol_t richmath_System_CircleBox;
+extern pmath_symbol_t richmath_System_DiskBox;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Range;
 
 static const double TwoPi = 2 * M_PI;
 
-//{ class CircleBox ...
+//{ class CircleOrDiskBox ...
 
-CircleBox::CircleBox()
+CircleOrDiskBox::CircleOrDiskBox()
   : GraphicsElement(),
     cx{0.0}, cy{0.0},
     rx{1.0}, ry{1.0},
@@ -48,11 +49,11 @@ CircleBox::CircleBox()
 {
 }
 
-CircleBox::~CircleBox() {
+CircleOrDiskBox::~CircleOrDiskBox() {
 }
 
-bool CircleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_CircleBox)
+bool CircleOrDiskBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
+  if(expr[0] != richmath_System_CircleBox && expr[0] != richmath_System_DiskBox)
     return false;
     
   if(expr.expr_length() > 3)
@@ -121,8 +122,8 @@ bool CircleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-CircleBox *CircleBox::try_create(Expr expr, BoxInputFlags opts) {
-  CircleBox *box = new CircleBox;
+CircleOrDiskBox *CircleOrDiskBox::try_create(Expr expr, BoxInputFlags opts) {
+  CircleOrDiskBox *box = new CircleOrDiskBox;
   
   if(!box->try_load_from_object(expr, opts)) {
     delete box;
@@ -132,7 +133,7 @@ CircleBox *CircleBox::try_create(Expr expr, BoxInputFlags opts) {
   return box;
 }
 
-void CircleBox::find_extends(GraphicsBounds &bounds) {
+void CircleOrDiskBox::find_extends(GraphicsBounds &bounds) {
   DoublePoint p1 {cx - rx, cy - ry};
   DoublePoint p2 {cx - rx, cy + ry};
   DoublePoint p3 {cx + rx, cy - ry};
@@ -154,6 +155,11 @@ void CircleBox::find_extends(GraphicsBounds &bounds) {
     double s1 = sin(t1);
     double c2 = cos(t2);
     double s2 = sin(t2);
+    
+    if(_expr[0] == richmath_System_DiskBox) {
+      bounds.add_point(0.0, 0.0);
+    }
+    
     
     if(angles.length() >= TwoPi) {
       bounds.add_point( c1,  s1); // at t1
@@ -182,13 +188,17 @@ void CircleBox::find_extends(GraphicsBounds &bounds) {
   bounds.elem_to_container = oldmat;
 }
 
-void CircleBox::paint(GraphicsDrawingContext &gc) {
+void CircleOrDiskBox::paint(GraphicsDrawingContext &gc) {
   auto mat = gc.canvas().get_matrix();
+  
+  bool is_disk = _expr[0] == richmath_System_DiskBox;
   
   cairo_matrix_t std_circle_mat = mat;
   if(Impl(*this).transform_to_std_circle(std_circle_mat)) {
     gc.canvas().set_matrix(std_circle_mat);
+    if(is_disk) gc.canvas().move_to(cx, cy);
     gc.canvas().arc(0, 0, 1, angles.from, angles.to, false);
+    if(is_disk) gc.canvas().close_path();
   }
   else { // one or both of the radii are zero. TODO: restrict according to angles
     gc.canvas().move_to(cx - rx, cy - ry);
@@ -197,19 +207,24 @@ void CircleBox::paint(GraphicsDrawingContext &gc) {
   }
   
   gc.canvas().set_matrix(gc.initial_matrix());
-  gc.canvas().stroke();
+  if(is_disk) {
+    // TODO: stroke with EdgeForm
+    gc.canvas().fill();
+  }
+  else
+    gc.canvas().stroke();
   gc.canvas().set_matrix(mat);
 }
 
-Expr CircleBox::to_pmath_impl(BoxOutputFlags flags) {
+Expr CircleOrDiskBox::to_pmath_impl(BoxOutputFlags flags) {
   return _expr;
 }
 
-//} ... class CircleBox
+//} ... class CircleOrDiskBox
 
-//{ class CircleBox::Impl ...
+//{ class CircleOrDiskBox::Impl ...
 
-CircleBox::Impl::Impl(CircleBox &self)
+CircleOrDiskBox::Impl::Impl(CircleOrDiskBox &self)
 : self{self}
 {
 }
@@ -217,7 +232,7 @@ CircleBox::Impl::Impl(CircleBox &self)
 // Transform a matrix so that the circle/ellipse befor transformation with center (cx,cy) and radii (rx,ry)
 // is a normal circle with radius 1 and center (0,0) w.r.t. the new matrix.
 // If the radii are degenerate, only the center gets transformed and false is returned.
-bool CircleBox::Impl::transform_to_std_circle(cairo_matrix_t &mat) {
+bool CircleOrDiskBox::Impl::transform_to_std_circle(cairo_matrix_t &mat) {
   cairo_matrix_translate(&mat, self.cx, self.cy);
   if(self.rx > 0 && self.ry > 0) {
     cairo_matrix_scale(&mat, self.rx, self.ry);
@@ -226,4 +241,4 @@ bool CircleBox::Impl::transform_to_std_circle(cairo_matrix_t &mat) {
   return false;
 }
 
-//} ... class CircleBox::Impl
+//} ... class CircleOrDiskBox::Impl

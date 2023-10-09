@@ -182,7 +182,7 @@ Document({
                CircleBox({2.0023937963720817`, 1.3211119977394419`}, 
                 0.4409497888872379`)}, {Hue(0.9542850498022156`), 
                CircleBox({2.9507843364487476`, 1.134634905932907`}, 
-                0.9369154164290582`)}, {Hue(0.0844972584401882[942+/-140]`16), 
+                0.9369154164290582`)}, {Hue(0.0844972584401882[873+/-210]`16), 
                CircleBox({1.7521869476893022`, 2.4816084878752136`}, 
                 0.5572882273152607`)}, {Hue(0.7413248870622221`), 
                CircleBox({2.5423540813825634`, 3.7297665345000044`}, 
@@ -222,7 +222,7 @@ Document({
                CircleBox({3.841963522532179`, 3.9611993092679225`}, 
                 0.8162563678897639`)}, {Hue(0.696262134070065), 
                CircleBox({0.3222196982487828`, 0.41282324386390545`}, 
-                0.0835381507780394[925+/-140]`16)}, {
+                0.0835381507780394[925+/-210]`16)}, {
                Hue(0.4224378413594956`), 
                CircleBox({2.5711523894857495`, 2.158665268117494`}, 
                 0.7092253815400794`)}, {Hue(0.5949939108161496`), 
@@ -258,6 +258,7 @@ Document({
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Line"}, "ReferenceHyperlink"), 
-         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Graphics"}, 
-          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Disk"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Graphics"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
