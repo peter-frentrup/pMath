@@ -72,7 +72,8 @@ namespace richmath {
   
   enum ColorStyleOptionName {
     Background = 0x00000,
-    ColorForGraphics,
+    ColorForGraphics, // TODO: rename to System`GraphicsColor
+    EdgeColor,
     FontColor,
     SectionFrameColor,
     
@@ -115,6 +116,8 @@ namespace richmath {
     DebugColorizeChanges, // bool
     DebugFollowMouse,     // bool
     DebugSelectionBounds, // bool
+    DrawEdges,            // bool
+    EdgeCapForm,   // CapFormXXX
     Editable,
     Enabled, // AutoBoolXXX
     Evaluatable,
@@ -277,6 +280,7 @@ namespace richmath {
     SectionFrameLabelMarginTop,    // not yet used
     SectionFrameLabelMarginBottom, // not yet used
     
+    EdgeThickness,
     PointSize,
     Thickness,
     
@@ -422,7 +426,9 @@ namespace richmath {
     UnknownOptionStyle,
     
     Dashing,
+    EdgeDashing,
     JoinForm,
+    EdgeJoinForm,
     
     ButtonBoxDefaultAppearance               = Appearance             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::ButtonBox,

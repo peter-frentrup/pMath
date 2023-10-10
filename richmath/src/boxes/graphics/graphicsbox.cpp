@@ -311,6 +311,7 @@ void GraphicsBox::paint(Context &context) {
           GraphicsDrawingContext gc{*this, context};
           gc.plot_range_width = w - margin_left - margin_right;
           
+          gc.init_edgeform_from_style();
           GraphicsDirective::apply_thickness(SymbolicSize::Automatic, gc);
           
           context.canvas().pixrect(

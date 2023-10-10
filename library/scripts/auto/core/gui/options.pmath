@@ -333,6 +333,7 @@ Options(Section):= {
     DefaultReturnCreatedSectionStyle -> Inherited,
     DockedSections -> Inherited,
     DocumentEventActions -> Inherited,
+    DrawEdges -> Inherited, % only valid for StyleData-sections
     DynamicBoxOptions -> {
         Deinitialization -> None,
         Initialization -> None,
@@ -344,6 +345,8 @@ Options(Section):= {
         Initialization -> None,
         DynamicLocalValues -> Automatic,
         UnsavedVariables -> {} },
+    EdgeColor     -> Inherited, % only valid for StyleData-sections
+    EdgeThickness -> Inherited, % only valid for StyleData-sections
     Editable -> True,
     Evaluatable -> False,
     EvaluationContext -> "Global`",

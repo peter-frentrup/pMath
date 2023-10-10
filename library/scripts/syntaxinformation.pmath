@@ -155,6 +155,7 @@
 {"DynamicLocal", {"ArgumentCount" -> 2, "LocalVariables" -> {"Local", 1}}},
 {"DynamicLocalBox", {"ArgumentCount" -> 2, "LocalVariables" -> {"Local", 1}}},
 {"DynamicSetting", {"ArgumentCount" -> 1}},
+{"EdgeForm", {"ArgumentCount" -> 0..1}},
 {"Element", {"ArgumentCount" -> 2}},
 {"Emit", {"ArgumentCount" -> 1..2}},
 {"End", {"ArgumentCount" -> 0}},

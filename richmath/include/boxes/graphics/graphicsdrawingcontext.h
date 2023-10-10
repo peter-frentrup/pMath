@@ -9,14 +9,21 @@ namespace richmath {
     public:
       GraphicsDrawingContext(Box &owner, Context &context);
       
+      void init_edgeform_from_style();
+      
       Box                  &box() { return _owner; }
       Context              &context() { return _context; }
       Canvas               &canvas() { return _context.canvas(); }
       const cairo_matrix_t &initial_matrix() { return _initial_matrix; }
       
+      void fill_with_edgeform();
+      
     public:
+      Color  edge_color;
       Length point_size;
       float  plot_range_width;
+      
+      bool draw_edges: 1;
       
     private:
       Box            &_owner;

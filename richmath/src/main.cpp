@@ -460,6 +460,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base.set(AutoSpacing,                         false);
   Stylesheet::Default->base.set(ClosingAction,                       ClosingActionDelete);
   //Stylesheet::Default->base.set(ContinuousAction,                    false);
+  Stylesheet::Default->base.set(DrawEdges,                           false);
   Stylesheet::Default->base.set(Editable,                            true);
   Stylesheet::Default->base.set(Enabled,                             AutoBoolAutomatic);
   Stylesheet::Default->base.set(Evaluatable,                         false);
@@ -485,6 +486,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base.set(GridBoxRowSpacing,             0.5);
   Stylesheet::Default->base.set(Magnification,                 1.0);
   
+  Stylesheet::Default->base.set(EdgeThickness,                 SymbolicSize::Automatic);
   Stylesheet::Default->base.set(FontSize,                      SymbolicSize::Automatic);
   Stylesheet::Default->base.set(PointSize,                     SymbolicSize::Automatic);
   Stylesheet::Default->base.set(Thickness,                     SymbolicSize::Automatic);
@@ -530,7 +532,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base.set(DocumentEventActions,      List());
   Stylesheet::Default->base.set(DragDropContextMenu,       List());
   Stylesheet::Default->base.set(FontFamilies,              List());
-  Stylesheet::Default->base.set(GeneratedSectionStyles, List());
+  Stylesheet::Default->base.set(GeneratedSectionStyles,    List());
   Stylesheet::Default->base.set(InputAliases,              List());
   Stylesheet::Default->base.set(InputAutoReplacements,     List());
   

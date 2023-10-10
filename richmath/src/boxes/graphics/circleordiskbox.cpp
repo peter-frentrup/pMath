@@ -196,7 +196,7 @@ void CircleOrDiskBox::paint(GraphicsDrawingContext &gc) {
   cairo_matrix_t std_circle_mat = mat;
   if(Impl(*this).transform_to_std_circle(std_circle_mat)) {
     gc.canvas().set_matrix(std_circle_mat);
-    if(is_disk) gc.canvas().move_to(cx, cy);
+    if(is_disk && angles.length() < TwoPi) gc.canvas().move_to(cx, cy);
     gc.canvas().arc(0, 0, 1, angles.from, angles.to, false);
     if(is_disk) gc.canvas().close_path();
   }
@@ -208,8 +208,7 @@ void CircleOrDiskBox::paint(GraphicsDrawingContext &gc) {
   
   gc.canvas().set_matrix(gc.initial_matrix());
   if(is_disk) {
-    // TODO: stroke with EdgeForm
-    gc.canvas().fill();
+    gc.fill_with_edgeform();
   }
   else
     gc.canvas().stroke();

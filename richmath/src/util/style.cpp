@@ -65,9 +65,15 @@ extern pmath_symbol_t richmath_System_DockedSections;
 extern pmath_symbol_t richmath_System_Document;
 extern pmath_symbol_t richmath_System_DocumentEventActions;
 extern pmath_symbol_t richmath_System_DownRules;
+extern pmath_symbol_t richmath_System_DrawEdges;
 extern pmath_symbol_t richmath_System_DynamicBoxOptions;
 extern pmath_symbol_t richmath_System_DynamicLocalBoxOptions;
 extern pmath_symbol_t richmath_System_DynamicLocalValues;
+extern pmath_symbol_t richmath_System_EdgeCapForm;
+extern pmath_symbol_t richmath_System_EdgeColor;
+extern pmath_symbol_t richmath_System_EdgeDashing;
+extern pmath_symbol_t richmath_System_EdgeJoinForm;
+extern pmath_symbol_t richmath_System_EdgeThickness;
 extern pmath_symbol_t richmath_System_Editable;
 extern pmath_symbol_t richmath_System_Enabled;
 extern pmath_symbol_t richmath_System_Evaluatable;
@@ -2614,9 +2620,15 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(DockedSections);
   impl.emit_definition(DocumentEventActions);
   impl.emit_definition(DragDropContextMenu);
+  impl.emit_definition(DrawEdges);
   impl.emit_definition(DynamicBoxOptions);
   impl.emit_definition(DynamicLocalBoxOptions);
   impl.emit_definition(DynamicLocalValues);
+  impl.emit_definition(EdgeCapForm);
+  impl.emit_definition(EdgeColor);
+  impl.emit_definition(EdgeDashing);
+  impl.emit_definition(EdgeJoinForm);
+  impl.emit_definition(EdgeThickness);
   impl.emit_definition(Editable);
   impl.emit_definition(Enabled);
   impl.emit_definition(Evaluatable);
@@ -3308,10 +3320,8 @@ void StyleInformation::add_style() {
     
     {
       SharedPtr<EnumStyleConverter> converter{new CapFormStyleConverter};
-      add_enum(
-        CapForm, 
-        Symbol(richmath_System_CapForm), 
-        converter);
+      add_enum(CapForm,     Symbol(richmath_System_CapForm),     converter);
+      add_enum(EdgeCapForm, Symbol(richmath_System_EdgeCapForm), converter);
     }
     
     {
@@ -3337,6 +3347,7 @@ void StyleInformation::add_style() {
     
     add(StyleType::Color,           Background,                          Symbol( richmath_System_Background));
     add(StyleType::Color,           ColorForGraphics,                    strings::Color);
+    add(StyleType::Color,           EdgeColor,                           Symbol( richmath_System_EdgeColor));
     add(StyleType::Color,           FontColor,                           Symbol( richmath_System_FontColor));
     add(StyleType::Color,           SectionFrameColor,                   Symbol( richmath_System_SectionFrameColor));
     
@@ -3374,6 +3385,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            DebugColorizeChanges,             String("DebugColorizeChanges"));
     add(StyleType::Bool,            DebugFollowMouse,                 String("DebugFollowMouse"));
     add(StyleType::Bool,            DebugSelectionBounds,             String("DebugSelectionBounds"));
+    add(StyleType::Bool,            DrawEdges,                        Symbol( richmath_System_DrawEdges));
     add(StyleType::Bool,            Editable,                         Symbol( richmath_System_Editable));
     add(StyleType::AutoBool,        Enabled,                          Symbol( richmath_System_Enabled));
     add(StyleType::Bool,            Evaluatable,                      Symbol( richmath_System_Evaluatable));
@@ -3500,6 +3512,7 @@ void StyleInformation::add_style() {
     // GraphicsBoxDefaultPlotRangePaddingTop
     // GraphicsBoxDefaultPlotRangePaddingBottom
     
+    add(StyleType::Length,          EdgeThickness,                    Symbol( richmath_System_EdgeThickness));
     add(StyleType::Length,          PointSize,                        Symbol( richmath_System_PointSize));
     add(StyleType::Length,          Thickness,                        Symbol( richmath_System_Thickness));
     
@@ -3531,6 +3544,8 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             Deinitialization,                 Symbol( richmath_System_Deinitialization));
     add(StyleType::Any,             DisplayFunction,                  Symbol( richmath_System_DisplayFunction));
     add(StyleType::Any,             DynamicLocalValues,               Symbol( richmath_System_DynamicLocalValues));
+    add(StyleType::Any,             EdgeJoinForm,                     Symbol( richmath_System_EdgeJoinForm));
+    add(StyleType::Any,             EdgeDashing,                      Symbol( richmath_System_EdgeDashing));
     add(StyleType::Any,             EvaluationContext,                Symbol( richmath_System_EvaluationContext));
     add(StyleType::Any,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
     add(StyleType::Any,             Frame,                            Symbol( richmath_System_Frame));
