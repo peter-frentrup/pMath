@@ -12,7 +12,6 @@ namespace richmath {
     public:
       static bool is_graphics_directive(Expr expr);
       static void apply(Expr directive, GraphicsDrawingContext &gc);
-      static void apply_thickness(Length thickness, GraphicsDrawingContext &gc);
       
       static GraphicsDirective *try_create(Expr expr, BoxInputFlags opts);
       static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;

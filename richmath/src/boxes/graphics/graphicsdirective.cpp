@@ -56,7 +56,6 @@ namespace richmath {
       static bool decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor);
       static bool decode_dash_offset(double &offset, Expr obj, float scale_factor);
       static void enlarge_zero_dashes(Array<double> &dash_array);
-      static void apply_thickness_to_context(Length thickness, GraphicsDrawingContext &gc);
       
       bool change_directives(Expr new_directives);
       
@@ -136,10 +135,6 @@ void GraphicsDirective::paint(GraphicsDrawingContext &gc) {
 
 void GraphicsDirective::apply(Expr directive, GraphicsDrawingContext &gc) {
   Impl::apply_to_context(directive, gc);
-}
-
-void GraphicsDirective::apply_thickness(Length thickness, GraphicsDrawingContext &gc) {
-  Impl::apply_thickness_to_context(thickness, gc);
 }
 
 void GraphicsDirective::dynamic_updated() {
@@ -358,7 +353,7 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
   
   if(directive[0] == richmath_System_Thickness) {
     if(Length len = Length::from_pmath(directive[1])) {
-      apply_thickness_to_context(len, gc);
+      gc.apply_thickness(len);
     }
     return;
   }
@@ -372,7 +367,14 @@ void GraphicsDirective::Impl::apply_edgeform_to_context(Expr directive, Graphics
     return;
   }
   
-  // TODO: CapForm, Dashing, JoinForm, Thickness
+  if(directive[0] == richmath_System_Thickness) {
+    if(Length len = Length::from_pmath(directive[1])) {
+      gc.edge_thickness = len;
+    }
+    return;
+  }
+  
+  // TODO: CapForm, Dashing, JoinForm
 }
 
 bool GraphicsDirective::Impl::decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor) {
@@ -457,10 +459,6 @@ void GraphicsDirective::Impl::enlarge_zero_dashes(Array<double> &dash_array) {
 //      }
     }
   }
-}
-
-void GraphicsDirective::Impl::apply_thickness_to_context(Length thickness, GraphicsDrawingContext &gc) {
-  gc.canvas().line_width(thickness.resolve(1.0f, LengthConversionFactors::ThicknessInPt, gc.plot_range_width));
 }
 
 bool GraphicsDirective::Impl::change_directives(Expr new_directives) {
