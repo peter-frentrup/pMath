@@ -223,11 +223,6 @@ void GraphicsDirective::Impl::apply_edgeform_to_style(Expr directive, Style &sty
     return;
   }
   
-  if(directive[0] == richmath_System_CapForm) { 
-    style.set_pmath(EdgeCapForm, directive[1]);
-    return;
-  }
-  
   if(directive[0] == richmath_System_Dashing) {
     // TODO: support Dashing(dashes, offset, capform)
     style.set_pmath(EdgeDashing, directive[1]);
@@ -374,7 +369,7 @@ void GraphicsDirective::Impl::apply_edgeform_to_context(Expr directive, Graphics
     return;
   }
   
-  // TODO: CapForm, Dashing, JoinForm
+  // TODO: Dashing, JoinForm
 }
 
 bool GraphicsDirective::Impl::decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor) {

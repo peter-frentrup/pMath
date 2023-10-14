@@ -197,7 +197,6 @@ namespace richmath { namespace strings {
   extern String Delete;
   extern String DragDropContextMenu;
   extern String DrawEdges;
-  extern String EdgeCapForm;
   extern String EdgeColor;
   extern String EdgeDashing;
   extern String EdgeJoinForm;
@@ -2624,7 +2623,6 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(DynamicBoxOptions);
   impl.emit_definition(DynamicLocalBoxOptions);
   impl.emit_definition(DynamicLocalValues);
-  impl.emit_definition(EdgeCapForm);
   impl.emit_definition(EdgeColor);
   impl.emit_definition(EdgeDashing);
   impl.emit_definition(EdgeJoinForm);
@@ -3320,8 +3318,7 @@ void StyleInformation::add_style() {
     
     {
       SharedPtr<EnumStyleConverter> converter{new CapFormStyleConverter};
-      add_enum(CapForm,     Symbol(richmath_System_CapForm), converter);
-      add_enum(EdgeCapForm, strings::EdgeCapForm,            converter);
+      add_enum(CapForm, Symbol(richmath_System_CapForm), converter);
     }
     
     {

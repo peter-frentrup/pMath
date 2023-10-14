@@ -117,7 +117,6 @@ namespace richmath {
     DebugFollowMouse,     // bool
     DebugSelectionBounds, // bool
     DrawEdges,            // bool
-    EdgeCapForm,   // CapFormXXX
     Editable,
     Enabled, // AutoBoolXXX
     Evaluatable,

@@ -20,10 +20,10 @@ namespace richmath {
       void fill_with_edgeform();
       
     public:
-      Color  edge_color;
-      Length edge_thickness;
-      Length point_size;
-      float  plot_range_width;
+      Color        edge_color;
+      Length       edge_thickness;
+      Length       point_size;
+      float        plot_range_width;
       
       bool draw_edges: 1;
       
