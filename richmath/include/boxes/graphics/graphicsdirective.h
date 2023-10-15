@@ -24,6 +24,8 @@ namespace richmath {
       virtual Style own_style() final override { return _style; };
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;
+      
+      static bool decode_joinform(enum JoinForm &join_form, float &miter_limit, Expr expr);
     
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override { return _dynamic.expr(); }
