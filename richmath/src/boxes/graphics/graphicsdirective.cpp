@@ -53,9 +53,12 @@ namespace richmath {
       static void apply_to_context(Expr directive, GraphicsDrawingContext &gc);
       static void apply_edgeform_to_style(  Expr directive, Style &style);
       static void apply_edgeform_to_context(Expr directive, GraphicsDrawingContext &gc);
+      
       static bool decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor);
       static bool decode_dash_offset(double &offset, Expr obj, float scale_factor);
       static void enlarge_zero_dashes(Array<double> &dash_array);
+      
+      static bool decode_joinform(JoinForm &join_form, float &miter_limit, Expr expr);
       
       bool change_directives(Expr new_directives);
       
@@ -310,32 +313,13 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
   }
   
   if(directive[0] == richmath_System_JoinForm) {
-    Expr item = directive[1];
-    if(item.is_string()) {
-      if(item == strings::Bevel) { gc.canvas().join_form(JoinFormBevel); return; }
-      if(item == strings::Miter) { gc.canvas().join_form(JoinFormMiter); return; }
-      if(item == strings::Round) { gc.canvas().join_form(JoinFormRound); return; }
-      return;
+    JoinForm join_form;
+    float miter_limit;
+    if(decode_joinform(join_form, miter_limit, directive[1])) {
+      gc.canvas().join_form(join_form);
+      if(join_form == JoinFormMiter)
+        gc.canvas().miter_limit(miter_limit);
     }
-    
-    if(item == richmath_System_None) {
-      gc.canvas().join_form(JoinFormNone);
-      return;
-    }
-    
-    if(item[0] == richmath_System_List && item.expr_length() == 2 && item[1] == strings::Miter) {
-      gc.canvas().join_form(JoinFormMiter);
-      
-      Expr miter_limit_obj = item[2];
-      if(miter_limit_obj.is_number()) {
-        float miter_limit = (float)miter_limit_obj.to_double();
-        if(miter_limit >= 0 && isfinite(miter_limit)) {
-          gc.canvas().miter_limit(miter_limit);
-        }
-      }
-      return;
-    }
-
     return;
   }
   
@@ -454,6 +438,34 @@ void GraphicsDirective::Impl::enlarge_zero_dashes(Array<double> &dash_array) {
 //      }
     }
   }
+}
+
+static bool GraphicsDirective::Impl::decode_joinform(JoinForm &join_form, float &miter_limit, Expr expr) {
+  if(expr.is_string()) {
+    if(expr == strings::Bevel) { join_form = JoinFormBevel; return true; }
+    if(expr == strings::Miter) { join_form = JoinFormMiter; miter_limit = 10.0f; return true; }
+    if(expr == strings::Round) { join_form = JoinFormRound; return true; }
+    return false;
+  }
+  
+  if(expr == richmath_System_None) {
+    join_form = JoinFormNone;
+    return true;
+  }
+  
+  if(expr[0] == richmath_System_List && expr.expr_length() == 2 && expr[1] == strings::Miter) {
+    join_form = JoinFormMiter;
+    
+    Expr miter_limit_obj = expr[2];
+    if(miter_limit_obj.is_number()) {
+      miter_limit = (float)miter_limit_obj.to_double();
+      if(miter_limit >= 0 && isfinite(miter_limit)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  return false
 }
 
 bool GraphicsDirective::Impl::change_directives(Expr new_directives) {
