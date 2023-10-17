@@ -20,6 +20,9 @@ namespace richmath {
       void fill_with_edgeform();
       
     public:
+      Array<double> edge_dash_array;
+      double        edge_dash_offset;
+      enum CapForm  edge_capform;
       Color         edge_color;
       enum JoinForm edge_joinform;
       float         edge_miter_limit;

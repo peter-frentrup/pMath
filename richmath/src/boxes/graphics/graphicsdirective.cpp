@@ -54,9 +54,7 @@ namespace richmath {
       static void apply_edgeform_to_style(  Expr directive, Style &style);
       static void apply_edgeform_to_context(Expr directive, GraphicsDrawingContext &gc);
       
-      static bool decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor);
       static bool decode_dash_offset(double &offset, Expr obj, float scale_factor);
-      static void enlarge_zero_dashes(Array<double> &dash_array);
       
       static bool decode_joinform(JoinForm &join_form, float &miter_limit, Expr expr);
       
@@ -150,6 +148,97 @@ void GraphicsDirective::dynamic_finished(Expr info, Expr result) {
     request_repaint_all();
 }
 
+bool GraphicsDirective::decode_dashing(Array<double> &dash_array, double &offset, enum CapForm &cap_form, Expr dashing_expr, float scale_factor) {
+  // Dashing(dashes)
+  // Dashing(dashes, offset)
+  // Dashing(dashes, offset, cap)
+  
+  offset = 0.0;
+  if(decode_dash_array(dash_array, dashing_expr[1], scale_factor)) {
+    if(dashing_expr.expr_length() < 2 || Impl::decode_dash_offset(offset, dashing_expr[2], scale_factor)) {
+      int capform_val = (int)CapFormButt;
+      
+      if(dashing_expr.expr_length() == 3) {
+        if(dashing_expr[3][0] == richmath_System_CapForm)
+          capform_val = StyleData::decode_enum(dashing_expr[3][1], IntStyleOptionName::CapForm, -1);
+        else
+          capform_val = StyleData::decode_enum(dashing_expr[3], IntStyleOptionName::CapForm, -1);
+      }
+      
+      if(capform_val >= 0) {
+        cap_form = (enum CapForm)capform_val;
+        
+        if(cap_form == CapFormButt)
+          enlarge_zero_dashes(dash_array);
+        
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+bool GraphicsDirective::decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor) {
+  if(dashes[0] == richmath_System_List && dashes.expr_length() < 1000) {
+    int num_dashes = (int)dashes.expr_length();
+    dash_array.length(num_dashes);
+    for(int i = 0; i < num_dashes; ++i) {
+      if(Length len = Length::from_pmath(dashes[i+1])) {
+        dash_array[i] = len.resolve(1.0f, LengthConversionFactors::NormalDashingInPt,  scale_factor);
+      }
+      else
+        return false;
+    }
+  }
+  else if(Length len = Length::from_pmath(dashes)) {
+    if(len.is_symbolic()) {
+      dash_array.length(2);
+      dash_array[0] = len.resolve(1.0f, LengthConversionFactors::SimpleDashingOnInPt,  scale_factor);
+      dash_array[1] = len.resolve(1.0f, LengthConversionFactors::SimpleDashingOffInPt, scale_factor);
+    }
+    else {
+      dash_array.length(1);
+      dash_array[0] = len.resolve(1.0f, LengthConversionFactors::SimpleDashingOnInPt, scale_factor);
+    }
+  }
+  else
+    return false;
+  
+  if(dash_array.length() > 0) {
+    bool all_zero = true;
+    for(double val : dash_array) {
+      if(!isfinite(val) || val < 0)
+        return false;
+      
+      if(val > 0)
+        all_zero = false;
+    }
+    
+    if(all_zero)
+      return false;
+  }
+  
+  return true;
+}
+
+void GraphicsDirective::enlarge_zero_dashes(Array<double> &dash_array) {
+  const double default_size = 1.0;
+  
+  for(int i = 0; i < dash_array.length(); ++i) {
+    if(dash_array[i] == 0) {
+      dash_array[i] = default_size;
+      
+//      if(i + 1 < dash_array.length()) {
+//        if(dash_array[i+1] > default_size)
+//          dash_array[i+1] -= default_size;
+//        else
+//          dash_array[i+1] = 0;
+//      }
+    }
+  }
+}
+
 bool GraphicsDirective::decode_joinform(enum JoinForm &join_form, float &miter_limit, Expr expr) {
   if(expr.is_string()) {
     if(expr == strings::Bevel) { join_form = JoinFormBevel; return true; }
@@ -215,7 +304,7 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
   }
   
   if(directive[0] == richmath_System_CapForm) {
-    style.set_pmath(CapForm, directive[1]);
+    style.set_pmath(IntStyleOptionName::CapForm, directive[1]);
     return;
   }
   
@@ -307,7 +396,7 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
   }
   
   if(directive[0] == richmath_System_CapForm) {
-    int val = StyleData::decode_enum(directive[1], CapForm, -1);
+    int val = StyleData::decode_enum(directive[1], IntStyleOptionName::CapForm, -1);
     if(val >= 0 && gc.canvas().dash_count() == 0) {
       gc.canvas().cap_form((enum CapForm)val);
     }
@@ -316,27 +405,14 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
   
   if(directive[0] == richmath_System_Dashing) {
     Array<double> dash_array;
-    double offset = 0.0;
-    if(decode_dash_array(dash_array, directive[1], gc.plot_range_width)) {
-      if(directive.expr_length() < 2 || decode_dash_offset(offset, directive[2], gc.plot_range_width)) {
-        int capform_val = (int)CapFormButt;
-        if(directive.expr_length() == 3) {
-          if(directive[3][0] == richmath_System_CapForm)
-            capform_val = StyleData::decode_enum(directive[3][1], CapForm, -1);
-          else
-            capform_val = StyleData::decode_enum(directive[3], CapForm, -1);
-        }
-        
-        if(capform_val >= 0) {
-          gc.canvas().cap_form((enum CapForm)capform_val);
-          
-          if(capform_val == (int)CapFormButt)
-            enlarge_zero_dashes(dash_array);
-          
-          gc.canvas().set_dashes(dash_array, offset);
-        }
-      }
+    double offset;
+    enum CapForm capform;
+    
+    if(GraphicsDirective::decode_dashing(dash_array, offset, capform, directive, gc.plot_range_width)) {
+      gc.canvas().cap_form(capform);
+      gc.canvas().set_dashes(dash_array, offset);
     }
+    
     return;
   }
   
@@ -381,6 +457,20 @@ void GraphicsDirective::Impl::apply_edgeform_to_context(Expr directive, Graphics
     return;
   }
   
+  if(directive[0] == richmath_System_Dashing) {
+    Array<double> dash_array;
+    double offset;
+    enum CapForm capform;
+    
+    if(GraphicsDirective::decode_dashing(dash_array, offset, capform, directive, gc.plot_range_width)) {
+      swap(gc.edge_dash_array, dash_array);
+      gc.edge_dash_offset = offset;
+      gc.edge_capform     = capform;
+    }
+    
+    return;
+  }
+  
   if(directive[0] == richmath_System_JoinForm) {
     JoinForm join_form;
     float miter_limit;
@@ -391,51 +481,6 @@ void GraphicsDirective::Impl::apply_edgeform_to_context(Expr directive, Graphics
     }
     return;
   }
-  
-  // TODO: Dashing
-}
-
-bool GraphicsDirective::Impl::decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor) {
-  if(dashes[0] == richmath_System_List && dashes.expr_length() < 1000) {
-    int num_dashes = (int)dashes.expr_length();
-    dash_array.length(num_dashes);
-    for(int i = 0; i < num_dashes; ++i) {
-      if(Length len = Length::from_pmath(dashes[i+1])) {
-        dash_array[i] = len.resolve(1.0f, LengthConversionFactors::NormalDashingInPt,  scale_factor);
-      }
-      else
-        return false;
-    }
-  }
-  else if(Length len = Length::from_pmath(dashes)) {
-    if(len.is_symbolic()) {
-      dash_array.length(2);
-      dash_array[0] = len.resolve(1.0f, LengthConversionFactors::SimpleDashingOnInPt,  scale_factor);
-      dash_array[1] = len.resolve(1.0f, LengthConversionFactors::SimpleDashingOffInPt, scale_factor);
-    }
-    else {
-      dash_array.length(1);
-      dash_array[0] = len.resolve(1.0f, LengthConversionFactors::SimpleDashingOnInPt, scale_factor);
-    }
-  }
-  else
-    return false;
-  
-  if(dash_array.length() > 0) {
-    bool all_zero = true;
-    for(double val : dash_array) {
-      if(!isfinite(val) || val < 0)
-        return false;
-      
-      if(val > 0)
-        all_zero = false;
-    }
-    
-    if(all_zero)
-      return false;
-  }
-  
-  return true;
 }
 
 bool GraphicsDirective::Impl::decode_dash_offset(double &offset, Expr obj, float scale_factor) {
@@ -460,23 +505,6 @@ bool GraphicsDirective::Impl::decode_dash_offset(double &offset, Expr obj, float
   }
   
   return false;
-}
-
-void GraphicsDirective::Impl::enlarge_zero_dashes(Array<double> &dash_array) {
-  const double default_size = 1.0;
-  
-  for(int i = 0; i < dash_array.length(); ++i) {
-    if(dash_array[i] == 0) {
-      dash_array[i] = default_size;
-      
-//      if(i + 1 < dash_array.length()) {
-//        if(dash_array[i+1] > default_size)
-//          dash_array[i+1] -= default_size;
-//        else
-//          dash_array[i+1] = 0;
-//      }
-    }
-  }
 }
 
 bool GraphicsDirective::Impl::change_directives(Expr new_directives) {

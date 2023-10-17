@@ -9,7 +9,9 @@ using namespace richmath;
 //{ class GraphicsDrawingContext ...
 
 GraphicsDrawingContext::GraphicsDrawingContext(Box &owner, Context &context)
-  : edge_color(Color::Black/*context.canvas().get_color()*/),
+  : edge_dash_offset(0.0),
+    edge_capform(CapFormButt),
+    edge_color(Color::Black/*context.canvas().get_color()*/),
     edge_joinform(JoinFormMiter),
     edge_miter_limit(10.0f),
     edge_thickness(SymbolicSize::Automatic),
@@ -26,6 +28,11 @@ void GraphicsDrawingContext::init_edgeform_from_style() {
   draw_edges     = _owner.get_own_style(DrawEdges,     false);
   edge_color     = _owner.get_own_style(EdgeColor,     Color::Black);
   edge_thickness = _owner.get_own_style(EdgeThickness, SymbolicSize::Automatic);
+  
+  Array<double> dash_array;
+  if(GraphicsDirective::decode_dash_array(dash_array, _owner.get_own_style(EdgeDashing), plot_range_width)) {
+    swap(edge_dash_array, dash_array);
+  }
   
   enum JoinForm jf = JoinFormMiter; 
   float miter_limit = 10.0f;
@@ -50,6 +57,8 @@ void GraphicsDrawingContext::fill_with_edgeform() {
   Color c = canvas().get_color();
   canvas().set_color(edge_color);
   apply_thickness(edge_thickness);
+  canvas().cap_form(edge_capform);
+  canvas().set_dashes(edge_dash_array, edge_dash_offset);
   canvas().join_form(edge_joinform);
   if(edge_joinform == JoinFormMiter)
     canvas().miter_limit(edge_miter_limit);

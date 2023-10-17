@@ -25,6 +25,10 @@ namespace richmath {
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;
       
+      static bool decode_dashing(Array<double> &dash_array, double &offset, enum CapForm &cap_form, Expr dashing_expr, float scale_factor);
+      static bool decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor);
+      static void enlarge_zero_dashes(Array<double> &dash_array);
+      
       static bool decode_joinform(enum JoinForm &join_form, float &miter_limit, Expr expr);
     
     protected:
