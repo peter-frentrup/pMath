@@ -292,7 +292,7 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
     }
     else {
       gc.draw_edges = true;
-      if(edgeform[0] == richmath_System_List) {
+      if(edgeform[0] == richmath_System_List || edgeform[0] == richmath_System_Directive) {
         for(auto item : edgeform.items())
           apply_edgeform_to_context(PMATH_CPP_MOVE(item), gc);
       }
