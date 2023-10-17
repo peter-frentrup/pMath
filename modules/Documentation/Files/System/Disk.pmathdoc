@@ -49,6 +49,37 @@ Document({
             Section(BoxData(GraphicsBox({DiskBox({0, 0}, {2, 1})})), "Output", 
              GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Disks in different styles:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {
+                {"Graphics", "(", {"{", {"Green", ",", {"Disk", "(", ")"}}, 
+                  "}"}, ")"}, ",", {"Graphics", "(", {
+                  "{", {{"EdgeForm", "(", "Dashed", ")"}, ",", "Green", ",", {
+                    "Disk", "(", ")"}}, "}"}, ")"}, ",", {
+                 "Graphics", "(", {"{", {{"EdgeForm", "(", "Thick", ")"}, ",", 
+                   "Green", ",", {"Disk", "(", ")"}}, "}"}, ")"}, ",", {
+                 "Graphics", "(", {
+                  "{", {
+                   {"EdgeForm", "(", {"Directive", "(", {
+                      "Red", ",", "Thick", ",", "Dashed"}, ")"}, ")"}, ",", 
+                   "Green", ",", {"Disk", "(", ")"}}, "}"}, ")"}}, "}"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {GraphicsBox({RGBColor(0, 1, 0), DiskBox()}), ",", 
+                GraphicsBox({EdgeForm(Dashing({Small, Small})), 
+                  RGBColor(0, 1, 0), DiskBox()}), ",", 
+                GraphicsBox({EdgeForm(Thickness(Large)), RGBColor(0, 1, 0), 
+                  DiskBox()}), ",", GraphicsBox({
+                  EdgeForm(Directive(RGBColor(1, 0, 0), Thickness(Large), 
+                    Dashing({Small, Small}))), RGBColor(0, 1, 0), 
+                  DiskBox()})}, "}"}), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Specify radii:", "ExampleText"), 
         SectionGroup({
@@ -210,7 +241,7 @@ Document({
                  DiskBox({2.86055720194867, 1.5509474364066018`}, 
                   0.11096190603843237`)}, {Hue(0.8216740216429548`), 
                  DiskBox({1.00696972061924, 0.7098055825530731`}, 
-                  0.08838469329605379[982+/-695]`16)}, {
+                  0.0883846932960537[998+/-140]`16)}, {
                  Hue(0.8842216651464875`), 
                  DiskBox({0.10579668631712646`, 1.9719315435318814`}, 
                   0.48314645045114124`)}, {Hue(0.6487794552592567`), 
@@ -250,7 +281,7 @@ Document({
                   0.9367289887863963`)}, {Hue(0.521952794485792), 
                  DiskBox({3.2124017360274255`, 0.7725473280573478`}, 
                   0.5132350195796581`)}, {
-                 Hue(0.05561703927061189[753+/-348]`16), 
+                 Hue(0.05561703927061189[406+/-696]`16), 
                  DiskBox({3.4679924225820895`, 2.918352933694895`}, 
                   0.7564689993775233`)}, {Hue(0.18221353033142795`), 
                  DiskBox({2.951599126686791`, 1.2413976227224457`}, 
