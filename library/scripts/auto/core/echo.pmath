@@ -1,12 +1,12 @@
 
 Begin("System`Echo`")
 
-Echo(~expr)::=             (SectionPrint("Echo",          expr);  expr)
-Echo(~expr, ~label)::=     (SectionPrint("Echo", label,   expr);  expr)
+Echo(~expr)::=             (SectionPrint("Echo",        Unevaluated(expr));  expr)
+Echo(~expr, ~label)::=     (SectionPrint("Echo", label, Unevaluated(expr));  expr)
 Echo(~expr, ~label, ~f)::= (SectionPrint("Echo", label, f(expr)); expr)
 Echo(~~~args)::= $Failed /? IsValidArgumentCount(Echo, Length @ {args}, 1, 3)
 
-EchoFunction()(~expr)::=           (SectionPrint("Echo",          expr);  expr)
+EchoFunction()(~expr)::=           (SectionPrint("Echo",        Unevaluated(expr));  expr)
 EchoFunction(~f)(~expr)::=         (SectionPrint("Echo",        f(expr)); expr)
 EchoFunction(~label, ~f)(~expr)::= (SectionPrint("Echo", label, f(expr)); expr)
 EchoFunction(          )(~~~args)::= $Failed /? IsValidArgumentCount(EchoFunction(        ), Length @ {args}, 1, 1)

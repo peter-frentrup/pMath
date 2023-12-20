@@ -13,6 +13,7 @@
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Row;
 extern pmath_symbol_t pmath_System_SectionPrint;
+extern pmath_symbol_t pmath_System_Unevaluated;
 
 static void write_to_file(void *file, const char *cstr) {
   fwrite(cstr, 1, strlen(cstr), (FILE*)file);
@@ -63,5 +64,5 @@ PMATH_PRIVATE pmath_t builtin_print(pmath_expr_t expr) {
   return pmath_expr_new_extended(
            pmath_ref(pmath_System_SectionPrint), 2,
            PMATH_C_STRING("Print"),
-           expr);
+           pmath_expr_new_extended(pmath_ref(pmath_System_Unevaluated), 1, expr));
 }
