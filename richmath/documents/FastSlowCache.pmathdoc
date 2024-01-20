@@ -3,6 +3,9 @@
 Document({
   SectionGroup({Section("FastSlowCache", "Title"), 
     Section(
+     "Idea for how to cache a slow evaluation depending on a fast validation \
+     (e.g. re-import a file only if its time stamp changed).", "Text"), 
+    Section(
      BoxData(/\/({"SetAttributes", "(", {"FastSlowCache", ",", "HoldRest"}, 
         ")"}, "\n", {"Function", " ", {"FastSlowCache", "(", {
           {"~", "cache"}, ",", {"~", "fastExpr"}, ",", {"~", "slowExpr"}}, 
@@ -32,26 +35,11 @@ Document({
         "{", {"$Aborted", ",", "$Failed"}, "}"}}), "Input", 
      SectionLabel -> "in [3]:"), 
     SectionGroup({Section("Usage", "Subsection"), 
-      SectionGroup({
-        Section(BoxData({"FastSlowCache", "(", {
-            "c", ",", "2", ",", {{"Pause", "(", "2", ")"}, ";", {
-              "Echo", "(", "5", ")"}}}, ")"}), "Input", 
-         SectionLabel -> "in [4]:"), Section(BoxData("5"), "Echo", 
-         SectionGenerated -> True), Section(BoxData("5"), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
-      SectionGroup({
-        Section(BoxData({"FastSlowCache", "(", {
-            "c", ",", "2", ",", {{"Pause", "(", "2", ")"}, ";", {
-              "Echo", "(", "5", ")"}}}, ")"}), "Input", 
-         SectionLabel -> "in [5]:"), Section(BoxData("5"), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
-      SectionGroup({
-        Section(BoxData({"FastSlowCache", "(", {
-            "c", ",", "3", ",", {{"Pause", "(", "2", ")"}, ";", {
-              "Echo", "(", "5", ")"}}}, ")"}), "Input", 
-         SectionLabel -> "in [6]:"), Section(BoxData("5"), "Echo", 
-         SectionGenerated -> True), Section(BoxData("5"), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+      Section(BoxData({"Clear", "(", "c", ")"}), "Input", 
+       SectionLabel -> "in [6]:"), 
+      Section(TextData({"Very first evaluation: caculating ", 
+         StyleBox("slow", FontSlant -> Italic), 
+         " expression causes side effect:"}), "Text"), 
       SectionGroup({
         Section(BoxData({"FastSlowCache", "(", {
             "c", ",", "2", ",", {{"Pause", "(", "2", ")"}, ";", {
@@ -59,8 +47,42 @@ Document({
          SectionLabel -> "in [7]:"), Section(BoxData("5"), "Echo", 
          SectionGenerated -> True), Section(BoxData("5"), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+      Section(TextData({"Subsequent evaluation with same ", 
+         StyleBox("fast", FontSlant -> Italic), 
+         " value (2) will use previously calculated ", 
+         StyleBox("slow", FontSlant -> Italic), " value (5):"}), "Text"), 
+      SectionGroup({
+        Section(BoxData({"FastSlowCache", "(", {
+            "c", ",", "2", ",", {{"Pause", "(", "2", ")"}, ";", {
+              "Echo", "(", "5", ")"}}}, ")"}), "Input", 
+         SectionLabel -> "in [8]:"), Section(BoxData("5"), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [8]:")}, All), 
+      Section(TextData({"Subsequent evaluation with different ", 
+         StyleBox("fast", FontSlant -> Italic), 
+         " value (3) will trigger new evaluation of the ", 
+         StyleBox("slow", FontSlant -> Italic), 
+         " value which again causes a side effect:"}), "Text"), 
+      SectionGroup({
+        Section(BoxData({"FastSlowCache", "(", {
+            "c", ",", "3", ",", {{"Pause", "(", "2", ")"}, ";", {
+              "Echo", "(", "5", ")"}}}, ")"}), "Input", 
+         SectionLabel -> "in [9]:"), Section(BoxData("5"), "Echo", 
+         SectionGenerated -> True), Section(BoxData("5"), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
+      Section(TextData({"Changing the ", 
+         StyleBox("fast", FontSlant -> Italic), 
+         " value back at a later evaluation will also cause a revaluation of \
+         the ", StyleBox("slow", FontSlant -> Italic), 
+         " value including side effects:"}), "Text"), 
+      SectionGroup({
+        Section(BoxData({"FastSlowCache", "(", {
+            "c", ",", "2", ",", {{"Pause", "(", "2", ")"}, ";", {
+              "Echo", "(", "5", ")"}}}, ")"}), "Input", 
+         SectionLabel -> "in [10]:"), Section(BoxData("5"), "Echo", 
+         SectionGenerated -> True), Section(BoxData("5"), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [10]:")}, All), 
       SectionGroup({Section(BoxData({"??", "c"}), "Input", 
-         SectionLabel -> "in [8]:"), Section(BoxData("Global`c"), 
+         SectionLabel -> "in [11]:"), Section(BoxData("Global`c"), 
          "PrintUsage", SectionGenerated -> True), 
         Section(BoxData({"c", "/:", {"FastSlow", "(", "c", ")"}, "\[Assign]", {
             "{", {"2", ",", "5"}, "}"}}), "Print", SectionGenerated -> True)}, 
@@ -72,6 +94,8 @@ Document({
         Section(BoxData({"CachedOn", "(", {{"SlowRead", "(", "file", ")"}, 
             ",", "$cache", ",", {"FileInformation", "(", "file", ")"}}, ")"}), 
          "Input"), 
+        Section(TextData({"Automatically choose a ", 
+           StyleBox("$cache", FontSlant -> Italic), " symbol:"}), "Text"), 
         Section(BoxData({{"SlowRead", "(", "file", ")"}, "|>", {
             "CachedOn", "(", {"FileInformation", "(", "file", ")"}, ")"}}), 
          "Input"), 
@@ -96,12 +120,14 @@ Document({
         Section(BoxData({"EvaluateWithCache", "(", {
             {"SlowRead", "(", "file", ")"}, ",", "$cache", ",", {
              "FileInformation", "(", "file", ")"}}, ")"}), "Input")}, All), 
-      SectionGroup({Section("CacheIf", "Subsubsection"), 
+      Section("CacheIf", "Subsubsection"), 
+      SectionGroup({Section("Memorize", "Subsubsection"), 
         Section(BoxData({"Memorize", "(", {{"SlowRead", "(", "file", ")"}, 
             ",", {"FileInformation", "(", "file", ")"}}, ")"}), "Input"), 
         Section(BoxData({"Memorize", "(", {
             {"FileInformation", "(", "file", ")"}, "\[Rule]", {
-             "SlowRead", "(", "file", ")"}}, ")"}), "Input"), 
+             "SlowRead", "(", "file", ")"}}, ")"}), "Input")}, All), 
+      SectionGroup({Section("Once", "Subsubsection"), 
         Section(BoxData({"Once", "(", {{"SlowRead", "(", "file", ")"}, ",", {
              "CacheKey", "\[Rule]", {"FileInformation", "(", "file", ")"}}}, 
            ")"}), "Input"), 
