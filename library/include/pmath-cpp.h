@@ -16,6 +16,10 @@
 #  endif
 #endif
 
+#if __cplusplus < 201103L && !defined(noexcept)
+#  define noexcept    noexcept
+#endif
+
 #ifdef PMATH_OS_WIN32
 #  define PMATH_CPP_WCHAR_IS_U16
 #endif
@@ -79,7 +83,7 @@ namespace pmath {
       class Iterator {
           friend class ItemsEnum;
         public:
-          bool operator!=(const Iterator &other) const throw() {
+          bool operator!=(const Iterator &other) const noexcept {
             return _expr_ptr != other._expr_ptr || _index != other._index;
           }
           Expr operator*() const {
@@ -105,7 +109,7 @@ namespace pmath {
       class ReverseIterator {
           friend class ReverseItemsEnum;
         public:
-          bool operator!=(const ReverseIterator &other) const throw() {
+          bool operator!=(const ReverseIterator &other) const noexcept {
             return _expr_ptr != other._expr_ptr || _index_plus_1 != other._index_plus_1;
           }
           Expr operator*() const {
@@ -141,11 +145,11 @@ namespace pmath {
             return Expr(pmath_expr_get_item_range(_expr_ptr->get(), _first_index, _last_index - _first_index + 1));
           }
           
-          Iterator begin() const throw() {
+          Iterator begin() const noexcept {
             return Iterator(_expr_ptr, _first_index);
           }
           
-          Iterator end() const throw() {
+          Iterator end() const noexcept {
             return Iterator(_expr_ptr, _last_index + 1);
           }
         
@@ -164,11 +168,11 @@ namespace pmath {
           {
           }
           
-          ReverseIterator begin() const throw() {
+          ReverseIterator begin() const noexcept {
             return ReverseIterator(_expr_ptr, _largest_index + 1);
           }
           
-          ReverseIterator end() const throw() {
+          ReverseIterator end() const noexcept {
             return ReverseIterator(_expr_ptr, _smallest_index);
           }
         
@@ -180,25 +184,25 @@ namespace pmath {
       
     public:
       /**\brief Initialize with PMATH_NULL */
-      Expr() throw()
+      Expr() noexcept
         : _obj(PMATH_NULL)
       {
       }
       
       /**\brief Construct form a pmath_t, that will be freed automatically with the Expr. */
-      explicit Expr(pmath_t obj) throw()
+      explicit Expr(pmath_t obj) noexcept
         : _obj(obj)
       {
       }
       
       /**\brief Copy an Expr, inrecementing the reference counter. */
-      Expr(const Expr &src) throw()
+      Expr(const Expr &src) noexcept
         : _obj(pmath_ref(src._obj))
       {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      Expr(Expr &&src) throw()
+      Expr(Expr &&src) noexcept
         : _obj(src._obj)
       {
         src._obj = PMATH_NULL;
@@ -206,111 +210,111 @@ namespace pmath {
 #endif
       
       /**\brief Construct from an int. */
-      Expr(int i) throw()
+      Expr(int i) noexcept
         : _obj(pmath_build_value("i", i))
       {
       }
       
       /**\brief Construct from an int64_t. */
-      Expr(int64_t i) throw()
+      Expr(int64_t i) noexcept
         : _obj(pmath_integer_new_si64(i))
       {
       }
       
       /**\brief Construct from an size_t. */
-      Expr(size_t i) throw()
+      Expr(size_t i) noexcept
         : _obj(pmath_integer_new_uiptr(i))
       {
       }
       
       /**\brief Construct from a double. May yield Infinity or Undefined (NaN) values */
-      Expr(double f) throw()
+      Expr(double f) noexcept
         : _obj(pmath_build_value("f", f))
       {
       }
       
       /**\brief Destructor. Frees the wrapped object. */
-      ~Expr() throw() {
+      ~Expr() noexcept {
         pmath_unref(_obj);
       }
       
       /**\brief Copy an Expr. Increments the new value's reference counter and frees the old one. */
-      Expr &operator=(Expr other) throw() {
+      Expr &operator=(Expr other) noexcept {
         swap(*this, other);
         return *this;
       }
       
-      friend void swap(Expr &first, Expr &second) throw() {
+      friend void swap(Expr &first, Expr &second) noexcept {
         using std::swap;
         swap(first._obj, second._obj);
       }
       
-      bool is_custom()       const throw() { return pmath_is_custom(_obj); }
-      bool is_double()       const throw() { return pmath_is_double(_obj); }
-      bool is_expr()         const throw() { return pmath_is_expr(_obj); }
-      bool is_float()        const throw() { return pmath_is_float(_obj); }
-      bool is_integer()      const throw() { return pmath_is_integer(_obj); }
-      bool is_int32()        const throw() { return pmath_is_int32(_obj); }
-      bool is_magic()        const throw() { return pmath_is_magic(_obj); }
-      bool is_mpfloat()      const throw() { return pmath_is_mpfloat(_obj); }
-      bool is_null()         const throw() { return pmath_is_null(_obj); }
-      bool is_number()       const throw() { return pmath_is_number(_obj); }
-      bool is_pointer()      const throw() { return pmath_is_pointer(_obj); }
-      bool is_quotient()     const throw() { return pmath_is_quotient(_obj); }
-      bool is_rational()     const throw() { return pmath_is_rational(_obj); }
-      bool is_string()       const throw() { return pmath_is_string(_obj); }
-      bool is_symbol()       const throw() { return pmath_is_symbol(_obj); }
-      bool is_blob()         const throw() { return pmath_is_blob(_obj); }
-      bool is_packed_array() const throw() { return pmath_is_packed_array(_obj); }
+      bool is_custom()       const noexcept { return pmath_is_custom(_obj); }
+      bool is_double()       const noexcept { return pmath_is_double(_obj); }
+      bool is_expr()         const noexcept { return pmath_is_expr(_obj); }
+      bool is_float()        const noexcept { return pmath_is_float(_obj); }
+      bool is_integer()      const noexcept { return pmath_is_integer(_obj); }
+      bool is_int32()        const noexcept { return pmath_is_int32(_obj); }
+      bool is_magic()        const noexcept { return pmath_is_magic(_obj); }
+      bool is_mpfloat()      const noexcept { return pmath_is_mpfloat(_obj); }
+      bool is_null()         const noexcept { return pmath_is_null(_obj); }
+      bool is_number()       const noexcept { return pmath_is_number(_obj); }
+      bool is_pointer()      const noexcept { return pmath_is_pointer(_obj); }
+      bool is_quotient()     const noexcept { return pmath_is_quotient(_obj); }
+      bool is_rational()     const noexcept { return pmath_is_rational(_obj); }
+      bool is_string()       const noexcept { return pmath_is_string(_obj); }
+      bool is_symbol()       const noexcept { return pmath_is_symbol(_obj); }
+      bool is_blob()         const noexcept { return pmath_is_blob(_obj); }
+      bool is_packed_array() const noexcept { return pmath_is_packed_array(_obj); }
       
-      bool is_pointer_of(pmath_type_t type) const throw() { return pmath_is_pointer_of(_obj, type); }
+      bool is_pointer_of(pmath_type_t type) const noexcept { return pmath_is_pointer_of(_obj, type); }
       
-      bool is_evaluated() const throw() {     return pmath_is_evaluated(_obj); }
-      bool is_rule() const throw() {          return pmath_is_rule(_obj); }
-      bool is_list_of_rules() const throw() { return pmath_is_list_of_rules(_obj); }
+      bool is_evaluated() const noexcept {     return pmath_is_evaluated(_obj); }
+      bool is_rule() const noexcept {          return pmath_is_rule(_obj); }
+      bool is_list_of_rules() const noexcept { return pmath_is_list_of_rules(_obj); }
 
-      bool is_namespace() const throw() {      return pmath_is_namespace(_obj); }
-      bool is_namespace_list() const throw() { return pmath_is_namespace_list(_obj); }
+      bool is_namespace() const noexcept {      return pmath_is_namespace(_obj); }
+      bool is_namespace_list() const noexcept { return pmath_is_namespace_list(_obj); }
       
       /**\brief Get a hash value. */
-      unsigned int hash() const throw() { return pmath_hash(_obj); }
+      unsigned int hash() const noexcept { return pmath_hash(_obj); }
       
       /**\brief Check for identity. The pMath === operator. */
-      bool operator==(const Expr &other) const throw() { return pmath_equals(_obj, other._obj); }
+      bool operator==(const Expr &other) const noexcept { return pmath_equals(_obj, other._obj); }
       
       /**\brief Check for non-identity. The pMath =!= operator. */
-      bool operator!=(const Expr &other) const throw() { return !pmath_equals(_obj, other._obj); }
+      bool operator!=(const Expr &other) const noexcept { return !pmath_equals(_obj, other._obj); }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      int compare(const Expr &other) const throw() { return pmath_compare(_obj, other._obj); }
+      int compare(const Expr &other) const noexcept { return pmath_compare(_obj, other._obj); }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      bool operator<(const Expr &other) const throw() { return compare(other) < 0; }
+      bool operator<(const Expr &other) const noexcept { return compare(other) < 0; }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      bool operator<=(const Expr &other) const throw() { return compare(other) <= 0; }
+      bool operator<=(const Expr &other) const noexcept { return compare(other) <= 0; }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      bool operator>(const Expr &other) const throw() { return compare(other) > 0; }
+      bool operator>(const Expr &other) const noexcept { return compare(other) > 0; }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      bool operator>=(const Expr &other) const throw() { return compare(other) >= 0; }
+      bool operator>=(const Expr &other) const noexcept { return compare(other) >= 0; }
       
       /**\brief Return the pmath_t and discard it. Caller must pmath_unref() it. */
       PMATH_ATTRIBUTE_USE_RESULT
-      pmath_t release() throw() { pmath_t o = _obj; _obj = PMATH_NULL; return o; }
+      pmath_t release() noexcept { pmath_t o = _obj; _obj = PMATH_NULL; return o; }
       
       /**\brief Get the pmath_t. Reference is held by the Expr object. */
-      const pmath_t get() const throw() { return _obj; }
+      const pmath_t get() const noexcept { return _obj; }
       
       /**\brief Check for not holding the null pointer. */
-      bool is_valid() const throw() { return !is_null(); }
+      bool is_valid() const noexcept { return !is_null(); }
       
       /**\brief Check for not holding the null pointer. */
-      explicit operator bool() const throw() { return is_valid(); }
+      explicit operator bool() const noexcept { return is_valid(); }
       
       /**\brief Length of the expression or 0 on error. */
-      size_t expr_length() const throw() {
+      size_t expr_length() const noexcept {
         if(!is_expr())
           return 0;
         return pmath_expr_length(_obj);
@@ -322,7 +326,7 @@ namespace pmath {
          expr[0] is the head, expr[1] the first argument and expr[length()] the
          last argument.
        */
-      Expr operator[](size_t i) const throw() {
+      Expr operator[](size_t i) const noexcept {
         if(!is_expr())
           return Expr();
         return Expr(pmath_expr_get_item(_obj, i));
@@ -332,7 +336,7 @@ namespace pmath {
          \param i Index. Values outside 0..expr_length() give PMATH_NULL.
          \return The i-th argument if the object is a \ref pmath_expr_t.
        */
-      Expr operator[](int i) const throw() {
+      Expr operator[](int i) const noexcept {
         if(i < 0)
           return Expr();
         if(!is_expr())
@@ -341,24 +345,24 @@ namespace pmath {
       }
 
       /**\brief Get all but the first items. */
-      Expr rest() const throw() {
+      Expr rest() const noexcept {
         if(!is_expr())
           return Expr();
         return Expr(pmath_expr_get_item_range(_obj, 2, SIZE_MAX));
       }
 
-      bool try_lookup(Expr key, Expr &result) const throw() {
+      bool try_lookup(Expr key, Expr &result) const noexcept {
         return pmath_rules_lookup(_obj, key.release(), &result._obj);
       }
 
-      Expr lookup(Expr key, Expr default_value) const throw() {
+      Expr lookup(Expr key, Expr default_value) const noexcept {
         pmath_rules_lookup(_obj, key.release(), &default_value._obj);
         return default_value;
       }
       
       /**\brief Enumerate all items [1..length()] with C++ range based for loops
        */
-      ItemsEnum items() const throw() {
+      ItemsEnum items() const noexcept {
         return items((size_t)1, expr_length());
       }
       
@@ -366,13 +370,13 @@ namespace pmath {
          \param first Index of the first item, default is 1.
          \param last  Index of the last item (inclusive), default is expr_length().
        */
-      ItemsEnum items(size_t first, size_t last) const throw() {
+      ItemsEnum items(size_t first, size_t last) const noexcept {
         return ItemsEnum(this, first, last);
       }
       
       /**\brief Enumerate all items in reverse order with C++ range based for loops
        */
-      ReverseItemsEnum items_reverse() const throw() {
+      ReverseItemsEnum items_reverse() const noexcept {
         return items_reverse((size_t)1, expr_length());
       }
       
@@ -380,19 +384,19 @@ namespace pmath {
          \param smallest Index of the first item (returned last), default is 1.
          \param largest  Index of the last item (returned first), default is expr_length().
        */
-      ReverseItemsEnum items_reverse(size_t smallest, size_t largest) const throw() {
+      ReverseItemsEnum items_reverse(size_t smallest, size_t largest) const noexcept {
         return ReverseItemsEnum(this, smallest, largest);
       }
       
-      void set_lookup(Expr key, Expr rhs) throw() {
+      void set_lookup(Expr key, Expr rhs) noexcept {
         struct Modifier {
           Expr rhs;
 
-          static pmath_bool_t callback(pmath_t *old_rhs, pmath_bool_t is_simple_rule, void *self) throw() {
+          static pmath_bool_t callback(pmath_t *old_rhs, pmath_bool_t is_simple_rule, void *self) noexcept {
             return ((Modifier*)self)->callback(old_rhs, is_simple_rule);
           }
 
-          pmath_bool_t callback(pmath_t *old_rhs, pmath_bool_t is_simple_rule) throw() {
+          pmath_bool_t callback(pmath_t *old_rhs, pmath_bool_t is_simple_rule) noexcept {
             using std::swap;
             swap(*old_rhs, rhs._obj);
             return is_simple_rule;
@@ -405,7 +409,7 @@ namespace pmath {
          \param i Index. May be > expr_length().
          \param e The new element.
        */
-      void set(size_t i, Expr e) throw() {
+      void set(size_t i, Expr e) noexcept {
         if(is_expr())
           _obj = pmath_expr_set_item(_obj, i, e.release());
       }
@@ -414,7 +418,7 @@ namespace pmath {
          \param i Index. Values outside 0..expr_length() are ignored.
          \param e The new element.
        */
-      void set(int i, Expr e) throw() {
+      void set(int i, Expr e) noexcept {
         if(i < 0)
           return;
         if(is_expr())
@@ -426,7 +430,7 @@ namespace pmath {
          \param j The matrix column.
          \param e The new element.
        */
-      void set(size_t i, size_t j, Expr e) throw() {
+      void set(size_t i, size_t j, Expr e) noexcept {
         if(!is_expr())
           return;
           
@@ -445,7 +449,7 @@ namespace pmath {
          \param j The matrix column.
          \param e The new element.
        */
-      void set(int i, int j, Expr e) throw() {
+      void set(int i, int j, Expr e) noexcept {
         if(i < 0 || j < 0 || !is_expr())
           return;
           
@@ -462,19 +466,19 @@ namespace pmath {
       /**\brief Append an item to an expression.
          \param e The new element.
         */
-      void append(Expr e) throw() {
+      void append(Expr e) noexcept {
         if(is_expr())
           _obj = pmath_expr_append(_obj, 1, e.release());
       }
       
-      void expr_remove_all(Expr rem) throw() {
+      void expr_remove_all(Expr rem) noexcept {
         if(is_expr())
           _obj = pmath_expr_remove_all(_obj, rem.get());
       }
       
       /**\brief Sort the expression
         */
-      void sort() throw() {
+      void sort() noexcept {
         if(is_expr())
           _obj = pmath_expr_sort(_obj);
       }
@@ -484,7 +488,7 @@ namespace pmath {
          \return the double value if the object is a numeric object and \a def
                  otherwise.
        */
-      double to_double(double def = 0.0) const throw() {
+      double to_double(double def = 0.0) const noexcept {
         if(is_number())
           return pmath_number_get_d(_obj);
           
@@ -503,27 +507,27 @@ namespace pmath {
          \param options Optional formating options.
          \return The String representation.
        */
-      String to_string(pmath_write_options_t options = 0) const throw();
+      String to_string(pmath_write_options_t options = 0) const noexcept;
       
       /**\brief Write to a file/text stream.
          \param file The text file object. It must be writeable.
          \param options Optional formating options.
        */
-      void write_to_file(WriteableTextFile file, pmath_write_options_t options = 0) const throw();
+      void write_to_file(WriteableTextFile file, pmath_write_options_t options = 0) const noexcept;
       
       /**\brief Serialize to a binary file/stream.
          \param file The binary file/stream. It must be writeable.
          \param flags Serialization options.
          \return An error number.
        */
-      pmath_serialize_error_t serialize(WriteableBinaryFile file, int flags = 0) const throw();
+      pmath_serialize_error_t serialize(WriteableBinaryFile file, int flags = 0) const noexcept;
       
       /**\brief Deserialize an Expr from a binary file/stream.
          \param file The binary file/stream. It must be writeable.
          \param error An error number is stored here. May be NULL if not needed.
          \return The deserialized expression.
        */
-      static Expr deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) throw();
+      static Expr deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) noexcept;
       
     protected:
       /**\private */
@@ -534,7 +538,7 @@ namespace pmath {
         void           *user,
         const uint16_t *data,
         int             len
-      ) throw() {
+      ) noexcept {
         *(pmath_string_t *)user = pmath_string_insert_ucs2(
                                     *(pmath_string_t *)user,
                                     INT_MAX,
@@ -546,26 +550,26 @@ namespace pmath {
   /**\brief check for identity. The pMath === operator.
      \memberof pmath::Expr
    */
-  inline bool operator==(pmath_t o1, const Expr &o2) throw() {
+  inline bool operator==(pmath_t o1, const Expr &o2) noexcept {
     return pmath_equals(o1, o2.get());
   }
   
   /**\brief check for non-identity. The pMath =!= operator.
      \memberof pmath::Expr
    */
-  inline bool operator!=(pmath_t o1, const Expr &o2) throw() {
+  inline bool operator!=(pmath_t o1, const Expr &o2) noexcept {
     return !pmath_equals(o1, o2.get());
   }
   
   /**\memberof pmath::Expr
    */
-  inline bool operator==(const Expr &o1, pmath_t o2) throw() {
+  inline bool operator==(const Expr &o1, pmath_t o2) noexcept {
     return pmath_equals(o1.get(), o2);
   }
   
   /**\memberof pmath::Expr
    */
-  inline bool operator!=(const Expr &o1, pmath_t o2) throw() {
+  inline bool operator!=(const Expr &o1, pmath_t o2) noexcept {
     return !pmath_equals(o1.get(), o2);
   }
   
@@ -577,58 +581,58 @@ namespace pmath {
    */
   class String: public Expr {
     public:
-      String() throw()
+      String() noexcept
         : Expr()
       {
       }
       
       /**\brief Construct form a pmath_string_t, stealing the reference. */
-      explicit String(pmath_string_t _str) throw()
+      explicit String(pmath_string_t _str) noexcept
         : Expr(pmath_is_string(_str) ? pmath_ref(_str) : PMATH_NULL)
       {
         pmath_unref(_str);
       }
       
-      String(const Expr &src) throw()
+      String(const Expr &src) noexcept
         : Expr(src.is_string() ? pmath_ref(src.get()) : PMATH_NULL)
       {
       }
       
-      String(const String &src) throw()
+      String(const String &src) noexcept
         : Expr(pmath_ref(src._obj))
       {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      explicit String(Expr &&src) throw()
+      explicit String(Expr &&src) noexcept
         : Expr(src.is_string() ? PMATH_CPP_MOVE(src) : Expr())
       {
       }
       
-      String(String  &&src) throw()
+      String(String  &&src) noexcept
         : Expr(PMATH_CPP_MOVE(src))
       {
       }
 #endif
       
       /**\brief Construct from Latin-1 encoded C string. */
-      String(const char *latin1, int len = -1) throw()
+      String(const char *latin1, int len = -1) noexcept
         : Expr(latin1 ? pmath_string_insert_latin1(PMATH_NULL, 0, latin1, len) : PMATH_NULL)
       {
       }
       
       /**\brief Construct from UCS-2/UTF-16 encoded string. */
-      static String FromUcs2(const uint16_t *ucs2, int len = -1) throw() {
+      static String FromUcs2(const uint16_t *ucs2, int len = -1) noexcept {
         return String(pmath_string_insert_ucs2(PMATH_NULL, 0, ucs2, len));
       }
 #ifdef PMATH_CPP_WCHAR_IS_U16
-      static String FromWide(const wchar_t *wcs, int len = -1) throw() {
+      static String FromWide(const wchar_t *wcs, int len = -1) noexcept {
         return FromUcs2((const uint16_t*)wcs, len);
       }
 #endif
       
       /**\brief Construct from a single unicode character. */
-      static String FromChar(unsigned int unicode) throw() {
+      static String FromChar(unsigned int unicode) noexcept {
         uint16_t u16[2];
         if(unicode <= 0xFFFF) {
           u16[0] = (uint16_t)unicode;
@@ -650,107 +654,107 @@ namespace pmath {
       }
       
       /**\brief Construct from UTF-8 encoded C string. */
-      static String FromUtf8(const char *utf8, int len = -1) throw() {
+      static String FromUtf8(const char *utf8, int len = -1) noexcept {
         return String(pmath_string_from_utf8(utf8, len));
       }
 #ifdef __cpp_char8_t
-      static String FromUtf8(const char8_t *utf8, int len = -1) throw() {
+      static String FromUtf8(const char8_t *utf8, int len = -1) noexcept {
         static_assert(sizeof(char8_t) == sizeof(char), "");
         return FromUtf8((const char*)utf8, len);
       }
 #endif
 
 #ifdef __cpp_unicode_characters
-      static String FromUtf16(const char16_t *utf16, int len = -1) throw() {
+      static String FromUtf16(const char16_t *utf16, int len = -1) noexcept {
         return FromUcs2((const uint16_t*)utf16, len);
       }
 #endif
       
-      String &operator=(const String &src) throw() {
+      String &operator=(const String &src) noexcept {
         Expr::operator=(src);
         return *this;
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      String &operator=(String && src) throw() {
+      String &operator=(String && src) noexcept {
         Expr::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
 #endif
       
       /**\brief Append a string. */
-      String &operator+=(const String &src) throw() {
+      String &operator+=(const String &src) noexcept {
         _obj = pmath_string_concat(_obj, (pmath_string_t)pmath_ref(src.get()));
         return *this;
       }
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      String &operator+=(String &&src) throw() {
+      String &operator+=(String &&src) noexcept {
         _obj = pmath_string_concat(_obj, (pmath_string_t)src.release());
         return *this;
       }
 #endif
       
       /**\brief Append a C string. */
-      String &operator+=(const char *latin1) throw() {
+      String &operator+=(const char *latin1) noexcept {
         _obj = pmath_string_insert_latin1(_obj, INT_MAX, latin1, -1);
         return *this;
       }
       
       /**\brief Append a single latin1 character. */
-      String &operator+=(const char ch) throw() {
+      String &operator+=(const char ch) noexcept {
         _obj = pmath_string_insert_latin1(_obj, INT_MAX, &ch, 1);
         return *this;
       }
       
       /**\brief Append a UTF-16-string. */
-      String &operator+=(const uint16_t *ucs2) throw() {
+      String &operator+=(const uint16_t *ucs2) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, ucs2, -1);
         return *this;
       }
       
       /**\brief Append a single unicode character. */
-      String &operator+=(uint16_t ch) throw() {
+      String &operator+=(uint16_t ch) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, &ch, 1);
         return *this;
       }
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
-      String &operator+=(const wchar_t *wcs) throw() {
+      String &operator+=(const wchar_t *wcs) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)wcs, -1);
         return *this;
       }
-      String &operator+=(const wchar_t wc) throw() {
+      String &operator+=(const wchar_t wc) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)&wc, 1);
         return *this;
       }
 #endif
 
 #ifdef __cpp_unicode_characters
-      String &operator+=(const char16_t *utf16) throw() {
+      String &operator+=(const char16_t *utf16) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)utf16, -1);
         return *this;
       }
-      String &operator+=(char16_t ch) throw() {
+      String &operator+=(char16_t ch) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)&ch, 1);
         return *this;
       }
 #endif
       
       /**\brief Concatenate two strings. */
-      String operator+(const String &other) const throw() {
+      String operator+(const String &other) const noexcept {
         return String(pmath_string_concat(
                         (pmath_string_t)pmath_ref(_obj),
                         (pmath_string_t)pmath_ref(other.get())));
       }
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      String operator+(String &&other) const throw() {
+      String operator+(String &&other) const noexcept {
         return String(pmath_string_concat(
                         (pmath_string_t)pmath_ref(_obj),
                         (pmath_string_t)other.release()));
       }
 #endif
       
-      String operator+(const char *latin1) const throw() {
+      String operator+(const char *latin1) const noexcept {
         return String(pmath_string_insert_latin1(
                         (pmath_string_t)pmath_ref(_obj),
                         INT_MAX,
@@ -758,7 +762,7 @@ namespace pmath {
                         -1));
       }
       
-      String operator+(const uint16_t *ucs2) const throw() {
+      String operator+(const uint16_t *ucs2) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
                         INT_MAX,
@@ -767,7 +771,7 @@ namespace pmath {
       }
       
       /**\brief Concatenate a String and a single unicode character. */
-      String operator+(uint16_t ch) const throw() {
+      String operator+(uint16_t ch) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
                         INT_MAX,
@@ -776,14 +780,14 @@ namespace pmath {
       }
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
-      String operator+(const wchar_t *wcs) const throw() {
+      String operator+(const wchar_t *wcs) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
                         INT_MAX,
                         (const uint16_t*)wcs,
                         -1));
       }
-      String operator+(wchar_t wc) const throw() {
+      String operator+(wchar_t wc) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
                         INT_MAX,
@@ -793,14 +797,14 @@ namespace pmath {
 #endif
 
 #ifdef __cpp_unicode_characters
-      String operator+(const char16_t *utf16) const throw() {
+      String operator+(const char16_t *utf16) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
                         INT_MAX,
                         (const uint16_t*)utf16,
                         -1));
       }
-      String operator+(char16_t ch) const throw() {
+      String operator+(char16_t ch) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
                         INT_MAX,
@@ -810,73 +814,73 @@ namespace pmath {
 #endif
       
       /**\brief Get string part. */
-      String part(int start, int length = -1) const throw() {
+      String part(int start, int length = -1) const noexcept {
         return String(pmath_string_part(
                         (pmath_string_t)pmath_ref(_obj), start, length));
       }
       
       /**\brief Check for equality with a C string (Latin-1 encoded). */
-      bool equals(const char *latin1) const throw() {
+      bool equals(const char *latin1) const noexcept {
         return pmath_string_equals_latin1((pmath_string_t)_obj, latin1);
       }
       
       /**\brief Check for prefix equality. */
-      bool starts_with(const String &s) const throw() {
+      bool starts_with(const String &s) const noexcept {
         return starts_with_buffer(s.buffer(), s.length());
       }
       
-      bool starts_with(const char *latin1, int len = -1) const throw() {
+      bool starts_with(const char *latin1, int len = -1) const noexcept {
         return starts_with_buffer((const unsigned char*)latin1, len);
       }
       
-      bool starts_with(const uint16_t *ucs2, int len = -1) const throw() {
+      bool starts_with(const uint16_t *ucs2, int len = -1) const noexcept {
         return starts_with_buffer(ucs2, len);
       }
 
 #ifdef __cpp_unicode_characters
-      bool starts_with(const char16_t *utf16, int len = -1) const throw() {
+      bool starts_with(const char16_t *utf16, int len = -1) const noexcept {
         return starts_with_buffer(utf16, len);
       }
 #endif
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
-      bool starts_with(const wchar_t *wcs, int len = -1) const throw() {
+      bool starts_with(const wchar_t *wcs, int len = -1) const noexcept {
         return starts_with_buffer(wcs, len);
       }
 #endif
       
       /**\brief Insert a substring. Changes the object itself. */
-      void insert(int pos, const String &other) throw() {
+      void insert(int pos, const String &other) noexcept {
         _obj = pmath_string_insert(_obj, pos, pmath_ref(other.get()));
       }
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      void insert(int pos, String &&other) throw() {
+      void insert(int pos, String &&other) noexcept {
         _obj = pmath_string_insert(_obj, pos, other.release());
       }
 #endif
       
-      void insert(int pos, const char *latin1, int len = -1) throw() {
+      void insert(int pos, const char *latin1, int len = -1) noexcept {
         _obj = pmath_string_insert_latin1(_obj, pos, latin1, len);
       }
       
-      void insert(int pos, const uint16_t *ucs2, int len = -1) throw() {
+      void insert(int pos, const uint16_t *ucs2, int len = -1) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, pos, ucs2, len);
       }
       
 #ifdef __cpp_unicode_characters
-      void insert(int pos, const char16_t *utf16, int len = -1) throw() {
+      void insert(int pos, const char16_t *utf16, int len = -1) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, pos, (const uint16_t*)utf16, len);
       }
 #endif
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
-      void insert(int pos, const wchar_t *wcs, int len = -1) throw() {
+      void insert(int pos, const wchar_t *wcs, int len = -1) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, pos, (const uint16_t*)wcs, len);
       }
 #endif
       
       /**\brief Remove a substring. Changes the object itself. */
-      void remove(int start, int length) throw() {
+      void remove(int start, int length) noexcept {
         pmath_string_t prefix = pmath_string_part(
                                   (pmath_string_t)pmath_ref(_obj), 0, start);
                                   
@@ -889,7 +893,7 @@ namespace pmath {
       }
       
       /**\brief Trim leading and trailing whitespace. */
-      const String trim() const throw() {
+      const String trim() const noexcept {
         int end = length() - 1;
         int start = 0;
         const uint16_t *buf = buffer();
@@ -904,12 +908,12 @@ namespace pmath {
       }
       
       /**\brief Get the string length. */
-      int length() const throw() {
+      int length() const noexcept {
         return pmath_string_length(_obj);
       }
       
       /**\brief Get the UCS-2/UTF-16 const string buffer. This is not zero-terminated */
-      const uint16_t *buffer() const throw() {
+      const uint16_t *buffer() const noexcept {
         return pmath_string_buffer(const_cast<pmath_string_t *>(&_obj));
       }
 
@@ -926,26 +930,26 @@ namespace pmath {
       }
       
 #ifdef __cpp_unicode_characters
-      const char16_t *buffer_char16() const throw() { return (const char16_t *)buffer(); }
+      const char16_t *buffer_char16() const noexcept { return (const char16_t *)buffer(); }
 #endif
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
-      const wchar_t *buffer_wchar() const throw() { return (const wchar_t *)buffer(); }
+      const wchar_t *buffer_wchar() const noexcept { return (const wchar_t *)buffer(); }
 #endif
       
       /**\brief Get a single character or U+0000 on error. */
-      uint16_t operator[](int i) const throw() {
+      uint16_t operator[](int i) const noexcept {
         if(i < 0 || i >= length())
           return 0;
         return buffer()[i];
       }
       
       /**\brief Get the underlying pmath_string_t. It remains owned by this object. */
-      const pmath_string_t get_as_string() const throw() { return (pmath_string_t)_obj; }
+      const pmath_string_t get_as_string() const noexcept { return (pmath_string_t)_obj; }
       
     private:
       template<class UnsignedCharType>
-      bool starts_with_buffer(const UnsignedCharType *prefix, int len = -1) const throw() {
+      bool starts_with_buffer(const UnsignedCharType *prefix, int len = -1) const noexcept {
         if(len < 0) {
           const UnsignedCharType *tmp = prefix;
           len = 0;
@@ -985,24 +989,24 @@ namespace pmath {
   class Gather {
     public:
       /**\brief The constructor. Starts gathering. */
-      Gather() throw()
+      Gather() noexcept
         : ended(false)
       {
         pmath_gather_begin(PMATH_NULL);
       }
       
-      explicit Gather(Expr pattern) throw()
+      explicit Gather(Expr pattern) noexcept
         : ended(false)
       {
         pmath_gather_begin(pattern.release());
       }
       
-      ~Gather() throw() {
+      ~Gather() noexcept {
         end();
       }
       
       /**\brief end gathering. Calling end() multiple times returns PMATH_NULL. */
-      Expr end() throw() {
+      Expr end() noexcept {
         if(ended)
           return Expr();
         ended = true;
@@ -1010,12 +1014,12 @@ namespace pmath {
       }
       
       /**\brief Emit a value to be gathered. */
-      static void emit(Expr e) throw() {
+      static void emit(Expr e) noexcept {
         pmath_emit(e.release(), PMATH_NULL);
       }
       
       /**\brief Emit a value to be gathered. */
-      static void emit(Expr e, Expr tag) throw() {
+      static void emit(Expr e, Expr tag) noexcept {
         pmath_emit(e.release(), tag.release());
       }
       
@@ -1160,34 +1164,34 @@ namespace pmath {
    */
   class File: public Expr {
     public:
-      File() throw()
+      File() noexcept
         : Expr()
       {
       }
       
-      explicit File(pmath_t file_object) throw()
+      explicit File(pmath_t file_object) noexcept
         : Expr(pmath_file_test(file_object, 0) ? pmath_ref(file_object) : PMATH_NULL)
       {
         pmath_unref(file_object);
       }
       
-      explicit File(const Expr &file_object) throw()
+      explicit File(const Expr &file_object) noexcept
         : Expr(pmath_file_test(file_object.get(), 0) ? file_object : Expr())
       {
       }
       
-      File(const File &src) throw()
+      File(const File &src) noexcept
         : Expr(src)
       {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      explicit File(Expr &&file_object) throw()
+      explicit File(Expr &&file_object) noexcept
         : Expr(pmath_file_test(file_object.get(), 0) ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
-      File(File &&src) throw()
+      File(File &&src) noexcept
         : Expr(PMATH_CPP_MOVE(src))
       {
       }
@@ -1209,24 +1213,24 @@ namespace pmath {
          \param properties 0 or one or more of the PMATH_FILE_PROP_XXX constants.
          \return Whether the file has all the specified capabilities.
        */
-      bool has_capabilities(int properties) const throw() { return pmath_file_test(_obj, properties); }
+      bool has_capabilities(int properties) const noexcept { return pmath_file_test(_obj, properties); }
       
-      bool is_file()      const throw() { return has_capabilities(0); }
-      bool is_readable()  const throw() { return has_capabilities(PMATH_FILE_PROP_READ); }
-      bool is_writeable() const throw() { return has_capabilities(PMATH_FILE_PROP_WRITE); }
-      bool is_binary()    const throw() { return has_capabilities(PMATH_FILE_PROP_BINARY); }
-      bool is_text()      const throw() { return has_capabilities(PMATH_FILE_PROP_TEXT); }
+      bool is_file()      const noexcept { return has_capabilities(0); }
+      bool is_readable()  const noexcept { return has_capabilities(PMATH_FILE_PROP_READ); }
+      bool is_writeable() const noexcept { return has_capabilities(PMATH_FILE_PROP_WRITE); }
+      bool is_binary()    const noexcept { return has_capabilities(PMATH_FILE_PROP_BINARY); }
+      bool is_text()      const noexcept { return has_capabilities(PMATH_FILE_PROP_TEXT); }
       
-      pmath_files_status_t status() const throw() { return pmath_file_status(_obj); }
+      pmath_files_status_t status() const noexcept { return pmath_file_status(_obj); }
       
       /**\brief Flush the output buffer of a writeable file.
        */
-      void flush() throw() {
+      void flush() noexcept {
       }
       
       /**\brief Closes a file immediatly instead of letting the garbage collector close it later.
        */
-      void close() throw() {
+      void close() noexcept {
         pmath_file_close(release());
       }
       
@@ -1247,29 +1251,29 @@ namespace pmath {
       {
       }
       
-      explicit BinaryFile(pmath_t file_object) throw()
+      explicit BinaryFile(pmath_t file_object) noexcept
         : File(pmath_file_test(file_object, PMATH_FILE_PROP_BINARY) ? pmath_ref(file_object) : PMATH_NULL)
       {
         pmath_unref(file_object);
       }
       
-      explicit BinaryFile(const Expr &file_object) throw()
+      explicit BinaryFile(const Expr &file_object) noexcept
         : File(File(file_object).is_binary() ? file_object : Expr())
       {
       }
       
-      BinaryFile(const BinaryFile &src) throw()
+      BinaryFile(const BinaryFile &src) noexcept
         : File(src)
       {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      explicit BinaryFile(Expr &&file_object) throw()
+      explicit BinaryFile(Expr &&file_object) noexcept
         : File(File(file_object).is_binary() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
-      BinaryFile(BinaryFile &&src) throw()
+      BinaryFile(BinaryFile &&src) noexcept
         : File(PMATH_CPP_MOVE(src))
       {
       }
@@ -1291,17 +1295,17 @@ namespace pmath {
          \return The binary file. Can be used as ReadableBinaryFile and as
                  WriteableBinaryFile
        */
-      static BinaryFile create_buffer(size_t mincapacity) throw() {
+      static BinaryFile create_buffer(size_t mincapacity) noexcept {
         return BinaryFile(pmath_file_create_binary_buffer(mincapacity));
       }
       
       /**\brief Get the current buffer size in bytes. */
-      size_t get_buffer_size() const throw() {
+      size_t get_buffer_size() const noexcept {
         return pmath_file_binary_buffer_size(_obj);
       }
       
       /**\brief See file_set_binbuffer(). */
-      bool set_buffer_size(size_t size) throw() {
+      bool set_buffer_size(size_t size) noexcept {
         return pmath_file_set_binbuffer(_obj, size);
       }
   };
@@ -1317,29 +1321,29 @@ namespace pmath {
       {
       }
       
-      explicit ReadableBinaryFile(pmath_t file_object) throw()
+      explicit ReadableBinaryFile(pmath_t file_object) noexcept
         : BinaryFile(pmath_file_test(file_object, PMATH_FILE_PROP_READ) ? pmath_ref(file_object) : PMATH_NULL)
       {
         pmath_unref(file_object);
       }
       
-      explicit ReadableBinaryFile(const Expr &file_object) throw()
+      explicit ReadableBinaryFile(const Expr &file_object) noexcept
         : BinaryFile(File(file_object).is_readable() ? file_object : Expr())
       {
       }
       
-      ReadableBinaryFile(const ReadableBinaryFile &src) throw()
+      ReadableBinaryFile(const ReadableBinaryFile &src) noexcept
         : BinaryFile(src)
       {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      explicit ReadableBinaryFile(Expr &&file_object) throw()
+      explicit ReadableBinaryFile(Expr &&file_object) noexcept
         : BinaryFile(File(file_object).is_readable() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
-      ReadableBinaryFile(ReadableBinaryFile &&src) throw()
+      ReadableBinaryFile(ReadableBinaryFile &&src) noexcept
         : BinaryFile(PMATH_CPP_MOVE(src))
       {
       }
@@ -1358,12 +1362,12 @@ namespace pmath {
 #endif
       
       /**\brief Create binary file object whose content is uncompressed from another binary file. */
-      static ReadableBinaryFile create_decompressor(ReadableBinaryFile srcfile, struct pmath_decompressor_settings_t *settings = nullptr) throw() {
+      static ReadableBinaryFile create_decompressor(ReadableBinaryFile srcfile, struct pmath_decompressor_settings_t *settings = nullptr) noexcept {
         return ReadableBinaryFile(pmath_file_create_decompressor(srcfile.release(), settings));
       }
       
       /**\brief Read some bytes from the file. See pmath_file_read(). */
-      size_t read(void *buffer, size_t buffer_size, bool preserve_internal_buffer = false) throw() {
+      size_t read(void *buffer, size_t buffer_size, bool preserve_internal_buffer = false) noexcept {
         return pmath_file_read(_obj, buffer, buffer_size, preserve_internal_buffer);
       }
   };
@@ -1378,29 +1382,29 @@ namespace pmath {
       {
       }
       
-      explicit WriteableBinaryFile(pmath_t file_object) throw()
+      explicit WriteableBinaryFile(pmath_t file_object) noexcept
         : BinaryFile(pmath_file_test(file_object, PMATH_FILE_PROP_WRITE) ? pmath_ref(file_object) : PMATH_NULL)
       {
         pmath_unref(file_object);
       }
       
-      explicit WriteableBinaryFile(const Expr &file_object) throw()
+      explicit WriteableBinaryFile(const Expr &file_object) noexcept
         : BinaryFile(File(file_object).is_writeable() ? file_object : Expr())
       {
       }
       
-      WriteableBinaryFile(const WriteableBinaryFile &src) throw()
+      WriteableBinaryFile(const WriteableBinaryFile &src) noexcept
         : BinaryFile(src)
       {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      explicit WriteableBinaryFile(Expr &&file_object) throw()
+      explicit WriteableBinaryFile(Expr &&file_object) noexcept
         : BinaryFile(File(file_object).is_writeable() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
-      WriteableBinaryFile(WriteableBinaryFile &&src) throw()
+      WriteableBinaryFile(WriteableBinaryFile &&src) noexcept
         : BinaryFile(PMATH_CPP_MOVE(src))
       {
       }
@@ -1419,12 +1423,12 @@ namespace pmath {
 #endif
       
       /**\brief Create binary file object whose content is compressed into another binary file. */
-      static WriteableBinaryFile create_compressor(WriteableBinaryFile dstfile, struct pmath_compressor_settings_t *settings = nullptr) throw() {
+      static WriteableBinaryFile create_compressor(WriteableBinaryFile dstfile, struct pmath_compressor_settings_t *settings = nullptr) noexcept {
         return WriteableBinaryFile(pmath_file_create_compressor(dstfile.get(), settings));
       }
       
       /**\brief Write some bytes to the file. See pmath_file_write(). */
-      size_t write(const void *buffer, size_t buffer_size) throw() {
+      size_t write(const void *buffer, size_t buffer_size) noexcept {
         return pmath_file_write(_obj, buffer, buffer_size);
       }
       
@@ -1441,29 +1445,29 @@ namespace pmath {
       {
       }
       
-      explicit TextFile(pmath_t file_object) throw()
+      explicit TextFile(pmath_t file_object) noexcept
         : File(pmath_file_test(file_object, PMATH_FILE_PROP_TEXT) ? pmath_ref(file_object) : PMATH_NULL)
       {
         pmath_unref(file_object);
       }
       
-      explicit TextFile(const Expr &file_object) throw()
+      explicit TextFile(const Expr &file_object) noexcept
         : File(File(file_object).is_text() ? file_object : Expr())
       {
       }
       
-      TextFile(const TextFile &src) throw()
+      TextFile(const TextFile &src) noexcept
         : File(src)
       {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      explicit TextFile(Expr &&file_object) throw()
+      explicit TextFile(Expr &&file_object) noexcept
         : File(File(file_object).is_text() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
-      TextFile(TextFile &&src) throw()
+      TextFile(TextFile &&src) noexcept
         : File(PMATH_CPP_MOVE(src))
       {
       }
@@ -1482,7 +1486,7 @@ namespace pmath {
 #endif
       
       /**\brief Create a text file from a binary file using a known character encoding. */
-      static TextFile create_from_binary(BinaryFile binfile, const char *encoding) throw() {
+      static TextFile create_from_binary(BinaryFile binfile, const char *encoding) noexcept {
         return TextFile(pmath_file_create_text_from_binary(binfile.release(), encoding));
       }
       
@@ -1511,29 +1515,29 @@ namespace pmath {
       {
       }
       
-      explicit ReadableTextFile(pmath_t file_object) throw()
+      explicit ReadableTextFile(pmath_t file_object) noexcept
         : TextFile(pmath_file_test(file_object, PMATH_FILE_PROP_READ) ? pmath_ref(file_object) : PMATH_NULL)
       {
         pmath_unref(file_object);
       }
       
-      explicit ReadableTextFile(const Expr &file_object) throw()
+      explicit ReadableTextFile(const Expr &file_object) noexcept
         : TextFile(File(file_object).is_readable() ? file_object : Expr())
       {
       }
       
-      ReadableTextFile(const ReadableTextFile &src) throw()
+      ReadableTextFile(const ReadableTextFile &src) noexcept
         : TextFile(src)
       {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      explicit ReadableTextFile(Expr &&file_object) throw()
+      explicit ReadableTextFile(Expr &&file_object) noexcept
         : TextFile(File(file_object).is_readable() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
-      ReadableTextFile(ReadableTextFile &&src) throw()
+      ReadableTextFile(ReadableTextFile &&src) noexcept
         : TextFile(PMATH_CPP_MOVE(src))
       {
       }
@@ -1552,7 +1556,7 @@ namespace pmath {
 #endif
       
       /**\brief Create a text file from a binary file using a known character encoding. */
-      static ReadableTextFile create_from_binary(ReadableBinaryFile binfile, const char *encoding) throw() {
+      static ReadableTextFile create_from_binary(ReadableBinaryFile binfile, const char *encoding) noexcept {
         return ReadableTextFile(TextFile::create_from_binary(binfile, encoding));
       }
       
@@ -1562,7 +1566,7 @@ namespace pmath {
       }
       
       /**\brief Read the next line from the file. */
-      String readline() throw() {
+      String readline() noexcept {
         return String(pmath_file_readline(_obj));
       }
       
@@ -1573,34 +1577,34 @@ namespace pmath {
    */
   class WriteableTextFile: public TextFile {
     public:
-      WriteableTextFile() throw()
+      WriteableTextFile() noexcept
         : TextFile()
       {
       }
       
-      explicit WriteableTextFile(pmath_t file_object) throw()
+      explicit WriteableTextFile(pmath_t file_object) noexcept
         : TextFile(pmath_file_test(file_object, PMATH_FILE_PROP_WRITE) ? pmath_ref(file_object) : PMATH_NULL)
       {
         pmath_unref(file_object);
       }
       
-      explicit WriteableTextFile(const Expr &file_object) throw()
+      explicit WriteableTextFile(const Expr &file_object) noexcept
         : TextFile(File(file_object).is_writeable() ? file_object : Expr())
       {
       }
       
-      WriteableTextFile(const WriteableTextFile &src) throw()
+      WriteableTextFile(const WriteableTextFile &src) noexcept
         : TextFile(src)
       {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      explicit WriteableTextFile(Expr &&file_object) throw()
+      explicit WriteableTextFile(Expr &&file_object) noexcept
         : TextFile(File(file_object).is_writeable() ? PMATH_CPP_MOVE(file_object) : Expr())
       {
       }
       
-      WriteableTextFile(WriteableTextFile &&src) throw()
+      WriteableTextFile(WriteableTextFile &&src) noexcept
         : TextFile(PMATH_CPP_MOVE(src))
       {
       }
@@ -1619,17 +1623,17 @@ namespace pmath {
 #endif
       
       /**\brief Create a text file from a binary file using a known character encoding. */
-      static WriteableTextFile create_from_binary(WriteableBinaryFile binfile, const char *encoding) throw() {
+      static WriteableTextFile create_from_binary(WriteableBinaryFile binfile, const char *encoding) noexcept {
         return WriteableTextFile(TextFile::create_from_binary(binfile, encoding));
       }
       
       /**\brief Create a text file from a binary file using UTF-16BE or UTF-16LE, depending on the machine architecture. */
-      static WriteableTextFile create_from_binary(WriteableBinaryFile binfile) throw() {
+      static WriteableTextFile create_from_binary(WriteableBinaryFile binfile) noexcept {
         return WriteableTextFile(TextFile::create_from_binary(binfile));
       }
       
       /**\brief Write some text to the file. */
-      void write(const String &str) throw() {
+      void write(const String &str) noexcept {
         pmath_file_writetext(_obj, str.buffer(), str.length());
       }
   };
@@ -1958,7 +1962,7 @@ namespace pmath {
   
   
   
-  inline String Expr::to_string(pmath_write_options_t options) const throw() {
+  inline String Expr::to_string(pmath_write_options_t options) const noexcept {
     pmath_string_t result = PMATH_NULL;
     
     pmath_write(_obj, options, write_to_string, &result);
@@ -1966,15 +1970,15 @@ namespace pmath {
     return String(result);
   }
   
-  inline void Expr::write_to_file(WriteableTextFile file, pmath_write_options_t options) const throw() {
+  inline void Expr::write_to_file(WriteableTextFile file, pmath_write_options_t options) const noexcept {
     pmath_file_write_object(file.get(), _obj, options);
   }
   
-  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file, int flags) const throw() {
+  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file, int flags) const noexcept {
     return pmath_serialize(file.get(), _obj, flags);
   }
   
-  inline Expr Expr::deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) throw() {
+  inline Expr Expr::deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) noexcept {
     return Expr(pmath_deserialize(file.get(), error));
   }
 };
