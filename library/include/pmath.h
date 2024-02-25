@@ -3,7 +3,7 @@
 
 /**\mainpage The pMath Computer Algebra System Library
    \author Peter Frentrup
-   \date 2020
+   \date 2024
 
    \par Introduction
 
@@ -78,8 +78,8 @@
    \brief Functions for use front-ends.
 
    A front-end to pMath is an executable that initializes and finalizes the
-   library and handles User input and output or otherwise invokes expression
-   evalueation with the library. That is, what pMath does: parse and evaluate
+   library and handles user input and output or otherwise invokes expression
+   evaluation with the library. That is, what pMath does: parse and evaluate
    pMath code.
   @{
  */

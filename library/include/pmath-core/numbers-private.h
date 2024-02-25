@@ -223,8 +223,8 @@ int _pmath_numbers_compare(
     
     pmath_mpfloat_t and double are considered unequal, even if the mp float represents the same single value
     as the double. This reason for this design choice is that it would be difficult/slow to ensure 
-    that Hash(1.5`) and Hash(1.5`100) coincide, because we want Hash() of doubles to be fast, in order to have
-    a fast PackedArray-Hash that is compatibt with List-of-double.
+    that ``Hash(1.5`)`` and ``Hash(1.5`100)`` coincide, because we want Hash() of doubles to be fast, in order to have
+    a fast PackedArray-Hash that is compatible with List-of-double.
     
     pmath_float_t and pmath_rational_t values are considered unequal, even if they represent the same value.
  */

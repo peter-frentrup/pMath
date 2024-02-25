@@ -254,6 +254,6 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 void *pmath_ht_remove(pmath_hashtable_t ht, void *key);
 
-/* @} */
+/** @} */
 
 #endif // __PMATH_UTIL__HASHTABLES_H__

@@ -56,6 +56,6 @@
  */
 PMATH_API intptr_t pmath_dynamic_get_current_tracker_id(void);
 
-/* @}*/
+/** @}*/
 
 #endif // PMATH__UTIL__DYNAMIC_H__INCLUDED

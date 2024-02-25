@@ -9,11 +9,11 @@
     The pMath language is defined as a 2-dimensional layout rather than one-dimensional
     text to support standard mathematical notation (such as sums, fractions, etc.).
     A low-level representation of this 2-dimensional box structure is based on the
-    \ref pmath_span_array_t, which can be gernerated from textual code (and possibly
+    \ref pmath_span_array_t, which may be generated from textual code (and possibly
     embedded boxes) with pmath_spans_from_string(). A span-array can be converted to
     its boxes expression with pmath_boxes_from_spans_ex(). Thoses boxes then can be
-    be transformed to an unevaluated expression (wrapped in <tt>System\`HoldComplete</tt>)
-    by applying <tt>System\`MakeExpression</tt> to the boxes with with pmath_evaluate().
+    be transformed to an unevaluated expression (wrapped in ``System`HoldComplete``)
+    by applying ``System`MakeExpression`` to the boxes with pmath_evaluate().
     To finally execute the parsed code, evaluate that with the HoldComplete head removed.
 
    \section Example

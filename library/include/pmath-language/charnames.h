@@ -25,7 +25,7 @@ PMATH_API
 const char *pmath_char_to_name(uint32_t unichar);
 
 /**\brief Parse an escaped character to a unicode codepoint.
-   \param str    A string of the form \[name] or \[U+HHHH] or \n or ...
+   \param str    A string of the form `\[name]` or `\[U+HHHH]` or `\n` or ...
    \param maxlen The buffer length of \a str.
    \param result Here goes the parsed character, 0xFFFFFFFFU on error.
    \return The end of the parsed character or the error position.

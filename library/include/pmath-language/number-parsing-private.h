@@ -5,30 +5,7 @@
 #  error This header file is not part of the public pMath API
 #endif
 
-/** \defgroup float-format The format of floating point numbers.
-    
-    pMath represents arbitrary precision numbers as real balls with a midpoint, a zero or
-    posivive radius and a working precision. There are two formats in use for such numbers
-    (disregarding the overal sign in front):
-    <ul>
-      <li> <tt>bb^^MM.MMMM[mmm+/-rrr]`pp*^EE</tt>, and
-      <li> <tt>bb^^MM.MMMMmm[+/-r.rr*^XX]`p*^EE</tt>.
-    </ul>
-    The constitutent parts are:
-    <ul>
-      <li> Optional base specifier <tt>bb^^</tt> (defaults to base 10),
-      <li> Manitssa (mitpoint) significant digits <tt>MM.MMMM</tt>,
-      <li> Insignificant midpoint digits <tt>mmm</tt>,
-      <li> Radius digits <tt>rrr</tt> with optional additional exponent <tt>*^XX</tt>,
-      <li> Precision <tt>p</tt>.
-      <li> Optional exponent <tt>*^EE</tt>.
-    </ul>
-    
-    Examples:
-    <ul>
-      <li> <tt>1.234[567+/-890]*^5</tt> = <tt>1.234567[+/-0.890*^-3]*^5</tt> = <tt>123456.7 +/- 89.0</tt>.
-      <li> <tt>2^^0.11010[101+/-110]`5.2*^-6</tt>
-    </ul>
+/** \addtogroup numbers
   @{
  */
 
@@ -36,6 +13,7 @@
 #include <pmath-core/strings.h> // only for typedef pmath_string_t
 
 /** \brief Calculate the binary logarithm of a positive integer.
+    \memberof pmath_mpfloat_t
     \param b The integer to take the logarithm of.
     \return The exact result if \a b is a power of 2 between 2 and 32, otherwise <c>log(b)/log(2)</c>.
  */
@@ -54,6 +32,7 @@ PMATH_PRIVATE void _pmath_real_ball_parts_init(struct _pmath_real_ball_parts_t *
 PMATH_PRIVATE void _pmath_real_ball_parts_clear(struct _pmath_real_ball_parts_t *parts);
 
 /** \brief Parse a pMath number (real ball) to its components.
+    \memberof pmath_mpfloat_t
     \param result                Where to store the resulting parts. Must already be initialized with _pmath_real_ball_parts_init().
     \param str                   The number string (nt ncessarily NUL-terminated).
     \param str_end               (optional) The end of the string. If this is NULL, \a str is assumed to be zero-terminated.
@@ -77,6 +56,7 @@ const uint16_t *_pmath_parse_real_ball(
   double                           default_min_precision);
 
 /** \brief Create an Arb real ball, exact number or machine precision from midpoint and possibly radius.
+    \memberof pmath_mpfloat_t
     \param mid The midpoint. Will be freed.
     \param rad The radius. Will be freed.
     Note that \a rad is only considered, if both \a mid and \a rad are floating point numbers.
@@ -89,6 +69,7 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_real_ball_from_midpoint_radius(pmath_t mid, pmath_t rad);
   
 /** \brief Calculate mantissa*base^exponent.
+    \memberof pmath_mpfloat_t
     \param mantissa         An integer.
     \param exponent         An integer.
     \param base             An integer between 2 and 36.
@@ -109,6 +90,7 @@ pmath_t _pmath_compose_number(
 
 
 /** \brief Shortcut for _pmath_parse_real_ball() followed by _pmath_compose_number() and _pmath_real_ball_from_midpoint_radius()
+    \memberof pmath_mpfloat_t
     \param string The number string. It will be freed.
     \return PMATH_NULL on error 
  */
@@ -117,6 +99,7 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_parse_number(pmath_string_t string);
   
 /** \brief Convert an arf_t to a mag_t.
+    \memberof pmath_mpfloat_t
     \param y An initialized magnitude.
     \param x A valid floating point number.
     
@@ -127,6 +110,7 @@ PMATH_PRIVATE
 void _pmath_arf_get_mag_exact(mag_t y, const arf_t x);
 
 /** \brief Increase an Arb radius by a given error.
+    \memberof pmath_mpfloat_t
     \param x The Arb number whose radius is to be increased.
     \param err An Arb number, whose absolute value should be added to the radius of \a x.
     

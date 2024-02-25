@@ -312,6 +312,6 @@ pmath_packed_array_t pmath_packed_array_reshape(
   size_t                new_dimensions,
   const size_t         *new_sizes);
 
-/* @} */
+/** @} */
 
 #endif // __PMATH_CORE__PACKED_ARRAYS_H__

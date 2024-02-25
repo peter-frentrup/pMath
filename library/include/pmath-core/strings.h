@@ -41,7 +41,7 @@ pmath_string_t pmath_string_new(int capacity);
 
 /**\brief Create an new uninitialized pMath String with given length.
    \memberof pmath_string_t
-   \param capacity The length of the string. Must not be negative.
+   \param length The length of the string. Must not be negative.
    \return A new pMath String or PMATH_NULL on failure. You must destroy it.
  */
 PMATH_API
@@ -188,7 +188,7 @@ PMATH_API
 void pmath_native_writer(void *user, const uint16_t *data, int len);
 
 /**\brief Short form to convert a C String to a pMath String.
-   \memberof pmath_string_t
+   \relates pmath_string_t
    \param cstr A C String (zero-terminated char buffer).
    \return A pMath String representing the Latin-1 C string \a cstr.
 

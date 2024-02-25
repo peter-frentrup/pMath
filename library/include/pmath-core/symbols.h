@@ -300,7 +300,7 @@ void pmath_symbol_update(pmath_symbol_t symbol);
 
    Symbols with attribute protected wont be removed.
 
-   This function clear the symbol's value (not considering thread-local storage)
+   This function clears the symbol's value (not considering thread-local storage)
    and sets the attributes Temporary and Removed. The former makes it 
    auto-deleting when its reference count reaches 0. The latter makes it 
    unaccessible via its name and causes it to display as `Removed("symbol")`.
@@ -314,7 +314,7 @@ void pmath_symbol_remove(pmath_symbol_t symbol);
    \return The next symbol.
 
    To actually iterate through the whole list, use the following pattern:
-       
+       \code
        //static pmath_symbol_t pmath_System_List = pmath_symbol_get(PMATH_C_STRING("System`List"), FALSE);
        ...
        pmath_symbol_t iter = pmath_ref(pmath_System_List);
@@ -323,8 +323,9 @@ void pmath_symbol_remove(pmath_symbol_t symbol);
          ... loop body here ...
        
          iter = pmath_symbol_iter_next(iter);
-       }while(iter && !pmath_same(iter, pmath_System_List));
+       }while(!pmath_is_null(iter) && !pmath_same(iter, pmath_System_List));
        pmath_unref(iter);
+       \endcode
  */
 PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old);
 

@@ -1198,7 +1198,7 @@ namespace pmath {
   /**\brief Create a call expression with given head and eight arguments. */
   inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8) noexcept { return Expr(pmath_expr_new_extended(h.release(), 8, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release())); }
   
-  /**\biref Create a call expression with given head and nine arguments. */
+  /**\brief Create a call expression with given head and nine arguments. */
   inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9) noexcept { return Expr(pmath_expr_new_extended(h.release(), 9, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release())); }
   
   
@@ -2131,6 +2131,6 @@ PMATH_DEFINE_STD_HASH_VIA_MEMBER(pmath::String)
 
 #endif
 
-/* @} */
+/** @} */
 
 #endif /* __PMATH_CPP_H__ */

@@ -128,7 +128,6 @@ static pmath_expr_t make_similar_deep_array(
   long depth
 ) {
   pmath_expr_t result;
-  size_t i;
   
   if(k >= 2 * depth)
     return PMATH_NULL;
@@ -140,9 +139,9 @@ static pmath_expr_t make_similar_deep_array(
     if(!sizes)
       return PMATH_NULL;
     
-    for(i = k; i < depth; ++i)
+    for(long i = k; i < depth; ++i)
       sizes[i - k] = (size_t)blocks[i];
-    for(i = k > depth ? k : depth; i < 2 * depth; ++i)
+    for(long i = k > depth ? k : depth; i < 2 * depth; ++i)
       sizes[i - k] = (size_t)n[i - depth];
     
     result = pmath_packed_array_new(PMATH_NULL, elem_type, dims, sizes, NULL, 0);
@@ -156,7 +155,7 @@ static pmath_expr_t make_similar_deep_array(
     result = pmath_expr_new(pmath_expr_get_item(arr, 0), (size_t)n[k - depth]);
     
   if(k < 2 * depth) {
-    for(i = pmath_expr_length(result); i > 0; --i) {
+    for(size_t i = pmath_expr_length(result); i > 0; --i) {
       result = pmath_expr_set_item(
                  result, i,
                  make_similar_deep_array(arr, blocks, n, k + 1, depth));

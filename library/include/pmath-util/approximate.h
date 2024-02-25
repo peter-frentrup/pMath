@@ -34,7 +34,7 @@ double pmath_precision(pmath_t obj);
    \return The new object.
 
    Use <tt>prec == -HUGE_VAL</tt> for machine precision and
-   <tt>prec == -HUGE_VAL</tt> if you want to convert all floating point numbers
+   <tt>prec == HUGE_VAL</tt> if you want to convert all floating point numbers
    to exact rational numbers.
 
    Note that the builtin function SetPrecision() uses base 10, but this

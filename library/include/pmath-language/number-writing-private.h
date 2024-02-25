@@ -8,11 +8,12 @@
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/strings.h>
 
-/** \addtogroup float-format 
+/** \addtogroup numbers 
   @{
  */
 
 /**\brief Rounds a null-terminated string of digits in a given base to length at most n.
+   \memberof pmath_mpfloat_t
    \param s The string of digits to round. It is overwritten in-place, truncating it as necessary.
             The input should not have a leading sign or leading zero digits, but can have trailing zero digits.
    \param shift      Set on output, see notes.
@@ -32,7 +33,8 @@ void _pmath_number_round_digits_inplace(
   slong        max_digits, 
   arf_rnd_t    rnd);
 
-/** \brief Write a precision as a decimal string.
+/**\brief Write a precision as a decimal string.
+   \memberof pmath_mpfloat_t
  */
 PMATH_PRIVATE
 void _pmath_write_precision(
@@ -42,8 +44,10 @@ void _pmath_write_precision(
   void    *ctx);
 
 
-/** Represents a number 0.mmmm[mmm+/-rrr]*B^EEE
-    The "new" representation.
+/**\class _pmath_raw_number_parts_t
+   \brief Represents a number 0.mmmm[mmm+/-rrr]*B^EEE
+   
+   The "new" representation.
  */
 struct _pmath_raw_number_parts_t {
   char         *mid_digits;
@@ -66,6 +70,7 @@ struct _pmath_raw_number_parts_t {
 };
 
 /** Convert an arbitrary precision float to string.
+    \memberof pmath_mpfloat_t
     \param result     Where to store the resulting string's parts. Should be uninitialized.
                       Must be freed with _pmath_raw_number_parts_clear().
     \param value      The number to convert. Must not be PMATH_NULL. Won't be freed.
@@ -79,6 +84,7 @@ PMATH_PRIVATE void _pmath_mpfloat_get_raw_number_parts(
   int                               rad_digits);
 
 /** Move the implied decimal point 
+    \memberof _pmath_raw_number_parts_t
     \param parts              The number's parts as returned by _pmath_mpfloat_get_raw_number_parts().
     \param num_integer_digits The new position of the decimal point. 
                               Must be <= parts->total_significant.
@@ -89,28 +95,35 @@ PMATH_PRIVATE
 void _pmath_raw_number_parts_set_decimal_point(struct _pmath_raw_number_parts_t *parts, int num_integer_digits);
 
 /** Move the implied decimal point to an automatically chosen position
+    \memberof _pmath_raw_number_parts_t
     \param parts  The number's parts as returned by _pmath_mpfloat_get_raw_number_parts().
  */
 PMATH_PRIVATE 
 void _pmath_raw_number_parts_set_decimal_point_automatic(struct _pmath_raw_number_parts_t *parts);
 
+/** Free memory after using a number parts structure.
+    \memberof _pmath_raw_number_parts_t
+ */
 PMATH_PRIVATE void _pmath_raw_number_parts_clear(struct _pmath_raw_number_parts_t *parts);
 
 enum _pmath_number_part_t{
   PMATH_NUMBER_PART_BASE,
-  PMATH_NUMBER_PART_SIGNIFICANT,               // MM.MMMM     of  MM.MMMM(mmm+/-rrr) * base^EE  including the dot
-  PMATH_NUMBER_PART_SIGNIFICANT_INT_DIGITS,    // MM          of  MM.mmmm(mmm+/-rrr) * base^EE
-  PMATH_NUMBER_PART_SIGNIFICANT_FRAC_DIGITS,   //    MMMM     of  mm.MMMM(mmm+/-rrr) * base^EE
-  PMATH_NUMBER_PART_MID_INSIGNIFICANT_DIGITS,  //        MMM  of  mm.mmmm(MMM+/-rrr) * base^EE
-  PMATH_NUMBER_PART_EXPONENT,                  // exponent EE of  mm.mmmm(mmm+/-rrr) * base^EE  or empty if 0
-  PMATH_NUMBER_PART_RADIUS_DIGITS,             // rrr
-  PMATH_NUMBER_PART_RADIUS_DIGITS_1,           // r.rr
-  PMATH_NUMBER_PART_RADIUS_EXTRA_EXPONENT,     // exponent XX s.t. number = mm.mmmmm * base^EE +/- 0.rrr * base^(EE + XX) = mm.mm[mmm+/-rrr]*base^EE   I.e. XX = -(number of fractional significant digits). Or empty if 0.
-  PMATH_NUMBER_PART_RADIUS_EXTRA_EXPONENT_1,   // exponent YY s.t. number = mm.mmmmm * base^EE +/- r.rr * base^(EE + YY)   I.e. YY = -(1 + number of fractional significant digits). Or empty if 0.
-  PMATH_NUMBER_PART_RADIUS_EXPONENT,           // exponent XX s.t. number = midpoint +/- 0.rrr * base^XX  or empty if 0
-  PMATH_NUMBER_PART_RADIUS_EXPONENT_1,         // exponent YY s.t. number = midpoint +/- r.rr * base^YY   or empty if 0
+  PMATH_NUMBER_PART_SIGNIFICANT,               ///< MM.MMMM___  of  MM.MMMM(mmm+/-rrr) * base^EE  including the dot
+  PMATH_NUMBER_PART_SIGNIFICANT_INT_DIGITS,    ///< MM________  of  MM.mmmm(mmm+/-rrr) * base^EE
+  PMATH_NUMBER_PART_SIGNIFICANT_FRAC_DIGITS,   ///< ___MMMM___  of  mm.MMMM(mmm+/-rrr) * base^EE
+  PMATH_NUMBER_PART_MID_INSIGNIFICANT_DIGITS,  ///< _______MMM  of  mm.mmmm(MMM+/-rrr) * base^EE
+  PMATH_NUMBER_PART_EXPONENT,                  ///< exponent EE of  mm.mmmm(mmm+/-rrr) * base^EE  or empty if 0
+  PMATH_NUMBER_PART_RADIUS_DIGITS,             ///< rrr
+  PMATH_NUMBER_PART_RADIUS_DIGITS_1,           ///< r.rr
+  PMATH_NUMBER_PART_RADIUS_EXTRA_EXPONENT,     ///< exponent XX s.t. number = mm.mmmmm * base^EE +/- 0.rrr * base^(EE + XX) = mm.mm[mmm+/-rrr]*base^EE   I.e. XX = -(number of fractional significant digits). Or empty if 0.
+  PMATH_NUMBER_PART_RADIUS_EXTRA_EXPONENT_1,   ///< exponent YY s.t. number = mm.mmmmm * base^EE +/- r.rr * base^(EE + YY)   I.e. YY = -(1 + number of fractional significant digits). Or empty if 0.
+  PMATH_NUMBER_PART_RADIUS_EXPONENT,           ///< exponent XX s.t. number = midpoint +/- 0.rrr * base^XX  or empty if 0
+  PMATH_NUMBER_PART_RADIUS_EXPONENT_1,         ///< exponent YY s.t. number = midpoint +/- r.rr * base^YY   or empty if 0
 };
 
+/**\brief Write part of a number to a file/stream.
+   \memberof _pmath_raw_number_parts_t
+ */
 PMATH_PRIVATE
 void _pmath_write_number_part(
   const struct _pmath_raw_number_parts_t  *parts,

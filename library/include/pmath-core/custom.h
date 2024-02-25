@@ -8,7 +8,7 @@
 
    Custom Objects consist of a pointer and a destructor. The destructor is
    called (with the pointer as its argument) when the custom object's reference
-   pointer yields zero.
+   counter gets zero.
 
    Custom Objects are not evaluateable. This means evaluation of such an object
    returns PMATH_NULL. But you can store custom objects in symbols (directly with
@@ -16,10 +16,10 @@
 
    A symbol that holds a custom object remains unevaluated. It can also contain
    function definitions. But those must be set \em after setting the value with
-   pmath_symbol_set_value(my_symbol, my_custom_object):
+   `pmath_symbol_set_value(my_symbol, my_custom_object)`:
 
    Example: You want to store a custom object and a function definition in a
-   symbol (my_symbol/: answer(my_symbol):= 42).
+   symbol (`my_symbol/: answer(my_symbol):= 42`).
    \code
 pmath_custom_t my_custom_object = pmath_custom_new(my_data, my_destructor);
 pmath_symbol_set_value(my_symbol, my_custom_object);
@@ -90,7 +90,7 @@ pmath_custom_t pmath_custom_new_with_object(
 /**\brief Get a custom object's data member.
    \memberof pmath_custom_t
    \param custom A custom object.
-   \return The objects data member or PMATH_NULL if \a custom is PMATH_NULL.
+   \return The objects data member or NULL if \a custom is PMATH_NULL.
 
    Note that you cannot assume anything about the content of this pointer unless
    you know its destructor (check \ref pmath_custom_has_destructor ).

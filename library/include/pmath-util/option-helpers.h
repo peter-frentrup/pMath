@@ -117,6 +117,6 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_option_value(pmath_t head, pmath_t name, pmath_t more);
 
-/* @} */
+/** @} */
 
 #endif // __PMATH_UTIL__OPTION_HELPERS_H__

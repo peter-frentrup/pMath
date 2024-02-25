@@ -25,20 +25,18 @@ typedef enum {
   
   /**\brief Only deterministic function without any side-effects are allowed.
      
-     In particular, file access, assignments RandomReal/... and timing functions are disallowed. 
+     In particular, file access, assignments, RandomReal/... and timing functions are disallowed. 
    */
   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED =   100,
   
-  /**\brief Only deterministic function without any side-effects are allowed.
+  /**\brief Only function without any side-effects are allowed.
      
      Disallow assignments to global variables (TODO: but possibly assigning DynamicLocal and 
      definitely Local variables). Disallow all file-system access. Randomness and timing is allowed.
    */
   PMATH_SECURITY_LEVEL_NON_DESTRUCTIVE_ALLOWED    =   200,
   
-  /**\brief No C code evaluations are allowed.
-     
-      Allow everything.
+  /**\brief Allow everything.
    */
   PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED         = 10000
 } pmath_security_level_t;
@@ -48,12 +46,12 @@ typedef enum {
 #define PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(REQUIREMENT, LEVEL)   ((REQUIREMENT) <= (LEVEL))
 
 /**\brief A callback function to perform fine-grained security checks.
-   \param func      The function to check (before it is callded).
-   \param expr      The argument that will be given to \a func. This wont be freed.
+   \param func      The function to check (before it gets called).
+   \param expr      The argument that will be given to \a func. This must not be freed.
    \param min_level The current security level.
    \return TRUE if it is safe to call \a func with argument \a expr and FALSE otherwise.
    
-   This function should call and return \see pmath_security_check() with the required level
+   This function should call and return pmath_security_check() with the required level
    and \a expr as second argument. In the case that 
    `PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(required_level, min_level)` is TRUE, no call
    to pmath_security_check() is necessary and TRUE may be returned directly.
@@ -81,20 +79,20 @@ pmath_bool_t pmath_security_check(pmath_security_level_t required_level, pmath_t
    \return The evaluation result.
    
     If \a max_allowed_level is larger than the current security level, the current level will remain intact,
-    i.e. yiu cannot use this function to (temporarily) extent the security level, only restrict it.
+    i.e. you cannot use this function to (temporarily) extent the security level, only restrict it.
     
-    Uppon breach of security during evaluation, a `SecurityException(...)` is thrown.
+    Upon breach of security during evaluation, a `SecurityException(...)` is thrown.
     
     Even when no exception was thrown, you should wrap the result of this function in HoldComplete,
-    because evaluating it further may breach security (e.g. if \a expr is of the form
-    <i>if current security level is low, remain unevaluated, else run bad code</i>).
+    because evaluating it further may break security (e.g. if \a expr is of the form
+    <i>"if current security level is low, remain unevaluated, else run bad code"</i>).
  */
 PMATH_API
 pmath_t pmath_evaluate_secured(pmath_t expr, pmath_security_level_t max_allowed_level);
 
 
 /**\brief Register a security checker for a built-in C function.
-   \param func      A function rgistered with pmath_register_code() or pmath_register_approx_code().
+   \param func      A function registered with pmath_register_code() or pmath_register_approx_code().
    \param min_level The required secuirity level to allow evaluating \a func.
    \param certifier An optional callback that checks whether \a func can be called without breaking security.
    \return Whether the registration succeeded.

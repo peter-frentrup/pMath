@@ -16,7 +16,7 @@
    Infinity and Undefined (NaN) values for C `double`s.
 
    The GNU Multiple Precision Library (http://gmplib.org/) is used for
-   integer and rational arithmetic and the MPFR library (http://www.mpfr.org/)
+   integer and rational arithmetic and the Arb library (http://www.arblib.org/)
    for floating point arithmetic.
 
   @{
@@ -78,29 +78,74 @@ typedef pmath_rational_t pmath_quotient_t;
    Use pmath_is_float() to check for floating point numbers.
 
    There are two hidden implementations of floating point numbers in pMath. One
-   operates on \c double values. The other uses MPFR for multiple precision
-   numbers and provides automatic precision tracking.
+   operates on \c double values. The other (pmath_mpfloat_t) uses Arb for 
+   multiple precision numbers with automatic precision tracking (interval / ball arithmetic).
  */
 typedef pmath_number_t pmath_float_t;
 
+/**\class pmath_mpfloat_t
+   \extends pmath_float_t
+   \brief The Multi Precision Floating Point Number class.
+   
+   Because pmath_mpfloat_t is derived from pmath_float_t, you can use pMath
+   integers wherever a pmath_float_t is accepted.
+
+   Use pmath_is_mpfloat() to check for multi precision floating point numbers.
+   
+   A multi precision float uses interval / ball arithmetic (via the Arb library)
+   to track precision and numerical error propagation.
+   It consists of a mid-point *mid*, a radius *rad* and a working precision *prec*.
+   
+   pMath represents arbitrary precision numbers as real balls with a midpoint, a zero or
+   posivive radius and a working precision. There are two formats in use for such numbers
+   (disregarding the overal sign in front):
+   <ul>
+     <li> `` bb^^MM.MMMM[mmm+/-rrr]`pp*^EE ``, and
+     <li> `` bb^^MM.MMMMmm[+/-r.rr*^XX]`p*^EE ``.
+   </ul>
+   The constitutent parts are:
+   <ul>
+     <li> Optional base specifier `bb^^` (defaults to base 10),
+     <li> Manitssa (mitpoint) significant digits `MM.MMMM`,
+     <li> Insignificant midpoint digits `mmm`,
+     <li> Radius digits `rrr` with optional additional exponent `*^XX`,
+     <li> Precision `pp`.
+     <li> Optional exponent `*^EE`.
+   </ul>
+   
+   Examples:
+   <ul>
+     <li> `` 1.234[567+/-890]*^5 `` = `` 1.234567[+/-0.890*^-3]*^5 `` = ``123456.7 +/- 89.0``.
+     <li> ``2^^0.11010[101+/-110]`5.2*^-6``
+   </ul>
+ */
 typedef pmath_float_t pmath_mpfloat_t;
 
 /*============================================================================*/
 
+/**\brief (Internal function) Create an integer object from a uint32_t.
+   \memberof pmath_integer_t
+ */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t pmath_integer_new_ui32_slow(uint32_t ui);
 
+/**\brief (Internal function) Create an integer object from a uint64_t.
+   \memberof pmath_integer_t
+ */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t pmath_integer_new_ui64_slow(uint64_t ui);
 
+/**\brief (Internal function) Create an integer object from a int64_t.
+   \memberof pmath_integer_t
+ */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t pmath_integer_new_si64_slow(int64_t si);
 
 /**\brief Create an integer object from an int32_t
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param si An int32_t.
    \return A pMath integer with the specified value.
  */
@@ -298,6 +343,7 @@ pmath_integer_t pmath_rational_denominator(pmath_rational_t rational);
 
 /*============================================================================*/
 
+/**\brief Precision control options for pmath_float_new_str(). */
 typedef enum {
   PMATH_PREC_CTRL_AUTO         = 0,
   PMATH_PREC_CTRL_MACHINE_PREC = 1,
@@ -305,9 +351,8 @@ typedef enum {
   PMATH_PREC_CTRL_GIVEN_ACC    = 3   // deprecated
 } pmath_precision_control_t;
 
-/**\brief Create a floating point number from a string.
+/**\brief Create a simple floating point number from a string.
    \memberof pmath_number_t
-   \relates pmath_float_t
    \param str A C-string representing the value in a given \a base. It should
           have the form "ddd.ddd" or simply "ddd". An exponent can be appended
           with "ennn" or if \a base &ne; 10 with "@nnn".
@@ -375,7 +420,7 @@ const char *pmath_rational_parse_floating_point(
 /*============================================================================*/
 
 /**\brief Check whether a pMath integer is in range -2^31 .. 2^31-1.
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return TRUE iff the value is small enough for an int32_t.
  */
@@ -409,7 +454,7 @@ PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
 
 /**\brief Check whether a pMath integer fits into an intptr_t.
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return TRUE iff the value is small enough.
    \hideinitializer
@@ -417,7 +462,7 @@ pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
 #define pmath_integer_fits_siptr(integer)  PMATH_CONCAT(pmath_integer_fits_si, PMATH_BITSIZE)(integer)
 
 /**\brief Check whether a pMath integer fits into an uintptr_t.
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return TRUE iff the value is small enough.
    \hideinitializer
@@ -425,7 +470,7 @@ pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
 #define pmath_integer_fits_uiptr(integer)  PMATH_CONCAT(pmath_integer_fits_ui, PMATH_BITSIZE)(integer)
 
 /**\brief Check whether a pMath integer fits into an slong.
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return TRUE iff the value is small enough.
    \hideinitializer
@@ -433,7 +478,7 @@ pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
 #define pmath_integer_fits_slong(integer) PMATH_CONCAT(pmath_integer_fits_si, PMATH_LONG_BITSIZE)(integer)
 
 /**\brief Check whether a pMath integer fits into an ulong.
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return TRUE iff the value is small enough.
    \hideinitializer
@@ -485,7 +530,7 @@ PMATH_ATTRIBUTE_PURE
 uint64_t pmath_integer_get_ui64(pmath_integer_t integer);
 
 /**\brief Convert a pMath integer to a intptr_t.
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return The integer's value if it fits.
    \hideinitializer
@@ -495,7 +540,7 @@ uint64_t pmath_integer_get_ui64(pmath_integer_t integer);
 #define pmath_integer_get_siptr  PMATH_CONCAT(pmath_integer_get_si, PMATH_BITSIZE)
 
 /**\brief Convert a pMath integer to a uintptr_t.
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return The integer's value if it fits.
    \hideinitializer
@@ -505,7 +550,7 @@ uint64_t pmath_integer_get_ui64(pmath_integer_t integer);
 #define pmath_integer_get_uiptr  PMATH_CONCAT(pmath_integer_get_ui, PMATH_BITSIZE)
 
 /**\brief Convert a pMath integer to a slong.
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return The integer's value if it fits.
    \hideinitializer
@@ -515,7 +560,7 @@ uint64_t pmath_integer_get_ui64(pmath_integer_t integer);
 #define pmath_integer_get_slong  PMATH_CONCAT(pmath_integer_get_si, PMATH_LONG_BITSIZE)
 
 /**\brief Convert a pMath integer to a ulong.
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return The integer's value if it fits.
    \hideinitializer

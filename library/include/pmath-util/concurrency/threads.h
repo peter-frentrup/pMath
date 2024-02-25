@@ -175,8 +175,8 @@ void pmath_abort_please(void);
    \ingroup frontend
    \return Whether the global aborting-flag was set (by pmath_abort_please())
 
-   This is for use in front-ends to allow the user to continue working after he
-   aborted an evaluation.
+   This is for use in front-ends to allow the user to continue working after he 
+   or she aborted an evaluation.
    
    Any uncought exception will be deleted silently.
    

@@ -95,7 +95,6 @@ pmath_string_t pmath_compress_to_string(pmath_t obj);
 
 /**\brief Decompress an expression from a string.
    \param str     A string representing a compressed expression. It will be freed.
-   \param options Optional settings. Can be NULL.
    \return The decompressed expression or PMATH_UNDEFINED on failure.
    
    \see pmath_compress_to_string()
@@ -104,6 +103,6 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_decompress_from_string(pmath_string_t str);
 
-/* @} */
+/** @} */
 
 #endif /* __PMATH_UTIL__COMPRESSION_H__ */

@@ -30,6 +30,6 @@ double pmath_version_number(void);
 PMATH_API
 long pmath_version_number_part(int index);
 
-/* @} */
+/** @} */
 
 #endif // __PMATH_UTIL__VERSION_H__

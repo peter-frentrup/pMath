@@ -22,13 +22,13 @@ struct _pmath_t { // do not access members
 
 /**\brief Check for an (inlined) machine-precision float.
    \hideinitializer
-   \memberof pmath_float_t
+   \relates pmath_float_t
  */
 #define pmath_is_double(obj)  (((obj).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE)
 
 /**\brief Check for a non-inlined object.
    \hideinitializer
-   \memberof pmath_t
+   \relates pmath_t
    
    Non-inlined objects are reference counted with pmath_ref/pmath_unref.
  */
@@ -36,7 +36,7 @@ struct _pmath_t { // do not access members
 
 /**\brief Check for a magic number.
    \hideinitializer
-   \memberof pmath_t
+   \relates pmath_t
    
    Magic numbers are inlined and non-evaluatable.
  */
@@ -44,7 +44,7 @@ struct _pmath_t { // do not access members
 
 /**\brief Check for an inlined 32-bit number.
    \hideinitializer
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
  */
 #define pmath_is_int32(obj)   ((obj).s.tag == PMATH_TAG_INT32)
 
@@ -86,7 +86,7 @@ double PMATH_AS_DOUBLE(pmath_t obj) {
 
 /**\brief Check for reference equality.
    \hideinitializer
-   \memberof pmath_t
+   \relates pmath_t
    
    \param objA The first object. It wont be freed.
    \param objB The second object. It wont be freed.
@@ -96,7 +96,7 @@ double PMATH_AS_DOUBLE(pmath_t obj) {
 
 /**\brief Check for equality to PMATH_NULL.
    \hideinitializer
-   \memberof pmath_t
+   \relates pmath_t
    
    \param obj A pMath object. It wont be freed.
    \return TRUE if the argument equals PMATH_NULL.
@@ -118,55 +118,55 @@ pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type) {
 
 /**\brief Check for a multi-precision integer.
    \hideinitializer
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
  */
 #define pmath_is_mpint(obj)   (pmath_is_pointer_of((obj), PMATH_TYPE_MP_INT))
 
 /**\brief Check for a multi-precision floating point number.
    \hideinitializer
-   \memberof pmath_float_t
+   \relates pmath_mpfloat_t
  */
 #define pmath_is_mpfloat(obj) (pmath_is_pointer_of((obj), PMATH_TYPE_MP_FLOAT))
 
 /**\brief Check for a custom object.
    \hideinitializer
-   \memberof pmath_custom_t
+   \relates pmath_custom_t
  */
 #define pmath_is_custom(obj)        (pmath_is_pointer_of((obj), PMATH_TYPE_CUSTOM))
 
 /**\brief Check for a pMath expression.
    \hideinitializer
-   \memberof pmath_expr_t
+   \relates pmath_expr_t
  */
 #define pmath_is_expr(obj)          (pmath_is_pointer_of((obj), PMATH_TYPE_EXPRESSION))
 
 /**\brief Check for a floating point number.
    \hideinitializer
-   \memberof pmath_float_t
+   \relates pmath_float_t
  */
 #define pmath_is_float(obj)         (pmath_is_double(obj) || pmath_is_mpfloat(obj))
 
 /**\brief Check for an integer.
    \hideinitializer
-   \memberof pmath_integer_t
+   \relates pmath_integer_t
  */
 #define pmath_is_integer(obj)       (pmath_is_int32(obj) || pmath_is_mpint(obj))
 
 /**\brief Check for a number.
    \hideinitializer
-   \memberof pmath_number_t
+   \relates pmath_number_t
  */
 #define pmath_is_number(obj)        (pmath_is_float(obj) || pmath_is_rational(obj))
 
 /**\brief Check for a quotient.
    \hideinitializer
-   \memberof pmath_quotient_t
+   \relates pmath_quotient_t
  */
 #define pmath_is_quotient(obj)      (pmath_is_pointer_of((obj), PMATH_TYPE_QUOTIENT))
 
 /**\brief Check for a rational number.
    \hideinitializer
-   \memberof pmath_rational_t
+   \relates pmath_rational_t
  */
 #define pmath_is_rational(obj)      (pmath_is_integer(obj) || pmath_is_quotient(obj))
 
@@ -174,25 +174,25 @@ pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type) {
 
 /**\brief Check for a string.
    \hideinitializer
-   \memberof pmath_string_t
+   \relates pmath_string_t
  */
 #define pmath_is_string(obj)        (pmath_is_ministr(obj) || pmath_is_bigstr(obj))
 
 /**\brief Check for a symbol.
    \hideinitializer
-   \memberof pmath_symbol_t
+   \relates pmath_symbol_t
  */
 #define pmath_is_symbol(obj)        (pmath_is_pointer_of((obj), PMATH_TYPE_SYMBOL))
 
 /**\brief Check for a blob object.
    \hideinitializer
-   \memberof pmath_blob_t
+   \relates pmath_blob_t
  */
 #define pmath_is_blob(obj)          (pmath_is_pointer_of((obj), PMATH_TYPE_BLOB))
 
 /**\brief Check for a packed array expression.
    \hideinitializer
-   \memberof pmath_packed_array_t
+   \relates pmath_packed_array_t
  */
 #define pmath_is_packed_array(obj)  (pmath_is_pointer_of((obj), PMATH_TYPE_PACKED_ARRAY))
 
