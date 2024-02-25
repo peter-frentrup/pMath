@@ -373,7 +373,7 @@ static void get_machine_app_id_hash(struct _pmath_sha1_digest_t hash_out[1]) {
   {
     // TODO: try IOPlatformUUID on MacOS
     
-    // Linux specific, but note that /etc/machine-id does not exist on WSL
+    // Linux specific, but note that /etc/machine-id does not exist on WSL (unless explicitly set up with "systemd-machine-id-setup")
     FILE *f = fopen("/etc/machine-id", "r");
     if(f) {
       #define PREFIX_LEN   5
