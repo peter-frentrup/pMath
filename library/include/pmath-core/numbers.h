@@ -22,9 +22,6 @@
   @{
  */
 
-#define PMATH_MACHINE_PRECISION  0
-#define PMATH_AUTO_PRECISION     1
-
 /**\class pmath_number_t
    \extends pmath_t
    \brief The abstract Number class.
