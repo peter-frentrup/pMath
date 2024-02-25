@@ -1,6 +1,7 @@
 #include <boxes/graphics/graphicsdirective.h>
 #include <boxes/graphics/graphicsdrawingcontext.h>
 
+#include <graphics/canvas.h>
 #include <graphics/context.h>
 
 #include <cmath>
@@ -56,7 +57,7 @@ namespace richmath {
       
       static bool decode_dash_offset(double &offset, Expr obj, float scale_factor);
       
-      static bool decode_joinform(JoinForm &join_form, float &miter_limit, Expr expr);
+      static bool decode_joinform(enum JoinForm &join_form, float &miter_limit, Expr expr);
       
       bool change_directives(Expr new_directives);
       
@@ -417,7 +418,7 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
   }
   
   if(directive[0] == richmath_System_JoinForm) {
-    JoinForm join_form;
+    enum JoinForm join_form;
     float miter_limit;
     if(GraphicsDirective::decode_joinform(join_form, miter_limit, directive[1])) {
       gc.canvas().join_form(join_form);
@@ -472,7 +473,7 @@ void GraphicsDirective::Impl::apply_edgeform_to_context(Expr directive, Graphics
   }
   
   if(directive[0] == richmath_System_JoinForm) {
-    JoinForm join_form;
+    enum JoinForm join_form;
     float miter_limit;
     if(GraphicsDirective::decode_joinform(join_form, miter_limit, directive[1])) {
       gc.edge_joinform = join_form;

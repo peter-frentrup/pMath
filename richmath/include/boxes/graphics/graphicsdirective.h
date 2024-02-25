@@ -3,9 +3,11 @@
 
 
 #include <boxes/graphics/graphicselement.h>
+#include <graphics/canvas.h>
 #include <eval/partial-dynamic.h>
 
 namespace richmath {
+
   class GraphicsDirective final : public GraphicsDirectiveBase {
       using base = GraphicsDirectiveBase;
       class Impl;
