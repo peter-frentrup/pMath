@@ -1776,7 +1776,7 @@ namespace pmath {
      The object destructor must be thread-safe (e.g. by not using any global
      data), because it is typically called from another thread than where the
      object was created. If synchronization is needed, it can be done in the
-     dereference() callback method.
+     on_destruct() callback method.
   
      All other callback methods are synchronized: pMath ensures that no
      callback is entered twice at the same time.
@@ -1799,7 +1799,7 @@ namespace pmath {
       
          This method destroys the object by default.
        */
-      virtual void dereference() noexcept { delete this; }
+      virtual void on_destruct() noexcept { delete this; }
       
     protected:
       /**\brief Call a method on the user stream behind a pMath file.
@@ -1857,7 +1857,7 @@ namespace pmath {
       static void destructor_function(void *extra) noexcept {
         //UserStream *stream = static_cast<UserStream *>(reinterpret_cast<Derived *>(extra));
         UserStream &stream = (UserStream &)(*reinterpret_cast<Derived *>(extra));
-        stream.dereference();
+        stream.on_destruct();
       }
       
     private:
