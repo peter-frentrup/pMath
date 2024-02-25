@@ -581,6 +581,7 @@ namespace pmath {
    */
   class String: public Expr {
     public:
+      /**\brief Wrap a PMATH_NULL as a string. */
       String() noexcept
         : Expr()
       {
@@ -593,6 +594,9 @@ namespace pmath {
         pmath_unref(_str);
       }
       
+      /**\brief Cast an expression to a string. Giving PMATH_NULL if it was not actually a string object. 
+         \see Expr::to_string()
+       */
       String(const Expr &src) noexcept
         : Expr(src.is_string() ? pmath_ref(src.get()) : PMATH_NULL)
       {
@@ -615,23 +619,35 @@ namespace pmath {
       }
 #endif
       
-      /**\brief Construct from Latin-1 encoded C string. */
+      /**\brief Construct from Latin-1 encoded C string.
+         \param latin1  A Latin-1 encoded C string. May contain embedded NUL if \a len is specified.
+         \param len     Length of the string or -1 if \a latin1 is NUL-terminated.
+       */
       String(const char *latin1, int len = -1) noexcept
         : Expr(latin1 ? pmath_string_insert_latin1(PMATH_NULL, 0, latin1, len) : PMATH_NULL)
       {
       }
       
-      /**\brief Construct from UCS-2/UTF-16 encoded string. */
+      /**\brief Construct from UCS-2/UTF-16 encoded string.
+         \param ucs2  A UCS-2/UTF-16 encoded C string. May contain embedded NUL if \a len is specified.
+         \param len   Length of the string or -1 if \a ucs2 is NUL-terminated.
+        */
       static String FromUcs2(const uint16_t *ucs2, int len = -1) noexcept {
         return String(pmath_string_insert_ucs2(PMATH_NULL, 0, ucs2, len));
       }
 #ifdef PMATH_CPP_WCHAR_IS_U16
+      /**\brief Construct from UCS-2/UTF-16 encoded string. 
+         \param wcs   A UCS-2/UTF-16 encoded C string. May contain embedded NUL if \a len is specified.
+         \param len   Length of the string or -1 if \a ucs2 is NUL-terminated.
+        */
       static String FromWide(const wchar_t *wcs, int len = -1) noexcept {
         return FromUcs2((const uint16_t*)wcs, len);
       }
 #endif
       
-      /**\brief Construct from a single unicode character. */
+      /**\brief Construct from a single unicode character. 
+         \param unicode   A valid unicode code point or any UCS-2 code point.
+       */
       static String FromChar(unsigned int unicode) noexcept {
         uint16_t u16[2];
         if(unicode <= 0xFFFF) {
@@ -653,11 +669,18 @@ namespace pmath {
         return String(pmath_string_insert_ucs2(PMATH_NULL, 0, u16, 2));
       }
       
-      /**\brief Construct from UTF-8 encoded C string. */
+      /**\brief Construct from UTF-8 encoded C string. 
+         \param utf8  A UTF-8 encoded C string. May contain embedded NUL if \a len is specified.
+         \param len   Length of the string or -1 if \a utf8 is NUL-terminated.
+       */
       static String FromUtf8(const char *utf8, int len = -1) noexcept {
         return String(pmath_string_from_utf8(utf8, len));
       }
 #ifdef __cpp_char8_t
+      /**\brief Construct from UTF-8 encoded C string. 
+         \param utf8  A UTF-8 encoded C string. May contain embedded NUL if \a len is specified.
+         \param len   Length of the string or -1 if \a utf8 is NUL-terminated.
+       */
       static String FromUtf8(const char8_t *utf8, int len = -1) noexcept {
         static_assert(sizeof(char8_t) == sizeof(char), "");
         return FromUtf8((const char*)utf8, len);
@@ -665,6 +688,10 @@ namespace pmath {
 #endif
 
 #ifdef __cpp_unicode_characters
+      /**\brief Construct from UTF-16 encoded C string. 
+         \param utf16  A UTF-16 encoded C string. May contain embedded NUL if \a len is specified.
+         \param len    Length of the string or -1 if \a utf16 is NUL-terminated.
+       */
       static String FromUtf16(const char16_t *utf16, int len = -1) noexcept {
         return FromUcs2((const uint16_t*)utf16, len);
       }
@@ -688,13 +715,14 @@ namespace pmath {
         return *this;
       }
 #ifdef PMATH_CPP_USE_RVALUE_REF
+      /**\brief Append a string. */
       String &operator+=(String &&src) noexcept {
         _obj = pmath_string_concat(_obj, (pmath_string_t)src.release());
         return *this;
       }
 #endif
       
-      /**\brief Append a C string. */
+      /**\brief Append a NUL-terminated C string. */
       String &operator+=(const char *latin1) noexcept {
         _obj = pmath_string_insert_latin1(_obj, INT_MAX, latin1, -1);
         return *this;
@@ -706,7 +734,7 @@ namespace pmath {
         return *this;
       }
       
-      /**\brief Append a UTF-16-string. */
+      /**\brief Append a NUL-terminated UCS-2 / UTF-16 string. */
       String &operator+=(const uint16_t *ucs2) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, ucs2, -1);
         return *this;
@@ -719,10 +747,12 @@ namespace pmath {
       }
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
+      /**\brief Append a NUL-terminated string. */
       String &operator+=(const wchar_t *wcs) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)wcs, -1);
         return *this;
       }
+      /**\brief Append a character. */
       String &operator+=(const wchar_t wc) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)&wc, 1);
         return *this;
@@ -730,10 +760,12 @@ namespace pmath {
 #endif
 
 #ifdef __cpp_unicode_characters
+      /**\brief Append a NUL-terminated string. */
       String &operator+=(const char16_t *utf16) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)utf16, -1);
         return *this;
       }
+      /**\brief Append a character. */
       String &operator+=(char16_t ch) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)&ch, 1);
         return *this;
@@ -747,6 +779,7 @@ namespace pmath {
                         (pmath_string_t)pmath_ref(other.get())));
       }
 #ifdef PMATH_CPP_USE_RVALUE_REF
+      /**\brief Concatenate two strings. */
       String operator+(String &&other) const noexcept {
         return String(pmath_string_concat(
                         (pmath_string_t)pmath_ref(_obj),
@@ -754,6 +787,7 @@ namespace pmath {
       }
 #endif
       
+      /**\brief Concatenate two strings. */
       String operator+(const char *latin1) const noexcept {
         return String(pmath_string_insert_latin1(
                         (pmath_string_t)pmath_ref(_obj),
@@ -762,6 +796,7 @@ namespace pmath {
                         -1));
       }
       
+      /**\brief Concatenate two strings. */
       String operator+(const uint16_t *ucs2) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
@@ -780,6 +815,7 @@ namespace pmath {
       }
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
+      /**\brief Concatenate two strings. */
       String operator+(const wchar_t *wcs) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
@@ -787,6 +823,7 @@ namespace pmath {
                         (const uint16_t*)wcs,
                         -1));
       }
+      /**\brief Concatenate a string an a single UCS-2 unicode character. */
       String operator+(wchar_t wc) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
@@ -797,6 +834,7 @@ namespace pmath {
 #endif
 
 #ifdef __cpp_unicode_characters
+      /**\brief Concatenate two strings. */
       String operator+(const char16_t *utf16) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
@@ -804,6 +842,7 @@ namespace pmath {
                         (const uint16_t*)utf16,
                         -1));
       }
+      /**\brief Concatenate a string an a single UCS-2 unicode character. */
       String operator+(char16_t ch) const noexcept {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
@@ -813,7 +852,9 @@ namespace pmath {
       }
 #endif
       
-      /**\brief Get string part. */
+      /**\brief Get string part.
+         \see pmath_string_part
+       */
       String part(int start, int length = -1) const noexcept {
         return String(pmath_string_part(
                         (pmath_string_t)pmath_ref(_obj), start, length));
@@ -829,64 +870,117 @@ namespace pmath {
         return starts_with_buffer(s.buffer(), s.length());
       }
       
+      /**\brief Check for prefix equality. 
+         \param latin1  A Latin-1 encoded C string. May cointain embedded NUL characters if \a len is given.
+         \param len     Length of \a latin1 or -1 if it is NUL-terminated.
+         \return whether this string object starts with the given prefix.
+       */
       bool starts_with(const char *latin1, int len = -1) const noexcept {
         return starts_with_buffer((const unsigned char*)latin1, len);
       }
       
+      /**\brief Check for prefix equality. 
+         \param ucs2    A UCS-2 encoded C string. May cointain embedded NUL characters if \a len is given.
+         \param len     Length of \a ucs2 or -1 if it is NUL-terminated.
+         \return whether this string object starts with the given prefix.
+       */
       bool starts_with(const uint16_t *ucs2, int len = -1) const noexcept {
         return starts_with_buffer(ucs2, len);
       }
 
 #ifdef __cpp_unicode_characters
+      /**\brief Check for prefix equality. 
+         \param utf16   A UTF-16 encoded C string. May cointain embedded NUL characters if \a len is given.
+         \param len     Length of \a utf16 or -1 if it is NUL-terminated.
+         \return whether this string object starts with the given prefix.
+       */
       bool starts_with(const char16_t *utf16, int len = -1) const noexcept {
         return starts_with_buffer(utf16, len);
       }
 #endif
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
+      /**\brief Check for prefix equality. 
+         \param wcs     A UCS-2 encoded C string. May cointain embedded NUL characters if \a len is given.
+         \param len     Length of \a wcs or -1 if it is NUL-terminated.
+         \return whether this string object starts with the given prefix.
+       */
       bool starts_with(const wchar_t *wcs, int len = -1) const noexcept {
         return starts_with_buffer(wcs, len);
       }
 #endif
       
-      /**\brief Insert a substring. Changes the object itself. */
+      /**\brief Insert a substring. Changes the object itself.
+         \param pos   0-based character index where to insert \a other. Will be clipped to [0, length()].
+         \param other The string to insert.
+       */
       void insert(int pos, const String &other) noexcept {
         _obj = pmath_string_insert(_obj, pos, pmath_ref(other.get()));
       }
 #ifdef PMATH_CPP_USE_RVALUE_REF
+      /**\brief Insert a substring. Changes the object itself.
+         \param pos   0-based character index where to insert \a other. Will be clipped to [0, length()].
+         \param other The string to insert (moved into).
+       */
       void insert(int pos, String &&other) noexcept {
         _obj = pmath_string_insert(_obj, pos, other.release());
       }
 #endif
       
+      /**\brief Insert a substring. Changes the object itself.
+         \param pos     0-based character index where to insert \a latin1. Will be clipped to [0, length()].
+         \param latin1  The Latin-1 encoded C string to insert. May contain embedded NUL characters if \a len is given.
+         \param len     Length of the substring \a latin1 to be inserted. Or -1 if \a latin1 is NUL-terminated.
+       */
       void insert(int pos, const char *latin1, int len = -1) noexcept {
         _obj = pmath_string_insert_latin1(_obj, pos, latin1, len);
       }
       
+      /**\brief Insert a substring. Changes the object itself.
+         \param pos     0-based character index where to insert \a ucs2. Will be clipped to [0, length()].
+         \param ucs2    The UCS-2 encoded C string to insert. May contain embedded NUL characters if \a len is given.
+         \param len     Length of the substring \a ucs2 to be inserted. Or -1 if \a ucs2 is NUL-terminated.
+       */
       void insert(int pos, const uint16_t *ucs2, int len = -1) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, pos, ucs2, len);
       }
       
 #ifdef __cpp_unicode_characters
+      /**\brief Insert a substring. Changes the object itself.
+         \param pos     0-based character index where to insert \a utf16. Will be clipped to [0, length()].
+         \param utf16   The UTF-16 encoded C string to insert. May contain embedded NUL characters if \a len is given.
+         \param len     Length of the substring \a utf16 to be inserted. Or -1 if \a utf16 is NUL-terminated.
+       */
       void insert(int pos, const char16_t *utf16, int len = -1) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, pos, (const uint16_t*)utf16, len);
       }
 #endif
 
 #ifdef PMATH_CPP_WCHAR_IS_U16
+      /**\brief Insert a substring. Changes the object itself.
+         \param pos     0-based character index where to insert \a wcs. Will be clipped to [0, length()].
+         \param wcs     The UCS-2 encoded C string to insert. May contain embedded NUL characters if \a len is given.
+         \param len     Length of the substring \a wcs to be inserted. Or -1 if \a wcs is NUL-terminated.
+       */
       void insert(int pos, const wchar_t *wcs, int len = -1) noexcept {
         _obj = pmath_string_insert_ucs2(_obj, pos, (const uint16_t*)wcs, len);
       }
 #endif
       
-      /**\brief Remove a substring. Changes the object itself. */
-      void remove(int start, int length) noexcept {
+      /**\brief Remove a substring. Changes the object itself.
+         \param start   0-based start index.
+         \param len     Number of characters to remove.
+         The interval [\a start, \a start + \a len] is effectively clipped to [0, length()].
+         But integer overflow is not detected.
+         \see part()
+       */
+      void remove(int start, int len) noexcept {
         pmath_string_t prefix = pmath_string_part(
                                   (pmath_string_t)pmath_ref(_obj), 0, start);
                                   
         pmath_string_t postfix = pmath_string_part(
-                                   (pmath_string_t)pmath_ref(_obj), start + length,
-                                   pmath_string_length(_obj) - start - length);
+                                   (pmath_string_t)pmath_ref(_obj), start + len,
+                                   pmath_string_length(_obj) - start - len);
                                    
         pmath_unref(_obj);
         _obj = pmath_string_concat(prefix, postfix);
@@ -912,13 +1006,18 @@ namespace pmath {
         return pmath_string_length(_obj);
       }
       
-      /**\brief Get the UCS-2/UTF-16 const string buffer. This is not zero-terminated */
+      /**\brief Get the UCS-2/UTF-16 const string buffer. This is not NUL-terminated */
       const uint16_t *buffer() const noexcept {
         return pmath_string_buffer(const_cast<pmath_string_t *>(&_obj));
       }
 
+      /**\brief Edit a string in-place.
+         \param func  A function of two arguments (uint16_t *buf, int len) that may freely modify buf[0], ..., buf[len-1]. Must not throw exceptions.
+         \return false if editing was not possible (e.g. if this string object is PMATH_NULL). Otherwise true.
+         If this string object has multiple references, a copy will be created before editing.
+       */
       template<typename Func>
-      bool edit(Func func) {
+      bool edit(Func func) noexcept {
         uint16_t *buf;
         int len;
         if(pmath_string_begin_write(&_obj, &buf, &len)) {
@@ -937,7 +1036,7 @@ namespace pmath {
       const wchar_t *buffer_wchar() const noexcept { return (const wchar_t *)buffer(); }
 #endif
       
-      /**\brief Get a single character or U+0000 on error. */
+      /**\brief Get a single character at a given position or U+0000 on error. */
       uint16_t operator[](int i) const noexcept {
         if(i < 0 || i >= length())
           return 0;
@@ -995,6 +1094,7 @@ namespace pmath {
         pmath_gather_begin(PMATH_NULL);
       }
       
+      /**\brief Gathers only objects that match a given \a pattern. */
       explicit Gather(Expr pattern) noexcept
         : ended(false)
       {
@@ -1036,131 +1136,161 @@ namespace pmath {
   
   
   
-  
-  inline Expr Number(double d) {
+  /**\brief Convert a native double to a pMath expression object. May yield integer, machine floating point, `Undefined` or a `DirectedInfinity`).
+   */
+  inline Expr Number(double d) noexcept {
     if((double)((int)d) == d)
       return Expr((int)d);
       
     return Expr(d);
   }
-  inline Expr Complex(Expr re, Expr im)    { return Expr(pmath_build_value("Coo", re.release(), im.release())); }
-  inline Expr Imaginary(Expr im)           { return Complex(0, PMATH_CPP_MOVE(im)); }
-  inline Expr Rational(Expr num, Expr den) { return Expr(pmath_build_value("Qoo", num.release(), den.release())); }
+  /**\brief Create a complex number expression `Complex(re, im)`.
+   */
+  inline Expr Complex(Expr re, Expr im) noexcept { return Expr(pmath_build_value("Coo", re.release(), im.release())); }
   
-  inline Expr Ref(pmath_t o)           { return Expr(pmath_ref(o)); }
-  inline Expr Symbol(pmath_symbol_t h) { return Ref(h); }
+  /**\brief Create a complex number expression `Complex(0, im)`. 
+   */
+  inline Expr Imaginary(Expr im) noexcept { return Complex(0, PMATH_CPP_MOVE(im)); }
   
-  inline Expr MakeCall(Expr h, size_t len) { return Expr(pmath_expr_new(h.release(), len)); }
+  /**\brief Create a rational number `num/den` */
+  inline Expr Rational(Expr num, Expr den) noexcept { return Expr(pmath_build_value("Qoo", num.release(), den.release())); }
+  
+  /**\brief Create an expression from a raw pMath object without taking ownership.
+     \param o  The object to wrap. Its reference count will be increased. It must be freed manually.
+   */
+  inline Expr Ref(pmath_t o) noexcept { return Expr(pmath_ref(o)); }
+  
+  /**\brief Wrap a pmath_symbol_t without taking ownership.
+   */
+  inline Expr Symbol(pmath_symbol_t h) noexcept { return Ref(h); }
+  
+  /**\brief Create a call expression with given head and number of arguments.
+     \param h   The head of the call expression.
+     \param len The number of arguments.
+     The arguments are initialized to PMATH_NULL.
+   */ 
+  inline Expr MakeCall(Expr h, size_t len) noexcept { return Expr(pmath_expr_new(h.release(), len)); }
 
-  inline Expr Call(Expr h) {
-    return Expr(pmath_expr_new(h.release(), 0));
-  }
-  inline Expr Call(Expr h, Expr x1) {
-    return Expr(pmath_expr_new_extended(h.release(), 1, x1.release()));
-  }
-  inline Expr Call(Expr h, Expr x1, Expr x2) {
-    return Expr(pmath_expr_new_extended(h.release(), 2, x1.release(), x2.release()));
-  }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3) {
-    return Expr(pmath_expr_new_extended(h.release(), 3, x1.release(), x2.release(), x3.release()));
-  }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4) {
-    return Expr(pmath_expr_new_extended(h.release(), 4, x1.release(), x2.release(), x3.release(), x4.release()));
-  }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5) {
-    return Expr(pmath_expr_new_extended(h.release(), 5, x1.release(), x2.release(), x3.release(), x4.release(), x5.release()));
-  }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6) {
-    return Expr(pmath_expr_new_extended(h.release(), 6, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release()));
-  }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7) {
-    return Expr(pmath_expr_new_extended(h.release(), 7, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release()));
-  }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8) {
-    return Expr(pmath_expr_new_extended(h.release(), 8, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release()));
-  }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9) {
-    return Expr(pmath_expr_new_extended(h.release(), 9, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release()));
-  }
+  /**\brief Create a call expression `h()` with head \a h and no arguments. */
+  inline Expr Call(Expr h) noexcept { return Expr(pmath_expr_new(h.release(), 0)); }
   
-  inline Expr List() {
-    return Expr(pmath_build_value("()"));
-  }
-  inline Expr List(Expr x1) {
-    return Expr(pmath_build_value("(o)", x1.release()));
-  }
-  inline Expr List(Expr x1, Expr x2) {
-    return Expr(pmath_build_value("(oo)", x1.release(), x2.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3) {
-    return Expr(pmath_build_value("(ooo)", x1.release(), x2.release(), x3.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4) {
-    return Expr(pmath_build_value("(oooo)", x1.release(), x2.release(), x3.release(), x4.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5) {
-    return Expr(pmath_build_value("(ooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6) {
-    return Expr(pmath_build_value("(oooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7) {
-    return Expr(pmath_build_value("(ooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8) {
-    return Expr(pmath_build_value("(oooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9) {
-    return Expr(pmath_build_value("(ooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10) {
-    return Expr(pmath_build_value("(oooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11) {
-    return Expr(pmath_build_value("(ooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12) {
-    return Expr(pmath_build_value("(oooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12, Expr x13) {
-    return Expr(pmath_build_value("(ooooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12, Expr x13, Expr x14) {
-    return Expr(pmath_build_value("(oooooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release(), x14.release()));
-  }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12, Expr x13, Expr x14, Expr x15) {
-    return Expr(pmath_build_value("(ooooooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release(), x14.release(), x15.release()));
-  }
+  /**\brief Create a call expression `h(x1)` with head \a h and a single argument. */
+  inline Expr Call(Expr h, Expr x1)  { return Expr(pmath_expr_new_extended(h.release(), 1, x1.release())); }
   
-  inline Expr Evaluate(Expr x) { return Expr(pmath_evaluate(x.release())); }
+  /**\brief Create a call expression `h(x1, x2)` with given head and two arguments. */ 
+  inline Expr Call(Expr h, Expr x1, Expr x2) noexcept { return Expr(pmath_expr_new_extended(h.release(), 2, x1.release(), x2.release())); }
   
-  inline Expr ParseArgs(const char *code, Expr arglist) {
+  /**\brief Create a call expression with given head and three arguments. */
+  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3) noexcept { return Expr(pmath_expr_new_extended(h.release(), 3, x1.release(), x2.release(), x3.release())); }
+  
+  /**\brief Create a call expression with given head and four arguments. */
+  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4) noexcept { return Expr(pmath_expr_new_extended(h.release(), 4, x1.release(), x2.release(), x3.release(), x4.release())); }
+  
+  /**\brief Create a call expression with given head and five arguments. */
+  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5) noexcept { return Expr(pmath_expr_new_extended(h.release(), 5, x1.release(), x2.release(), x3.release(), x4.release(), x5.release())); }
+  
+  /**\brief Create a call expression with given head and six arguments. */
+  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6) noexcept { return Expr(pmath_expr_new_extended(h.release(), 6, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release())); }
+  
+  /**\brief Create a call expression with given head and seven arguments. */
+  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7) noexcept { return Expr(pmath_expr_new_extended(h.release(), 7, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release())); }
+  
+  /**\brief Create a call expression with given head and eight arguments. */
+  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8) noexcept { return Expr(pmath_expr_new_extended(h.release(), 8, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release())); }
+  
+  /**\biref Create a call expression with given head and nine arguments. */
+  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9) noexcept { return Expr(pmath_expr_new_extended(h.release(), 9, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release())); }
+  
+  
+  
+  /**\brief Create an empty list expr `{}`. */
+  inline Expr List() noexcept { return Expr(pmath_build_value("()")); }
+  
+  /**\brief Create a singleton list of one element `{x1}`. */
+  inline Expr List(Expr x1) noexcept { return Expr(pmath_build_value("(o)", x1.release())); }
+  
+  /**\brief Create a list of two elements `{x1, x2}`. */
+  inline Expr List(Expr x1, Expr x2) noexcept { return Expr(pmath_build_value("(oo)", x1.release(), x2.release())); }
+  
+  /**\brief Create a list of three elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3) noexcept { return Expr(pmath_build_value("(ooo)", x1.release(), x2.release(), x3.release())); }
+  
+  /**\brief Create a list of four elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4) noexcept { return Expr(pmath_build_value("(oooo)", x1.release(), x2.release(), x3.release(), x4.release())); }
+  
+  /**\brief Create a list of five elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5)  { return Expr(pmath_build_value("(ooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release())); }
+  
+  /**\brief Create a list of six elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6) noexcept { return Expr(pmath_build_value("(oooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release())); }
+  
+  /**\brief Create a list of seven elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7) noexcept { return Expr(pmath_build_value("(ooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release())); }
+  
+  /**\brief Create a list of eight elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8) noexcept { return Expr(pmath_build_value("(oooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release())); }
+  
+  /**\brief Create a list of nine elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9) noexcept { return Expr(pmath_build_value("(ooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release())); }
+  
+  /**\brief Create a list of ten elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10) noexcept { return Expr(pmath_build_value("(oooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release())); }
+  
+  /**\brief Create a list of eleven elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11) noexcept { return Expr(pmath_build_value("(ooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release())); }
+  
+  /**\brief Create a list of twelve elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12) noexcept { return Expr(pmath_build_value("(oooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release())); }
+  
+  /**\brief Create a list of thirteen elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12, Expr x13) noexcept { return Expr(pmath_build_value("(ooooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release())); }
+  
+  /**\brief Create a list of fourteen elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12, Expr x13, Expr x14) noexcept { return Expr(pmath_build_value("(oooooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release(), x14.release())); }
+  
+  /**\brief Create a list of fifteen elements. */
+  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12, Expr x13, Expr x14, Expr x15) noexcept { return Expr(pmath_build_value("(ooooooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release(), x14.release(), x15.release())); }
+  
+  /**\brief evaluate an expression.
+     \see pmath_evaluate
+   */
+  inline Expr Evaluate(Expr x) noexcept { return Expr(pmath_evaluate(x.release())); }
+  
+  /**\brief Parse a pMath expression without evaluating it.
+     \param code     A string containg valid pMath syntax with optional `` `1` ``, `` `2` ``, ... insertion points.
+     \param arglist  A pMath List of objects to insert in place of the `` `1` ``, `` `2` ``, ... insertion points in \a code.
+     \return A pMath expression.
+     \see pmath_parse_string_args
+   */
+  inline Expr ParseArgs(const char *code, Expr arglist) noexcept {
     return Expr(pmath_parse_string_args(
                   code,
                   "o",
                   arglist.release()));
   }
-  inline Expr Parse(String code) { return Expr(pmath_parse_string(code.release())); }
+  /**\brief Parse a pMath expression without evaluating it.
+     \see pmath_parse_string
+   */
+  inline Expr Parse(String code) noexcept { return Expr(pmath_parse_string(code.release())); }
 //  inline Expr Parse(const char *code) { return Expr(pmath_parse_string(PMATH_C_STRING(code))); }
-  inline Expr Parse(const char *code, Expr x1) {
-    return ParseArgs(code, List(PMATH_CPP_MOVE(x1)));
-  }
-  inline Expr Parse(const char *code, Expr x1, Expr x2) {
-    return ParseArgs(code, List(PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2)));
-  }
-  inline Expr Parse(const char *code, Expr x1, Expr x2, Expr x3) {
-    return ParseArgs(code, List(PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3)));
-  }
-  inline Expr Parse(const char *code, Expr x1, Expr x2, Expr x3, Expr x4) {
-    return ParseArgs(code, List(PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3), PMATH_CPP_MOVE(x4)));
-  }
+
+  /**\brief Parse a pMath expression with a replacement object for occurences of `` `1` `` in the \a code. */
+  inline Expr Parse(const char *code, Expr x1) noexcept { return ParseArgs(code, List(PMATH_CPP_MOVE(x1))); }
+  
+  /**\brief Parse a pMath expression with two replacement arguments, for `` `1` ``, `` `2` ``. */
+  inline Expr Parse(const char *code, Expr x1, Expr x2) noexcept { return ParseArgs(code, List(PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2))); }
+  
+  /**\brief Parse a pMath expression with three replacement arguments, for `` `1` ``, `` `2` ``, `` `3` ``. */
+  inline Expr Parse(const char *code, Expr x1, Expr x2, Expr x3) noexcept { return ParseArgs(code, List(PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3))); }
+  
+  /**\brief Parse a pMath expression with four replacement arguments. */
+  inline Expr Parse(const char *code, Expr x1, Expr x2, Expr x3, Expr x4) noexcept { return ParseArgs(code, List(PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3), PMATH_CPP_MOVE(x4))); }
   
   /**\ingroup cpp_binding
      \brief A wrapper for pMath file objects (data streams).
   
      This class provides some stream utility functions in addition to Expr.
-     Note that a pMath file does not have to correspond to any operating system
-     file object.
+     Note that a pMath file does not have to correspond to any operating system file object.
    */
   class File: public Expr {
     public:
@@ -1197,13 +1327,13 @@ namespace pmath {
       }
 #endif
       
-      File &operator=(const File &src) {
+      File &operator=(const File &src) noexcept {
         Expr::operator=(src);
         return *this;
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      File &operator=(File &&src) {
+      File &operator=(File &&src) noexcept {
         Expr::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
@@ -1246,7 +1376,7 @@ namespace pmath {
    */
   class BinaryFile: public File {
     public:
-      BinaryFile()
+      BinaryFile() noexcept
         : File()
       {
       }
@@ -1279,13 +1409,13 @@ namespace pmath {
       }
 #endif
       
-      BinaryFile &operator=(const BinaryFile &src) {
+      BinaryFile &operator=(const BinaryFile &src) noexcept {
         File::operator=(src);
         return *this;
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      BinaryFile &operator=(BinaryFile &&src) {
+      BinaryFile &operator=(BinaryFile &&src) noexcept {
         File::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
@@ -1316,7 +1446,7 @@ namespace pmath {
    */
   class ReadableBinaryFile: public BinaryFile {
     public:
-      ReadableBinaryFile()
+      ReadableBinaryFile() noexcept
         : BinaryFile()
       {
       }
@@ -1349,13 +1479,13 @@ namespace pmath {
       }
 #endif
       
-      ReadableBinaryFile &operator=(const ReadableBinaryFile &src) {
+      ReadableBinaryFile &operator=(const ReadableBinaryFile &src) noexcept {
         BinaryFile::operator=(src);
         return *this;
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      ReadableBinaryFile &operator=(ReadableBinaryFile &&src) {
+      ReadableBinaryFile &operator=(ReadableBinaryFile &&src) noexcept {
         BinaryFile::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
@@ -1377,7 +1507,7 @@ namespace pmath {
    */
   class WriteableBinaryFile: public BinaryFile {
     public:
-      WriteableBinaryFile()
+      WriteableBinaryFile() noexcept
         : BinaryFile()
       {
       }
@@ -1410,13 +1540,13 @@ namespace pmath {
       }
 #endif
       
-      WriteableBinaryFile &operator=(const WriteableBinaryFile &src) {
+      WriteableBinaryFile &operator=(const WriteableBinaryFile &src) noexcept {
         BinaryFile::operator=(src);
         return *this;
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      WriteableBinaryFile &operator=(WriteableBinaryFile &&src) {
+      WriteableBinaryFile &operator=(WriteableBinaryFile &&src) noexcept {
         BinaryFile::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
@@ -1440,7 +1570,7 @@ namespace pmath {
    */
   class TextFile: public File {
     public:
-      TextFile()
+      TextFile() noexcept
         : File()
       {
       }
@@ -1479,7 +1609,7 @@ namespace pmath {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      TextFile &operator=(TextFile &&src) {
+      TextFile &operator=(TextFile &&src) noexcept {
         File::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
@@ -1491,7 +1621,7 @@ namespace pmath {
       }
       
       /**\brief Create a text file from a binary file using UTF-16BE or UTF-16LE, depending on the machine architecture. */
-      static TextFile create_from_binary(BinaryFile binfile) {
+      static TextFile create_from_binary(BinaryFile binfile) noexcept {
         return create_from_binary(binfile, PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
       }
       
@@ -1500,7 +1630,7 @@ namespace pmath {
                        character!
           \see pmath_file_set_textbuffer().
        */
-      void set_buffer(String buffer) {
+      void set_buffer(String buffer) noexcept {
         pmath_file_set_textbuffer(_obj, (pmath_string_t)buffer.release());
       }
   };
@@ -1510,7 +1640,7 @@ namespace pmath {
    */
   class ReadableTextFile: public TextFile {
     public:
-      ReadableTextFile()
+      ReadableTextFile() noexcept
         : TextFile()
       {
       }
@@ -1543,13 +1673,13 @@ namespace pmath {
       }
 #endif
       
-      ReadableTextFile &operator=(const ReadableTextFile &src) {
+      ReadableTextFile &operator=(const ReadableTextFile &src) noexcept {
         TextFile::operator=(src);
         return *this;
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      ReadableTextFile &operator=(ReadableTextFile &&src) {
+      ReadableTextFile &operator=(ReadableTextFile &&src) noexcept {
         TextFile::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
@@ -1561,7 +1691,7 @@ namespace pmath {
       }
       
       /**\brief Create a text file from a binary file using UTF-16BE or UTF-16LE, depending on the machine architecture. */
-      static ReadableTextFile create_from_binary(ReadableBinaryFile binfile) {
+      static ReadableTextFile create_from_binary(ReadableBinaryFile binfile) noexcept {
         return ReadableTextFile(TextFile::create_from_binary(binfile));
       }
       
@@ -1610,13 +1740,13 @@ namespace pmath {
       }
 #endif
       
-      WriteableTextFile &operator=(const WriteableTextFile &src) {
+      WriteableTextFile &operator=(const WriteableTextFile &src) noexcept {
         TextFile::operator=(src);
         return *this;
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      WriteableTextFile &operator=(WriteableTextFile &&src) {
+      WriteableTextFile &operator=(WriteableTextFile &&src) noexcept {
         TextFile::operator=(PMATH_CPP_MOVE(src));
         return *this;
       }
@@ -1660,7 +1790,7 @@ namespace pmath {
          \return true iff \a file wraps UserStream subclass U object.
        */
       template<class U>
-      static bool file_wraps(File file) {
+      static bool file_wraps(File file) noexcept {
         return manipulate<U>(file, noop);
       }
       
@@ -1669,7 +1799,7 @@ namespace pmath {
       
          This method destroys the object by default.
        */
-      virtual void dereference() { delete this; }
+      virtual void dereference() noexcept { delete this; }
       
     protected:
       /**\brief Call a method on the user stream behind a pMath file.
@@ -1681,7 +1811,7 @@ namespace pmath {
                  actually a user stream of class U.
        */
       template<class U, typename A>
-      static bool manipulate(File file, void (U::*callback)(const A &), const A &arg) {
+      static bool manipulate(File file, void (U::*callback)(const A &), const A &arg) noexcept {
         Manipulator<U, A> manipulator;
         
         manipulator.method = callback;
@@ -1705,7 +1835,7 @@ namespace pmath {
                  actually a user stream of class U.
        */
       template<class U>
-      static bool manipulate(BinaryFile file, void (U::*callback)()) {
+      static bool manipulate(BinaryFile file, void (U::*callback)()) noexcept {
         VoidManipulator<U> manipulator;
         
         manipulator.method = callback;
@@ -1724,14 +1854,14 @@ namespace pmath {
       /**\brief Called by pMath.
        */
       template<class Derived>
-      static void destructor_function(void *extra) {
+      static void destructor_function(void *extra) noexcept {
         //UserStream *stream = static_cast<UserStream *>(reinterpret_cast<Derived *>(extra));
         UserStream &stream = (UserStream &)(*reinterpret_cast<Derived *>(extra));
         stream.dereference();
       }
       
     private:
-      void noop() {
+      void noop() noexcept {
       }
       
     private:
@@ -1742,7 +1872,7 @@ namespace pmath {
           const A &arg;
           bool success;
           
-          static void callback(void *extra, void *data) {
+          static void callback(void *extra, void *data) noexcept {
             C                 *obj  = (C *)extra;
             Manipulator<C, A> *info = (Manipulator<C, A> *)data;
             
@@ -1757,7 +1887,7 @@ namespace pmath {
           void (C::*method)();
           bool success;
           
-          static void callback(void *extra, void *data) {
+          static void callback(void *extra, void *data) noexcept {
             C                  *obj  = (C *)extra;
             VoidManipulator<C> *info = (VoidManipulator<C> *)data;
             
