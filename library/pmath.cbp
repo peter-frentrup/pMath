@@ -1072,6 +1072,9 @@
 		<Unit filename="src/pmath-builtins/control/flow/throw-and-catch.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/control/flow/trustedfunction.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/control/flow/tryevaluatesecured.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -12,6 +12,7 @@
 
 
 typedef pmath_t pmath_dispatch_table_t;
+typedef pmath_t pmath_custom_t;
 
 struct _pmath_expr_t {
   struct _pmath_gc_t   inherited;
@@ -95,6 +96,13 @@ pmath_dispatch_table_t _pmath_expr_get_dispatch_table(pmath_expr_t expr);
 
 PMATH_PRIVATE
 void _pmath_expr_attach_dispatch_table(pmath_expr_t expr, pmath_dispatch_table_t dispatch_table); // dispatch_table will be freeds
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_custom_t _pmath_expr_get_custom_metadata(pmath_expr_t expr, void *dtor);
+
+PMATH_PRIVATE
+void _pmath_expr_attach_custom_metadata(pmath_expr_t expr, void *dtor, pmath_custom_t cert); // cert will be freed
 
 
 PMATH_PRIVATE

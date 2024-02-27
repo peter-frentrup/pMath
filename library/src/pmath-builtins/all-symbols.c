@@ -165,10 +165,12 @@ PMATH_PRIVATE pmath_t builtin_finally(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_evaluate(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_evaluatedelayed(   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_maketrustedfunction(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_tryevaluatesecured(pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_function(     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_function(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_call_function(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_call_trustedfunction(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_block(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_blockuserdefinitions(pmath_expr_t expr);
@@ -603,8 +605,9 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_internal_tryevaluatesecured, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_function,                    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_call_function,               PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_call_linearsolvefunction, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_call_list,                PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_call_linearsolvefunction,    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_call_list,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_call_trustedfunction,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   
   // builtin_block?
   CHECK( pmath_security_register_doorman(builtin_local, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -830,6 +833,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_SUB(    pmath_System_IsHeld,                       builtin_call_isheld)
   BIND_SUB(    pmath_System_LinearSolveFunction,          builtin_call_linearsolvefunction)
   BIND_SUB(    pmath_System_List,                         builtin_call_list)
+  BIND_SUB(    pmath_System_TrustedFunction,              builtin_call_trustedfunction)
   
   BIND_UP(     pmath_System_NRules,                       builtin_assign_symbol_rules)
   BIND_UP(     pmath_System_Attributes,                   builtin_assign_attributes)
@@ -874,6 +878,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_Internal_GetCurrentDirectory,          builtin_internal_getcurrentdirectory)
   BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,          builtin_internal_getcurrentdynamicid)
   BIND_DOWN(   pmath_Internal_GetThreadID,                  builtin_getthreadid)
+  BIND_DOWN(   pmath_Internal_MakeTrustedFunction,          builtin_internal_maketrustedfunction)
   BIND_DOWN(   pmath_Internal_NextToward,                   builtin_internal_nexttoward)
   BIND_DOWN(   pmath_Internal_ParseRealBall,                builtin_internal_parserealball)
   BIND_DOWN(   pmath_Internal_RealBallBounds,               builtin_internal_realballbounds)

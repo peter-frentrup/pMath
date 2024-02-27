@@ -1,4 +1,6 @@
 #include <pmath-core/expressions-private.h>
+
+#include <pmath-core/custom.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays-private.h>
 #include <pmath-core/strings-private.h>
@@ -145,17 +147,17 @@ static pmath_atomic_t expr_caches[CACHES_MAX][CACHE_SIZE];
 static pmath_atomic_t expr_cache_pos[CACHES_MAX];
 
 
-enum {
-  METADATA_KIND_debug_metadata,
-  METADATA_KIND_DISPATCH_TABLE
-};
+typedef void *_pmath_metadata_kind_t; // either a METADATA_KIND_* or a pmath_custom_t destructor
+#define METADATA_KIND_debug_metadata  ((void*)1)
+#define METADATA_KIND_DISPATCH_TABLE  ((void*)2)
 
-static pmath_bool_t metadata_find(pmath_t *metadata, int kind);
-static pmath_bool_t try_merge_metadata(pmath_t *metadata, int kind, pmath_t new_of_kind);
-static pmath_t get_metadata(pmath_expr_t expr, int kind);
-static pmath_t merge_metadata(pmath_expr_t expr, int kind, pmath_t new_of_kind);
+
+static pmath_bool_t metadata_find(pmath_t *metadata, _pmath_metadata_kind_t kind);
+static pmath_bool_t try_merge_metadata(pmath_t *metadata, _pmath_metadata_kind_t kind, pmath_t new_of_kind);
+static pmath_t get_metadata(pmath_expr_t expr, _pmath_metadata_kind_t kind);
+static pmath_t merge_metadata(pmath_expr_t expr, _pmath_metadata_kind_t kind, pmath_t new_of_kind);
 static void clear_metadata(struct _pmath_expr_t *_expr);
-static void attach_metadata(struct _pmath_expr_t *_expr, int kind, pmath_t new_of_kind);
+static void attach_metadata(struct _pmath_expr_t *_expr, _pmath_metadata_kind_t kind, pmath_t new_of_kind);
 
 #ifdef PMATH_DEBUG_LOG
 static pmath_atomic_t expr_cache_hits   = PMATH_ATOMIC_STATIC_INIT;
@@ -1872,7 +1874,7 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
 
 /*----------------------------------------------------------------------------*/
 
-static pmath_bool_t metadata_find(pmath_t *metadata, int kind) {
+static pmath_bool_t metadata_find(pmath_t *metadata, _pmath_metadata_kind_t kind) {
   assert(metadata);
   
   if(pmath_is_expr(*metadata)) {
@@ -1895,11 +1897,13 @@ static pmath_bool_t metadata_find(pmath_t *metadata, int kind) {
   }
   else if(pmath_is_dispatch_table(*metadata)) 
     return kind == METADATA_KIND_DISPATCH_TABLE;
+  else if(pmath_is_custom(*metadata))
+    return pmath_custom_has_destructor(*metadata, kind);
   
   return kind == METADATA_KIND_debug_metadata;
 }
 
-static pmath_bool_t try_merge_metadata(pmath_t *metadata, int kind, pmath_t new_of_kind) {
+static pmath_bool_t try_merge_metadata(pmath_t *metadata, _pmath_metadata_kind_t kind, pmath_t new_of_kind) {
   assert(metadata);
   
   if(pmath_same(*metadata, PMATH_NULL)) {
@@ -1932,6 +1936,14 @@ static pmath_bool_t try_merge_metadata(pmath_t *metadata, int kind, pmath_t new_
     }
     return FALSE;
   }
+  else if(pmath_is_custom(*metadata)) {
+    if(pmath_custom_has_destructor(*metadata, kind)) {
+      pmath_unref(*metadata);
+      *metadata = pmath_ref(new_of_kind);
+      return TRUE;
+    }
+    return FALSE;
+  }
   
   if(kind == METADATA_KIND_debug_metadata) {
     pmath_unref(*metadata);
@@ -1941,7 +1953,7 @@ static pmath_bool_t try_merge_metadata(pmath_t *metadata, int kind, pmath_t new_
   return FALSE;
 }
 
-static pmath_t get_metadata(pmath_expr_t expr, int kind) {
+static pmath_t get_metadata(pmath_expr_t expr, _pmath_metadata_kind_t kind) {
   struct _pmath_expr_t *_expr;
   pmath_t metadata;
 
@@ -1968,7 +1980,7 @@ static pmath_t get_metadata(pmath_expr_t expr, int kind) {
   return PMATH_NULL;
 }
 
-static pmath_t merge_metadata(pmath_expr_t expr, int kind, pmath_t new_of_kind) {
+static pmath_t merge_metadata(pmath_expr_t expr, _pmath_metadata_kind_t kind, pmath_t new_of_kind) {
   if(try_merge_metadata(&expr, kind, new_of_kind)) {
     pmath_unref(new_of_kind);
     return expr;
@@ -1985,7 +1997,7 @@ static void clear_metadata(struct _pmath_expr_t *_expr) {
     _pmath_unref_ptr(metadata_ptr);
 }
 
-static void attach_metadata(struct _pmath_expr_t *_expr, int kind, pmath_t new_of_kind) {
+static void attach_metadata(struct _pmath_expr_t *_expr, _pmath_metadata_kind_t kind, pmath_t new_of_kind) {
   pmath_t metadata;
   
   {
@@ -2007,7 +2019,7 @@ static void attach_metadata(struct _pmath_expr_t *_expr, int kind, pmath_t new_o
     return;
   }
   
-  metadata = merge_metadata(metadata, METADATA_KIND_debug_metadata, new_of_kind);
+  metadata = merge_metadata(metadata, kind, new_of_kind);
   if(pmath_is_null(metadata))
     return;
   
@@ -2043,6 +2055,36 @@ void _pmath_expr_attach_dispatch_table(pmath_expr_t expr, pmath_dispatch_table_t
   _expr = (struct _pmath_expr_t*)PMATH_AS_PTR(expr);
   attach_metadata(_expr, METADATA_KIND_DISPATCH_TABLE, dispatch_table);
 }
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_custom_t _pmath_expr_get_custom_metadata(pmath_expr_t expr, void *dtor) {
+  if((uintptr_t)dtor < 100) // Obviously not a pmath_custom_t destructor (function pointer)
+    return PMATH_NULL;
+  
+  pmath_t result = get_metadata(expr, dtor);
+  if(pmath_is_custom(result))
+    return result;
+  
+  pmath_unref(result);
+  return PMATH_NULL;
+}
+
+PMATH_PRIVATE
+void _pmath_expr_attach_custom_metadata(pmath_expr_t expr, void *dtor, pmath_custom_t cert) { // cert will be freed
+  struct _pmath_expr_t *_expr;
+  
+  assert(pmath_is_null(cert) || (pmath_is_custom(cert) && pmath_custom_has_destructor(cert, dtor)));
+  
+  if(!pmath_is_pointer_of(expr, PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART)) {
+    pmath_unref(cert);
+    return;
+  }
+  
+  _expr = (struct _pmath_expr_t*)PMATH_AS_PTR(expr);
+  attach_metadata(_expr, dtor, cert);
+}
+
 
 PMATH_PRIVATE pmath_t _pmath_expr_get_debug_metadata(pmath_expr_t expr) {
   return get_metadata(expr, METADATA_KIND_debug_metadata);
