@@ -79,6 +79,9 @@ PMATH_PRIVATE pmath_t builtin_internal_maketrustedfunction(pmath_expr_t expr) {
 PMATH_PRIVATE pmath_t builtin_call_trustedfunction(pmath_expr_t expr) {
   /* TrustedFunction({func, forlevel, tmphigherlevel}, cert)(args)
    */
+  pmath_thread_t me = pmath_thread_get_current();
+  if(!me)
+    return expr;
   
   pmath_t head = pmath_expr_get_item(expr, 0);
   if(pmath_is_expr_of(head, pmath_System_TrustedFunction)) {
@@ -107,7 +110,14 @@ PMATH_PRIVATE pmath_t builtin_call_trustedfunction(pmath_expr_t expr) {
     pmath_t func = pmath_expr_get_item(func_data, 1);
     expr = pmath_expr_set_item(expr, 0, func);
     
-    expr = pmath_evaluate_secured(expr, cert_data->temporary_higher_level);
+    { // Note that pmath_evaluate_secured() cannot increase security level.
+      pmath_security_level_t old_level = me->security_level;
+      me->security_level = cert_data->temporary_higher_level;
+      
+      expr = pmath_evaluate(expr);
+      
+      me->security_level = old_level;
+    }
     
     pmath_unref(cert_custom);
     pmath_unref(func_data);
