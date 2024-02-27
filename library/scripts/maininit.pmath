@@ -61,7 +61,9 @@ AutoLoad(~heldall:Hold, ~file)::=
 						If(!success, Clear @@ heldall; AutoLoad(heldall, file))
 					));
 			heldall.Scan(
-				Function(s, s ::= AutoLoadStart(Hold(s), heldall); SetAttributes(s, ReadProtected), {HoldAll}));
+				Function(s, 
+					With({fu:= Internal`MakeTrustedFunction(Function(AutoLoadStart(Hold(s), heldall)), "PureDeterministicAllowed")},
+						s ::= fu()); SetAttributes(s, ReadProtected), {HoldAll}));
 		).Finally(Protect @@ p))
 Attributes(AutoLoad):= {Protected, ReadProtected}
 
