@@ -14,7 +14,9 @@
 
 
 extern pmath_symbol_t pmath_System_HoldComplete;
+extern pmath_symbol_t pmath_System_HoldForm;
 extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Message;
 extern pmath_symbol_t pmath_System_MessageName;
 extern pmath_symbol_t pmath_System_SecurityException;
 extern pmath_symbol_t pmath_System_TrustedFunction;
@@ -26,7 +28,7 @@ struct _pmath_trusted_function_t {
 
 static void trusted_function_destructor(void *_data);
 static pmath_custom_t create_trust_certificate(pmath_t expr, const struct _pmath_trusted_function_t *data);
-static const struct _pmath_trusted_function_t *check_trust_certificate(pmath_custom_t cert, pmath_t expr, pmath_t msg_arg); // arguments wont be freed
+static const struct _pmath_trusted_function_t *check_trust_certificate(pmath_custom_t cert, pmath_t expr, pmath_t msg_arg, pmath_bool_t do_throw); // arguments wont be freed
 
 
 PMATH_PRIVATE pmath_t builtin_internal_maketrustedfunction(pmath_expr_t expr) {
@@ -76,6 +78,42 @@ PMATH_PRIVATE pmath_t builtin_internal_maketrustedfunction(pmath_expr_t expr) {
   return expr;
 }
 
+PMATH_PRIVATE pmath_t builtin_trustedfunction(pmath_expr_t expr) {
+  /* TrustedFunction({func, forlevel, tmphigherlevel}, cert)
+   */
+  if(pmath_expr_length(expr) != 2) {
+    pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
+    return expr;
+  }
+  
+  pmath_t func_data = pmath_expr_get_item(expr, 1);
+  if(!pmath_is_expr_of_len(func_data, pmath_System_List, 3)) {
+    pmath_message(PMATH_NULL, "list", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
+    pmath_unref(func_data);
+    return expr;
+  }
+  
+  // TODO: Use an actual HMAC of `func_data` (and some secret, maybe process-specific only) 
+  //       in `cert` to be able to resurrect `cert_custom` if that is missing (e.g. after round-tripping).
+  pmath_t cert = pmath_expr_get_item(expr, 2);
+  pmath_custom_t cert_custom = PMATH_NULL;
+  if(pmath_is_expr_of(cert, pmath_System_HoldComplete)) {
+    cert_custom = _pmath_expr_get_custom_metadata(cert, trusted_function_destructor);
+  }
+  if(!check_trust_certificate(cert_custom, func_data, expr, FALSE)) {
+    pmath_unref(cert_custom);
+    pmath_unref(cert);
+    pmath_unref(func_data);
+    return expr;
+  }
+  
+  pmath_atomic_or_uint8(&PMATH_AS_PTR(expr)->flags8, PMATH_OBJECT_FLAGS8_VALID); // SetValid() for easy check by formatting functions.
+  pmath_unref(cert_custom);
+  pmath_unref(cert);
+  pmath_unref(func_data);
+  return expr;
+}
+
 PMATH_PRIVATE pmath_t builtin_call_trustedfunction(pmath_expr_t expr) {
   /* TrustedFunction({func, forlevel, tmphigherlevel}, cert)(args)
    */
@@ -99,7 +137,7 @@ PMATH_PRIVATE pmath_t builtin_call_trustedfunction(pmath_expr_t expr) {
     }
     
     pmath_unref(cert);
-    const struct _pmath_trusted_function_t *cert_data = check_trust_certificate(cert_custom, func_data, expr);
+    const struct _pmath_trusted_function_t *cert_data = check_trust_certificate(cert_custom, func_data, expr, TRUE);
     if(!cert_data) {
       pmath_unref(cert_custom);
       pmath_unref(func_data);
@@ -148,33 +186,43 @@ static pmath_custom_t create_trust_certificate(pmath_t func_data, const struct _
   return pmath_custom_new_with_object(data_copy, trusted_function_destructor, pmath_ref(func_data));
 }
 
-static const struct _pmath_trusted_function_t *check_trust_certificate(pmath_custom_t cert, pmath_t expr, pmath_t msg_arg) {
+static const struct _pmath_trusted_function_t *check_trust_certificate(pmath_custom_t cert, pmath_t expr, pmath_t msg_arg, pmath_bool_t do_throw) {
   if(!pmath_custom_has_destructor(cert, trusted_function_destructor)) { // no certificate
-    pmath_throw(
-      pmath_expr_new_extended(pmath_ref(pmath_System_SecurityException), 2,
-        pmath_expr_new_extended(pmath_ref(pmath_System_MessageName), 2, 
-          pmath_ref(pmath_System_TrustedFunction),
-          PMATH_C_STRING("nocert")),
-        pmath_ref(msg_arg)));
+    pmath_t msg = pmath_expr_new_extended(
+                    pmath_ref(do_throw ? pmath_System_SecurityException : pmath_System_Message), 2,
+                    pmath_expr_new_extended(pmath_ref(pmath_System_MessageName), 2, 
+                      pmath_ref(pmath_System_TrustedFunction),
+                      PMATH_C_STRING("nocert")),
+                    pmath_expr_new_extended(pmath_ref(pmath_System_HoldForm), 1, pmath_ref(msg_arg)));
+    if(do_throw)
+      pmath_throw(msg);
+    else
+      pmath_unref(pmath_evaluate(msg));
     return NULL;
   }
   
   pmath_t orig = pmath_custom_get_attached_object(cert);
   if(!pmath_equals(orig, expr)) {
-    pmath_throw(
-      pmath_expr_new_extended(pmath_ref(pmath_System_SecurityException), 2,
-        pmath_expr_new_extended(pmath_ref(pmath_System_MessageName), 2, 
-          pmath_ref(pmath_System_TrustedFunction),
-          PMATH_C_STRING("badcert")),
-        pmath_ref(msg_arg)));
+    pmath_t msg = pmath_expr_new_extended(
+                    pmath_ref(do_throw ? pmath_System_SecurityException : pmath_System_Message), 2,
+                    pmath_expr_new_extended(pmath_ref(pmath_System_MessageName), 2, 
+                      pmath_ref(pmath_System_TrustedFunction),
+                      PMATH_C_STRING("badcert")),
+                    pmath_expr_new_extended(pmath_ref(pmath_System_HoldForm), 1, pmath_ref(msg_arg)));
+    if(do_throw)
+      pmath_throw(msg);
+    else
+      pmath_unref(pmath_evaluate(msg));
     pmath_unref(orig);
     return NULL;
   }
   pmath_unref(orig);
   
   const struct _pmath_trusted_function_t *cert_data = pmath_custom_get_data(cert);
-  if(!pmath_security_check(cert_data->min_level, msg_arg)) {
-    return NULL;
+  if(do_throw) {
+    if(!pmath_security_check(cert_data->min_level, msg_arg)) {
+      return NULL;
+    }
   }
   
   return cert_data;

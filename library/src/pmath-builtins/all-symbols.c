@@ -170,6 +170,7 @@ PMATH_PRIVATE pmath_t builtin_internal_tryevaluatesecured(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_function(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_call_function(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_trustedfunction(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_call_trustedfunction(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_block(                        pmath_expr_t expr);
@@ -607,6 +608,7 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_call_function,               PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_call_linearsolvefunction,    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_call_list,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_trustedfunction,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_call_trustedfunction,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   
   // builtin_block?
@@ -1227,6 +1229,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_ToFileName,                   builtin_tofilename)
   BIND_DOWN(   pmath_System_ToString,                     builtin_tostring)
   BIND_DOWN(   pmath_System_Total,                        builtin_total)
+  BIND_DOWN(   pmath_System_TrustedFunction,              builtin_trustedfunction)
   BIND_DOWN(   pmath_System_Try,                          builtin_try)
   BIND_DOWN(   pmath_System_Unassign,                     builtin_unassign)
   BIND_DOWN(   pmath_System_Uncompress,                   builtin_uncompress)

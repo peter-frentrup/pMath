@@ -363,6 +363,10 @@ Transpose::newdims:= "Level rearrangement `1` does not specify destination for l
 Transpose::perm1:= "Entry `1` in permutation `2` is not a positive machine integer."
 Transpose::perm2:= "Entry `1` is out of bounds for permutation `2`."
 
+TrustedFunction::badcert:= Internal`MakeTrustedFunction::badcert:= "Wrong certificate in `1`."
+TrustedFunction::nocert:=  Internal`MakeTrustedFunction::nocert:= "Certificate missing in `1`."
+Internal`MakeTrustedFunction::neednotrust:= "No TrustedFunction for `1` whithin `2` needed."
+
 Try::nomsgs:= "`1` is neither a valid message name nor a list of valid message names."
 
 Uncompress::corrupt:= "Compressed data `1` is corrupt and does not represent an expression."
@@ -375,7 +379,7 @@ Internal`RealBallFromMidpointRadius::numpa:= "Number or Pair of numbers expected
 Internal`RealBallFromMidpointRadius::num:= "Number expected at position `1` in `2`."
 Internal`RealBallFromMidpointRadius::prec:= "Cannot determine working precision for midpoint `1` and radius `2`."
 
-Internal`TryEvaluateSecured::seclvl:= "Security level `1` not recognized. It should be one of {\"NothingAllowed\", \"PureDeterministicAllowed\", \"NonDestructiveAllowed\", \"EverythingAllowed\"}." 
+Internal`TryEvaluateSecured::seclvl:= Internal`MakeTrustedFunction::seclvl:= "Security level `1` not recognized. It should be one of {\"NothingAllowed\", \"PureDeterministicAllowed\", \"NonDestructiveAllowed\", \"EverythingAllowed\"}." 
 
 Internal`WriteRealBall::mpf:= "Multi-precision floating point number (possibly wrapped in InputForm or BaseForm) expected at position `1` in `2`."
 Internal`WriteRealBall::loss:= "Ignoring InputForm(...) adornment for base `1`."
