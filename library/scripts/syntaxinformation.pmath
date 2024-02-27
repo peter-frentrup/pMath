@@ -612,6 +612,7 @@
 {"TransformationFunction", {"ArgumentCount" -> 1}},
 {"TransformationMatrix", {"ArgumentCount" -> 1}},
 {"Transpose", {"ArgumentCount" -> 1..2}},
+{"TrustedFunction", {"ArgumentCount" -> 2}},
 {"Try", {"ArgumentCount" -> 1..3}},
 {"Unassign", {"ArgumentCount" -> 1}},
 {"Uncompress", {"ArgumentCount" -> 1..2}},
@@ -656,6 +657,7 @@
 {"CopySign", {"ArgumentCount" -> 2}},
 {"GetCurrentDirectory", {"ArgumentCount" -> 0}},
 {"NextToward", {"ArgumentCount" -> 2}},
+{"MakeTrustedFunction", {"ArgumentCount" -> 2}},
 {"RealBallBounds", {"ArgumentCount" -> 1}},
 {"SignBit", {"ArgumentCount" -> 1}}
 }},
