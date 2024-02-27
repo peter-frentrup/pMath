@@ -66,6 +66,7 @@
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
+#include <pmath-util/security.h>
 #include <pmath-util/serialize.h>
 #include <pmath-util/stacks.h>
 #include <pmath-util/strtod.h>

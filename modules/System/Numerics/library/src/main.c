@@ -6,6 +6,8 @@
 #undef PMATH_NUMERICS_SYMBOL_DOWNFUNC_IMPL
 #undef PMATH_NUMERICS_SYMBOL
 
+static pmath_bool_t pmath_numerics_init_security_doormen(void);
+
 PMATH_MODULE
 pmath_bool_t pmath_module_init(pmath_string_t filename) {
 #define VERIFY(x)             do{ if(pmath_is_null(x)) goto FAIL; }while(0)
@@ -27,7 +29,9 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
 #    include "symbols.inc"
 #  undef PMATH_NUMERICS_SYMBOL_DOWNFUNC_IMPL
 #  undef PMATH_NUMERICS_SYMBOL
-
+  
+  if(!pmath_numerics_init_security_doormen()) goto FAIL;
+  
   return TRUE;
   
 FAIL:
@@ -50,4 +54,18 @@ void pmath_module_done(void) {
 #  define PMATH_NUMERICS_SYMBOL(sym, str_name)    pmath_unref(sym); sym = PMATH_NULL;
 #    include "symbols.inc"
 #  undef PMATH_NUMERICS_SYMBOL
+}
+
+
+static pmath_bool_t pmath_numerics_init_security_doormen(void) {
+#  define CHECK(x)  if(!(x)) return FALSE
+
+#  define PMATH_NUMERICS_SYMBOL(sym, str_name)
+#  define PMATH_NUMERICS_FUNC_SECURITY_IMPL(func, level)   CHECK( pmath_security_register_doorman(func, level, NULL) );
+#    include "symbols.inc"
+#  undef PMATH_NUMERICS_FUNC_SECURITY_IMPL
+#  undef PMATH_NUMERICS_SYMBOL
+
+
+  return TRUE;
 }
