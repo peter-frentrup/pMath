@@ -295,8 +295,11 @@
 		<DisplayString Condition="destructor == pmath.dll!_pmath_destroy_abortable_message">abortable message</DisplayString>
 		<DisplayString Condition="destructor == pmath.dll!destroy_msg_queue">message queue</DisplayString>
 		<DisplayString Condition="destructor == pmath.dll!_pmath_custom_task_destroy">task</DisplayString>
+		<DisplayString Condition="destructor == pmath.dll!trusted_function_destructor">trust certificate</DisplayString>
 		<DisplayString>custom object</DisplayString>
 		<Expand HideRawView="true">
+			<Item Name="destructor"     >destructor</Item>
+			<Item Name="attached_object">attached_object</Item>
 			<ExpandedItem Condition="destructor == pmath.dll!destroy_binary_file">
 				*(pmath.dll!_pmath_binary_file_t*)data
 			</ExpandedItem>
@@ -317,6 +320,9 @@
 			</ExpandedItem>
 			<ExpandedItem Condition="destructor == pmath.dll!_pmath_custom_task_destroy">
 				*(pmath.dll!pmath_task_t)data
+			</ExpandedItem>
+			<ExpandedItem Condition="destructor == pmath.dll!trusted_function_destructor">
+				*(pmath.dll!_pmath_trusted_function_t)data
 			</ExpandedItem>
 			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
