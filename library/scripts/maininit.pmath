@@ -60,11 +60,10 @@ AutoLoad(~heldall:Hold, ~file)::=
 						% re-register if loading was aborted
 						If(!success, Clear @@ heldall; AutoLoad(heldall, file))
 					));
-			heldall.Scan(
-				Function(s, 
-					With({fu:= Internal`MakeTrustedFunction(Function(AutoLoadStart(Hold(s), heldall)), "PureDeterministicAllowed")},
-						s ::= fu()); SetAttributes(s, ReadProtected), {HoldAll}));
-		).Finally(Protect @@ p))
+			With({startFunc:= Internal`MakeTrustedFunction(Function(AutoLoadStart(#, heldall)), "PureDeterministicAllowed")},
+				heldall.Scan(
+					Function(s, s ::= startFunc(Hold(s)); SetAttributes(s, ReadProtected), {HoldAll}));
+		).Finally(Protect @@ p)))
 Attributes(AutoLoad):= {Protected, ReadProtected}
 
 AutoLoadStart(~heldsymbol, heldall: Hold(~~~all))::= Synchronize({all}, AutoLoadContinue(heldall, heldsymbol))
