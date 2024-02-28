@@ -2108,11 +2108,7 @@ pmath_expr_t _pmath_expr_set_debug_metadata(pmath_expr_t expr, pmath_t info) {
 
   _expr = (struct _pmath_expr_t *)PMATH_AS_PTR(expr);
   if(pmath_refcount(expr) == 1) {
-    struct _pmath_t *old_metadata_ptr = _pmath_atomic_lock_ptr(&_expr->metadata);
-    _pmath_atomic_unlock_ptr(&_expr->metadata, PMATH_AS_PTR(info));
-
-    if(old_metadata_ptr)
-      _pmath_unref_ptr(old_metadata_ptr);
+    attach_metadata(_expr, METADATA_KIND_debug_metadata, info);
 
     return expr;
   }
@@ -2132,9 +2128,14 @@ pmath_expr_t _pmath_expr_set_debug_metadata(pmath_expr_t expr, pmath_t info) {
           pmath_unref(info);
           return expr;
         }
-        
         //reset_expr_flags(new_expr); // only debug info changed -> do not reset flags
-        pmath_atomic_write_release(&new_expr->metadata, (intptr_t)PMATH_AS_PTR(info));
+
+        struct _pmath_t *old_metadata_ptr = _pmath_atomic_lock_ptr(&_expr->metadata);
+        (void)pmath_ref(PMATH_FROM_PTR(old_metadata_ptr));
+        _pmath_atomic_unlock_ptr(&_expr->metadata, old_metadata_ptr);
+
+        pmath_atomic_write_release(&new_expr->metadata, (intptr_t)old_metadata_ptr);
+        attach_metadata(new_expr, METADATA_KIND_debug_metadata, info);
 
         for(i = 0; i <= _expr->length; ++i)
           new_expr->items[i] = pmath_ref(_expr->items[i]);
@@ -2166,7 +2167,16 @@ pmath_expr_t _pmath_expr_set_debug_metadata(pmath_expr_t expr, pmath_t info) {
         new_expr_part->inherited.inherited.gc_refcount = 0;
         new_expr_part->inherited.length                = _expr->length;
         //reset_expr_flags(new_expr); // only debug info changed -> do not reset flags
+
         pmath_atomic_write_release(&new_expr_part->inherited.metadata, (intptr_t)PMATH_AS_PTR(info));
+
+        struct _pmath_t *old_metadata_ptr = _pmath_atomic_lock_ptr(&new_expr_part->inherited.metadata);
+        (void)pmath_ref(PMATH_FROM_PTR(old_metadata_ptr));
+        _pmath_atomic_unlock_ptr(&new_expr_part->inherited.metadata, old_metadata_ptr);
+
+        pmath_atomic_write_release(&new_expr_part->inherited.metadata, (intptr_t)old_metadata_ptr);
+        attach_metadata(&new_expr_part->inherited, METADATA_KIND_debug_metadata, info);
+
         new_expr_part->inherited.items[0]              = pmath_ref(_expr->items[0]);
 
         new_expr_part->start  = old_expr_part->start;
