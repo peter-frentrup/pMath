@@ -68,6 +68,9 @@ PMATH_PRIVATE pmath_t builtin_internal_maketrustedfunction(pmath_expr_t expr) {
   pmath_custom_t cert_custom = create_trust_certificate(func_data, &data);
   // That would create a reference cycle of a kind the garbage collector cannot detect:
   
+  // TODO: instead of attaching `cert_custom` to a HoldComplete(...) expression,
+  //       assign it to a new temporary symbol, so that it does not get lost so easily
+  //       (expr metadata is transient end gets removed by expr editng functions).
   pmath_expr_t cert = pmath_expr_new_extended(pmath_ref(pmath_System_HoldComplete), 1,
     pmath_integer_new_ui32(pmath_hash(func_data))); // the hash contents is actually not relevant. Only the cert_custom will be checked.
   _pmath_expr_attach_custom_metadata(cert, trusted_function_destructor, cert_custom);
