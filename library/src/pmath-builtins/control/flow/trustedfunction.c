@@ -27,6 +27,7 @@ struct _pmath_trusted_function_t {
 };
 
 static void trusted_function_destructor(void *_data);
+static pmath_custom_t decode_trust_certificate(pmath_t cert); // cert will be freed
 static pmath_custom_t create_trust_certificate(pmath_t expr, const struct _pmath_trusted_function_t *data);
 static const struct _pmath_trusted_function_t *check_trust_certificate(pmath_custom_t cert, pmath_t expr, pmath_t msg_arg, pmath_bool_t do_throw); // arguments wont be freed
 
@@ -68,13 +69,8 @@ PMATH_PRIVATE pmath_t builtin_internal_maketrustedfunction(pmath_expr_t expr) {
   pmath_custom_t cert_custom = create_trust_certificate(func_data, &data);
   // That would create a reference cycle of a kind the garbage collector cannot detect:
   
-  // TODO: instead of attaching `cert_custom` to a HoldComplete(...) expression,
-  //       assign it to a new temporary symbol, so that it does not get lost so easily
-  //       (expr metadata is transient end gets removed by expr editng functions).
-  pmath_expr_t cert = pmath_expr_new_extended(pmath_ref(pmath_System_HoldComplete), 1,
-    pmath_integer_new_ui32(pmath_hash(func_data))); // the hash contents is actually not relevant. Only the cert_custom will be checked.
-  _pmath_expr_attach_custom_metadata(cert, trusted_function_destructor, cert_custom);
-    
+  pmath_symbol_t cert = pmath_symbol_create_temporary(PMATH_C_STRING("System`TrustedFunction`cert"), TRUE);
+  pmath_symbol_set_value(cert, cert_custom);
   
   pmath_unref(expr);
   expr = pmath_expr_new_extended(pmath_ref(pmath_System_TrustedFunction), 2, func_data, cert);
@@ -96,23 +92,15 @@ PMATH_PRIVATE pmath_t builtin_trustedfunction(pmath_expr_t expr) {
     return expr;
   }
   
-  // TODO: Use an actual HMAC of `func_data` (and some secret, maybe process-specific only) 
-  //       in `cert` to be able to resurrect `cert_custom` if that is missing (e.g. after round-tripping).
-  pmath_t cert = pmath_expr_get_item(expr, 2);
-  pmath_custom_t cert_custom = PMATH_NULL;
-  if(pmath_is_expr_of(cert, pmath_System_HoldComplete)) {
-    cert_custom = _pmath_expr_get_custom_metadata(cert, trusted_function_destructor);
-  }
+  pmath_custom_t cert_custom = decode_trust_certificate(pmath_expr_get_item(expr, 2));
   if(!check_trust_certificate(cert_custom, func_data, expr, FALSE)) {
     pmath_unref(cert_custom);
-    pmath_unref(cert);
     pmath_unref(func_data);
     return expr;
   }
   
   pmath_atomic_or_uint8(&PMATH_AS_PTR(expr)->flags8, PMATH_OBJECT_FLAGS8_VALID); // SetValid() for easy check by formatting functions.
   pmath_unref(cert_custom);
-  pmath_unref(cert);
   pmath_unref(func_data);
   return expr;
 }
@@ -133,13 +121,7 @@ PMATH_PRIVATE pmath_t builtin_call_trustedfunction(pmath_expr_t expr) {
       return expr;
     }
     
-    pmath_expr_t cert = pmath_expr_get_item(head, 2);
-    pmath_custom_t cert_custom = PMATH_NULL;
-    if(pmath_is_expr_of(cert, pmath_System_HoldComplete)) {
-      cert_custom = _pmath_expr_get_custom_metadata(cert, trusted_function_destructor);
-    }
-    
-    pmath_unref(cert);
+    pmath_custom_t cert_custom = decode_trust_certificate(pmath_expr_get_item(head, 2));
     const struct _pmath_trusted_function_t *cert_data = check_trust_certificate(cert_custom, func_data, expr, TRUE);
     if(!cert_data) {
       pmath_unref(cert_custom);
@@ -175,6 +157,23 @@ static void trusted_function_destructor(void *_data) {
   trust_dummy+= 1; // Access a unique memory location to ensure that COMDAT folding does not kick in and this remains unique.
   
   pmath_mem_free(data);
+}
+
+static pmath_custom_t decode_trust_certificate(pmath_t cert) { // cert will be freed
+  if(!pmath_is_symbol(cert)) {
+    pmath_unref(cert);
+    return PMATH_NULL;
+  }
+  
+  pmath_custom_t cert_custom = pmath_symbol_get_value(cert);
+  if(!pmath_is_custom(cert_custom) || !pmath_custom_has_destructor(cert_custom, trusted_function_destructor)) {
+    pmath_unref(cert_custom);
+    pmath_unref(cert);
+    return PMATH_NULL;
+  }
+  
+  pmath_unref(cert);
+  return cert_custom;
 }
 
 static pmath_custom_t create_trust_certificate(pmath_t func_data, const struct _pmath_trusted_function_t *data) { // expr wont be freed
