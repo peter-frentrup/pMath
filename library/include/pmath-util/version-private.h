@@ -14,14 +14,14 @@
 	//Standard Version Type
 	static const long _PMATH_VERSION_MAJOR  = 0;
 	static const long _PMATH_VERSION_MINOR  = 5;
-	static const long _PMATH_VERSION_BUILD  = 951;
-	static const long _PMATH_VERSION_REVISION  = 1359;
+	static const long _PMATH_VERSION_BUILD  = 952;
+	static const long _PMATH_VERSION_REVISION  = 1360;
 	
 	//Miscellaneous Version Types
-	static const long _PMATH_VERSION_BUILDS_COUNT  = 1187;
-	#define _PMATH_VERSION_RC_FILEVERSION 0,5,951,1359
-	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 5, 951, 1359\0"
-	static const char _PMATH_VERSION_FULLVERSION_STRING [] = "0.5.951.1359";
+	static const long _PMATH_VERSION_BUILDS_COUNT  = 1190;
+	#define _PMATH_VERSION_RC_FILEVERSION 0,5,952,1360
+	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 5, 952, 1360\0"
+	static const char _PMATH_VERSION_FULLVERSION_STRING [] = "0.5.952.1360";
 	
 	//These values are to keep track of your versioning state, don't modify them.
 	static const long _PMATH_VERSION_BUILD_HISTORY  = 0;

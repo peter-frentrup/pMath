@@ -96,7 +96,7 @@ size_t pmath_blob_get_size(pmath_blob_t blob);
    \memberof pmath_blob_t
    \param blob  A blob object. It wont be freed.
    \return A read-only pointer to the internal data. This is the \a data 
-   parameter of the pmath_blob_new_with_data() thatcreated the blob.
+   parameter of the pmath_blob_new_with_data() that created the blob.
  */
 PMATH_API
 const void *pmath_blob_read(pmath_blob_t blob);

@@ -29,6 +29,9 @@
 #define PMATH_DECLARE_ALIGNED(TYPE, NAME, ALIGNMENT)  TYPE NAME
 
 /**\brief Atomically read an 8 bit value with aquire semantics.
+   \memberof pmath_atomic_uint8_t
+   \param atom  Atomic variable loaction.
+   \return Value of the variable.
  */
 PMATH_FORCE_INLINE
 uint8_t pmath_atomic_read_uint8_aquire(const pmath_atomic_uint8_t *atom) {
@@ -38,6 +41,9 @@ uint8_t pmath_atomic_read_uint8_aquire(const pmath_atomic_uint8_t *atom) {
 }
 
 /**\brief Atomically read an 16 bit value with aquire semantics.
+   \memberof pmath_atomic_uint16_t
+   \param atom  Atomic variable loaction.
+   \return Value of the variable.
  */
 PMATH_FORCE_INLINE
 uint16_t pmath_atomic_read_uint16_aquire(const pmath_atomic_uint16_t *atom) {
@@ -47,6 +53,9 @@ uint16_t pmath_atomic_read_uint16_aquire(const pmath_atomic_uint16_t *atom) {
 }
 
 /**\brief Atomically read an 32 bit value with aquire semantics.
+   \memberof pmath_atomic_uint32_t
+   \param atom  Atomic variable loaction.
+   \return Value of the variable.
  */
 PMATH_FORCE_INLINE
 uint32_t pmath_atomic_read_uint32_aquire(const pmath_atomic_uint32_t *atom) {
@@ -56,6 +65,9 @@ uint32_t pmath_atomic_read_uint32_aquire(const pmath_atomic_uint32_t *atom) {
 }
 
 /**\brief Atomically read a value with aquire semantics.
+   \memberof pmath_atomic_t
+   \param atom  Atomic variable loaction.
+   \return Value of the variable.
  */
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_read_aquire(const pmath_atomic_t *atom) {
@@ -66,6 +78,9 @@ intptr_t pmath_atomic_read_aquire(const pmath_atomic_t *atom) {
 
 
 /**\brief Atomically write an 8 bit value with release semantics.
+   \memberof pmath_atomic_uint8_t
+   \param atom  Atomic variable loaction.
+   \param value New value to be written to \a atom.
  */
 PMATH_FORCE_INLINE
 void pmath_atomic_write_uint8_release(pmath_atomic_uint8_t *atom, uint8_t value){
@@ -74,6 +89,9 @@ void pmath_atomic_write_uint8_release(pmath_atomic_uint8_t *atom, uint8_t value)
 }
 
 /**\brief Atomically write an 16 bit value with release semantics.
+   \memberof pmath_atomic_uint16_t
+   \param atom  Atomic variable loaction.
+   \param value New value to be written to \a atom.
  */
 PMATH_FORCE_INLINE
 void pmath_atomic_write_uint16_release(pmath_atomic_uint16_t *atom, uint16_t value){
@@ -82,6 +100,9 @@ void pmath_atomic_write_uint16_release(pmath_atomic_uint16_t *atom, uint16_t val
 }
 
 /**\brief Atomically write an 32 bit value with release semantics.
+   \memberof pmath_atomic_uint32_t
+   \param atom  Atomic variable loaction.
+   \param value New value to be written to \a atom.
  */
 PMATH_FORCE_INLINE
 void pmath_atomic_write_uint32_release(pmath_atomic_uint32_t *atom, uint32_t value){
@@ -90,6 +111,9 @@ void pmath_atomic_write_uint32_release(pmath_atomic_uint32_t *atom, uint32_t val
 }
 
 /**\brief Atomically write a value with release semantics.
+   \memberof pmath_atomic_t
+   \param atom  Atomic variable loaction.
+   \param value New value to be written to \a atom.
  */
 PMATH_FORCE_INLINE
 void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
@@ -99,122 +123,106 @@ void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
 
 
 /**\brief Add a value to another.
+   \memberof pmath_atomic_t
    \param atom An atomic variable.
    \param delta The difference between the new and the old value.
-   \return The old value of \c *atom.
+   \return The old value of \a atom.
 
-   This function increments \c *atom atomically by \c delta. It has full memory
+   This function increments \a atom atomically by \a delta. It has full memory
    barrier semantics.
  */
 PMATH_FORCE_INLINE
-intptr_t pmath_atomic_fetch_add(
-  pmath_atomic_t *atom, 
-  intptr_t        delta
-) {
+intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta) {
   intptr_t result = *atom;
   *atom += delta;
   return result;
 }
 
 /**\brief Bitwise-or an 8 bit value to another.
+   \memberof pmath_atomic_uint8_t
    \param atom  An atomic variable.
-   \param mask  The bits to combine with \c *atom.
+   \param mask  The bits to combine with \a atom.
 
-   This function atomically sets <c>*atom |= flags</c>.
+   This function atomically sets <tt>*atom |= flags</tt>.
  */
 PMATH_FORCE_INLINE 
-void pmath_atomic_or_uint8(
-  pmath_atomic_uint8_t *atom, 
-  uint8_t               mask
-) {
+void pmath_atomic_or_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
   *atom |= mask;
 }
 
 /**\brief Bitwise-or an 16 bit value to another.
+   \memberof pmath_atomic_uint16_t
    \param atom  An atomic variable.
-   \param mask  The bits to combine with \c *atom.
+   \param mask  The bits to combine with \a atom.
 
-   This function atomically sets <c>*atom |= mask</c>.
+   This function atomically sets <tt>*atom |= mask</tt>.
  */
 PMATH_FORCE_INLINE
-void pmath_atomic_or_uint16(
-  pmath_atomic_uint16_t *atom, 
-  uint16_t               mask
-) {
+void pmath_atomic_or_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
   *atom |= mask;
 }
 
 /**\brief Bitwise-or an 32 bit value to another.
+   \memberof pmath_atomic_uint32_t
    \param atom  An atomic variable.
-   \param mask  The bits to combine with \c *atom.
+   \param mask  The bits to combine with \a atom.
 
-   This function atomically sets <c>*atom |= mask</c>.
+   This function atomically sets <tt>*atom |= mask</tt>.
  */
 PMATH_FORCE_INLINE
-void pmath_atomic_or_uint32(
-  pmath_atomic_uint32_t *atom, 
-  uint32_t               mask
-) {
+void pmath_atomic_or_uint32(pmath_atomic_uint32_t *atom, uint32_t mask) {
   *atom |= mask;
 }
 
 
 /**\brief Bitwise-and an 8 bit value to another.
+   \memberof pmath_atomic_uint8_t
    \param atom  An atomic variable.
-   \param mask  The bits to combine with \c *atom.
+   \param mask  The bits to combine with \a atom.
 
-   This function atomically sets <c>*atom &= mask</c>.
+   This function atomically sets <tt>*atom &= mask</tt>.
  */
 PMATH_FORCE_INLINE 
-void pmath_atomic_and_uint8(
-  pmath_atomic_uint8_t *atom, 
-  uint8_t               mask
-) {
+void pmath_atomic_and_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
   *atom &= mask;
 }
 
 /**\brief Bitwise-and an 16 bit value to another.
+   \memberof pmath_atomic_uint16_t
    \param atom  An atomic variable.
-   \param mask  The bits to combine with \c *atom.
+   \param mask  The bits to combine with \a atom.
 
-   This function atomically sets <c>*atom &= mask</c>.
+   This function atomically sets <tt>*atom &= mask</tt>.
  */
 PMATH_FORCE_INLINE
-void pmath_atomic_and_uint16(
-  pmath_atomic_uint16_t *atom, 
-  uint16_t               mask
-) {
+void pmath_atomic_and_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
   *atom &= mask;
 }
 
 /**\brief Bitwise-and an 32 bit value to another.
+   \memberof pmath_atomic_uint32_t
    \param atom  An atomic variable.
-   \param mask  The bits to combine with \c *atom.
+   \param mask  The bits to combine with \a atom.
 
-   This function atomically sets <c>*atom &= mask</c>.
+   This function atomically sets <tt>*atom &= mask</tt>.
  */
 PMATH_FORCE_INLINE
-void pmath_atomic_and_uint32(
-  pmath_atomic_uint32_t *atom, 
-  uint32_t               mask
-) {
+void pmath_atomic_and_uint32(pmath_atomic_uint32_t *atom, uint32_t mask) {
   *atom &= mask;
 }
 
 
 /**\brief Exchange an 8 bit value.
+   \memberof pmath_atomic_uint8_t
    \param atom An atomic 8 bit variable.
-   \param new_value The new value of \c *atom.
-   \return The old value of \c *atom.
+   \param new_value The new value of \a atom.
+   \return The old value of \a atom.
 
-   This function sets \c *atom to \c new_value and returns the old value
+   This function sets \a atom to \c new_value and returns the old value
    atomically. It has full memory barrier semantics.
  */
 PMATH_FORCE_INLINE
-uint8_t pmath_atomic_fetch_set_uint8(
-  pmath_atomic_uint8_t *atom,
-  uint8_t               new_value
-) {
+uint8_t pmath_atomic_fetch_set_uint8(pmath_atomic_uint8_t *atom, uint8_t new_value) {
   uint8_t result = *atom;
   *atom = new_value;
   return result;
@@ -222,18 +230,16 @@ uint8_t pmath_atomic_fetch_set_uint8(
 
 
 /**\brief Exchange an 16 bit value.
+   \memberof pmath_atomic_uint16_t
    \param atom An atomic 16 bit variable.
-   \param new_value The new value of \c *atom.
-   \return The old value of \c *atom.
+   \param new_value The new value of \a atom.
+   \return The old value of \a atom.
 
-   This function sets \c *atom to \c new_value and returns the old value
+   This function sets \a atom to \c new_value and returns the old value
    atomically. It has full memory barrier semantics.
  */
 PMATH_FORCE_INLINE
-uint16_t pmath_atomic_fetch_set_uint16(
-  pmath_atomic_uint16_t *atom,
-  uint16_t               new_value
-) {
+uint16_t pmath_atomic_fetch_set_uint16(pmath_atomic_uint16_t *atom, uint16_t new_value) {
   uint16_t result = *atom;
   *atom = new_value;
   return result;
@@ -241,18 +247,16 @@ uint16_t pmath_atomic_fetch_set_uint16(
 
 
 /**\brief Exchange an 32 bit value.
+   \memberof pmath_atomic_uint32_t
    \param atom An atomic 32 bit variable.
-   \param new_value The new value of \c *atom.
-   \return The old value of \c *atom.
+   \param new_value The new value of \a atom.
+   \return The old value of \a atom.
 
-   This function sets \c *atom to \c new_value and returns the old value
+   This function sets \a atom to \c new_value and returns the old value
    atomically. It has full memory barrier semantics.
  */
 PMATH_FORCE_INLINE
-uint32_t pmath_atomic_fetch_set_uint32(
-  pmath_atomic_uint32_t *atom,
-  uint32_t               new_value
-) {
+uint32_t pmath_atomic_fetch_set_uint32(pmath_atomic_uint32_t *atom, uint32_t new_value) {
   uint32_t result = *atom;
   *atom = new_value;
   return result;
@@ -260,18 +264,16 @@ uint32_t pmath_atomic_fetch_set_uint32(
 
 
 /**\brief Exchange a value.
+   \memberof pmath_atomic_t
    \param atom An atomic variable.
-   \param new_value The new value of \c *atom.
-   \return The old value of \c *atom.
+   \param new_value The new value of \a atom.
+   \return The old value of \a atom.
 
-   This function sets \c *atom to \c new_value and returns the old value
+   This function sets \a atom to \c new_value and returns the old value
    atomically. It has full memory barrier semantics.
  */
 PMATH_FORCE_INLINE
-intptr_t pmath_atomic_fetch_set(
-  pmath_atomic_t *atom,
-  intptr_t        new_value
-) {
+intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t new_value) {
   intptr_t result = *atom;
   *atom = new_value;
   return result;
@@ -279,13 +281,14 @@ intptr_t pmath_atomic_fetch_set(
 
 
 /**\brief Exchange a value if it equals another value.
+   \memberof pmath_atomic_t
    \param atom An atomic variable.
    \param old_value The comparisor.
-   \param new_value The possible new value of \c *atom.
-   \return The old value of \c *atom.
+   \param new_value The possible new value of \a atom.
+   \return The old value of \a atom.
 
    You should use pmath_atomic_compare_and_set() if you don't need the exact old
-   value of \c *atom, because this function might be non-existent on some
+   value of \a atom, because this function might be non-existent on some
    systems. This function has aquire barrier semantics.
  */
 PMATH_FORCE_INLINE
@@ -302,13 +305,14 @@ intptr_t pmath_atomic_fetch_compare_and_set(
 }
 
 /**\brief Exchange a value if it equals another value.
+   \memberof pmath_atomic_t
    \param atom An atomic variable.
    \param old_value The comparisor.
-   \param new_value The possible new value of \c *atom.
+   \param new_value The possible new value of \a atom.
    \return Whether the exchange was performed.
 
-   This function compares \c *atom with \c old_value and iff both equal sets
-   \c *atom to \c new_value, everything atomically and with aquire barrier
+   This function compares \a atom with \c old_value and iff both equal sets
+   \a atom to \c new_value, everything atomically and with aquire barrier
    semantics.
  */
 PMATH_FORCE_INLINE
@@ -325,6 +329,7 @@ pmath_bool_t pmath_atomic_compare_and_set(
 }
 
 /**\brief Exchange two values value if they equal another two values.
+   \memberof pmath_atomic2_t
    \param atom An atomic variable of size 2 * sizeof(void*).
    \param old_value_fst The first old value.
    \param old_value_snd The second old value.
@@ -359,6 +364,7 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
 }
 
 /**\brief Check, whether the CPU supports pmath_atomic_compare_and_set_2().
+   \memberof pmath_atomic2_t
    \return whether pmath_atomic_compare_and_set_2() is supported.
 
    Note, that a call to pmath_atomic_compare_and_set_2() will crash your
@@ -371,6 +377,7 @@ pmath_bool_t pmath_atomic_have_cas2(void) {
 }
 
 /**\brief Insert an explicit memory barrier.
+   \memberof pmath_atomic_t
  */
 PMATH_FORCE_INLINE
 void pmath_atomic_barrier(void) {
@@ -378,6 +385,7 @@ void pmath_atomic_barrier(void) {
 
 
 /**\brief Try to aquire a lock.
+   \memberof pmath_atomic_t
    \param atom The lock. An atomic variable.
 
    This function implements a spin lock. It has aquire barrier semantics. Use
@@ -391,21 +399,18 @@ pmath_atomic_unlock(&spin);
    \endcode
  */
 PMATH_FORCE_INLINE
-void pmath_atomic_lock(
-  pmath_atomic_t *atom
-) {
+void pmath_atomic_lock(pmath_atomic_t *atom) {
   *atom = 1;
 }
 
 /**\brief Release a previously aquired lock.
+   \memberof pmath_atomic_t
    \param atom The lock. An atomic variable.
 
    \see pmath_atomic_lock
  */
 PMATH_FORCE_INLINE
-void pmath_atomic_unlock(
-  pmath_atomic_t *atom
-) {
+void pmath_atomic_unlock(pmath_atomic_t *atom) {
   *atom = 0;
 }
 

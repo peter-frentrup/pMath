@@ -30,6 +30,7 @@
 typedef struct _pmath_stack_t  *pmath_stack_t;
 
 /**\brief Create an empty stack.
+   \memberof pmath_stack_t
    \return A new stack or PMATH_NULL.
 
    Note that you cannot push anything onto a PMATH_NULL stack, so check the result.
@@ -40,6 +41,7 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_stack_t pmath_stack_new(void);
 
 /**\brief Destroy a stack.
+   \memberof pmath_stack_t
    \param stack A stack previously created with pmath_stack_new().
           May be PMATH_NULL.
 
@@ -50,6 +52,7 @@ PMATH_API
 void pmath_stack_free(pmath_stack_t stack);
 
 /**\brief Push an item onto a stack.
+   \memberof pmath_stack_t
    \param stack The stack to where the item should be pushed. Must not be PMATH_NULL.
    \param item The item to be pushed. It must point to a structure whose first
           element is a pointer. Must not be PMATH_NULL.
@@ -59,6 +62,7 @@ PMATH_ATTRIBUTE_NONNULL(1, 2)
 void pmath_stack_push(pmath_stack_t stack, void *item);
 
 /**\brief Pop an item from a stack.
+   \memberof pmath_stack_t
    \param stack The stack to pop an item from. Must not be PMATH_NULL.
    \return The top of stack or PMATH_NULL if it is empty.
  */

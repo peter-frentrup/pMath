@@ -154,7 +154,7 @@ volatile unsigned trust_dummy;
 static void trusted_function_destructor(void *_data) {
   struct _pmath_trusted_function_t *data = _data;
   
-  trust_dummy+= 1; // Access a unique memory location to ensure that COMDAT folding does not kick in and this remains unique.
+  trust_dummy+= 1; // Access a unique memory location to ensure that COMDAT folding does not kick in and this function remains unique.
   
   pmath_mem_free(data);
 }

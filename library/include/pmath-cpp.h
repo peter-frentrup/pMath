@@ -1566,7 +1566,7 @@ namespace pmath {
   
   
   /**\ingroup cpp_binding
-     \brief A wrapper for pMath text file objects (byte data streams).
+     \brief A wrapper for pMath text file objects (character data streams).
    */
   class TextFile: public File {
     public:
@@ -1636,7 +1636,7 @@ namespace pmath {
   };
   
   /**\ingroup cpp_binding
-     \brief A wrapper for pMath readable text file objects (byte data streams).
+     \brief A wrapper for pMath readable text file objects (character data streams).
    */
   class ReadableTextFile: public TextFile {
     public:
@@ -1703,7 +1703,7 @@ namespace pmath {
   };
   
   /**\ingroup cpp_binding
-     \brief A wrapper for pMath writeable text file objects (byte data streams).
+     \brief A wrapper for pMath writeable text file objects (character data streams).
    */
   class WriteableTextFile: public TextFile {
     public:
