@@ -6,6 +6,7 @@
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/hash/incremental-hash-private.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 
 
@@ -87,13 +88,18 @@ pmath_bool_t pmath_security_check(pmath_security_level_t required_level, pmath_t
   
   exception = pmath_catch();
   if(pmath_same(exception, PMATH_UNDEFINED)) {
+    if(pmath_is_expr_of(message_arg, pmath_System_HoldComplete))
+      message_arg = pmath_ref(message_arg);
+    else
+      message_arg = pmath_expr_new_extended(
+                      pmath_ref(pmath_System_HoldComplete), 1,
+                      pmath_ref(message_arg));
+    
     // TODO: include (parts of) the Stack()
     exception = pmath_expr_new_extended(
                   pmath_ref(pmath_System_SecurityException), 2,
                   _pmath_security_level_to_expr(required_level),
-                  pmath_expr_new_extended(
-                    pmath_ref(pmath_System_HoldComplete), 1,
-                    pmath_ref(message_arg)));
+                  message_arg);
   }
   
   pmath_throw(exception);
@@ -157,6 +163,8 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_security_check_builtin(
   void                   *func, 
   pmath_expr_t            expr, 
+  pmath_symbol_t          src_sym,
+  pmath_symbol_t          kind,
   pmath_security_level_t  current_level
 ) {
   pmath_hashtable_t table;
@@ -177,8 +185,15 @@ pmath_bool_t _pmath_security_check_builtin(
   UNLOCK_DOORMAN_TABLE(table);
   
   if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(required_level, current_level)) {
+    pmath_expr_t msg_arg = pmath_expr_new_extended(
+                             pmath_ref(pmath_System_HoldComplete), 3,
+                             pmath_ref(src_sym),
+                             pmath_ref(kind),
+                             pmath_ref(expr));
     // throws a SecurityException and returns FALSE:
-    return pmath_security_check(required_level, expr);
+    pmath_bool_t result = pmath_security_check(required_level, msg_arg);
+    pmath_unref(msg_arg);
+    return result;
   }
   
   if(doorman) 

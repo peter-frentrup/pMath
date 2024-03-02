@@ -18,6 +18,7 @@
 
 
 extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_NRules;
 extern pmath_symbol_t pmath_System_Power;
 extern pmath_symbol_t pmath_System_Times;
 extern pmath_symbol_t pmath_System_SetPrecision;
@@ -268,7 +269,7 @@ START_SET_PRECISION:
       func = (void*)pmath_atomic_read_aquire(&rules->approx_call);
       if(func) {
         me = pmath_thread_get_current();
-        if(me && _pmath_security_check_builtin(func, obj, me->security_level)) {
+        if(me && _pmath_security_check_builtin(func, obj, sym, pmath_System_NRules, me->security_level)) {
           if(func(&obj, data->prec)) {
             pmath_unref(sym);
             return obj;

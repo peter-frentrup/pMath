@@ -12,8 +12,10 @@
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_security_check_builtin(
-  void                   *func, // usually a pmath_builtin_func_t or pmath_approx_func_t 
+  void                   *func,           // A pmath_builtin_func_t or pmath_approx_func_t 
   pmath_expr_t            expr, 
+  pmath_symbol_t          src_sym,        // The symbol that defines `func`. Wont be freed.
+  pmath_symbol_t          kind,           // How `func` is bound to `src_sym`, e.g. pmath_System_DownRules. Wont be freed.
   pmath_security_level_t  current_level); // must be pmath_thread_get_current()->security_level
 
 

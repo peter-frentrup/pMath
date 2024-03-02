@@ -19,6 +19,7 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_DownRules;
 extern pmath_symbol_t pmath_System_Evaluate;
 extern pmath_symbol_t pmath_System_General;
 extern pmath_symbol_t pmath_System_Hold;
@@ -27,8 +28,10 @@ extern pmath_symbol_t pmath_System_MessageName;
 extern pmath_symbol_t pmath_System_Plus;
 extern pmath_symbol_t pmath_System_Return;
 extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_SubRules;
 extern pmath_symbol_t pmath_System_SystemException;
 extern pmath_symbol_t pmath_System_Unevaluated;
+extern pmath_symbol_t pmath_System_UpRules;
 
 // pmath_maxrecursion is in pmath-objects.h
 
@@ -49,7 +52,7 @@ static void debug_indent(void) {
 #endif
 
 PMATH_FORCE_INLINE
-pmath_bool_t can_trust_function(pmath_thread_t current_thread, pmath_expr_t expr, pmath_builtin_func_t func);
+pmath_bool_t can_trust_function(pmath_thread_t current_thread, pmath_expr_t expr, pmath_symbol_t src_sym, pmath_symbol_t kind, pmath_builtin_func_t func);
 
 static pmath_t evaluate_expression(
   pmath_expr_t   expr,    // will be freed
@@ -432,7 +435,7 @@ static pmath_t evaluate_expression(
     if(apply_rules && pmath_same(head, head_sym) && head_sym_rules) {
       pmath_builtin_func_t func = (void*)pmath_atomic_read_aquire(&head_sym_rules->early_call);
       
-      if(func && can_trust_function(current_thread, expr, func)) {
+      if(func && can_trust_function(current_thread, expr, head_sym, pmath_System_DownRules, func)) {
         expr_changes = _pmath_expr_last_change(expr);
         
         expr = func(expr);
@@ -529,7 +532,7 @@ static pmath_t evaluate_expression(
           if(rules) {
             pmath_builtin_func_t func = (void*)pmath_atomic_read_aquire(&rules->up_call);
             
-            if(func && can_trust_function(current_thread, expr, func)) {
+            if(func && can_trust_function(current_thread, expr, sym, pmath_System_UpRules, func)) {
               pmath_unref(stack_frame.head);
               stack_frame.head = pmath_ref(sym);
               
@@ -554,7 +557,7 @@ static pmath_t evaluate_expression(
       else
         func = (void*)pmath_atomic_read_aquire(&head_sym_rules->sub_call);
       
-      if(func && can_trust_function(current_thread, expr, func)) {
+      if(func && can_trust_function(current_thread, expr, head_sym, pmath_same(head_sym, head) ? pmath_System_DownRules : pmath_System_SubRules, func)) {
         pmath_unref(stack_frame.head);
         stack_frame.head = pmath_ref(head_sym);
         
@@ -633,11 +636,11 @@ static pmath_t evaluate_symbol(
 }
 
 PMATH_FORCE_INLINE
-pmath_bool_t can_trust_function(pmath_thread_t current_thread, pmath_expr_t expr, pmath_builtin_func_t func) {
+pmath_bool_t can_trust_function(pmath_thread_t current_thread, pmath_expr_t expr, pmath_symbol_t src_sym, pmath_symbol_t kind, pmath_builtin_func_t func) {
   if(PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, current_thread->security_level))
     return TRUE;
   
-  return _pmath_security_check_builtin(func, expr, current_thread->security_level);
+  return _pmath_security_check_builtin(func, expr, src_sym, kind, current_thread->security_level);
 }
 
 PMATH_API

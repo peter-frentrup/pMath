@@ -18,6 +18,7 @@ extern pmath_symbol_t pmath_System_Assign;
 extern pmath_symbol_t pmath_System_AssignDelayed;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Unassign;
+extern pmath_symbol_t pmath_System_UpRules;
 
 struct symbol_definition_t {
   struct symbol_definition_t    *next;
@@ -296,7 +297,7 @@ static void untracked_restore_definitions(struct symbol_definition_t *def) {
                            pmath_ref(old->value));
         }
         
-        if(me && _pmath_security_check_builtin(func, expr, me->security_level)) {
+        if(me && _pmath_security_check_builtin(func, expr, old->symbol, pmath_System_UpRules, me->security_level)) {
           expr = func(expr);
         }
         
