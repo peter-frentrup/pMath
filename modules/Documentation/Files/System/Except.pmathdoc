@@ -134,7 +134,26 @@ Document({
                  ")"}, ")"}, "\[Rule]", StringBox("\"\"")}}, ")"}), "Input", 
            SectionLabel -> "in [2]:"), 
           Section(BoxData(StringBox("\"eeoeoe\"")), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 1), 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        Section(
+         TextData({"Use ", TemplateBox({"Except"}, "ReferenceHyperlink"), "(", 
+           StyleBox("p", "Arg"), ", ", StyleBox("c", "Arg"), 
+           ") to allow general string patterns in ", StyleBox("p", "Arg"), 
+           ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"StringReplace", "(", {
+              StringBox("\"A cat is part of the classic cats categogy\""), 
+              ",", {
+               {"s", ":", {"Except", "(", {StringBox("\"cat\""), ",", {
+                   "LetterCharacter", "**"}}, ")"}}, "\[Rule]", {
+                StringBox("\"[\""), "++", "s", "++", StringBox("\"]\"")}}}, 
+             ")"}), "Input", SectionLabel -> "in [3]:"), 
+          Section(
+           BoxData(
+            StringBox(
+             "\"[A] c[at] [is] [part] [of] [the] [classic] c[ats] \
+             c[ategogy]\"")), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [3]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Condition"}, "ReferenceHyperlink"), 
