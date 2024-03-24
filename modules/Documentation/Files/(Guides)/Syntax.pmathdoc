@@ -4,7 +4,8 @@ Document({
   SectionGroup({Section("Syntax", "Title"), 
     Section(TextData({"The ", StyleBox("pMath", FontSlant -> Italic), 
        " syntax is based on two dimensional mathematical notation, similar to \
-       ", StyleBox("Mathematica", FontSlant -> Italic), "."}), "Text"), 
+       ", StyleBox("Mathematica", FontSlant -> Italic), " or ", 
+       StyleBox("Maple", FontSlant -> Italic), "."}), "Text"), 
     SectionGroup({Section("Character strings", "Section"), 
       Section(
        TextData({
@@ -44,7 +45,8 @@ Document({
              TemplateBox({"ExponentialE"}, "ReferenceHyperlink")}}, {
             {BoxData("\[Pi]")}, {TemplateBox({"Pi"}, "ReferenceHyperlink")}}, {
             {BoxData("\[ImaginaryI]"), ", ", BoxData("\[ImaginaryJ]")}, {
-             TemplateBox({"ImaginaryI"}, "ReferenceHyperlink")}}})}), 
+             TemplateBox({"ImaginaryI"}, "ReferenceHyperlink")}}, {
+            "\[Degree]", {TemplateBox({"Degree"}, "ReferenceHyperlink")}}})}), 
        "DefinitionBox"), Section("Forming symbol names.", "Caption")}, All), 
     SectionGroup({Section("Numbers", "Section"), 
       Section(
@@ -94,8 +96,28 @@ Document({
              StyleBox("rrr", FontSlant -> Italic), "]`", 
              StyleBox("prec", FontSlant -> Italic), "*^", 
              StyleBox("exp", FontSlant -> Italic)}}})}), "DefinitionBox"), 
-      Section("Arbitrary precision floating point numbers.", "Caption")}, 
-     All), Section("Operators", "Section"), 
+      Section("Arbitrary precision floating point numbers.", "Caption"), 
+      Section(
+       TextData({
+         GridBox({
+           {{StyleBox("nn", FontSlant -> Italic), ".", 
+             StyleBox("nn\[Ellipsis]nnn", FontSlant -> Italic), "``"}, 
+            "infinite precision floating point number"}, {
+            {StyleBox("nn", FontSlant -> Italic), ".", 
+             StyleBox("nn\[Ellipsis]nnn", FontSlant -> Italic), "``*^", 
+             StyleBox("exp", FontSlant -> Italic)}, "exponent in base 10"}, {
+            {StyleBox("base", FontSlant -> Italic), "^^", 
+             StyleBox({StyleBox("nnn", FontSlant -> Italic), ".", 
+               StyleBox("nn", FontSlant -> Italic)}, FontSlant -> Italic), 
+             "``"}, "specify digits in a given base"}, {
+            {StyleBox("base", FontSlant -> Italic), "^^", 
+             StyleBox({StyleBox("nnn", FontSlant -> Italic), ".", 
+               StyleBox("nn", FontSlant -> Italic)}, FontSlant -> Italic), 
+             "``*^", StyleBox("exp", FontSlant -> Italic)}, 
+            "exponent in given base"}})}), "DefinitionBox"), 
+      Section(
+       "Rational numbers in floating point form with infinite precision.", 
+       "Caption")}, All), Section("Operators", "Section"), 
     SectionGroup({Section("Two-dimensional input forms", "Section"), 
       Section(TextData({GridBox({{"", ""}}), 
          GridBox({{{FractionBox("x", "y")}, {
@@ -147,6 +169,32 @@ Document({
                    StyleBox("cond", FontSlant -> Italic), SubscriptBox("2")}}, 
                  "}"}, ",", "\[Ellipsis]"}, "}"}), ")"}}})}), 
        "DefinitionBox"), 
+      Section("Two-dimensional input forms with built-in evaluation rules.", 
+       "Caption")}, All), SectionGroup({Section("Function call", "Section"), 
+      Section(TextData({GridBox({{"", ""}}), 
+         GridBox({
+           {{BoxData({"f", "(", {"x", ",", "y", ",", "\[Ellipsis]"}, ")"})}, {
+             "function ", BoxData("f"), " applied to arguments ", 
+             BoxData({"x", ",", "y", ",", "\[Ellipsis]"})}}, {
+            {BoxData({"f", "@", "x"})}, {
+             "prefix form for ", BoxData({"f", "(", "x", ")"})}}, {
+            {BoxData({"x", ".", "f"})}, {"property form for ", 
+             BoxData({"f", "(", "x", ")"})}}, {
+            {BoxData({"x", ".", "f", "(", ")"})}, {
+             "property form for ", BoxData({"f", "(", "x", ")"})}}, {
+            {BoxData({"x", ".", "f", "(", {"y", ",", "\[Ellipsis]"}, ")"})}, {
+             "property form for ", 
+             BoxData({"f", "(", {"x", ",", "y", ",", "\[Ellipsis]"}, ")"})}}, {
+            {BoxData({"x", "//", "f"})}, {
+             "suffix form for ", BoxData({"f", "(", "x", ")"})}}, {
+            {BoxData({"x", "|>", "f"})}, {"streaming form for ", 
+             BoxData({"f", "(", "x", ")"})}}, {
+            {BoxData({"x", "|>", {"f", "(", ")"}})}, {
+             "streaming form for ", BoxData({"f", "(", "x", ")"})}}, {
+            {BoxData({"x", "|>", {"f", "(", {"y", ",", "\[Ellipsis]"}, 
+                ")"}})}, {"streaming form for ", 
+             BoxData({"f", "(", {"x", ",", "y", ",", "\[Ellipsis]"}, 
+               ")"})}}})}), "DefinitionBox"), 
       Section("Two-dimensional input forms with built-in evaluation rules.", 
        "Caption")}, All), 
     SectionGroup({Section("Statement blocks", "Section"), 
