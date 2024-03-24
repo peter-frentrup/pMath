@@ -1237,6 +1237,9 @@
 		<Unit filename="src/pmath-builtins/io/stringmatch.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/io/stringpatternconvert.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/io/stringposition.c">
 			<Option compilerVar="CC" />
 		</Unit>
