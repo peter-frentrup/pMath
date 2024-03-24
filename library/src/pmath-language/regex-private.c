@@ -603,7 +603,7 @@ static void put_charclass_item(
 
 static pmath_bool_t compile_regex_part(
   struct compile_regex_info_t *info,
-  pmath_t part
+  pmath_t part                         // will be freed
 ) {
   if(pmath_is_string(part)) {
     const uint16_t *buf;
@@ -730,49 +730,61 @@ static pmath_bool_t compile_regex_part(
       return result;
     }
     
-    if(len == 1 && pmath_same(head, pmath_System_Except)) {
-      pmath_t p = pmath_expr_get_item(part, 1);
+    if((len == 1 || len == 2) && pmath_same(head, pmath_System_Except)) { // Except(p)  or  Except(p, c)
+      pmath_bool_t result = TRUE;
       
-      if( pmath_is_expr_of(p, pmath_System_List) ||
-          pmath_is_expr_of(p, pmath_System_Alternatives))
+      if(len > 1)
+        append_latin1(&info->pattern, "(?=");
+      
       {
-        pmath_bool_t result = TRUE;
-        size_t i, plen;
-        
-        plen = pmath_expr_length(p);
-        
-        for(i = 1; i <= plen && result; ++i) {
-          pmath_t item = pmath_expr_get_item(p, i);
+        pmath_t p = pmath_expr_get_item(part, 1);
+        if( pmath_is_expr_of(p, pmath_System_List) ||
+            pmath_is_expr_of(p, pmath_System_Alternatives))
+        {
+          size_t i, plen;
           
-          result = is_charclass_item(item);
+          plen = pmath_expr_length(p);
           
-          pmath_unref(item);
-        }
-        
-        if(result && plen > 0) {
-          append_latin1(&info->pattern, "[^");
-          
-          for(i = 1; i <= plen; ++i) {
-            put_charclass_item(
-              info,
-              pmath_expr_get_item(p, i));
+          for(i = 1; i <= plen && result; ++i) {
+            pmath_t item = pmath_expr_get_item(p, i);
+            
+            result = is_charclass_item(item);
+            
+            pmath_unref(item);
           }
           
-          append_latin1(&info->pattern, "]");
-          pmath_unref(part);
-          pmath_unref(p);
-          return TRUE;
+          if(result && plen > 0) {
+            append_latin1(&info->pattern, "[^");
+            
+            for(i = 1; i <= plen; ++i) {
+              put_charclass_item(
+                info,
+                pmath_expr_get_item(p, i));
+            }
+            
+            append_latin1(&info->pattern, "]");
+          }
         }
-      }
-      else if(is_charclass_item(p)) {
-        append_latin1(&info->pattern, "[^");
-        put_charclass_item(info, p);
-        append_latin1(&info->pattern, "]");
-        pmath_unref(part);
-        return TRUE;
+        else if(is_charclass_item(p)) {
+          append_latin1(&info->pattern, "[^");
+          put_charclass_item(info, p); 
+          p = PMATH_NULL;
+          append_latin1(&info->pattern, "]");
+        }
+        else
+          result = FALSE;
+        
+        pmath_unref(p);
       }
       
-      pmath_unref(p);
+      if(result && len > 1) {
+        append_latin1(&info->pattern, ")");
+        
+        result = compile_regex_part(info, pmath_expr_get_item(part, 2));
+      }
+      
+      pmath_unref(part);
+      return result;
     }
     
     if(len == 0 && pmath_same(head, pmath_System_SingleMatch)) {
