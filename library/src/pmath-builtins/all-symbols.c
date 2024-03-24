@@ -240,6 +240,8 @@ PMATH_PRIVATE pmath_t builtin_internal_suppressdynamictrackingblock(pmath_expr_t
 PMATH_PRIVATE pmath_t builtin_assign_currentdirectory(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr);
 
+PMATH_PRIVATE pmath_t builtin_internal_stringpatternconvert(pmath_expr_t expr);
+
 PMATH_PRIVATE pmath_t builtin_binaryread(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binaryreadlist(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binarywrite(                   pmath_expr_t expr);
@@ -669,15 +671,16 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_replace,     PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_lookup,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   
-  CHECK( pmath_security_register_doorman(builtin_stringcases,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_stringcount,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_stringdrop,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_stringexpression, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_stringmatch,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_stringposition,   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_stringreplace,    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_stringsplit,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_stringtake,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_internal_stringpatternconvert, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_stringcases,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_stringcount,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_stringdrop,                    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_stringexpression,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_stringmatch,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_stringposition,                PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_stringreplace,                 PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_stringsplit,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_stringtake,                    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   
   CHECK( pmath_security_register_doorman(builtin_apply,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_append,         PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -887,6 +890,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_Internal_RealBallFromMidpointRadius,   builtin_internal_realballfrommidpointradius)
   BIND_DOWN(   pmath_Internal_RealBallMidpointRadius,       builtin_internal_realballmidpointradius)
   BIND_DOWN(   pmath_Internal_SignBit,                      builtin_internal_signbit)
+  BIND_DOWN(   pmath_Internal_StringPatternConvert,         builtin_internal_stringpatternconvert)
   BIND_DOWN(   pmath_Internal_SuppressDynamicTrackingBlock, builtin_internal_suppressdynamictrackingblock)
   BIND_DOWN(   pmath_Internal_ThreadIdle,                   builtin_internal_threadidle)
   BIND_DOWN(   pmath_Internal_TryEvaluateSecured,           builtin_internal_tryevaluatesecured)

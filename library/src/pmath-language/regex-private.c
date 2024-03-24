@@ -1,5 +1,8 @@
 #include <pmath-language/regex-private.h>
 
+#include <pmath-core/numbers.h>
+
+#include <pmath-util/emit-and-gather.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/hash/hashtables-private.h>
@@ -44,9 +47,10 @@ struct _regex_t {
   
   struct _regex_key_t  key;
   
-  pcre16              *code;
+  pcre16              *code;    // compiled pattern
+  pmath_string_t       pattern; // for debugging only
   struct _callout_t   *callouts;
-  pmath_hashtable_t    named_subpatterns;
+  pmath_hashtable_t    named_subpatterns; // of pmath_ht_obj_int_class
 };
 
 extern pmath_symbol_t pmath_System_Alternatives;
@@ -56,6 +60,7 @@ extern pmath_symbol_t pmath_System_EndOfLine;
 extern pmath_symbol_t pmath_System_EndOfString;
 extern pmath_symbol_t pmath_System_Except;
 extern pmath_symbol_t pmath_System_Function;
+extern pmath_symbol_t pmath_System_Hold;
 extern pmath_symbol_t pmath_System_LetterCharacter;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Local;
@@ -258,6 +263,7 @@ PMATH_PRIVATE void _pmath_regex_unref(struct _regex_t *re) {
     pmath_atomic_barrier();
     if(1 == pmath_atomic_fetch_add(&re->refcount, -1)) { // was 1 -> is 0
       pmath_unref(re->key.object);
+      pmath_unref(re->pattern);
       free_callouts(re->callouts);
       pmath_ht_destroy(re->named_subpatterns);
       
@@ -324,6 +330,7 @@ static struct _regex_t *create_regex(void) {
   if(result) {
     memset(result, 0, sizeof(struct _regex_t));
     pmath_atomic_write_release(&result->refcount, 1);
+    result->pattern = PMATH_NULL;
   }
   
   return result;
@@ -405,7 +412,7 @@ struct compile_regex_info_t {
   struct _callout_t *callouts;
   
   int current_subpattern;
-  pmath_hashtable_t subpatterns;
+  pmath_hashtable_t subpatterns; // of pmath_ht_obj_int_class
   
   pmath_bool_t shortest;
 };
@@ -1023,8 +1030,9 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options) {
     int errorcode, erroffset;
     const char *err;
     
+    regex->pattern = info.pattern; info.pattern = PMATH_NULL;
     regex->code = pcre16_compile2(
-                    pmath_string_buffer(&info.pattern),
+                    pmath_string_buffer(&regex->pattern),
                     pcre_options | PCRE_UTF16 | PCRE_NO_UTF16_CHECK,
                     &errorcode,
                     &err,
@@ -1039,7 +1047,6 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options) {
                     pmath_ref(regex->key.object));
                     
       _pmath_regex_unref(regex);
-      pmath_unref(info.pattern);
       return NULL;
     }
   }
@@ -1063,6 +1070,47 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
     pmath_unref(obj);
     
   return re;
+}
+
+PMATH_PRIVATE pmath_t _pmath_regex_decode(struct _regex_t *regex) {
+  if(!regex)
+    return PMATH_NULL;
+  
+  pmath_string_t regex_pattern = pmath_ref(regex->pattern);
+  
+  pmath_gather_begin(PMATH_NULL);
+  {
+    int cap = pmath_ht_capacity(regex->named_subpatterns);
+
+    for(int i = 0; i < cap; ++i) {
+      struct _pmath_object_int_entry_t *entry;
+      entry = pmath_ht_entry(regex->named_subpatterns, i);
+      if(entry) {
+        // {Hold(name), index}     TODO: Maybe instead  `HoldPattern(name) -> index` ?
+        pmath_emit(
+          pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, 
+            pmath_expr_new_extended(pmath_ref(pmath_System_Hold), 1, pmath_ref(entry->key)), 
+            pmath_integer_new_siptr(entry->value)), 
+          PMATH_NULL);
+      }
+    }
+  }
+  pmath_t named_subpatterns = pmath_gather_end();
+  
+  pmath_gather_begin(PMATH_NULL);
+  {
+    for(struct _callout_t *callout = regex->callouts; callout; callout = callout->next) {
+      // {Hold(expr), pos}
+      pmath_emit(
+        pmath_expr_new_extended(pmath_ref(pmath_System_List), 2,
+          pmath_expr_new_extended(pmath_ref(pmath_System_Hold), 1, pmath_ref(callout->expr)), 
+          pmath_integer_new_sint(callout->pattern_position)),
+        PMATH_NULL);
+    }
+  }
+  pmath_t callouts = pmath_gather_end();
+  
+  return pmath_expr_new_extended(pmath_ref(pmath_System_List), 3, regex_pattern, named_subpatterns, callouts);
 }
 
 /*----------------------------------------------------------------------------*/

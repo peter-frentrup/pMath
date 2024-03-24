@@ -30,6 +30,10 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
   pmath_t obj,            // will be freed
   int     pcre_options);
 
+/* Get the regular expression string and capture lists for a compiled regex. For debugging purposes.
+ */
+PMATH_PRIVATE pmath_t _pmath_regex_decode(struct _regex_t *regex);
+
 /* Match a regular expression to a subject string. Matching starts at subject_offset.
 
    Additional pcre_options can be given for pcre_exec.

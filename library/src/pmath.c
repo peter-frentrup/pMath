@@ -1128,7 +1128,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "Options(Names):="
           "Options(StringMatch):="
           "Options(StringReplace):="
-          "Options(StringSplit):={IgnoreCase->False}");
+          "Options(StringSplit):="
+          "Options(Internal`StringPatternConvert):={IgnoreCase->False}");
           
       PMATH_RUN(
           "Options(FixedPoint):="
