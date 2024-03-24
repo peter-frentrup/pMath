@@ -1,0 +1,146 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Except", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Except"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Except"}, "ReferenceHyperlink"), "(", 
+           StyleBox("c", "Arg"), ") is equivalent to ", 
+           TemplateBox({"Except"}, "ReferenceHyperlink"), "(", 
+           StyleBox("c", "Arg"), ", ~)."}), "Notes"), 
+        Section(TextData({TemplateBox({"Except"}, "ReferenceHyperlink"), 
+           " works in ", TemplateBox({"StringExpression"}, 
+            "ReferenceHyperlink"), "."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Give all elements except ", BoxData("0"), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Cases", "(", {
+              {"{", {"0", ",", "1", ",", "0", ",", "2", ",", "0", ",", "0", 
+                ",", "3"}, "}"}, ",", {"Except", "(", "0", ")"}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "3"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Delete all non-vowel characters from a string:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"StringReplace", "(", {
+                StringBox("\"The fox jumps over the lazy dog\""), ",", {
+                 {"Except", "(", {"Characters", "(", StringBox("\"aeiou\""), 
+                   ")"}, ")"}, "\[Rule]", StringBox("\"\"")}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(StringBox("\"eouoeeao\"")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Except"}, "ReferenceHyperlink"), 
+           " works with expression patterns and string patterns:"}), 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Cases", "(", {
+              {"{", {"a", ",", "b", ",", "1", ",", "2", ",", "x", ",", "3", 
+                ",", "y"}, "}"}, ",", {"Except", "(", {"~", ":", "Integer"}, 
+               ")"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"a", ",", "b", ",", "x", ",", "y"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData({"StringReplace", "(", {
+              StringBox("\"ab12x3y\""), ",", {
+               {"Except", "(", "DigitCharacter", ")"}, "\[Rule]", 
+               StringBox("\"\"")}}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), Section(BoxData(StringBox("\"123\"")), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Contraint on patterns:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Cases", "(", {
+                {"{", {"a", ",", "b", ",", "1", ",", "2", ",", "x", ",", "3", 
+                  ",", "y"}, "}"}, ",", {"Except", "(", {
+                  "1", ",", {"~", ":", "Integer"}}, ")"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"2", ",", "3"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"StringReplace", "(", {
+                StringBox("\"0ab1cd34e\""), ",", {
+                 {"Except", "(", {StringBox("\"a\""), ",", "LetterCharacter"}, 
+                  ")"}, "\[Rule]", StringBox("\"\"")}}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData(StringBox("\"0a134\"")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, 1), SectionGroup({Section("Applications", "ExampleSection"), 
+        Section("Get all non-integers:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Cases", "(", {
+              {"{", {"5", ",", "42", ",", "Pi", ",", {"1", "/", "2"}, ",", 
+                SqrtBox("2"), ",", "9", ",", "x"}, "}"}, ",", {
+               "Except", "(", {"~", ":", "Integer"}, ")"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"\[Pi]", ",", FractionBox("1", "2"), ",", 
+              SqrtBox("2"), ",", "x"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           "Strip off all tags \
+           \[HighSixDoubleQuote]<\[Ellipsis]>\[HighNineDoubleQuote] from an \
+           HTML document:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"StringReplace", "(", {
+                StringBox(
+                 "\"<title>The Title</title>\n<h1>A <a \
+                 href='url'>Heading</a></h1>\n<p>Some descriptive \
+                 text</p>\""), ",", {
+                 {StringBox("\"<\""), "++", {
+                   {"Except", "(", StringBox("\">\""), ")"}, "**"}, "++", 
+                  StringBox("\">\"")}, "\[Rule]", StringBox("\"\"")}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              StringBox("\"The Title\nA Heading\nSome descriptive text\"")), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, 1), SectionGroup({
+        Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({"String patterns ", StyleBox("p", "Arg"), " in ", 
+           TemplateBox({"Except"}, "ReferenceHyperlink"), "(", 
+           StyleBox("p", "Arg"), 
+           ") are restricted to (lists of) characters and character \
+           classes:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"StringReplace", "(", {
+              StringBox("\"Get me some vovels.\""), ",", {
+               {"Except", "(", StringBox("\"aeiou\""), ")"}, "\[Rule]", 
+               StringBox("\"\"")}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"StringReplace", "(", {
+              StringBox("\"Get me some vovels.\""), ",", {
+               {"Except", "(", StringBox("\"aeiou\""), ")"}, "\[Rule]", 
+               StringBox("\"\"")}}, ")"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        Section("Put the characters in a list:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"StringReplace", "(", {
+              StringBox("\"Get me some vovels.\""), ",", {
+               {"Except", "(", {"Characters", "(", StringBox("\"aeiou\""), 
+                 ")"}, ")"}, "\[Rule]", StringBox("\"\"")}}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData(StringBox("\"eeoeoe\"")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Condition"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"TestPattern"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Alternatives"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Cases"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
