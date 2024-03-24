@@ -1,0 +1,625 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Outline View", "Title"), 
+    Section(
+     "Example of how to create an outline view of a document without reading \
+     the whole document structure.", "Text"), 
+    Section(
+     BoxData(
+      /\/({
+        {"outlineLabel", "(", {"Section", "(", {
+           {"Except", "(", {StringBox("\"\""), ",", {
+              "~", "s", ":", "String"}}, ")"}, ",", "~~~"}, ")"}, ")"}, 
+        "\[AssignDelayed]", "s"}, "\n", {
+        {"outlineLabel", "(", {"Section", "(", {
+           {StringBox("\"\""), "|", {"Except", "(", {"~", ":", "String"}, 
+             ")"}}, ",", {"~", "sty", ":", "String"}, ",", "~~~"}, ")"}, ")"}, 
+        "\[AssignDelayed]", {"StringForm", "(", {
+          StringBox("\"(`1`)\""), ",", " ", "sty"}, ")"}}, "\n", {
+        {"outlineLabel", "(", {{"(", {"SectionGroup", "|", "Document"}, ")"}, 
+          "(", {{"{", {{"~", "s"}, ",", "~~~"}, "}"}, ",", "~~~"}, ")"}, ")"}, 
+        "\[AssignDelayed]", {"outlineLabel", "(", "s", ")"}}, "\n", {
+        {"outlineLabel", "(", "~", ")"}, "\[AssignDelayed]", 
+        StringBox("\"\[Ellipsis]\"")}, "\n", {
+        "%", {
+         {"outlineLabel", "(", {"Section", "(", {
+            {"Except", "(", {"~", ":", "String"}, ")"}, ",", "~~~", ",", {
+             "SectionLabel", "\[Rule]", {"~", "s", ":", "String"}}, ",", 
+            "~~~"}, ")"}, ")"}, "\[AssignDelayed]", "s"}})), "Input", 
+     SectionLabel -> "in [1]:"), 
+    Section(
+     BoxData(
+      /\/({{"restSections", "(", {"SectionGroup", "(", {
+           {"{", {"~", ",", {"~~~", "rest"}}, "}"}, ",", "~~~"}, ")"}, ")"}, 
+        "\[AssignDelayed]", {"{", "rest", "}"}}, "\n", {
+        {"restSections", "(", "~", ")"}, "\[AssignDelayed]", {"{", "}"}})), 
+     "Input", SectionLabel -> "in [5]:"), 
+    Section(
+     BoxData(
+      /\/({{"outline", "(", {{"(", {"SectionGroup", "|", "Document"}, ")"}, 
+          "(", {{"{", {{"~", "s"}, ",", {"~~~", "rest"}}, "}"}, ",", "~~~"}, 
+          ")"}, ")"}, "\[AssignDelayed]", {
+         "OpenerView", "(", {"{", {{"outlineLabel", "(", "s", ")"}, ",", {
+            {{{"restSections", "(", "s", ")"}, "|>", {
+               "Join", "(", {"{", "rest", "}"}, ")"}}, "|>", {
+              "Map", "(", "outline", ")"}}, "|>", "Column"}}, "}"}, ")"}}, 
+       "\n", {{"outline", "(", {"~", "s"}, ")"}, "\[AssignDelayed]", {
+         "Grid", "(", {
+          {"{", {"{", {{"Invisible", "(", {"Opener", "(", ")"}, ")"}, ",", {
+              {"outlineLabel", "(", "s", ")"}, "|>", {
+               "Button", "(", {"None", ",", {"ButtonFrame", "\[Rule]", 
+                 "None"}}, ")"}}}, "}"}, "}"}, ",", {
+           "ColumnSpacing", "\[Rule]", "0"}}, ")"}})), "Input", 
+     SectionLabel -> "in [7]:"), 
+    SectionGroup({
+      Section(BoxData({"outline", "@", {
+          "DocumentGet", "(", {{"EvaluationDocument", "(", ")"}, ",", "3"}, 
+          ")"}}), "Input", SectionLabel -> "in [9]:"), 
+      Section(BoxData(TemplateBox({StringBox("\"Outline View\""), 
+          TagBox(
+           GridBox({
+             {TagBox(
+               GridBox({
+                 {StyleBox(OpenerBox(False), ShowContents -> False, 
+                   StripOnInput -> False), 
+                  ButtonBox(
+                   StringBox(
+                    "\"Example of how to create an outline view of a document \
+                    without reading the whole document structure.\""), 
+                   ButtonFrame -> None)}}, GridBoxColumnSpacing -> 0), 
+               "Grid")}, {
+              TagBox(
+               GridBox({
+                 {StyleBox(OpenerBox(False), ShowContents -> False, 
+                   StripOnInput -> False), 
+                  ButtonBox(InterpretationBox(
+                    StringBox("\"(", {StringBox("\"Input\"")}, ")\""), 
+                    StringForm("(`1`)", "Input")), ButtonFrame -> None)}}, 
+                GridBoxColumnSpacing -> 0), "Grid")}, {
+              TagBox(
+               GridBox({
+                 {StyleBox(OpenerBox(False), ShowContents -> False, 
+                   StripOnInput -> False), 
+                  ButtonBox(InterpretationBox(
+                    StringBox("\"(", {StringBox("\"Input\"")}, ")\""), 
+                    StringForm("(`1`)", "Input")), ButtonFrame -> None)}}, 
+                GridBoxColumnSpacing -> 0), "Grid")}, {
+              TagBox(
+               GridBox({
+                 {StyleBox(OpenerBox(False), ShowContents -> False, 
+                   StripOnInput -> False), 
+                  ButtonBox(InterpretationBox(
+                    StringBox("\"(", {StringBox("\"Input\"")}, ")\""), 
+                    StringForm("(`1`)", "Input")), ButtonFrame -> None)}}, 
+                GridBoxColumnSpacing -> 0), "Grid")}, {
+              TemplateBox({
+                InterpretationBox(StringBox("\"(", {StringBox("\"Input\"")}, 
+                  ")\""), StringForm("(`1`)", "Input")), 
+                TagBox(
+                 GridBox({
+                   {TagBox(
+                     GridBox({
+                       {StyleBox(OpenerBox(False), ShowContents -> False, 
+                         StripOnInput -> False), 
+                        ButtonBox(InterpretationBox(
+                          StringBox("\"(", {StringBox("\"Output\"")}, ")\""), 
+                          StringForm("(`1`)", "Output")), 
+                         ButtonFrame -> None)}}, GridBoxColumnSpacing -> 0), 
+                     "Grid")}}), "Column"), False}, "OpenerView")}, {
+              TemplateBox({
+                InterpretationBox(StringBox("\"(", {StringBox("\"Input\"")}, 
+                  ")\""), StringForm("(`1`)", "Input")), 
+                TagBox(
+                 GridBox({
+                   {TagBox(
+                     GridBox({
+                       {StyleBox(OpenerBox(False), ShowContents -> False, 
+                         StripOnInput -> False), 
+                        ButtonBox(InterpretationBox(
+                          StringBox("\"(", {StringBox("\"Output\"")}, ")\""), 
+                          StringForm("(`1`)", "Output")), 
+                         ButtonFrame -> None)}}, GridBoxColumnSpacing -> 0), 
+                     "Grid")}}), "Column"), False}, "OpenerView")}}), 
+           "Column"), False}, "OpenerView")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"outline", "@", {
+          "DocumentGet", "(", {
+           TemplateBox({FrontEndObject(2270598871022598197, 3731), 
+             "Sin.pmathdoc"}, "DocumentObject"), ",", "3"}, ")"}}), "Input", 
+       SectionLabel -> "in [10]:"), 
+      Section(
+       BoxData(TemplateBox({StringBox("\"Sin\""), 
+          TagBox(
+           GridBox({
+             {TemplateBox({StringBox("\"Details\""), 
+                TagBox(
+                 GridBox({
+                   {TemplateBox({
+                      InterpretationBox(StringBox("\"(", {
+                         StringBox("\"NotesSectionHeaderSpacer\"")}, ")\""), 
+                       StringForm("(`1`)", "NotesSectionHeaderSpacer")), 
+                      TagBox(GridBox({
+                         {TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(StringBox(
+                                "\"Mathematical function suitable for numeric \
+                                and symbolic computations.\""), 
+                               ButtonFrame -> None)}}, GridBoxColumnSpacing -> 
+                             0), "Grid")}, {
+                          TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(InterpretationBox(
+                                StringBox("\"(", {StringBox("\"Notes\"")}, 
+                                 ")\""), StringForm("(`1`)", "Notes")), 
+                               ButtonFrame -> None)}}, GridBoxColumnSpacing -> 
+                             0), "Grid")}, {
+                          TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(InterpretationBox(
+                                StringBox("\"(", {StringBox("\"Notes\"")}, 
+                                 ")\""), StringForm("(`1`)", "Notes")), 
+                               ButtonFrame -> None)}}, GridBoxColumnSpacing -> 
+                             0), "Grid")}, {
+                          TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(InterpretationBox(
+                                StringBox("\"(", {StringBox("\"Notes\"")}, 
+                                 ")\""), StringForm("(`1`)", "Notes")), 
+                               ButtonFrame -> None)}}, GridBoxColumnSpacing -> 
+                             0), "Grid")}, {
+                          TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(InterpretationBox(
+                                StringBox("\"(", {StringBox("\"Notes\"")}, 
+                                 ")\""), StringForm("(`1`)", "Notes")), 
+                               ButtonFrame -> None)}}, GridBoxColumnSpacing -> 
+                             0), "Grid")}}), "Column"), False}, 
+                     "OpenerView")}, {
+                    TagBox(
+                     GridBox({
+                       {StyleBox(OpenerBox(False), ShowContents -> False, 
+                         StripOnInput -> False), 
+                        ButtonBox(InterpretationBox(
+                          StringBox("\"(", {
+                            StringBox("\"SectionFooterSpacer\"")}, ")\""), 
+                          StringForm("(`1`)", "SectionFooterSpacer")), 
+                         ButtonFrame -> None)}}, GridBoxColumnSpacing -> 0), 
+                     "Grid")}}), "Column"), False}, "OpenerView")}, {
+              TemplateBox({StringBox("\"Examples\""), 
+                TagBox(
+                 GridBox({
+                   {TemplateBox({StringBox("\"Basic Examples\""), 
+                      TagBox(GridBox({
+                         {TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(StringBox(
+                                "\"The argument is given in radians:\""), 
+                               ButtonFrame -> None)}}, GridBoxColumnSpacing -> 
+                             0), "Grid")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"Input\"")}, ")\""), 
+                             StringForm("(`1`)", "Input")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                      StringForm("(`1`)", "Output")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}}), 
+                             "Column"), False}, "OpenerView")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"ExampleDelimiter\"")}, ")\""), 
+                             StringForm("(`1`)", "ExampleDelimiter")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"ExampleText\"")}, ")\""), 
+                                      StringForm("(`1`)", "ExampleText")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}, {
+                                TemplateBox({
+                                  InterpretationBox(StringBox("\"(", {
+                                     StringBox("\"Input\"")}, ")\""), 
+                                   StringForm("(`1`)", "Input")), 
+                                  TagBox(GridBox({
+                                     {TagBox(GridBox({
+                                        {StyleBox(OpenerBox(False), 
+                                        ShowContents -> False, 
+                                        StripOnInput -> False), 
+                                        ButtonBox(InterpretationBox(
+                                        StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                        StringForm("(`1`)", "Output")), 
+                                        ButtonFrame -> None)}}, 
+                                        GridBoxColumnSpacing -> 0), 
+                                       "Grid")}}), "Column"), False}, 
+                                 "OpenerView")}}), "Column"), False}, 
+                           "OpenerView")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"ExampleDelimiter\"")}, ")\""), 
+                             StringForm("(`1`)", "ExampleDelimiter")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(StringBox(
+                                      "\"Make a plot of the sine function on \
+                                      an interval:\""), ButtonFrame -> 
+                                      None)}}, GridBoxColumnSpacing -> 0), 
+                                 "Grid")}, {
+                                TemplateBox({
+                                  InterpretationBox(StringBox("\"(", {
+                                     StringBox("\"Input\"")}, ")\""), 
+                                   StringForm("(`1`)", "Input")), 
+                                  TagBox(GridBox({
+                                     {TagBox(GridBox({
+                                        {StyleBox(OpenerBox(False), 
+                                        ShowContents -> False, 
+                                        StripOnInput -> False), 
+                                        ButtonBox(InterpretationBox(
+                                        StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                        StringForm("(`1`)", "Output")), 
+                                        ButtonFrame -> None)}}, 
+                                        GridBoxColumnSpacing -> 0), 
+                                       "Grid")}}), "Column"), False}, 
+                                 "OpenerView")}}), "Column"), False}, 
+                           "OpenerView")}}), "Column"), False}, 
+                     "OpenerView")}, {
+                    TemplateBox({StringBox("\"Scope\""), 
+                      TagBox(GridBox({
+                         {TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(StringBox(
+                                "\"Evaluate numerically:\""), 
+                               ButtonFrame -> None)}}, GridBoxColumnSpacing -> 
+                             0), "Grid")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"Input\"")}, ")\""), 
+                             StringForm("(`1`)", "Input")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                      StringForm("(`1`)", "Output")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}}), 
+                             "Column"), False}, "OpenerView")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"ExampleDelimiter\"")}, ")\""), 
+                             StringForm("(`1`)", "ExampleDelimiter")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(StringBox(
+                                      "\"Evaluate to arbitrary precision:\""), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}, {
+                                TemplateBox({
+                                  InterpretationBox(StringBox("\"(", {
+                                     StringBox("\"Input\"")}, ")\""), 
+                                   StringForm("(`1`)", "Input")), 
+                                  TagBox(GridBox({
+                                     {TagBox(GridBox({
+                                        {StyleBox(OpenerBox(False), 
+                                        ShowContents -> False, 
+                                        StripOnInput -> False), 
+                                        ButtonBox(InterpretationBox(
+                                        StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                        StringForm("(`1`)", "Output")), 
+                                        ButtonFrame -> None)}}, 
+                                        GridBoxColumnSpacing -> 0), 
+                                       "Grid")}}), "Column"), False}, 
+                                 "OpenerView")}}), "Column"), False}, 
+                           "OpenerView")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"ExampleDelimiter\"")}, ")\""), 
+                             StringForm("(`1`)", "ExampleDelimiter")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"ExampleText\"")}, ")\""), 
+                                      StringForm("(`1`)", "ExampleText")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}, {
+                                TemplateBox({
+                                  InterpretationBox(StringBox("\"(", {
+                                     StringBox("\"Input\"")}, ")\""), 
+                                   StringForm("(`1`)", "Input")), 
+                                  TagBox(GridBox({
+                                     {TagBox(GridBox({
+                                        {StyleBox(OpenerBox(False), 
+                                        ShowContents -> False, 
+                                        StripOnInput -> False), 
+                                        ButtonBox(InterpretationBox(
+                                        StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                        StringForm("(`1`)", "Output")), 
+                                        ButtonFrame -> None)}}, 
+                                        GridBoxColumnSpacing -> 0), 
+                                       "Grid")}}), "Column"), False}, 
+                                 "OpenerView")}, {
+                                TemplateBox({
+                                  InterpretationBox(StringBox("\"(", {
+                                     StringBox("\"Input\"")}, ")\""), 
+                                   StringForm("(`1`)", "Input")), 
+                                  TagBox(GridBox({
+                                     {TagBox(GridBox({
+                                        {StyleBox(OpenerBox(False), 
+                                        ShowContents -> False, 
+                                        StripOnInput -> False), 
+                                        ButtonBox(InterpretationBox(
+                                        StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                        StringForm("(`1`)", "Output")), 
+                                        ButtonFrame -> None)}}, 
+                                        GridBoxColumnSpacing -> 0), 
+                                       "Grid")}}), "Column"), False}, 
+                                 "OpenerView")}}), "Column"), False}, 
+                           "OpenerView")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"ExampleDelimiter\"")}, ")\""), 
+                             StringForm("(`1`)", "ExampleDelimiter")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"ExampleText\"")}, ")\""), 
+                                      StringForm("(`1`)", "ExampleText")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}, {
+                                TemplateBox({
+                                  InterpretationBox(StringBox("\"(", {
+                                     StringBox("\"Input\"")}, ")\""), 
+                                   StringForm("(`1`)", "Input")), 
+                                  TagBox(GridBox({
+                                     {TagBox(GridBox({
+                                        {StyleBox(OpenerBox(False), 
+                                        ShowContents -> False, 
+                                        StripOnInput -> False), 
+                                        ButtonBox(InterpretationBox(
+                                        StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                        StringForm("(`1`)", "Output")), 
+                                        ButtonFrame -> None)}}, 
+                                        GridBoxColumnSpacing -> 0), 
+                                       "Grid")}}), "Column"), False}, 
+                                 "OpenerView")}}), "Column"), False}, 
+                           "OpenerView")}}), "Column"), False}, 
+                     "OpenerView")}, {
+                    TemplateBox({StringBox("\"Properties & Relations\""), 
+                      TagBox(GridBox({
+                         {TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(StringBox(
+                                "\"Basic transforms are automatically \
+                                applied:\""), ButtonFrame -> None)}}, 
+                            GridBoxColumnSpacing -> 0), "Grid")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"Input\"")}, ")\""), 
+                             StringForm("(`1`)", "Input")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                      StringForm("(`1`)", "Output")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}}), 
+                             "Column"), False}, "OpenerView")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"Input\"")}, ")\""), 
+                             StringForm("(`1`)", "Input")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                      StringForm("(`1`)", "Output")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}}), 
+                             "Column"), False}, "OpenerView")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"Input\"")}, ")\""), 
+                             StringForm("(`1`)", "Input")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                      StringForm("(`1`)", "Output")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}}), 
+                             "Column"), False}, "OpenerView")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"Input\"")}, ")\""), 
+                             StringForm("(`1`)", "Input")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                      StringForm("(`1`)", "Output")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}}), 
+                             "Column"), False}, "OpenerView")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"ExampleDelimiter\"")}, ")\""), 
+                             StringForm("(`1`)", "ExampleDelimiter")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(StringBox(
+                                      "\"Compose with inverse functions:\""), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}, {
+                                TemplateBox({
+                                  InterpretationBox(StringBox("\"(", {
+                                     StringBox("\"Input\"")}, ")\""), 
+                                   StringForm("(`1`)", "Input")), 
+                                  TagBox(GridBox({
+                                     {TagBox(GridBox({
+                                        {StyleBox(OpenerBox(False), 
+                                        ShowContents -> False, 
+                                        StripOnInput -> False), 
+                                        ButtonBox(InterpretationBox(
+                                        StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                        StringForm("(`1`)", "Output")), 
+                                        ButtonFrame -> None)}}, 
+                                        GridBoxColumnSpacing -> 0), 
+                                       "Grid")}}), "Column"), False}, 
+                                 "OpenerView")}, {
+                                TemplateBox({
+                                  InterpretationBox(StringBox("\"(", {
+                                     StringBox("\"Input\"")}, ")\""), 
+                                   StringForm("(`1`)", "Input")), 
+                                  TagBox(GridBox({
+                                     {TagBox(GridBox({
+                                        {StyleBox(OpenerBox(False), 
+                                        ShowContents -> False, 
+                                        StripOnInput -> False), 
+                                        ButtonBox(InterpretationBox(
+                                        StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                        StringForm("(`1`)", "Output")), 
+                                        ButtonFrame -> None)}}, 
+                                        GridBoxColumnSpacing -> 0), 
+                                       "Grid")}}), "Column"), False}, 
+                                 "OpenerView")}}), "Column"), False}, 
+                           "OpenerView")}}), "Column"), False}, 
+                     "OpenerView")}, {
+                    TemplateBox({StringBox("\"Possible Issues\""), 
+                      TagBox(GridBox({
+                         {TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(StringBox(
+                                "\"Machine precision may be insufficient to \
+                                give a correct answer:\""), 
+                               ButtonFrame -> None)}}, GridBoxColumnSpacing -> 
+                             0), "Grid")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"Input\"")}, ")\""), 
+                             StringForm("(`1`)", "Input")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                      StringForm("(`1`)", "Output")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}}), 
+                             "Column"), False}, "OpenerView")}, {
+                          TagBox(GridBox({
+                             {StyleBox(OpenerBox(False), 
+                               ShowContents -> False, StripOnInput -> False), 
+                              ButtonBox(StringBox(
+                                "\"With exact input, the answer is \
+                                correct:\""), ButtonFrame -> None)}}, 
+                            GridBoxColumnSpacing -> 0), "Grid")}, {
+                          TemplateBox({
+                            InterpretationBox(StringBox("\"(", {
+                               StringBox("\"Input\"")}, ")\""), 
+                             StringForm("(`1`)", "Input")), 
+                            TagBox(GridBox({
+                               {TagBox(GridBox({
+                                   {StyleBox(OpenerBox(False), 
+                                     ShowContents -> False, 
+                                     StripOnInput -> False), 
+                                    ButtonBox(InterpretationBox(
+                                      StringBox("\"(", {
+                                        StringBox("\"Output\"")}, ")\""), 
+                                      StringForm("(`1`)", "Output")), 
+                                     ButtonFrame -> None)}}, 
+                                  GridBoxColumnSpacing -> 0), "Grid")}}), 
+                             "Column"), False}, "OpenerView")}}), "Column"), 
+                      False}, "OpenerView")}, {
+                    TagBox(
+                     GridBox({
+                       {StyleBox(OpenerBox(False), ShowContents -> False, 
+                         StripOnInput -> False), 
+                        ButtonBox(InterpretationBox(
+                          StringBox("\"(", {
+                            StringBox("\"SectionFooterSpacer\"")}, ")\""), 
+                          StringForm("(`1`)", "SectionFooterSpacer")), 
+                         ButtonFrame -> None)}}, GridBoxColumnSpacing -> 0), 
+                     "Grid")}}), "Column"), False}, "OpenerView")}, {
+              TemplateBox({StringBox("\"See Also\""), 
+                TagBox(
+                 GridBox({
+                   {TagBox(
+                     GridBox({
+                       {StyleBox(OpenerBox(False), ShowContents -> False, 
+                         StripOnInput -> False), 
+                        ButtonBox(InterpretationBox(
+                          StringBox("\"(", {StringBox("\"SeeAlso\"")}, ")\""), 
+                          StringForm("(`1`)", "SeeAlso")), 
+                         ButtonFrame -> None)}}, GridBoxColumnSpacing -> 0), 
+                     "Grid")}}), "Column"), False}, "OpenerView")}}), 
+           "Column"), False}, "OpenerView")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [10]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
