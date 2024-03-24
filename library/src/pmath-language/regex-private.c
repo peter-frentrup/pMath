@@ -745,7 +745,7 @@ static pmath_bool_t compile_regex_part(
         if(result && plen > 0) {
           append_latin1(&info->pattern, "[^");
           
-          for(i = 1; i <= len; ++i) {
+          for(i = 1; i <= plen; ++i) {
             put_charclass_item(
               info,
               pmath_expr_get_item(p, i));
