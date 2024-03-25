@@ -72,6 +72,7 @@ extern pmath_symbol_t pmath_System_DoubleUpperRightArrow;
 extern pmath_symbol_t pmath_System_DownArrow;
 extern pmath_symbol_t pmath_System_DoubleBracketingBar;
 extern pmath_symbol_t pmath_System_DivideBy;
+extern pmath_symbol_t pmath_System_Divide;
 extern pmath_symbol_t pmath_System_Element;
 extern pmath_symbol_t pmath_System_Equal;
 extern pmath_symbol_t pmath_System_EvaluationSequence;
@@ -3691,6 +3692,27 @@ static pmath_t make_division(pmath_expr_t boxes) {
   size_t i, exprlen;
   
   exprlen = pmath_expr_length(boxes);
+  
+  if(exprlen == 3) { // a \[Divide] b
+    uint16_t ch = unichar_at(boxes, 2);
+    if(ch == 0xF7) {
+      pmath_t num = parse_at(boxes, 1);
+      if(is_parse_error(num)) {
+        pmath_unref(boxes);
+        return pmath_ref(pmath_System_DollarFailed);
+      }
+      
+      pmath_t den = parse_at(boxes, 3);
+      if(is_parse_error(den)) {
+        pmath_unref(num);
+        pmath_unref(boxes);
+        return pmath_ref(pmath_System_DollarFailed);
+      }
+      
+      result = pmath_expr_new_extended(pmath_ref(pmath_System_Divide), 2, num, den);
+      return wrap_hold_with_debug_metadata_from(boxes, result);
+    }
+  }
   
   previous_rational = 0;
   

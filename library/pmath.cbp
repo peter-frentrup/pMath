@@ -934,6 +934,9 @@
 		<Unit filename="src/pmath-builtins/arithmetic/copysign-and-signbit.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/arithmetic/divide.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/fractionalpart.c">
 			<Option compilerVar="CC" />
 		</Unit>

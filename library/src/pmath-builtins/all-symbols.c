@@ -50,6 +50,7 @@ PMATH_PRIVATE pmath_t builtin_complex(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_conjugate(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_denominator(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_directedinfinity(     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_divide(               pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_exp(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_factorial(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_factorial2(           pmath_expr_t expr);
@@ -564,6 +565,7 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_conjugate,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_denominator,           PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_directedinfinity,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_divide,                PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_exp,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_factorial,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_factorial2,            PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -971,6 +973,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_DirectedInfinity,             builtin_directedinfinity)
   BIND_DOWN(   pmath_System_DirectoryName,                builtin_directoryname)
   BIND_DOWN(   pmath_System_DivideBy,                     builtin_divideby_or_timesby)
+  BIND_DOWN(   pmath_System_Divide,                       builtin_divide)
   BIND_DOWN(   pmath_System_Do,                           builtin_do)
   BIND_DOWN(   pmath_System_DocumentApply,                general_builtin_nofront);
   BIND_DOWN(   pmath_System_DocumentDelete,               general_builtin_nofront);
