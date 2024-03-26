@@ -589,6 +589,7 @@
 		"times" -> "\[Times]",
 		"cross" -> "\[Cross]",
 		"/" -> "\[Divide]",
+		"div" -> "\[Divide]",
 		"\\" -> "\[Backslash]",
 		"sc" -> "\[SmallCircle]",
 		"sqrt" -> "\[Sqrt]",
