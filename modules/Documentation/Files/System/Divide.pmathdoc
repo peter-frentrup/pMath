@@ -2,7 +2,7 @@
 
 Document({
   SectionGroup({
-    SectionGroup({Section("Divide", "ObjectName"), 
+    SectionGroup({Section("Divide (/, \[Divide])", "ObjectName"), 
       Section(BoxData(TemplateBox({"Divide"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
@@ -12,6 +12,14 @@ Document({
         Section(TextData({BoxData({"x", "/", "y"}), " is converted to ", 
            BoxData({"x", " ", {"y", "^", {"-", "1"}}}), " on input."}), 
          "Notes"), 
+        Section(TextData({TemplateBox({"Divide"}, "ReferenceHyperlink"), "(", 
+           StyleBox("x", "Arg"), ", ", StyleBox("y", "Arg"), 
+           ") can be entered as ", StyleBox("x", "Arg"), " \[Divide] ", 
+           StyleBox("y", "Arg"), ", ", StyleBox("x", "Arg"), " ", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), "div", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), " ", 
+           StyleBox("y", "Arg"), ", or ", StyleBox("x", "Arg"), 
+           " \\[Divide] ", StyleBox("y", "Arg"), "."}), "Notes"), 
         Section(TextData({TemplateBox({"Divide"}, "ReferenceHyperlink"), 
            " automatically threads over lists."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
