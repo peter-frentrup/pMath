@@ -354,28 +354,35 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
     return false;
   }
   
-  doc->select(word_src);
-  
-  Expr expr;
-  {
-    AutoValueReset<int> auto_mbod(Box::max_box_output_depth);
-    Box::max_box_output_depth = 2; // 1 for the sequence + 1 for a contained box
+  do {
+    doc->select(word_src);
     
-    expr = word_src.to_pmath(BoxOutputFlags::WithDebugMetadata | BoxOutputFlags::LimitedDepth);
-  }
-  expr = Call(
-           Symbol(richmath_Documentation_OpenDocumentationForSelection), 
-           PMATH_CPP_MOVE(expr),
-           SelectionReference(word_src).to_pmath());
-  expr = Call(Symbol(richmath_System_TimeConstrained), PMATH_CPP_MOVE(expr), Application::button_timeout);
-  expr = Application::interrupt_wait_for_interactive(PMATH_CPP_MOVE(expr), word_src.box, Application::button_timeout);
-  
-  if(expr == richmath_System_DollarFailed) {
-    doc->native()->beep();
-    return false;
-  }
-  
-  return true;
+    Expr expr;
+    {
+      AutoValueReset<int> auto_mbod(Box::max_box_output_depth);
+      Box::max_box_output_depth = 2; // 1 for the sequence + 1 for a contained box
+      
+      expr = word_src.to_pmath(BoxOutputFlags::WithDebugMetadata | BoxOutputFlags::LimitedDepth);
+    }
+    expr = Call(
+            Symbol(richmath_Documentation_OpenDocumentationForSelection), 
+            PMATH_CPP_MOVE(expr),
+            SelectionReference(word_src).to_pmath());
+    expr = Call(Symbol(richmath_System_TimeConstrained), PMATH_CPP_MOVE(expr), Application::button_timeout);
+    expr = Application::interrupt_wait_for_interactive(PMATH_CPP_MOVE(expr), word_src.box, Application::button_timeout);
+    
+    if(expr != richmath_System_DollarFailed)
+      return true;
+    
+    auto outer = word_src.expanded();
+    if(!outer || outer == word_src || outer.box != word_src.box)
+      break;
+    
+    word_src = outer;
+  } while(sel.is_empty()); // only expand if original selection was empty
+
+  doc->native()->beep();
+  return false;
 }
 
 bool DocumentsImpl::edit_style_definitions_cmd(Expr cmd) {
