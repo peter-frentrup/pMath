@@ -248,7 +248,7 @@ tokenHelp("\[UpArrow]")::=                  "System`UpArrow"
 tokenHelp("\[UpDownArrow]")::=              "System`UpDownArrow"
 tokenHelp("\[UpperLeftArrow]")::=           "System`UpperLeftArrow"
 tokenHelp("\[UpperRightArrow]")::=          "System`UpperRightArrow"
-
+tokenHelp("Else")::=                        "System`If"
 
 Function OpenDocumentationForSelection(~tok:String, ~src) {
     %Print({name, src})
@@ -295,6 +295,32 @@ OpenDocumentationForSelection(SqrtBox(~~),    ~src)::= OpenDocumentationForSelec
 OpenDocumentationForSelection(RadicalBox(~~), ~src)::= OpenDocumentationForSelection("System`Power", src)
 OpenDocumentationForSelection(FrameBox(~~), ~src)::= OpenDocumentationForSelection("System`Framed", src)
 OpenDocumentationForSelection(FillBox(~~),  ~src)::= OpenDocumentationForSelection("System`Filler", src)
+
+OpenDocumentationForSelection({"?", ~~},      ~src)::= OpenDocumentationForSelection("System`Optional", src)
+OpenDocumentationForSelection({~, "?", ~~~},  ~src)::= OpenDocumentationForSelection("System`TestPattern", src)
+
+OpenDocumentationForSelection({"!", ~~~}, ~src)::= OpenDocumentationForSelection("System`Not", src)
+OpenDocumentationForSelection({~, "!"},   ~src)::= OpenDocumentationForSelection("System`Factorial", src)
+
+OpenDocumentationForSelection({~, "/:", ~, ":=" |"\[Assign]",        ~~~}, ~src)::= OpenDocumentationForSelection("System`TagAssign",        src)
+OpenDocumentationForSelection({~, "/:", ~, "::="|"\[AssignDelayed]", ~~~}, ~src)::= OpenDocumentationForSelection("System`TagAssignDelayed", src)
+OpenDocumentationForSelection({~, ":="|"\[Assign]", "."}, ~src)::= OpenDocumentationForSelection("System`Unassign", src)
+
+OpenDocumentationForSelection({"++", ~},     ~src)::= OpenDocumentationForSelection("System`Increment", src)
+OpenDocumentationForSelection({~, "++"},     ~src)::= OpenDocumentationForSelection("System`PostIncrement", src)
+OpenDocumentationForSelection({~, "++", ~~}, ~src)::= OpenDocumentationForSelection("System`StringExpression", src)
+
+OpenDocumentationForSelection({"--", ~}, ~src)::= OpenDocumentationForSelection("System`Decrement", src)
+OpenDocumentationForSelection({~, "--"}, ~src)::= OpenDocumentationForSelection("System`PostDecrement", src)
+
+Function OpenDocumentationForSelection(~boxes: List, ~src) {
+    boxes |> Scan(Function {
+        With(name:= tokenHelp(#))
+        If(name =!= #) {
+            Return(OpenDocumentationForSelection(name, src))
+        }
+    })
+}
 
 
 PrepareUsageSection(~text)::= ToString(text)
