@@ -343,7 +343,7 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
   if(sel.is_empty()) {
     word_src = sel.start_only();
     do {
-      word_src.expand();      
+      word_src.expand();
     } while(word_src.box && !word_src.directly_contains(sel));
   }
   else
@@ -357,6 +357,8 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
   do {
     doc->select(word_src);
     
+    SelectionReference word_src_ref(word_src);
+    
     Expr expr;
     {
       AutoValueReset<int> auto_mbod(Box::max_box_output_depth);
@@ -367,13 +369,16 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
     expr = Call(
             Symbol(richmath_Documentation_OpenDocumentationForSelection), 
             PMATH_CPP_MOVE(expr),
-            SelectionReference(word_src).to_pmath());
+            word_src_ref.to_pmath());
     expr = Call(Symbol(richmath_System_TimeConstrained), PMATH_CPP_MOVE(expr), Application::button_timeout);
     expr = Application::interrupt_wait_for_interactive(PMATH_CPP_MOVE(expr), word_src.box, Application::button_timeout);
     
     if(expr != richmath_System_DollarFailed)
       return true;
     
+    if(word_src_ref.get_all() != word_src)
+      break; // Document was edited during Application::interrupt*() such that `word_src` (and `sel`) is now potentially invalid. Give up.
+
     auto outer = word_src.expanded();
     if(!outer || outer == word_src || outer.box != word_src.box)
       break;
