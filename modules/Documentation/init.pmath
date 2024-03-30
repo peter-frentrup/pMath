@@ -144,6 +144,10 @@ tokenHelp("\[Intersection]")::=             "System`Intersection"
 tokenHelp("<")::=                           "System`Less"
 tokenHelp("<=")::=                          "System`LessEqual"
 tokenHelp("\[LeftArrow]")::=                "System`LeftArrow"
+tokenHelp("\[LeftBracketingBar]")::=        "System`BracketingBar"
+tokenHelp("\[LeftCeiling]")::=              "System`Ceiling"
+tokenHelp("\[LeftDoubleBracketingBar]")::=  "System`DoubleBracketingBar"
+tokenHelp("\[LeftFloor]")::=                "System`Floor"
 tokenHelp("\[LeftRightArrow]")::=           "System`LeftRightArrow"
 tokenHelp("\[LeftTriangle]")::=             "System`LeftTriangle"
 tokenHelp("\[LeftTriangleEqual]")::=        "System`LeftTriangleEqual"
@@ -210,6 +214,10 @@ tokenHelp("***")::=                         "System`Repeated"
 tokenHelp("~~")::=                          "System`Repeated"
 tokenHelp("~~~")::=                         "System`Repeated"
 tokenHelp("\[ReverseElement]")::=           "System`ReverseElement"
+tokenHelp("\[RightBracketingBar]")::=       "System`BracketingBar"
+tokenHelp("\[RightCeiling]")::=             "System`Ceiling"
+tokenHelp("\[RightDoubleBracketingBar]")::= "System`DoubleBracketingBar"
+tokenHelp("\[RightFloor]")::=               "System`Floor"
 tokenHelp("\[RightTriangle]")::=            "System`RightTriangle"
 tokenHelp("\[RightTriangleEqual]")::=       "System`RightTriangleEqual"
 tokenHelp("->")::=                          "System`Rule"
@@ -293,6 +301,7 @@ OpenDocumentationForSelection(SqrtBox(~,       SurdForm -> True), ~src)::= OpenD
 OpenDocumentationForSelection(RadicalBox(~, ~, SurdForm -> True), ~src)::= OpenDocumentationForSelection("System`Surd", src)
 OpenDocumentationForSelection(SqrtBox(~~),    ~src)::= OpenDocumentationForSelection("System`Sqrt", src)
 OpenDocumentationForSelection(RadicalBox(~~), ~src)::= OpenDocumentationForSelection("System`Power", src)
+OpenDocumentationForSelection(FractionBox(~~), ~src)::= OpenDocumentationForSelection("System`Divide", src)
 OpenDocumentationForSelection(FrameBox(~~), ~src)::= OpenDocumentationForSelection("System`Framed", src)
 OpenDocumentationForSelection(FillBox(~~),  ~src)::= OpenDocumentationForSelection("System`Filler", src)
 
@@ -321,6 +330,27 @@ Function OpenDocumentationForSelection(~boxes: List, ~src) {
         }
     })
 }
+
+% Nested boxes are only given up to depth 2, so we see {"a" SuperscriptBox("b")} only as
+% {"a", SuperscriptBox(FrontEndObject(...))}
+OpenDocumentationForSelection({~, SuperscriptBox(~exp)}, ~src)::= OpenDocumentationForSuperscript(exp, src)
+OpenDocumentationForSelection({UnderoverscriptBox(~base, ~~~), ~~}, ~src)::= OpenDocumentationForUnderoverscript(base, src)
+OpenDocumentationForSelection( UnderoverscriptBox(~base, ~~~),      ~src)::= OpenDocumentationForUnderoverscript(base, src)
+
+OpenDocumentationForSuperscript(~, ~)::= $Failed
+OpenDocumentationForSuperscript(~expfeo:FrontEndObject, ~src)::= OpenDocumentationForSuperscript(DocumentGet(expfeo, 1), src)
+
+OpenDocumentationForSuperscript("\[DownTee]",     ~src)::= OpenDocumentationForSelection("System`Transpose", src)
+OpenDocumentationForSuperscript("\[Prime]",       ~src)::= OpenDocumentationForSelection("System`Derivative", src)
+OpenDocumentationForSuperscript("\[DoublePrime]", ~src)::= OpenDocumentationForSelection("System`Derivative", src)
+OpenDocumentationForSuperscript("\[TriplePrime]", ~src)::= OpenDocumentationForSelection("System`Derivative", src)
+
+
+OpenDocumentationForUnderoverscript(~, ~)::= $Failed
+OpenDocumentationForUnderoverscript(~basefeo:FrontEndObject, ~src)::= OpenDocumentationForUnderoverscript(DocumentGet(basefeo, 1), src)
+
+OpenDocumentationForUnderoverscript("\[Sum]",     ~src)::= OpenDocumentationForSelection("System`Sum", src)
+OpenDocumentationForUnderoverscript("\[Product]", ~src)::= OpenDocumentationForSelection("System`Product", src)
 
 
 PrepareUsageSection(~text)::= ToString(text)
