@@ -45,7 +45,13 @@ Document({
         Section(StyleData("Edit"), AutoSpacing -> True, 
          FontColor -> GrayLevel(1), LanguageCategory -> "pMath", 
          ShowAutoStyles -> True), Section(StyleData("Input")), 
-        Section(StyleData("Text"), SectionFrameColor -> GrayLevel(1))}, All)}, 
-     All)}, All)}, Background -> GrayLevel(0.19), 
- FontColor -> GrayLevel(0.902), StyleDefinitions -> "Stylesheets.pmathdoc", 
- Visible -> True)
+        Section(StyleData("Text"), SectionFrameColor -> GrayLevel(1)), 
+        Section(StyleData("PrintUsage"), 
+         Background -> RGBColor(0.21, 0.318, 0), 
+         SectionFrameColor -> RGBColor(0.55, 0.725, 0.475)), 
+        Section(StyleData("Highlighted"), 
+         Background -> RGBColor(0.74, 0.667, 0), 
+         FrameBoxOptions -> {BorderRadius -> 6, 
+           FrameStyle -> RGBColor(0.74, 0.667, 0)})}, All)}, All)}, All)}, 
+ Background -> GrayLevel(0.19), FontColor -> GrayLevel(0.902), 
+ StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
