@@ -1,0 +1,72 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Not (!, \[Not])", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Not"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Not"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ") can be input as !", 
+           StyleBox("expr", "Arg"), " or \[Not]", StyleBox("expr", "Arg"), 
+           ", where \[Not] may be entered as ", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), "!", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), ", ", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), "not", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), ", or ", 
+           TemplateBox({"Not"}, "NamedCharacterHyperlink"), "."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Symbolic negation:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"!", "x"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData({"\[Not]", "x"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Enter \[Not] using ", 
+             BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), "not", 
+             BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"\[Not]", "x"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData({"\[Not]", "x"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Basic truth values:", "ExampleText"), 
+          SectionGroup({Section(BoxData({"Not", "(", "True", ")"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("False"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({Section(BoxData({"Not", "(", "False", ")"}), "Input", 
+             SectionLabel -> "in [2]:"), Section(BoxData("True"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Double negation simplifies to identity:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Not", "(", {"Not", "(", "p", ")"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("p"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Applications", "ExampleSection"), 
+        Section("Negate conditions in code:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({{"{", {"1", ",", "2", ",", "Pi", ",", "4", ",", "5", ",", {
+                "2", "-", {"3", "ImaginaryI"}}, ",", "x"}, "}"}, "|>", {
+              "Select", "(", {"Function", "(", {
+                "!", {"IsNumber", "(", "#", ")"}}, ")"}, ")"}}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"\[Pi]", ",", "x"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"And"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Or"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"BitNot"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"True"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"False"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

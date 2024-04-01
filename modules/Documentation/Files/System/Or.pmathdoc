@@ -1,0 +1,204 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Or (||, \[Or])", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Or"}, "UsageReference")), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Or"}, "ReferenceHyperlink"), 
+           " has attributes ", TemplateBox({"Associative"}, 
+            "ReferenceHyperlink"), ", ", TemplateBox({"HoldAll"}, 
+            "ReferenceHyperlink"), " and ", TemplateBox({"OneIdentity"}, 
+            "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({TemplateBox({"Or"}, "ReferenceHyperlink"), 
+           " has attribute ", TemplateBox({"HoldAll"}, "ReferenceHyperlink"), 
+           " and explicitly explicitly controls evaluation of its arguments. \
+           In ", StyleBox("e", "Arg"), SubscriptBox("1"), " || ", 
+           StyleBox("e", "Arg"), SubscriptBox("2"), " || \[Ellipsis], the ", 
+           StyleBox("e", "Arg"), SubscriptBox(StyleBox("i", "Arg")), 
+           " are evaluated in order, stopping if any of them is explicitly ", 
+           TemplateBox({"True"}, "ReferenceHyperlink"), "."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Combine conditions with ||:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"1", ">", "2"}, "||", {"Pi", ">", "3"}}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("True"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("A symbolic disjunction:", "ExampleText"), 
+          SectionGroup({Section(BoxData({"a", "||", "b", "||", {"!", "c"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"a", "\[Or]", "b", "\[Or]", {"\[Not]", "c"}}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Enter \[Or] using ", 
+             BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), "or", 
+             BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"p", "\[Or]", "q"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData({"p", "\[Or]", "q"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Or"}, "ReferenceHyperlink"), 
+           " accepts any number of arguments:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Or", "(", {"x", ",", "y", ",", "z"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"x", "\[Or]", "y", "\[Or]", "z"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        Section(TextData({TemplateBox({"Or"}, "ReferenceHyperlink"), 
+           " is associative:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({{"Or", "(", {"x", ",", {"Or", "(", {"y", ",", "z"}, ")"}}, 
+              ")"}, "|>", "FullForm"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData(StyleBox({"Or", "(", {"x", ",", "y", ",", "z"}, 
+              ")"}, AutoDelete -> True, ShowStringCharacters -> True)), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), 
+        Section(TextData({"Without arguments, ", 
+           TemplateBox({"Or"}, "ReferenceHyperlink"), 
+           " gives its neutral element ", TemplateBox({"False"}, 
+            "ReferenceHyperlink"), ":"}), "ExampleText"), 
+        SectionGroup({Section(BoxData({"Or", "(", ")"}), "Input", 
+           SectionLabel -> "in [3]:"), Section(BoxData("False"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Or"}, "ReferenceHyperlink"), 
+             " with explicit ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+             " or ", TemplateBox({"False"}, "ReferenceHyperlink"), 
+             " arguments will simplify:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Or", "(", {"x", ",", "True", ",", "z"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("True"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Or", "(", {"x", ",", "False", ",", "z"}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData({"x", "\[Or]", "z"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Or"}, "ReferenceHyperlink"), 
+             " evaluates its argument in order, stopping when an argument \
+             evaluates to ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+             ":"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Or", "(", {
+                {"Echo", "(", {"True", ",", StringBox("\"1.\"")}, ")"}, ",", {
+                 "Echo", "(", {"True", ",", StringBox("\"2.\"")}, ")"}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({" ", " ", StringBox("\"1.\""), 
+                "True"}, "RowWithSeparators")), "Echo", 
+             SectionGenerated -> True), Section(BoxData("True"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(
+             BoxData({"Or", "(", {
+                {"Echo", "(", {"False", ",", StringBox("\"1.\"")}, ")"}, ",", {
+                 "Echo", "(", {"True", ",", StringBox("\"2.\"")}, ")"}}, 
+               ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(TemplateBox({" ", " ", StringBox("\"1.\""), 
+                "False"}, "RowWithSeparators")), "Echo", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({" ", " ", StringBox("\"2.\""), 
+                "True"}, "RowWithSeparators")), "Echo", 
+             SectionGenerated -> True), Section(BoxData("True"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("The order of arguments may be important:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Replace", "(", {
+                {{"x", "=", "0"}, "||", {"y", "=", {"1", "/", "x"}}}, ",", {
+                 "x", "\[Rule]", "0"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("True"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Replace", "(", {
+                {{"y", "=", {"1", "/", "x"}}, "||", {"x", "=", "0"}}, ",", {
+                 "x", "\[Rule]", "0"}}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData({
+               TemplateBox({
+                 TemplateBox({MessageName -> HoldForm(Power::"infy"), 
+                   Message -> StringForm(
+                     "Infinite expression `1` encountered.", HoldForm(1/0)), 
+                   Stack -> {{"Head" -> Or}, {"Head" -> Equal}, {
+                      "Head" -> Power}, {"Head" -> Message}, {
+                      "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+                  "Power", "::", StringBox("\"infy\"")}}, "RowDefault"), ":", 
+               " ", InterpretationBox(StringBox("\"Infinite expression ", 
+                 FractionBox("1", "0"), " encountered.\""), 
+                StringForm("Infinite expression `1` encountered.", 
+                 HoldForm(1/0)), Editable -> False)}), "Message", 
+             SectionGenerated -> True), Section(BoxData("True"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section("|| has lower precedence than &&:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"p", "||", {"q", "&&", "r"}}, "//", "FullForm"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            StyleBox({"Or", "(", {
+               "p", ",", {"And", "(", {"q", ",", "r"}, ")"}}, ")"}, 
+             AutoDelete -> True, ShowStringCharacters -> True)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"ConditionalExpression"}, 
+              "ReferenceHyperlink"), " propagates over ", 
+             TemplateBox({"Or"}, "ReferenceHyperlink"), ":"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({{"ConditionalExpression", "(", {"p", ",", "c"}, 
+                ")"}, "||", {"ConditionalExpression", "(", {"q", ",", "d"}, 
+                ")"}}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({{"p", "\[Or]", "q"}, {"c", "\[And]", "d"}}, 
+               "ConditionalExpression")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Or"}, "ReferenceHyperlink"), 
+           " may give inconsistent simplifications when some arguments are ", 
+           TemplateBox({"True"}, "ReferenceHyperlink"), " and others are ", 
+           TemplateBox({"Undefined"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"True", "||", "p"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("True"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({Section(BoxData({"True", "||", "Undefined"}), "Input", 
+           SectionLabel -> "in [2]:"), Section(BoxData("Undefined"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(/\/({{"p", "\[Assign]", "Undefined"}, ";"}, "\n", {
+              "True", "||", "p"})), "Input", SectionLabel -> "in [3]:"), 
+          Section(BoxData("True"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [4]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"And"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Not"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"BitOr"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"True"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"False"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
