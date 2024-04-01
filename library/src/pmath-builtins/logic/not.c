@@ -5,6 +5,10 @@
 
 extern pmath_symbol_t pmath_System_Equal;
 extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Greater;
+extern pmath_symbol_t pmath_System_GreaterEqual;
+extern pmath_symbol_t pmath_System_Less;
+extern pmath_symbol_t pmath_System_LessEqual;
 extern pmath_symbol_t pmath_System_Not;
 extern pmath_symbol_t pmath_System_True;
 extern pmath_symbol_t pmath_System_Undefined;
@@ -70,8 +74,14 @@ static pmath_symbol_t opposite_inequality(pmath_symbol_t head) { // won't be fre
   if(pmath_same(head, pmath_System_Equal))   return pmath_System_Unequal;
   if(pmath_same(head, pmath_System_Unequal)) return pmath_System_Equal;
   
-  // TODO: real inqaulities only if they do not apply at all to complex numbers. 
+  // Note: Handle real inequalities only if they do not apply at all to complex numbers. 
   // E.g. we could define "2 < ImaginaryI" to be False, in which case "Not(x < y)" may *not* simplify to "x >= y".
   // In that case we might want to simplify using heads NotLess, NotLessEqual, NotGreater etc.
+  
+  if(pmath_same(head, pmath_System_Less))         return pmath_System_GreaterEqual;
+  if(pmath_same(head, pmath_System_LessEqual))    return pmath_System_Greater;
+  if(pmath_same(head, pmath_System_Greater))      return pmath_System_LessEqual;
+  if(pmath_same(head, pmath_System_GreaterEqual)) return pmath_System_Less;
+  
   return PMATH_UNDEFINED;
 }
