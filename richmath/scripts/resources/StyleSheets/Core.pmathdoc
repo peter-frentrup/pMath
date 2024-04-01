@@ -639,10 +639,11 @@ Document({
           Section(StyleData("Quantity"), TemplateBoxOptions -> {
              DisplayFunction -> 
               Function(TemplateBox({
-                 TooltipBox({#1, "\[ThinSpace]", 
+                 {#1, "\[ThinSpace]", 
+                  TooltipBox(
                    StyleBox(DynamicBox(CurrentValue({TemplateSlot, 2})), 
-                    ShowStringCharacters -> False)}, 
-                  DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 3}))))}, 
+                    ShowStringCharacters -> False), 
+                   DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 3}))))}}, 
                 "QuantityPanel")), InterpretationFunction -> 
               Function({"System`Quantity", "(", {
                  #1, ",", TemplateSlotSequence(##4, ",")}, ")"})})}, All), 
