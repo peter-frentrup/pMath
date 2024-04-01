@@ -45,6 +45,9 @@ Function tryMakeQuanitiy(q: Quantity(~mag, ~unit)) {
 SetAttributes(FormatQuantity, HoldAll)
 Quantity /: Format(HoldPattern(q: Quantity(~mag, ~unit)) /? IsValidQuantity(Unevaluated(q)))::= FormatQuantity(mag, unit)
 
+SetAttributes(MakeQuantityBoxes, HoldAll)
+Quantity /: MakeBoxes(HoldPattern(q: Quantity(~mag, ~unit)) /? IsValidQuantity(Unevaluated(q)))::= MakeQuantityBoxes(mag, unit)
+
 BADUNIT
 
 SetAttributes(IsKnownUnit, HoldAll)
@@ -140,7 +143,7 @@ RecombineUnitFactors(~list)::= list |> Replace({Rule -> Power, List -> Times}, H
 
 AutoLoad(Hold(ConsolidateValidQuantityUnits),
 	ToFileName({DirectoryName($Input)}, "simplify.pmath"))
-AutoLoad(Hold(FormatQuantity),
+AutoLoad(Hold(FormatQuantity, MakeQuantityBoxes),
 	ToFileName({DirectoryName($Input)}, "formatting.pmath"))
 Get(ToFileName({DirectoryName($Input)}, "calculations.pmath"));
 

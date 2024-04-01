@@ -4,16 +4,26 @@ Begin("System`QuantityUnits`Private`")
 
 
 Function FormatQuantity(~mag, ~unit) {
+    With(formattedUnit:= FormatQuantityUnitShort(unit))
+    HoldForm(HoldForm(mag) formattedUnit)
+}
+
+Function MakeQuantityBoxes(~mag, ~unit) {
+    With(formattedUnit:= ToBoxes(FormatQuantityUnitShort(unit)))
+    TemplateBox({MakeBoxes(mag), formattedUnit, unit, MakeBoxes(unit)}, "Quantity")
+}
+
+Function FormatQuantityUnitShort(~unit) {
     With({num, den}:= NumeratorDenominator(unit) |> 
         Replace(~s:String :> With({abbrev:= $AllUnits[s, "UnitShortName"]}, abbrev /? abbrev =!= None), 0..))
     If(den === 1) {
-        HoldForm(HoldForm(mag) num)
+        HoldForm(num)
     } Else {
         With(dinv:= 1/den |> Replace( ~b^~e :> HoldForm(b^HoldForm(e)), 0..))
         If(num === 1) {
-            HoldForm(HoldForm(mag) HoldForm(dinv))
+            dinv
         } Else {
-            HoldForm(HoldForm(mag) num HoldForm(dinv))
+            HoldForm(num dinv)
         }
     }
 }

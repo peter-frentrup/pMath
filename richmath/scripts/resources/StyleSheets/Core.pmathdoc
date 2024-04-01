@@ -630,6 +630,22 @@ Document({
                    Function(FE`CallFrontEnd(FrontEnd`FindStyleDefinition(
                       #1))), ButtonData -> FE`Private`content)))), 
              Tooltip -> None})}, All), 
+        SectionGroup({Section("Quantity", "Subsubsection"), 
+          Section(StyleData("QuantityPanel"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> 
+              Function(FrameBox(#1, BorderRadius -> 3, FrameMargins -> 0.5, 
+                FrameStyle -> GrayLevel(0.8)))}), 
+          Section(StyleData("Quantity"), TemplateBoxOptions -> {
+             DisplayFunction -> 
+              Function(TemplateBox({
+                 TooltipBox({#1, "\[ThinSpace]", 
+                   StyleBox(DynamicBox(CurrentValue({TemplateSlot, 2})), 
+                    ShowStringCharacters -> False)}, 
+                  DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 3}))))}, 
+                "QuantityPanel")), InterpretationFunction -> 
+              Function({"System`Quantity", "(", {
+                 #1, ",", TemplateSlotSequence(##4, ",")}, ")"})})}, All), 
         SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
           Section(StyleData("TemplateBoxErrorDisplayStyle"), 
            Background -> RGBColor(1, 0.77, 0.77), 
