@@ -24,9 +24,10 @@ IsValidQuantity(~q: Quantity) ::= System`Private`IsValid(Unevaluated(q))
 
 newValidQuanitity(~mag, ~unit)::= System`Private`SetValid(Unevaluated(Quantity(mag, unit)), True)
 
+Quantity(~unit)::= Quantity(1, unit)
 q: Quantity(~val, ~unit) /? !IsValidQuantity(Unevaluated(q)) ::= 
 	With({res:= tryMakeQuanitiy(q)}, res /? res =!= $Failed)
-Quantity(~~~args) /? (IsValidArgumentCount(Quantity, Length(Hold(args)), 2, 2); False) := $Failed
+Quantity(~~~args) /? (IsValidArgumentCount(Quantity, Length(Hold(args)), 1, 2); False) := $Failed
 
 SetAttributes(tryMakeQuanitiy, HoldAll)
 tryMakeQuanitiy(~~~) ::= $Failed
