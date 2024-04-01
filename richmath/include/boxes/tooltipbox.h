@@ -15,6 +15,7 @@ namespace richmath {
       
       virtual Expr to_pmath_symbol() override;
       
+      virtual Box *mouse_sensitive() override { return this; }
       virtual void on_mouse_enter() override;
       virtual void on_mouse_exit() override;
       
