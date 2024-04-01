@@ -303,6 +303,7 @@ OpenDocumentationForSelection(RadicalBox(~~), ~src)::= OpenDocumentationForSelec
 OpenDocumentationForSelection(FractionBox(~~), ~src)::= OpenDocumentationForSelection("System`Divide", src)
 OpenDocumentationForSelection(FrameBox(~~), ~src)::= OpenDocumentationForSelection("System`Framed", src)
 OpenDocumentationForSelection(FillBox(~~),  ~src)::= OpenDocumentationForSelection("System`Filler", src)
+OpenDocumentationForSelection(TemplateBox(~, ~name:String), ~src)::= OpenDocumentationForSelection(name, src)
 
 OpenDocumentationForSelection({"-", ~~},    ~src)::= OpenDocumentationForSelection("System`Minus", src)
 OpenDocumentationForSelection({~~, "-", ~}, ~src)::= OpenDocumentationForSelection("System`Subtract", src)
