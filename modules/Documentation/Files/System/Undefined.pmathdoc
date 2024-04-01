@@ -77,7 +77,7 @@ Document({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section(TextData({TemplateBox({"Undefined"}, "ReferenceHyperlink"), 
-             " is automatically forwared through mathematical functions:"}), 
+             " is automatically forwarded through mathematical functions:"}), 
            "ExampleText"), SectionGroup({
             Section(BoxData({"1", "+", "Undefined"}), "Input", 
              SectionLabel -> "in [1]:"), Section(BoxData("Undefined"), 

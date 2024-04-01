@@ -1,0 +1,165 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ConditionalExpression", "ObjectName"), 
+      Section(BoxData(TemplateBox({"ConditionalExpression"}, 
+         "UsageReference")), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({TemplateBox({"ConditionalExpression"}, 
+            "ReferenceHyperlink"), "(", StyleBox("expr", "Arg"), ", ", 
+           TemplateBox({"True"}, "ReferenceHyperlink"), ") evaluates to ", 
+           StyleBox("expr", "Arg"), "."}), "Notes"), 
+        Section(
+         TextData({TemplateBox({"ConditionalExpression"}, 
+            "ReferenceHyperlink"), "(", StyleBox("expr", "Arg"), ", ", 
+           TemplateBox({"False"}, "ReferenceHyperlink"), ") evaluates to ", 
+           TemplateBox({"Undefined"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(
+         TextData({TemplateBox({"ConditionalExpression"}, 
+            "ReferenceHyperlink"), 
+           " is automatically propagated from arguments of mathematical \
+           functions, i.e. ", StyleBox("f", "Arg"), "(", 
+           TemplateBox({"ConditionalExpression"}, "ReferenceHyperlink"), "(", 
+           StyleBox("a", "Arg"), SubscriptBox("1"), ", ", 
+           StyleBox("c", "Arg"), SubscriptBox("1"), 
+           "), \[Ellipsis]) gets transformed to ", 
+           TemplateBox({"ConditionalExpression"}, "ReferenceHyperlink"), "(", 
+           StyleBox("f", "Arg"), "(", StyleBox("a", "Arg"), SubscriptBox("1"), 
+           ", ", StyleBox("a", "Arg"), SubscriptBox("2"), ", \[Ellipsis]), ", 
+           StyleBox("c", "Arg"), SubscriptBox("1"), " && ", 
+           StyleBox("c", "Arg"), SubscriptBox("2"), 
+           " && \[Ellipsis]) for any symbol ", StyleBox("f", "Arg"), 
+           " with attribute ", TemplateBox({"DefiniteFunction"}, 
+            "ReferenceHyperlink"), "."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(
+         TextData({TemplateBox({"ConditionalExpression"}, 
+            "ReferenceHyperlink"), 
+           " displays the expression with its condition:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"ConditionalExpression", "(", {
+              "x", ",", {"x", ">", "0"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(TemplateBox({"x", {"x", ">", "0"}}, 
+             "ConditionalExpression")), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"ConditionalExpression"}, 
+              "ReferenceHyperlink"), 
+             " propagates over mathematical functions:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"Sin", "(", {{"ConditionalExpression", "(", {
+                   "x", ",", {"x", ">", "0"}}, ")"}, "+", "1"}, ")"}, {
+                "ConditionalExpression", "(", {"y", ",", {"y", ">", "0"}}, 
+                ")"}}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                {"y", " ", {"Sin", "(", {{"1", "+", "x"}}, ")"}}, {
+                 {"y", ">", "0"}, "\[And]", {"x", ">", "0"}}}, 
+               "ConditionalExpression")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({"If the condition is known ", 
+           TemplateBox({"True"}, "ReferenceHyperlink"), 
+           ", it gets stipped off:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"ConditionalExpression", "(", {"x", ",", "True"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("x"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"If the condition is known ", 
+             TemplateBox({"False"}, "ReferenceHyperlink"), ", the value is ", 
+             TemplateBox({"Undefined"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"ConditionalExpression", "(", {
+                "x", ",", "False"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("Undefined"), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"ConditionalExpression"}, 
+              "ReferenceHyperlink"), "(", StyleBox("x", "Arg"), ", ", 
+             StyleBox("c", "Arg"), 
+             ") only propagates out of mathematical functions:"}), 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"Sin", "(", {"ConditionalExpression", "(", {
+                   "x", ",", "c"}, ")"}, ")"}, ",", {
+                 "f", "(", {"ConditionalExpression", "(", {"x", ",", "c"}, 
+                  ")"}, ")"}}, "}"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {TemplateBox({{"Sin", "(", {"x"}, ")"}, "c"}, 
+                 "ConditionalExpression"), ",", {
+                 "f", "(", TemplateBox({"x", "c"}, "ConditionalExpression"), 
+                 ")"}}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          Section(TextData({"Set attribute ", 
+             TemplateBox({"DefiniteFunction"}, "ReferenceHyperlink"), " for ", 
+             StyleBox("f", "Arg"), " to propagate ", 
+             TemplateBox({"ConditionalExpression"}, "ReferenceHyperlink"), 
+             ":"}), "ExampleText"), 
+          Section(BoxData({"SetAttributes", "(", {
+              "f", ",", "DefiniteFunction"}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"Sin", "(", {"ConditionalExpression", "(", {
+                   "x", ",", "c"}, ")"}, ")"}, ",", {
+                 "f", "(", {"ConditionalExpression", "(", {"x", ",", "c"}, 
+                  ")"}, ")"}}, "}"}), "Input", SectionLabel -> "in [3]:"), 
+            Section(
+             BoxData({
+               "{", {TemplateBox({{"Sin", "(", {"x"}, ")"}, "c"}, 
+                 "ConditionalExpression"), ",", 
+                TemplateBox({{"f", "(", {"x"}, ")"}, "c"}, 
+                 "ConditionalExpression")}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
+         All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         TextData({TemplateBox({"ConditionalExpression"}, 
+            "ReferenceHyperlink"), " propagates over comarisons:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"0", "<", {"ConditionalExpression", "(", {
+               SqrtBox("x"), ",", {"x", ">", "0"}}, ")"}, "<", "1"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(TemplateBox({{"0", "<", SqrtBox("x"), "<", "1"}, {
+               "x", ">", "0"}}, "ConditionalExpression")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"ConditionalExpression"}, 
+              "ReferenceHyperlink"), " propagates boolean operations:"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({{"ConditionalExpression", "(", {"p", ",", "c"}, 
+                ")"}, "&&", {
+                "(", {{"ConditionalExpression", "(", {"q", ",", "d"}, ")"}, 
+                 "||", "r"}, ")"}}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                {"p", "\[And]", {"(", {"q", "\[Or]", "r"}, ")"}}, {
+                 "c", "\[And]", "d"}}, "ConditionalExpression")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Undefined"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"DefiniteFunction"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
