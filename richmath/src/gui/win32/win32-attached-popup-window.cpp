@@ -512,10 +512,16 @@ void Win32AttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, Co
       auto main_rect = window_rect - Vector2F{window_rect.top_left()};
       main_rect.grow(side, -tip_size);
       
+      // Discretize before obtaining triangle points to protect against different rounding directions
+      RECT rect = discretize(main_rect);
+      main_rect.x = rect.left;
+      main_rect.y = rect.top;
+      main_rect.width = rect.right - rect.left;
+      main_rect.height = rect.bottom - rect.top;
+
       Point tri_points[3];
       tri.get_triangle_points(tri_points, main_rect, side);
       
-      RECT rect = discretize(main_rect);
       POINT triangle_points[3] = { discretize(tri_points[0]), discretize(tri_points[1]), discretize(tri_points[2]) };
       
       HRGN triangle_rgn = CreatePolygonRgn(triangle_points, 3, WINDING);
