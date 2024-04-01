@@ -946,6 +946,9 @@
 		<Unit filename="src/pmath-builtins/arithmetic/log.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/arithmetic/minus-and-subtract.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/nexttoward.c">
 			<Option compilerVar="CC" />
 		</Unit>

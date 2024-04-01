@@ -350,6 +350,7 @@
 {"Messages", {"ArgumentCount" -> 0..2}},
 {"Min", {"ArgumentCount" -> 0..}},
 {"MinMax", {"ArgumentCount" -> 1..2}},
+{"Minus", {"ArgumentCount" -> 1}},
 {"MinusPlus", {"ArgumentCount" -> 1..2}},
 {"Missing", {"ArgumentCount" -> 1..}},
 {"Mod", {"ArgumentCount" -> 2..3}},

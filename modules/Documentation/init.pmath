@@ -199,7 +199,6 @@ tokenHelp("\[Pi]")::=                       "System`Pi"
 tokenHelp("\[Piecewise]")::=                "System`Piecewise"
 tokenHelp("\[Placeholder]")::=              "System`Placeholder"
 tokenHelp("+")::=                           "System`Plus"
-tokenHelp("-")::=                           "System`Plus"
 tokenHelp("\[PlusMinus]")::=                "System`PlusMinus"
 tokenHelp("^")::=                           "System`Power"
 tokenHelp("\[U+221C]")::=                   "System`Power" % fourth root
@@ -304,6 +303,9 @@ OpenDocumentationForSelection(RadicalBox(~~), ~src)::= OpenDocumentationForSelec
 OpenDocumentationForSelection(FractionBox(~~), ~src)::= OpenDocumentationForSelection("System`Divide", src)
 OpenDocumentationForSelection(FrameBox(~~), ~src)::= OpenDocumentationForSelection("System`Framed", src)
 OpenDocumentationForSelection(FillBox(~~),  ~src)::= OpenDocumentationForSelection("System`Filler", src)
+
+OpenDocumentationForSelection({"-", ~~},    ~src)::= OpenDocumentationForSelection("System`Minus", src)
+OpenDocumentationForSelection({~~, "-", ~}, ~src)::= OpenDocumentationForSelection("System`Subtract", src)
 
 OpenDocumentationForSelection({"?", ~~},      ~src)::= OpenDocumentationForSelection("System`Optional", src)
 OpenDocumentationForSelection({~, "?", ~~~},  ~src)::= OpenDocumentationForSelection("System`TestPattern", src)

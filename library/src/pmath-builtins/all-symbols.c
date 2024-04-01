@@ -59,6 +59,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_im(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_log(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_loggamma(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_minus(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mod(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_numerator(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_numerator_denominator(pmath_expr_t expr);
@@ -75,6 +76,7 @@ PMATH_PRIVATE pmath_t builtin_round_functions(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setprecision(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sign(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sqrt(                 pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_subtract(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sum(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_times(                pmath_expr_t expr);
 
@@ -574,6 +576,7 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_im,                    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_log,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_loggamma,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_minus,                 PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_mod,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_numerator,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_numerator_denominator, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -590,6 +593,7 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_setprecision,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_sign,                  PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_sqrt,                  PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_subtract,              PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_sum,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_times,                 PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
 
@@ -1108,6 +1112,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Messages,                     builtin_messages)
   BIND_DOWN(   pmath_System_Min,                          builtin_min)
   BIND_DOWN(   pmath_System_MinMax,                       builtin_minmax)
+  BIND_DOWN(   pmath_System_Minus,                        builtin_minus)
   BIND_DOWN(   pmath_System_Mod,                          builtin_mod)
   BIND_DOWN(   pmath_System_Most,                         builtin_most)
   BIND_DOWN(   pmath_System_N,                            builtin_approximate)
@@ -1214,6 +1219,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_StringToStream,               builtin_stringtostream)
   BIND_DOWN(   pmath_System_Sum,                          builtin_sum)
   BIND_DOWN(   pmath_System_SubRules,                     builtin_symbol_rules)
+  BIND_DOWN(   pmath_System_Subtract,                     builtin_subtract)
   BIND_DOWN(   pmath_System_SymbolName,                   builtin_symbolname)
   BIND_DOWN(   pmath_System_Synchronize,                  builtin_synchronize)
   BIND_DOWN(   pmath_System_SyntaxInformation,            builtin_syntaxinformation)
