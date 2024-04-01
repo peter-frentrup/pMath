@@ -202,13 +202,13 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
   
   if(_pmath_is_nonreal_complex_number(next)) {
     pmath_t re;
-    if(check_complex_is_real(prev, &re)) {
+    if(check_complex_is_real(next, &re)) {
       int result = _pmath_numeric_order(re, next, directions);
       pmath_unref(re);
       return result;
     }
     else if(directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_GREATER)) {
-      pmath_message(PMATH_NULL, "nord", 1, pmath_ref(prev));
+      pmath_message(PMATH_NULL, "nord", 1, pmath_ref(next));
       return PMATH_UNORDERED;
     }
   }
