@@ -30,10 +30,12 @@ PMATH_PRIVATE pmath_t builtin_or(pmath_expr_t expr) {
       if(pmath_same(item, pmath_System_False)) {
         expr = pmath_expr_set_item(expr, i, PMATH_NULL);
         have_null = TRUE;
+        pmath_unref(item);
       }
-      else
+      else {
         have_null |= pmath_is_null(item);
-      pmath_unref(item);
+        expr = pmath_expr_set_item(expr, i, item);
+      }
     }
     
     if(have_null)
