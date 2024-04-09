@@ -411,6 +411,9 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
     remove_label+= Win32AcceleratorTable::accel_text(FVIRTKEY, VK_DELETE);
     append(menu, SpecialCommandID::Remove, PMATH_CPP_MOVE(remove_label));
   }
+
+  append(menu, SpecialCommandID::None, String(), MF_SEPARATOR);
+  append(menu, SpecialCommandID::None, String("Cancel"));
   
   //append(menu, SpecialCommandID::None, String("Help\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F1), MF_DISABLED | MF_GRAYED);
   
