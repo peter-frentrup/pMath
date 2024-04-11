@@ -553,9 +553,9 @@ Expr SectionList::get_group_style(int pos, ObjectStyleOptionName n, Expr result)
   return get_style(n, result); // get_own_style
 }
 
-void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {
-  if(overwrite_until_index > _sections.length())
-    overwrite_until_index  = _sections.length();
+void SectionList::internal_insert_pmath(int *pos, Expr boxes, int *overwrite_until_index) {
+  if(*overwrite_until_index > _sections.length())
+    *overwrite_until_index  = _sections.length();
     
   if(boxes[0] == richmath_System_SectionGroup && boxes[1][0] == richmath_System_List) {
     Expr sect = boxes[1];
@@ -568,11 +568,14 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       opened = PMATH_AS_INT32(open.get());
     }
     
-    if(*pos < overwrite_until_index) {
+    int delta_end = 0;
+    if(*pos < *overwrite_until_index) {
       int e = _sections[*pos]->_group_info.end;
       
-      if(e >= *pos && e < overwrite_until_index) 
-        overwrite_until_index = e + 1;
+      if(e > *pos && e < *overwrite_until_index) {
+        delta_end = *overwrite_until_index - (e + 1);
+        *overwrite_until_index -= delta_end;
+      }
     }
     
     for(size_t i = 1; i <= sect.expr_length(); ++i) {
@@ -586,9 +589,11 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
     if(start < _sections.length() && close_rel >= 0) {
       _sections[start]->_group_info.close_rel = close_rel;
     }
+
+    *overwrite_until_index += delta_end;
   }
   else {
-    if(*pos < overwrite_until_index) {
+    if(*pos < *overwrite_until_index) {
       Section *section = _sections[*pos];
       
       if(section->try_load_from_object(boxes, BoxInputFlags::Default)) {
@@ -619,6 +624,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
     section->_group_info.close_rel  = -1; // open
     
     ++*pos;
+    ++*overwrite_until_index;
     
     section->after_insertion();
   }
@@ -630,7 +636,7 @@ void SectionList::insert_pmath(int *pos, Expr boxes, int overwrite_until_index) 
   
   int start = *pos;
   
-  internal_insert_pmath(pos, boxes, overwrite_until_index);
+  internal_insert_pmath(pos, boxes, &overwrite_until_index);
   if(*pos < overwrite_until_index)
     internal_remove(*pos, overwrite_until_index);
   

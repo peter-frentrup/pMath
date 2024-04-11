@@ -62,7 +62,7 @@ namespace richmath {
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual Expr to_pmath_impl(BoxOutputFlags flags, int start, int end) override;
       
-      void internal_insert_pmath(int *pos, Expr boxes, int overwrite_until_index);
+      void internal_insert_pmath(int *pos, Expr boxes, int *overwrite_until_index);
       void internal_remove(int start, int end); // not including end
       
       void emit_pmath_impl(BoxOutputFlags flags, int start, int end); // exclusive
