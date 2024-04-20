@@ -80,6 +80,7 @@ extern pmath_symbol_t pmath_System_Graphics;
 extern pmath_symbol_t pmath_System_Greater;
 extern pmath_symbol_t pmath_System_GreaterEqual;
 extern pmath_symbol_t pmath_System_HoldForm;
+extern pmath_symbol_t pmath_System_HorizontalForm;
 extern pmath_symbol_t pmath_System_Identical;
 extern pmath_symbol_t pmath_System_Increment;
 extern pmath_symbol_t pmath_System_Inequation;
@@ -2987,6 +2988,7 @@ static void write_expr_ex(
     pmath_unref(item);
   }
   else if(pmath_same(head, pmath_System_HoldForm)   ||
+          pmath_same(head, pmath_System_HorizontalForm)   ||
           pmath_same(head, pmath_System_OutputForm) ||
           pmath_same(head, pmath_System_StandardForm))
   {

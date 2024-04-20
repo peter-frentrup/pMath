@@ -109,6 +109,7 @@ extern pmath_symbol_t pmath_System_GridBox;
 extern pmath_symbol_t pmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t pmath_System_GridBoxRowSpacing;
 extern pmath_symbol_t pmath_System_HoldForm;
+extern pmath_symbol_t pmath_System_HorizontalForm;
 extern pmath_symbol_t pmath_System_HumpDownHump;
 extern pmath_symbol_t pmath_System_HumpEqual;
 extern pmath_symbol_t pmath_System_Identical;
@@ -326,6 +327,7 @@ static pmath_t grid_to_boxes(                     pmath_thread_t thread, pmath_e
 static pmath_t fullform(                          pmath_thread_t thread, pmath_t obj);
 static pmath_t fullform_to_boxes(                 pmath_thread_t thread, pmath_expr_t expr);
 static pmath_t holdform_to_boxes(                 pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t horizontalform_to_boxes(           pmath_thread_t thread, pmath_expr_t expr);
 static pmath_t inputform_to_boxes(                pmath_thread_t thread, pmath_expr_t expr);
 static pmath_t strip_interpretation_boxes(pmath_t expr);
 static pmath_t interpretation_to_boxes(           pmath_thread_t thread, pmath_expr_t expr);
@@ -2511,6 +2513,29 @@ static pmath_t holdform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // 
   return call_to_boxes(thread, expr);
 }
 
+static pmath_t horizontalform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
+  if(pmath_expr_length(expr) == 1) {
+    pmath_t obj = pmath_expr_get_item(expr, 1);
+    
+    pmath_unref(expr);
+    
+    int old_boxform = thread->boxform;
+    switch(thread->boxform) {
+      case BOXFORM_STANDARD:
+      case BOXFORM_STANDARDEXPONENT: thread->boxform = BOXFORM_STANDARDEXPONENT; break;
+      case BOXFORM_OUTPUT:
+      case BOXFORM_OUTPUTEXPONENT:   thread->boxform = BOXFORM_OUTPUTEXPONENT; break;
+    }
+    
+    obj = object_to_boxes(thread, obj);
+    
+    thread->boxform = old_boxform;
+    return obj;
+  }
+  
+  return call_to_boxes(thread, expr);
+}
+
 static pmath_t inputform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t result;
@@ -3485,6 +3510,9 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
         
       if(pmath_same(head, pmath_System_HoldForm))
         return holdform_to_boxes(thread, expr);
+        
+      if(pmath_same(head, pmath_System_HorizontalForm))
+        return horizontalform_to_boxes(thread, expr);
         
       if(pmath_same(head, pmath_System_InputForm))
         return inputform_to_boxes(thread, expr);

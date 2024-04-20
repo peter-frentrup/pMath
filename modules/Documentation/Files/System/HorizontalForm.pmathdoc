@@ -1,0 +1,55 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("HorizontalForm", "ObjectName"), 
+      Section(BoxData(TemplateBox({"HorizontalForm"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({TemplateBox({"HorizontalForm"}, "ReferenceHyperlink"), 
+           " acts as a wrapper which affects display, but not evaluation."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Display fractions horizontally:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"HorizontalForm", "(", {"a", "/", "b"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"a", "/", "b"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        Section("Factions usually display vertically:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"a", "/", "b"}), "Input", 
+           SectionLabel -> "in [2]:"), Section(BoxData(FractionBox("a", "b")), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
+           " effectively uses ", TemplateBox({"HorizontalForm"}, 
+            "ReferenceHyperlink"), " for the exponent:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"x", "^", {"(", {"a", "/", "b"}, ")"}}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"x", SuperscriptBox({"a", "/", "b"})}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"x", "^", {"HorizontalForm", "(", {"a", "/", "b"}, 
+              ")"}}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"x", SuperscriptBox({"a", "/", "b"})}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        Section("Force to use a stacked fraction in the exponent:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"x", "^", {"StandardForm", "(", {"a", "/", "b"}, 
+              ")"}}), "Input", SectionLabel -> "in [3]:"), 
+          Section(
+           BoxData({
+             "x", SuperscriptBox(InterpretationBox(FractionBox("a", "b"), 
+               StandardForm(Section$$532`a*1/Section$$532`b), 
+               Editable -> False))}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [3]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"StandardForm"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"OutputForm"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"FractionBox"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

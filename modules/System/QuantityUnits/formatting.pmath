@@ -19,7 +19,7 @@ Function FormatQuantityUnitShort(~unit) {
     If(den === 1) {
         HoldForm(num)
     } Else {
-        With(dinv:= 1/den |> Replace( ~b^~e :> HoldForm(b^HoldForm(e)), 0..))
+        With(dinv:= 1/den |> Replace( ~b^~e :> HoldForm(b^HoldForm(e)), 0..), 1/den)
         If(num === 1) {
             dinv
         } Else {
