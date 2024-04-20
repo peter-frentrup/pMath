@@ -1,0 +1,77 @@
+/* pMath Document */
+
+Document({SectionGroup({Section("Vector and Matrix Notations", "Title"), 
+    Section(BoxData({{"(", "a", ")"}, SubscriptBox({"2", "\[Times]", "3"})}), 
+     "Input"), 
+    Section(
+     BoxData({
+       {"(", {GridBox({{"\[InvisibleSpace]"}, {"\[InvisibleSpace]"}, {
+            "\[InvisibleSpace]"}}), "\[InvisibleSpace]", "a"}, ")"}, 
+       SubscriptBox({"2", "\[Times]", "3"})}), "Input"), 
+    Section(
+     BoxData({
+       {"(", {GridBox({{"\[InvisibleSpace]"}, {"\[InvisibleSpace]"}, {
+            "\[InvisibleSpace]"}}), "\[InvisibleSpace]", "a"}, ")"}, 
+       SubscriptBox({"\[DoubleStruckCapitalR]", 
+         SuperscriptBox({"2", "\[Times]", "3"})})}), "Input"), 
+    Section(
+     BoxData({
+       {"(", {GridBox({{"\[InvisibleSpace]"}, {"\[InvisibleSpace]"}, {
+            "\[InvisibleSpace]"}}), "\[InvisibleSpace]", "a"}, ")"}, 
+       SubscriptBox({"?", SuperscriptBox({"2", "\[Times]", "3"})})}), 
+     "Input"), 
+    Section(
+     BoxData({
+       {"(", {GridBox({{"\[InvisibleSpace]"}, {"\[InvisibleSpace]"}, {
+            "\[InvisibleSpace]"}}), "\[InvisibleSpace]", "a"}, ")"}, 
+       SubscriptBox({"\[DoubleStruckCapitalC]", 
+         SubsuperscriptBox(TextData("sym"), {"2", "\[Times]", "3"})})}), 
+     "Input"), 
+    Section(
+     BoxData({
+       {{"(", {GridBox({{"\[InvisibleSpace]"}, {"\[InvisibleSpace]"}, {
+             "\[InvisibleSpace]"}}), "\[InvisibleSpace]", "f"}, ")"}, 
+        SubscriptBox({"\[DoubleStruckCapitalC]", 
+          SubsuperscriptBox(TextData("sym"), {"2", "\[Times]", "3"})})}, "(", 
+       "x", ")"}), "Input"), 
+    SectionGroup({
+      Section(BoxData({{"Pane", "(", {",", {"{", {"0", ",", "15"}, "}"}}, 
+          ")"}, "|>", "List"}), "Input", SectionLabel -> "in [7]:"), 
+      Section(BoxData({"{", PaneBox("", ImageSize -> {0, 15}), "}"}), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+    Section(
+     BoxData({
+       {"(", {GridBox({{"\[InvisibleSpace]"}, {"\[InvisibleSpace]"}, {
+            "\[InvisibleSpace]"}}), "\[InvisibleSpace]", "a"}, ")"}, 
+       SubscriptBox({"\[LeftAngleBracket]", "3", "\[RightAngleBracket]"})}), 
+     "Input"), 
+    Section(
+     BoxData({
+       {"(", {GridBox({{"\[InvisibleSpace]"}, {"\[InvisibleSpace]"}, {
+            "\[InvisibleSpace]"}}), "\[InvisibleSpace]", "a"}, ")"}, 
+       SubscriptBox({"\[DoubleStruckCapitalR]", SuperscriptBox("3")})}), 
+     "Input"), 
+    Section(
+     BoxData({
+       {"(", {GridBox({{"\[InvisibleSpace]"}, {"\[InvisibleSpace]"}, {
+            "\[InvisibleSpace]"}}), "\[InvisibleSpace]", "a"}, ")"}, 
+       SubscriptBox({"?", SuperscriptBox("3")})}), "Input"), 
+    Section(
+     BoxData({
+       "a", SubscriptBox({"\[DoubleStruckCapitalR]", SuperscriptBox("3")})}), 
+     "Input"), Section(BoxData(OverscriptBox("a", "\[U+21C0]")), "Input"), 
+    Section(
+     BoxData({
+       "(", {GridBox({{"\[InvisibleSpace]"}, {"\[InvisibleSpace]"}, {
+           "\[InvisibleSpace]"}}), "\[InvisibleSpace]", "a"}, ")"}), "Input"), 
+    Section(BoxData({{"(", OverscriptBox("a", "\[U+21C0]"), ")"}, 
+       SubscriptBox({"\[DoubleStruckCapitalR]", 
+         SuperscriptBox({"2", "\[Times]", "3"})})}), "Input"), 
+    Section(BoxData({OverscriptBox("a", "\[U+21C0]"), 
+       SubscriptBox({"\[DoubleStruckCapitalR]", 
+         SuperscriptBox({"2", "\[Times]", "3"})})}), "Input"), 
+    Section(
+     BoxData(OverscriptBox({
+        "a", SubscriptBox({"\[DoubleStruckCapitalR]", SuperscriptBox("3")})}, 
+       "\[U+21C0]")), "Input")}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
