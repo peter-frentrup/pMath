@@ -18,13 +18,15 @@ Function FormatQuantityUnitShort(~unit) {
         Replace(~s:String :> With({abbrev:= $AllUnits[s, "UnitShortName"]}, abbrev /? abbrev =!= None), 0..))
     If(den === 1) {
         HoldForm(num)
-    } Else {
+    } Else If(num === 1 || Head(den) === Times) {
         With(dinv:= 1/den |> Replace( ~b^~e :> HoldForm(b^HoldForm(e)), 0..), 1/den)
         If(num === 1) {
             dinv
         } Else {
             HoldForm(num dinv)
         }
+    } Else {
+        HorizontalForm(num/den)
     }
 }
 
