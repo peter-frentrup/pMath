@@ -274,24 +274,16 @@ pmath_bool_t pmath_equals(
 PMATH_API
 void _pmath_destroy_object(pmath_t obj);
 
-/**\brief Increments the reference counter of an object and returns it.
-   \memberof pmath_t
-   \param obj The object to be referenced.
-   \return The referenced object.
-   You must free the result with pmath_unref().
+/**\brief Increments the reference counter of a reference counted object.
+   \private \memberof pmath_t
+   \param ptr The object pointer.
+   Internal function. Use pmath_ref() instead.
  */
 PMATH_FORCE_INLINE
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_t pmath_ref(pmath_t obj) {
-  struct _pmath_t *ptr;
-  
-  if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
-    return obj;
-    
-  ptr = PMATH_AS_PTR(obj);
+void _pmath_incref_impl(struct _pmath_t *ptr) {
   if(PMATH_UNLIKELY(ptr == NULL))
-    return obj;
-  
+    return;
+    
 #ifdef PMATH_DEBUG_LOG
   if(PMATH_UNLIKELY(pmath_atomic_read_uint8_aquire(&ptr->flags8) & PMATH_OBJECT_FLAGS8_TRAP_DELETED)) {
     assert("referencing deleted object" && 0);
@@ -309,7 +301,21 @@ pmath_t pmath_ref(pmath_t obj) {
 #  endif
   }
 #endif
+}
+
+/**\brief Increments the reference counter of an object and returns it.
+   \memberof pmath_t
+   \param obj The object to be referenced.
+   \return The referenced object.
+   You must free the result with pmath_unref().
+ */
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_ref(pmath_t obj) {
+  if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
+    return obj;
   
+  _pmath_incref_impl(PMATH_AS_PTR(obj));
   return obj;
 }
 

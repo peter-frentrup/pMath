@@ -2132,7 +2132,7 @@ pmath_expr_t _pmath_expr_set_debug_metadata(pmath_expr_t expr, pmath_t info) {
         //reset_expr_flags(new_expr); // only debug info changed -> do not reset flags
 
         struct _pmath_t *old_metadata_ptr = _pmath_atomic_lock_ptr(&_expr->metadata);
-        (void)pmath_ref(PMATH_FROM_PTR(old_metadata_ptr));
+        _pmath_incref_impl(old_metadata_ptr);
         _pmath_atomic_unlock_ptr(&_expr->metadata, old_metadata_ptr);
 
         pmath_atomic_write_release(&new_expr->metadata, (intptr_t)old_metadata_ptr);
@@ -2172,7 +2172,7 @@ pmath_expr_t _pmath_expr_set_debug_metadata(pmath_expr_t expr, pmath_t info) {
         pmath_atomic_write_release(&new_expr_part->inherited.metadata, (intptr_t)PMATH_AS_PTR(info));
 
         struct _pmath_t *old_metadata_ptr = _pmath_atomic_lock_ptr(&new_expr_part->inherited.metadata);
-        (void)pmath_ref(PMATH_FROM_PTR(old_metadata_ptr));
+        _pmath_incref_impl(old_metadata_ptr);
         _pmath_atomic_unlock_ptr(&new_expr_part->inherited.metadata, old_metadata_ptr);
 
         pmath_atomic_write_release(&new_expr_part->inherited.metadata, (intptr_t)old_metadata_ptr);
