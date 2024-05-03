@@ -1,0 +1,105 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("UpTo", "ObjectName"), 
+      Section(BoxData(TemplateBox({"UpTo"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Take up to the number of elements available:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Take", "(", {
+              {"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, "}"}, ",", {
+               "UpTo", "(", "6", ")"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(
+           BoxData({"Take", "(", {
+              {"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, "}"}, ",", {
+               "UpTo", "(", "2", ")"}}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"a", ",", "b"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Drop up to the number of elements available:", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({"Drop", "(", {
+                {"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, "}"}, 
+                ",", {"UpTo", "(", "6", ")"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData({"{", "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(
+             BoxData({"Drop", "(", {
+                {"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, "}"}, 
+                ",", {"UpTo", "(", "2", ")"}}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData({"{", {"c", ",", "d", ",", "e"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           "Take up to the number of elements available and drop what \
+           remains:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"TakeDrop", "(", {
+                {"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, "}"}, 
+                ",", {"UpTo", "(", "6", ")"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {{"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, 
+                 "}"}, ",", {"{", "}"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"TakeDrop", "(", {
+                {"{", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, "}"}, 
+                ",", {"UpTo", "(", "2", ")"}}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData({"{", {{"{", {"a", ",", "b"}, "}"}, ",", {
+                 "{", {"c", ",", "d", ",", "e"}, "}"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Partition a list into groups of up to 3 elements:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Partition", "(", {
+                {"Array", "(", "10", ")"}, ",", {"UpTo", "(", "3", ")"}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {{"{", {"1", ",", "2", ",", "3"}, "}"}, ",", 
+                {"{", {"4", ",", "5", ",", "6"}, "}"}, ",", {
+                 "{", {"7", ",", "8", ",", "9"}, "}"}, ",", {"{", "10", "}"}}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           "Get the order of the 10 smallest elements, or as many as are \
+           available:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Ordering", "(", {
+                {"RandomReal", "(", {{"0", "..", "1"}, ",", "5"}, ")"}, ",", {
+                 "UpTo", "(", "10", ")"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"3", ",", "2", ",", "4", ",", "1", ",", 
+                "5"}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Take"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Drop"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Partition"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Ordering"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

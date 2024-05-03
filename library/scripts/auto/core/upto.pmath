@@ -35,15 +35,15 @@ UpTo/: Ordering(~list, UpTo(~n:Integer), ~p)::=
 	}
 
 
-% TODO: support UpTo in Parition() for multiple dimensions
-UpTo/: Parition(~list, UpTo(~n:Integer ? IsPositive))::=
-	Parition(list, n, n, 1, {})
+% TODO: support UpTo in Partition() for multiple dimensions
+UpTo/: Partition(~list, UpTo(~n:Integer ? IsPositive))::=
+	Partition(list, n, n, 1, {})
 	
-UpTo/: Parition(~list, UpTo(~n:Integer ? IsPositive), ~d)::=
-	Parition(list, n, d, 1, {})
+UpTo/: Partition(~list, UpTo(~n:Integer ? IsPositive), ~d)::=
+	Partition(list, n, d, 1, {})
 	
-UpTo/: Parition(~list, UpTo(~n:Integer ? IsPositive), ~d, ~k)::=
-	Parition(list, n, d, k, {})
+UpTo/: Partition(~list, UpTo(~n:Integer ? IsPositive), ~d, ~k)::=
+	Partition(list, n, d, k, {})
 
 
 stringLength(~str:String)::= StringPosition(str, EndOfString)[1,-1]
