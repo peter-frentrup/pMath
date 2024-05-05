@@ -43,6 +43,9 @@ bool Win32MenuItemOverlay::handle_mouse_message(UINT msg, WPARAM wParam, const P
   return false;
 }
 
+void Win32MenuItemOverlay::on_mouse_leave() {
+}
+
 bool Win32MenuItemOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area) {
   rect = {0,0,0,0};
   

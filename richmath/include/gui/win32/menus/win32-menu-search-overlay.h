@@ -10,6 +10,7 @@
 
 namespace richmath {
   class Win32MenuSearchOverlay : public Win32CustomMenuOverlay {
+      using base = Win32CustomMenuOverlay;
       class Impl;
     public:
       Win32MenuSearchOverlay(HMENU menu);
@@ -23,6 +24,7 @@ namespace richmath {
       virtual bool handle_char_message(   WPARAM wParam, LPARAM lParam, HMENU menu) override;
       virtual bool handle_keydown_message(WPARAM wParam, LPARAM lParam, HMENU menu) override;
       virtual bool handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) override;
+      virtual void on_mouse_leave() override;
       
     protected:
       virtual bool on_create(CREATESTRUCTW *args) override;
@@ -32,6 +34,8 @@ namespace richmath {
     private:
       HMENU menu;
       bool hide_caret: 1;
+      bool over_cancel_button: 1;
+      bool pressing_cancel_button: 1;
   };
 }
 

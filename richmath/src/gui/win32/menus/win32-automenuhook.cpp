@@ -218,9 +218,7 @@ bool Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam,
   bool handled = false;
   bool is_over_menu = menu_window != nullptr;
   if(is_over_menu) {
-    if(menu_window != hover_wnd) { // hover_wnd is a child of the menu window, e.g. our menu item slider
-      handled = Win32Menu::handle_child_window_mouse_message(menu_window, hover_wnd, message, wParam, pt);
-    }
+    handled = Win32Menu::handle_child_window_mouse_message(menu_window, hover_wnd, message, wParam, pt);
   }
   else {
     if(self._is_over_menu) {

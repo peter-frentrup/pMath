@@ -144,6 +144,8 @@ namespace {
       Hashtable<HWND, HMENU> popup_window_to_menu; // essentially same as SendMessage(hwnd, MN_GETHMENU, 0, 0)
       Hashtable<HMENU, HWND> menu_to_popup_window;
       Hashtable<HWND, Win32MenuItemOverlay*> popup_window_overlays;
+      HWND prev_menu_under_mouse;
+      HWND prev_control_under_mouse;
       HMENU initializing_popup_menu;
       HBRUSH light_background_brush;
       HBRUSH dark_background_brush;
@@ -737,6 +739,8 @@ StaticMenuOverride StaticMenuOverride::singleton;
 
 StaticMenuOverride::StaticMenuOverride() 
 : default_wnd_proc{nullptr},
+  prev_menu_under_mouse{nullptr},
+  prev_control_under_mouse{nullptr},
   initializing_popup_menu{nullptr},
   light_background_brush{nullptr},
   dark_background_brush{nullptr}
@@ -771,14 +775,29 @@ void StaticMenuOverride::init_popupmenu(HMENU sub) {
 }
 
 bool StaticMenuOverride::handle_child_window_mouse_message(HWND hwnd_menu, HWND hwnd_child, UINT msg, WPARAM wParam, const POINT &screen_pt) {
-  for(auto overlay = singleton.popup_window_overlays[hwnd_menu]; overlay; overlay = overlay->next) {
-    if(overlay->control == hwnd_child) {
-      POINT pt = screen_pt;
-      ScreenToClient(overlay->control, &pt);
-      if(HMENU menu = singleton.popup_window_to_menu[hwnd_menu]) {
-        return overlay->handle_mouse_message(msg, wParam, pt, menu);
+  if(singleton.prev_menu_under_mouse != hwnd_menu || singleton.prev_control_under_mouse != hwnd_child) {
+    if(singleton.prev_menu_under_mouse != singleton.prev_control_under_mouse) {
+      for(auto overlay = singleton.popup_window_overlays[singleton.prev_menu_under_mouse]; overlay; overlay = overlay->next) {
+        if(overlay->control == singleton.prev_control_under_mouse) {
+          overlay->on_mouse_leave();
+        }
       }
-      break;
+    }
+    
+    singleton.prev_menu_under_mouse    = hwnd_menu;
+    singleton.prev_control_under_mouse = hwnd_child;
+  }
+  
+  if(hwnd_menu != hwnd_child) {
+    for(auto overlay = singleton.popup_window_overlays[hwnd_menu]; overlay; overlay = overlay->next) {
+      if(overlay->control == hwnd_child) {
+        POINT pt = screen_pt;
+        ScreenToClient(overlay->control, &pt);
+        if(HMENU menu = singleton.popup_window_to_menu[hwnd_menu]) {
+          return overlay->handle_mouse_message(msg, wParam, pt, menu);
+        }
+        break;
+      }
     }
   }
   return false;

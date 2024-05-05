@@ -69,7 +69,9 @@ const uint16_t MenuLevelSeparatorChar = 0x25B8; // PMATH_CHAR_RULE
 
 Win32MenuSearchOverlay::Win32MenuSearchOverlay(HMENU menu)
 : menu{menu}, 
-  hide_caret{false}
+  hide_caret{false},
+  over_cancel_button{false},
+  pressing_cancel_button{false}
 {
 }
 
@@ -149,7 +151,44 @@ bool Win32MenuSearchOverlay::handle_keydown_message(WPARAM wParam, LPARAM lParam
 }
 
 bool Win32MenuSearchOverlay::handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
+  RECT cancel_rect;
+  GetClientRect(control, &cancel_rect);
+  cancel_rect.left = cancel_rect.right - (cancel_rect.bottom - cancel_rect.top);
+  bool above_cancel = !!PtInRect(&cancel_rect, pt);
+  
+  switch(msg) {
+    case WM_MOUSEMOVE: 
+      if(over_cancel_button != above_cancel) {
+        over_cancel_button = above_cancel;
+        InvalidateRect(control, &cancel_rect, false);
+      }
+      break;
+      
+    case WM_LBUTTONDOWN: 
+      if(above_cancel) {
+        pressing_cancel_button = true;
+        InvalidateRect(control, &cancel_rect, false);
+      }
+      break;
+      
+    case WM_LBUTTONUP: 
+      if(above_cancel && pressing_cancel_button) {
+        Impl::update_query(String(), menu);
+        text(String());
+        hide_caret = false;
+        InvalidateRect(control, nullptr, false);
+      }
+      pressing_cancel_button = false;
+      break;
+  }
   return true;
+}
+
+void Win32MenuSearchOverlay::on_mouse_leave() {
+  if(over_cancel_button) {
+    over_cancel_button = false;
+    InvalidateRect(control, nullptr, false);
+  }
 }
 
 bool Win32MenuSearchOverlay::on_create(CREATESTRUCTW *args) {
@@ -221,7 +260,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
                    cc, ContainerType::InputField, ControlState::Pressed).to_bgr24();
   }
   else {
-    DrawEdge(hdc, &rect, BDR_SUNKEN, BF_RECT | BF_ADJUST);
+    DrawEdge(hdc, &rect, BDR_SUNKENOUTER | BDR_SUNKENINNER, BF_RECT | BF_ADJUST);
     FillRect(hdc, &rect, (HBRUSH)(1 + COLOR_WINDOW));
     text_color = GetSysColor(COLOR_WINDOWTEXT);
   }
@@ -230,6 +269,40 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   rect.left+= 1;
   String str = text();
   if(str.length() > 0) {
+    icon_rect = rect;
+    icon_rect.left = icon_rect.right - (rect.bottom - rect.top);
+    {
+      LOGFONTW lf = {};
+      wcscpy_s(lf.lfFaceName, sizeof(lf.lfFaceName)/sizeof(wchar_t), Win32Themes::symbol_font_name());
+      
+      lf.lfHeight = (icon_rect.bottom - icon_rect.top) * 2 / 3;
+      if(HFONT font = CreateFontIndirectW(&lf)) {
+        oldfont = (HFONT)SelectObject(hdc, font);
+        
+        if(over_cancel_button) {
+          theme_part;
+          theme_state;
+          theme = Win32ControlPainter::win32_painter.get_control_theme(cc, ContainerType::PaletteButton, pressing_cancel_button ? ControlState::PressedHovered : ControlState::Hovered, &theme_part, &theme_state);
+          if(theme) {
+            HRreport(Win32Themes::DrawThemeBackground(theme, hdc, theme_part, theme_state, &icon_rect, nullptr));
+          }
+          else {
+            FillRect(hdc, &icon_rect, (HBRUSH)(1 + COLOR_BTNFACE));
+            DrawEdge(hdc, &icon_rect, pressing_cancel_button ? BDR_SUNKENOUTER : BDR_RAISEDOUTER, BF_RECT);
+          }
+          
+          if(pressing_cancel_button) {
+            int off = MulDiv(2, cc.dpi(), 96);
+            icon_rect.left+= off;
+            //icon_rect.top += off;
+          }
+        }
+        
+        // U+E10A: "Cancel" in Segoe UI Symbol, Segoe Mdl2 Assets, and Segoe Fluent Icons
+        DrawTextW(hdc, L"\xE10A", -1, &icon_rect, DT_CENTER | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
+      }
+    }
+    
     NONCLIENTMETRICSW ncm = {sizeof(ncm)};
     if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, cc.dpi())) {
       if(HFONT font = CreateFontIndirectW(&ncm.lfMenuFont))

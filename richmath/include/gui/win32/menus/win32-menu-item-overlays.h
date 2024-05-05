@@ -30,6 +30,7 @@ namespace richmath {
       virtual bool handle_char_message(WPARAM wParam, LPARAM lParam, HMENU menu);
       virtual bool handle_keydown_message(WPARAM wParam, LPARAM lParam, HMENU menu);
       virtual bool handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu);
+      virtual void on_mouse_leave();
       
       bool calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area);
       
