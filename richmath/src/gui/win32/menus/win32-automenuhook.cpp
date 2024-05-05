@@ -98,6 +98,7 @@ Win32AutoMenuHook::Win32AutoMenuHook(HMENU tracked_popup, HWND owner, HWND mouse
     _current_popup(tracked_popup),
     _owner(owner),
     _mouse_notifications(mouse_notifications),
+    _mouse_capture(nullptr),
     _allow_leave_left(allow_leave_left),
     _allow_leave_right(allow_leave_right),
     _is_over_menu(false),
@@ -201,9 +202,9 @@ LRESULT CALLBACK Win32AutoMenuHook::Impl::menu_hook_proc(int code, WPARAM h_wPar
 }
 
 bool Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam, POINT pt) {
-  HWND hover_wnd = WindowFromPoint(pt);
+  HWND dst = self._mouse_capture ? self._mouse_capture : WindowFromPoint(pt);
   HWND menu_window = nullptr;
-  for(HWND hwnd = hover_wnd; hwnd; hwnd = GetAncestor(hwnd, GA_PARENT)) {
+  for(HWND hwnd = dst; hwnd; hwnd = GetAncestor(hwnd, GA_PARENT)) {
     const int len = 20;
     char class_name[len];
     GetClassNameA(hwnd, class_name, len);
@@ -218,7 +219,10 @@ bool Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam,
   bool handled = false;
   bool is_over_menu = menu_window != nullptr;
   if(is_over_menu) {
-    handled = Win32Menu::handle_child_window_mouse_message(menu_window, hover_wnd, message, wParam, pt);
+    handled = Win32Menu::handle_child_window_mouse_message(menu_window, dst, message, wParam, pt);
+    
+    if(message == WM_LBUTTONDOWN && handled)
+      self._mouse_capture = dst;
   }
   else {
     if(self._is_over_menu) {
@@ -234,6 +238,9 @@ bool Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam,
       SendMessageW(self._mouse_notifications, message, wParam, point_to_dword(pt));
     }
   }
+  
+  if(!is_over_menu || message == WM_LBUTTONUP)
+    self._mouse_capture = nullptr;
   
   self._is_over_menu = is_over_menu;
   return handled;

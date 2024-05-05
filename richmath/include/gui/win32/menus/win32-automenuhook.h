@@ -51,6 +51,7 @@ namespace richmath {
       HMENU _current_popup;
       HWND _owner;
       HWND _mouse_notifications;
+      HWND _mouse_capture;
       bool _allow_leave_left;
       bool _allow_leave_right;
       bool _is_over_menu;
