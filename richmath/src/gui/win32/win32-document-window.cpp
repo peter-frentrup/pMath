@@ -709,7 +709,7 @@ void Win32DocumentWindow::after_construction() {
     
     for(auto menu : menus) {
       if(menu) {
-        for(int i = 0; i < GetMenuItemCount(menu->hmenu()); ++i) {
+        for(int i = 0; i < WIN32report_errval(GetMenuItemCount(menu->hmenu()), -1); ++i) {
           wchar_t data[100];
           
           MENUITEMINFOW info;
@@ -720,7 +720,9 @@ void Win32DocumentWindow::after_construction() {
           info.cch = sizeof(data)/sizeof(data[0])-1;
           
           if(WIN32report(GetMenuItemInfoW(menu->hmenu(), i, TRUE, &info))) {
-            WIN32report(InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info));
+            int count = WIN32report_errval(GetMenuItemCount(sysmenu), -1);
+            if(count >= 0)
+              WIN32report(InsertMenuItemW(sysmenu, count, TRUE, &info));
           }
         }
       }

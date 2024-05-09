@@ -118,8 +118,9 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   
   dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
   
-  _num_items = _menu.is_valid() ? GetMenuItemCount(_menu->hmenu()) : 0;
-  _visible_items = _num_items;
+  _num_items = _menu.is_valid() ? WIN32report_errval(GetMenuItemCount(_menu->hmenu()), -1) : 0;
+  if(_num_items < 0) _num_items = 0;
+  _visible_items   = _num_items;
   
   Array<TBBUTTON>  buttons(_num_items + 3);
   Array<wchar_t[100]> texts(buttons.length());
@@ -410,13 +411,13 @@ void Win32Menubar::show_menu(int item) {
       case MenuExitReason::LeftKey:
         next_item = item - 1;
         if(next_item <= 0) {
-          next_item = GetMenuItemCount(_menu->hmenu());
+          next_item = WIN32report_errval(GetMenuItemCount(_menu->hmenu()), -1);
         }
         break;
         
       case MenuExitReason::RightKey:
         next_item = item + 1;
-        if(next_item > GetMenuItemCount(_menu->hmenu())) {
+        if(next_item > WIN32report_errval(GetMenuItemCount(_menu->hmenu()), -1)) {
           next_item = 1;
         }
         break;
@@ -433,7 +434,7 @@ void Win32Menubar::show_menu(int item) {
     current_item = 0;
     current_popup = nullptr;
     if(tmp_menu) {
-      for(int i = GetMenuItemCount(tmp_menu)-1; i >= 0; --i) {
+      for(int i = WIN32report_errval(GetMenuItemCount(tmp_menu), -1)-1; i >= 0; --i) {
         WIN32report(RemoveMenu(tmp_menu, i, MF_BYPOSITION));
       }
       WIN32report(DestroyMenu(tmp_menu));

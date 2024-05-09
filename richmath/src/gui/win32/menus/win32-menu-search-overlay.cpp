@@ -111,7 +111,7 @@ bool Win32MenuSearchOverlay::handle_char_message(WPARAM wParam, LPARAM lParam, H
       if(old_sel < 0)
         old_sel = end_index;
       
-      int count = GetMenuItemCount(menu);
+      int count = WIN32report_errval(GetMenuItemCount(menu), -1);
       for(int i = old_sel + 1; i < count - 1; ++i) {
         DWORD state = GetMenuState(menu, (UINT)i, MF_BYPOSITION);
         if(state & MF_SEPARATOR) {
