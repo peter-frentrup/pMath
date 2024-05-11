@@ -15,16 +15,9 @@ namespace richmath {
       virtual void initialize(HWND hwnd, HMENU menu) override;
       virtual bool handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) override;
       
-      bool collect_float_values(Array<float> &values, HMENU menu);
-      
-      int slider_pos_from_point(const POINT &pt);
-      void apply_slider_pos(HMENU menu, int pos);
-    
     public:
       Expr lhs;
       Expr scope;
-      
-      static const int ScaleFactor = 100;
   };
 }
 

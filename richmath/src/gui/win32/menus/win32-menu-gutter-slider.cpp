@@ -38,6 +38,15 @@ namespace richmath {
       
       StyledObject *resolve_scope(Document *doc);
       
+      bool collect_float_values(Array<float> &values, HMENU menu);
+      
+      RECT get_channel_rect();
+      RECT get_thumb_rect();
+      
+      float slider_interpolation_pos_from_mouse(HMENU menu, POINT pt);
+      void apply_slider_pos(HMENU menu, float rel_idx);
+      void set_control_slider_pos(HMENU menu, float rel_idx);
+      
     private:
       Win32MenuGutterSlider &self;
   };
@@ -48,6 +57,8 @@ namespace richmath {
 void Win32MenuGutterSlider::update_rect(HWND hwnd, HMENU menu) {
   RECT rect;
   bool valid_rect = calc_rect(rect, hwnd, menu, Win32MenuItemOverlay::OnlyGutter);
+  
+  //pmath_debug_print("[Win32MenuGutterSlider::update_rect LT(%d, %d) BR(%d, %d) %d x %d]\n", rect.left, rect.top, rect.right, rect.bottom, rect.right - rect.left, rect.bottom - rect.top);
   
   if(!control) {
     prepare_menu_window_for_children(hwnd);
@@ -73,7 +84,10 @@ void Win32MenuGutterSlider::update_rect(HWND hwnd, HMENU menu) {
     if(Win32Themes::SetWindowTheme && Win32Menu::use_dark_mode)
       Win32Themes::SetWindowTheme(control, L"DarkMode", nullptr);
     
-    SendMessageW(control, TBM_SETRANGE, false, MAKELPARAM(0, (end_index - start_index) * ScaleFactor));
+    int range_min = 0;
+    int range_max = 10000;
+    
+    SendMessageW(control, TBM_SETRANGE, false, MAKELPARAM(range_min, range_max));
   }
   else if(valid_rect) {
     MoveWindow(
@@ -83,6 +97,9 @@ void Win32MenuGutterSlider::update_rect(HWND hwnd, HMENU menu) {
       rect.right - rect.left,
       rect.bottom - rect.top,
       TRUE);
+    
+    // StaticMenuOverride will call update_rect() again (dalayed_resize), but not initialize() again.
+    initialize(hwnd, menu);
   }
 }
 
@@ -98,149 +115,44 @@ void Win32MenuGutterSlider::initialize(HWND hwnd, HMENU menu) {
       if(type == StyleType::Number) {
         float val = obj->get_style((FloatStyleOptionName)key, NAN);
         Array<float> values;
-        if(!std::isnan(val) && collect_float_values(values, menu)) {
+        if(!std::isnan(val) && Impl(*this).collect_float_values(values, menu)) {
           float rel_idx = Interpolation::interpolation_index(values, val, false);
-          if(0 <= rel_idx && rel_idx <= values.length() - 1) {
-            int slider_pos = (int)round(rel_idx * 100);
-            SendMessageW(control, TBM_SETPOS, TRUE, (LPARAM)slider_pos);
-            if(style & TBS_NOTHUMB)
-              SetWindowLongW(control, GWL_STYLE, style & ~TBS_NOTHUMB);
-            
-            return;
-          }
+          Impl(*this).set_control_slider_pos(menu, rel_idx);
+          return;
         }
       }
     }
     
-    if(!(style & TBS_NOTHUMB))
-      SetWindowLongW(control, GWL_STYLE, style | TBS_NOTHUMB);
+    Impl(*this).set_control_slider_pos(menu, NAN);
   }
-}
-
-bool Win32MenuGutterSlider::collect_float_values(Array<float> &values, HMENU menu) {
-  values.length(end_index - start_index + 1);
-  for(int i = 0; i < values.length(); ++i) {
-    MENUITEMINFOW mii = { sizeof(mii) };
-    mii.fMask = MIIM_ID;
-    if(!WIN32report(GetMenuItemInfoW(menu, start_index + i, TRUE, &mii)))
-      return false;
-    
-    Expr cmd = Win32Menu::id_to_command(mii.wID);
-    if(cmd[0] == richmath_FE_ScopedCommand)
-      cmd = cmd[1];
-    
-    if(!cmd.is_rule())
-      return false;
-    
-    Expr rhs = cmd[2];
-    if(rhs.is_number()) {
-      values[i] = rhs.to_double();
-    }
-    else if(rhs == richmath_System_Inherited) {
-      // Magnification -> Inherited
-      values[i] = 1;
-    }
-    else
-      return false;
-  }
-  
-  return true;
 }
 
 bool Win32MenuGutterSlider::handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
   
-  int pos = slider_pos_from_point(pt);
-//  pmath_debug_print("[mouse msg %x over menu slider: w=%x pos %d]\n", msg, wParam, pos);
-  
-  if(!(wParam & MK_SHIFT)) {
-    int nearest = ((pos + ScaleFactor/2)/ScaleFactor) * ScaleFactor;
-    if(nearest - ScaleFactor/4 < pos && pos < nearest + ScaleFactor/4)
-      pos = nearest;
-  }
-  
-  if(pos == SendMessageW(control, TBM_GETPOS, 0, 0))
+  RECT thumb_rect  = Impl(*this).get_thumb_rect();
+  int thumb_center = thumb_rect.top + (thumb_rect.bottom - thumb_rect.top) / 2;
+  if(pt.y == thumb_center)
     return true;
+  
+  float rel_idx = Impl(*this).slider_interpolation_pos_from_mouse(menu, pt);
+  if(!(wParam & MK_SHIFT)) {
+    int nearest = (int)(rel_idx + 0.5f);
+    if(fabsf(rel_idx - nearest) < 0.25)
+      rel_idx = nearest;
+  }
   
   switch(msg) {
     case WM_MOUSEMOVE: 
       if(wParam & MK_LBUTTON) {
-        apply_slider_pos(menu, pos);
+        Impl(*this).apply_slider_pos(menu, rel_idx);
       }
       break;
     
-    case WM_LBUTTONDOWN: apply_slider_pos(menu, pos); break;
-    case WM_LBUTTONUP:   apply_slider_pos(menu, pos); break;
+    case WM_LBUTTONDOWN: Impl(*this).apply_slider_pos(menu, rel_idx); break;
+    case WM_LBUTTONUP:   Impl(*this).apply_slider_pos(menu, rel_idx); break;
   }
   
   return true;
-}
-
-int Win32MenuGutterSlider::slider_pos_from_point(const POINT &pt) {
-  RECT channel_rect = {};
-  RECT thumb_rect = {};
-  
-  SendMessageW(control, TBM_GETCHANNELRECT, 0, (LPARAM)&channel_rect);
-  // Work around windows bug (e.g. on Windows 10, 1909): TBM_GETCHANNELRECT acts as if TBS_HORZ was given
-  if(channel_rect.right - channel_rect.left > channel_rect.bottom - channel_rect.top) {
-    using std::swap;
-    swap(channel_rect.left,  channel_rect.top);
-    swap(channel_rect.right, channel_rect.bottom);
-  }
-  int channel_length = channel_rect.bottom - channel_rect.top;
-  
-  SendMessageW(control, TBM_GETTHUMBRECT, 0, (LPARAM)&thumb_rect);
-  int thumb_thickness = thumb_rect.bottom - thumb_rect.top;
-  
-  if(channel_length > thumb_thickness) {
-    int thumb_pos_px = pt.y - (channel_rect.top + thumb_thickness/2);
-    if(thumb_pos_px < 0)
-      thumb_pos_px = 0;
-    else if(thumb_pos_px > channel_length - thumb_thickness)
-      thumb_pos_px = channel_length - thumb_thickness;
-    
-    int range_min = 0; //SendMessageW(control, TBM_GETRANGEMIN, 0, 0);
-    int range_max = (end_index - start_index) * ScaleFactor; // SendMessageW(control, TBM_GETRANGEMAX, 0, 0);
-    return range_min + MulDiv(thumb_pos_px, range_max - range_min, channel_length - thumb_thickness);
-  }
-  else
-    return 0;
-}
-
-void Win32MenuGutterSlider::apply_slider_pos(HMENU menu, int pos) {
-  Array<float> values;
-  if(!collect_float_values(values, menu))
-    return;
-  
-  int i = pos / ScaleFactor;
-  if(i < 0 || i >= values.length())
-    return;
-  
-  float val;
-  if(pos == i * ScaleFactor) {
-    val = values[i];
-  }
-  else {
-    if(i + 1 >= values.length())
-      return;
-    
-    float v0 = values[i];
-    float v1 = values[i+1];
-    val = v0 + ((v1 - v0) * (pos - i * ScaleFactor)) / ScaleFactor;
-  }
-  
-  Expr cmd = Rule(lhs, val);
-  if(scope)
-    cmd = Call(Symbol(richmath_FE_ScopedCommand), PMATH_CPP_MOVE(cmd), scope);
-  
-  if(!Menus::run_command_now(PMATH_CPP_MOVE(cmd)))
-    return;
-  
-  // TBM_SETPOSNOTIFY exists since Windows 7
-  SendMessageW(control, TBM_SETPOS, TRUE, (LPARAM)pos);
-  
-  DWORD style = GetWindowLongW(control, GWL_STYLE);
-  if(style & TBS_NOTHUMB)
-    SetWindowLongW(control, GWL_STYLE, style & ~TBS_NOTHUMB);
 }
 
 //} ... class Win32MenuGutterSlider
@@ -268,6 +180,174 @@ StyledObject *Win32MenuGutterSlider::Impl::resolve_scope(Document *doc) {
   }
   
   return nullptr;
+}
+
+bool Win32MenuGutterSlider::Impl::collect_float_values(Array<float> &values, HMENU menu) {
+  values.length(self.end_index - self.start_index + 1);
+  for(int i = 0; i < values.length(); ++i) {
+    MENUITEMINFOW mii = { sizeof(mii) };
+    mii.fMask = MIIM_ID;
+    if(!WIN32report(GetMenuItemInfoW(menu, self.start_index + i, TRUE, &mii)))
+      return false;
+    
+    Expr cmd = Win32Menu::id_to_command(mii.wID);
+    if(cmd[0] == richmath_FE_ScopedCommand)
+      cmd = cmd[1];
+    
+    if(!cmd.is_rule())
+      return false;
+    
+    Expr rhs = cmd[2];
+    if(rhs.is_number()) {
+      values[i] = rhs.to_double();
+    }
+    else if(rhs == richmath_System_Inherited) {
+      // Magnification -> Inherited
+      values[i] = 1;
+    }
+    else
+      return false;
+  }
+  
+  return true;
+}
+
+RECT Win32MenuGutterSlider::Impl::get_channel_rect() {
+  RECT channel_rect = {};
+  SendMessageW(self.control, TBM_GETCHANNELRECT, 0, (LPARAM)&channel_rect);
+  // Work around windows bug (e.g. on Windows 10, 1909): TBM_GETCHANNELRECT acts as if TBS_HORZ was given
+  if(channel_rect.right - channel_rect.left > channel_rect.bottom - channel_rect.top) {
+    using std::swap;
+    swap(channel_rect.left,  channel_rect.top);
+    swap(channel_rect.right, channel_rect.bottom);
+  }
+  return channel_rect;
+}
+
+RECT Win32MenuGutterSlider::Impl::get_thumb_rect() {
+  RECT thumb_rect = {};
+  SendMessageW(self.control, TBM_GETTHUMBRECT, 0, (LPARAM)&thumb_rect);
+  return thumb_rect;
+}
+
+float Win32MenuGutterSlider::Impl::slider_interpolation_pos_from_mouse(HMENU menu, POINT pt) {
+  ClientToScreen(self.control, &pt);
+  
+  int prev_item_center = 0;
+  for(int i = self.start_index; i <= self.end_index; ++i) {
+    RECT item_rect;
+    if(GetMenuItemRect(nullptr, menu, (UINT)i, &item_rect)) {
+      int item_center = item_rect.top + (item_rect.bottom - item_rect.top) / 2;
+      
+      if(pt.y == item_center)
+        return i - self.start_index;
+      
+      if(pt.y < item_center) {
+        if(i == self.start_index)
+          return 0.0f;
+        
+        if(prev_item_center >= item_center)
+          return i - self.start_index;
+        
+        return (i - 1 - self.start_index) + (pt.y - prev_item_center) / (float)(item_center - prev_item_center);
+      }
+      
+      prev_item_center = item_center;
+    }
+  }
+  
+  return self.end_index - self.start_index;
+}
+
+void Win32MenuGutterSlider::Impl::apply_slider_pos(HMENU menu, float rel_idx) {
+  Array<float> values;
+  if(!collect_float_values(values, menu)) {
+    set_control_slider_pos(menu, NAN);
+    return;
+  }
+  
+  if(!(0 <= rel_idx && rel_idx <= values.length() - 1)){
+    set_control_slider_pos(menu, NAN);
+    return;
+  }
+    
+  float val;
+  
+  int i = (int)rel_idx;
+  if(rel_idx == i) {
+    val = values[i];
+  }
+  else {
+    if(i + 1 >= values.length()){
+      set_control_slider_pos(menu, NAN);
+      return;
+    }
+    
+    float v0 = values[i];
+    float v1 = values[i+1];
+    val = v0 + (v1 - v0) * (rel_idx - i);
+  }
+  
+  Expr cmd = Rule(self.lhs, val);
+  if(self.scope)
+    cmd = Call(Symbol(richmath_FE_ScopedCommand), PMATH_CPP_MOVE(cmd), self.scope);
+  
+  if(!Menus::run_command_now(PMATH_CPP_MOVE(cmd)))
+    return;
+  
+  set_control_slider_pos(menu, rel_idx);
+}
+
+void Win32MenuGutterSlider::Impl::set_control_slider_pos(HMENU menu, float rel_idx) {
+  DWORD style = GetWindowLongW(self.control, GWL_STYLE);  
+  if(0 <= rel_idx && rel_idx <= self.end_index - self.start_index) {
+    if(style & TBS_NOTHUMB)
+      SetWindowLongW(self.control, GWL_STYLE, style & ~TBS_NOTHUMB);
+  }
+  else {
+    if(!(style & TBS_NOTHUMB))
+      SetWindowLongW(self.control, GWL_STYLE, style | TBS_NOTHUMB);
+    
+    return;
+  }
+  
+  RECT channel_rect = get_channel_rect();
+  RECT thumb_rect   = get_thumb_rect();
+  int thumb_thickness = thumb_rect.bottom - thumb_rect.top;
+  
+  //pmath_debug_print("[channel_rect LT(%d, %d) BR(%d, %d) %d x %d]\n", channel_rect.left, channel_rect.top, channel_rect.right, channel_rect.bottom, channel_rect.right - channel_rect.left, channel_rect.bottom - channel_rect.top);
+  
+  MapWindowPoints(self.control, nullptr, (POINT*)&channel_rect, 2);
+  
+  int prev_item_index = self.start_index + (int)rel_idx;
+  RECT item_rect = {};
+  GetMenuItemRect(nullptr, menu, (UINT)prev_item_index, &item_rect);
+  
+  int prev_item_center = item_rect.top + (item_rect.bottom - item_rect.top) / 2;
+  
+  int final_thumb_in_menu = prev_item_center;
+  if(rel_idx != (int)rel_idx) {
+    int next_item_index = prev_item_index + 1;
+    
+    GetMenuItemRect(nullptr, menu, (UINT)next_item_index, &item_rect);
+    int next_item_center = item_rect.top + (item_rect.bottom - item_rect.top) / 2;
+    
+    final_thumb_in_menu = prev_item_center + (int)((rel_idx - (int)rel_idx) * (next_item_center - prev_item_center));
+  }
+  
+  int min_thumb_in_menu = channel_rect.top    + thumb_thickness / 2;
+  int max_thumb_in_menu = channel_rect.bottom - thumb_thickness + thumb_thickness/2;
+  
+  int range_min = SendMessageW(self.control, TBM_GETRANGEMIN, 0, 0);
+  int range_max = SendMessageW(self.control, TBM_GETRANGEMAX, 0, 0);
+  
+  if(min_thumb_in_menu <= final_thumb_in_menu && final_thumb_in_menu <= max_thumb_in_menu && min_thumb_in_menu < max_thumb_in_menu) {
+    int slider_pos = range_min + MulDiv(final_thumb_in_menu - min_thumb_in_menu, range_max - range_min, max_thumb_in_menu - min_thumb_in_menu);
+    
+    SendMessageW(self.control, TBM_SETPOS, TRUE, (LPARAM)slider_pos);
+  }
+  else
+    SetWindowLongW(self.control, GWL_STYLE, style | TBS_NOTHUMB);
 }
 
 //} ... class Win32MenuGutterSlider::Impl
