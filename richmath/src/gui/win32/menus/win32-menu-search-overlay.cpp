@@ -210,13 +210,17 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   
   HFONT oldfont = nullptr;
   
+  int dpi = Win32HighDpi::get_dpi_for_window(control);
+  int cx  = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUSIZE, dpi);
+  int cy  = Win32HighDpi::get_system_metrics_for_dpi(SM_CYMENUSIZE, dpi);
+  
   RECT icon_rect = rect;
-  icon_rect.right = icon_rect.left + rect.bottom - rect.top;
+  icon_rect.right = icon_rect.left + cx;
   {
     LOGFONTW lf = {};
     wcscpy_s(lf.lfFaceName, sizeof(lf.lfFaceName)/sizeof(wchar_t), Win32Themes::symbol_font_name());
     
-    lf.lfHeight = (icon_rect.bottom - icon_rect.top) * 2 / 3;
+    lf.lfHeight = cy * 0.75; //(icon_rect.bottom - icon_rect.top) * 2 / 3;
     if(HFONT font = CreateFontIndirectW(&lf)) {
       oldfont = (HFONT)SelectObject(hdc, font);
       
@@ -243,7 +247,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
       
     private:
       int _dpi;
-  } cc(Win32HighDpi::get_dpi_for_window(control));
+  } cc(dpi);
   
   int theme_part;
   int theme_state;
@@ -275,7 +279,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
       LOGFONTW lf = {};
       wcscpy_s(lf.lfFaceName, sizeof(lf.lfFaceName)/sizeof(wchar_t), Win32Themes::symbol_font_name());
       
-      lf.lfHeight = (icon_rect.bottom - icon_rect.top) * 2 / 3;
+      lf.lfHeight = cy * 0.75; //(icon_rect.bottom - icon_rect.top) * 2 / 3;
       if(HFONT font = CreateFontIndirectW(&lf)) {
         oldfont = (HFONT)SelectObject(hdc, font);
         
@@ -292,7 +296,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
           }
           
           if(pressing_cancel_button) {
-            int off = MulDiv(2, cc.dpi(), 96);
+            int off = MulDiv(2, dpi, 96);
             icon_rect.left+= off;
             //icon_rect.top += off;
           }
@@ -304,7 +308,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
     }
     
     NONCLIENTMETRICSW ncm = {sizeof(ncm)};
-    if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, cc.dpi())) {
+    if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, dpi)) {
       if(HFONT font = CreateFontIndirectW(&ncm.lfMenuFont))
         oldfont = (HFONT)SelectObject(hdc, font);
     }
@@ -319,7 +323,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   }
   else {
     NONCLIENTMETRICSW ncm = {sizeof(ncm)};
-    if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, cc.dpi())) {
+    if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, dpi)) {
       ncm.lfMenuFont.lfItalic = TRUE;
       if(HFONT font = CreateFontIndirectW(&ncm.lfMenuFont))
         oldfont = (HFONT)SelectObject(hdc, font);
