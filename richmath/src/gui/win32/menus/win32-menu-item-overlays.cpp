@@ -1,4 +1,6 @@
 #include <gui/win32/menus/win32-menu-item-overlays.h>
+
+#include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/api/win32-version.h>
 
 
@@ -49,14 +51,12 @@ void Win32MenuItemOverlay::on_mouse_leave() {
 bool Win32MenuItemOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area) {
   rect = {0,0,0,0};
   
-  int menu_item_height = 16;
   bool first = true;
   for(int i = start_index; i <= end_index; ++i) {
     RECT item_rect;
     if(GetMenuItemRect(nullptr, menu, (UINT)i, &item_rect)) {
       if(first) {
         rect = item_rect;
-        menu_item_height = item_rect.bottom - item_rect.top;
         first = false;
       }
       else
@@ -66,13 +66,19 @@ bool Win32MenuItemOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area are
       return false;
   }
   
+  int menu_gutter_width = 16;
+  if(area != All) {
+    int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
+    menu_gutter_width = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUSIZE, dpi);
+  }
+  
   switch(area) {
     case OnlyGutter:
-      rect.right = rect.left + menu_item_height;
+      rect.right = rect.left + menu_gutter_width;
       break;
     
     case OnlyContentArea:
-      rect.left += menu_item_height;
+      rect.left += menu_gutter_width;
       break;
     
     case All:
