@@ -11,6 +11,7 @@
 #include <eval/application.h>
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/api/win32-themes.h>
+#include <gui/win32/api/win32-touch.h>
 #include <gui/win32/api/win32-version.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu.h>
@@ -708,6 +709,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                   *result = TBDDRET_DEFAULT;
                   return true;
                 }
+                Win32Menu::use_large_items = Win32Touch::get_mouse_message_source() == DeviceKind::Touch; // Does this work in TBN_DROPDOWN?
                 show_menu(tb->iItem);
                 
                 *result = TBDDRET_DEFAULT;//TBDDRET_TREATPRESSED;
@@ -988,6 +990,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
             int id = 0;
             if(SendMessageW(_hwnd, TB_MAPACCELERATOR, wParam, (LPARAM)&id)) {
               set_focus(0);
+              Win32Menu::use_large_items = false;
               show_menu(id);
               return true;
             }
@@ -1007,15 +1010,19 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
           switch(wParam) {
             case VK_MENU:
               set_focus(0);
-              if(was_visible)
+              if(was_visible) {
+                Win32Menu::use_large_items = false;
                 show_menu(1);
+              }
               return true;
               
             case VK_F10:
               if(!(GetKeyState(VK_SHIFT) & ~1)) {
                 set_focus(0);
-                if(was_visible)
+                if(was_visible) {
+                  Win32Menu::use_large_items = false;
                   show_menu(1);
+                }
                 return true;
               }
               break;

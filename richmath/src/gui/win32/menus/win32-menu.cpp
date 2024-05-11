@@ -5,6 +5,7 @@
 #include <eval/observable.h>
 
 #include <gui/menus.h>
+#include <gui/win32/api/win32-themes.h>
 #include <gui/win32/api/win32-version.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu-gutter-slider.h>
@@ -84,10 +85,31 @@ namespace {
       static bool init_submenu_info(MENUITEMINFOW *info, Expr item, String *buffer);
       
     private:
-      static DWORD next_id;
-      
+      static DWORD   next_id;
     public:
       static ObservableValue<DWORD> selected_menu_item_id;
+  };
+  
+  class MenuBitmaps {
+    public:
+      void stretch_item(MENUITEMINFOW *info);
+      HBITMAP get_unchecked_bitmap(void);
+      HBITMAP get_checkmark_bitmap(bool radio, bool enabled);
+      
+      void clear();
+      
+    private:
+      MenuBitmaps() = default;
+      ~MenuBitmaps() = default;
+      
+    public:
+      static MenuBitmaps singleton;
+      
+    private:
+      HBITMAP stretch_bmp {};
+      HBITMAP checkmark_bmps[5] {}; // deselected, normal, disabled, buttet normal, bullet disabled. If >0, index = state (MC_*) for MENU_POPUPCHECK
+      bool stretch_bmp_dark_mode = false;
+      bool checkmark_bmps_dark_mode[5] {};
   };
   
   class MenuDropTarget: public DropTarget {
@@ -174,6 +196,7 @@ extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 SharedPtr<Win32Menu>  Win32Menu::main_menu;
 bool                  Win32Menu::use_dark_mode = false;
+bool                  Win32Menu::use_large_items = false;
 Win32MenuSelector    *Win32Menu::menu_selector = nullptr;
 
 Win32Menu::Win32Menu(Expr expr, bool is_popup)
@@ -443,6 +466,8 @@ void MenuItemBuilder::add_remove_menu(int delta) {
     cmd_to_id.clear();
     id_to_cmd.clear();
     id_to_shortcut_text.clear();
+    
+    MenuBitmaps::singleton.clear();
   }
 }
 
@@ -648,12 +673,13 @@ bool MenuItemBuilder::init_item_info(MENUITEMINFOW *info, Expr item, String *buf
   *buffer = String(item[1]);
   Expr cmd = item[2];
   
-  info->fMask |= MIIM_ID | MIIM_FTYPE | MIIM_STATE | MIIM_STRING;
-  info->wID = get_or_create_command_id(cmd);
-  info->fType = MFT_STRING;
-  info->fState = MFS_ENABLED;
+  info->fMask  |= MIIM_ID | MIIM_FTYPE | MIIM_STATE | MIIM_STRING;
+  info->wID     = get_or_create_command_id(cmd);
+  info->fType   = MFT_STRING;
+  info->fState  = MFS_ENABLED;
   
-  if(Menus::command_type(cmd) == MenuItemType::RadioButton)
+  MenuItemType type = Menus::command_type(cmd);
+  if(type == MenuItemType::RadioButton)
     info->fType |= MFT_RADIOCHECK;
   
   String shortcut = id_to_shortcut_text[info->wID];
@@ -662,8 +688,28 @@ bool MenuItemBuilder::init_item_info(MENUITEMINFOW *info, Expr item, String *buf
     
   *buffer += String::FromChar(0);
   info->dwTypeData = (wchar_t *)buffer->buffer();
+  
+  if(buffer->length() == 0)
+    return false;
+    
   info->cch = buffer->length() - 1;
-  return buffer->length() >= 0;
+    
+  info->fMask         &= ~MIIM_CHECKMARKS;
+  info->hbmpChecked    = nullptr;
+  info->hbmpUnchecked  = nullptr;
+  
+  MenuBitmaps::singleton.stretch_item(info);
+  if((info->fMask & MIIM_BITMAP) != 0 && info->hbmpItem) {
+    if(type == MenuItemType::CheckButton || type == MenuItemType::RadioButton) {
+      // Use system default checkmarks even if hbmpItem is set (by stretch_item())
+      // Setting to nullptr to choose system default does not work if hbmpItem is also provided :-/
+      info->fMask         |= MIIM_CHECKMARKS;
+      info->hbmpChecked    = MenuBitmaps::singleton.get_checkmark_bitmap((info->fType & MFT_RADIOCHECK) != 0, true);
+      info->hbmpUnchecked  = (type == MenuItemType::CheckButton || type == MenuItemType::RadioButton) ? MenuBitmaps::singleton.get_unchecked_bitmap() : nullptr;
+    }
+  }
+  
+  return true;
 }
 
 bool MenuItemBuilder::init_delimiter_info(MENUITEMINFOW *info) {
@@ -700,10 +746,246 @@ bool MenuItemBuilder::init_submenu_info(MENUITEMINFOW *info, Expr item, String *
     info->hSubMenu = create_menu(PMATH_CPP_MOVE(item), true);
   }
   
+  MenuBitmaps::singleton.stretch_item(info);
   return true;
 }
 
 //} ... class MenuItemBuilder
+
+//{ class MenuBitmaps ...
+
+MenuBitmaps MenuBitmaps::singleton {};
+
+void MenuBitmaps::clear() {
+  if(stretch_bmp) {
+    DeleteObject(stretch_bmp); stretch_bmp = nullptr;
+  }
+  
+  for(int i = 0; i < sizeof(checkmark_bmps) / sizeof(checkmark_bmps[0]); ++i) {
+    if(checkmark_bmps[i]) {
+      DeleteObject(checkmark_bmps[i]); 
+      checkmark_bmps[i] = nullptr;
+    }
+  }
+}
+
+void MenuBitmaps::stretch_item(MENUITEMINFOW *info) {
+  if(!Win32Menu::use_large_items) {
+    if((info->fMask & MIIM_BITMAP) != 0 && info->hbmpItem == stretch_bmp) {
+      info->fMask &= ~MIIM_BITMAP;
+      info->hbmpItem = nullptr;
+    }
+    return;
+  }
+  
+  if((info->fMask & MIIM_BITMAP) != 0 && info->hbmpItem && info->hbmpItem != stretch_bmp)
+    return; // Already has a bitmap. Don't mess with that
+  
+  bool need_redraw = false;
+  if(stretch_bmp_dark_mode != Win32Menu::use_dark_mode) {
+    stretch_bmp_dark_mode = Win32Menu::use_dark_mode;
+    need_redraw = true;
+  }
+  
+  int cy_normal = GetSystemMetrics(SM_CYMENUCHECK); // For primary monitor!
+//  int cx = GetSystemMetrics(SM_CXMENUCHECK); // For primary monitor!
+  
+  // Size is for primary monitor's DPI, on other monitors, windows scales the bitmap accordingly
+  // e.g. Primary monitor DPI = 120 (125%), secondary monitor DPI = 96 (100%)  
+  // =>  200 pixel tall bitmap will be 200 pixels tall on primary monitor, and 160 = 200 * 96/120 pixels on secondary monitor 
+  int width = 1; //cx;
+  int height = 2 * cy_normal;
+  
+  if(!stretch_bmp) {
+//    pmath_debug_print("[GetSystemMetrics(SM_CXMENUCHECK): %d]\n", GetSystemMetrics(SM_CXMENUCHECK));
+//    pmath_debug_print("[GetSystemMetrics(SM_CXMENUSIZE):  %d]\n", GetSystemMetrics(SM_CXMENUSIZE));
+//    pmath_debug_print("[GetSystemMetrics(SM_CYMENUCHECK): %d]\n", GetSystemMetrics(SM_CYMENUCHECK));
+//    pmath_debug_print("[GetSystemMetrics(SM_CYMENU):      %d]\n", GetSystemMetrics(SM_CYMENU));
+//    pmath_debug_print("[GetSystemMetrics(SM_CYMENUSIZE):  %d]\n", GetSystemMetrics(SM_CYMENUSIZE));
+    
+    HDC     hdc  = GetDC(nullptr);
+    stretch_bmp = CreateCompatibleBitmap(hdc, width, height); //CreateBitmap(width, height, 1, 1, nullptr);
+    ReleaseDC(nullptr, hdc);
+  
+    need_redraw = true;
+  }
+  
+  if(stretch_bmp && need_redraw) {
+    // Init stretch_bmp contents to white. CreateBitmap(... nullptr) is documented to give undefined contents.
+    HDC hdc        = CreateCompatibleDC(nullptr);
+    HBITMAP hbmp_old = (HBITMAP)SelectObject(hdc, stretch_bmp);
+//    PatBlt(hdc, 0, 0, width, height, WHITENESS);
+    
+    RECT rect = {0, 0, width, height};
+    Color bg = Win32ControlPainter::win32_painter.win32_button_face_color(Win32Menu::use_dark_mode);
+    SetBkColor(hdc, bg.to_bgr24());
+    ExtTextOutW(hdc, 0, 0, ETO_OPAQUE, &rect, L"", 0, nullptr);
+    
+    SelectObject(hdc, hbmp_old);
+    DeleteDC(hdc);
+  }
+  
+  if(stretch_bmp) {
+//      info->fMask &= ~MIIM_STRING;
+    info->fMask    |= MIIM_BITMAP;
+    info->hbmpItem = stretch_bmp;
+//      info->dwTypeData = nullptr;
+//      info->cch = 0;
+//      return true;
+  }
+}
+
+HBITMAP MenuBitmaps::get_unchecked_bitmap(void) {
+  int index = 0;
+  bool need_redraw = false;
+  if(checkmark_bmps_dark_mode[index] != Win32Menu::use_dark_mode) {
+    checkmark_bmps_dark_mode[index] = Win32Menu::use_dark_mode;
+    need_redraw = true;
+  }
+  
+  if(checkmark_bmps[index] && !need_redraw)
+    return checkmark_bmps[index];
+  
+  int cx = GetSystemMetrics(SM_CXMENUCHECK) - 1; // For primary monitor!
+  int cy = GetSystemMetrics(SM_CYMENUCHECK) - 1; // For primary monitor!
+  
+  if(!checkmark_bmps[index]) {
+    HDC     hdc  = GetDC(nullptr);
+    checkmark_bmps[index] = CreateCompatibleBitmap(hdc, cx, cy); //CreateBitmap(cx, cy, 1, 32, nullptr);  //= CreateCompatibleBitmap(hdc, cx, cy);
+    ReleaseDC(nullptr, hdc);
+  
+    need_redraw = true;
+  }
+  
+  if(checkmark_bmps[index] && need_redraw) {
+    // Init contents to white. CreateBitmap(... nullptr) is documented to give undefined contents.
+    HDC hdc        = CreateCompatibleDC(nullptr);
+    HBITMAP hbmp_old = (HBITMAP)SelectObject(hdc, checkmark_bmps[index]);
+//    PatBlt(hdc, 0, 0, cx, cy, WHITENESS);
+    
+    RECT rect = {0, 0, cx, cy};
+    Color bg = Win32ControlPainter::win32_painter.win32_button_face_color(Win32Menu::use_dark_mode);
+    SetBkColor(hdc, bg.to_bgr24());
+    ExtTextOutW(hdc, 0, 0, ETO_OPAQUE, &rect, L"", 0, nullptr);
+    
+    SelectObject(hdc, hbmp_old);
+    DeleteDC(hdc);
+  }
+  
+  return checkmark_bmps[index];
+}
+
+HBITMAP MenuBitmaps::get_checkmark_bitmap(bool radio, bool enabled) {
+  int index = 1 + (radio ? 2 : 0) + (enabled ? 0 : 1);
+  
+  bool need_redraw = false;
+  if(checkmark_bmps_dark_mode[index] != Win32Menu::use_dark_mode) {
+    checkmark_bmps_dark_mode[index] = Win32Menu::use_dark_mode;
+    need_redraw = true;
+  }
+  
+  if(checkmark_bmps[index] && !need_redraw)
+    return checkmark_bmps[index];
+  
+  int cx = GetSystemMetrics(SM_CXMENUCHECK) - 1; // For primary monitor!
+  int cy = GetSystemMetrics(SM_CYMENUCHECK) - 1; // For primary monitor!
+  
+  if(!checkmark_bmps[index]) {
+    HDC     hdc  = GetDC(nullptr);
+    checkmark_bmps[index] = CreateCompatibleBitmap(hdc, cx, cy); //CreateBitmap(cx, cy, 1, 32, nullptr);  //= CreateCompatibleBitmap(hdc, cx, cy);
+    ReleaseDC(nullptr, hdc);
+  
+    need_redraw = true;
+  }
+  
+  if(checkmark_bmps[index] && need_redraw) {
+    bool fake_dark = Win32Menu::use_dark_mode;
+    
+    HANDLE theme = nullptr;
+    if(Win32Themes::is_app_themed() && Win32Themes::OpenThemeData && Win32Themes::CloseThemeData && Win32Themes::DrawThemeBackground) {
+      if(Win32Menu::use_dark_mode) {
+        // Windows 10, 1903 (Build 18362): DarkMode::MENU exists but only gives dark colors for popup menu parts
+        theme = Win32Themes::OpenThemeData(nullptr, L"DarkMode::MENU");
+        if(theme)
+          fake_dark = false;
+      }
+      
+      if(!theme)
+        theme = Win32Themes::OpenThemeData(nullptr, L"MENU");
+    }
+    
+    RECT rect = {0, 0, cx, cy};
+    
+    HDC hdc = CreateCompatibleDC(NULL);
+    HBITMAP hbmp_old = (HBITMAP)SelectObject(hdc, checkmark_bmps[index]);
+    
+    // see also StaticMenuOverride::on_ctlcolorstatic()
+    Color bg = Win32ControlPainter::win32_painter.win32_button_face_color(Win32Menu::use_dark_mode);
+    if(fake_dark)
+      SetBkColor(hdc, bg.to_bgr24() ^ 0x00FFFFFF); // will be inverted later again
+    else
+      SetBkColor(hdc, bg.to_bgr24());
+      
+    ExtTextOutW(hdc, 0, 0, ETO_OPAQUE, &rect, L"", 0, nullptr);
+    
+    PatBlt(hdc, 0, 0, cx, cy, WHITENESS);  
+  //  // Clear alpha channel
+  //  { // does not help
+  //    BITMAPINFO bi = {};
+  //    bi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+  //    bi.bmiHeader.biWidth       = 1;
+  //    bi.bmiHeader.biHeight      = 1;
+  //    bi.bmiHeader.biPlanes      = 1;
+  //    bi.bmiHeader.biBitCount    = 32;
+  //    bi.bmiHeader.biCompression = BI_RGB;
+  //
+  //    RGBQUAD bitmapBits = { 0x00, 0x00, 0x00, 0x00 };
+  //
+  //    StretchDIBits(hdc, 0, 0, cx, cy,
+  //                  0, 0, 1, 1, &bitmapBits, &bi,
+  //                  DIB_RGB_COLORS, SRCAND);
+  //  }
+    
+  //  {
+  //    cairo_surface_t *surface = cairo_win32_surface_create_with_format(hdc, CAIRO_FORMAT_ARGB32);
+  //    
+  //    cairo_t *cr = cairo_create(surface);
+  //    cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
+  //    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+  //    cairo_paint(cr);
+  //    cairo_destroy(cr);
+  //    cairo_surface_flush(surface);
+  //    cairo_surface_destroy(surface);
+  //  }
+    
+    if(theme) {
+      int part_bg  = 12; // MENU_POPUPCHECKBACKGROUND
+      int state_bg = enabled ? 2 : 1; // 1=MCB_DISABLED  2=MCB_NORMAL  3=MCB_BITMAP
+      Win32Themes::DrawThemeBackground(theme, hdc, part_bg, state_bg, &rect, nullptr);
+      
+      int part_check = 11; // MENU_POPUPCHECK
+      int state_check = index; // 1=MC_CHECKMARKNORMAL, 2=MC_CHECKMARKDISABLED, 3=MC_BULLETNORMAL, 4=MC_BULLETDISABLED
+      Win32Themes::DrawThemeBackground(theme, hdc, part_check, state_check, &rect, nullptr);
+    }
+    else {
+      DrawFrameControl(hdc, &rect, DFC_MENU, radio ? DFCS_MENUBULLET : DFCS_MENUCHECK);
+    }
+    
+    if(fake_dark) {
+       BitBlt(hdc, 0, 0, cx, cy, nullptr, 0, 0, DSTINVERT);
+    }
+    
+    SelectObject(hdc, hbmp_old);
+    DeleteDC(hdc);
+    
+    if(theme)
+      Win32Themes::CloseThemeData(theme);
+  }
+  
+  return checkmark_bmps[index];
+}
+
+//} ... class MenuBitmaps
 
 //{ class MenuDropTarget ...
 

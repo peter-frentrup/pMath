@@ -1235,7 +1235,9 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt, const REC
     Menus::current_document_redirect = document();
     
     Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
-    Win32Menu::use_dark_mode = is_using_dark_mode();
+    Win32Menu::use_dark_mode   = is_using_dark_mode();
+    //Win32Menu::use_large_items = Win32Touch::get_mouse_message_source() == DeviceKind::Touch; // did it come from mouse ??
+
     WIN32report(cmd = TrackPopupMenuEx(
             menu,
             flags,
@@ -1302,9 +1304,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         
       case WM_CONTEXTMENU:  {
           if(lParam == -1) {
+            Win32Menu::use_large_items = false;
             show_popup_menu(document()->selection_now());
           }
           else {
+            Win32Menu::use_large_items = true;//Win32Touch::get_mouse_message_source() == DeviceKind::Touch; // does this work in WM_CONTEXTMENU?
             POINT pt;
             pt.x = (int16_t)( lParam & 0xFFFF);
             pt.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
@@ -1392,6 +1396,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             bool dummy;
             if(auto src = document()->mouse_selection(event.position, &dummy)) {
               ClientToScreen(_hwnd, &pt);
+              Win32Menu::use_large_items = event.device == DeviceKind::Touch;
               on_popupmenu(src, pt, nullptr);
             }
           }

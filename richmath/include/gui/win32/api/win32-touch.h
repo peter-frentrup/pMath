@@ -98,9 +98,8 @@ namespace richmath {
       
       static BOOL (WINAPI *GetPointerType)(UINT32, POINTER_INPUT_TYPE*);
       
-      static DeviceKind get_mouse_message_source(int *id) {
-        return get_mouse_message_source(id, ::GetMessageExtraInfo());
-      }
+      static DeviceKind get_mouse_message_source() {        return get_mouse_message_source(nullptr); }
+      static DeviceKind get_mouse_message_source(int *id) { return get_mouse_message_source(id, ::GetMessageExtraInfo()); }
       static DeviceKind get_mouse_message_source(int *id, LPARAM messageExtraInfo);
       
       static DWORD get_caret_timeout();

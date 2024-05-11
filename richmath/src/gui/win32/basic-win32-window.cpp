@@ -2,6 +2,7 @@
 
 #include <graphics/canvas.h>
 #include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-touch.h>
 #include <gui/win32/api/win32-version.h>
 #include <gui/win32/ole/virtual-desktops.h>
 #include <gui/win32/menus/win32-automenuhook.h>
@@ -2070,7 +2071,8 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               DWORD cmd;
               {
                 Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
-                Win32Menu::use_dark_mode = is_using_dark_mode();
+                Win32Menu::use_dark_mode   = is_using_dark_mode();
+                Win32Menu::use_large_items = Win32Touch::get_mouse_message_source() == DeviceKind::Touch;
                 
                 WIN32report(cmd = TrackPopupMenu(
                         menu,
@@ -2535,6 +2537,7 @@ bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POIN
       DWORD cmd;
       {
         Win32AutoMenuHook menu_hook(menu, self._hwnd, nullptr, false, false);
+        Win32Menu::use_large_items = Win32Touch::get_mouse_message_source() == DeviceKind::Touch;
         
         WIN32report(cmd = TrackPopupMenuEx(
                 menu,
