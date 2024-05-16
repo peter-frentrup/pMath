@@ -33,6 +33,10 @@ void Win32MenuItemOverlay::delete_all(Win32MenuItemOverlay *first_overlay) {
   }
 }
 
+bool Win32MenuItemOverlay::consumes_navigation_key(DWORD keycode, HMENU menu, int sel_item) {
+  return false;
+}
+
 bool Win32MenuItemOverlay::handle_char_message(WPARAM wParam, LPARAM lParam, HMENU menu) {
   return false;
 }

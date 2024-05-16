@@ -316,9 +316,11 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
         int item = Win32Menu::find_hilite_menuitem(&menu);
         
         if(menu == self._current_popup) {
-          self.exit_info.reason = MenuExitReason::LeftKey;
-          WIN32report(EndMenu());
-          return true;
+          if(!Win32Menu::consumes_navigation_key(keycode, menu, item)) {
+            self.exit_info.reason = MenuExitReason::LeftKey;
+            WIN32report(EndMenu());
+            return true;
+          }
         }
       } break;
       
@@ -327,9 +329,11 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
         int item = Win32Menu::find_hilite_menuitem(&menu);
         
         if(item < 0 || (GetMenuState(menu, item, MF_BYPOSITION) & MF_POPUP) == 0) {
-          self.exit_info.reason = MenuExitReason::RightKey;
-          WIN32report(EndMenu());
-          return true;
+          if(!Win32Menu::consumes_navigation_key(keycode, menu, item)) {
+            self.exit_info.reason = MenuExitReason::RightKey;
+            WIN32report(EndMenu());
+            return true;
+          }
         }
       } break;
   

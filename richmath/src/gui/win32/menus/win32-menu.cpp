@@ -10,6 +10,7 @@
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu-gutter-slider.h>
 #include <gui/win32/menus/win32-menu-search-overlay.h>
+#include <gui/win32/menus/win32-menu-table-wizard.h>
 #include <gui/win32/win32-clipboard.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/api/win32-themes.h>
@@ -141,6 +142,7 @@ namespace {
       static StaticMenuOverride singleton;
       
       static void init_popupmenu(HMENU sub);
+      static bool consumes_navigation_key(DWORD keycode, HMENU menu, int sel_item);
       static bool handle_child_window_mouse_message(HWND hwnd_menu, HWND hwnd_child, UINT msg, WPARAM wParam, const POINT &screen_pt);
     
     private:
@@ -180,6 +182,7 @@ static Hashtable<DWORD, String> id_to_shortcut_text;
 
 namespace richmath { namespace strings {
   extern String Close;
+  extern String InsertTable;
   extern String SearchMenuItems;
 }}
 
@@ -433,6 +436,10 @@ LRESULT Win32Menu::on_menugetobject(WPARAM wParam, LPARAM lParam) {
   return MNGO_NOINTERFACE;
 }
 
+bool Win32Menu::consumes_navigation_key(DWORD keycode, HMENU menu, int sel_item) {
+  return StaticMenuOverride::consumes_navigation_key(keycode, menu, sel_item);
+}
+
 bool Win32Menu::handle_child_window_mouse_message(HWND hwnd_menu, HWND hwnd_child, UINT msg, WPARAM wParam, const POINT &screen_pt) {
   return StaticMenuOverride::handle_child_window_mouse_message(hwnd_menu, hwnd_child, msg, wParam, screen_pt);
 }
@@ -459,6 +466,7 @@ void MenuItemBuilder::add_remove_menu(int delta) {
     add_command((UINT)SpecialCommandID::GoToDefinition, {});
     
     Win32MenuSearchOverlay::init();
+    Win32MenuTableWizard::init();
   }
   
   num_menus += delta;
@@ -681,6 +689,31 @@ bool MenuItemBuilder::init_item_info(MENUITEMINFOW *info, Expr item, String *buf
   MenuItemType type = Menus::command_type(cmd);
   if(type == MenuItemType::RadioButton)
     info->fType |= MFT_RADIOCHECK;
+  
+  if(cmd.is_string() && cmd == strings::InsertTable) {
+    static HBITMAP dummy_table_bmp = nullptr;
+    if(!dummy_table_bmp) {
+      int width = 1;
+      int height = Win32MenuTableWizard::preferred_height();
+      // Size is for primary monitor's DPI, on other monitors, windows scales the bitmap accordingly
+      // e.g. Primary monitor DPI = 120 (125%), secondary monitor DPI = 96 (100%)  
+      // =>  200 pixel tall bitmap will be 200 pixels tall on primary monitor, and 160 = 200 * 96/120 pixels on secondary monitor 
+      dummy_table_bmp = CreateBitmap(width, height, 1, 1, nullptr);
+      if(dummy_table_bmp) {
+        // Init dummy_table_bmp contents to white. CreateBitmap(... nullptr) is documented to give undefined contents.
+        HDC memDC          = CreateCompatibleDC(NULL);
+        HBITMAP hOldBitmap = (HBITMAP)SelectObject(memDC, dummy_table_bmp);
+        PatBlt(memDC, 0, 0, width, height, WHITENESS);
+        SelectObject(memDC, hOldBitmap);
+        DeleteDC(memDC);
+      }
+    }
+    
+    if(dummy_table_bmp) {
+      info->fMask    |= MIIM_BITMAP;
+      info->hbmpItem  = dummy_table_bmp;
+    }
+  }
   
   String shortcut = id_to_shortcut_text[info->wID];
   if(shortcut.length() > 0)
@@ -1056,6 +1089,22 @@ void StaticMenuOverride::init_popupmenu(HMENU sub) {
   }
 }
 
+bool StaticMenuOverride::consumes_navigation_key(DWORD keycode, HMENU menu, int sel_item) {
+  if(HWND hwnd_menu = singleton.menu_to_popup_window[menu]) {
+    for(auto overlay = singleton.popup_window_overlays[hwnd_menu]; overlay; overlay = overlay->next) {
+      if(overlay->consumes_navigation_key(keycode, menu, sel_item))
+        return true;
+    }
+  }
+  
+//  if(keycode == VK_RIGHT) {
+//    if(GetMenuState(menu, item, MF_BYPOSITION) & MF_POPUP)
+//      return true;
+//  }
+  
+  return false;
+}
+
 bool StaticMenuOverride::handle_child_window_mouse_message(HWND hwnd_menu, HWND hwnd_child, UINT msg, WPARAM wParam, const POINT &screen_pt) {
   if(singleton.prev_menu_under_mouse != hwnd_menu || singleton.prev_control_under_mouse != hwnd_child) {
     if(singleton.prev_menu_under_mouse != singleton.prev_control_under_mouse) {
@@ -1133,6 +1182,18 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
           search->start_index = i;
           search->end_index   = i;
           next_overlay_ptr = &(search->next);
+        }
+        else if(cmd == strings::InsertTable) {
+          auto wizard = dynamic_cast<Win32MenuTableWizard*>(*next_overlay_ptr);
+          if(!wizard) {
+            wizard = new Win32MenuTableWizard(menu);
+            wizard->next = *next_overlay_ptr;
+            *next_overlay_ptr = wizard;
+          }
+          
+          wizard->start_index = i;
+          wizard->end_index   = i;
+          next_overlay_ptr = &(wizard->next);
         }
       }
     }

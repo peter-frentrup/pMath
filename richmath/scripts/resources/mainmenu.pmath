@@ -62,12 +62,15 @@ FE`Private`mainmenu:= Menu("pMath", {
 		Delimiter,
 		MenuItem("St&art Inline Section",                 "InsertInlineSection"),
 		MenuItem("&Color ...",                            FrontEnd`KernelExecute(With({FE`Private`c:= FE`ColorDialog()}, If(FE`Private`c =!= System`$Canceled, DocumentApply(Automatic, ToBoxes(FE`Private`c)))))),
+		Menu("&Table/Matrix", {
+			MenuItem("New `1`\[Times]`2` Table",          "InsertTable"),
+			Delimiter,
+			MenuItem("Add &Column",                       "InsertColumn"),
+			MenuItem("Add &Row",                          "InsertRow")
+		}),
 		MenuItem("Fra&me",                                DocumentApply(Automatic, FrameBox("\[SelectionPlaceholder]"))),
 		MenuItem("&Highlighting",                         DocumentApply(Automatic, TemplateBox({"\[SelectionPlaceholder]"}, "Highlighted"))),
-		MenuItem("Specia&l ...",                          FrontEnd`KernelExecute(FE`InsertSpecial())),
-		Delimiter,
-		MenuItem("&Table Column",                         "InsertColumn"),
-		MenuItem("Table &Row",                            "InsertRow")
+		MenuItem("Specia&l ...",                          FrontEnd`KernelExecute(FE`InsertSpecial()))
 		}),
 	Menu("Fo&rmat", {
 		Menu("&Style", {

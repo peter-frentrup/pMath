@@ -27,6 +27,8 @@ namespace richmath {
       virtual void update_rect(HWND hwnd, HMENU menu) = 0;
       virtual void initialize(HWND hwnd, HMENU menu) {}
       
+      virtual bool consumes_navigation_key(DWORD keycode, HMENU menu, int sel_item);
+      
       virtual bool handle_char_message(WPARAM wParam, LPARAM lParam, HMENU menu);
       virtual bool handle_keydown_message(WPARAM wParam, LPARAM lParam, HMENU menu);
       virtual bool handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu);
