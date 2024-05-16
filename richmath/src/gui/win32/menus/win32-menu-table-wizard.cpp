@@ -44,8 +44,6 @@ namespace richmath {
 }
 
 namespace richmath { namespace strings {
-  extern String New_WxH_Table_placeholder;
-  
   extern String InsertTable;
 }}
 
@@ -249,9 +247,8 @@ void Win32MenuTableWizard::on_paint(HDC hdc) {
   
   sel_color = blend_sel.to_bgr24();
   
+//  sel_color      = shown_selected ? SelectionColor.to_bgr24() : InactiveSelectionColor.to_bgr24();
 //  sel_color      = shown_selected ? GetSysColor(COLOR_HOTLIGHT) : /*GetSysColor(COLOR_BTNFACE)*/ 0x808080;
-//  text_color     = GetSysColor(COLOR_WINDOWTEXT);
-//  window_color   = GetSysColor(COLOR_WINDOW);
     
   NONCLIENTMETRICSW ncm = {sizeof(ncm)};
   if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, dims.dpi)) {
@@ -339,7 +336,9 @@ String Win32MenuTableWizard::Impl::description() {
     if(pmath_string_begin_write(&str, &buf, &len)) {
       mii.dwTypeData = (wchar_t*)buf;
       mii.cch        = len;
-      if(!WIN32report(GetMenuItemInfoW(self.menu, (UINT)self.start_index, TRUE, &mii)))
+      if(WIN32report(GetMenuItemInfoW(self.menu, (UINT)self.start_index, TRUE, &mii)))
+        len = mii.cch;
+      else
         len = 0;
     
       pmath_string_end_write(&str, &buf);
@@ -349,13 +348,21 @@ String Win32MenuTableWizard::Impl::description() {
     str = PMATH_NULL;
   }
   
-  if(text.length() == 0)
-    text = strings::New_WxH_Table_placeholder;
+  text += String(" (");
+  text += Expr(num_rows).to_string();
+  text += String::FromChar(PMATH_CHAR_TIMES);
+  text += Expr(num_columns).to_string();
+  text += String(")");
   
-  return Call(Symbol(richmath_System_StringForm),
-                text,
-                Expr(num_rows),
-                Expr(num_columns)).to_string();
+  return text;
+  
+//  if(text.length() == 0)
+//    text = strings::New_WxH_Table_placeholder;
+//  
+//  return Call(Symbol(richmath_System_StringForm),
+//                text,
+//                Expr(num_rows),
+//                Expr(num_columns)).to_string();
 }
 
 void Win32MenuTableWizard::Impl::layout(TableWizardDims *dims) {

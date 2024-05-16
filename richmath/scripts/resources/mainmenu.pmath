@@ -63,7 +63,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 		MenuItem("St&art Inline Section",                 "InsertInlineSection"),
 		MenuItem("&Color ...",                            FrontEnd`KernelExecute(With({FE`Private`c:= FE`ColorDialog()}, If(FE`Private`c =!= System`$Canceled, DocumentApply(Automatic, ToBoxes(FE`Private`c)))))),
 		Menu("&Table/Matrix", {
-			MenuItem("New `1`\[Times]`2` Table",          "InsertTable"),
+			MenuItem("New Table",                         "InsertTable"),
 			Delimiter,
 			MenuItem("Add &Column",                       "InsertColumn"),
 			MenuItem("Add &Row",                          "InsertRow")
