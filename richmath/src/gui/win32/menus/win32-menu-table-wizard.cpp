@@ -348,11 +348,13 @@ String Win32MenuTableWizard::Impl::description() {
     str = PMATH_NULL;
   }
   
-  text += String(" (");
-  text += Expr(num_rows).to_string();
-  text += String::FromChar(PMATH_CHAR_TIMES);
-  text += Expr(num_columns).to_string();
-  text += String(")");
+  if(num_rows > 1 || num_columns > 1) {
+    text += String(" (");
+    text += Expr(num_rows).to_string();
+    text += String::FromChar(PMATH_CHAR_TIMES);
+    text += Expr(num_columns).to_string();
+    text += String(")");
+  }
   
   return text;
   
@@ -390,6 +392,11 @@ bool Win32MenuTableWizard::Impl::do_insert_new_table(Expr cmd) {
   
   size_t rows = num_rows    < 1 ? 1 : (size_t)num_rows;
   size_t cols = num_columns < 1 ? 1 : (size_t)num_columns;
+  
+  if(rows == 1 && cols == 1) {
+    rows = 2;
+    cols = 2;
+  }
   
   Expr pl = String::FromChar(PMATH_CHAR_PLACEHOLDER);
   Expr row = MakeCall(Symbol(richmath_System_List), cols);
