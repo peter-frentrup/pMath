@@ -233,12 +233,19 @@ void Win32MenuTableWizard::on_paint(HDC hdc) {
   COLORREF text_color;
   COLORREF window_color;
   
+  // TODO: respect Win32Menu::use_dark_mode
   text_color     = GetSysColor(COLOR_WINDOWTEXT);
   window_color   = GetSysColor(COLOR_WINDOW);
   sel_color      = GetSysColor(COLOR_HOTLIGHT);
   
+  if(Win32Menu::use_dark_mode) {
+    text_color   = 0xFFFFFF ^ text_color;
+    window_color = 0xFFFFFF ^ window_color;
+  }
+  
   shown_selected = Impl(*this).selected();
-  Color blend_sel = Color::blend(Color::from_bgr24(sel_color), Color::from_bgr24(window_color), 0.5);
+  //Color blend_sel = Color::blend(Color::from_bgr24(sel_color), Color::from_bgr24(window_color), 0.5);
+  Color blend_sel = Color::blend(Color::from_bgr24(sel_color), Color::White, 0.5);
   
   if(!shown_selected) {
     auto gray = blend_sel.gray();
