@@ -681,10 +681,11 @@ bool MenuItemBuilder::init_item_info(MENUITEMINFOW *info, Expr item, String *buf
   *buffer = String(item[1]);
   Expr cmd = item[2];
   
-  info->fMask  |= MIIM_ID | MIIM_FTYPE | MIIM_STATE | MIIM_STRING;
-  info->wID     = get_or_create_command_id(cmd);
-  info->fType   = MFT_STRING;
-  info->fState  = MFS_ENABLED;
+  info->fMask   |= MIIM_ID | MIIM_FTYPE | MIIM_STATE | MIIM_STRING | MIIM_BITMAP;
+  info->wID      = get_or_create_command_id(cmd);
+  info->fType    = MFT_STRING;
+  info->fState   = MFS_ENABLED;
+  info->hbmpItem = nullptr;
   
   MenuItemType type = Menus::command_type(cmd);
   if(type == MenuItemType::RadioButton)
@@ -709,10 +710,7 @@ bool MenuItemBuilder::init_item_info(MENUITEMINFOW *info, Expr item, String *buf
       }
     }
     
-    if(dummy_table_bmp) {
-      info->fMask    |= MIIM_BITMAP;
-      info->hbmpItem  = dummy_table_bmp;
-    }
+    info->hbmpItem = dummy_table_bmp;
   }
   
   String shortcut = id_to_shortcut_text[info->wID];
@@ -757,22 +755,23 @@ bool MenuItemBuilder::init_submenu_info(MENUITEMINFOW *info, Expr item, String *
   if(buffer->length() == 0)
     return false;
   
-  info->fMask |= MIIM_FTYPE | MIIM_STATE | MIIM_STRING;
+  info->fMask     |= MIIM_FTYPE | MIIM_STATE | MIIM_STRING | MIIM_BITMAP;
   
   info->dwTypeData = (wchar_t *)buffer->buffer();
-  info->cch = buffer->length() - 1;
+  info->cch        = buffer->length() - 1;
   
-  info->fType = MFT_STRING;
-  info->fState = MFS_ENABLED;
+  info->fType      = MFT_STRING;
+  info->fState     = MFS_ENABLED;
+  info->hbmpItem   = nullptr;
   
   Expr sub_items = item[2];
   if(sub_items.is_string()) {
-    info->fMask |= MIIM_DATA | MIIM_ID;
-    info->wID = get_or_create_command_id(sub_items);
+    info->fMask     |= MIIM_DATA | MIIM_ID;
+    info->wID        = get_or_create_command_id(sub_items);
     info->dwItemData = info->wID; // dwItemData != 0 means that this item is dynamically generated from the menu item command of that id
-    info->fState |= MFS_DISABLED;
+    info->fState    |= MFS_DISABLED;
     info->dwTypeData = const_cast<wchar_t*>(L"(empty)");
-    info->cch = 7;
+    info->cch        = 7;
   }
   else if(sub_items[0] == richmath_System_List) {
     info->fMask |= MIIM_SUBMENU;
