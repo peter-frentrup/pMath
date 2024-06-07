@@ -181,6 +181,9 @@ LRESULT CALLBACK Win32CustomMenuOverlay::Impl::window_proc(HWND hwnd, UINT messa
     overlay->control = hwnd;
   }
   
+  if(!overlay)
+    return FALSE;
+  
   return overlay->on_wndproc(message, wParam, lParam);
 }
 
