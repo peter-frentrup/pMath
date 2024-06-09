@@ -195,8 +195,7 @@ Document({
                 ")"}})}, {"streaming form for ", 
              BoxData({"f", "(", {"x", ",", "y", ",", "\[Ellipsis]"}, 
                ")"})}}})}), "DefinitionBox"), 
-      Section("Two-dimensional input forms with built-in evaluation rules.", 
-       "Caption")}, All), 
+      Section("Function call syntax variants. ", "Caption")}, All), 
     SectionGroup({Section("Statement blocks", "Section"), 
       Section(
        TextData({
