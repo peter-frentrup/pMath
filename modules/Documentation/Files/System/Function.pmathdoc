@@ -41,7 +41,7 @@ Document({
            StyleBox({"Function { ", StyleBox("body", "Arg"), " }"}, "TT")}), 
          "Notes"), 
         Section(TextData({TemplateBox({"Function"}, "ReferenceHyperlink"), 
-           " with unnamed parameters has an ", 
+           " with named parameters has an ", 
            StyleBox("extended syntax", FontSlant -> Italic), " variant: ", 
            StyleBox({"Function(x", BoxData(SubscriptBox("1")), ", x", 
              BoxData(SubscriptBox("2")), ", \[Ellipsis]) { ", 
