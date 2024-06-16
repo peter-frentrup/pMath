@@ -306,25 +306,7 @@ Document({
                    "\[ExponentialE]", SuperscriptBox("5")}, ",", {
                    "\[ExponentialE]", SuperscriptBox("6")}}, "}"}}, "}"}), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All), 
-          Section(
-           "Machine precision may be insufficient to give a correct answer:", 
-           "ExampleText"), SectionGroup({
-            Section(BoxData({"Sin", "(", {"10.0", "^", "40"}, ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
-            Section(BoxData("0.64678458842683428`"), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-          Section("With exact input, the answer is correct:", "ExampleText"), 
-          SectionGroup({
-            Section(BoxData({"N", "(", {{"Sin", "(", {"10", "^", "40"}, ")"}, 
-                ",", "20"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
-            Section(
-             BoxData({
-               "-", 
-               "5.69633400953636327308034181573568723133[+/-2.00*^-39]`40*^-1"\
-               }), "Output", SectionGenerated -> True, 
-             SectionLabel -> "out [2]:")}, All)}, 1)}, All), 
-      Section("", "SectionFooterSpacer")}, All), 
+           All)}, 1)}, All), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Array"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Table"}, 
