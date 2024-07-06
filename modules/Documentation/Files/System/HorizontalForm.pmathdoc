@@ -18,7 +18,7 @@ Document({
            "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData({"a", "/", "b"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-        Section("Factions usually display vertically:", "ExampleText"), 
+        Section("Fractions usually display vertically:", "ExampleText"), 
         SectionGroup({Section(BoxData({"a", "/", "b"}), "Input", 
            SectionLabel -> "in [2]:"), Section(BoxData(FractionBox("a", "b")), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
