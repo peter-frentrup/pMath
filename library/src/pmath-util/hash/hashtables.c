@@ -205,7 +205,7 @@ PMATH_API pmath_hashtable_t pmath_ht_create_ex(
   if(minsize > (1 << 30))
     return NULL;
 
-  ht_impl = pmath_mem_alloc(sizeof(struct _pmath_hashtable_impl_t) + klass->num_extra_bytes);
+  ht_impl = pmath_mem_calloc(sizeof(struct _pmath_hashtable_impl_t) + klass->num_extra_bytes, 1);
   if(!ht_impl)
     return NULL;
   
@@ -216,7 +216,6 @@ PMATH_API pmath_hashtable_t pmath_ht_create_ex(
   ht_impl->used_count    = 0;
   ht_impl->capacity      = HT_MINSIZE;
   ht_impl->table         = ht_impl->small_table;
-  memset(ht_impl->table, 0, ht_impl->capacity * sizeof(void*));
 
   if(!resize(ht, minsize)) {
     pmath_ht_destroy(ht);

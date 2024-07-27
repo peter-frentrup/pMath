@@ -146,6 +146,9 @@ PMATH_API pmath_hashtable_t pmath_ht_create(
    \param klass       An interface pointer.
    \param minsize     Initial minimal size.
    \return The new hashtable or NULL on error.
+   
+   The returned hashtable (if non-NULL) starts with \a klass->num_extra_bytes
+   many zero-initialized bytes that can be changed used for use by the \a klass methods.
  */
 PMATH_API pmath_hashtable_t pmath_ht_create_ex(
   const pmath_ht_class_ex_t  *klass,
