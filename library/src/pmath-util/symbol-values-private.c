@@ -320,18 +320,7 @@ enum pmath_visit_result_t _pmath_symbol_value_visit(
     
     if(pmath_is_dispatch_table(value)) {
       struct _pmath_dispatch_table_t *tab = (struct _pmath_dispatch_table_t *)PMATH_AS_PTR(value);
-      size_t i, len;
-      pmath_t next;
-      
-      len = pmath_expr_length(tab->all_keys);
-      for(i = 0; i < len; ++i) {
-        if(_pmath_symbol_value_visit(pmath_ref(tab->entries[i].key), callback, closure) == PMATH_VISIT_ABORT) {
-          pmath_unref(value);
-          return PMATH_VISIT_ABORT;
-        }
-      }
-      
-      next = pmath_ref(tab->all_keys);
+      pmath_t next = pmath_ref(tab->all_keys);
       pmath_unref(value);
       value = next;
       continue;

@@ -16,11 +16,9 @@
  */
 
 struct _pmath_dispatch_entry_t {
-  pmath_t key;
   unsigned int literal_turn_or_zero;
-  /* TODO: on x64, here are 4 unused padding bytes. 
-      Either uses size_t above or use an int offset instead of a pointer below.
-  */
+  pmath_bool_t is_const_pattern_sequence;
+  // ... padding :-/ ...
   struct _pmath_dispatch_entry_t *next_slice_or_slice_start;
 };
 

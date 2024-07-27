@@ -42,19 +42,76 @@ extern pmath_symbol_t pmath_System_RuleDelayed;
 
 //{ dispatch table slice ...
 
+/// Extra data of the _pmath_dispatch_table_t::literal_entries hash table.
+struct _pmath_dispatch_ht_extra_t {
+  struct _pmath_dispatch_table_t *owner;
+};
+
+static struct _pmath_dispatch_ht_extra_t *dispatch_ht_extra(pmath_hashtable_t ht) {
+  return (void*)ht;
+}
+
 static void noop(pmath_hashtable_t ht, void *e) {
 }
 
 static unsigned int dispatch_entry_hash(pmath_hashtable_t ht, void *e) {
-  struct _pmath_dispatch_entry_t *entry = (struct _pmath_dispatch_entry_t *)e;
-  return pmath_hash(entry->key);
+  struct _pmath_dispatch_ht_extra_t *extra = dispatch_ht_extra(ht);
+  struct _pmath_dispatch_table_t    *tab   = extra->owner;
+  struct _pmath_dispatch_entry_t    *entry = (struct _pmath_dispatch_entry_t *)e;
+  
+  if(!tab) {
+    pmath_debug_print("[dispatch_entry_hash(%p, %p): ht not yet fully initialized]\n", ht, e);
+    return 0;
+  }
+  
+  size_t num_entries = pmath_expr_length(tab->all_keys);
+  assert((uintptr_t)&tab->entries[0] <= (uintptr_t)entry && (uintptr_t)entry < (uintptr_t)&tab->entries[num_entries] && "only support entries from owned table");
+  
+  //return pmath_hash(entry->key);
+  
+  size_t i = entry - &tab->entries[0];
+  
+  pmath_t key = pmath_expr_get_item(tab->all_keys, i + 1);
+  //prepare_const_pattern(&key); // that is unfortunate :-(
+  if(entry->is_const_pattern_sequence)
+    key = pmath_expr_set_item(key, 0, PMATH_MAGIC_PATTERN_SEQUENCE);
+  
+  unsigned int hash = pmath_hash(key);
+  pmath_unref(key);
+  return hash;
 }
 
 static pmath_bool_t dispatch_entry_keys_equal(pmath_hashtable_t ht, void *e1, void *e2) {
-  struct _pmath_dispatch_entry_t *entry1 = e1;
-  struct _pmath_dispatch_entry_t *entry2 = e2;
+  struct _pmath_dispatch_ht_extra_t *extra  = dispatch_ht_extra(ht);
+  struct _pmath_dispatch_table_t    *tab    = extra->owner;
+  struct _pmath_dispatch_entry_t    *entry1 = e1;
+  struct _pmath_dispatch_entry_t    *entry2 = e2;
   
-  return entry1->literal_turn_or_zero == entry2->literal_turn_or_zero && pmath_equals(entry1->key, entry2->key);
+  if(!tab) {
+    pmath_debug_print("[dispatch_entry_keys_equal(%p, %p, %p): ht not yet fully initialized]\n", ht, e1, e2);
+    return FALSE;
+  }
+  
+  size_t num_entries = pmath_expr_length(tab->all_keys);
+  assert((uintptr_t)&tab->entries[0] <= (uintptr_t)entry1 && (uintptr_t)entry1 < (uintptr_t)&tab->entries[num_entries] && "only support entries from owned table");
+  assert((uintptr_t)&tab->entries[0] <= (uintptr_t)entry2 && (uintptr_t)entry2 < (uintptr_t)&tab->entries[num_entries] && "only support entries from owned table");
+  
+  if(entry1->literal_turn_or_zero != entry2->literal_turn_or_zero)
+    return FALSE;
+  
+  //return pmath_equals(entry1->key, entry2->key);
+  
+  size_t i1 = entry1 - &tab->entries[0];
+  size_t i2 = entry2 - &tab->entries[0];
+  
+  pmath_t key1 = pmath_expr_get_item(tab->all_keys, i1 + 1);
+  pmath_t key2 = pmath_expr_get_item(tab->all_keys, i2 + 1);
+  
+  pmath_bool_t eq = pmath_equals(key1, key2);
+  
+  pmath_unref(key1);
+  pmath_unref(key2);
+  return eq;
 }
 
 static unsigned int dispatch_lookup_info_hash(pmath_hashtable_t ht, void *k) {
@@ -63,24 +120,46 @@ static unsigned int dispatch_lookup_info_hash(pmath_hashtable_t ht, void *k) {
 }
 
 static pmath_bool_t dispatch_entry_equals_lookup_key(pmath_hashtable_t ht, void *e, void *k) {
-  struct _pmath_dispatch_entry_t *entry = e;
-  struct dispatch_lookup_info_t *info = k;
+  struct _pmath_dispatch_ht_extra_t *extra  = dispatch_ht_extra(ht);
+  struct _pmath_dispatch_table_t    *tab    = extra->owner;
+  struct _pmath_dispatch_entry_t    *entry  = e;
+  struct dispatch_lookup_info_t     *info   = k;
+  
+  if(!tab) {
+    pmath_debug_print("[dispatch_entry_equals_lookup_key(%p, %p, %p): ht not yet fully initialized]\n", ht, e, k);
+    return FALSE;
+  }
+  
+  size_t num_entries = pmath_expr_length(tab->all_keys);
+  assert((uintptr_t)&tab->entries[0] <= (uintptr_t)entry && (uintptr_t)entry < (uintptr_t)&tab->entries[num_entries] && "only support entries from owned table");
   
   if(info->turn_or_zero) {
     if(entry->literal_turn_or_zero != info->turn_or_zero)
       return FALSE;
   }
   
-  return pmath_equals(entry->key, info->key);
+  //return pmath_equals(entry->key, info->key);
+  
+  size_t i = entry - &tab->entries[0];
+  
+  pmath_t entry_key = pmath_expr_get_item(tab->all_keys, i + 1);
+  //prepare_const_pattern(&entry_key); // that is unfortunate :-(
+  if(entry->is_const_pattern_sequence)
+    entry_key = pmath_expr_set_item(entry_key, 0, PMATH_MAGIC_PATTERN_SEQUENCE);
+  
+  pmath_bool_t eq = pmath_equals(entry_key, info->key);
+  pmath_unref(entry_key);
+  
+  return eq;
 }
 
 static const pmath_ht_class_ex_t dispatch_entries_ht_class = {
-  0,
-  noop,
-  dispatch_entry_hash,
-  dispatch_entry_keys_equal,
-  dispatch_lookup_info_hash,
-  dispatch_entry_equals_lookup_key
+  .num_extra_bytes  = sizeof(struct _pmath_dispatch_ht_extra_t),
+  .entry_destructor = noop,
+  .entry_hash       = dispatch_entry_hash,
+  .entry_keys_equal = dispatch_entry_keys_equal,
+  .key_hash         = dispatch_lookup_info_hash,
+  .entry_equals_key = dispatch_entry_equals_lookup_key,
 };
 
 //} ... dispatch table slice
@@ -201,18 +280,25 @@ static struct _pmath_dispatch_table_t *get_dispatch_table_for_rules(pmath_expr_t
 
 //} ... dispatch table cache
 
-static pmath_bool_t prepare_const_pattern(pmath_t *key) {
-  if(pmath_is_expr_of(*key, pmath_System_PatternSequence)) {
-    size_t i = pmath_expr_length(*key);
-    for(; i > 0; --i) {
-      pmath_t sub = pmath_expr_get_item(*key, i);
-      if(!_pmath_pattern_is_const(sub)) {
-        pmath_unref(sub);
-        return FALSE;
-      }
+static pmath_bool_t is_const_pattern_sequence(pmath_t key) {
+  if(!pmath_is_expr_of(key, pmath_System_PatternSequence))
+    return FALSE;
+  
+  size_t i = pmath_expr_length(key);
+  for(; i > 0; --i) {
+    pmath_t sub = pmath_expr_get_item(key, i);
+    if(!_pmath_pattern_is_const(sub)) {
       pmath_unref(sub);
+      return FALSE;
     }
-    
+    pmath_unref(sub);
+  }
+  
+  return FALSE;
+}
+
+static pmath_bool_t prepare_const_pattern(pmath_t *key) {
+  if(is_const_pattern_sequence(*key)) {
     *key = pmath_expr_set_item(*key, 0, PMATH_MAGIC_PATTERN_SEQUENCE);
     return TRUE;
   }
@@ -262,6 +348,9 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
     return NULL;
   }
   
+  dispatch_ht_extra(literal_entries)->owner = tab;
+  dispatch_ht_extra(key_to_turn)->owner     = tab;
+  
 //  pmath_debug_print("[new dispatch table %p ", tab);
 //  pmath_debug_print_object("for ", keys, "]\n");
   
@@ -273,15 +362,26 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
   
   for(i = 1; i <= num_keys; ++i) {
     struct _pmath_dispatch_entry_t *entry = &tab->entries[i-1];
-    entry->key = pmath_expr_get_item(tab->all_keys, i);
+    pmath_t key = pmath_expr_get_item(tab->all_keys, i);
+    entry->is_const_pattern_sequence = is_const_pattern_sequence(key);
     
-    if(prepare_const_pattern(&entry->key)) {
+    if(entry->is_const_pattern_sequence || _pmath_pattern_is_const(key)) {
       struct _pmath_dispatch_entry_t *latest_turn;
       
       entry->next_slice_or_slice_start = current_slice_start;
       
-      lookup_no_turn.key = entry->key;
+      if(entry->is_const_pattern_sequence) {
+        lookup_no_turn.key = pmath_ref(key);
+        lookup_no_turn.key = pmath_expr_set_item(lookup_no_turn.key, 0, PMATH_MAGIC_PATTERN_SEQUENCE);
+      }
+      else
+        lookup_no_turn.key = key;
+      
       latest_turn = pmath_ht_search(key_to_turn, &lookup_no_turn);
+      
+      if(entry->is_const_pattern_sequence)
+        pmath_unref(lookup_no_turn.key);
+      
       entry->literal_turn_or_zero = latest_turn ? latest_turn->literal_turn_or_zero : 0;
       latest_turn = pmath_ht_insert(key_to_turn, entry);
       entry->literal_turn_or_zero++;
@@ -299,6 +399,8 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
       
       entry->literal_turn_or_zero = 0;
     }
+    
+    pmath_unref(key);
   }
   
   if(current_slice_start < tab->entries + num_keys)
@@ -357,14 +459,17 @@ PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
       
       assert(entry->next_slice_or_slice_start == entry + 1);
       
+      pmath_t entry_key = pmath_expr_get_item(table->all_keys, last_index);
+      
       if(rules_in_rhs_out) {
         pmath_t rule = pmath_expr_get_item(*rules_in_rhs_out, last_index);
         pmath_t rhs = pmath_expr_get_item(rule, 2);
         pmath_bool_t is_match;
         pmath_unref(rule);
         
-        is_match = literal ? pmath_equals(key, entry->key) : _pmath_pattern_match(key, pmath_ref(entry->key), &rhs);
+        is_match = literal ? pmath_equals(key, entry_key) : _pmath_pattern_match(key, pmath_ref(entry_key), &rhs);
         if(is_match) {
+          pmath_unref(entry_key);
           pmath_unref(*rules_in_rhs_out);
           *rules_in_rhs_out = rhs;
           return last_index;
@@ -372,11 +477,14 @@ PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
         pmath_unref(rhs);
       }
       else {
-        pmath_bool_t is_match = literal ? pmath_equals(key, entry->key) : _pmath_pattern_match(key, pmath_ref(entry->key), NULL);
-        if(is_match)
+        pmath_bool_t is_match = literal ? pmath_equals(key, entry_key) : _pmath_pattern_match(key, pmath_ref(entry_key), NULL);
+        if(is_match) {
+          pmath_unref(entry_key);
           return last_index;
+        }
       }
       
+      pmath_unref(entry_key);
       ++last_index;
     }
     
@@ -581,12 +689,18 @@ PMATH_API pmath_t pmath_rules_modify(
     if(entry->literal_turn_or_zero > 0) { // literal pattern, cannot match
       entry = get_next_slice(entry);
     }
-    else if(pmath_equals(entry->key, key)) {
-      i = 1 + (entry - tab_ptr->entries);
-      pmath_unref(key);
-      return replace_rule_rhs(rules, tab, i, callback, callback_context);
+    else {
+      size_t i = entry - &tab_ptr->entries[0];
+      pmath_t entry_key = pmath_expr_get_item(tab_ptr->all_keys, i + 1);
+      if(pmath_equals(entry_key, key)) {
+        i = 1 + (entry - tab_ptr->entries);
+        pmath_unref(key);
+        pmath_unref(entry_key);
+        return replace_rule_rhs(rules, tab, i, callback, callback_context);
+      }
+      pmath_unref(entry_key);
+      // TODO: compare patterns instead of just appending to the end?
     }
-    // TODO: compare patterns instead of just appending to the end?
   }
 
   pmath_unref(tab);
@@ -715,15 +829,10 @@ static void dispatch_table_cache_entry_destructor(void *entry) {
   struct _pmath_dispatch_table_t *tab = entry;
   
   if(PMATH_LIKELY(_pmath_refcount_ptr(&tab->inherited) == 0)) {
-    size_t i;
-    
 //    pmath_debug_print("[free dispatch table %p ]\n", tab);
     
     pmath_ht_destroy(tab->literal_entries);
     
-    for(i = pmath_expr_length(tab->all_keys); i > 0; --i)
-      pmath_unref(tab->entries[i-1].key);
-      
     pmath_unref(tab->all_keys);
     pmath_mem_free(tab);
   }

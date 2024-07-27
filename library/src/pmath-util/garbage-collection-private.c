@@ -162,13 +162,7 @@ static enum pmath_visit_result_t gc_visit_ref(pmath_t obj, void *dummy) {
 }
 
 static pmath_bool_t gc_visit_limbo_dispatch_table(const struct _pmath_dispatch_table_t *table, void *dummy) {
-  size_t i, len;
-  
   _pmath_symbol_value_visit(pmath_ref(table->all_keys), gc_visit_ref, NULL);
-  len = pmath_expr_length(table->all_keys);
-  for(i = 0; i < len; ++i) {
-    _pmath_symbol_value_visit(pmath_ref(table->entries[i].key), gc_visit_ref, NULL);
-  }
   return TRUE;
 }
 
