@@ -64,12 +64,14 @@ static unsigned int dispatch_entry_hash(pmath_hashtable_t ht, void *e) {
     return 0;
   }
   
+  struct _pmath_dispatch_table_extra_data_t *tab_extra = &tab->extra;
+  
   size_t num_entries = pmath_expr_length(tab->all_keys);
-  assert((uintptr_t)&tab->entries[0] <= (uintptr_t)entry && (uintptr_t)entry < (uintptr_t)&tab->entries[num_entries] && "only support entries from owned table");
+  assert((uintptr_t)&tab_extra->entries[0] <= (uintptr_t)entry && (uintptr_t)entry < (uintptr_t)&tab_extra->entries[num_entries] && "only support entries from owned table");
   
   //return pmath_hash(entry->key);
   
-  size_t i = entry - &tab->entries[0];
+  size_t i = entry - &tab_extra->entries[0];
   
   pmath_t key = pmath_expr_get_item(tab->all_keys, i + 1);
   //prepare_const_pattern(&key); // that is unfortunate :-(
@@ -92,17 +94,19 @@ static pmath_bool_t dispatch_entry_keys_equal(pmath_hashtable_t ht, void *e1, vo
     return FALSE;
   }
   
+  struct _pmath_dispatch_table_extra_data_t *tab_extra = &tab->extra;
+  
   size_t num_entries = pmath_expr_length(tab->all_keys);
-  assert((uintptr_t)&tab->entries[0] <= (uintptr_t)entry1 && (uintptr_t)entry1 < (uintptr_t)&tab->entries[num_entries] && "only support entries from owned table");
-  assert((uintptr_t)&tab->entries[0] <= (uintptr_t)entry2 && (uintptr_t)entry2 < (uintptr_t)&tab->entries[num_entries] && "only support entries from owned table");
+  assert((uintptr_t)&tab_extra->entries[0] <= (uintptr_t)entry1 && (uintptr_t)entry1 < (uintptr_t)&tab_extra->entries[num_entries] && "only support entries from owned table");
+  assert((uintptr_t)&tab_extra->entries[0] <= (uintptr_t)entry2 && (uintptr_t)entry2 < (uintptr_t)&tab_extra->entries[num_entries] && "only support entries from owned table");
   
   if(entry1->literal_turn_or_zero != entry2->literal_turn_or_zero)
     return FALSE;
   
   //return pmath_equals(entry1->key, entry2->key);
   
-  size_t i1 = entry1 - &tab->entries[0];
-  size_t i2 = entry2 - &tab->entries[0];
+  size_t i1 = entry1 - &tab_extra->entries[0];
+  size_t i2 = entry2 - &tab_extra->entries[0];
   
   pmath_t key1 = pmath_expr_get_item(tab->all_keys, i1 + 1);
   pmath_t key2 = pmath_expr_get_item(tab->all_keys, i2 + 1);
@@ -130,8 +134,10 @@ static pmath_bool_t dispatch_entry_equals_lookup_key(pmath_hashtable_t ht, void 
     return FALSE;
   }
   
+  struct _pmath_dispatch_table_extra_data_t *tab_extra = &tab->extra;
+  
   size_t num_entries = pmath_expr_length(tab->all_keys);
-  assert((uintptr_t)&tab->entries[0] <= (uintptr_t)entry && (uintptr_t)entry < (uintptr_t)&tab->entries[num_entries] && "only support entries from owned table");
+  assert((uintptr_t)&tab_extra->entries[0] <= (uintptr_t)entry && (uintptr_t)entry < (uintptr_t)&tab_extra->entries[num_entries] && "only support entries from owned table");
   
   if(info->turn_or_zero) {
     if(entry->literal_turn_or_zero != info->turn_or_zero)
@@ -140,7 +146,7 @@ static pmath_bool_t dispatch_entry_equals_lookup_key(pmath_hashtable_t ht, void 
   
   //return pmath_equals(entry->key, info->key);
   
-  size_t i = entry - &tab->entries[0];
+  size_t i = entry - &tab_extra->entries[0];
   
   pmath_t entry_key = pmath_expr_get_item(tab->all_keys, i + 1);
   //prepare_const_pattern(&entry_key); // that is unfortunate :-(
@@ -307,7 +313,8 @@ static pmath_bool_t prepare_const_pattern(pmath_t *key) {
 }
 
 struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys) {
-  struct _pmath_dispatch_table_t *tab;
+  struct _pmath_dispatch_table_t            *tab;
+  struct _pmath_dispatch_table_extra_data_t *tab_extra;
   size_t num_keys = pmath_expr_length(keys);
   size_t size;
   size_t i;
@@ -354,14 +361,16 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
 //  pmath_debug_print("[new dispatch table %p ", tab);
 //  pmath_debug_print_object("for ", keys, "]\n");
   
-  tab->all_keys = keys;
-  tab->literal_entries = literal_entries;
-  current_slice_start = &tab->entries[0];
+  tab->all_keys              = keys;
+  tab_extra                  = &tab->extra;
+  tab_extra->used_length     = num_keys;
+  tab_extra->literal_entries = literal_entries;
+  current_slice_start        = &tab_extra->entries[0];
   
   lookup_no_turn.turn_or_zero = 0;
   
   for(i = 1; i <= num_keys; ++i) {
-    struct _pmath_dispatch_entry_t *entry = &tab->entries[i-1];
+    struct _pmath_dispatch_entry_t *entry = &tab_extra->entries[i-1];
     pmath_t key = pmath_expr_get_item(tab->all_keys, i);
     entry->is_const_pattern_sequence = is_const_pattern_sequence(key);
     
@@ -403,8 +412,8 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
     pmath_unref(key);
   }
   
-  if(current_slice_start < tab->entries + num_keys)
-    current_slice_start->next_slice_or_slice_start = &tab->entries[num_keys];
+  if(current_slice_start < tab_extra->entries + num_keys)
+    current_slice_start->next_slice_or_slice_start = &tab_extra->entries[num_keys];
   
   pmath_ht_destroy(key_to_turn);
   return tab;
@@ -427,9 +436,10 @@ PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
   pmath_t *rules_in_rhs_out,             // will be freed
   pmath_bool_t literal
 ) {
+  struct _pmath_dispatch_table_extra_data_t *tab_extra = &table->extra;
   struct dispatch_lookup_info_t info;
   size_t last_index = 0;
-  size_t num_keys = pmath_expr_length(table->all_keys);
+  size_t num_keys = tab_extra->used_length; //pmath_expr_length(table->all_keys);
   
   info.key = key;
   info.turn_or_zero = 1;
@@ -437,10 +447,10 @@ PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
   while(last_index < num_keys) {
     size_t found_index;
     size_t slice_start;
-    struct _pmath_dispatch_entry_t *entry = pmath_ht_search(table->literal_entries, &info);
+    struct _pmath_dispatch_entry_t *entry = pmath_ht_search(tab_extra->literal_entries, &info);
     if(entry) {
-      found_index = 1 + (entry - table->entries);
-      slice_start = 1 + (get_slice_start(entry) - table->entries);
+      found_index = 1 + (entry - tab_extra->entries);
+      slice_start = 1 + (get_slice_start(entry) - tab_extra->entries);
     }
     else {
       found_index = slice_start = 1 + num_keys;
@@ -448,12 +458,12 @@ PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
     
     ++last_index;
     while(last_index < slice_start) {
-      entry = &table->entries[last_index - 1];
+      entry = &tab_extra->entries[last_index - 1];
       if(entry->literal_turn_or_zero > 0) { // literal pattern, cannot match
         struct _pmath_dispatch_entry_t *next = get_next_slice(entry);
         assert(next > entry);
         
-        last_index = 1 + (next - table->entries);
+        last_index = 1 + (next - tab_extra->entries);
         continue;
       }
       
@@ -668,6 +678,8 @@ PMATH_API pmath_t pmath_rules_modify(
     return rules;
   }
   
+  struct _pmath_dispatch_table_extra_data_t *tab_extra = &tab_ptr->extra;
+  
   if(prepare_const_pattern(&key)) {
     i = _pmath_dispatch_table_lookup(tab_ptr, key, NULL, FALSE);
     if(i == 0) {
@@ -684,16 +696,16 @@ PMATH_API pmath_t pmath_rules_modify(
   }
 
   len = pmath_expr_length(rules);
-  entry = tab_ptr->entries;
-  while(entry != tab_ptr->entries + len) {
+  entry = tab_extra->entries;
+  while(entry != tab_extra->entries + len) {
     if(entry->literal_turn_or_zero > 0) { // literal pattern, cannot match
       entry = get_next_slice(entry);
     }
     else {
-      size_t i = entry - &tab_ptr->entries[0];
+      size_t i = entry - &tab_extra->entries[0];
       pmath_t entry_key = pmath_expr_get_item(tab_ptr->all_keys, i + 1);
       if(pmath_equals(entry_key, key)) {
-        i = 1 + (entry - tab_ptr->entries);
+        i = 1 + (entry - tab_extra->entries);
         pmath_unref(key);
         pmath_unref(entry_key);
         return replace_rule_rhs(rules, tab, i, callback, callback_context);
@@ -719,6 +731,19 @@ PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
   
   PMATH_STATIC_ASSERT(sizeof(dispatch_table_limbo) == sizeof(old_limbo));
   
+// FIXME: There seems to be a double free race condition hidden
+//        because the `dispatch_table_cache` still points to entries within
+//        `old_limbo` and might destroy them.
+// TODO:  Instead of holding dispatch tables with refcount==0 in old_limbo,
+//        increase their refcount in the pmath_atomic_lock-block and then
+//        either pmath_unref() them normally if they are to be kept, or
+//        use 
+//        ```
+//        if(_pmath_prepare_destry(tab))
+//          dispatch_table_cache_entry_destructor(tab)
+//        ```
+//        to not bring them back into the `dispatch_table_limbo`.
+
   pmath_atomic_lock(&dispatch_table_cache_lock);
   {
     memcpy(old_limbo, dispatch_table_limbo, sizeof(dispatch_table_limbo));
@@ -826,12 +851,13 @@ PMATH_PRIVATE void _pmath_dispatch_tables_done(void) {
 //} ... module init/done
 
 static void dispatch_table_cache_entry_destructor(void *entry) {
-  struct _pmath_dispatch_table_t *tab = entry;
+  struct _pmath_dispatch_table_t            *tab       = entry;
+  struct _pmath_dispatch_table_extra_data_t *tab_extra = &tab->extra;
   
   if(PMATH_LIKELY(_pmath_refcount_ptr(&tab->inherited) == 0)) {
 //    pmath_debug_print("[free dispatch table %p ]\n", tab);
     
-    pmath_ht_destroy(tab->literal_entries);
+    pmath_ht_destroy(tab_extra->literal_entries);
     
     pmath_unref(tab->all_keys);
     pmath_mem_free(tab);

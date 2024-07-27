@@ -11,6 +11,9 @@
 #include <pmath-util/hash/hashtables.h>
 
 
+#include <pmath-core/expressions-private.h> // for struct _pmath_custom_expr_data_t . to be moved out of this header
+
+
 /**\addtogroup dispatch_tables Dispatch tables
   @{
  */
@@ -22,11 +25,18 @@ struct _pmath_dispatch_entry_t {
   struct _pmath_dispatch_entry_t *next_slice_or_slice_start;
 };
 
+struct _pmath_dispatch_table_extra_data_t {
+  struct _pmath_custom_expr_data_t base;     // let capacity := expr.internals.length + 1, the number of expr.internals.items[]
+ 
+  size_t used_length;                        // used_length <= capacity
+  pmath_hashtable_t literal_entries;
+  struct _pmath_dispatch_entry_t entries[1]; // capacity many elements
+};
+
 struct _pmath_dispatch_table_t {
   struct _pmath_t inherited;
   pmath_t all_keys;
-  pmath_hashtable_t literal_entries;
-  struct _pmath_dispatch_entry_t entries[1]; // count is pmath_expr_length(keys)
+  struct _pmath_dispatch_table_extra_data_t extra; // capacity:= pmath_expr_length(keys)
 };
 
 /** Get the dispatch-table for a list-of-rules.
