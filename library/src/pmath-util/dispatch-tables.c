@@ -67,6 +67,7 @@ static void         dispatch_expr_destroy_data(           struct _pmath_custom_e
 static pmath_bool_t dispatch_expr_try_prevent_destruction(struct _pmath_custom_expr_t *tab);
 static size_t       dispatch_expr_get_length(             struct _pmath_custom_expr_t *e);
 static pmath_t      dispatch_expr_get_item(               struct _pmath_custom_expr_t *e, size_t i);
+static pmath_bool_t dispatch_expr_try_item_equals(        struct _pmath_custom_expr_t *e, size_t i, pmath_t expected_item, pmath_bool_t *result);
 
 #define DISPATCH_EXPR_EXTRA(EXPR_PTR)      ((struct _pmath_dispatch_table_extra_data_t*)PMATH_CUSTOM_EXPR_DATA(EXPR_PTR))
 
@@ -98,6 +99,33 @@ static pmath_t dispatch_expr_get_item(struct _pmath_custom_expr_t *e, size_t i) 
     key = pmath_expr_set_item(key, 0, pmath_ref(pmath_System_PatternSequence));
   }
   return key;
+}
+
+static pmath_bool_t dispatch_expr_try_item_equals(struct _pmath_custom_expr_t *e, size_t i, pmath_t expected_item, pmath_bool_t *result) { // does not free e or expected_item
+struct _pmath_dispatch_table_extra_data_t *tab_extra = DISPATCH_EXPR_EXTRA(e);
+  
+  if(i == 0) {
+    *result = pmath_same(expected_item, pmath_System_List);
+    return TRUE;
+  }
+  
+  if(i > tab_extra->used_length) {
+    *result = pmath_is_null(expected_item);
+    return TRUE;
+  }
+  
+  pmath_t key = e->internals.items[i - 1];
+  if(pmath_is_expr_of(key, PMATH_MAGIC_PATTERN_SEQUENCE)) {
+    //return FALSE;
+    key = pmath_ref(key);
+    key = pmath_expr_set_item(key, 0, pmath_ref(pmath_System_PatternSequence));
+    *result = pmath_equals(key, expected_item);
+    pmath_unref(key);
+    return TRUE;
+  }
+  
+  *result = pmath_equals(key, expected_item);
+  return TRUE;
 }
 
 static const struct _pmath_custom_expr_api_t dispatch_expr_api = {
