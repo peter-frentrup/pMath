@@ -162,73 +162,68 @@ Document({
                  StringBox("\"1\"")}, "RowDefault"), 
                FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(""), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+             " inhibits stretching of its contents:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Filler", "(", {
+                "Pane", "(", {"Button", "(", "x", ")"}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(FillBox(PaneBox(ButtonBox("x")), 
+               StripOnInput -> False)), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          Section(
+           TextData({"Without ", TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+             ", the whole button would be stretched:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Filler", "(", {"Button", "(", "x", ")"}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(FillBox(ButtonBox("x"), StripOnInput -> False)), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
            All)}, All)}, 1), SectionGroup({
         Section("Possible Issues", "ExampleSection"), 
         Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
-           " and its low-level companion ", 
-           TemplateBox({"FillBox"}, "ReferenceHyperlink"), 
-           " are not recognized in text sections:"}), "ExampleText"), 
-        Section(BoxData({"SectionPrint", "(", {
-            "Section", "(", {
-             {"{", {StringBox("\"a\""), ",", {
-                "FillBox", "(", StringBox("\".\""), ")"}, ",", 
-               StringBox("\"b\"")}, "}"}, ",", StringBox("\"Text\"")}, ")"}, 
-           ")"}), "Input", SectionLabel -> "in [1]:"), 
-        Section(TextData({"a", FillBox("."), "b"}), "Text", 
-         SectionGenerated -> True), 
-        Section(TextData({"Only the math layout algorithm handles ", 
-           TemplateBox({"Filler"}, "ReferenceHyperlink"), " resp. ", 
-           TemplateBox({"FillBox"}, "ReferenceHyperlink"), ":"}), 
-         "ExampleText"), 
-        Section(BoxData({"SectionPrint", "(", {
-            "Section", "(", {
-             {"BoxData", "(", {
-               "{", {StringBox("\"a\""), ",", {
-                 "FillBox", "(", StringBox("\".\""), ")"}, ",", 
-                StringBox("\"b\"")}, "}"}, ")"}, ",", StringBox("\"Text\"")}, 
-            ")"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
-        Section(BoxData({"a", FillBox("."), "b"}), "Text", 
-         SectionGenerated -> True), 
+           " may not expand to the whole line when it is wrapped in a ", 
+           TemplateBox({"Button"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Framed"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Highlighted"}, "ReferenceHyperlink"), 
+           " or related low-level constructs like ", 
+           TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"FrameBox"}, "ReferenceHyperlink"), ", etc.:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Button", "(", {
+              {"Row", "(", {"{", {StringBox("\"Introduction\""), ",", {
+                  "Filler", "(", StringBox("\" . \""), ")"}, ",", 
+                 StringBox("\"1\"")}, "}"}, ")"}, ",", {
+               "BaseStyle", "\[Rule]", StringBox("\"Hyperlink\"")}}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData(ButtonBox(TemplateBox({StringBox("\"Introduction\""), 
+               FillBox(StringBox("\" . \""), StripOnInput -> False), 
+               StringBox("\"1\"")}, "RowDefault"), BaseStyle -> "Hyperlink")), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), Section(TextData({"Wrap the outer box in ", 
+           TemplateBox({"Filler"}, "ReferenceHyperlink"), " too:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Filler", "(", {
+              "Button", "(", {
+               {"Row", "(", {"{", {StringBox("\"Introduction\""), ",", {
+                   "Filler", "(", StringBox("\" . \""), ")"}, ",", 
+                  StringBox("\"1\"")}, "}"}, ")"}, ",", {
+                "BaseStyle", "\[Rule]", StringBox("\"Hyperlink\"")}}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [3]:"), 
+          Section(
+           BoxData(
+            FillBox(ButtonBox(TemplateBox({StringBox("\"Introduction\""), 
+                FillBox(StringBox("\" . \""), StripOnInput -> False), 
+                StringBox("\"1\"")}, "RowDefault"), BaseStyle -> "Hyperlink"), 
+             StripOnInput -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [3]:")}, All), 
         SectionGroup({Section(BoxData(""), "ExampleDelimiter"), 
-          Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
-             " may not expand to the whole line when it is wrapped in a ", 
-             TemplateBox({"Button"}, "ReferenceHyperlink"), 
-             " or related low-level constructs like ", 
-             TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), ":"}), 
-           "ExampleText"), SectionGroup({
-            Section(BoxData({"Button", "(", {
-                {"Row", "(", {"{", {StringBox("\"Introduction\""), ",", {
-                    "Filler", "(", StringBox("\" . \""), ")"}, ",", 
-                   StringBox("\"1\"")}, "}"}, ")"}, ",", {
-                 "BaseStyle", "\[Rule]", StringBox("\"Hyperlink\"")}}, ")"}), 
-             "Input", SectionLabel -> "in [2]:"), 
-            Section(
-             BoxData(ButtonBox(TemplateBox({StringBox("\"Introduction\""), 
-                 FillBox(StringBox("\" . \""), StripOnInput -> False), 
-                 StringBox("\"1\"")}, "RowDefault"), 
-               BaseStyle -> "Hyperlink")), "Output", SectionGenerated -> True, 
-             SectionLabel -> "out [2]:")}, All), 
-          Section(TextData({"Wrap the outer box in ", 
-             TemplateBox({"Filler"}, "ReferenceHyperlink"), " too:"}), 
-           "ExampleText"), SectionGroup({
-            Section(BoxData({"Filler", "(", {
-                "Button", "(", {
-                 {"Row", "(", {"{", {StringBox("\"Introduction\""), ",", {
-                     "Filler", "(", StringBox("\" . \""), ")"}, ",", 
-                    StringBox("\"1\"")}, "}"}, ")"}, ",", {
-                  "BaseStyle", "\[Rule]", StringBox("\"Hyperlink\"")}}, ")"}, 
-               ")"}), "Input", SectionLabel -> "in [3]:"), 
-            Section(
-             BoxData(
-              FillBox(ButtonBox(TemplateBox({StringBox("\"Introduction\""), 
-                  FillBox(StringBox("\" . \""), StripOnInput -> False), 
-                  StringBox("\"1\"")}, "RowDefault"), 
-                BaseStyle -> "Hyperlink"), StripOnInput -> False)), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
-         All), SectionGroup({Section(BoxData(""), "ExampleDelimiter"), 
-          Section(TextData({"Certain constructs are not prepared to handle ", 
-             TemplateBox({"Filler"}, "ReferenceHyperlink"), " at all:"}), 
-           "ExampleText"), SectionGroup({
+          Section(TextData({"Expand a ", TemplateBox({"Highlighted"}, 
+              "ReferenceHyperlink"), " construct:"}), "ExampleText"), 
+          SectionGroup({
             Section(BoxData({"Highlighted", "(", {
                 "Row", "(", {"{", {StringBox("\"Introduction\""), ",", {
                    "Filler", "(", StringBox("\" . \""), ")"}, ",", 
@@ -254,7 +249,63 @@ Document({
                    FillBox(StringBox("\" . \""), StripOnInput -> False), 
                    StringBox("\"1\"")}, "RowDefault")}, "Highlighted"), 
                StripOnInput -> False)), "Output", SectionGenerated -> True, 
-             SectionLabel -> "out [2]:")}, All)}, All)}, 1), 
+             SectionLabel -> "out [2]:")}, All)}, All), 
+        SectionGroup({Section(BoxData(""), "ExampleDelimiter"), 
+          Section(
+           TextData({"Expand a ", TemplateBox({"Framed"}, 
+              "ReferenceHyperlink"), " construct:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "Row", "(", {"{", {StringBox("\"Introduction\""), ",", {
+                   "Filler", "(", StringBox("\" . \""), ")"}, ",", 
+                  StringBox("\"1\"")}, "}"}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(FrameBox(TemplateBox({StringBox("\"Introduction\""), 
+                 FillBox(StringBox("\" . \""), StripOnInput -> False), 
+                 StringBox("\"1\"")}, "RowDefault"))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Filler", "(", {
+                "Framed", "(", {"Row", "(", {
+                  "{", {StringBox("\"Introduction\""), ",", {
+                    "Filler", "(", StringBox("\" . \""), ")"}, ",", 
+                   StringBox("\"1\"")}, "}"}, ")"}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData(
+              FillBox(FrameBox(TemplateBox({StringBox("\"Introduction\""), 
+                  FillBox(StringBox("\" . \""), StripOnInput -> False), 
+                  StringBox("\"1\"")}, "RowDefault")), 
+               StripOnInput -> False)), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All), 
+        SectionGroup({Section(BoxData(""), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+             " and its low-level companion ", 
+             TemplateBox({"FillBox"}, "ReferenceHyperlink"), 
+             " are not recognized in text sections:"}), "ExampleText"), 
+          Section(BoxData({"SectionPrint", "(", {
+              "Section", "(", {
+               {"{", {StringBox("\"a\""), ",", {
+                  "FillBox", "(", StringBox("\".\""), ")"}, ",", 
+                 StringBox("\"b\"")}, "}"}, ",", StringBox("\"Text\"")}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(TextData({"a", FillBox("."), "b"}), "Text", 
+           SectionGenerated -> True), 
+          Section(TextData({"Only the math layout algorithm handles ", 
+             TemplateBox({"Filler"}, "ReferenceHyperlink"), " resp. ", 
+             TemplateBox({"FillBox"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), 
+          Section(BoxData({"SectionPrint", "(", {
+              "Section", "(", {
+               {"BoxData", "(", {
+                 "{", {StringBox("\"a\""), ",", {
+                   "FillBox", "(", StringBox("\".\""), ")"}, ",", 
+                  StringBox("\"b\"")}, "}"}, ")"}, ",", 
+               StringBox("\"Text\"")}, ")"}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData({"a", FillBox("."), "b"}), "Text", 
+           SectionGenerated -> True)}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Grid"}, "ReferenceHyperlink"), 

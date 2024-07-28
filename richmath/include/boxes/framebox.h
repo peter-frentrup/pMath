@@ -5,8 +5,8 @@
 
 
 namespace richmath {
-  class FrameBox final : public OwnerBox {
-      using base = OwnerBox;
+  class FrameBox final : public ExpandableOwnerBox {
+      using base = ExpandableOwnerBox;
       class Impl;
     public:
       explicit FrameBox(AbstractSequence *content = nullptr);
