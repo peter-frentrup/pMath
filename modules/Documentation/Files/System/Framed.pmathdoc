@@ -221,8 +221,24 @@ Document({
               Section(BoxData(StyleBox(FrameBox("123"), 
                  FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), 
                "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
-        SectionGroup({Section("StripOnInput", "ExampleSubsection"), 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(
+             TextData({TemplateBox({"FrameStyle"}, "ReferenceHyperlink"), 
+               " allows arbitrary graphics directives:"}), "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Framed", "(", {
+                  "456", ",", {"FrameStyle", "\[Rule]", {
+                    "Directive", "(", {"Red", ",", "Dashed"}, ")"}}}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(FrameBox("456", 
+                 FrameStyle :> Directive(RGBColor(1, 0, 0), 
+                   Dashing({Small, Small})))), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({
+          Section("StripOnInput", "ExampleSubsection"), 
           Section(
            TextData({"Use ", TemplateBox({"StripOnInput"}, 
               "ReferenceHyperlink"), " \[Rule] ", 
@@ -236,7 +252,7 @@ Document({
            SectionGenerated -> True)}, 1)}, 1), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
         Section(TextData({TemplateBox({"TextShadow"}, "ReferenceHyperlink"), 
-           " also applies to the frame: "}), "Text"), 
+           " also applies to the frame: "}), "ExampleText"), 
         SectionGroup({
           Section(BoxData({{"Framed", "(", "123", ")"}, ".", "Style", "(", {
               "TextShadow", "\[Rule]", {
@@ -244,7 +260,24 @@ Document({
              ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData(StyleBox(FrameBox("123"), StripOnInput -> False, 
              TextShadow -> {{1, 1, RGBColor(1, 0, 0), 2}})), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+             " allows to stretch a frame to fill the whole line:"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Filler", "(", {
+                "Framed", "(", {{"Filler", "(", StringBox("\"x\""), ")"}, ",", 
+                 {"FrameStyle", "\[Rule]", "Dashed"}}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              FillBox(FrameBox(FillBox(StringBox("\"x\""), 
+                 StripOnInput -> False), 
+                FrameStyle :> Dashing({Small, Small})), 
+               StripOnInput -> False)), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
