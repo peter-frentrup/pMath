@@ -9,14 +9,11 @@
 
 enum { // private pmath_type_t ...
   PMATH_TYPE_SHIFT_MULTIRULE       = PMATH_TYPE_SHIFT_RESERVED_1,
-  PMATH_TYPE_SHIFT_DISPATCH_TABLE  = PMATH_TYPE_SHIFT_RESERVED_2,
   
   PMATH_TYPE_MULTIRULE             = 1 << PMATH_TYPE_SHIFT_MULTIRULE,
-  PMATH_TYPE_DISPATCH_TABLE        = 1 << PMATH_TYPE_SHIFT_DISPATCH_TABLE
 };
 
 #define pmath_is_multirule(obj)       (pmath_is_pointer_of(obj, PMATH_TYPE_MULTIRULE))
-#define pmath_is_dispatch_table(obj)  (pmath_is_pointer_of(obj, PMATH_TYPE_DISPATCH_TABLE))
 
 
 #define PMATH_MAGIC_METADATA_LIST     PMATH_FROM_TAG(PMATH_TAG_MAGIC, 3)

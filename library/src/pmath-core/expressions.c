@@ -356,6 +356,8 @@ static void destroy_part_expression(pmath_t expr) {
 static void destroy_custom_expression(pmath_t expr) {
   struct _pmath_custom_expr_t *_expr = (void *)PMATH_AS_PTR(expr);
   
+  struct _pmath_custom_expr_data_t *_data = PMATH_CUSTOM_EXPR_DATA(_expr);
+  
   PMATH_OBJECT_MARK_DELETION_TRAP(&_expr->internals.inherited.inherited.inherited);
   
   size_t i;
@@ -364,7 +366,6 @@ static void destroy_custom_expression(pmath_t expr) {
   
   clear_metadata(&_expr->internals);
 
-  struct _pmath_custom_expr_data_t *_data = PMATH_CUSTOM_EXPR_DATA(_expr);
   if(_data->api->destroy_data)
     _data->api->destroy_data(_data);
   
@@ -405,6 +406,20 @@ static pmath_bool_t obj_visit_refs(struct _pmath_t *obj, pmath_bool_t (*callback
   return FALSE;
 }
 
+static pmath_bool_t expr_prevent_destruction(struct _pmath_t *obj) {
+  assert(obj != NULL);
+  
+  if(PMATH_UNLIKELY(obj->type_shift == PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION)) {
+    struct _pmath_custom_expr_t      *_expr = (void *)obj;
+    struct _pmath_custom_expr_data_t *_data = PMATH_CUSTOM_EXPR_DATA(_expr);
+    
+    if(_data->api->try_prevent_destruction)
+      return _data->api->try_prevent_destruction(_expr);
+  }
+  
+  return FALSE;
+}
+
 struct _destructor_leftmost_extraction_t {
   struct _pmath_t *leftmost_to_be_destroyed; // dangling object
   pmath_t         *first_free; // points to a free slot (PMATH_NULL).
@@ -420,13 +435,16 @@ static pmath_bool_t extract_leftmost_callback(pmath_t *next_place, void *_ctx) {
   if(ctx->leftmost_to_be_destroyed == NULL) {
     pmath_t next = *next_place;
     if(pmath_is_null(next))
-      return FALSE;
+      return FALSE; // continue;
     
     *next_place = PMATH_NULL;
     if(pmath_is_pointer(next)) {
       struct _pmath_t *next_ptr = PMATH_AS_PTR(next);
       if(!_pmath_prepare_destroy(next_ptr))
-        return FALSE;
+        return FALSE; // continue;
+      
+      if(expr_prevent_destruction(next_ptr))
+        return FALSE; // continue;
       
       ctx->leftmost_to_be_destroyed = next_ptr;
     }
@@ -468,6 +486,10 @@ static void destroy_final_cleanup(struct _pmath_t *obj) {
 // See e.g. https://matklad.github.io/2022/11/18/if-a-tree-falls-in-a-forest-does-it-overflow-the-stack.html
 static void destroy_expr_tree(pmath_t expr) {
   struct _pmath_t *obj = PMATH_AS_PTR(expr);
+  
+  if(expr_prevent_destruction(obj))
+    return;
+  
   for(;;) {
     struct _destructor_leftmost_extraction_t A;
     
@@ -2003,7 +2025,9 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
 static pmath_bool_t metadata_find(pmath_t *metadata, _pmath_metadata_kind_t kind) {
   assert(metadata);
   
-  if(pmath_is_expr(*metadata)) {
+  if(pmath_is_dispatch_table(*metadata)) 
+    return kind == METADATA_KIND_DISPATCH_TABLE;
+  else if(pmath_is_expr(*metadata)) {
     pmath_t head = pmath_expr_get_item(*metadata, 0);
     pmath_unref(head);
     
@@ -2021,8 +2045,6 @@ static pmath_bool_t metadata_find(pmath_t *metadata, _pmath_metadata_kind_t kind
       return FALSE;
     }
   }
-  else if(pmath_is_dispatch_table(*metadata)) 
-    return kind == METADATA_KIND_DISPATCH_TABLE;
   else if(pmath_is_custom(*metadata))
     return pmath_custom_has_destructor(*metadata, kind);
   
@@ -2037,7 +2059,15 @@ static pmath_bool_t try_merge_metadata(pmath_t *metadata, _pmath_metadata_kind_t
     return TRUE;
   }
   
-  if(pmath_is_expr(*metadata)) {
+  if(pmath_is_dispatch_table(*metadata)) {
+    if(kind == METADATA_KIND_DISPATCH_TABLE) {
+      pmath_unref(*metadata);
+      *metadata = pmath_ref(new_of_kind);
+      return TRUE;
+    }
+    return FALSE;
+  }
+  else if(pmath_is_expr(*metadata)) {
     pmath_t head = pmath_expr_get_item(*metadata, 0);
     pmath_unref(head);
     
@@ -2053,14 +2083,6 @@ static pmath_bool_t try_merge_metadata(pmath_t *metadata, _pmath_metadata_kind_t
       }
       return FALSE;
     }
-  }
-  else if(pmath_is_dispatch_table(*metadata)) {
-    if(kind == METADATA_KIND_DISPATCH_TABLE) {
-      pmath_unref(*metadata);
-      *metadata = pmath_ref(new_of_kind);
-      return TRUE;
-    }
-    return FALSE;
   }
   else if(pmath_is_custom(*metadata)) {
     if(pmath_custom_has_destructor(*metadata, kind)) {

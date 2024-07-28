@@ -318,14 +318,6 @@ enum pmath_visit_result_t _pmath_symbol_value_visit(
         break;
     }
     
-    if(pmath_is_dispatch_table(value)) {
-      struct _pmath_dispatch_table_t *tab = (struct _pmath_dispatch_table_t *)PMATH_AS_PTR(value);
-      pmath_t next = pmath_ref(tab->all_keys);
-      pmath_unref(value);
-      value = next;
-      continue;
-    }
-
     if(pmath_is_custom(value)) {
       pmath_t next = pmath_custom_get_attached_object(value);
       pmath_unref(value);

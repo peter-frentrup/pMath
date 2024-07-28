@@ -36,7 +36,7 @@ static void gc_symbol_defs_visit(
   void                       *closure);
   
 static enum pmath_visit_result_t gc_visit_ref(pmath_t obj, void *dummy);
-static pmath_bool_t gc_visit_limbo_dispatch_table(const struct _pmath_dispatch_table_t *table, void *dummy);
+static pmath_bool_t gc_visit_limbo_dispatch_table(_pmath_dispatch_table_new_t *table, void *dummy);
 static void gc_init_all_refs(void);
 
 static uintptr_t get_gc_refs(pmath_t obj);
@@ -55,7 +55,7 @@ static size_t gc_propagate_life_step(void); // returns num_resurrected (possibly
 
 
 static void gc_clear_all_possibly_dead_symbols(size_t num_possibly_dead);
-static pmath_bool_t gc_dispatch_table_has_only_alive_symbols(const struct _pmath_dispatch_table_t *table, void *dummy); 
+static pmath_bool_t gc_dispatch_table_has_only_alive_symbols(_pmath_dispatch_table_new_t *table, void *dummy); 
 static enum pmath_visit_result_t gc_visit_all_alive(pmath_t obj, void *dummy);
 
 PMATH_PRIVATE void _pmath_unsafe_run_gc(void) {
@@ -161,8 +161,10 @@ static enum pmath_visit_result_t gc_visit_ref(pmath_t obj, void *dummy) {
   return PMATH_VISIT_NORMAL;
 }
 
-static pmath_bool_t gc_visit_limbo_dispatch_table(const struct _pmath_dispatch_table_t *table, void *dummy) {
-  _pmath_symbol_value_visit(pmath_ref(table->all_keys), gc_visit_ref, NULL);
+static pmath_bool_t gc_visit_limbo_dispatch_table(_pmath_dispatch_table_new_t *table, void *dummy) {
+  _pmath_symbol_value_visit(
+    pmath_ref(PMATH_FROM_PTR((void*)table)),//pmath_ref(PMATH_FROM_PTR(&table->internals.inherited.inherited.inherited)), 
+    gc_visit_ref, NULL);
   return TRUE;
 }
 
@@ -328,8 +330,10 @@ static void gc_clear_all_possibly_dead_symbols(size_t num_possibly_dead) {
   pmath_unref(sym);
 }
 
-static pmath_bool_t gc_dispatch_table_has_only_alive_symbols(const struct _pmath_dispatch_table_t *table, void *dummy) {
-  return PMATH_VISIT_ABORT != _pmath_symbol_value_visit(pmath_ref(table->all_keys), gc_visit_all_alive, NULL);
+static pmath_bool_t gc_dispatch_table_has_only_alive_symbols(_pmath_dispatch_table_new_t *table, void *dummy) {
+  return PMATH_VISIT_ABORT != _pmath_symbol_value_visit(
+    pmath_ref(PMATH_FROM_PTR((void*)table)), 
+    gc_visit_all_alive, NULL);
 }
 
 static enum pmath_visit_result_t gc_visit_all_alive(pmath_t obj, void *dummy) {

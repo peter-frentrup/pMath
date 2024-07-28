@@ -16,6 +16,10 @@ typedef pmath_t pmath_dispatch_table_t;
  */
 PMATH_API pmath_bool_t pmath_is_list_of_rules(pmath_t obj);
 
+/** Check whether an object is a dispatch table.
+ */
+PMATH_API pmath_bool_t pmath_is_dispatch_table(pmath_t obj);
+
 /** Look-up a key in a list-of-rules.
     
     \param rules  A pMath object. It won't be freed.

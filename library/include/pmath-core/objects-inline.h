@@ -295,7 +295,7 @@ void _pmath_incref_impl(struct _pmath_t *ptr) {
 #else
   if(pmath_atomic_fetch_add(&(ptr->refcount), 1) == 0) {
 #  ifndef NDEBUG
-    if(ptr->type_shift != PMATH_TYPE_SHIFT_SYMBOL) {
+    if(ptr->type_shift != PMATH_TYPE_SHIFT_SYMBOL && ptr->type_shift != PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION) {
       assert("referencing deleted object" && 0);
     }
 #  endif

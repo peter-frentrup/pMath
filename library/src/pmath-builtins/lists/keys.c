@@ -53,10 +53,8 @@ static pmath_t get_keys(pmath_t list, pmath_t wrap_head) {
   
   disp = _pmath_rules_need_dispatch_table(list);
   if(!pmath_is_null(disp)) {
-    struct _pmath_dispatch_table_t *tab = (void*)PMATH_AS_PTR(disp);
     pmath_unref(list);
-    list = pmath_ref(tab->all_keys);
-    pmath_unref(disp);
+    list = disp;
     
     if(!pmath_same(wrap_head, PMATH_UNDEFINED)) {
       for(i = pmath_expr_length(list); i > 0; --i) {
