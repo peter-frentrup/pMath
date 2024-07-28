@@ -143,14 +143,16 @@ static pmath_bool_t do_merge(struct merge_context_t *ctx, pmath_t rules) {
 }
 
 static pmath_bool_t has_any_rule_delayed(pmath_t rules) { // does not free `rules`
-  size_t i;
+  if(!pmath_is_expr(rules))
+    return FALSE;
+  
   pmath_t head = pmath_expr_get_item(rules, 0);
   pmath_unref(head);
   
   if(pmath_same(head, pmath_System_Rule))        return pmath_expr_length(rules) != 2;
   if(!pmath_same(head, pmath_System_List))       return TRUE;
   
-  for(i = pmath_expr_length(rules); i > 0; --i) {
+  for(size_t i = pmath_expr_length(rules); i > 0; --i) {
     pmath_t item = pmath_expr_get_item(rules, i);
     if(has_any_rule_delayed(item)) {
       pmath_unref(item);
