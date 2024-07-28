@@ -16,7 +16,7 @@ Document({SectionGroup({Section("Time to load Quantity definitions", "Title"),
               "5544", "20.92199999978766`"}})}, ";"}, "\n", {
           "ListLinePlot", "(", {"origTimings", ",", {
             "AxesOrigin", "\[Rule]", {"{", {"0", ",", "0"}, "}"}}}, ")"})), 
-       "Input", SectionLabel -> "in [1]:"), 
+       "Input", SectionLabel -> "in [2]:"), 
       Section(
        BoxData(GraphicsBox({
           {RGBColor(0.75, 0, 0), {
@@ -26,7 +26,7 @@ Document({SectionGroup({Section("Time to load Quantity definitions", "Title"),
                4620, 14.532000000122935`}, {5544, 20.92199999978766`}})}}}, 
          AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
          Axes -> True, AxesOrigin -> NCache({0, 0}, {0.0, 0.0}))), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
     SectionGroup({Section("Implemented Dispatch Tables as Custom Expr", 
        "Section"), Section("2024-07-27", "Text"), 
       SectionGroup({
@@ -40,7 +40,7 @@ Document({SectionGroup({Section("Time to load Quantity definitions", "Title"),
             "ListLinePlot", "(", {
              {"{", {"origTimings", ",", "custDispTimings"}, "}"}, ",", {
               "AxesOrigin", "\[Rule]", {"{", {"0", ",", "0"}, "}"}}}, ")"})), 
-         "Input", SectionLabel -> "in [3]:"), 
+         "Input", SectionLabel -> "in [4]:"), 
         Section(
          BoxData(GraphicsBox({
             {RGBColor(0.75, 0, 0), {
@@ -55,7 +55,7 @@ Document({SectionGroup({Section("Time to load Quantity definitions", "Title"),
                  5544, 14.812999999849125[965+/-112]`17}})}}}, 
            AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
            Axes -> True, AxesOrigin -> NCache({0, 0}, {0.0, 0.0}))), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
       SectionGroup({Section("Speedups", "Subsection"), 
         SectionGroup({
           Section(
@@ -66,20 +66,20 @@ Document({SectionGroup({Section("Time to load Quantity definitions", "Title"),
                    "custDispTimings", "|>", {"Apply", "(", {"Rule", ",", "1"}, 
                     ")"}}}, "}"}, ",", {
                  "{", {{{"{", {{"~", "o"}, ",", {"~", "c"}}, "}"}, 
-                   "\[RuleDelayed]", {"c", "/", "o"}}, ",", {
+                   "\[RuleDelayed]", {"o", "/", "c"}}, ",", {
                    "~", "\[Rule]", "$Failed"}}, "}"}}, ")"}, "|>", {
                "Replace", "(", {{{"(", {"~", "\[Rule]", " ", "$Failed"}, ")"}, 
                  "\[Rule]", "Nothing"}, ",", {"1", "..", "1"}}, ")"}}, "|>", {
               "Apply", "(", {"List", ",", "1"}, ")"}}), "Input", 
-           SectionLabel -> "in [18]:"), 
+           SectionLabel -> "in [6]:"), 
           Section(
-           BoxData({"{", {{"{", {"924", ",", "0.8827292112075608`"}, "}"}, 
-              ",", {"{", {"1848", ",", "0.8321005917434895`"}, "}"}, ",", {
-               "{", {"2772", ",", "0.8162313433034374`"}, "}"}, ",", {
-               "{", {"3696", ",", "0.785139052940674[376+/-230]`16"}, "}"}, 
-              ",", {"{", {"4620", ",", "0.7365125240771379`"}, "}"}, ",", {
-               "{", {"5544", ",", "0.7080107064333938`"}, "}"}}, "}"}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [18]:")}, 
+           BoxData({"{", {{"{", {"924", ",", "1.1328502413917112`"}, "}"}, 
+              ",", {"{", {"1848", ",", "1.2017777777380412`"}, "}"}, ",", {
+               "{", {"2772", ",", "1.2251428571130547`"}, "}"}, ",", {
+               "{", {"3696", ",", "1.273659737411585[002+/-440]`16"}, "}"}, 
+              ",", {"{", {"4620", ",", "1.3577501635196443`"}, "}"}, ",", {
+               "{", {"5544", ",", "1.4124080199824987`"}, "}"}}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [6]:")}, 
          All), SectionGroup({
           Section(BoxData({"ListLinePlot", "(", {
               {{{"Merge", "(", {
@@ -88,24 +88,24 @@ Document({SectionGroup({Section("Time to load Quantity definitions", "Title"),
                      "custDispTimings", "|>", {
                       "Apply", "(", {"Rule", ",", "1"}, ")"}}}, "}"}, ",", {
                    "{", {{{"{", {{"~", "o"}, ",", {"~", "c"}}, "}"}, 
-                     "\[RuleDelayed]", {"c", "/", "o"}}, ",", {
+                     "\[RuleDelayed]", {"o", "/", "c"}}, ",", {
                      "~", "\[Rule]", "$Failed"}}, "}"}}, ")"}, "|>", {
                  "Replace", "(", {
                   {{"(", {"~", "\[Rule]", " ", "$Failed"}, ")"}, "\[Rule]", 
                    "Nothing"}, ",", {"1", "..", "1"}}, ")"}}, "|>", {
                 "Apply", "(", {"List", ",", "1"}, ")"}}, ",", {
-               "AxesOrigin", "\[Rule]", {"{", {"Automatic", ",", "0.6"}, 
-                "}"}}}, ")"}), "Input", SectionLabel -> "in [26]:"), 
+               "AxesOrigin", "\[Rule]", {"{", {"Automatic", ",", "1"}, "}"}}}, 
+             ")"}), "Input", SectionLabel -> "in [9]:"), 
           Section(
            BoxData(GraphicsBox({
               {RGBColor(0.75, 0, 0), {
-                LineBox({{924, 0.8827292112075608`}, {
-                   1848, 0.8321005917434895`}, {2772, 0.8162313433034374`}, {
-                   3696, 0.785139052940674[376+/-230]`16}, {
-                   4620, 0.7365125240771379`}, {
-                   5544, 0.7080107064333938`}})}}}, 
+                LineBox({{924, 1.1328502413917112`}, {
+                   1848, 1.2017777777380412`}, {2772, 1.2251428571130547`}, {
+                   3696, 1.273659737411585[002+/-440]`16}, {
+                   4620, 1.3577501635196443`}, {
+                   5544, 1.4124080199824987`}})}}}, 
              AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
-             Axes -> True, AxesOrigin -> {Automatic, 0.6})), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [26]:")}, All)}, 
-       All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
- Visible -> True)
+             Axes -> True, AxesOrigin -> NCache({Automatic, 1}, {
+                Automatic, 1.0}))), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [9]:")}, All)}, All)}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
