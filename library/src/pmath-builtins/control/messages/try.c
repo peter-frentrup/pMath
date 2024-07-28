@@ -32,10 +32,7 @@ static void make_critical_message(pmath_t msg, pmath_t tag) { // msg will be fre
             pmath_ref(_pmath_object_singlematch));
   }
   else {
-    pmath_t sym = pmath_expr_get_item(msg, 1);
-    pmath_unref(sym);
-    
-    if(pmath_same(sym, pmath_System_General))
+    if(pmath_expr_item_equals(msg, 1, pmath_System_General))
       msg = pmath_expr_set_item(msg, 1, pmath_ref(_pmath_object_singlematch));
   }
   

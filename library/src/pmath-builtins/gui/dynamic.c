@@ -95,10 +95,7 @@ static pmath_t find_tracked_symbols(pmath_t dynamic, size_t start) {
     pmath_t item = pmath_expr_get_item(dynamic, i);
     
     if(pmath_is_rule(item)) {
-      pmath_t lhs = pmath_expr_get_item(item, 1);
-      pmath_unref(lhs);
-      
-      if(pmath_same(lhs, pmath_System_TrackedSymbols)) {
+      if(pmath_expr_item_equals(item, 1, pmath_System_TrackedSymbols)) {
         pmath_t ts = pmath_expr_get_item(item, 2);
         
         pmath_unref(item);

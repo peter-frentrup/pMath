@@ -172,24 +172,12 @@ static pmath_expr_t trim_undef(pmath_expr_t list, int depth) {
     return list;
     
   b = pmath_expr_length(list);
-  while(b > 0) {
-    pmath_t item = pmath_expr_get_item(list, b);
-    pmath_unref(item);
-    
-    if(!pmath_same(item, PMATH_UNDEFINED))
-      break;
-      
+  while(b > 0 && pmath_expr_item_equals(list, b, PMATH_UNDEFINED)) {
     --b;
   }
   
   a = 1;
-  while(a < b) {
-    pmath_t item = pmath_expr_get_item(list, a);
-    pmath_unref(item);
-    
-    if(!pmath_same(item, PMATH_UNDEFINED))
-      break;
-      
+  while(a < b && pmath_expr_item_equals(list, a, PMATH_UNDEFINED)) {
     ++a;
   }
   

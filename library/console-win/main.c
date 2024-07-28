@@ -883,9 +883,7 @@ static pmath_t find_button_function(pmath_expr_t expr, size_t first_option) {
     pmath_t item = pmath_expr_get_item(expr, i);
     
     if(pmath_is_rule(item)) {
-      pmath_t lhs = pmath_expr_get_item(item, 1);
-      pmath_unref(lhs);
-      if(pmath_same(lhs, pmath_System_ButtonFunction)) {
+      if(pmath_expr_item_equals(item, 1, pmath_System_ButtonFunction)) {
         pmath_t rhs = pmath_expr_get_item(item, 2);
         pmath_unref(item);
         return rhs;

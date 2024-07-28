@@ -37,11 +37,9 @@ PMATH_PRIVATE pmath_t builtin_if(pmath_expr_t expr) {
     return onUnknown;
   }
   else {
-    pmath_t orig = pmath_expr_get_item(expr, 1);
-    if(!pmath_equals(orig, condition)) { // only warn if condition changed during evaluation
+    if(!pmath_expr_item_equals(expr, 1, condition)) { // only warn if condition changed during evaluation
       pmath_message(PMATH_NULL, "cond", 1, pmath_ref(condition));
     }
-    pmath_unref(orig);
   }
   
   expr = pmath_expr_set_item(expr, 1, condition);

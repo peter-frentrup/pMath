@@ -113,16 +113,11 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr) {
     item = pmath_expr_get_item(list, i);
     
     for(j = i + 1; j <= exprlen; ++j) {
-      current = pmath_expr_get_item(list, j);
-      
-      if(pmath_equals(current, item)) {
-        pmath_unref(current);
+      if(pmath_expr_item_equals(list, j, item)) {
         list = pmath_expr_set_item(list, j, PMATH_UNDEFINED);
       }
-      else {
-        pmath_unref(current);
+      else
         break;
-      }
     }
     
     pmath_unref(item);

@@ -566,7 +566,6 @@ static pmath_bool_t _pmath_multirule_find(
 ) {
   struct _pmath_multirule_t *_rule;
   pmath_t next;
-  pmath_t cond;
   pmath_t rule_body;
 
   assert(inout != NULL);
@@ -584,10 +583,7 @@ static pmath_bool_t _pmath_multirule_find(
         rule_body = pmath_evaluate(rule_body);
 
         if(pmath_is_expr_of_len(rule_body, pmath_Internal_Condition, 2)) {
-          cond = pmath_expr_get_item(rule_body, 2);
-          pmath_unref(cond);
-
-          if(pmath_same(cond, pmath_System_True)) {
+          if(pmath_expr_item_equals(rule_body, 2, pmath_System_True)) {
             pmath_unref(*inout);
             *inout = pmath_expr_get_item(rule_body, 1);
             pmath_unref(rule_body);

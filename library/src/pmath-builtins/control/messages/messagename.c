@@ -2,6 +2,7 @@
 
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
@@ -18,12 +19,7 @@ extern pmath_t pmath_System_MessageName;
 PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg){
   pmath_t obj;
   
-  if(!pmath_is_expr(msg) || pmath_expr_length(msg) != 2)
-    return FALSE;
-  
-  obj = pmath_expr_get_item(msg, 0);
-  pmath_unref(obj);
-  if(!pmath_same(obj, pmath_System_MessageName))
+  if(!pmath_is_expr_of_len(msg, pmath_System_MessageName, 2))
     return FALSE;
   
   obj = pmath_expr_get_item(msg, 1);

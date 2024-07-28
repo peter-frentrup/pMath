@@ -28,6 +28,7 @@ size_t pmath_object_bytecount(pmath_t obj) {
       return LENGTH_TO_CAPACITY(pmath_string_length(obj)) * sizeof(uint16_t)
            + STRING_HEADER_SIZE;
     
+    case PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION: // TODO: that has even some more data ....
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
       size_t i, len, result;
@@ -45,6 +46,7 @@ size_t pmath_object_bytecount(pmath_t obj) {
       
       return result;
     }
+    
     
     case PMATH_TYPE_SHIFT_PACKED_ARRAY: 
       return _pmath_packed_array_bytecount(obj);

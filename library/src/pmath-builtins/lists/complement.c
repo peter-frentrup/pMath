@@ -22,34 +22,26 @@ static pmath_t extract_sametest_option(pmath_expr_t expr, size_t *len) {
     pmath_t last = pmath_expr_get_item(expr, *len);
     
     if(pmath_is_rule(last)) {
-      pmath_t lhs = pmath_expr_get_item(last, 1);
-      if(pmath_equals(lhs, pmath_System_SameTest)) {
+      if(pmath_expr_item_equals(last, 1, pmath_System_SameTest)) {
         pmath_t rhs = pmath_expr_get_item(last, 2);
         
         --*len;
-        pmath_unref(lhs);
         pmath_unref(last);
         return rhs;
       }
-      
-      pmath_unref(lhs);
     }
     else if(pmath_is_expr_of_len(last, pmath_System_List, 1)) {
       pmath_t item = pmath_expr_get_item(last, 1);
       
       if(pmath_is_rule(item)) {
-        pmath_t lhs = pmath_expr_get_item(item, 1);
-        if(pmath_equals(lhs, pmath_System_SameTest)) {
+        if(pmath_expr_item_equals(item, 1, pmath_System_SameTest)) {
           pmath_t rhs = pmath_expr_get_item(item, 2);
           
           --*len;
-          pmath_unref(lhs);
           pmath_unref(item);
           pmath_unref(last);
           return rhs;
         }
-        
-        pmath_unref(lhs);
       }
       
       pmath_unref(item);

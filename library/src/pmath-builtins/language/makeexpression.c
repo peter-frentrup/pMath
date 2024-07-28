@@ -3764,11 +3764,8 @@ static pmath_t make_division(pmath_expr_t boxes) {
   }
   
   if(previous_rational > 0) {
-    pmath_t first = pmath_expr_get_item(result, 1);
-    if(pmath_same(first, INT(1)))
+    if(pmath_expr_item_equals(result, 1, INT(1)))
       result = pmath_expr_set_item(result, 1, PMATH_UNDEFINED);
-    else
-      pmath_unref(first);
       
     result = _pmath_expr_shrink_associative(result, PMATH_UNDEFINED);
   }

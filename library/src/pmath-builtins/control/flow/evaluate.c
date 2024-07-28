@@ -239,10 +239,7 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr) {
           pmath_t item = pmath_expr_get_item(expr, j);
           
           if(pmath_is_expr_of_len(item, pmath_System_Label, 1)) {
-            head = pmath_expr_get_item(item, 1);
-            
-            if(pmath_equals(head, lbl)) {
-              pmath_unref(head);
+            if(pmath_expr_item_equals(item, 1, lbl)) {
               pmath_unref(item);
               pmath_unref(lbl);
               result = PMATH_NULL;
@@ -251,8 +248,6 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr) {
               
               goto NEXT_STEP;
             }
-            
-            pmath_unref(head);
           }
           
           pmath_unref(item);

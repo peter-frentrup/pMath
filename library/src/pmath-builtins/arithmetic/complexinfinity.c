@@ -2,6 +2,7 @@
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -17,19 +18,14 @@ pmath_bool_t _pmath_is_infinite(pmath_t obj) {
   pmath_bool_t result;
   pmath_t item;
   
-  if(!pmath_is_expr(obj))
+  if(!pmath_is_expr_of(obj, pmath_System_DirectedInfinity))
     return FALSE;
     
-  item = pmath_expr_get_item(obj, 0);
-  pmath_unref(item);
-  
-  if(!pmath_same(item, pmath_System_DirectedInfinity))
-    return FALSE;
-    
-  if(pmath_expr_length(obj) == 0)
+  size_t len = pmath_expr_length(obj);
+  if(len == 0)
     return TRUE;
     
-  if(pmath_expr_length(obj) > 1)
+  if(len > 1)
     return FALSE;
     
   item = pmath_expr_get_item(obj, 1);
@@ -42,19 +38,14 @@ pmath_bool_t _pmath_is_infinite(pmath_t obj) {
 PMATH_PRIVATE pmath_t _pmath_directed_infinity_direction(
   pmath_t obj
 ) {
-  pmath_t head;
-  if( !pmath_is_expr(obj) ||
-      pmath_expr_length(obj) > 1)
-  {
+  if(!pmath_is_expr_of(obj, pmath_System_DirectedInfinity))
     return PMATH_NULL;
-  }
-  
-  head = pmath_expr_get_item(obj, 0);
-  pmath_unref(head);
-  if(!pmath_same(head, pmath_System_DirectedInfinity))
+
+  size_t len = pmath_expr_length(obj);
+  if(len > 1)
     return PMATH_NULL;
     
-  if(pmath_expr_length(obj) == 0)
+  if(len == 0)
     return PMATH_FROM_INT32(0);
     
   return pmath_expr_get_item(obj, 1);
@@ -74,8 +65,7 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr) {
   
   item = pmath_expr_get_item(expr, 1);
   if( pmath_same(item, pmath_System_Undefined) ||
-      (pmath_is_number(item) &&
-       pmath_number_sign(item) == 0))
+      (pmath_is_number(item) && pmath_number_sign(item) == 0))
   {
     pmath_unref(item);
     pmath_unref(expr);
@@ -95,13 +85,9 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr) {
   pmath_unref(item);
   item = sign;
   
-  if(pmath_is_expr(sign) && pmath_expr_length(sign) == 1) {
-    pmath_t signhead = pmath_expr_get_item(sign, 0);
-    pmath_unref(signhead);
-    if(pmath_same(signhead, pmath_System_Sign)) {
-      item = pmath_expr_get_item(sign, 1);
-      pmath_unref(sign);
-    }
+  if(pmath_is_expr_of_len(sign, pmath_System_Sign, 1)) {
+    item = pmath_expr_get_item(sign, 1);
+    pmath_unref(sign);
   }
   
   return pmath_expr_set_item(expr, 1, item);

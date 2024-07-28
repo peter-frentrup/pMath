@@ -21,18 +21,7 @@ extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_PadLeft;
 
 static pmath_bool_t is_expr_of_general(pmath_t obj, pmath_t head) {
-  if(pmath_is_expr(obj)) {
-    pmath_t h = pmath_expr_get_item(obj, 0);
-
-    if(pmath_equals(h, head)){
-      pmath_unref(h);
-      return TRUE;
-    }
-
-    pmath_unref(h);
-  }
-
-  return FALSE;
+  return pmath_is_expr(obj) && pmath_expr_item_equals(obj, 0, head);
 }
 
 static int estimate_rect_depth(pmath_t head, pmath_t array, pmath_bool_t *maybe_bigger) {

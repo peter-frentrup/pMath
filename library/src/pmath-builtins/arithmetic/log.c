@@ -350,21 +350,16 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
   }
   
   if(pmath_is_expr_of_len(x, pmath_System_Power, 2)) {
-    pmath_t b = pmath_expr_get_item(x, 1);
-    
-    if(pmath_equals(base, b)) {
-      pmath_unref(b);
-      b = pmath_expr_get_item(x, 2);
-      
-      if(pmath_is_numeric(b)) {
+    if(pmath_expr_item_equals(x, 1, base)) { // Log(base, base^exp) = exp for numeric exp
+      pmath_t exp = pmath_expr_get_item(x, 2);
+      if(pmath_is_numeric(exp)) {
         pmath_unref(expr);
         pmath_unref(base);
         pmath_unref(x);
-        return b;
+        return exp;
       }
+      pmath_unref(exp);
     }
-    
-    pmath_unref(b);
   }
   
   if(pmath_expr_length(expr) == 2) {

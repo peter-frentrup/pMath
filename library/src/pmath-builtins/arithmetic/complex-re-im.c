@@ -81,17 +81,12 @@ pmath_bool_t _pmath_is_imaginary(
     }
     
     if(pmath_same(head, pmath_System_Complex) && len == 2) {
-      pmath_t x = pmath_expr_get_item(*z, 1);
-      
-      if(pmath_equals(x, PMATH_FROM_INT32(0))) {
-        pmath_unref(x);
-        x = *z;
-        *z = pmath_expr_get_item(x, 2);
-        pmath_unref(x);
+      if(pmath_expr_item_equals(*z, 1, PMATH_FROM_INT32(0))) {
+        pmath_t tmp = *z;
+        *z = pmath_expr_get_item(tmp, 2);
+        pmath_unref(tmp);
         return TRUE;
       }
-      
-      pmath_unref(x);
       return FALSE;
     }
   }
@@ -651,21 +646,17 @@ PMATH_PRIVATE pmath_t _pmath_complex_new_from_acb_destructive(acb_t value, slong
 }
 
 PMATH_PRIVATE pmath_t builtin_complex(pmath_expr_t expr) {
-  pmath_t x;
   if(pmath_expr_length(expr) != 2) {
     pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
     return expr;
   }
   
-  x = pmath_expr_get_item(expr, 2);
-  if(pmath_equals(x, PMATH_FROM_INT32(0))) {
-    pmath_unref(x);
-    x = pmath_expr_get_item(expr, 1);
+  if(pmath_expr_item_equals(expr, 2, PMATH_FROM_INT32(0))) {
+    pmath_t x = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
     return x;
   }
   
-  pmath_unref(x);
   return expr;
 }
 

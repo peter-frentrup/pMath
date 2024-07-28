@@ -1651,13 +1651,8 @@ static match_kind_t match_atom_to_literal(pattern_info_t *info, pmath_t pat, pma
   }
 
   if(len == 1) {
-    pmath_t p = pmath_expr_get_item(pat, 1);
-    if(pmath_equals(p, arg)) {
-      pmath_unref(p);
+    if(pmath_expr_item_equals(pat, 1, arg))
       return PMATH_MATCH_KIND_LOCAL;
-    }
-
-    pmath_unref(p);
   }
 
   return PMATH_MATCH_KIND_NONE;

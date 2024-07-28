@@ -47,14 +47,10 @@ static pmath_t get_default_options(pmath_t head) {
 PMATH_PRIVATE
 pmath_expr_t _pmath_option_find_rule(pmath_t name, pmath_t option_set) {
   if(pmath_is_rule(option_set)) {
-    pmath_t lhs = pmath_expr_get_item(option_set, 1);
-    
-    if(pmath_equals(name, lhs)) {
-      pmath_unref(lhs);
+    if(pmath_expr_item_equals(option_set, 1, name)) {
       return pmath_ref(option_set);
     }
     
-    pmath_unref(lhs);
     return PMATH_NULL;
   }
   

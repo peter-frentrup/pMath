@@ -361,7 +361,7 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
 }
 
 static pmath_expr_t set_option(
-  pmath_expr_t options, // will be freed; changed options returned on su8ccess
+  pmath_expr_t options, // will be freed. Must be a list of rules! Changed options returned on success
   pmath_t     rule,    // will be freed
   pmath_t     sym      // wont be freed
 ) {
@@ -377,18 +377,16 @@ static pmath_expr_t set_option(
   
   lhs = pmath_expr_get_item(rule, 1);
   
-  for(i = 1; i <= pmath_expr_length(options); ++i) {
+  // TODO: use dispatch table ... instead of linear search? 
+  size_t opt_len = pmath_expr_length(options);
+  for(i = 1; i <= opt_len; ++i) {
     pmath_t old_rule = pmath_expr_get_item(options, i);
-    pmath_t old_lhs = pmath_expr_get_item(old_rule, 1);
-    
-    pmath_unref(old_rule);
-    if(pmath_equals(lhs, old_lhs)) {
-      pmath_unref(old_lhs);
+    if(pmath_expr_item_equals(old_rule, 1, lhs)) {
+      pmath_unref(old_rule);
       pmath_unref(lhs);
       return pmath_expr_set_item(options, i, rule);
     }
-    
-    pmath_unref(old_lhs);
+    pmath_unref(old_rule);
   }
   
   pmath_message(
