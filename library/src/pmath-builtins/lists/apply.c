@@ -26,9 +26,13 @@ static pmath_t apply(
     int reldepth = _pmath_object_in_levelspec(
                      list, info->levelmin, info->levelmax, level);
                      
-    if(reldepth == 0)
+    if(reldepth == 0) {
       list = pmath_expr_set_item(list, 0, pmath_ref(f));
       
+      if(level == info->levelmax) // (levelmax >= 0) all subsequent apply() calls below would be no-ops
+        return list;
+    }
+    
     if(reldepth <= 0) {
       size_t i, len;
       
