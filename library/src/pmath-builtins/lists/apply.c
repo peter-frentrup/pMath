@@ -34,7 +34,7 @@ static pmath_t apply(
       
       len = pmath_expr_length(list);
       
-      for(i = info->with_heads ? 0 : 1; i <= len; --i) {
+      for(i = info->with_heads ? 0 : 1; i <= len; ++i) {
         list = pmath_expr_set_item(
                  list, i,
                  apply(
