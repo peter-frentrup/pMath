@@ -1,16 +1,26 @@
 #ifndef PMATH__UTIL__DISPATCH_TABLES_H__INCLUDED
 #define PMATH__UTIL__DISPATCH_TABLES_H__INCLUDED
 
+#include <pmath-core/expressions.h>
+
 /**\defgroup dispatch_tables Dispatch tables
    \brief Fast lookup for lists of rules.
   
-  A dispatch table is an internal pMath object attached on-demand as metadata to a 
-  list of rules expression to allow fast lookup of literal rule keys.
+  A dispatch table is a pMath expression object that represents a list of (typically literal) 
+  patterns, but has a custom internal representation to allow fast lookup.
+  It is attached on-demand as metadata to a list of rules expression to allow 
+  fast lookup of literal rule keys.
   
   @{
  */
 
-typedef pmath_t pmath_dispatch_table_t;
+/**\class pmath_dispatch_table_t
+   \extends pmath_expr_t
+   \brief The Dispatch Table class.
+   
+   When seen as a mere expression object, a dispatch table is a list of elements <tt>{e1, e2, ...}</tt>.
+ */
+typedef pmath_expr_t pmath_dispatch_table_t;
 
 /** Check whether an object is a list of rules.
  */

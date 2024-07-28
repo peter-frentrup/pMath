@@ -52,9 +52,9 @@ struct _pmath_dispatch_table_extra_data_t {
   struct _pmath_dispatch_entry_t entries[1]; // capacity many elements
 };
 
-static _pmath_dispatch_table_new_t *find_dispatch_table(pmath_expr_t rules); // rules wont be freed
-pmath_bool_t finish_create_dispatch_table(_pmath_dispatch_table_new_t *tab, size_t num_keys);
-static _pmath_dispatch_table_new_t *get_dispatch_table_for_rules(pmath_expr_t rules); // rules wont be freed
+static _pmath_dispatch_table_expr_t *find_dispatch_table(pmath_expr_t rules); // rules wont be freed
+pmath_bool_t finish_create_dispatch_table(_pmath_dispatch_table_expr_t *tab, size_t num_keys);
+static _pmath_dispatch_table_expr_t *get_dispatch_table_for_rules(pmath_expr_t rules); // rules wont be freed
 
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_PatternSequence;
@@ -113,7 +113,7 @@ static const struct _pmath_custom_expr_api_t dispatch_expr_api = {
 
 /// Extra data of the _pmath_dispatch_table_extra_data_t::literal_entries hash table.
 struct _pmath_dispatch_ht_extra_t {
-  _pmath_dispatch_table_new_t *owner;
+  _pmath_dispatch_table_expr_t *owner;
 };
 
 static struct _pmath_dispatch_ht_extra_t *dispatch_ht_extra(pmath_hashtable_t ht) {
@@ -125,7 +125,7 @@ static void noop(pmath_hashtable_t ht, void *e) {
 
 static unsigned int dispatch_entry_hash(pmath_hashtable_t ht, void *e) {
   struct _pmath_dispatch_ht_extra_t *extra = dispatch_ht_extra(ht);
-  _pmath_dispatch_table_new_t       *tab   = extra->owner;
+  _pmath_dispatch_table_expr_t       *tab   = extra->owner;
   struct _pmath_dispatch_entry_t    *entry = (struct _pmath_dispatch_entry_t *)e;
   
   if(!tab) {
@@ -156,7 +156,7 @@ static unsigned int dispatch_entry_hash(pmath_hashtable_t ht, void *e) {
 
 static pmath_bool_t dispatch_entry_keys_equal(pmath_hashtable_t ht, void *e1, void *e2) {
   struct _pmath_dispatch_ht_extra_t *extra  = dispatch_ht_extra(ht);
-  _pmath_dispatch_table_new_t       *tab    = extra->owner;
+  _pmath_dispatch_table_expr_t       *tab    = extra->owner;
   struct _pmath_dispatch_entry_t    *entry1 = e1;
   struct _pmath_dispatch_entry_t    *entry2 = e2;
   
@@ -189,7 +189,7 @@ static unsigned int dispatch_lookup_info_hash(pmath_hashtable_t ht, void *k) {
 
 static pmath_bool_t dispatch_entry_equals_lookup_key(pmath_hashtable_t ht, void *e, void *k) {
   struct _pmath_dispatch_ht_extra_t *extra  = dispatch_ht_extra(ht);
-  _pmath_dispatch_table_new_t       *tab    = extra->owner;
+  _pmath_dispatch_table_expr_t       *tab    = extra->owner;
   struct _pmath_dispatch_entry_t    *entry  = e;
   struct dispatch_lookup_info_t     *info   = k;
   
@@ -239,20 +239,20 @@ static const pmath_ht_class_ex_t dispatch_entries_ht_class = {
 
 static pmath_atomic_t dispatch_table_cache_lock = PMATH_ATOMIC_STATIC_INIT;
 
-// Maps dispatch_table_cache_search_t* keys to _pmath_dispatch_table_new_t* entries:
+// Maps dispatch_table_cache_search_t* keys to _pmath_dispatch_table_expr_t* entries:
 static pmath_hashtable_t dispatch_table_cache;
 
 #define DISPATCH_TABLE_LIMBO_SIZE       8   // Must be a power of two
 #define DISPATCH_TABLE_LIMBO_SIZE_MASK  (DISPATCH_TABLE_LIMBO_SIZE - 1)
 
-static _pmath_dispatch_table_new_t *dispatch_table_limbo[DISPATCH_TABLE_LIMBO_SIZE];
+static _pmath_dispatch_table_expr_t *dispatch_table_limbo[DISPATCH_TABLE_LIMBO_SIZE];
 static size_t dispatch_table_limbo_next = 0;
 
 static pmath_t      dispatch_table_cache_key_at(struct dispatch_table_cache_search_t *search, size_t i);
 
 static void         dispatch_table_cache_entry_destructor(void *entry);
 static unsigned int dispatch_table_cache_entry_hash(void *entry);
-static void         dispatch_table_init_cache_hash(_pmath_dispatch_table_new_t *tab);
+static void         dispatch_table_init_cache_hash(_pmath_dispatch_table_expr_t *tab);
 static unsigned int dispatch_table_cache_key_hash(void *key);
 static pmath_bool_t dispatch_table_cache_entry_keys_equal(void *entry1, void *entry2);
 static pmath_bool_t dispatch_table_cache_entry_equals_key(void *entry, void *key);
@@ -265,7 +265,7 @@ static const pmath_ht_class_t dispatch_table_cache_class = {
   dispatch_table_cache_entry_equals_key
 };
 
-static size_t unsafe_find_in_limbo(_pmath_dispatch_table_new_t *disp) {
+static size_t unsafe_find_in_limbo(_pmath_dispatch_table_expr_t *disp) {
   // The limbo is small enough for a linear search. Otherwise we would have to introduce a 
   // _pmath_dispatch_table_t::limbo_index member.
   size_t i;
@@ -276,8 +276,8 @@ static size_t unsafe_find_in_limbo(_pmath_dispatch_table_new_t *disp) {
   return 0;
 }
 
-_pmath_dispatch_table_new_t *find_dispatch_table(pmath_expr_t rules) {
-  _pmath_dispatch_table_new_t *result = NULL;
+_pmath_dispatch_table_expr_t *find_dispatch_table(pmath_expr_t rules) {
+  _pmath_dispatch_table_expr_t *result = NULL;
   struct dispatch_table_cache_search_t search;
   search.mode    = SEARCH_BY_LIST_OF_RULES;
   search.u.rules = rules;
@@ -309,9 +309,9 @@ _pmath_dispatch_table_new_t *find_dispatch_table(pmath_expr_t rules) {
   return result;
 }
 
-static _pmath_dispatch_table_new_t *get_dispatch_table_for_rules(pmath_expr_t rules) {
-  _pmath_dispatch_table_new_t *tab;
-  _pmath_dispatch_table_new_t *old;
+static _pmath_dispatch_table_expr_t *get_dispatch_table_for_rules(pmath_expr_t rules) {
+  _pmath_dispatch_table_expr_t *tab;
+  _pmath_dispatch_table_expr_t *old;
   //pmath_t keys;
   size_t len;
   
@@ -391,7 +391,7 @@ static pmath_bool_t prepare_const_pattern(pmath_t *key) {
 }
 
 // Assuming tab->internals.items  is  already initialized.
-pmath_bool_t finish_create_dispatch_table(_pmath_dispatch_table_new_t *tab, size_t num_keys) {
+pmath_bool_t finish_create_dispatch_table(_pmath_dispatch_table_expr_t *tab, size_t num_keys) {
   struct _pmath_dispatch_table_extra_data_t *tab_extra = DISPATCH_EXPR_EXTRA(tab);
 
   pmath_hashtable_t literal_entries;
@@ -488,7 +488,7 @@ static void dispatch_expr_destroy_data(struct _pmath_custom_expr_data_t *_data) 
 //    {
 //    // TODO: what if the dispatch table was revived???
 //    // Remove from cache ...
-//    _pmath_dispatch_table_new_t *tab = dispatch_ht_extra(tab_extra->literal_entries)->owner;
+//    _pmath_dispatch_table_expr_t *tab = dispatch_ht_extra(tab_extra->literal_entries)->owner;
 //    struct dispatch_table_cache_search_t search;
 //    search.mode  = SEARCH_BY_DISPATCH_PTR;
 //    search.u.ptr = tab;
@@ -514,7 +514,7 @@ static struct _pmath_dispatch_entry_t *get_next_slice(struct _pmath_dispatch_ent
 }
 
 PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
-  _pmath_dispatch_table_new_t *table, // won't be freed
+  _pmath_dispatch_table_expr_t *table, // won't be freed
   pmath_t key,                        // won't be freed
   pmath_t *rules_in_rhs_out,          // will be freed
   pmath_bool_t literal
@@ -645,7 +645,7 @@ PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t ex
 
 PMATH_API pmath_bool_t pmath_rules_lookup(pmath_t rules, pmath_t key, pmath_t *result) {
   pmath_dispatch_table_t       tab     = _pmath_rules_need_dispatch_table(rules);
-  _pmath_dispatch_table_new_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
+  _pmath_dispatch_table_expr_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
   size_t i;
   pmath_t rules_in_rhs_out;
   
@@ -673,7 +673,7 @@ PMATH_API pmath_bool_t pmath_rules_lookup(pmath_t rules, pmath_t key, pmath_t *r
 
 PMATH_PRIVATE pmath_t _pmath_rules_find_rule(pmath_t rules, pmath_t lhs, pmath_bool_t literal) {
   pmath_dispatch_table_t       tab     = _pmath_rules_need_dispatch_table(rules);
-  _pmath_dispatch_table_new_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
+  _pmath_dispatch_table_expr_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
   size_t i;
   
   if(!tab_ptr)
@@ -753,7 +753,7 @@ PMATH_API pmath_t pmath_rules_modify(
   void          *callback_context
 ) {
   pmath_dispatch_table_t tab = _pmath_rules_need_dispatch_table(rules);
-  _pmath_dispatch_table_new_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
+  _pmath_dispatch_table_expr_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
   size_t i, len;
   struct _pmath_dispatch_entry_t *entry;
   
@@ -803,10 +803,10 @@ PMATH_API pmath_t pmath_rules_modify(
 //{ module init/done ...
 
 PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
-  pmath_bool_t (*keep_callback)(_pmath_dispatch_table_new_t*, void*),
+  pmath_bool_t (*keep_callback)(_pmath_dispatch_table_expr_t*, void*),
   void          *closure
 ) {
-  _pmath_dispatch_table_new_t *old_limbo[DISPATCH_TABLE_LIMBO_SIZE];
+  _pmath_dispatch_table_expr_t *old_limbo[DISPATCH_TABLE_LIMBO_SIZE];
   size_t i;
   size_t num_del;
   
@@ -815,7 +815,7 @@ PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
   pmath_atomic_lock(&dispatch_table_cache_lock);
   {
     for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE; ++i) {
-      _pmath_dispatch_table_new_t *table = dispatch_table_limbo[i];
+      _pmath_dispatch_table_expr_t *table = dispatch_table_limbo[i];
       old_limbo[i] = table;
       if(table) {
         _pmath_ref_ptr(&table->internals.inherited.inherited.inherited); // Note that table has refcount == 1 now.
@@ -828,7 +828,7 @@ PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
   
   num_del = 0;
   for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE; ++i) {
-    _pmath_dispatch_table_new_t *table = old_limbo[i];
+    _pmath_dispatch_table_expr_t *table = old_limbo[i];
     if(table) {
       // Note that table has refcount >= 1 here (could be concurrenlty revived).
       if(keep_callback(table, closure)) {
@@ -847,7 +847,7 @@ PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
   {
     size_t remaining = num_del;
     for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE && remaining; ++i) {
-      _pmath_dispatch_table_new_t *table = old_limbo[i]; 
+      _pmath_dispatch_table_expr_t *table = old_limbo[i]; 
       if(table) { // table.refcount >= 1 (>1 if already revived)
         if(_pmath_prepare_destroy(&table->internals.inherited.inherited.inherited)) { // Afterwards: table.refcount >= 0 (>0 if already revived)
           // table.refcount == 0.
@@ -866,7 +866,7 @@ PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
   pmath_atomic_unlock(&dispatch_table_cache_lock);
   
   for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE && num_del; ++i) {
-    _pmath_dispatch_table_new_t *table = old_limbo[i]; // refcount == 0 here (cannot have been revived, becaus it was removed from cache)
+    _pmath_dispatch_table_expr_t *table = old_limbo[i]; // refcount == 0 here (cannot have been revived, becaus it was removed from cache)
     if(table) { 
       --num_del;
       dispatch_table_cache_entry_destructor(table);
@@ -875,7 +875,7 @@ PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
 }
 
 PMATH_PRIVATE void _pmath_dispatch_tables_memory_panic(void) {
-  _pmath_dispatch_table_new_t *old_limbo[DISPATCH_TABLE_LIMBO_SIZE];
+  _pmath_dispatch_table_expr_t *old_limbo[DISPATCH_TABLE_LIMBO_SIZE];
   size_t i;
   
   PMATH_STATIC_ASSERT(sizeof(dispatch_table_limbo) == sizeof(old_limbo));
@@ -922,7 +922,7 @@ PMATH_PRIVATE void _pmath_dispatch_tables_done(void) {
 //} ... module init/done
 
 static void dispatch_table_cache_entry_destructor(void *entry) {
-  _pmath_dispatch_table_new_t *tab = entry;
+  _pmath_dispatch_table_expr_t *tab = entry;
   
   if(PMATH_LIKELY(_pmath_refcount_ptr(&tab->internals.inherited.inherited.inherited) == 0)) {
     dispatch_expr_destroy_data(&DISPATCH_EXPR_EXTRA(tab)->base); // Idempotent. Clear literal_entries to NULL
@@ -941,8 +941,8 @@ static pmath_bool_t dispatch_expr_try_prevent_destruction(struct _pmath_custom_e
   
   pmath_bool_t keep_alive = FALSE;
   
-  _pmath_dispatch_table_new_t *other_zombie        = NULL;
-  _pmath_dispatch_table_new_t *other_zombie_cached = NULL;
+  _pmath_dispatch_table_expr_t *other_zombie        = NULL;
+  _pmath_dispatch_table_expr_t *other_zombie_cached = NULL;
   
   pmath_atomic_lock(&dispatch_table_cache_lock);
   {
@@ -999,7 +999,7 @@ static pmath_bool_t dispatch_expr_try_prevent_destruction(struct _pmath_custom_e
 }
 
 static unsigned int dispatch_table_cache_entry_hash(void *entry) {
-  _pmath_dispatch_table_new_t               *tab       = entry;
+  _pmath_dispatch_table_expr_t               *tab       = entry;
   struct _pmath_dispatch_table_extra_data_t *tab_extra = DISPATCH_EXPR_EXTRA(tab);
   return tab_extra->hash_for_cache;
 }
@@ -1053,7 +1053,7 @@ static pmath_t dispatch_table_cache_key_at(struct dispatch_table_cache_search_t 
   }
 }
 
-static void dispatch_table_init_cache_hash(_pmath_dispatch_table_new_t *tab) {
+static void dispatch_table_init_cache_hash(_pmath_dispatch_table_expr_t *tab) {
   struct _pmath_dispatch_table_extra_data_t *tab_extra = DISPATCH_EXPR_EXTRA(tab);
 
   unsigned int hash = 17;
@@ -1069,15 +1069,15 @@ static void dispatch_table_init_cache_hash(_pmath_dispatch_table_new_t *tab) {
 }
 
 static pmath_bool_t dispatch_table_cache_entry_keys_equal(void *entry1, void *entry2) {
-  _pmath_dispatch_table_new_t *tab1 = entry1;
-  _pmath_dispatch_table_new_t *tab2 = entry2;
+  _pmath_dispatch_table_expr_t *tab1 = entry1;
+  _pmath_dispatch_table_expr_t *tab2 = entry2;
   return pmath_equals(
            PMATH_FROM_PTR(&tab1->internals.inherited.inherited.inherited),
            PMATH_FROM_PTR(&tab2->internals.inherited.inherited.inherited));
 }
 
 static pmath_bool_t dispatch_table_cache_entry_equals_key(void *entry, void *key) {
-  _pmath_dispatch_table_new_t               *tab       = entry;
+  _pmath_dispatch_table_expr_t               *tab       = entry;
   struct _pmath_dispatch_table_extra_data_t *tab_extra = DISPATCH_EXPR_EXTRA(tab);
   struct dispatch_table_cache_search_t      *search    = key;
   

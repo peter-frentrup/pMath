@@ -15,7 +15,7 @@
   @{
  */
 
-typedef struct _pmath_custom_expr_t  _pmath_dispatch_table_new_t;
+typedef struct _pmath_custom_expr_t  _pmath_dispatch_table_expr_t;
 
 /** Get the dispatch-table for a list-of-rules.
     
@@ -47,13 +47,13 @@ PMATH_PRIVATE pmath_t _pmath_rules_find_rule(pmath_t rules, pmath_t lhs, pmath_b
     right-hand side. It then needs to be freed.
  */
 PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
-  _pmath_dispatch_table_new_t *table, // won't be freed
+  _pmath_dispatch_table_expr_t *table, // won't be freed
   pmath_t key,                        // won't be freed
   pmath_t *rules_in_rhs_out,          // will be freed, optional
   pmath_bool_t literal);
 
 PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
-  pmath_bool_t (*keep_callback)(_pmath_dispatch_table_new_t*, void*),
+  pmath_bool_t (*keep_callback)(_pmath_dispatch_table_expr_t*, void*),
   void          *closure);
 PMATH_PRIVATE void _pmath_dispatch_tables_memory_panic(void);
 PMATH_PRIVATE pmath_bool_t _pmath_dispatch_tables_init(void);
