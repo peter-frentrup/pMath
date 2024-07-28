@@ -112,7 +112,7 @@ size_t pmath_expr_length(pmath_expr_t expr);
 
 /**\brief Get an item from an expression.
    \memberof pmath_expr_t
-   \param expr A pMath expression.
+   \param expr A pMath expression. It won't be freed.
    \param index The index of the item.
    \return A copy of the requested item, if index is not greater than the 
    length of expr and PMATH_NULL otherwise. You must destroy it with pmath_unref().
@@ -126,7 +126,7 @@ pmath_t pmath_expr_get_item(
 
 /**\brief Extract an item from an expression.
    \memberof pmath_expr_t
-   \param expr A pMath expression.
+   \param expr A pMath expression. It won't be freed.
    \param index The index of the item.
    \return Same as pmath_expr_get_item() but if expr has refcount==1, the item 
            might be removed from expr to ensure that the item's refcount is 1.
@@ -140,6 +140,27 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_expr_extract_item(
   pmath_expr_t expr,
   size_t       index);
+
+/**\brief Test whether an item from an expression equals a given value.
+   \memberof pmath_expr_t
+   \param expr A pMath expression. It won't be freed.
+   \param index The index of the item.
+   \param expected_item The value to compare with. It won't be freed.
+   \return True, if the requested item and \a expected_item are equal. FALSE otherwise.
+   
+   This is essentially equivalent to
+   
+       item = pmath_expr_get_item(expr, index);
+       eq = pmath_equals(item, expected_item);
+       pmath_unref(item);
+       return eq;
+ */
+PMATH_API 
+PMATH_ATTRIBUTE_PURE 
+pmath_bool_t pmath_expr_item_equals(
+  pmath_expr_t expr,
+  size_t       index,
+  pmath_t      expected_item);
 
 /**\brief Get multiple items from an expression.
    \memberof pmath_expr_t

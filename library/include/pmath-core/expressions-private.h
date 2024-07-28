@@ -37,18 +37,19 @@ struct _pmath_custom_expr_data_t {
 
 struct _pmath_custom_expr_api_t {
   void         (*destroy_data)(           struct _pmath_custom_expr_data_t *data); // disposes contents of data, but not data itself
-  size_t       (*get_length)(             struct _pmath_custom_expr_t *e);                                                    // does not free e
+  size_t       (*get_length)(             struct _pmath_custom_expr_t *e);                                                        // does not free e
   pmath_t      (*get_item)(               struct _pmath_custom_expr_t *e, size_t i);       
-  pmath_bool_t (*try_prevent_destruction)(struct _pmath_custom_expr_t *e);                                                    // does not free e
-  pmath_bool_t (*try_get_item_range)(     struct _pmath_custom_expr_t *e, size_t start, size_t length, pmath_expr_t *result); // does not free e
-  pmath_bool_t (*try_set_item_copy)(      struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item, pmath_expr_t *result);  // does not free e
-  pmath_bool_t (*try_set_item_mutable)(   struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item);                        // modifes e in-place (only if retuning TRUE).
-  pmath_bool_t (*try_copy_shallow)(       struct _pmath_custom_expr_t *e, pmath_expr_t *result);                              // does not free e
-  pmath_bool_t (*try_shrink_associative)( struct _pmath_custom_expr_t *e, pmath_t magic_rem, pmath_expr_t *result);           // frees e iff returning TRUE
-  pmath_bool_t (*try_resize_copy)(        struct _pmath_custom_expr_t *e, size_t new_len, pmath_expr_t *result);              // does not free e
-  pmath_bool_t (*try_resize_mutable)(     struct _pmath_custom_expr_t *e, size_t new_len, pmath_expr_t *result);              // frees e iff returing TRUE
-  pmath_bool_t (*try_compare_equal)(      struct _pmath_custom_expr_t *e, pmath_t other, pmath_bool_t *result);               // does not free e or other
-  pmath_bool_t (*try_maybe_contains_item)(struct _pmath_custom_expr_t *e, pmath_t item, pmath_bool_t *result);                // does not free e or other
+  pmath_bool_t (*try_prevent_destruction)(struct _pmath_custom_expr_t *e);                                                        // does not free e
+  pmath_bool_t (*try_get_item_range)(     struct _pmath_custom_expr_t *e, size_t start, size_t length, pmath_expr_t *result);     // does not free e
+  pmath_bool_t (*try_set_item_copy)(      struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item, pmath_expr_t *result);      // does not free e
+  pmath_bool_t (*try_set_item_mutable)(   struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item);                            // modifes e in-place (only if retuning TRUE).
+  pmath_bool_t (*try_copy_shallow)(       struct _pmath_custom_expr_t *e, pmath_expr_t *result);                                  // does not free e
+  pmath_bool_t (*try_shrink_associative)( struct _pmath_custom_expr_t *e, pmath_t magic_rem, pmath_expr_t *result);               // frees e iff returning TRUE
+  pmath_bool_t (*try_resize_copy)(        struct _pmath_custom_expr_t *e, size_t new_len, pmath_expr_t *result);                  // does not free e
+  pmath_bool_t (*try_resize_mutable)(     struct _pmath_custom_expr_t *e, size_t new_len, pmath_expr_t *result);                  // frees e iff returing TRUE
+  pmath_bool_t (*try_compare_equal)(      struct _pmath_custom_expr_t *e, pmath_t other, pmath_bool_t *result);                   // does not free e or other
+  pmath_bool_t (*try_maybe_contains_item)(struct _pmath_custom_expr_t *e, pmath_t item, pmath_bool_t *result);                    // does not free e or other
+  pmath_bool_t (*try_item_equals)(        struct _pmath_custom_expr_t *e, size_t i, pmath_t expected_item, pmath_bool_t *result); // does not free e or expected_item
   //pmath_bool_t (*try_compare)(         struct _pmath_custom_expr_t *e, pmath_t other, int          *result); // does not free e or other
   //pmath_bool_t (*try_get_hash)(        struct _pmath_custom_expr_t *e, int *result);                         // does not free e
 };

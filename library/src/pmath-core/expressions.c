@@ -161,9 +161,10 @@ static void clear_metadata(struct _pmath_expr_t *_expr);
 static void attach_metadata(struct _pmath_expr_t *_expr, _pmath_metadata_kind_t kind, pmath_t new_of_kind);
 
 
-static pmath_t custom_expr_expand_to_normal(   struct _pmath_custom_expr_t *_expr);
-static size_t  custom_expr_length(             struct _pmath_custom_expr_t *_expr);
-static pmath_t custom_expr_get_item(           struct _pmath_custom_expr_t *_expr, size_t index);
+static pmath_t      custom_expr_expand_to_normal(struct _pmath_custom_expr_t *_expr);
+static size_t       custom_expr_length(          struct _pmath_custom_expr_t *_expr);
+static pmath_t      custom_expr_get_item(        struct _pmath_custom_expr_t *_expr, size_t index);
+static pmath_bool_t custom_expr_item_equals(     struct _pmath_custom_expr_t *_expr, size_t index, pmath_t expected_item);
 static pmath_expr_t custom_expr_get_item_range(struct _pmath_custom_expr_t *_expr, size_t start, size_t length);
 static pmath_expr_t custom_expr_set_item(      struct _pmath_custom_expr_t *_expr, size_t index, pmath_t new_item);
 static pmath_expr_t custom_expr_shrink_associative(struct _pmath_custom_expr_t *_expr, pmath_t magic_rem);
@@ -914,6 +915,47 @@ PMATH_API pmath_t pmath_expr_extract_item(
   return pmath_ref(expr_part_ptr->buffer->items[expr_part_ptr->start + index - 1]);
 }
 
+PMATH_API pmath_bool_t pmath_expr_item_equals(
+  pmath_expr_t expr,
+  size_t       index,
+  pmath_t      expected_item
+) {
+  if(pmath_is_null(expr))
+    return pmath_is_null(expected_item);
+  
+  assert(pmath_is_expr(expr));
+  
+  switch(PMATH_AS_PTR(expr)->type_shift) {
+    case PMATH_TYPE_SHIFT_PACKED_ARRAY: break; // TODO
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
+      struct _pmath_expr_t *expr_ptr = (void*)PMATH_AS_PTR(expr);
+
+      if(index > expr_ptr->length)
+        return pmath_is_null(expected_item);
+      
+      return pmath_equals(expr_ptr->items[index], expected_item);
+    }
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
+      struct _pmath_expr_part_t *expr_part_ptr = (void*)PMATH_AS_PTR(expr);
+      
+      if(index == 0)
+        return pmath_equals(expr_part_ptr->inherited.items[0], expected_item);
+      
+      if(index > expr_part_ptr->inherited.length)
+        return pmath_is_null(expected_item);
+      
+      return pmath_equals(expr_part_ptr->buffer->items[expr_part_ptr->start + index - 1], expected_item);
+    }
+    case PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION: return custom_expr_item_equals((void*)PMATH_AS_PTR(expr), index, expected_item);
+  }
+  
+  // fall back
+  pmath_t item = pmath_expr_get_item(expr, index);
+  pmath_bool_t eq = pmath_equals(item, expected_item);
+  pmath_unref(item);
+  return eq;
+}
+
 PMATH_API pmath_expr_t pmath_expr_get_item_range(
   pmath_expr_t expr,
   size_t       start,
@@ -1300,23 +1342,14 @@ static pmath_expr_t remove_all_slow(
   size_t dsti = 1;
 
   while(srci <= len) {
-    pmath_t item = PMATH_UNDEFINED;
-
-    while(srci <= len) {
-      pmath_unref(item);
-      item = pmath_expr_get_item(expr, srci);
-
-      if(!pmath_equals(item, rem))
-        break;
-
+    while(srci <= len && pmath_expr_item_equals(expr, srci, rem)) {
       ++srci;
     }
 
-    if(srci > len) {
-      pmath_unref(item);
+    if(srci > len) 
       break;
-    }
 
+    pmath_t item = pmath_expr_get_item(expr, srci);
     expr = pmath_expr_set_item(expr, dsti++, item);
     ++srci;
   }
@@ -1864,11 +1897,7 @@ static pmath_bool_t flatten_calc_newlen(
       pmath_t item = pmath_expr_get_item(expr, srci);
 
       if(pmath_is_expr(item) && stack_pos < depth) {
-        pmath_t this_head = pmath_expr_get_item(item, 0);
-
-        if(pmath_equals(head, this_head)) {
-          pmath_unref(this_head);
-
+        if(pmath_expr_item_equals(item, 0, head)) {
           if(stack_pos < PMATH_EXPRESSION_FLATTEN_MAX_DEPTH) {
             PUSH(expr, srci + 1);
             srci = 1;
@@ -1887,8 +1916,6 @@ static pmath_bool_t flatten_calc_newlen(
             continue;
           }
         }
-        else
-          pmath_unref(this_head);
       }
       (*newlen)++;
       pmath_unref(item);
@@ -1939,11 +1966,7 @@ static void flatten_rearrange(
       if( pmath_is_expr(item) &&
           stack_pos < depth)
       {
-        pmath_t this_head = pmath_expr_get_item(item, 0);
-
-        if(pmath_equals(head, this_head)) {
-          pmath_unref(this_head);
-
+        if(pmath_expr_item_equals(item, 0, head)) {
           if(stack_pos < PMATH_EXPRESSION_FLATTEN_MAX_DEPTH) {
             PUSH(expr, srci + 1);
             srci = 1;
@@ -1961,7 +1984,6 @@ static void flatten_rearrange(
             continue;
           }
         }
-        pmath_unref(this_head);
       }
       **result = item;
       ++*result;
@@ -2391,6 +2413,19 @@ static pmath_t custom_expr_get_item(struct _pmath_custom_expr_t *_expr, size_t i
   return data->api->get_item(_expr, index);
 }
 
+static pmath_bool_t custom_expr_item_equals(struct _pmath_custom_expr_t *_expr, size_t index, pmath_t expected_item) {
+  struct _pmath_custom_expr_data_t *data = PMATH_CUSTOM_EXPR_DATA(_expr);
+
+  pmath_bool_t result;
+  if(data->api->try_item_equals && data->api->try_item_equals(_expr, index, expected_item, &result))
+    return result;
+  
+  pmath_t item = data->api->get_item(_expr, index);
+  pmath_bool_t eq = pmath_equals(item, expected_item);
+  pmath_unref(item);
+  return eq;
+}
+
 static pmath_expr_t custom_expr_get_item_range(struct _pmath_custom_expr_t *_expr, size_t start, size_t length) {
   struct _pmath_custom_expr_data_t *data = PMATH_CUSTOM_EXPR_DATA(_expr);
 
@@ -2539,12 +2574,9 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
     pmath_t arg = pmath_expr_get_item(expr, i);
 
     if(pmath_is_expr(arg)) {
-      pmath_t arg_head = pmath_expr_get_item(arg, 0);
-
-      if(pmath_equals(head, arg_head)) {
+      if(pmath_expr_item_equals(arg, 0, head)) {
         if(have_sth_to_thread) {
           if(len != pmath_expr_length(arg)) {
-            pmath_unref(arg_head);
             pmath_unref(arg);
             if(show_message) {
               *error_message = TRUE;
@@ -2562,7 +2594,6 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
           last_thread_over_arg  = i;
         }
       }
-      pmath_unref(arg_head);
     }
 
     pmath_unref(arg);
@@ -2612,9 +2643,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
       pmath_t arg = pmath_expr_get_item(expr, j);
 
       if(pmath_is_expr(arg)) {
-        pmath_t arg_head = pmath_expr_get_item(arg, 0);
-
-        if(pmath_equals(head, arg_head)) {
+        if(pmath_expr_item_equals(arg, 0, head)) {
           f = pmath_expr_set_item(
                 f, j,
                 pmath_expr_get_item(arg, i));
@@ -2622,7 +2651,6 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
         }
         else
           f = pmath_expr_set_item(f, j, arg);
-        pmath_unref(arg_head);
       }
       else
         f = pmath_expr_set_item(f, j, arg);
@@ -2955,10 +2983,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_equal(
     return FALSE;
 
   for(i = 0; i <= lenA; i++) {
-    pmath_t itemA = pmath_expr_get_item(exprA, i);
     pmath_t itemB = pmath_expr_get_item(exprB, i);
-    pmath_bool_t eq = pmath_equals(itemA, itemB);
-    pmath_unref(itemA);
+    pmath_bool_t eq = pmath_expr_item_equals(exprA, i, itemB);
     pmath_unref(itemB);
     if(!eq)
       return FALSE;
@@ -3446,14 +3472,7 @@ static void write_expr_ex(
       goto FULLFORM;
 
     list = pmath_expr_get_item(expr, 1);
-    if(!pmath_is_expr(list)) {
-      pmath_unref(list);
-      goto FULLFORM;
-    }
-
-    obj = pmath_expr_get_item(list, 0);
-    pmath_unref(obj);
-    if(!pmath_same(obj, pmath_System_List)) {
+    if(!pmath_is_expr_of(list, pmath_System_List)) {
       pmath_unref(list);
       goto FULLFORM;
     }
@@ -4610,10 +4629,8 @@ static void write_expr_ex(
       }
       else if(pmath_is_expr_of_len(item, pmath_System_Range, 2)) {
         pmath_t a = pmath_expr_get_item(item, 1);
-        pmath_t b = pmath_expr_get_item(item, 2);
-        pmath_unref(b);
 
-        if( pmath_same(b, pmath_System_Automatic) &&
+        if( pmath_expr_item_equals(item, 2, pmath_System_Automatic) &&
             pmath_is_integer(a)                   &&
             pmath_number_sign(a) > 0)
         {
