@@ -17,6 +17,7 @@ extern pmath_symbol_t pmath_System_Complex;
 extern pmath_symbol_t pmath_System_EulerGamma;
 extern pmath_symbol_t pmath_System_Gamma;
 extern pmath_symbol_t pmath_System_Log;
+extern pmath_symbol_t pmath_System_LogGamma;
 extern pmath_symbol_t pmath_System_Pi;
 extern pmath_symbol_t pmath_System_Plus;
 extern pmath_symbol_t pmath_System_Power;
@@ -66,13 +67,16 @@ static pmath_integer_t double_factorial(unsigned long n) {
   return PMATH_NULL;
 }
 
-/** \brief Try to evaluate Gamma(z) of an infinite value z
+/** \brief Try to evaluate Gamma(z) or Factorial(z) or LogGamma(z) of an infinite value z
     \param expr  Pointer to the Gamma-expression. On success, this will be replaced by the evaluation result.
     \param z     A pMath object. It won't be freed.
     \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
-static pmath_bool_t try_gamma_of_infinity(pmath_t *expr, pmath_t z) {
+static pmath_bool_t try_gamma_like_of_infinity(pmath_t *expr, pmath_t z) {
+  // Note that Factorial(n) = Gamma(n+1), but inf + 1 = inf  for complex infinities.
+  // Note that Gamma(I * inf) = 0, and Log(0) = -Infinity, but LogGamma(I * inf) = ComplexInfinity
+  // So LogGamma(z) != Log(Gamma(z)) for (some) infinities z
   pmath_t dir = _pmath_directed_infinity_direction(z);
   if(pmath_same(dir, PMATH_NULL))
     return FALSE;
@@ -95,15 +99,18 @@ static pmath_bool_t try_gamma_of_infinity(pmath_t *expr, pmath_t z) {
     return TRUE;
   }
   if(pmath_is_expr_of_len(dir, pmath_System_Complex, 2)) {
-    pmath_t re = pmath_expr_get_item(dir, 1);
-    if(pmath_same(re, INT(0))) {
-      pmath_unref(re);
+    if(pmath_expr_item_equals(dir, 1, INT(0))) {
       pmath_unref(dir);
-      pmath_unref(*expr);
-      *expr = pmath_ref(_pmath_object_complex_infinity);
+      if(pmath_is_expr_of(*expr, pmath_System_LogGamma)) {
+        pmath_unref(*expr);
+        *expr = pmath_ref(_pmath_object_complex_infinity); // Note: not LOG(INT(0))  which gives -Infinity
+      }
+      else { // Factorial or Gamma
+        pmath_unref(*expr);
+        *expr = INT(0);
+      }
       return TRUE;
     }
-    pmath_unref(re);
   }
   pmath_unref(dir);
   return FALSE;
@@ -217,36 +224,10 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
   }
 
   if(_pmath_is_infinite(z)) {
-    pmath_t dir = _pmath_directed_infinity_direction(z);
-    if(pmath_same(dir, INT(1))) {
-      pmath_unref(dir);
-      pmath_unref(expr);
-      return z;
-    }
-    if(pmath_same(dir, INT(-1))) {
-      pmath_unref(dir);
+    if(try_gamma_like_of_infinity(&expr, z)) {
       pmath_unref(z);
-      pmath_unref(expr);
-      return pmath_ref(pmath_System_Undefined);
+      return expr;
     }
-    if(pmath_same(dir, INT(0))) {
-      pmath_unref(dir);
-      pmath_unref(z);
-      pmath_unref(expr);
-      return pmath_ref(_pmath_object_complex_infinity);
-    }
-    if(pmath_is_expr_of_len(dir, pmath_System_Complex, 2)) {
-      pmath_t re = pmath_expr_get_item(dir, 1);
-      if(pmath_same(re, INT(0))) {
-        pmath_unref(re);
-        pmath_unref(dir);
-        pmath_unref(z);
-        pmath_unref(expr);
-        return INT(0);
-      }
-      pmath_unref(re);
-    }
-    pmath_unref(dir);
   }
   
   pmath_unref(z);
@@ -302,7 +283,7 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr) {
     return expr;
   }
   
-  if(try_gamma_of_infinity(&expr, z)) {
+  if(try_gamma_like_of_infinity(&expr, z)) {
     pmath_unref(z);
     return expr;
   }
@@ -520,7 +501,7 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr) {
     return expr;
   }
   
-  if(try_gamma_of_infinity(&expr, n)) {
+  if(try_gamma_like_of_infinity(&expr, n)) {
     pmath_unref(n);
     return expr;
   }
@@ -632,15 +613,12 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr) {
       return pmath_ref(pmath_System_Undefined);
     }
     if(pmath_is_expr_of_len(dir, pmath_System_Complex, 2)) {
-      pmath_t re = pmath_expr_get_item(dir, 1);
-      if(pmath_same(re, INT(0))) {
-        pmath_unref(re);
+      if(pmath_expr_item_equals(dir, 1, INT(0))) {
         pmath_unref(dir);
         pmath_unref(expr);
         pmath_unref(n);
         return pmath_ref(_pmath_object_complex_infinity);
       }
-      pmath_unref(re);
     }
     pmath_unref(dir);
   }
