@@ -87,7 +87,7 @@ PMATH_PRIVATE pmath_t builtin_trustedfunction(pmath_expr_t expr) {
   
   pmath_t func_data = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr_of_len(func_data, pmath_System_List, 3)) {
-    pmath_message(PMATH_NULL, "list", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "list", 2, pmath_ref(expr), PMATH_FROM_INT32(1));
     pmath_unref(func_data);
     return expr;
   }

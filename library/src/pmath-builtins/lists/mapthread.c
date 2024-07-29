@@ -99,7 +99,7 @@ PMATH_PRIVATE pmath_t builtin_mapthread(pmath_expr_t expr) {
   array = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr_of(array, pmath_System_List)) {
     pmath_unref(array);
-    pmath_message(PMATH_NULL, "list", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "list", 2, pmath_ref(expr), PMATH_FROM_INT32(1));
     return expr;
   }
   
