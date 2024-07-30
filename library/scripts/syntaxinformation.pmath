@@ -635,6 +635,7 @@
 {"Union", {"ArgumentCount" -> 0..}},
 {"UnitDimensions", {"ArgumentCount" -> 1}},
 {"UnitVector", {"ArgumentCount" -> 1..2}},
+{"UnixTime", {"ArgumentCount" -> 0..1}},
 {"Unprotect", {"ArgumentCount" -> 1..}},
 {"UpArrow", {"ArgumentCount" -> 2..}},
 {"UpDownArrow", {"ArgumentCount" -> 2..}},
