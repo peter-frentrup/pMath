@@ -216,6 +216,7 @@ PMATH_PRIVATE pmath_t builtin_datelist(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_pause(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_timeconstrained( pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_timing(          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_unixtime(        pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/formating/ ...
 PMATH_PRIVATE pmath_t builtin_baseform(         pmath_expr_t expr);
@@ -1252,6 +1253,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Unidentical,                  builtin_unidentical)
   BIND_DOWN(   pmath_System_Union,                        builtin_union)
   BIND_DOWN(   pmath_System_UnitVector,                   builtin_unitvector)
+  BIND_DOWN(   pmath_System_UnixTime,                     builtin_unixtime)
   BIND_DOWN(   pmath_System_Unprotect,                    builtin_protect_or_unprotect)
   BIND_DOWN(   pmath_System_Update,                       builtin_update)
   BIND_DOWN(   pmath_System_UpRules,                      builtin_symbol_rules)

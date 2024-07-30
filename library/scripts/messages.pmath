@@ -373,6 +373,9 @@ Uncompress::corrupt:= "Compressed data `1` is corrupt and does not represent an 
 
 UnitVector::dir:= "There is no `1` dimensional unit vector in direction `2`."
 
+DateList::zone:= UnixTime::zone:= "Time zone sepcification `1` should be a real number."
+UnixTime::arg:= "Argument `1` cannot be interpreted as date or time input."
+
 Which::argct:= "Which called with `1` arguments. Which must be called with an even number of arguments."
 
 Internal`RealBallFromMidpointRadius::numpa:= "Number or Pair of numbers expected at position `1` in `2`."

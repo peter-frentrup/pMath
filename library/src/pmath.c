@@ -1115,7 +1115,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "\"WindowBits\"->Automatic,"
           "\"RawInflate\"->False}");
       
-      PMATH_RUN("Options(DateList):={TimeZone:>$TimeZone}");
+      PMATH_RUN("Options(DateList):=Options(UnixTime):={TimeZone:>$TimeZone}");
       
       PMATH_RUN("Options(DeleteDirectory):={DeleteContents->False}");
       
