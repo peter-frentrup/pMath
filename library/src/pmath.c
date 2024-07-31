@@ -1058,7 +1058,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
         loc  = local_tm.tm_sec  + 60 * (local_tm.tm_min  + 60 * (local_tm.tm_hour  + 24 * local_tm.tm_yday));
         glob = global_tm.tm_sec + 60 * (global_tm.tm_min + 60 * (global_tm.tm_hour + 24 * global_tm.tm_yday));
         
-        pmath_symbol_set_value(pmath_System_DollarTimeZone, PMATH_FROM_DOUBLE((glob - loc) / (60 * 60.0)));
+        pmath_symbol_set_value(pmath_System_DollarTimeZone, PMATH_FROM_DOUBLE((loc - glob) / (60 * 60.0)));
       }
       
       PMATH_RUN("IsNumeric(Degree):=True");

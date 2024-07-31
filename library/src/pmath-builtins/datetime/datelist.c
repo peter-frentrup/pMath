@@ -84,7 +84,7 @@ PMATH_PRIVATE pmath_t builtin_datelist(pmath_expr_t expr) {
   unsigned int ymd_y, ymd_m, ymd_d;
   pmath_t options = PMATH_UNDEFINED;
   
-  timestamp = pmath_datetime();
+  timestamp = pmath_datetime(); // in UTC
   
   if(pmath_expr_length(expr) >= 1) {
     pmath_t item = pmath_expr_get_item(expr, 1);
@@ -116,7 +116,7 @@ PMATH_PRIVATE pmath_t builtin_datelist(pmath_expr_t expr) {
       return expr;
     }
     
-    timestamp -= pmath_number_get_d(tz) * 60 * 60;
+    timestamp += pmath_number_get_d(tz) * 60 * 60;
     pmath_unref(tz);
     pmath_unref(options);
   }
@@ -286,10 +286,10 @@ PMATH_PRIVATE pmath_t builtin_unixtime(pmath_expr_t expr) {
     pmath_bool_t is_leap_year = year == 3 && (num_4year_cycles != 24 || num_100year_cycles == 3);
     day += NonLeapDaysBeforeMonth[month] + (month > 2 && is_leap_year);
     
-    timestamp = UnixTime2001 + second + 60*(minute + 60*(hour + tz_offset_hours + 24*day));
+    timestamp = UnixTime2001 + second + 60*(minute + 60*(hour - tz_offset_hours + 24*day));
   }
   else if(pmath_same(arg, PMATH_UNDEFINED)) { // UnixTime()
-    timestamp = pmath_datetime();// - tz_offset_hours * 60 * 60;
+    timestamp = pmath_datetime();// + tz_offset_hours * 60 * 60;
   }
   else goto FAIL_ARG;
   
