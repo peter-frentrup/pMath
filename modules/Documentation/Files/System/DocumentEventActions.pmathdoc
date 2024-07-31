@@ -22,18 +22,14 @@ Document({
            GridBox({{"\"KeyDown\"", "any key pressed"}, {
               {"{\"KeyDown\", ", StyleBox("x", "Arg"), "}"}, {
                "key ", StyleBox("x", "Arg"), " pressed"}}, {
-              StringBox("\"ReturnKeyDown\""), {
-               "enter", " ", "or", " ", "return", " ", "key", " ", 
-               "pressed"}}, {StringBox("\"EscapeKeyDown\""), {
-               "escape", " ", "key", " ", "pressed"}}, {
+              {StringBox("\"ReturnKeyDown\"")}, 
+              "enter or return key pressed"}, {
+              {StringBox("\"EscapeKeyDown\"")}, "escape key pressed"}, {
               "\"LeftArrowKeyDown\"", "left arrow key pressed"}, {
-              StringBox("\"RightArrowKeyDown\""), {
-               "right", " ", "arrow", " ", "key", " ", "pressed"}}, {
-              StringBox("\"UpArrowKeyDown\""), {
-               "up", " ", "arrow", " ", "key", " ", "pressed"}}, {
-              StringBox("\"DownArrowKeyDown\""), {
-               "down", " ", "arrow", " ", "key", " ", "pressed"}}})}), 
-         "2ColumnTableNotes"), 
+              {StringBox("\"RightArrowKeyDown\"")}, 
+              "right arrow key pressed"}, {{StringBox("\"UpArrowKeyDown\"")}, 
+              "up arrow key pressed"}, {{StringBox("\"DownArrowKeyDown\"")}, 
+              "down arrow key pressed"}})}), "2ColumnTableNotes"), 
         Section(
          TextData({
            "Handler functions may inhibit the default action by returning ", 
@@ -43,7 +39,7 @@ Document({
          "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
-        Section("A windoe that closes automatically when pressing escape:", 
+        Section("A window that closes automatically when pressing escape:", 
          "ExampleText"), SectionGroup({
           Section(BoxData({"CreateDocument", "(", {
               StringBox(
