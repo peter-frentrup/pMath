@@ -3,8 +3,6 @@
 	
 ? pmath: make N(...) use adaptive precision tracking through RealInterval
 
-? introduce pmath_identical(...) which gives FALSE for arguments 0.0 and -0.0 (unlike pmath_equal)
-
 ? use RowBox({...}) instead of {...} for spans as in Mma to simplify pattern matching of box-forms
 
 - interesting: http://www.eecs.berkeley.edu/~fateman/papers/mma.review.pdf
@@ -68,8 +66,6 @@
 
 - richmath: menu item Evaluate in Subsession is incorrectly grayed out during evaluations...
 
-- richmath: graphics tick length should depend on Max(width, height) for all axes
-
 - richmath: Add PlotRangePadding option and Scaled(...) coordinates in graphics
 
 - richmath: Add Polygon, VertexColors, Opacity
@@ -95,10 +91,6 @@
 
 - richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})
 - richmath: DocumentApply(..., Section(...)) does not handle placeholders (same for SectionGroup)
-
-- add richmath::StyleSection class and handle Section(StyleData(...),...)
-- allow creation of a richmath::Style from a richmath::StyleSection
-- handle StyleDefinitions document option
 
 - make ListConvolve work on multi-dimensional arrays
 - add Differences, Accumulate
@@ -130,8 +122,6 @@
    " after a number gives prime (or only after a digit?)
    " after anything else gives right quotation mark
    analogous for '
-
-- richmath: add DocumentEventActions
 
 - support euclidean integers in GCD/ExtendedGCD
 
@@ -198,8 +188,6 @@
 
 	TimeContrained() is implemented by letting the timer_thread (= low-prio GC thread) send a `Throw(...)` message in xx seconds.
 	That should also abort any child threads.
-
-?? remove Syntax f[[opt]] as a short form for OptionValue(f, opt)
 
 ? remove IsHeld() ?
 
