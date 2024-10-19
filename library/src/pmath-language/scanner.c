@@ -2014,8 +2014,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           next = next_token_pos(parser);
           continue;
         }
-      /* no break */
-      
+        // fall through
       case PMATH_TOK_TILDES:
       case PMATH_TOK_DIGIT:
       case PMATH_TOK_STRING:
@@ -2038,7 +2037,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           if(parser->fencelevel == 0)
             break;
         }
-      /* no break */
+        // fall through
       case PMATH_TOK_NARY_AUTOARG: {
           pmath_token_t tok2;
           int           next2;
