@@ -302,10 +302,10 @@ static void get_string_token_bounds(
   tok = lw->buffer + str_start;
   buf_end = lw->buffer + lw->line_length;
   
-  while(tok <= lw->buffer + pos) {
+  do {
     *start = (int)(tok - lw->buffer);
     tok = get_next_string_token(tok, buf_end);
-  }
+  } while(tok <= lw->buffer + pos);
   
   *next = (int)(tok - lw->buffer);
 }
