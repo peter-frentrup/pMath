@@ -120,7 +120,7 @@ pmath_t _pmath_from_buffer(struct _pmath_string_t *b) {
   return PMATH_FROM_PTR(b);
 }
 
-PMATH_PRIVATE
+PMATH_API
 pmath_bool_t pmath_string_begin_write(pmath_string_t *str, uint16_t **buffer, int *length) {
   struct _pmath_string_t *_str;
 
@@ -168,7 +168,7 @@ pmath_bool_t pmath_string_begin_write(pmath_string_t *str, uint16_t **buffer, in
   return TRUE;
 }
 
-PMATH_PRIVATE
+PMATH_API
 void pmath_string_end_write(pmath_string_t *str, uint16_t **buffer) {
   struct _pmath_string_t *_str;
 
@@ -1199,7 +1199,7 @@ pmath_string_t pmath_string_new(int capacity) {
   return PMATH_FROM_PTR(result);
 }
 
-PMATH_PRIVATE
+PMATH_API
 pmath_string_t pmath_string_new_raw(int length) {
   pmath_string_t str = PMATH_NULL;
 
