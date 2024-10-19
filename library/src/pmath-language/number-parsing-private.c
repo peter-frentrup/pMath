@@ -307,7 +307,6 @@ const uint16_t *_pmath_parse_real_ball(
   double                           default_min_precision
 ) {
   const uint16_t *mid_mant_start;
-  const uint16_t *indignificant_start;
   const uint16_t *radius_start;
   const uint16_t *radius_end;
   ulong mid_frac_digits;
@@ -343,7 +342,6 @@ const uint16_t *_pmath_parse_real_ball(
     return str;
   }
   
-  indignificant_start = str;
   if(str + 2 <= str_end && *str == '[') {
     pmath_bool_t error = FALSE;
     
