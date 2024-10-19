@@ -134,7 +134,6 @@ pmath_string_t bintext_extra_readln(void *closure) {
     len = pmath_string_length(result);
     
     do {
-      size_t old_inbytesleft = inbytesleft;
       size_t ret = iconv(extra->in_cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
       
       if(ret == (size_t) - 1) {
