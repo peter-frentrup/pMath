@@ -14,6 +14,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 #include <limits.h>
+#include <string.h>
 
 #define APPROX_SKELETON_WIDTH  8
 

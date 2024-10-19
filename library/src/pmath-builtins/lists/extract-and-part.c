@@ -15,6 +15,8 @@
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
 
+#include <string.h>
+
 
 extern pmath_symbol_t pmath_System_DollarFailed;
 extern pmath_symbol_t pmath_System_All;

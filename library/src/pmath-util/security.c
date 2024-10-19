@@ -9,6 +9,8 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 
+#include <string.h>
+
 
 extern pmath_symbol_t pmath_System_HoldComplete;
 extern pmath_symbol_t pmath_System_SecurityException;

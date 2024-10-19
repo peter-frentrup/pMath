@@ -12,6 +12,8 @@
 #include <pmath-util/messages.h>
 #include <pmath-util/security-private.h>
 
+#include <string.h>
+
 
 extern pmath_symbol_t pmath_System_HoldComplete;
 extern pmath_symbol_t pmath_System_HoldForm;
