@@ -30,6 +30,7 @@
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-Wno-unknown-pragmas" />
@@ -88,6 +89,7 @@
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-Wno-unknown-pragmas" />
@@ -144,6 +146,7 @@
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-Wno-unknown-pragmas" />
@@ -202,6 +205,7 @@
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-Wno-unknown-pragmas" />
@@ -548,11 +552,12 @@
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-std=c99" />
-					<Add option="-mthreads" />
-					<Add option="-mms-bitfields" />
+					<Add option="-fno-stack-protector" />
 					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DPMATH_DEBUG_MEMORY" />
 					<Add option="-DPMATH_DEBUG_TESTS" />
@@ -619,10 +624,10 @@
 					<Add option="-fPIC" />
 					<Add option="-fno-stack-protector" />
 					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fvisibility=hidden" />
-					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="-fno-var-tracking-assignments" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DPMATH_USE_DLMALLOC" />
@@ -687,6 +692,7 @@
 					<Add option="-g" />
 					<Add option="-fno-stack-protector" />
 					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fvisibility=hidden" />
@@ -757,6 +763,7 @@
 					<Add option="-g" />
 					<Add option="-fno-stack-protector" />
 					<Add option="-fno-strict-aliasing" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fvisibility=hidden" />
