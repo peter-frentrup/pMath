@@ -62,7 +62,16 @@
  */
 #if PMATH_NEED_GNUC(3, 4)
 #  define PMATH_ATTRIBUTE_USE_RESULT   __attribute__((__warn_unused_result__))
-#  define PMATH_ATTRIBUTE_NONNULL(...) __attribute__((__nonnull__(__VA_ARGS__)))
+// Note on attribute((nonnull)): 
+// The nonnull attribute is dangerous on implementations of public functions, 
+// because it is an optimization hint to remove null pointer checks.
+// Warning about calls with NULL argument passed in is just a side effect.
+// But with public functions, we cannot control all callers.
+#  ifdef NDEBUG 
+#    define PMATH_ATTRIBUTE_NONNULL(...)
+#  else
+#    define PMATH_ATTRIBUTE_NONNULL(...) __attribute__((__nonnull__(__VA_ARGS__)))
+#  endif // NDEBUG
 #elif defined(_MSC_VER) && defined(_Check_return_)
 #  define PMATH_ATTRIBUTE_USE_RESULT   _Check_return_
 #  define PMATH_ATTRIBUTE_NONNULL(...)
