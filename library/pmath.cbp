@@ -542,20 +542,29 @@
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-std=c99" />
 					<Add option="-O3" />
-					<Add option="-Wall" />
-					<Add option="-mthreads" />
-					<Add option="-mms-bitfields" />
-					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-std=c99" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-DNDEBUG" />
-					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
-					<Add option="-D__GMP_LIBGMP_DLL=1" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DPMATH_DEBUG_MEMORY" />
+					<Add option="-DPMATH_DEBUG_TESTS" />
+					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
+					<Add option="-DPMATH_USE_DLMALLOC" />
+					<Add option="-DPMATH_USE_PTHREAD=1" />
+					<Add option="-D_POSIX_C_SOURCE=200112" />
+					<Add option="-D_ISOC99_SOURCE" />
+					<Add option="-D_XOPEN_SOURCE" />
+					<Add option="-D_BSD_SOURCE" />
+					<Add option="-D_GNU_SOURCE" />
+					<Add option="-D_DEFAULT_SOURCE" />
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
 					<Add directory="$(#flint_32.include)" />
@@ -601,15 +610,15 @@
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-std=c99" />
 					<Add option="-O3" />
-					<Add option="-fPIC" />
-					<Add option="-fno-stack-protector" />
-					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
+					<Add option="-std=c99" />
+					<Add option="-fPIC" />
+					<Add option="-fno-stack-protector" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fvisibility=hidden" />
@@ -623,6 +632,7 @@
 					<Add option="-D_XOPEN_SOURCE" />
 					<Add option="-D_BSD_SOURCE" />
 					<Add option="-D_GNU_SOURCE" />
+					<Add option="-D_DEFAULT_SOURCE" />
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
 					<Add directory="$(#flint_32.include)" />
@@ -668,15 +678,15 @@
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=core2" />
+					<Add option="-Wundef" />
+					<Add option="-Winline" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
 					<Add option="-std=c99" />
 					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-fno-stack-protector" />
 					<Add option="-fno-strict-aliasing" />
-					<Add option="-Wundef" />
-					<Add option="-Winline" />
-					<Add option="-Wextra" />
-					<Add option="-Wall" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fvisibility=hidden" />
@@ -692,6 +702,7 @@
 					<Add option="-D_XOPEN_SOURCE" />
 					<Add option="-D_BSD_SOURCE" />
 					<Add option="-D_GNU_SOURCE" />
+					<Add option="-D_DEFAULT_SOURCE" />
 					<Add directory="$(#gmp_64.include)" />
 					<Add directory="$(#mpfr_64.include)" />
 					<Add directory="$(#flint_64.include)" />
@@ -736,16 +747,16 @@
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-std=c99" />
 					<Add option="-O3" />
-					<Add option="-fPIC" />
-					<Add option="-g" />
-					<Add option="-fno-stack-protector" />
-					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
+					<Add option="-std=c99" />
+					<Add option="-fPIC" />
+					<Add option="-g" />
+					<Add option="-fno-stack-protector" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-fvisibility=hidden" />
@@ -758,6 +769,7 @@
 					<Add option="-D_XOPEN_SOURCE" />
 					<Add option="-D_BSD_SOURCE" />
 					<Add option="-D_GNU_SOURCE" />
+					<Add option="-D_DEFAULT_SOURCE" />
 					<Add directory="$(#gmp_64.include)" />
 					<Add directory="$(#mpfr_64.include)" />
 					<Add directory="$(#flint_64.include)" />
