@@ -1,6 +1,7 @@
 #include <pmath-util/files/filesystem.h>
 
 #include <pmath-builtins/io-private.h>
+#include <pmath-util/memory.h>
 
 
 #ifdef PMATH_OS_WIN32
