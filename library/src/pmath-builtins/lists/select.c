@@ -13,13 +13,6 @@
 #include <string.h>
 
 
-#ifdef MIN
-#  undef MIN
-#endif
-
-#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
-
-
 extern pmath_symbol_t pmath_System_True;
 
 static pmath_bool_t test_at_0(

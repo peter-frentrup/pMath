@@ -14,7 +14,14 @@
 #endif
 
 
+#ifdef MIN
+# undef MIN
+#endif
 #define MIN(A, B)  ((A) < (B) ? (A) : (B))
+
+#ifdef MAX
+# undef MAX
+#endif
 #define MAX(A, B)  ((A) > (B) ? (A) : (B))
 
 static void os_init(void);

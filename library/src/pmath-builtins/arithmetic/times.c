@@ -11,8 +11,6 @@
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
-#define MAX(x, y) ((x) >= (y) ? (x) : (y))
-
 
 extern pmath_symbol_t pmath_System_DirectedInfinity;
 extern pmath_symbol_t pmath_System_Infinity;

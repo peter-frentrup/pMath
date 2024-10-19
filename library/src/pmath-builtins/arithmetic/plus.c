@@ -9,8 +9,6 @@
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 
-#define MAX(x, y) ((x) >= (y) ? (x) : (y))
-
 
 extern pmath_symbol_t pmath_System_Complex;
 extern pmath_symbol_t pmath_System_Infinity;

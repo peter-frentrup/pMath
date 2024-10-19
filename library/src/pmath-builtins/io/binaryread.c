@@ -22,6 +22,9 @@
 #include <string.h>
 
 
+#ifdef MIN
+# undef MIN
+#endif
 #define MIN(A, B)  ((A) < (B) ? (A) : (B))
 
 

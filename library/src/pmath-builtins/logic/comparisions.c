@@ -11,12 +11,6 @@
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 
-#ifdef MIN
-#  undef MIN
-#endif
-
-#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
-
 
 extern pmath_symbol_t pmath_System_And;
 extern pmath_symbol_t pmath_System_Equal;
