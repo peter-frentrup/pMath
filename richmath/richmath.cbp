@@ -873,6 +873,7 @@
 		<Unit filename="include/gui/document.h" />
 		<Unit filename="include/gui/documents.h" />
 		<Unit filename="include/gui/dragdrophandler.h" />
+		<Unit filename="include/gui/edit-helper.h" />
 		<Unit filename="include/gui/event-handlers.h" />
 		<Unit filename="include/gui/font-dialog.h" />
 		<Unit filename="include/gui/gtk/basic-gtk-widget.h">
@@ -1608,6 +1609,7 @@
 		<Unit filename="src/gui/document.cpp" />
 		<Unit filename="src/gui/documents.cpp" />
 		<Unit filename="src/gui/dragdrophandler.cpp" />
+		<Unit filename="src/gui/edit-helper.cpp" />
 		<Unit filename="src/gui/event-handlers.cpp" />
 		<Unit filename="src/gui/font-dialog.cpp" />
 		<Unit filename="src/gui/gtk/basic-gtk-widget.cpp">

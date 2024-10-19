@@ -5,6 +5,7 @@
 #include <gui/win32/api/win32-version.h>
 
 #include <gui/document.h>
+#include <gui/edit-helper.h>
 
 
 #define MN_SELECTITEM       0x01E5
@@ -46,12 +47,6 @@ namespace richmath {
 namespace richmath { namespace strings {
   extern String InsertTable;
 }}
-
-extern pmath_symbol_t richmath_System_Automatic;
-extern pmath_symbol_t richmath_System_DocumentApply;
-extern pmath_symbol_t richmath_System_GridBox;
-extern pmath_symbol_t richmath_System_List;
-extern pmath_symbol_t richmath_System_StringForm;
 
 using namespace richmath;
 
@@ -364,14 +359,6 @@ String Win32MenuTableWizard::Impl::description() {
   }
   
   return text;
-  
-//  if(text.length() == 0)
-//    text = strings::New_WxH_Table_placeholder;
-//  
-//  return Call(Symbol(richmath_System_StringForm),
-//                text,
-//                Expr(num_rows),
-//                Expr(num_columns)).to_string();
 }
 
 void Win32MenuTableWizard::Impl::layout(TableWizardDims *dims) {
@@ -393,35 +380,7 @@ void Win32MenuTableWizard::Impl::layout(TableWizardDims *dims) {
 }
 
 bool Win32MenuTableWizard::Impl::do_insert_new_table(Expr cmd) {
-  Document *doc = Menus::current_document();
-  if(!doc)
-    return false;
-  
-  size_t rows = num_rows    < 1 ? 1 : (size_t)num_rows;
-  size_t cols = num_columns < 1 ? 1 : (size_t)num_columns;
-  
-  if(rows == 1 && cols == 1) {
-    rows = 2;
-    cols = 2;
-  }
-  
-  Expr pl = String::FromChar(PMATH_CHAR_PLACEHOLDER);
-  Expr row = MakeCall(Symbol(richmath_System_List), cols);
-  for(size_t i = 1; i <= cols; ++i)
-    row.set(i, pl);
-  
-  Expr matrix = MakeCall(Symbol(richmath_System_List), rows);
-  for(size_t i = rows; i > 1; --i)
-    matrix.set(i, row);
-  
-  //row.set(1, String::FromChar(PMATH_CHAR_SELECTIONPLACEHOLDER));
-  matrix.set(1, row);
-  
-  Expr grid = Call(Symbol(richmath_System_GridBox), matrix);
-  Expr new_cmd = Call(Symbol(richmath_System_DocumentApply), Symbol(richmath_System_Automatic), grid);
-  
-  //doc->paste_from_boxes(PMATH_CPP_MOVE(grid));
-  return Menus::run_command_now(PMATH_CPP_MOVE(new_cmd));
+  return EditHelper::insert_new_table_into_current_document(num_rows, num_columns);
 }
 
 //} ... class Win32MenuTableWizard::Impl

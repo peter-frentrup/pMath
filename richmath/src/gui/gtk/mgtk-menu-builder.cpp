@@ -10,6 +10,7 @@
 #include <gui/gtk/mgtk-control-painter.h>
 #include <gui/gtk/mgtk-document-window.h>
 #include <gui/documents.h>
+#include <gui/edit-helper.h>
 #include <gui/menus.h>
 
 #include <util/autovaluereset.h>
@@ -47,6 +48,7 @@ using namespace richmath;
 
 namespace richmath { namespace strings {
   extern String EmptyString;
+  extern String InsertTable;
   extern String MenuListSearchCommands;
   extern String SearchMenuItems;
 }}
@@ -244,6 +246,9 @@ MathGtkMenuBuilder::MathGtkMenuBuilder(Expr _expr)
   : expr(_expr)
 {
   MathGtkMenuSearch::ensure_init();
+
+  // Unlike with Win32, we have special "InsertTable" menu item implementation yet for GTK, so register a default action here:
+  Menus::register_command(strings::InsertTable, [](Expr _) { return EditHelper::insert_new_table_into_current_document(); });
 }
 
 void MathGtkMenuBuilder::done() {
