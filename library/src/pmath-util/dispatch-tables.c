@@ -102,7 +102,7 @@ static pmath_t dispatch_expr_get_item(struct _pmath_custom_expr_t *e, size_t i) 
 }
 
 static pmath_bool_t dispatch_expr_try_item_equals(struct _pmath_custom_expr_t *e, size_t i, pmath_t expected_item, pmath_bool_t *result) { // does not free e or expected_item
-struct _pmath_dispatch_table_extra_data_t *tab_extra = DISPATCH_EXPR_EXTRA(e);
+  struct _pmath_dispatch_table_extra_data_t *tab_extra = DISPATCH_EXPR_EXTRA(e);
   
   if(i == 0) {
     *result = pmath_same(expected_item, pmath_System_List);
@@ -133,6 +133,7 @@ static const struct _pmath_custom_expr_api_t dispatch_expr_api = {
   .try_prevent_destruction = dispatch_expr_try_prevent_destruction,
   .get_length              = dispatch_expr_get_length,
   .get_item                = dispatch_expr_get_item,
+  .try_item_equals         = dispatch_expr_try_item_equals,
 };
 
 //} ... custom expr API for dispatch table
