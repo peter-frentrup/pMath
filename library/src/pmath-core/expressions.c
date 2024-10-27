@@ -56,6 +56,9 @@ PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_part_t) == 72);
 PMATH_STATIC_ASSERT(sizeof(PMATH_GC_FLAGS32(((struct _pmath_gc_t*)NULL))) == 4);
 
 
+#define PMATH_TYPE_EXPRESSION_WITH_GC_FLAGS32   (PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART | PMATH_TYPE_CUSTOM_EXPRESSION)
+
+
 extern pmath_symbol_t pmath_System_Alternatives;
 extern pmath_symbol_t pmath_System_And;
 extern pmath_symbol_t pmath_System_Assign;
@@ -2964,6 +2967,16 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_equal(
     struct _pmath_custom_expr_t      *custA = (void*)PMATH_AS_PTR(exprA);
     struct _pmath_custom_expr_data_t *dataA = PMATH_CUSTOM_EXPR_DATA(custA);
     
+    if(pmath_is_pointer_of(exprB, PMATH_TYPE_EXPRESSION_WITH_GC_FLAGS32)) {
+      struct _pmath_gc_t *gcB = (void*)PMATH_AS_PTR(exprB);
+      
+      uint32_t cached_hash_A = pmath_atomic_read_uint32_aquire(&PMATH_GC_FLAGS32(&custA->internals.inherited));
+      uint32_t cached_hash_B = pmath_atomic_read_uint32_aquire(&PMATH_GC_FLAGS32(gcB));
+      
+      if(cached_hash_A && cached_hash_B && cached_hash_A != cached_hash_B)
+        return FALSE;
+    }
+    
     pmath_bool_t eq = FALSE;
     if(dataA->api->try_compare_equal && dataA->api->try_compare_equal(custA, exprB, &eq))
       return eq;
@@ -2973,9 +2986,34 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_equal(
     struct _pmath_custom_expr_t      *custB = (void*)PMATH_AS_PTR(exprB);
     struct _pmath_custom_expr_data_t *dataB = PMATH_CUSTOM_EXPR_DATA(custB);
     
+    if(pmath_is_pointer_of(exprA, PMATH_TYPE_EXPRESSION_WITH_GC_FLAGS32)) {
+      struct _pmath_gc_t *gcA = (void*)PMATH_AS_PTR(exprA);
+      
+      uint32_t cached_hash_A = pmath_atomic_read_uint32_aquire(&PMATH_GC_FLAGS32(gcA));
+      uint32_t cached_hash_B = pmath_atomic_read_uint32_aquire(&PMATH_GC_FLAGS32(&custB->internals.inherited));
+      
+      if(cached_hash_A && cached_hash_B && cached_hash_A != cached_hash_B)
+        return FALSE;
+    }
+    
     pmath_bool_t eq = FALSE;
     if(dataB->api->try_compare_equal && dataB->api->try_compare_equal(custB, exprA, &eq))
       return eq;
+  }
+  
+  if(PMATH_LIKELY(
+      pmath_is_pointer_of(exprA, PMATH_TYPE_EXPRESSION_WITH_GC_FLAGS32) && 
+      pmath_is_pointer_of(exprB, PMATH_TYPE_EXPRESSION_WITH_GC_FLAGS32))
+  ) {
+    struct _pmath_gc_t *gcA = (void*)PMATH_AS_PTR(exprA);
+    struct _pmath_gc_t *gcB = (void*)PMATH_AS_PTR(exprB);
+
+    
+    uint32_t cached_hash_A = pmath_atomic_read_uint32_aquire(&PMATH_GC_FLAGS32(gcA));
+    uint32_t cached_hash_B = pmath_atomic_read_uint32_aquire(&PMATH_GC_FLAGS32(gcB));
+    
+    if(cached_hash_A && cached_hash_B && cached_hash_A != cached_hash_B)
+      return FALSE;
   }
   
   lenA = pmath_expr_length(exprA);
@@ -3008,7 +3046,7 @@ static unsigned int hash_expression_fallback(pmath_expr_t expr) {
 }
 
 static unsigned int hash_expression_cached(pmath_expr_t expr) {
-  assert(pmath_is_pointer_of(expr, PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART | PMATH_TYPE_CUSTOM_EXPRESSION));
+  assert(pmath_is_pointer_of(expr, PMATH_TYPE_EXPRESSION_WITH_GC_FLAGS32));
   
   struct _pmath_gc_t *gc_ptr = (void*)PMATH_AS_PTR(expr);
 
