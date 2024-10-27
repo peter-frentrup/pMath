@@ -56,7 +56,7 @@ struct _pmath_timed_t {
   _pmath_timer_t   last_change;
 };
 
-struct _pmath_gc_t { // expr and symbol inherit from this
+struct _pmath_gc_t { // expr and symbol inherit from this (but not packed arrays)
   struct _pmath_timed_t  inherited;
   uintptr_t              gc_refcount;
 #if PMATH_BITSIZE == 32
@@ -64,7 +64,7 @@ struct _pmath_gc_t { // expr and symbol inherit from this
 #endif
 };
 
-#define _pmath_is_gcobj(obj)          (pmath_is_pointer_of((obj), PMATH_TYPE_EXPRESSION|PMATH_TYPE_SYMBOL))
+#define _pmath_is_gcobj(obj)          (pmath_is_pointer_of((obj), PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART | PMATH_TYPE_CUSTOM_EXPRESSION|PMATH_TYPE_SYMBOL))
 
 #if PMATH_BITSIZE == 32
 #  define PMATH_GC_FLAGS32(PTR)  ((PTR)->padding_flags32)
