@@ -55,6 +55,7 @@ PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_part_t) == 72);
 
 PMATH_STATIC_ASSERT(sizeof(PMATH_GC_FLAGS32(((struct _pmath_gc_t*)NULL))) == 4);
 
+
 extern pmath_symbol_t pmath_System_Alternatives;
 extern pmath_symbol_t pmath_System_And;
 extern pmath_symbol_t pmath_System_Assign;
@@ -2992,9 +2993,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_equal(
   return TRUE;
 }
 
-static unsigned int hash_expression(
-  pmath_expr_t expr
-) {
+static unsigned int hash_expression_fallback(pmath_expr_t expr) {
   unsigned int next = 0;
   size_t i;
   size_t len = pmath_expr_length(expr);
@@ -3006,6 +3005,25 @@ static unsigned int hash_expression(
     next = _pmath_incremental_hash(&h, sizeof(h), next);
   }
   return next;
+}
+
+static unsigned int hash_expression_cached(pmath_expr_t expr) {
+  assert(pmath_is_pointer_of(expr, PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART | PMATH_TYPE_CUSTOM_EXPRESSION));
+  
+  struct _pmath_gc_t *gc_ptr = (void*)PMATH_AS_PTR(expr);
+
+  uint32_t cached_hash = pmath_atomic_read_uint32_aquire(&PMATH_GC_FLAGS32(gc_ptr));
+#ifdef NDEBUG
+  if(cached_hash != 0)
+    return cached_hash;
+#endif
+
+  uint32_t calculated_hash = hash_expression_fallback(expr);
+  
+  assert(calculated_hash == cached_hash || cached_hash == 0);
+  pmath_atomic_write_uint32_release(&PMATH_GC_FLAGS32(gc_ptr), calculated_hash);
+
+  return calculated_hash;
 }
 
 //{ writing expressions
@@ -4753,7 +4771,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void) {
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_EXPRESSION_GENERAL,
     _pmath_compare_exprsym,
-    hash_expression,
+    hash_expression_cached,
     destroy_expr_tree,//destroy_general_expression,//
     _pmath_expr_equal,
     _pmath_expr_write);
@@ -4761,7 +4779,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void) {
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,
     _pmath_compare_exprsym,
-    hash_expression,
+    hash_expression_cached,
     destroy_expr_tree,//destroy_part_expression,//
     _pmath_expr_equal,
     _pmath_expr_write);
@@ -4769,7 +4787,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void) {
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION,
     _pmath_compare_exprsym,
-    hash_expression,
+    hash_expression_cached,
     destroy_expr_tree,//destroy_custom_expression,//
     _pmath_expr_equal,
     _pmath_expr_write);
