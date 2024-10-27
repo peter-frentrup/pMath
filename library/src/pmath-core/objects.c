@@ -115,21 +115,21 @@ PMATH_API void _pmath_destroy_object(pmath_t obj) {
 }
 
 PMATH_API unsigned int pmath_hash(pmath_t obj) {
-  if(pmath_is_pointer(obj) && PMATH_AS_PTR(obj) != NULL) {
-    pmath_hash_func_t hash;
-    
-#  ifdef PMATH_DEBUG_LOG
-    if(! PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift)) {
-      fprintf(stderr, "[invalid type shift: %p, %d]\n",
-              PMATH_AS_PTR(obj), PMATH_AS_PTR(obj)->type_shift);
-    }
-#  endif
+  if(pmath_is_pointer(obj)) {
+    struct _pmath_t *obj_ptr = PMATH_AS_PTR(obj);
+    if(PMATH_LIKELY(obj_ptr)) {
+#    ifdef PMATH_DEBUG_LOG
+      if(! PMATH_VALID_TYPE_SHIFT(obj_ptr->type_shift)) {
+        fprintf(stderr, "[invalid type shift: %p, %d]\n", obj_ptr, obj_ptr->type_shift);
+      }
+#    endif
 
-    assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
+      assert(PMATH_VALID_TYPE_SHIFT(obj_ptr->type_shift));
     
-    hash = pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].hash;
-    assert(hash != NULL);
-    return hash(obj);
+      pmath_hash_func_t hash = pmath_type_imps[obj_ptr->type_shift].hash;
+      assert(hash != NULL);
+      return hash(obj);
+    }
   }
   
   if(pmath_is_double(obj)) {
@@ -139,8 +139,6 @@ PMATH_API unsigned int pmath_hash(pmath_t obj) {
        we would have to make (0.0`20 === -0.0`20) give False, too. 
        Identical() depends on pmath_equals() and we would have to add some
        pmath_mp_identical() function.
-       
-       TODO: add Internal`SignBit(), Internal`CopySign(), Internal`NextToward()
      */
     
     double d = PMATH_AS_DOUBLE(obj);
@@ -471,6 +469,9 @@ PMATH_PRIVATE pmath_t _pmath_create_stub(unsigned int type_shift, size_t size) {
   obj->type_shift = type_shift;
   pmath_atomic_write_uint8_release( &obj->flags8,  0);
   pmath_atomic_write_uint16_release(&obj->flags16, 0);
+#if PMATH_BITSIZE >= 64
+  pmath_atomic_write_uint32_release(&obj->padding_flags32, 0);
+#endif
   pmath_atomic_write_release(&obj->refcount, 1);
   return PMATH_FROM_PTR(obj);
 }

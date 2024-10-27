@@ -60,6 +60,19 @@ static pmath_bool_t write_boxes_try_unicode_subsuperscript(struct pmath_write_ex
 #define _pmath_unref_string_ptr(P)  _pmath_unref_ptr(&(P)->inherited)
 
 
+#if PMATH_BITSIZE >= 64
+#  define USE_CACHE_FOR_STRING_HASH  1
+#else
+#  define USE_CACHE_FOR_STRING_HASH  0
+#endif
+
+#if USE_CACHE_FOR_STRING_HASH
+#  define RESET_CACHED_HASH(P)  pmath_atomic_write_uint32_release(&(P)->inherited.padding_flags32, 0)
+#else
+#  define RESET_CACHED_HASH(P)  ((void)0)
+#endif // USE_CACHE_FOR_STRING_HASH
+
+
 PMATH_PRIVATE
 struct _pmath_string_t *_pmath_new_string_buffer(int size) {
   size_t bytes;
@@ -193,6 +206,7 @@ void pmath_string_end_write(pmath_string_t *str, uint16_t **buffer) {
   assert(_str->buffer == NULL);
   assert(*buffer == AFTER_STRING(_str));
   *buffer = NULL;
+  RESET_CACHED_HASH(_str);
   _str->inherited.type_shift = PMATH_TYPE_SHIFT_BIGSTRING;
 }
 
@@ -347,6 +361,7 @@ struct _pmath_string_t *enlarge_string(
       return NULL;
     }
 
+    RESET_CACHED_HASH(string);
     if((unsigned)string->capacity_or_start >= new_length) {
       memmove(
           AFTER_STRING(string) + extra_start + extralen,
@@ -576,8 +591,27 @@ static unsigned int hash_string(pmath_t str) {
 
     return _pmath_incremental_hash(&tmp, sizeof(pmath_t), 0);
   }
+  
+#if USE_CACHE_FOR_STRING_HASH
+  assert(pmath_is_bigstr(str) && "Strings with lengths > 2 are bigstr");
+  struct _pmath_string_t *str_ptr = (void*)PMATH_AS_PTR(str);
+  
+  uint32_t cached_hash = pmath_atomic_read_uint32_aquire(&str_ptr->inherited.padding_flags32);
+#ifdef NDEBUG
+  if(cached_hash != 0)
+    return cached_hash;
+#endif
+#endif // USE_CACHE_FOR_STRING_HASH
 
-  return _pmath_incremental_hash(buf, (size_t)len * sizeof(uint16_t), 0);
+  uint32_t calculated_hash = _pmath_incremental_hash(buf, (size_t)len * sizeof(uint16_t), 0);
+
+#if USE_CACHE_FOR_STRING_HASH
+  assert(calculated_hash == cached_hash || cached_hash == 0);
+  pmath_atomic_write_uint32_release(&str_ptr->inherited.padding_flags32, calculated_hash);
+#endif // USE_CACHE_FOR_STRING_HASH
+
+  return calculated_hash;
+  //return _pmath_incremental_hash(buf, (size_t)len * sizeof(uint16_t), 0);
 }
 
 static unsigned int hash_pinned_string(pmath_t str) {
@@ -1599,6 +1633,7 @@ pmath_string_t pmath_string_insert(
     if(pmath_atomic_read_aquire(&_str->inherited.refcount) == 1) {
       _str->length += _ins->length;
       pmath_unref(ins);
+      RESET_CACHED_HASH(_str);
       return str;
     }
 
@@ -1606,6 +1641,7 @@ pmath_string_t pmath_string_insert(
       _ins->length +=            _str->length;
       _ins->capacity_or_start = _str->capacity_or_start;
       pmath_unref(str);
+      RESET_CACHED_HASH(_ins);
       return ins;
     }
 
@@ -1751,11 +1787,13 @@ pmath_string_t pmath_string_part(
     if(_str->buffer) {
       _str->capacity_or_start += start;
       _str->length            = length;
+      RESET_CACHED_HASH(_str);
       return string;
     }
 
     if(start == 0) {
       _str->length = length;
+      RESET_CACHED_HASH(_str);
       return string;
     }
   }
@@ -1772,6 +1810,7 @@ pmath_string_t pmath_string_part(
 
     if(start == 0 && pmath_refcount(string) == 1) {
       _str->length = length;
+      RESET_CACHED_HASH(_str);
       return string;
     }
   }
@@ -1786,7 +1825,7 @@ pmath_string_t pmath_string_part(
       return PMATH_NULL;
     }
 
-    result->debug_metadata        = NULL;
+    result->debug_metadata    = NULL;
     result->buffer            = _str;
     result->length            = length;
     result->capacity_or_start = start;
