@@ -578,8 +578,14 @@ Document({
           Section(StyleData("ShowMoreDocumentationHyperlink"), 
            TemplateBoxOptions -> {
              DisplayFunction -> 
-              Function(StyleBox(ButtonBox("\" \[RightGuillemet] \"", 
-                 ButtonFunction -> 
+              Function(TemplateBox({#1, " \[RightGuillemet] "}, 
+                "ShowMoreDocumentationHyperlink2")), 
+             Tooltip -> "\"Open reference page\""}), 
+          Section(StyleData("ShowMoreDocumentationHyperlink2"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> 
+              Function(
+               StyleBox(ButtonBox(#2, ButtonFunction -> 
                   Function(
                    With({
                      FE`Private`file:= 
