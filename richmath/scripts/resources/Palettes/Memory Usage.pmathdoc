@@ -1,0 +1,23 @@
+/* pMath Document */
+
+Document({
+  Section(
+   TextData({
+     BoxData(DynamicLocalBox({FE`Private`hist}, 
+       DynamicBox(
+        ToBoxes(Refresh(With({FE`Private`memUsage$:= MemoryUsage()}, 
+           FE`Private`hist:= 
+             Take(Append(FE`Private`hist, First(FE`Private`memUsage$)), 
+              UpTo(-100)); 
+            Column({
+              Text({RawBoxes(TemplateBox({"MemoryUsage", "In use"}, 
+                  "ShowMoreDocumentationHyperlink2")), ": ", 
+                First(FE`Private`memUsage$), "\[RawTab]Max: ", 
+                Last(FE`Private`memUsage$)}), ListLinePlot(FE`Private`hist, 
+               FrameTicks -> {{Automatic, None}, None}, Frame -> True, 
+               Axes -> False, ImageSize -> Medium)})), None, 
+          UpdateInterval -> 1.5))), DynamicLocalValues -> {}, 
+       Initialization :> (FE`Private`hist:= {}), 
+       UnsavedVariables :> {FE`Private`hist}))}), "ControlStyle")}, 
+ StyleDefinitions -> "Palette.pmathdoc", Visible -> True, 
+ WindowTitle -> "Memory Usage")
