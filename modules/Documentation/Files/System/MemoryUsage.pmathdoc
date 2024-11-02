@@ -12,7 +12,7 @@ Document({
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
-        Section("Get current and meximum memory usage:", "ExampleText"), 
+        Section("Get current and maximum memory usage:", "ExampleText"), 
         SectionGroup({Section(BoxData({"MemoryUsage", "(", ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section(BoxData({"{", {"8503989", ",", "10427981"}, "}"}), "Output", 
@@ -37,11 +37,14 @@ Document({
                    ",", {"UpdateInterval", "\[Rule]", "1.5"}}, ")"}, ")"}, 
                 ",", {"UnsavedVariables", "\[RuleDelayed]", {
                   "{", "mem", "}"}}}, ")"}, ",", {
-               "WindowFrame", "\[Rule]", StringBox("\"Dialog\"")}}, ")"}), 
-           "Input", SectionLabel -> "in [1]:"), 
+               "WindowFrame", "\[Rule]", StringBox("\"Dialog\"")}, ",", {
+               "DefaultNewSectionStyle", "\[Rule]", StringBox("\"\"")}, ",", {
+               "ShowSectionBracket", "\[Rule]", "False"}, ",", {
+               "WindowTitle", "\[Rule]", StringBox("\"MemoryUsage\"")}}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
-           BoxData(TemplateBox({FrontEndObject(5289244974751894953, 13680), 
-              "Untitled 2"}, "DocumentObject")), "Output", 
+           BoxData(TemplateBox({FrontEndObject(13143510517737945995, 8152), 
+              "MemoryUsage"}, "DocumentObject")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
