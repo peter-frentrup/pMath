@@ -136,7 +136,8 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   bool change_args = arguments != args;
   arguments = args;
   _tag = tag;
-  is_content_loaded(false);
+  if(change_args)
+    is_content_loaded(false);
   style.clear();
   style.add_pmath(options);
   style.set_pmath(BaseStyleName, tag);
