@@ -26,6 +26,7 @@ extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Key;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_PureArgument;
+extern pmath_symbol_t richmath_System_StringBox;
 extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_TimeConstrained;
@@ -941,7 +942,7 @@ Expr TemplateBoxSlotImpl::prepare_boxes(Expr boxes) {
   if(boxes[0] == richmath_System_PureArgument)
     return prepare_pure_arg(boxes);
     
-  if(boxes[0] == richmath_System_List) {
+  if(boxes[0] == richmath_System_List || boxes[0] == richmath_System_StringBox) {
     for(size_t i = 0; i <= boxes.expr_length(); ++i) {
       boxes.set(i, prepare_boxes(boxes[i]));
     }
