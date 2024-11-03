@@ -54,7 +54,7 @@
 		<DisplayString ExcludeView="nocast" Condition="type_shift ==  9">{*(pmath.dll!_pmath_blob_t*)this}</DisplayString>
 		<DisplayString ExcludeView="nocast" Condition="type_shift == 10">{*(pmath.dll!_pmath_packed_array_t*)this}</DisplayString>
 		<DisplayString ExcludeView="nocast" Condition="type_shift == 11">pinned: {*(pmath.dll!_pmath_string_t*)this}</DisplayString>
-		<DisplayString ExcludeView="nocast" Condition="type_shift == 12">{*(pmath.dll!_pmath_dispatch_table_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift == 13">{*(pmath.dll!_pmath_custom_expr_t*)this}</DisplayString>
 		<DisplayString ExcludeView="nocast">object tag {type_shift}</DisplayString>
 		<DisplayString IncludeView="nocast">{{ refcount={refcount._data} }}</DisplayString>
 		<Expand HideRawView="true">
@@ -102,8 +102,8 @@
 				*(pmath.dll!_pmath_packed_array_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 12" ExcludeView="nocast">
-				*(pmath.dll!_pmath_dispatch_table_t*)this
+			<ExpandedItem Condition="type_shift == 13" ExcludeView="nocast">
+				*(pmath.dll!_pmath_custom_expr_t*)this
 			</ExpandedItem>
 
 			<Item Name="refcount" IncludeView="nocast">refcount._data</Item>
@@ -239,7 +239,7 @@
 			<Item Name="length" ExcludeView="simple">length,d</Item>
 			<Item Name="metadata" Condition="metadata._data != 0">*(pmath.dll!_pmath_t*)metadata._data</Item>
 			<Item Name="head">items[0]</Item>
-			<ArrayItems Condition="inherited.inherited.inherited.type_shift == 5">
+			<ArrayItems Condition="inherited.inherited.inherited.type_shift == 5 || inherited.inherited.inherited.type_shift == 13">
 				<Size>length</Size>
 				<LowerBound>1</LowerBound>
 				<ValuePointer>&amp;items[1]</ValuePointer>
@@ -413,13 +413,48 @@
 			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
-	<Type Name ="_pmath_dispatch_table_t">
-		<DisplayString>dispatch table for {all_keys}</DisplayString>
-		<Expand HideRawView="true">
-			<Item Name="all_keys">all_keys</Item>
-			<Item Name="length">((pmath.dll!_pmath_expr_t*)((all_keys.as_bits * 0x1000) / 0x1000))-&gt;length</Item>
-			<Item Name="entries">entries,[((pmath.dll!_pmath_expr_t*)((all_keys.as_bits * 0x1000) / 0x1000))-&gt;length]</Item>
-			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
+	<Type Name ="_pmath_custom_expr_t">
+		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api &amp;&amp; 1 == ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length" >(dispatch table) {{ {internals.items[0]} }}</DisplayString>
+		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api &amp;&amp; 2 == ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length" >(dispatch table) {{ {internals.items[0]}, {internals.items[1]} }}</DisplayString>
+		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api &amp;&amp; 3 == ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length" >(dispatch table) {{ {internals.items[0]}, {internals.items[1]}, {internals.items[2]} }}</DisplayString>
+		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api &amp;&amp; 4 == ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length" >(dispatch table) {{ {internals.items[0]}, {internals.items[1]}, {internals.items[2]}, {internals.items[3]} }}</DisplayString>
+		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api" >(dispatch table) List({  ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length}&gt;&gt;)</DisplayString>
+		
+		<DisplayString>{{ custom expr }}</DisplayString>
+		<Expand>
+			<ArrayItems Condition="&amp;pmath.dll!dispatch_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				<Size>internals.length + 1</Size>
+				<LowerBound>1</LowerBound>
+				<ValuePointer>&amp;internals.items[0]</ValuePointer>
+			</ArrayItems>
+			<!--<Item Name="data" Condition="&amp;pmath.dll!dispatch_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				*(pmath.dll!_pmath_dispatch_table_extra_data_t*)&amp;internals.items[internals.length + 1]
+			</Item>-->
+			<Item Name="entries" Condition="&amp;pmath.dll!dispatch_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				((pmath.dll!_pmath_dispatch_table_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;entries,[
+					((pmath.dll!_pmath_dispatch_table_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;used_length
+				]
+			</Item>
+			<Item Name="literal_entries" Condition="&amp;pmath.dll!dispatch_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				((pmath.dll!_pmath_dispatch_table_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;literal_entries
+			</Item>
+			<Item Name="hash_for_cache" Condition="&amp;pmath.dll!dispatch_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				((pmath.dll!_pmath_dispatch_table_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;hash_for_cache
+			</Item>
+
+			<Item Name="api">((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api</Item>
+			<Synthetic Name="internals">
+				<DisplayString>{internals.length + 1,d} internal items</DisplayString>
+				<Expand>
+					<Item Name="count" ExcludeView="simple">internals.length,d</Item>
+					<ArrayItems>
+						<Size>internals.length + 1</Size>
+						<LowerBound>0</LowerBound>
+						<ValuePointer>&amp;internals.items[0]</ValuePointer>
+					</ArrayItems>
+					<ExpandedItem>internals.inherited,view(nocast)</ExpandedItem>
+				</Expand>
+			</Synthetic>
 		</Expand>
 	</Type>
 
@@ -498,7 +533,7 @@
 							<Item Name="[{(*(pmath.dll!symbol2ids_t*)*pBucket).symbol}]">*(pmath.dll!symbol2ids_t*)*pBucket</Item>
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!dispatch_table_cache_class">
-							<Item Name="&lt;{iFound}&gt;">(pmath.dll!_pmath_dispatch_table_t*)*pBucket</Item>
+							<Item Name="&lt;{iFound}&gt;">(pmath.dll!_pmath_custom_expr_t*)*pBucket</Item>
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!doorman_table_class">
 							<Item Name="[{(*(pmath.dll!_pmath_doorman_entry_t*)*pBucket).key}]">*(pmath.dll!_pmath_doorman_entry_t*)*pBucket</Item>
