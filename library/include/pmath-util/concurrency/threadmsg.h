@@ -4,6 +4,7 @@
 #include <pmath-core/custom.h>
 
 /**\defgroup threadmsg Thread Messaging
+   \ingroup threads
    \brief Sending messages to other threads.
 
    Every pMath thread has its own message queue. Other threads can send

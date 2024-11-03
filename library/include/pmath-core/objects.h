@@ -237,7 +237,7 @@ enum {
   PMATH_TYPE_PACKED_ARRAY            = 1 << PMATH_TYPE_SHIFT_PACKED_ARRAY,
 
   /**\hideinitializer
-     A part of another pmath_expr_t.
+     A pmath_expr_t with custom internal representation, e.g. a pmath_dispatch_table_t or pmath_association_list_t.
    */
   PMATH_TYPE_CUSTOM_EXPRESSION      = 1 << PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION,
 
@@ -291,12 +291,12 @@ enum {
 
   /**\hideinitializer
      Packed Arrays are written in the form
-     `"PackedArray"(type, \<\<dimensions\>\>)` instead of nested lists.
+     `"PackedArray"(type, <<dimensions>>)` instead of nested lists.
    */
   PMATH_WRITE_OPTIONS_PACKEDARRAYFORM = 1 << 4,
 
   /**\hideinitializer
-     Do not add unnecessary extra spaces arount operators.
+     Do not add unnecessary extra spaces around operators.
    */
   PMATH_WRITE_OPTIONS_NOSPACES   = 1 << 5,
 

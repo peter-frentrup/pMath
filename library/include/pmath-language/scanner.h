@@ -12,7 +12,7 @@
     \ref pmath_span_array_t, which may be generated from textual code (and possibly
     embedded boxes) with pmath_spans_from_string(). A span-array can be converted to
     its boxes expression with pmath_boxes_from_spans_ex(). Thoses boxes then can be
-    be transformed to an unevaluated expression (wrapped in ``System`HoldComplete``)
+    transformed to an unevaluated expression (wrapped in ``System`HoldComplete``)
     by applying ``System`MakeExpression`` to the boxes with pmath_evaluate().
     To finally execute the parsed code, evaluate that with the HoldComplete head removed.
 

@@ -4,6 +4,7 @@
 #include <pmath-core/expressions.h>
 
 /**\defgroup association_lists Association lists
+   \ingroup expressions
    \brief Column-wise representation of lists of rules expressions.
   
   An assocition list is a custom expression representation for lists of rules 

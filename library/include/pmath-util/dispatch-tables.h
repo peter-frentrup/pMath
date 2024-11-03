@@ -4,6 +4,7 @@
 #include <pmath-core/expressions.h>
 
 /**\defgroup dispatch_tables Dispatch tables
+   \ingroup expressions
    \brief Fast lookup for lists of rules.
   
   A dispatch table is a pMath expression object that represents a list of (typically literal) 

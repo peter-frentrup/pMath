@@ -4,6 +4,7 @@
 #include <pmath-core/expressions.h>
 
 /**\defgroup packed_arrays Packed Arrays
+   \ingroup expressions
    \brief Compact arrays of numerical type.
    
    From the outside (i.e. the pMath language side), a packed array is a 

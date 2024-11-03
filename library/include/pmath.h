@@ -3,7 +3,7 @@
 
 /**\mainpage The pMath Computer Algebra System Library
    \author Peter Frentrup
-   \date 2024
+   \date 2005 \-- 2024
 
    \par Introduction
 

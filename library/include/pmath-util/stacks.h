@@ -4,6 +4,7 @@
 #include <pmath-config.h>
 
 /**\defgroup stacks Threadsafe Stacks
+   \ingroup threads
    \brief Fast threadsafe stacks in pMath.
 
    pmath_stack_t is a stack abstraction that provides threadsafe push and pop

@@ -8,6 +8,7 @@
 #include <inttypes.h>
 
 /**\defgroup atomic_ops Atomic Operations
+   \ingroup threads
    \brief Using atomic operations (independent of the rest of the library)
 
    pMath provides a collection of functions/macros to do atomic operations. This
