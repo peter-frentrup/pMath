@@ -30,20 +30,21 @@ typedef struct {
 PMATH_PRIVATE _pmath_type_imp_t pmath_type_imps[PMATH_TYPE_SHIFT_COUNT];
 #ifdef PMATH_DEBUG_MEMORY
 static pmath_atomic_t object_alloc_stats[PMATH_TYPE_SHIFT_COUNT];
-static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
-  "float (multi prec)",
-  "integer (multi prec)",
-  "quotient",
-  "string",
-  "symbol",
-  "expression (general)",
-  "expression (part)",
-  "symbol rule",
-  "custom",
-  "memory blob",
-  "packed array",
-  "string (pinned)",
-  "dispatch table"
+static const char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
+  [PMATH_TYPE_SHIFT_MP_FLOAT]                = "float (multi prec)",
+  [PMATH_TYPE_SHIFT_MP_INT]                  = "integer (multi prec)",
+  [PMATH_TYPE_SHIFT_QUOTIENT]                = "quotient",
+  [PMATH_TYPE_SHIFT_BIGSTRING]               = "string",
+  [PMATH_TYPE_SHIFT_SYMBOL]                  = "symbol",
+  [PMATH_TYPE_SHIFT_EXPRESSION_GENERAL]      = "expression (general)",
+  [PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART] = "expression (part)",
+  [PMATH_TYPE_SHIFT_MULTIRULE]               = "symbol rule",
+  [PMATH_TYPE_SHIFT_CUSTOM]                  = "custom",
+  [PMATH_TYPE_SHIFT_BLOB]                    = "memory blob",
+  [PMATH_TYPE_SHIFT_PACKED_ARRAY]            = "packed array",
+  [PMATH_TYPE_SHIFT_PINNED_STRING]           = "string (pinned)",
+  [PMATH_TYPE_SHIFT_RESERVED_2]              = "(reserved-2)", 
+  [PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION]       = "custom expr",
 };
 #endif
 
