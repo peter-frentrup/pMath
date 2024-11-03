@@ -61,6 +61,13 @@ extern pmath_symbol_t pmath_System_PatternSequence;
 extern pmath_symbol_t pmath_System_Rule;
 extern pmath_symbol_t pmath_System_RuleDelayed;
 
+
+#ifdef PMATH_DEBUG_MEMORY
+static struct {
+  pmath_atomic_t alloc_counter;
+} dispatch_table_stats;
+#endif // PMATH_DEBUG_MEMORY
+
 //{ custom expr API for dispatch table ...
 
 static void         dispatch_expr_destroy_data(           struct _pmath_custom_expr_data_t *_data);
@@ -361,6 +368,10 @@ static _pmath_dispatch_table_expr_t *get_dispatch_table_for_rules(pmath_expr_t r
   if(!tab)
     return NULL;
   
+#ifdef PMATH_DEBUG_MEMORY
+  (void)pmath_atomic_fetch_add(&dispatch_table_stats.alloc_counter, 1);
+#endif
+
   assert(len <= tab->internals.length + 1);
   
   for(size_t i = 0; i < len; ++i) {
@@ -933,8 +944,12 @@ PMATH_PRIVATE void _pmath_dispatch_tables_memory_panic(void) {
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_dispatch_tables_init(void) {
+#ifdef PMATH_DEBUG_MEMORY
+  pmath_atomic_write_release(&dispatch_table_stats.alloc_counter, 0);
+#endif
+
   memset(dispatch_table_limbo, 0, sizeof(dispatch_table_limbo));
-  dispatch_table_cache = pmath_ht_create(&dispatch_table_cache_class, 10);
+  dispatch_table_cache = pmath_ht_create(&dispatch_table_cache_class, 10);  
   if(!dispatch_table_cache) goto FAIL_CACHE;
   
   return TRUE;
@@ -944,6 +959,13 @@ FAIL_CACHE:
 }
 
 PMATH_PRIVATE void _pmath_dispatch_tables_done(void) {
+#ifdef PMATH_DEBUG_MEMORY
+  {
+    size_t alloc_counter = (size_t)pmath_atomic_read_aquire(&dispatch_table_stats.alloc_counter);
+    
+    pmath_debug_print("dispatch table allocations: %6"PRIdPTR"\n", alloc_counter);
+  }
+#endif
   pmath_ht_destroy(dispatch_table_cache);
   dispatch_table_cache = NULL;
 }
