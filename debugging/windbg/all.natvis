@@ -414,6 +414,7 @@
 		</Expand>
 	</Type>
 	<Type Name ="_pmath_custom_expr_t">
+		<DisplayString Condition="&amp;pmath.dll!association_list_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api" >{{ association list, length {((pmath.dll!_pmath_association_list_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;used_length} }}</DisplayString>
 		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api &amp;&amp; 1 == ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length" >(dispatch table) {{ {internals.items[0]} }}</DisplayString>
 		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api &amp;&amp; 2 == ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length" >(dispatch table) {{ {internals.items[0]}, {internals.items[1]} }}</DisplayString>
 		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api &amp;&amp; 3 == ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length" >(dispatch table) {{ {internals.items[0]}, {internals.items[1]}, {internals.items[2]} }}</DisplayString>
@@ -422,6 +423,18 @@
 		
 		<DisplayString>{{ custom expr }}</DisplayString>
 		<Expand>
+			<Item Name="keys" Condition="&amp;pmath.dll!association_list_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				internals.items[0]
+			</Item>
+			<Item Name="values" Condition="&amp;pmath.dll!association_list_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				internals.items[1]
+			</Item>
+			<Item Name="rule_delayed_bitset" Condition="&amp;pmath.dll!association_list_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				((pmath.dll!_pmath_association_list_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;rule_delayed_bitset,[
+					((((pmath.dll!_pmath_association_list_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;used_length) + 7) / 8
+				]x
+			</Item>
+
 			<ArrayItems Condition="&amp;pmath.dll!dispatch_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
 				<Size>internals.length + 1</Size>
 				<LowerBound>1</LowerBound>

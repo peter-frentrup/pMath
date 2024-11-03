@@ -7,6 +7,7 @@
 #include <pmath-language/patterns-private.h>
 #include <pmath-language/tokens.h>
 
+#include <pmath-util/association-lists.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/compression.h>
 #include <pmath-util/emit-and-gather.h>
@@ -2705,9 +2706,11 @@ static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t sym) {
   args = _pmath_makeexpression_with_debugmetadata(pmath_expr_get_item(boxes, 2));
   
   if(pmath_is_expr(args)) {
-    return wrap_hold_with_debug_metadata_from(
-             boxes,
-             pmath_expr_set_item(args, 0, pmath_ref(sym)));
+    args = pmath_expr_set_item(args, 0, pmath_ref(sym));
+    
+    pmath_try_make_association_list(&args);
+    
+    return wrap_hold_with_debug_metadata_from(boxes, args);
   }
   
   pmath_unref(boxes);

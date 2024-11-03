@@ -6,6 +6,7 @@
 
 #include <pmath-language/patterns-private.h>
 
+#include <pmath-util/association-lists-private.h>
 #include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
@@ -45,16 +46,21 @@ struct _pmath_dispatch_entry_t {
 
 struct _pmath_dispatch_table_extra_data_t {
   struct _pmath_custom_expr_data_t base;     // let capacity := expr.internals.length + 1, the number of expr.internals.items[]
- 
+
   size_t used_length;                        // used_length <= capacity
   unsigned hash_for_cache;
   pmath_hashtable_t literal_entries;
   struct _pmath_dispatch_entry_t entries[1]; // capacity many elements
 };
 
-static _pmath_dispatch_table_expr_t *find_dispatch_table(pmath_expr_t rules); // rules wont be freed
+static _pmath_dispatch_table_expr_t *find_dispatch_table(struct dispatch_table_cache_search_t *search);
+
 pmath_bool_t finish_create_dispatch_table(_pmath_dispatch_table_expr_t *tab, size_t num_keys);
+
+static _pmath_dispatch_table_expr_t *get_dispatch_table_for_keys_or_rules(pmath_expr_t keys_or_rules, pmath_bool_t got_rules); // keys_or_rules wont be freed
+static _pmath_dispatch_table_expr_t *get_dispatch_table_for_key_list(pmath_expr_t keys); // keys wont be freed
 static _pmath_dispatch_table_expr_t *get_dispatch_table_for_rules(pmath_expr_t rules); // rules wont be freed
+
 
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_PatternSequence;
@@ -312,15 +318,12 @@ static size_t unsafe_find_in_limbo(_pmath_dispatch_table_expr_t *disp) {
   return 0;
 }
 
-_pmath_dispatch_table_expr_t *find_dispatch_table(pmath_expr_t rules) {
+static _pmath_dispatch_table_expr_t *find_dispatch_table(struct dispatch_table_cache_search_t *search) {
   _pmath_dispatch_table_expr_t *result = NULL;
-  struct dispatch_table_cache_search_t search;
-  search.mode    = SEARCH_BY_LIST_OF_RULES;
-  search.u.rules = rules;
   
   pmath_atomic_lock(&dispatch_table_cache_lock);
   {
-    result = pmath_ht_search(dispatch_table_cache, &search);
+    result = pmath_ht_search(dispatch_table_cache, search);
     if(result) {
       //_pmath_ref_ptr((struct _pmath_t*)result);
       _pmath_ref_ptr(&result->internals.inherited.inherited.inherited);
@@ -345,20 +348,29 @@ _pmath_dispatch_table_expr_t *find_dispatch_table(pmath_expr_t rules) {
   return result;
 }
 
-static _pmath_dispatch_table_expr_t *get_dispatch_table_for_rules(pmath_expr_t rules) {
+static _pmath_dispatch_table_expr_t *get_dispatch_table_for_keys_or_rules(pmath_expr_t keys_or_rules, pmath_bool_t got_rules) {
   _pmath_dispatch_table_expr_t *tab;
   _pmath_dispatch_table_expr_t *old;
-  //pmath_t keys;
   size_t len;
   
-  tab = find_dispatch_table(rules);
+  struct dispatch_table_cache_search_t search;
+  if(got_rules) {
+    search.mode    = SEARCH_BY_LIST_OF_RULES;
+    search.u.rules = keys_or_rules;
+  }
+  else {
+    search.mode   = SEARCH_BY_KEY_LIST;
+    search.u.keys = keys_or_rules;
+  }
+  
+  tab = find_dispatch_table(&search);
   if(tab) {
 //    pmath_debug_print("[use cached dispatch table %p (%d refs) ", tab, (int)_pmath_refcount_ptr(&tab->inherited));
-//    pmath_debug_print_object("for ", rules, "]\n");
+//    pmath_debug_print_object("for ", keys_or_rules, "]\n");
     return tab;
   }
   
-  len = pmath_expr_length(rules);
+  len = pmath_expr_length(keys_or_rules);
   size_t capacity = len >= 1 ? len : 1;
   if(capacity > MAX_CAPACITY)
     return NULL;
@@ -374,11 +386,19 @@ static _pmath_dispatch_table_expr_t *get_dispatch_table_for_rules(pmath_expr_t r
 
   assert(len <= tab->internals.length + 1);
   
-  for(size_t i = 0; i < len; ++i) {
-    pmath_t rule = pmath_expr_get_item(rules, i+1);
-    pmath_t lhs  = pmath_expr_get_item(rule, 1);
-    pmath_unref(rule);
-    tab->internals.items[i] = lhs;
+  if(got_rules) {
+    for(size_t i = 0; i < len; ++i) {
+      pmath_t rule = pmath_expr_get_item(keys_or_rules, i+1);
+      pmath_t lhs  = pmath_expr_get_item(rule, 1);
+      pmath_unref(rule);
+      tab->internals.items[i] = lhs;
+    }
+  }
+  else {
+    for(size_t i = 0; i < len; ++i) {
+      pmath_t lhs = pmath_expr_get_item(keys_or_rules, i+1);
+      tab->internals.items[i] = lhs;
+    }
   }
   
   if(!finish_create_dispatch_table(tab, len)) {
@@ -400,6 +420,14 @@ static _pmath_dispatch_table_expr_t *get_dispatch_table_for_rules(pmath_expr_t r
   //pmath_debug_print("[cache new dispatch table (%d refs) ", (int)_pmath_refcount_ptr(&tab->inherited));
   //pmath_debug_print_object(" for ", tab->all_keys, "]\n");
   return tab;
+}
+
+static _pmath_dispatch_table_expr_t *get_dispatch_table_for_key_list(pmath_expr_t keys) {
+  return get_dispatch_table_for_keys_or_rules(keys, /* got_rules = */ FALSE);
+}
+
+static _pmath_dispatch_table_expr_t *get_dispatch_table_for_rules(pmath_expr_t rules) {
+  return get_dispatch_table_for_keys_or_rules(rules, /* got_rules = */ TRUE);
 }
 
 //} ... dispatch table cache
@@ -644,9 +672,12 @@ PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
 }
 
 PMATH_API pmath_bool_t pmath_is_list_of_rules(pmath_t obj) {
+  if(pmath_is_association_list(obj))
+    return TRUE;
+  
   pmath_dispatch_table_t disp = _pmath_rules_need_dispatch_table(obj);
   pmath_unref(disp);
-  return !pmath_same(disp, PMATH_NULL);
+  return !pmath_is_null(disp);
 }
 
 PMATH_API pmath_bool_t pmath_is_dispatch_table(pmath_t obj) {
@@ -660,25 +691,44 @@ PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t ex
   if(!pmath_is_expr(expr))
     return PMATH_NULL;
   
-  tab = _pmath_expr_get_dispatch_table(expr);
-  if(!pmath_is_null(tab))
-    return tab;
-  
-  if(!pmath_is_expr_of(expr, pmath_System_List))
-    return PMATH_NULL;
-  
-  for(len = pmath_expr_length(expr); len > 0; --len) {
-    pmath_t rule = pmath_expr_get_item(expr, len);
+  if(pmath_is_association_list(expr)) {
+    pmath_t keys = pmath_association_list_get_keys(expr);
+    if(pmath_is_dispatch_table(keys))
+      return keys;
     
-    if(!pmath_is_rule(rule)) {
-      pmath_unref(rule);
+    tab = _pmath_expr_get_dispatch_table(expr);
+    if(!pmath_is_null(tab))
+      return tab;
+    
+    tab = PMATH_FROM_PTR(get_dispatch_table_for_key_list(keys));
+    pmath_unref(keys);
+    
+    if(pmath_refcount(expr) == 1) {
+      if(_pmath_association_list_try_replace_keys_in_place(expr, pmath_ref(tab)))
+        return tab;
+    }
+  }
+  else {
+    tab = _pmath_expr_get_dispatch_table(expr);
+    if(!pmath_is_null(tab))
+      return tab;
+    
+    if(!pmath_is_expr_of(expr, pmath_System_List))
       return PMATH_NULL;
+    
+    for(len = pmath_expr_length(expr); len > 0; --len) {
+      pmath_t rule = pmath_expr_get_item(expr, len);
+      
+      if(!pmath_is_rule(rule)) {
+        pmath_unref(rule);
+        return PMATH_NULL;
+      }
+      
+      pmath_unref(rule);
     }
     
-    pmath_unref(rule);
+    tab = PMATH_FROM_PTR(get_dispatch_table_for_rules(expr));
   }
-  
-  tab = PMATH_FROM_PTR(get_dispatch_table_for_rules(expr));
   _pmath_expr_attach_dispatch_table(expr, pmath_ref(tab));
   return tab;
 }

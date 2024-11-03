@@ -11,7 +11,7 @@
 #define PMATH_EXPRESSION_FLATTEN_MAX_DEPTH   (8)
 
 
-typedef pmath_t pmath_dispatch_table_t;
+typedef pmath_expr_t pmath_dispatch_table_t;
 typedef pmath_t pmath_custom_t;
 
 struct _pmath_expr_t {
@@ -41,8 +41,8 @@ struct _pmath_custom_expr_api_t {
   pmath_t      (*get_item)(               struct _pmath_custom_expr_t *e, size_t i);       
   pmath_bool_t (*try_prevent_destruction)(struct _pmath_custom_expr_t *e);                                                        // does not free e
   pmath_bool_t (*try_get_item_range)(     struct _pmath_custom_expr_t *e, size_t start, size_t length, pmath_expr_t *result);     // does not free e
-  pmath_bool_t (*try_set_item_copy)(      struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item, pmath_expr_t *result);      // does not free e
-  pmath_bool_t (*try_set_item_mutable)(   struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item);                            // modifes e in-place (only if retuning TRUE).
+  pmath_bool_t (*try_set_item_copy)(      struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item, pmath_expr_t *result);      // does not free e, but frees new_item (only if returning TRUE)
+  pmath_bool_t (*try_set_item_mutable)(   struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item);                            // modifes e in-place & frees new_item (both only if returning TRUE). Should call _pmath_custom_expr_changed() when contents changed
   pmath_bool_t (*try_copy_shallow)(       struct _pmath_custom_expr_t *e, pmath_expr_t *result);                                  // does not free e
   pmath_bool_t (*try_shrink_associative)( struct _pmath_custom_expr_t *e, pmath_t magic_rem, pmath_expr_t *result);               // frees e iff returning TRUE
   pmath_bool_t (*try_resize_copy)(        struct _pmath_custom_expr_t *e, size_t new_len, pmath_expr_t *result);                  // does not free e
@@ -64,6 +64,9 @@ struct _pmath_custom_expr_t *_pmath_expr_new_custom(size_t len_internal, const s
 
 PMATH_PRIVATE
 struct _pmath_custom_expr_t *_pmath_as_custom_expr_by_api(pmath_t obj, const struct _pmath_custom_expr_api_t *api);
+
+PMATH_PRIVATE
+void _pmath_custom_expr_changed(struct _pmath_custom_expr_t *e);
 
 PMATH_PRIVATE
 size_t _pmath_expr_find_sorted(

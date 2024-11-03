@@ -863,6 +863,8 @@
 		<Unit filename="include/pmath-private.h" />
 		<Unit filename="include/pmath-types.h" />
 		<Unit filename="include/pmath-util/approximate.h" />
+		<Unit filename="include/pmath-util/association-lists-private.h" />
+		<Unit filename="include/pmath-util/association-lists.h" />
 		<Unit filename="include/pmath-util/compression.h" />
 		<Unit filename="include/pmath-util/concurrency/atomic-private.h" />
 		<Unit filename="include/pmath-util/concurrency/atomic.h" />
@@ -1675,6 +1677,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/approximate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/association-lists.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/compression.c">

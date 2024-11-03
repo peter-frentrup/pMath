@@ -23,15 +23,23 @@
 typedef pmath_expr_t pmath_dispatch_table_t;
 
 /** Check whether an object is a list of rules.
+    \relates pmath_dispatch_table_t
+    \relates pmath_association_list_t
+    \param obj An arbitrary pMath object.
+    \return TRUE if the object is a list of rules.
  */
 PMATH_API pmath_bool_t pmath_is_list_of_rules(pmath_t obj);
 
 /** Check whether an object is a dispatch table.
+    \memberof pmath_dispatch_table_t
+    \param obj An arbitrary pMath object.
+    \return TRUE if the object is a list of expressions represented by a \a pmath_dispatch_table_t.
  */
 PMATH_API pmath_bool_t pmath_is_dispatch_table(pmath_t obj);
 
 /** Look-up a key in a list-of-rules.
-    
+    \relates pmath_dispatch_table_t
+    \relates pmath_association_list_t
     \param rules  A pMath object. It won't be freed.
     \param key    A pMath object. It will be freed.
     \param result A pointer to a pMath object. On success, the previous pointed-to object will 
@@ -45,7 +53,8 @@ PMATH_API pmath_bool_t pmath_is_dispatch_table(pmath_t obj);
 PMATH_API pmath_bool_t pmath_rules_lookup(pmath_t rules, pmath_t key, pmath_t *result);
 
 /** Change a rule's right-hand side in a list-of-rules.
-
+    \relates pmath_dispatch_table_t
+    \relates pmath_association_list_t
     \param rules The old list-of-rules. It will be freed.
     \param key The left-hand side of the rule to change. It will be freed.
     \param callback A callback function whose first argument receives the old right-hand side 

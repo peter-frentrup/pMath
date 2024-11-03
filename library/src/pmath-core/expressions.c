@@ -320,6 +320,15 @@ struct _pmath_custom_expr_t *_pmath_as_custom_expr_by_api(pmath_t obj, const str
   return NULL;
 }
 
+PMATH_PRIVATE
+void _pmath_custom_expr_changed(struct _pmath_custom_expr_t *e) {
+  assert(pmath_atomic_read_aquire(&e->internals.inherited.inherited.inherited.refcount) == 1);
+  
+  reset_expr_flags(&e->internals);
+  clear_metadata(  &e->internals);
+  touch_expr(      &e->internals);
+}
+
 
 // called when all items are freed
 static void end_destroy_general_expression(struct _pmath_expr_t *expr) {
@@ -2459,7 +2468,6 @@ static pmath_expr_t custom_expr_set_item(struct _pmath_custom_expr_t *_expr, siz
   
   if(pmath_atomic_read_aquire(&_expr->internals.inherited.inherited.inherited.refcount) == 1) {
     if(data->api->try_set_item_mutable && data->api->try_set_item_mutable(_expr, index, new_item)) {
-      touch_expr(&_expr->internals);
       return PMATH_FROM_PTR(&_expr->internals.inherited.inherited.inherited);
     }
   }
@@ -2470,6 +2478,24 @@ static pmath_expr_t custom_expr_set_item(struct _pmath_custom_expr_t *_expr, siz
     pmath_unref(PMATH_FROM_PTR(&_expr->internals.inherited.inherited.inherited));
     return result;
   }
+  
+#ifdef PMATH_DEBUG_LOG
+  if(data->api->try_set_item_copy) {
+    pmath_debug_print("[try_set_item_copy failed at [%d]:= ", index);
+    pmath_debug_print_object("", new_item, " ");
+    pmath_debug_print_object("in ", PMATH_FROM_PTR(_expr), "]\n");
+  }
+  else if(data->api->try_set_item_mutable && pmath_atomic_read_aquire(&_expr->internals.inherited.inherited.inherited.refcount) == 1) {
+    pmath_debug_print("[try_set_item_mutable failed at [%d]:= ", index);
+    pmath_debug_print_object("", new_item, " ");
+    pmath_debug_print_object("in ", PMATH_FROM_PTR(_expr), "]\n");
+  }
+  else {
+    pmath_debug_print("[no setter for custom expr at [%d]:= ", index);
+    pmath_debug_print_object("", new_item, " ");
+    pmath_debug_print_object("in ", PMATH_FROM_PTR(_expr), "]\n");
+  }
+#endif // PMATH_DEBUG_LOG
   
   assert(pmath_is_null(result));
   result = custom_expr_expand_to_normal(_expr);
