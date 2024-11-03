@@ -19,6 +19,7 @@
 /library/doxygen/doc
 /library/doxygen/html
 /library/doxygen/latex
+/library/doxygen/xml
 /modules/Eigen/bin
 /modules/Eigen/obj
 /modules/hello/bin
