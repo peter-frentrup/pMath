@@ -1,7 +1,9 @@
 #include <pmath-core/numbers.h>
 
+#include <pmath-core/expressions-private.h> // for  _pmath_object_emptylist
 #include <pmath-language/regex-private.h>
 
+#include <pmath-util/association-lists.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -160,6 +162,16 @@ static pmath_t replace_all(
   struct _capture_t   *capture_list;
   size_t               count, i;
   
+  if(pmath_equals(rules, _pmath_object_emptylist)) {
+    pmath_unref(rules);
+    pmath_unref(expr);
+    return obj;
+  }
+  
+  if(pmath_is_rule(rules)) {
+    rules = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, rules);
+  }
+  
   if(!pmath_is_expr_of(rules, pmath_System_List)) {
     rules = pmath_expr_new_extended(
               pmath_ref(pmath_System_List), 1,
@@ -169,8 +181,23 @@ static pmath_t replace_all(
   count = pmath_expr_length(rules);
   if(count == 0) {
     pmath_unref(rules);
+    pmath_unref(rules);
+    pmath_unref(rules);
     pmath_unref(expr);
     return obj;
+  }
+  
+  pmath_bool_t has_separate_lhs_rhs = FALSE;
+  pmath_t patlist  = PMATH_UNDEFINED;
+  pmath_t rhs_list;
+  
+  if(pmath_is_association_list(rules)) {
+    patlist  = pmath_association_list_get_keys(rules);
+    rhs_list = pmath_association_list_get_values(rules);
+    has_separate_lhs_rhs = TRUE;
+  }
+  else {
+    rhs_list = pmath_expr_new(pmath_ref(pmath_System_List), count);
   }
   
   regex_list   = pmath_mem_alloc(count * sizeof(struct _regex_t *));
@@ -178,33 +205,41 @@ static pmath_t replace_all(
   
   if(regex_list && capture_list) {
     for(i = 0; i < count; ++i) {
-      pmath_t rule_i = pmath_expr_get_item(rules, i + 1);
-      pmath_t lhs, rhs;
+      pmath_t lhs;
       
-      if(!pmath_is_rule(rule_i)) {
-        pmath_message(PMATH_NULL, "srep", 1, rule_i);
-        pmath_unref(rules);
-        pmath_unref(obj);
+      if(has_separate_lhs_rhs) {
+        lhs = pmath_expr_get_item(patlist, i + 1);
+      }
+      else {
+        pmath_t rule_i = pmath_expr_get_item(rules, i + 1);
         
-        for(; i > 0; --i) {
-          _pmath_regex_unref(regex_list[i - 1]);
-          _pmath_regex_free_capture(&capture_list[i - 1]);
+        if(!pmath_is_rule(rule_i)) {
+          pmath_message(PMATH_NULL, "srep", 1, rule_i);
+          pmath_unref(rules);
+          pmath_unref(obj);
+          
+          for(; i > 0; --i) {
+            _pmath_regex_unref(regex_list[i - 1]);
+            _pmath_regex_free_capture(&capture_list[i - 1]);
+          }
+          
+          pmath_mem_free(regex_list);
+          pmath_mem_free(capture_list);
+          return expr;
         }
         
-        pmath_mem_free(regex_list);
-        pmath_mem_free(capture_list);
-        return expr;
+        pmath_t rhs = pmath_expr_get_item(rule_i, 2);
+        lhs         = pmath_expr_get_item(rule_i, 1);
+        pmath_unref(rule_i);
+        rhs_list = pmath_expr_set_item(rhs_list, i + 1, rhs);
       }
-      
-      lhs = pmath_expr_get_item(rule_i, 1);
-      rhs = pmath_expr_get_item(rule_i, 2);
-      pmath_unref(rule_i);
-      rules = pmath_expr_set_item(rules, i + 1, rhs);
       
       regex_list[i] = _pmath_regex_compile(lhs, regex_options);
       _pmath_regex_init_capture(regex_list[i], &capture_list[i]);
       
       if(!regex_list[i] || !capture_list[i].ovector) {
+        pmath_unref(patlist);
+        pmath_unref(rhs_list);
         pmath_unref(rules);
         pmath_unref(obj);
         
@@ -220,7 +255,7 @@ static pmath_t replace_all(
       }
     }
     
-    obj = stringreplace(obj, regex_list, capture_list, rules, max_matches, sr_options);
+    obj = stringreplace(obj, regex_list, capture_list, rhs_list, max_matches, sr_options);
     
     if(pmath_same(obj, PMATH_UNDEFINED)) {
       pmath_message(PMATH_NULL, "strse", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
@@ -236,6 +271,8 @@ static pmath_t replace_all(
   
   pmath_mem_free(regex_list);
   pmath_mem_free(capture_list);
+  pmath_unref(patlist);
+  pmath_unref(rhs_list);
   pmath_unref(rules);
   pmath_unref(expr);
   return obj;
