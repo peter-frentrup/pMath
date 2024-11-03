@@ -47,6 +47,7 @@ static pmath_t      association_list_get_item(            struct _pmath_custom_e
 static pmath_bool_t association_list_try_item_equals(     struct _pmath_custom_expr_t *e, size_t i, pmath_t expected_item, pmath_bool_t *result); // does not free e or expected_item
 static pmath_bool_t association_list_try_set_item_copy(   struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item, pmath_expr_t *result);      // does not free e, but frees new_item (only if returning TRUE)
 static pmath_bool_t association_list_try_set_item_mutable(struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item);
+static pmath_bool_t association_list_try_compare_equal(   struct _pmath_custom_expr_t *e, pmath_t other, pmath_bool_t *result);                   // does not free e or other
 
 
 static const struct _pmath_custom_expr_api_t association_list_expr_api = {
@@ -56,6 +57,7 @@ static const struct _pmath_custom_expr_api_t association_list_expr_api = {
   .try_item_equals      = association_list_try_item_equals,
   .try_set_item_copy    = association_list_try_set_item_copy,
   .try_set_item_mutable = association_list_try_set_item_mutable,
+  .try_compare_equal    = association_list_try_compare_equal,
 };
 
 //} ... custom expr API for association lists
@@ -494,6 +496,48 @@ static pmath_bool_t association_list_try_set_item_mutable(
   
   pmath_unref(new_item);
   return TRUE;
+}
+
+static pmath_bool_t association_list_try_compare_equal(
+  struct _pmath_custom_expr_t *e,     // wont be freed
+  pmath_t                      other, // wont be freed
+  pmath_bool_t                *result
+) {
+  struct _pmath_association_list_extra_data_t *assoc_extra = ASSOC_EXPR_EXTRA(e);
+
+  if(pmath_is_association_list(other)) {
+    _pmath_association_list_t                   *other_ptr   = (void*)PMATH_AS_PTR(other);
+    struct _pmath_association_list_extra_data_t *other_extra = ASSOC_EXPR_EXTRA(other_ptr);
+    
+    size_t len = assoc_extra->used_length;
+    if(len != other_extra->used_length) {
+      *result = FALSE;
+      return TRUE;
+    }
+    
+    if(len >= 8) {
+      if(0 != memcmp(assoc_extra->rule_delayed_bitset, other_extra->rule_delayed_bitset, len >> 3)) {
+        *result = FALSE;
+        return TRUE;
+      }
+    }
+    
+    if(len & 7) {
+      uint8_t assoc_last_bits = assoc_extra->rule_delayed_bitset[len >> 3];
+      uint8_t other_last_bits = other_extra->rule_delayed_bitset[len >> 3];
+      uint8_t mask            = (1U << (len & 7)) - 1;
+      if((assoc_last_bits ^ other_last_bits) & mask) {
+        *result = FALSE;
+        return TRUE;
+      }
+    }
+    
+    *result = (  pmath_equals(e->internals.items[0], other_ptr->internals.items[0]) 
+              && pmath_equals(e->internals.items[1], other_ptr->internals.items[1]));
+    return TRUE;
+  }
+  else
+    return FALSE;
 }
 
 //} ... custom expr API for association lists
