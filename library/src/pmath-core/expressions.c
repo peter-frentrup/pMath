@@ -2856,7 +2856,6 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
   switch(PMATH_AS_PTR(a)->type_shift) {
 
     case PMATH_TYPE_SHIFT_PACKED_ARRAY: {
-
         switch(PMATH_AS_PTR(b)->type_shift) {
           case PMATH_TYPE_SHIFT_PACKED_ARRAY: {
               int cmp = _pmath_packed_array_compare(a, b);
@@ -2874,18 +2873,17 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
 
           case PMATH_TYPE_SHIFT_SYMBOL:
             return +1;
-
-        } break;
-
+        }
+        assert("neither an expression nor a symbol" && 0);
       } break;
 
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-
         switch(PMATH_AS_PTR(b)->type_shift) {
           case PMATH_TYPE_SHIFT_PACKED_ARRAY:
           case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
           case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+          case PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION:
             return compare_expr_general(a, b);
 
           case PMATH_TYPE_SHIFT_SYMBOL: {
@@ -2897,7 +2895,7 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
               return +1;
             } break;
         }
-
+        assert("neither an expression nor a symbol" && 0);
       } break;
     
     case PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION: {
@@ -2905,6 +2903,7 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
           case PMATH_TYPE_SHIFT_PACKED_ARRAY:
           case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
           case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+          case PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION:
             return compare_expr_general(a, b);
           
           case PMATH_TYPE_SHIFT_SYMBOL: {
@@ -2917,10 +2916,10 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
               return +1;
           } break;
         }
+        assert("neither an expression nor a symbol" && 0);
       } break;
 
     case PMATH_TYPE_SHIFT_SYMBOL: {
-
         switch(PMATH_AS_PTR(b)->type_shift) {
           case PMATH_TYPE_SHIFT_PACKED_ARRAY:
             return -1;
@@ -2945,12 +2944,11 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
               return cmp;
             } break;
         }
-
+        assert("neither an expression nor a symbol" && 0);
       } break;
   }
 
   assert("neither an expression nor a symbol" && 0);
-
   return 0;
 }
 
