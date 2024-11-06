@@ -130,7 +130,7 @@ Document({
               Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4", ",", 
                   "5"}, "}"}), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
-        SectionGroup({Section("Lists of Rules", "ExampleSubsection"), 
+        SectionGroup({Section("Association Lists", "ExampleSubsection"), 
           Section(
            TextData({"Lists of ", TemplateBox({"Rule"}, "ReferenceHyperlink"), 
              " or ", TemplateBox({"RuleDelayed"}, "ReferenceHyperlink"), 
@@ -255,7 +255,7 @@ Document({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section(TextData({TemplateBox({"Table"}, "ReferenceHyperlink"), 
-               " constructs lists using an expression and itorator:"}), 
+               " constructs lists using an expression and iterator:"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"Table", "(", {
                   {"2", "^", "n"}, ",", {"n", "\[Rule]", {
@@ -306,7 +306,7 @@ Document({
                    "\[ExponentialE]", SuperscriptBox("5")}, ",", {
                    "\[ExponentialE]", SuperscriptBox("6")}}, "}"}}, "}"}), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All)}, 1)}, All), Section("", "SectionFooterSpacer")}, All), 
+           All)}, 1)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Array"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Table"}, 
