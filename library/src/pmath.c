@@ -1140,7 +1140,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(Get):={"
           "CharacterEncoding->Automatic,"
           "Head->Identity,"
-          "Path:>$Path}");
+          "Path:>$Path,"
+          "TrackSourceLocations->True}");
           
       PMATH_RUN(
           "Options(IsFreeOf):="

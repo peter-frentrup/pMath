@@ -91,7 +91,7 @@ Function tryGetUnitDimensions(~unit) {
 fundamentalUnitValue(~unit)::= unit |> Replace(~u:String :> System`QuantityUnits`$AllUnits[u, "FundamentalUnitValue"])
 
 
-Get(ToFileName({DirectoryName($Input)}, "define-units.pmath"));
+Get(ToFileName({DirectoryName($Input)}, "define-units.pmath"), TrackSourceLocations -> False);
 
 
 $AllShortUnits:= {}

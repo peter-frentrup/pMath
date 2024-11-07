@@ -917,6 +917,7 @@ Top::usage:= "Top is a symbol that represents the top for purposes of alignment 
 ToString::usage:= "ToString(\(StyleBox(\"expr\", \"Arg\")\)) converts \(StyleBox(\"expr\", \"Arg\")\) to a string.\nToString(\(StyleBox(\"expr\", \"Arg\")\), \(StyleBox(\"form\", \"Arg\")\)) uses \(StyleBox(\"form\", \"Arg\")\) for the formatting."
 Total::usage:= "Total(\(StyleBox(\"list\", \"Arg\")\)) calculates the total of the elements in \(StyleBox(\"list\", \"Arg\")\)."
 TrackedSymbols::usage:= "TrackedSymbols is an option for Dynamic that specifies which symbols should trigger updates when their values are changed."
+TrackSourceLocations::usage:= "TrackSourceLocations is an option for Get that specifies whether certain debug metadata should be attached to parsed expressions."
 TransformationBox::usage:= "TransformationBox(\(StyleBox(\"boxes\", \"Arg\")\), BoxTransformation \[Rule] {{\(StyleBox(\"xx\", \"Arg\")\), \(StyleBox(\"xy\", \"Arg\")\)}, {\(StyleBox(\"yx\", \"Arg\")\), \(StyleBox(\"yy\", \"Arg\")\)}}) is a low-level construct which represents a box that is visually transformed using a transformation matrix."
 TransformationFunction::usage:= "TransformationFunction(\(StyleBox(\"data\", \"Arg\")\)) represents a transformation function which applies geometric transformations."
 TransformationMatrix::usage:= "TransformationMatrix(\(StyleBox(\"tfun\", \"Arg\")\)) returns the homogeneous matrix associated with a TransformationFunction object."

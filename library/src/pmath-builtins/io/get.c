@@ -24,6 +24,7 @@ extern pmath_symbol_t pmath_System_DollarNamespace;
 extern pmath_symbol_t pmath_System_DollarNamespacePath;
 extern pmath_symbol_t pmath_System_CharacterEncoding;
 extern pmath_symbol_t pmath_System_Directory;
+extern pmath_symbol_t pmath_System_False;
 extern pmath_symbol_t pmath_System_File;
 extern pmath_symbol_t pmath_System_FileType;
 extern pmath_symbol_t pmath_System_Get;
@@ -36,6 +37,7 @@ extern pmath_symbol_t pmath_System_Path;
 extern pmath_symbol_t pmath_System_Sequence;
 extern pmath_symbol_t pmath_System_Range;
 extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_TrackSourceLocations;
 extern pmath_symbol_t pmath_System_True;
 
 extern pmath_symbol_t pmath_Language_SourceLocation;
@@ -143,9 +145,10 @@ static pmath_t add_debug_metadata(
 }
 
 static pmath_t get_file(
-  pmath_t        file,          // will be freed and closed
-  pmath_string_t name,          // will be freed
-  pmath_t        head           // will be freed
+  pmath_t        file,              // will be freed and closed
+  pmath_string_t name,              // will be freed
+  pmath_t        head,              // will be freed
+  pmath_bool_t   track_source_locations
 ) {
   struct _get_file_info              info;
   struct pmath_boxes_from_spans_ex_t parse_settings;
@@ -174,7 +177,8 @@ static pmath_t get_file(
   parse_settings.size           = sizeof(parse_settings);
   parse_settings.flags          = PMATH_BFS_PARSEABLE;
   parse_settings.data           = &info;
-  parse_settings.add_debug_metadata = add_debug_metadata;
+  if(track_source_locations)
+    parse_settings.add_debug_metadata = add_debug_metadata;
   
   do {
     pmath_unref(result);
@@ -277,6 +281,7 @@ static pmath_t open_read(pmath_t filename, pmath_t character_encoding) { // both
 
 PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
   pmath_t options, character_encoding, head, path, name, file, file_type;
+  pmath_bool_t track_source_locations = TRUE;
   
   if(pmath_expr_length(expr) < 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
@@ -297,6 +302,22 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
   character_encoding = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_CharacterEncoding, options));
   head               =                pmath_option_value(PMATH_NULL, pmath_System_Head,              options);
   path               = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Path,              options));
+  
+  pmath_t obj = pmath_option_value(PMATH_NULL, pmath_System_TrackSourceLocations, options);
+  if(pmath_same(obj, pmath_System_True)) {
+    track_source_locations = TRUE;
+  }
+  else if(pmath_same(obj, pmath_System_False)) {
+    track_source_locations = FALSE;
+  }
+  else {
+    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(pmath_System_TrackSourceLocations), obj);
+    pmath_unref(path);
+    pmath_unref(character_encoding);
+    pmath_unref(head);
+    return expr;
+  }
+  pmath_unref(obj);
   
   pmath_unref(options);
   if(pmath_is_string(path))
@@ -397,7 +418,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
           
           file = open_read(pmath_ref(testname), character_encoding);
           if(!pmath_same(file, pmath_System_DollarFailed))
-            return get_file(file, testname, head);
+            return get_file(file, testname, head, track_source_locations);
             
           pmath_unref(testname);
           pmath_unref(file);
@@ -428,7 +449,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
         
         file = open_read(pmath_ref(testname), character_encoding);
         if(!pmath_same(file, pmath_System_DollarFailed))
-          return get_file(file, testname, head);
+          return get_file(file, testname, head, track_source_locations);
           
         pmath_unref(testname);
         pmath_unref(file);
@@ -463,7 +484,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
   
   file = open_read(pmath_ref(name), character_encoding);
   if(!pmath_same(file, pmath_System_DollarFailed))
-    return get_file(file, name, head);
+    return get_file(file, name, head, track_source_locations);
     
   pmath_unref(file);
   pmath_unref(name);
