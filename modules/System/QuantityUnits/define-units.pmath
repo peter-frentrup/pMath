@@ -111,13 +111,13 @@ Function addBinarySILikePrefixes(~name, ~namebase) {
 	With(short:=       attr["UnitShortName"])
 
 	unitData("Kibi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^10, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ki" ++ short) }
-	unitData("mebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^20, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Mi" ++ short) }
-	unitData("gibi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^30, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Gi" ++ short) }
-	unitData("tebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^40, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ti" ++ short) }
-	unitData("pebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^50, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Pi" ++ short) }
-	unitData("exbi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^60, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ei" ++ short) }
-	unitData("zebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^70, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Zi" ++ short) }
-	unitData("yobi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^80, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Yi" ++ short) }
+	unitData("Mebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^20, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Mi" ++ short) }
+	unitData("Gibi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^30, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Gi" ++ short) }
+	unitData("Tebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^40, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ti" ++ short) }
+	unitData("Pebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^50, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Pi" ++ short) }
+	unitData("Exbi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^60, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Ei" ++ short) }
+	unitData("Zebi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^70, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Zi" ++ short) }
+	unitData("Yobi" ++ namebase):= { "FundamentalUnitValue" -> fundamental * 2^80, "UnitDimensions" -> dim, "UnitShortName" -> If(short === None, None, "Yi" ++ short) }
 }
 
 Function addDerivedUnit(~name, ~product, ~shortname) {
