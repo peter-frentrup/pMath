@@ -282,11 +282,11 @@ pmath_hashtable_t pmath_ht_copy_ex(
 /*============================================================================*/
 
 PMATH_API void pmath_ht_destroy(pmath_hashtable_t ht) {
-  struct _pmath_hashtable_impl_t *ht_impl = ht_get_impl(ht);
-  unsigned int i;
-
   if(!ht)
     return;
+
+  struct _pmath_hashtable_impl_t *ht_impl = ht_get_impl(ht);
+  unsigned int i;
 
   assert(ht_impl->klass != NULL);
 
