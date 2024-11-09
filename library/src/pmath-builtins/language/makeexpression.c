@@ -270,6 +270,7 @@ static pmath_t parse_gridbox(pmath_expr_t expr, pmath_bool_t remove_styling); //
 static pmath_t make_expression_with_options(pmath_expr_t expr);
 static pmath_t get_parser_argument_from_string(pmath_string_t string); // string will be freed
 
+static pmath_t make_expression_from_box_or_string(pmath_t box);
 static pmath_t make_expression_from_string(pmath_string_t string);
 static pmath_t make_expression_from_name_token(pmath_string_t string);
 static pmath_t make_expression_from_string_token(pmath_string_t string);
@@ -398,481 +399,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
   box = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  if(pmath_is_string(box))
-    return make_expression_from_string(box);
-    
-  if(pmath_is_expr(box)) {
-    pmath_t head;
-    uint16_t firstchar, secondchar;
-    
-    head = pmath_expr_get_item(box, 0);
-    pmath_unref(head);
-    
-    expr = box;
-    box = PMATH_NULL;
-    
-    exprlen = pmath_expr_length(expr);
-    
-    if(!pmath_same(head, pmath_System_List)) {
-      // implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
-      if(pmath_is_null(head))
-        return make_implicit_evaluation_sequence(expr);
-        
-      if(pmath_same(head, pmath_System_StringBox))
-        return make_expression_from_stringbox(expr);
-        
-      if(pmath_same(head, pmath_System_CompressedData))
-        return make_expression_from_compresseddata(expr);
-        
-      if(pmath_same(head, pmath_System_FractionBox))
-        return make_expression_from_fractionbox(expr);
-        
-      if(pmath_same(head, pmath_System_FrameBox))
-        return make_expression_from_framebox(expr);
-        
-      if(pmath_same(head, pmath_System_GridBox))
-        return make_expression_from_gridbox(expr);
-        
-      if(pmath_same(head, pmath_System_HoldComplete))
-        return expr;
-        
-      if(pmath_same(head, pmath_System_InterpretationBox))
-        return make_expression_from_interpretationbox(expr);
-        
-      if(pmath_same(head, pmath_System_OverscriptBox))
-        return make_expression_from_overscriptbox(expr);
-        
-      if(pmath_same(head, pmath_System_RadicalBox))
-        return make_expression_from_radicalbox(expr);
-        
-      if(pmath_same(head, pmath_System_RotationBox))
-        return make_expression_from_rotationbox(expr);
-        
-      if(pmath_same(head, pmath_System_SqrtBox))
-        return make_expression_from_sqrtbox(expr);
-        
-      if(pmath_same(head, pmath_System_StyleBox))
-        return make_expression_from_stylebox(expr);
-        
-      if(pmath_same(head, pmath_System_TagBox))
-        return make_expression_from_tagbox(expr);
-        
-      if(pmath_same(head, pmath_System_TemplateBox))
-        return make_expression_from_templatebox(expr);
-        
-      if(pmath_same(head, pmath_System_UnderscriptBox))
-        return make_expression_from_underscriptbox(expr);
-        
-      if(pmath_same(head, pmath_System_UnderoverscriptBox))
-        return make_expression_from_underoverscriptbox(expr);
-        
-      pmath_message(PMATH_NULL, "inv", 1, expr);
-      return pmath_ref(pmath_System_DollarFailed);
-    }
-    
-    if(exprlen == 0) {
-      pmath_unref(expr);
-      return HOLDCOMPLETE(PMATH_NULL);
-    }
-    
-    firstchar  = unichar_at(expr, 1);
-    secondchar = unichar_at(expr, 2);
-    
-    // ()  and  (x) ...
-    if(firstchar == '(' && unichar_at(expr, exprlen) == ')')
-      return make_parenthesis(expr);
-      
-    // \[LeftInvisibleBracket]x\[RightInvisibleBracket]
-    if(firstchar == PMATH_CHAR_LEFTINVISIBLEBRACKET && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
-      return make_parenthesis(expr);
-      
-    // {}  and  {x}  and  {grid\[RightInvisibleBracket]
-    if(firstchar == '{') {
-      uint16_t lastchar = unichar_at(expr, exprlen);
-      
-      if(lastchar == '}')
-        return make_matchfix(expr, pmath_System_List);
-        
-      if(lastchar == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
-        return make_matchfix(expr, pmath_System_Piecewise);
-    }
-    
-    if(firstchar == char_LeftCeiling && unichar_at(expr, exprlen) == char_RightCeiling)
-      return make_matchfix(expr, pmath_System_Ceiling);
-      
-    if(firstchar == char_LeftFloor && unichar_at(expr, exprlen) == char_RightFloor)
-      return make_matchfix(expr, pmath_System_Floor);
-      
-    if(firstchar == PMATH_CHAR_LEFTBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTBRACKETINGBAR)
-      return make_matchfix(expr, pmath_System_BracketingBar);
-      
-    if(firstchar == PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR)
-      return make_matchfix(expr, pmath_System_DoubleBracketingBar);
-      
-    // comma sepearted list ...
-    if(firstchar == ',' || secondchar == ',' || firstchar == PMATH_CHAR_INVISIBLECOMMA || secondchar == PMATH_CHAR_INVISIBLECOMMA)
-      return make_comma_sequence(expr);
-      
-    // evaluation sequence ...
-    if(firstchar == ';' || secondchar == ';' || firstchar == '\n' || secondchar == '\n')
-      return make_evaluation_sequence(expr);
-      
-    if(exprlen == 1)
-      return pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_MakeExpression));
-      
-    // ?x  and  ?x:v
-    if(firstchar == '?')
-      return make_optional_pattern(expr);
-      
-    // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
-    if(exprlen == 2) {
-      pmath_string_t str;
-      
-      // x &
-      if(secondchar == '&')
-        return make_from_first_box(expr, pmath_System_Function);
-        
-      // x!
-      if(secondchar == '!')
-        return make_from_first_box(expr, pmath_System_Factorial);
-      
-      // f'
-      if(secondchar == '\'')
-        return make_derivative(expr, 1);
-      
-      str = pmath_expr_get_item(expr, 2);
-      if(pmath_is_string(str)) {
-        // x!!
-        if(string_equals(str, "!!")) {
-          pmath_unref(str);
-          return make_from_first_box(expr, pmath_System_Factorial2);
-        }
-        
-        // x++
-        if(string_equals(str, "++")) {
-          pmath_unref(str);
-          return make_from_first_box(expr, pmath_System_PostIncrement);
-        }
-        
-        // x--
-        if(string_equals(str, "--")) {
-          pmath_unref(str);
-          return make_from_first_box(expr, pmath_System_PostDecrement);
-        }
-        
-        // p**  p***
-        if(string_equals_char_repeated(str, '*')) {
-          int len = pmath_string_length(str);
-          
-          // p**
-          if(len == 2) {
-            pmath_unref(str);
-            return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_one));
-          }
-            
-          // p***
-          if(len == 3) {
-            pmath_unref(str);
-            return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_zero));
-          }
-        }
-        
-        // f''  f'''  f''''  etc.
-        if(string_equals_char_repeated(str, '\'')) {
-          int len = pmath_string_length(str);
-          pmath_unref(str);
-          return make_derivative(expr, len);
-        }
-      }
-      pmath_unref(str);
-      str = PMATH_NULL;
-      
-      // +x
-      if(firstchar == '+' || firstchar == PMATH_CHAR_INVISIBLEPLUS)
-        return make_unary_plus(expr);
-        
-      // -x
-      if(firstchar == '-')
-        return make_unary_minus(expr);
-        
-      if(firstchar == PMATH_CHAR_PIECEWISE)
-        return make_from_second_box(expr, pmath_System_Piecewise);
-        
-      // !x
-      if(firstchar == '!' || firstchar == 0x00AC)
-        return make_from_second_box(expr, pmath_System_Not);
-        
-      // \[Sqrt] x
-      if(firstchar == 0x221A)
-        return make_from_second_box(expr, pmath_System_Sqrt);
-        
-      // \[CubeRoot] x
-      if(firstchar == 0x221B)
-        return make_from_second_box(expr, pmath_System_CubeRoot);
-        
-      // \[U+221C] x  fourth root
-      if(firstchar == 0x221C)
-        return make_power_from_second_box(expr, QUOT(1, 4));
-        
-      // #x
-      if(firstchar == '#')
-        return make_from_second_box(expr, pmath_System_PureArgument);
-      
-      // ##x
-      if(is_string_at(expr, 1, "##"))
-        return make_pure_argument_range(expr);
-        
-      // ++x
-      if(is_string_at(expr, 1, "++"))
-        return make_from_second_box(expr, pmath_System_Increment);
-        
-      // --x
-      if(is_string_at(expr, 1, "--"))
-        return make_from_second_box(expr, pmath_System_Decrement);
-        
-      // ??x
-      if(is_string_at(expr, 1, "??"))
-        return make_text_line(expr, pmath_System_ShowDefinition);
-        
-      // <<x
-      if(is_string_at(expr, 1, "<<"))
-        return make_text_line(expr, pmath_System_Get);
-        
-      // ~x
-      if(firstchar == '~')
-        return make_named_match(expr, pmath_ref(_pmath_object_singlematch));
-        
-      // ~~x
-      if(is_string_at(expr, 1, "~~"))
-        return make_named_match(expr, pmath_ref(_pmath_object_multimatch));
-        
-      // ~~~x
-      if(is_string_at(expr, 1, "~~~"))
-        return make_named_match(expr, pmath_ref(_pmath_object_zeromultimatch));
-        
-      // x^y   Subscript(x, y, ...)   Subscript(x,y,...)^z
-      if(secondchar == 0) {
-        box = pmath_expr_get_item(expr, 2);
-        
-        if(pmath_is_expr_of_len(box, pmath_System_SuperscriptBox, 1))
-          return make_superscript(expr, box);
-          
-        if(pmath_is_expr_of_len(box, pmath_System_SubscriptBox, 1))
-          return make_subscript(expr, box);
-          
-        if(pmath_is_expr_of_len(box, pmath_System_SubsuperscriptBox, 2))
-          return make_subsuperscript(expr, box);
-          
-        pmath_unref(box);
-        box = PMATH_NULL;
-      }
-    }
-    
-    // a.f  f@x  f@@list  s::tag  f()  ~:t  ~~:t  ~~~:t  x:p  a//f  p/?c  l->r  l:=r  l+=r  l-=r  l:>r  l::=r  l..r
-    if(exprlen == 3) {       // a.f
-      if(secondchar == '.')
-        return make_simple_dot_call(expr);
-        
-      // f@x
-      if(secondchar == '@' || secondchar == PMATH_CHAR_INVISIBLECALL)
-        return make_prefix_call(expr);
-        
-      // f()
-      if(secondchar == '(' && unichar_at(expr, 3) == ')')
-        return make_argumentless_call(expr);
-        
-      // ~:t  ~~:t  ~~~:t  x:p
-      if(secondchar == ':')
-        return make_pattern_or_typed_match(expr);
-        
-      // args |-> body
-      if(secondchar == 0x21A6)
-        return make_arrow_function(expr);
-        
-      // f@@list
-      if(is_string_at(expr, 2, "@@"))
-        return make_apply(expr);
-        
-      // s::tag
-      if(is_string_at(expr, 2, "::"))
-        return make_message_name(expr);
-        
-      // lhs:=rhs
-      if(secondchar == PMATH_CHAR_ASSIGN)
-        return make_binary(expr, pmath_System_Assign);
-        
-      // lhs::=rhs
-      if(secondchar == PMATH_CHAR_ASSIGNDELAYED)
-        return make_binary(expr, pmath_System_AssignDelayed);
-        
-      // lhs->rhs
-      if(secondchar == PMATH_CHAR_RULE)
-        return make_pattern_op_other(expr, pmath_System_Rule);
-        
-      // lhs:>rhs
-      if(secondchar == PMATH_CHAR_RULEDELAYED)
-        return make_pattern_op_other(expr, pmath_System_RuleDelayed);
-        
-      // p?f
-      if(secondchar == '?')
-        return make_pattern_op_other(expr, pmath_System_TestPattern);
-        
-      // lhs:=rhs
-      if(is_string_at(expr, 2, ":="))
-        return make_binary(expr, pmath_System_Assign);
-        
-      // lhs::=rhs
-      if(is_string_at(expr, 2, "::="))
-        return make_binary(expr, pmath_System_AssignDelayed);
-        
-      // lhs->rhs
-      if(is_string_at(expr, 2, "->"))
-        return make_pattern_op_other(expr, pmath_System_Rule);
-        
-      // lhs:>rhs
-      if(is_string_at(expr, 2, ":>"))
-        return make_pattern_op_other(expr, pmath_System_RuleDelayed);
-        
-      // lhs+=rhs
-      if(is_string_at(expr, 2, "+="))
-        return make_binary(expr, pmath_System_Increment);
-        
-      // lhs-=rhs
-      if(is_string_at(expr, 2, "-="))
-        return make_binary(expr, pmath_System_Decrement);
-        
-      // lhs*=rhs
-      if(is_string_at(expr, 2, "*="))
-        return make_binary(expr, pmath_System_TimesBy);
-        
-      // lhs/=rhs
-      if(is_string_at(expr, 2, "/="))
-        return make_binary(expr, pmath_System_DivideBy);
-        
-      // lhs//=rhs
-      if(is_string_at(expr, 2, "//="))
-        return make_binary(expr, pmath_System_AssignWith);
-        
-      // p/?cond
-      if(is_string_at(expr, 2, "/?"))
-        return make_pattern_op_other(expr, pmath_System_Condition);
-        
-      // arg // f
-      if(is_string_at(expr, 2, "//"))
-        return make_postfix_call(expr);
-        
-      // args |-> body
-      if(is_string_at(expr, 2, "|->"))
-        return make_arrow_function(expr);
-        
-      // arg |> f
-      if(is_string_at(expr, 2, "|>"))
-        return make_pipe_call(expr);
-    }
-    
-    // ~x:t  ~~x:t  ~~~x:t
-    if(exprlen == 4 && unichar_at(expr, 3) == ':')
-      return make_typed_named_match(expr);
-      
-    // t/:l:=r   t/:l::=r
-    if(exprlen == 5 && is_string_at(expr, 2, "/:"))
-      return make_tag_assignment(expr);
-      
-    // infix operators (except * ) ...
-    if(exprlen & 1) {
-      int tokprec;
-      
-      if(secondchar == '+' || secondchar == '-' || secondchar == PMATH_CHAR_INVISIBLEPLUS)
-        return make_plus(expr);
-        
-      // single character infix operators (except + - * / && || and relations) ...
-      head = inset_operator(secondchar);
-      if(!pmath_is_null(head))
-        return make_infix(expr, head);
-        
-      pmath_token_analyse(&secondchar, 1, &tokprec);
-      
-      // x/y/.../z
-      if(tokprec == PMATH_PREC_DIV)
-        return make_division(expr);
-        
-      // a && b && ...
-      if(secondchar == 0x2227)
-        return make_and(expr);
-        
-      // a || b || ...
-      if(secondchar == 0x2228)
-        return make_or(expr);
-        
-      // a && b && ...
-      if(is_string_at(expr, 2, "&&"))
-        return make_and(expr);
-        
-      // a || b || ...
-      if(is_string_at(expr, 2, "||"))
-        return make_or(expr);
-        
-      // a ++ b ++ ...
-      if(is_string_at(expr, 2, "++"))
-        return make_infix_unchecked(expr, pmath_System_StringExpression);
-        
-      // relations ...
-      head = relation_at(expr, 2);
-      if(!pmath_is_null(head))
-        return make_relation(expr, head);
-    }
-    
-    // f(x)  l[x]  l[[x]]
-    if(exprlen == 4) {
-      // f(x)
-      if(secondchar == '(' && unichar_at(expr, 4) == ')')
-        return make_simple_call(expr);
-        
-      // l[x]
-      if(secondchar == '[' && unichar_at(expr, 4) == ']')
-        return make_part(expr);
-    }
-    
-    // a.f()
-    if( exprlen == 5               &&
-        secondchar == '.'          &&
-        unichar_at(expr, 4) == '(' &&
-        unichar_at(expr, 5) == ')')
-    {
-      return make_simple_dot_call(expr);
-    }
-    
-    // a.f(x)
-    if( exprlen == 6               &&
-        secondchar == '.'          &&
-        unichar_at(expr, 4) == '(' &&
-        unichar_at(expr, 6) == ')')
-    {
-      return make_dot_call(expr);
-    }
-    
-    // a..b..c
-    if(is_string_at(expr, 2, "..") || is_string_at(expr, 1, ".."))
-      return make_range(expr);
-      
-    if(is_underoverscript_at(expr, 1)) {
-      if(try_parse_helper(pmath_System_Private_MakeLimitsExpression, &expr))
-        return expr;
-    }
-    else if(exprlen > 2 && is_subsuperscript_at(expr, 2)) { // exprlen==2 case handled above
-      if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &expr))
-        return expr;
-    }
-    else if(secondchar != '*' && secondchar != PMATH_CHAR_TIMES && secondchar != PMATH_CHAR_INVISIBLETIMES) {
-      if(try_parse_helper(pmath_System_Private_MakeJuxtapositionExpression, &expr))
-        return expr;
-    }
-    
-    // everything else is multiplication ...
-    return make_multiplication(expr);
-  }
   
-  return HOLDCOMPLETE(box);
+  return make_expression_from_box_or_string(box);
 }
 
 // only handles BMP chars U+0001 .. U+ffff, 0 on error
@@ -1639,6 +1167,483 @@ static pmath_string_t unescape_chars(pmath_string_t str) {
   
   pmath_unref(str);
   return result;
+}
+
+static pmath_t make_expression_from_box_or_string(pmath_t box) { // will be freed
+  if(pmath_is_string(box))
+    return make_expression_from_string(box);
+    
+  if(pmath_is_expr(box)) {
+    uint16_t firstchar, secondchar;
+    
+    pmath_t head = pmath_expr_get_item(box, 0);
+    pmath_unref(head);
+    
+    pmath_t expr = box;
+    box = PMATH_NULL;
+    
+    size_t exprlen = pmath_expr_length(expr);
+    
+    if(!pmath_same(head, pmath_System_List)) {
+      // implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
+      if(pmath_is_null(head))
+        return make_implicit_evaluation_sequence(expr);
+        
+      if(pmath_same(head, pmath_System_StringBox))
+        return make_expression_from_stringbox(expr);
+        
+      if(pmath_same(head, pmath_System_CompressedData))
+        return make_expression_from_compresseddata(expr);
+        
+      if(pmath_same(head, pmath_System_FractionBox))
+        return make_expression_from_fractionbox(expr);
+        
+      if(pmath_same(head, pmath_System_FrameBox))
+        return make_expression_from_framebox(expr);
+        
+      if(pmath_same(head, pmath_System_GridBox))
+        return make_expression_from_gridbox(expr);
+        
+      if(pmath_same(head, pmath_System_HoldComplete))
+        return expr;
+        
+      if(pmath_same(head, pmath_System_InterpretationBox))
+        return make_expression_from_interpretationbox(expr);
+        
+      if(pmath_same(head, pmath_System_OverscriptBox))
+        return make_expression_from_overscriptbox(expr);
+        
+      if(pmath_same(head, pmath_System_RadicalBox))
+        return make_expression_from_radicalbox(expr);
+        
+      if(pmath_same(head, pmath_System_RotationBox))
+        return make_expression_from_rotationbox(expr);
+        
+      if(pmath_same(head, pmath_System_SqrtBox))
+        return make_expression_from_sqrtbox(expr);
+        
+      if(pmath_same(head, pmath_System_StyleBox))
+        return make_expression_from_stylebox(expr);
+        
+      if(pmath_same(head, pmath_System_TagBox))
+        return make_expression_from_tagbox(expr);
+        
+      if(pmath_same(head, pmath_System_TemplateBox))
+        return make_expression_from_templatebox(expr);
+        
+      if(pmath_same(head, pmath_System_UnderscriptBox))
+        return make_expression_from_underscriptbox(expr);
+        
+      if(pmath_same(head, pmath_System_UnderoverscriptBox))
+        return make_expression_from_underoverscriptbox(expr);
+        
+      pmath_message(PMATH_NULL, "inv", 1, expr);
+      return pmath_ref(pmath_System_DollarFailed);
+    }
+    
+    if(exprlen == 0) {
+      pmath_unref(expr);
+      return HOLDCOMPLETE(PMATH_NULL);
+    }
+    
+    firstchar  = unichar_at(expr, 1);
+    secondchar = unichar_at(expr, 2);
+    
+    // ()  and  (x) ...
+    if(firstchar == '(' && unichar_at(expr, exprlen) == ')')
+      return make_parenthesis(expr);
+      
+    // \[LeftInvisibleBracket]x\[RightInvisibleBracket]
+    if(firstchar == PMATH_CHAR_LEFTINVISIBLEBRACKET && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
+      return make_parenthesis(expr);
+      
+    // {}  and  {x}  and  {grid\[RightInvisibleBracket]
+    if(firstchar == '{') {
+      uint16_t lastchar = unichar_at(expr, exprlen);
+      
+      if(lastchar == '}')
+        return make_matchfix(expr, pmath_System_List);
+        
+      if(lastchar == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
+        return make_matchfix(expr, pmath_System_Piecewise);
+    }
+    
+    if(firstchar == char_LeftCeiling && unichar_at(expr, exprlen) == char_RightCeiling)
+      return make_matchfix(expr, pmath_System_Ceiling);
+      
+    if(firstchar == char_LeftFloor && unichar_at(expr, exprlen) == char_RightFloor)
+      return make_matchfix(expr, pmath_System_Floor);
+      
+    if(firstchar == PMATH_CHAR_LEFTBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTBRACKETINGBAR)
+      return make_matchfix(expr, pmath_System_BracketingBar);
+      
+    if(firstchar == PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR)
+      return make_matchfix(expr, pmath_System_DoubleBracketingBar);
+      
+    // comma sepearted list ...
+    if(firstchar == ',' || secondchar == ',' || firstchar == PMATH_CHAR_INVISIBLECOMMA || secondchar == PMATH_CHAR_INVISIBLECOMMA)
+      return make_comma_sequence(expr);
+      
+    // evaluation sequence ...
+    if(firstchar == ';' || secondchar == ';' || firstchar == '\n' || secondchar == '\n')
+      return make_evaluation_sequence(expr);
+      
+    if(exprlen == 1)
+      return pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_MakeExpression));
+      
+    // ?x  and  ?x:v
+    if(firstchar == '?')
+      return make_optional_pattern(expr);
+      
+    // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
+    if(exprlen == 2) {
+      pmath_string_t str;
+      
+      // x &
+      if(secondchar == '&')
+        return make_from_first_box(expr, pmath_System_Function);
+        
+      // x!
+      if(secondchar == '!')
+        return make_from_first_box(expr, pmath_System_Factorial);
+      
+      // f'
+      if(secondchar == '\'')
+        return make_derivative(expr, 1);
+      
+      str = pmath_expr_get_item(expr, 2);
+      if(pmath_is_string(str)) {
+        // x!!
+        if(string_equals(str, "!!")) {
+          pmath_unref(str);
+          return make_from_first_box(expr, pmath_System_Factorial2);
+        }
+        
+        // x++
+        if(string_equals(str, "++")) {
+          pmath_unref(str);
+          return make_from_first_box(expr, pmath_System_PostIncrement);
+        }
+        
+        // x--
+        if(string_equals(str, "--")) {
+          pmath_unref(str);
+          return make_from_first_box(expr, pmath_System_PostDecrement);
+        }
+        
+        // p**  p***
+        if(string_equals_char_repeated(str, '*')) {
+          int len = pmath_string_length(str);
+          
+          // p**
+          if(len == 2) {
+            pmath_unref(str);
+            return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_one));
+          }
+            
+          // p***
+          if(len == 3) {
+            pmath_unref(str);
+            return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_zero));
+          }
+        }
+        
+        // f''  f'''  f''''  etc.
+        if(string_equals_char_repeated(str, '\'')) {
+          int len = pmath_string_length(str);
+          pmath_unref(str);
+          return make_derivative(expr, len);
+        }
+      }
+      pmath_unref(str);
+      str = PMATH_NULL;
+      
+      // +x
+      if(firstchar == '+' || firstchar == PMATH_CHAR_INVISIBLEPLUS)
+        return make_unary_plus(expr);
+        
+      // -x
+      if(firstchar == '-')
+        return make_unary_minus(expr);
+        
+      if(firstchar == PMATH_CHAR_PIECEWISE)
+        return make_from_second_box(expr, pmath_System_Piecewise);
+        
+      // !x
+      if(firstchar == '!' || firstchar == 0x00AC)
+        return make_from_second_box(expr, pmath_System_Not);
+        
+      // \[Sqrt] x
+      if(firstchar == 0x221A)
+        return make_from_second_box(expr, pmath_System_Sqrt);
+        
+      // \[CubeRoot] x
+      if(firstchar == 0x221B)
+        return make_from_second_box(expr, pmath_System_CubeRoot);
+        
+      // \[U+221C] x  fourth root
+      if(firstchar == 0x221C)
+        return make_power_from_second_box(expr, QUOT(1, 4));
+        
+      // #x
+      if(firstchar == '#')
+        return make_from_second_box(expr, pmath_System_PureArgument);
+      
+      // ##x
+      if(is_string_at(expr, 1, "##"))
+        return make_pure_argument_range(expr);
+        
+      // ++x
+      if(is_string_at(expr, 1, "++"))
+        return make_from_second_box(expr, pmath_System_Increment);
+        
+      // --x
+      if(is_string_at(expr, 1, "--"))
+        return make_from_second_box(expr, pmath_System_Decrement);
+        
+      // ??x
+      if(is_string_at(expr, 1, "??"))
+        return make_text_line(expr, pmath_System_ShowDefinition);
+        
+      // <<x
+      if(is_string_at(expr, 1, "<<"))
+        return make_text_line(expr, pmath_System_Get);
+        
+      // ~x
+      if(firstchar == '~')
+        return make_named_match(expr, pmath_ref(_pmath_object_singlematch));
+        
+      // ~~x
+      if(is_string_at(expr, 1, "~~"))
+        return make_named_match(expr, pmath_ref(_pmath_object_multimatch));
+        
+      // ~~~x
+      if(is_string_at(expr, 1, "~~~"))
+        return make_named_match(expr, pmath_ref(_pmath_object_zeromultimatch));
+        
+      // x^y   Subscript(x, y, ...)   Subscript(x,y,...)^z
+      if(secondchar == 0) {
+        box = pmath_expr_get_item(expr, 2);
+        
+        if(pmath_is_expr_of_len(box, pmath_System_SuperscriptBox, 1))
+          return make_superscript(expr, box);
+          
+        if(pmath_is_expr_of_len(box, pmath_System_SubscriptBox, 1))
+          return make_subscript(expr, box);
+          
+        if(pmath_is_expr_of_len(box, pmath_System_SubsuperscriptBox, 2))
+          return make_subsuperscript(expr, box);
+          
+        pmath_unref(box);
+        box = PMATH_NULL;
+      }
+    }
+    
+    // a.f  f@x  f@@list  s::tag  f()  ~:t  ~~:t  ~~~:t  x:p  a//f  p/?c  l->r  l:=r  l+=r  l-=r  l:>r  l::=r  l..r
+    if(exprlen == 3) {       // a.f
+      if(secondchar == '.')
+        return make_simple_dot_call(expr);
+        
+      // f@x
+      if(secondchar == '@' || secondchar == PMATH_CHAR_INVISIBLECALL)
+        return make_prefix_call(expr);
+        
+      // f()
+      if(secondchar == '(' && unichar_at(expr, 3) == ')')
+        return make_argumentless_call(expr);
+        
+      // ~:t  ~~:t  ~~~:t  x:p
+      if(secondchar == ':')
+        return make_pattern_or_typed_match(expr);
+        
+      // args |-> body
+      if(secondchar == 0x21A6)
+        return make_arrow_function(expr);
+        
+      // f@@list
+      if(is_string_at(expr, 2, "@@"))
+        return make_apply(expr);
+        
+      // s::tag
+      if(is_string_at(expr, 2, "::"))
+        return make_message_name(expr);
+        
+      // lhs:=rhs
+      if(secondchar == PMATH_CHAR_ASSIGN)
+        return make_binary(expr, pmath_System_Assign);
+        
+      // lhs::=rhs
+      if(secondchar == PMATH_CHAR_ASSIGNDELAYED)
+        return make_binary(expr, pmath_System_AssignDelayed);
+        
+      // lhs->rhs
+      if(secondchar == PMATH_CHAR_RULE)
+        return make_pattern_op_other(expr, pmath_System_Rule);
+        
+      // lhs:>rhs
+      if(secondchar == PMATH_CHAR_RULEDELAYED)
+        return make_pattern_op_other(expr, pmath_System_RuleDelayed);
+        
+      // p?f
+      if(secondchar == '?')
+        return make_pattern_op_other(expr, pmath_System_TestPattern);
+        
+      // lhs:=rhs
+      if(is_string_at(expr, 2, ":="))
+        return make_binary(expr, pmath_System_Assign);
+        
+      // lhs::=rhs
+      if(is_string_at(expr, 2, "::="))
+        return make_binary(expr, pmath_System_AssignDelayed);
+        
+      // lhs->rhs
+      if(is_string_at(expr, 2, "->"))
+        return make_pattern_op_other(expr, pmath_System_Rule);
+        
+      // lhs:>rhs
+      if(is_string_at(expr, 2, ":>"))
+        return make_pattern_op_other(expr, pmath_System_RuleDelayed);
+        
+      // lhs+=rhs
+      if(is_string_at(expr, 2, "+="))
+        return make_binary(expr, pmath_System_Increment);
+        
+      // lhs-=rhs
+      if(is_string_at(expr, 2, "-="))
+        return make_binary(expr, pmath_System_Decrement);
+        
+      // lhs*=rhs
+      if(is_string_at(expr, 2, "*="))
+        return make_binary(expr, pmath_System_TimesBy);
+        
+      // lhs/=rhs
+      if(is_string_at(expr, 2, "/="))
+        return make_binary(expr, pmath_System_DivideBy);
+        
+      // lhs//=rhs
+      if(is_string_at(expr, 2, "//="))
+        return make_binary(expr, pmath_System_AssignWith);
+        
+      // p/?cond
+      if(is_string_at(expr, 2, "/?"))
+        return make_pattern_op_other(expr, pmath_System_Condition);
+        
+      // arg // f
+      if(is_string_at(expr, 2, "//"))
+        return make_postfix_call(expr);
+        
+      // args |-> body
+      if(is_string_at(expr, 2, "|->"))
+        return make_arrow_function(expr);
+        
+      // arg |> f
+      if(is_string_at(expr, 2, "|>"))
+        return make_pipe_call(expr);
+    }
+    
+    // ~x:t  ~~x:t  ~~~x:t
+    if(exprlen == 4 && unichar_at(expr, 3) == ':')
+      return make_typed_named_match(expr);
+      
+    // t/:l:=r   t/:l::=r
+    if(exprlen == 5 && is_string_at(expr, 2, "/:"))
+      return make_tag_assignment(expr);
+      
+    // infix operators (except * ) ...
+    if(exprlen & 1) {
+      int tokprec;
+      
+      if(secondchar == '+' || secondchar == '-' || secondchar == PMATH_CHAR_INVISIBLEPLUS)
+        return make_plus(expr);
+        
+      // single character infix operators (except + - * / && || and relations) ...
+      head = inset_operator(secondchar);
+      if(!pmath_is_null(head))
+        return make_infix(expr, head);
+        
+      pmath_token_analyse(&secondchar, 1, &tokprec);
+      
+      // x/y/.../z
+      if(tokprec == PMATH_PREC_DIV)
+        return make_division(expr);
+        
+      // a && b && ...
+      if(secondchar == 0x2227)
+        return make_and(expr);
+        
+      // a || b || ...
+      if(secondchar == 0x2228)
+        return make_or(expr);
+        
+      // a && b && ...
+      if(is_string_at(expr, 2, "&&"))
+        return make_and(expr);
+        
+      // a || b || ...
+      if(is_string_at(expr, 2, "||"))
+        return make_or(expr);
+        
+      // a ++ b ++ ...
+      if(is_string_at(expr, 2, "++"))
+        return make_infix_unchecked(expr, pmath_System_StringExpression);
+        
+      // relations ...
+      head = relation_at(expr, 2);
+      if(!pmath_is_null(head))
+        return make_relation(expr, head);
+    }
+    
+    // f(x)  l[x]  l[[x]]
+    if(exprlen == 4) {
+      // f(x)
+      if(secondchar == '(' && unichar_at(expr, 4) == ')')
+        return make_simple_call(expr);
+        
+      // l[x]
+      if(secondchar == '[' && unichar_at(expr, 4) == ']')
+        return make_part(expr);
+    }
+    
+    // a.f()
+    if( exprlen == 5               &&
+        secondchar == '.'          &&
+        unichar_at(expr, 4) == '(' &&
+        unichar_at(expr, 5) == ')')
+    {
+      return make_simple_dot_call(expr);
+    }
+    
+    // a.f(x)
+    if( exprlen == 6               &&
+        secondchar == '.'          &&
+        unichar_at(expr, 4) == '(' &&
+        unichar_at(expr, 6) == ')')
+    {
+      return make_dot_call(expr);
+    }
+    
+    // a..b..c
+    if(is_string_at(expr, 2, "..") || is_string_at(expr, 1, ".."))
+      return make_range(expr);
+      
+    if(is_underoverscript_at(expr, 1)) {
+      if(try_parse_helper(pmath_System_Private_MakeLimitsExpression, &expr))
+        return expr;
+    }
+    else if(exprlen > 2 && is_subsuperscript_at(expr, 2)) { // exprlen==2 case handled above
+      if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &expr))
+        return expr;
+    }
+    else if(secondchar != '*' && secondchar != PMATH_CHAR_TIMES && secondchar != PMATH_CHAR_INVISIBLETIMES) {
+      if(try_parse_helper(pmath_System_Private_MakeJuxtapositionExpression, &expr))
+        return expr;
+    }
+    
+    // everything else is multiplication ...
+    return make_multiplication(expr);
+  }
+  
+  return HOLDCOMPLETE(box);
 }
 
 static pmath_t make_expression_from_string(pmath_string_t string) { // will be freed
