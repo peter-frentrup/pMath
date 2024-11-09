@@ -1194,6 +1194,9 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
             pmath_unref(old_expr->items[0]);
 
             old_expr->items[0] = item;
+            
+            reset_expr_flags(old_expr);
+            clear_metadata(old_expr);
             touch_expr(old_expr);
             return expr;
           }
@@ -1598,8 +1601,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
     expr = PMATH_FROM_PTR(new_expr);
     expr_part_ptr = (void *)new_expr;
   }
-  else
-    touch_expr(&expr_part_ptr->inherited);
+  else {
+    reset_expr_flags(&expr_part_ptr->inherited);
+    clear_metadata(  &expr_part_ptr->inherited);
+    touch_expr(      &expr_part_ptr->inherited);
+  }
 
 #ifdef __GNUC__
 
@@ -1738,6 +1744,8 @@ static pmath_expr_t expr_map_fast(
                 new_expr->items[start] = item;
               }
 
+              reset_expr_flags(new_expr);
+              clear_metadata(  new_expr);
               touch_expr(new_expr);
               return PMATH_FROM_PTR(new_expr);
             }
@@ -1808,7 +1816,15 @@ pmath_expr_t _pmath_expr_map(
 
   if(pmath_is_packed_array(expr))
     return _pmath_packed_array_map(expr, start, end, func, context);
-
+  
+  if(pmath_is_pointer_of(expr, PMATH_TYPE_CUSTOM_EXPRESSION)) {
+    pmath_debug_print("[unpack custrom expr: _pmath_expr_map]\n");
+    
+    pmath_t old = expr;
+    expr = custom_expr_expand_to_normal((struct _pmath_custom_expr_t*)PMATH_AS_PTR(expr));
+    pmath_unref(old);
+  }
+  
   old_expr = (void *)PMATH_AS_PTR(expr);
   if(!old_expr)
     return expr;
