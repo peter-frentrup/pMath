@@ -172,7 +172,7 @@ addSIPrefixes("Siemens", "siemens")
 addDerivedUnit("Webers", "Volts" * "Seconds", "Wb")
 addSIPrefixes("Webers", "webers")
 
-addDerivedUnit("Teslas", "Volts" * "Seconds" / "Meters"^2, "Wb")
+addDerivedUnit("Teslas", "Volts" * "Seconds" / "Meters"^2, "T")
 addSIPrefixes("Teslas", "teslas")
 
 addDerivedUnit("Henries", "Webers" / "Amperes", "H")
@@ -209,6 +209,17 @@ addSIPrefixes("Hectares", "hectares")
 addDerivedUnit("Ares", (10 "Meters")^2, "a")
 addSIPrefixes("Ares", "ares")
 
+% Special case: "Pa" is formally both, "Petaares" and a "Pascals".  Nobody means petaares, so remove that shorthand.
+ud:= unitData("Petaares")
+ud["UnitShortName"]:= None
+unitData("Petaares") := ud
+
+% Special case: "ha" is both, "Hectoares" and "Hectares", which are just different words for the same. We prefer "Hectares" instead of being pedantic.
+ud:= unitData("Hectoares")
+ud["UnitShortName"]:= None
+unitData("Hectoares") := ud
+
+
 addDerivedUnit("Liters", 1000 "Centimeters"^3, "L")
 addSIPrefixes("Liters", "liters")
 
@@ -231,6 +242,7 @@ addSIPrefixes("Electronvolts", "electronvolts")
 
 % FIXME: using interval but should use something like an Around() for measurement uncertainty
 addDerivedUnit("AtomicMassUnit", 1.660539066[60+/-50]*^-27 "Kilograms", "u")
+addSIPrefixes("AtomicMassUnit", "atomicMassUnit")
 
 
 $AllUnits:= DownRules(unitData) |> Map({HoldPattern(Literal(HoldPattern)(~(~s)) :> ~v) :> (s->v)})
