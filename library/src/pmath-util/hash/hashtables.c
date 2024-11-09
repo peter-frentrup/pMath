@@ -440,8 +440,7 @@ PMATH_API void *pmath_ht_insert(pmath_hashtable_t ht, void *entry) {
 
 /*============================================================================*/
 
-PMATH_PRIVATE 
-void pmath_ht_obj_class__entry_destructor(pmath_hashtable_t ht, void *e) {
+static void _pmath_ht_obj_class__entry_destructor(pmath_hashtable_t ht, void *e) {
   struct _pmath_object_entry_t *entry = (struct _pmath_object_entry_t*)e;
 
   pmath_unref(entry->value);
@@ -449,28 +448,24 @@ void pmath_ht_obj_class__entry_destructor(pmath_hashtable_t ht, void *e) {
   pmath_mem_free(entry);
 }
 
-PMATH_PRIVATE
-unsigned int pmath_ht_obj_class__entry_hash(pmath_hashtable_t ht, void *e) {
+static unsigned int _pmath_ht_obj_class__entry_hash(pmath_hashtable_t ht, void *e) {
   struct _pmath_object_entry_t *entry = (struct _pmath_object_entry_t*)e;
 
   return pmath_hash(entry->key);
 }
 
-PMATH_PRIVATE
-pmath_bool_t pmath_ht_obj_class__entry_keys_equal(pmath_hashtable_t ht, void *e1, void *e2) {
+static pmath_bool_t _pmath_ht_obj_class__entry_keys_equal(pmath_hashtable_t ht, void *e1, void *e2) {
   struct _pmath_object_entry_t *entry1 = (struct _pmath_object_entry_t*)e1;
   struct _pmath_object_entry_t *entry2 = (struct _pmath_object_entry_t*)e2;
 
   return pmath_equals(entry1->key, entry2->key);
 }
 
-PMATH_PRIVATE
-unsigned int pmath_ht_obj_class__key_hash(pmath_hashtable_t ht, void *k) {
+static unsigned int _pmath_ht_obj_class__key_hash(pmath_hashtable_t ht, void *k) {
   return pmath_hash(*(pmath_t*)k);
 }
 
-PMATH_PRIVATE
-pmath_bool_t pmath_ht_obj_class__entry_equals_key(pmath_hashtable_t ht, void *e, void *k) {
+static pmath_bool_t _pmath_ht_obj_class__entry_equals_key(pmath_hashtable_t ht, void *e, void *k) {
   struct _pmath_object_entry_t *entry = (struct _pmath_object_entry_t*)e;
   pmath_t                       key   = *(pmath_t*)k;
   return pmath_equals(entry->key, key);
@@ -479,11 +474,11 @@ pmath_bool_t pmath_ht_obj_class__entry_equals_key(pmath_hashtable_t ht, void *e,
 PMATH_PRIVATE
 const pmath_ht_class_ex_t pmath_ht_obj_class = {
   0, 
-  pmath_ht_obj_class__entry_destructor,
-  pmath_ht_obj_class__entry_hash,
-  pmath_ht_obj_class__entry_keys_equal,
-  pmath_ht_obj_class__key_hash,
-  pmath_ht_obj_class__entry_equals_key
+  _pmath_ht_obj_class__entry_destructor,
+  _pmath_ht_obj_class__entry_hash,
+  _pmath_ht_obj_class__entry_keys_equal,
+  _pmath_ht_obj_class__key_hash,
+  _pmath_ht_obj_class__entry_equals_key
 };
 
 PMATH_PRIVATE
@@ -511,10 +506,10 @@ PMATH_PRIVATE
 const pmath_ht_class_ex_t pmath_ht_obj_int_class = {
   0, 
   object_int_entry_destructor,
-  pmath_ht_obj_class__entry_hash,
-  pmath_ht_obj_class__entry_keys_equal,
-  pmath_ht_obj_class__key_hash,
-  pmath_ht_obj_class__entry_equals_key
+  _pmath_ht_obj_class__entry_hash,
+  _pmath_ht_obj_class__entry_keys_equal,
+  _pmath_ht_obj_class__key_hash,
+  _pmath_ht_obj_class__entry_equals_key
 };
 
 PMATH_PRIVATE

@@ -14,11 +14,6 @@ struct _pmath_object_entry_t {
 };
 
 PMATH_PRIVATE extern const pmath_ht_class_ex_t pmath_ht_obj_class;
-PMATH_PRIVATE void                             pmath_ht_obj_class__entry_destructor(pmath_hashtable_t ht_unused, void *e);
-PMATH_PRIVATE unsigned int                     pmath_ht_obj_class__entry_hash(      pmath_hashtable_t ht, void *e);
-PMATH_PRIVATE pmath_bool_t                     pmath_ht_obj_class__entry_keys_equal(pmath_hashtable_t ht, void *e1, void *e2);
-PMATH_PRIVATE unsigned int                     pmath_ht_obj_class__key_hash(        pmath_hashtable_t ht, void *k);
-PMATH_PRIVATE pmath_bool_t                     pmath_ht_obj_class__entry_equals_key(pmath_hashtable_t ht, void *e, void *k);
 
 // for use with pmath_ht_copy():
 PMATH_PRIVATE void *_pmath_object_entry_copy_func(void *entry); // for use with pmath_ht_copy()
