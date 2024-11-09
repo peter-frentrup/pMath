@@ -94,9 +94,8 @@ fundamentalUnitValue(~unit)::= unit |> Replace(~u:String :> System`QuantityUnits
 Get(ToFileName({DirectoryName($Input)}, "define-units.pmath"), TrackSourceLocations -> False);
 
 
-$AllShortUnits:= {}
-$AllUnits |> Scan({(~name -> ~attr) :> ($AllShortUnits[Key(attr["UnitShortName"])] := name)})
-$AllShortUnits[Key(None)]:= .
+% Note that $AllShortUnits may contain several None -> ... entries.  Other duplicte entries are a bug (TODO: fix frong short name for "Teslas") 
+$AllShortUnits:= $AllUnits |> Map({(~name -> ~attr) :> (attr["UnitShortName"] -> name)})
 
 SetAttributes(IsSimpleUnit, HoldAll)
 IsSimpleUnit(~s:String)::= Lookup($AllUnits, s, $Failed) =!= $Failed
