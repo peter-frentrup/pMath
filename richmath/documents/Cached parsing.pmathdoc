@@ -1,0 +1,153 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Cached parsing", "Title"), 
+    Section("9.11.2024", "Text"), 
+    Section(TextData({BoxData({"Timing", "(", "Quantity", ")"}), 
+       " for a synthetic \"define-units.pmath\" with 5544 units using \
+       different caching strategies. The unit definitions are retrieved with \
+       ", 
+       BoxData({"Get", "(", {
+          "...", ",", {"TrackSourceLocations", "\[Rule]", "False"}}, ")"}), 
+       "."}), "Text"), SectionGroup({Section("The data", "Section"), 
+      Section(TextData({"Old behaviour (", 
+         StyleBox("no cache", FontSlant -> Italic), 
+         ", but also TrackSourceLocations\[Rule]False): "}), "Text"), 
+      Section(
+       BoxData({{"timingsNoCache", "\[Assign]", {
+           "Sort", "(", {"{", {"13.219000000040978`", ",", 
+             "13.186999999918044`", ",", "13.25", ",", "13.20299999974668`", 
+             ",", "13.265999999828637`"}, "}"}, ")"}}, ";"}), "Input", 
+       SectionLabel -> "in [2]:"), 
+      Section(BoxData({{"memNoCache", "\[Assign]", "7281992"}, ";"}), "Input", 
+       SectionLabel -> "in [3]:"), 
+      Section(
+       "Using a hash set of interned big strings, consulted after decoding a \
+       string token:", "Text"), 
+      Section(BoxData({{"timingsInternAfterDecode", "\[Assign]", {
+           "Sort", "(", {"{", {"13.311999999918044`", ",", 
+             "13.235000000335276`", ",", "13.296999999787658`", ",", 
+             "13.20299999974668`", ",", "13.188000000081956`"}, "}"}, ")"}}, 
+         ";"}), "Input", SectionLabel -> "in [4]:"), 
+      Section(BoxData({{"memInternAfterDecode", "\[Assign]", "7273352"}, 
+         ";"}), "Input", SectionLabel -> "in [5]:"), 
+      Section(TextData({"Using a hash map of ", 
+         StyleBox("string token", FontSlant -> Italic), " \[Rule] ", 
+         StyleBox("decoded string", FontSlant -> Italic), 
+         ", constulted before token decoding:"}), "Text"), 
+      Section(BoxData({{"timingsCacheBeforeDecode", "\[Assign]", {
+           "Sort", "(", {"{", {"13.140999999828637`", ",", 
+             "13.110000000335276`", ",", "13.109999999869615`", ",", 
+             "13.234999999869615`", ",", "13.296999999787658`"}, "}"}, ")"}}, 
+         ";"}), "Input", SectionLabel -> "in [6]:"), 
+      Section(BoxData({{"memCacheBeforeDecode", "\[Assign]", "7273352"}, 
+         ";"}), "Input", SectionLabel -> "in [7]:"), 
+      Section(TextData({"Using a hash map of ", 
+         StyleBox("string token", FontSlant -> Italic), " \[Rule] ", 
+         StyleBox("decoded string", FontSlant -> Italic), 
+         " for non-inlined strings only (length > 2):"}), "Text"), 
+      Section(BoxData({{"timingsCacheBigBeforeDecode", "\[Assign]", {
+           "Sort", "(", {"{", {"13.139999999664724`", ",", 
+             "13.157000000122935`", ",", "13.234999999869615`", ",", 
+             "13.233999999705702`", ",", "13.219000000040978`"}, "}"}, ")"}}, 
+         ";"}), "Input", SectionLabel -> "in [8]:"), 
+      Section(BoxData({{"memCacheBeforeDecode", "\[Assign]", "7273352"}, 
+         ";"}), "Input", SectionLabel -> "in [9]:")}, All), 
+    SectionGroup({Section("Comparison", "Section"), 
+      Section("Absolute timings:", "Text"), 
+      SectionGroup({
+        Section(BoxData({"ListLinePlot", "(", {
+            "{", {{"\n", "timingsNoCache"}, ",", {
+              "\n", "timingsInternAfterDecode"}, ",", {
+              "\n", "timingsCacheBeforeDecode"}, ",", {
+              "\n", "timingsCacheBigBeforeDecode"}}, "}"}, ")"}), "Input", 
+         SectionLabel -> "in [17]:"), 
+        Section(
+         BoxData(GraphicsBox({
+            {RGBColor(0.75, 0, 0), {
+              LineBox({{1, 13.186999999918044`}, {2, 13.20299999974668`}, {
+                 3, 13.219000000040978`}, {4, 13.25}, {
+                 5, 13.265999999828637`}})}}, {
+             RGBColor(0, 0, 0.75), {
+              LineBox({{1, 13.188000000081956`}, {2, 13.20299999974668`}, {
+                 3, 13.235000000335276`}, {4, 13.296999999787658`}, {
+                 5, 13.311999999918044`}})}}, {RGBColor(0.67, 0.67, 0), {
+              LineBox({{1, 13.109999999869615`}, {2, 13.110000000335276`}, {
+                 3, 13.140999999828637`}, {4, 13.234999999869615`}, {
+                 5, 13.296999999787658`}})}}, {
+             RGBColor(0, 0.67, 0), {
+              LineBox({{1, 13.139999999664724`}, {2, 13.157000000122935`}, {
+                 3, 13.219000000040978`}, {4, 13.233999999705702`}, {
+                 5, 13.234999999869615`}})}}}, 
+           AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
+           Axes -> True)), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [17]:")}, All), 
+      Section(TextData({"Relative timings compared to ", 
+         StyleBox("no cache", FontSlant -> Italic), ":"}), "Text"), 
+      SectionGroup({
+        Section(BoxData({"ListLinePlot", "(", {
+            {"{", {{"\n", "timingsNoCache"}, ",", {
+               "\n", "timingsInternAfterDecode"}, ",", {
+               "\n", "timingsCacheBeforeDecode"}, ",", {
+               "\n", {"timingsCacheBigBeforeDecode", "\n"}}}, "}"}, "|>", {
+             "Map", "(", {"{", {{"~", "t"}, "\[RuleDelayed]", {
+                "t", "/", "timingsNoCache"}}, "}"}, ")"}}, ")"}), "Input", 
+         SectionLabel -> "in [18]:"), 
+        Section(
+         BoxData(GraphicsBox({
+            {RGBColor(0.75, 0, 0), {
+              LineBox({{1, 1.0}, {2, 1.0}, {3, 1.0}, {4, 1.0}, {5, 1.0}})}}, {
+             RGBColor(0, 0, 0.75), {
+              LineBox({{1, 1.0000758322714733`}, {2, 1.0}, {
+                 3, 1.0012103790221838`}, {4, 1.003547169795295`}, {
+                 5, 1.0034675109369817`}})}}, {RGBColor(0.67, 0.67, 0), {
+              LineBox({{1, 0.9941609160499805`}, {2, 0.9929561463748248`}, {
+                 3, 0.9940994023593237`}, {4, 0.9988679245184615`}, {
+                 5, 1.0023368008412048`}})}}, {
+             RGBColor(0, 0.67, 0), {
+              LineBox({{1, 0.9964358838057472`}, {2, 0.99651594337464}, {
+                 3, 1.0}, {4, 0.9987924528079775`}, {
+                 5, 0.9976631991587952`}})}}}, 
+           AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
+           Axes -> True)), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [18]:")}, All), 
+      Section("Color ordering for reference:", "Text"), 
+      SectionGroup({
+        Section(BoxData({"ListLinePlot", "(", {
+            {"{", {{"{", {"1", ",", "1", ",", "1"}, "}"}, ",", {
+               "{", {"2", ",", "2", ",", "2"}, "}"}, ",", {
+               "{", {"3", ",", "3", ",", "3"}, "}"}, ",", {
+               "{", {"4", ",", "4", ",", "4"}, "}"}}, "}"}, ",", {
+             "AxesOrigin", "\[Rule]", {"{", {"Automatic", ",", "0"}, "}"}}}, 
+           ")"}), "Input", SectionLabel -> "in [15]:"), 
+        Section(
+         BoxData(GraphicsBox({
+            {RGBColor(0.75, 0, 0), {LineBox({{1, 1}, {2, 1}, {3, 1}})}}, {
+             RGBColor(0, 0, 0.75), {LineBox({{1, 2}, {2, 2}, {3, 2}})}}, {
+             RGBColor(0.67, 0.67, 0), {LineBox({{1, 3}, {2, 3}, {3, 3}})}}, {
+             RGBColor(0, 0.67, 0), {LineBox({{1, 4}, {2, 4}, {3, 4}})}}}, 
+           AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
+           Axes -> True, AxesOrigin -> NCache({Automatic, 0}, {
+              Automatic, 0.0}), ImageSize -> {139.5, Automatic})), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [15]:")}, All), 
+      Section("The relative timing improvements are marginal:", "Text"), 
+      SectionGroup({
+        Section(BoxData({"ListLinePlot", "(", {
+            "1", "-", {"timingsCacheBeforeDecode", "/", "timingsNoCache"}}, 
+           ")"}), "Input", SectionLabel -> "in [12]:"), 
+        Section(
+         BoxData(GraphicsBox({
+            {RGBColor(0.75, 0, 0), {
+              LineBox({{1, 0.00583908395001953}, {2, 0.007043853625175234`}, {
+                 3, 0.005900597640676297`}, {4, 0.001132075481538486`}, {
+                 5, -0.0023368008412048002`}})}}}, 
+           AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
+           Axes -> True)), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [12]:")}, All), 
+      Section("Memory improvements are also marginal:", "Text"), 
+      SectionGroup({
+        Section(BoxData({"1.0", "-", {"memCacheBeforeDecode", "/", 
+            "memNoCache"}}), "Input", SectionLabel -> "in [13]:"), 
+        Section(BoxData("0.0011864885322587782`"), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [13]:")}, All)}, 
+     All)}, All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)

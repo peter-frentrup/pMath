@@ -513,6 +513,7 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   thread->ignore_older_aborts       = parent ? parent->ignore_older_aborts : 0;
   thread->gather_failed             = 0;
   thread->gather_info               = NULL;
+  thread->parser_cache              = NULL;
   thread->local_values              = NULL;
   thread->local_rules               = NULL;
   thread->stack_info                = NULL;
@@ -589,10 +590,12 @@ PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final) {
     thread->stack_info = NULL;
     thread->evaldepth = 0;
     
+    pmath_ht_destroy(thread->parser_cache);
     pmath_ht_destroy(thread->local_values);
     pmath_ht_destroy(thread->local_rules);
-    thread->local_values = NULL;
-    thread->local_rules  = NULL;
+    thread->parser_cache            = NULL;
+    thread->local_values            = NULL;
+    thread->local_rules             = NULL;
     
     pmath_unref(thread->abortable_messages);
     thread->abortable_messages = PMATH_NULL;
@@ -609,6 +612,7 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread) {
   if(!thread)
     return;
     
+  pmath_ht_destroy(thread->parser_cache);
   pmath_ht_destroy(thread->local_values);
   pmath_ht_destroy(thread->local_rules);
   

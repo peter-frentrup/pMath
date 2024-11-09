@@ -8,11 +8,12 @@
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/association-lists.h>
-#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/compression.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/debug.h>
+#include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -399,6 +400,32 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
   box = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
+  pmath_thread_t me = pmath_thread_get_current();
+  if(me && me->parser_cache) {
+    struct _pmath_object_entry_t *cached_result = pmath_ht_search(me->parser_cache, &box);
+    
+    if(cached_result) {
+      pmath_unref(box);
+      return pmath_ref(cached_result->value);
+    }
+    
+//  // Causes many bugs down the road due to ParseSymbols->False being cached
+//  // and then a crash (double free somethere in error handling code)
+//    cached_result = pmath_mem_alloc(sizeof(*cached_result));
+//    if(cached_result) {
+//      cached_result->key   = pmath_ref(box);
+//      cached_result->value = make_expression_from_box_or_string(box);
+//      expr                 = pmath_ref(cached_result->value);
+//      
+//      cached_result = pmath_ht_insert(me->parser_cache, cached_result);
+//      
+//      if(PMATH_UNLIKELY(cached_result)) { // insertion failed
+//        pmath_ht_obj_class.entry_destructor(me->parser_cache, cached_result);
+//      }
+//      
+//      return expr;
+//    }
+  }
   
   return make_expression_from_box_or_string(box);
 }
@@ -1110,8 +1137,28 @@ static pmath_t make_expression_from_string_token(pmath_string_t string) {
     
     pmath_string_end_write(&result, &resbuf);
     if(i + 1 == len && str[i] == '"') {
+      result = pmath_string_part(result, 0, j);
+      
+      pmath_thread_t me = pmath_thread_get_current();
+      if(me && me->parser_cache) {
+        struct _pmath_object_entry_t *cached_result = pmath_mem_alloc(sizeof(*cached_result));
+        if(cached_result) {
+          result = HOLDCOMPLETE(result);
+          
+          cached_result->key   = string;
+          cached_result->value = pmath_ref(result);
+          cached_result = pmath_ht_insert(me->parser_cache, cached_result);
+          
+          if(PMATH_UNLIKELY(cached_result)) { // insertion failed
+            pmath_ht_obj_class.entry_destructor(me->parser_cache, cached_result);
+          }
+          
+          return result;
+        }
+      }
+      
       pmath_unref(string);
-      return HOLDCOMPLETE(pmath_string_part(result, 0, j));
+      return HOLDCOMPLETE(result);
     }
   }
   pmath_unref(result);

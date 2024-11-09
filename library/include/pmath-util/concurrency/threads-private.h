@@ -66,6 +66,9 @@ struct _pmath_thread_t {
   int                           gather_failed;
   struct _pmath_gather_info_t  *gather_info;
   
+  // this: read/write, children: not used (might be write), other: none
+  pmath_hashtable_t  parser_cache;            // class: pmath_ht_obj_class
+  
   // this: read/write, children: read, other: none
   pmath_hashtable_t  local_values; // class: pmath_ht_obj_class
   pmath_hashtable_t  local_rules;  // class: _pmath_symbol_rules_ht_class

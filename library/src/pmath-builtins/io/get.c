@@ -3,10 +3,11 @@
 
 #include <pmath-language/scanner.h>
 
-#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files/abstract-file.h>
 #include <pmath-util/files/filesystem.h>
+#include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -152,8 +153,10 @@ static pmath_t get_file(
 ) {
   struct _get_file_info              info;
   struct pmath_boxes_from_spans_ex_t parse_settings;
+  pmath_thread_t                     me = pmath_thread_get_current();
   
   pmath_span_array_t *spans;
+  pmath_hashtable_t old_parser_cache            = me ? me->parser_cache : NULL;
   pmath_t old_input;
   pmath_t result = PMATH_NULL;
   
@@ -177,8 +180,13 @@ static pmath_t get_file(
   parse_settings.size           = sizeof(parse_settings);
   parse_settings.flags          = PMATH_BFS_PARSEABLE;
   parse_settings.data           = &info;
-  if(track_source_locations)
+  if(track_source_locations) {
     parse_settings.add_debug_metadata = add_debug_metadata;
+    me->parser_cache                  = NULL;
+  }
+  else if(!me->parser_cache) {
+    me->parser_cache                  = pmath_ht_create_ex(&pmath_ht_obj_class, 0);
+  }
   
   do {
     pmath_unref(result);
@@ -243,7 +251,50 @@ static pmath_t get_file(
     pmath_unref(info.nspath);
   }
   
-  pmath_unref(pmath_thread_local_save(pmath_System_DollarInput, old_input));
+  if(me && old_parser_cache != me->parser_cache) {
+#ifdef PMATH_DEBUG_LOG
+    if(me->parser_cache) {
+      unsigned num_interned = pmath_ht_count(   me->parser_cache);
+      unsigned capacity     = pmath_ht_capacity(me->parser_cache);
+      pmath_debug_print("[%u cached objects during ", num_interned);
+      pmath_debug_print_object("Get: ", info.filename, "]\n");
+      
+      unsigned num_multi[5] = {0};
+      for(unsigned i = 0, k = 0; i < capacity; ++i) {
+        struct _pmath_object_entry_t *e = pmath_ht_entry(me->parser_cache, i);
+        if(e) {
+          pmath_t val = e->value;
+          if(pmath_is_expr_of_len(val, pmath_System_HoldComplete, 1))
+            val = pmath_expr_get_item(val, 1);
+          else
+            val = pmath_ref(val);
+          intptr_t rc = pmath_refcount(val);
+          if(rc > 1) {
+            if(rc < sizeof(num_multi)/sizeof(num_multi[0]))
+              ++num_multi[rc];
+            else
+              ++num_multi[0];
+              
+            pmath_debug_print("  [%u]: ", k);
+            pmath_debug_print_object("", val, "\n");
+          }
+          else
+            ++num_multi[1];
+          ++k;
+          pmath_unref(val);
+        }
+      }
+      
+      pmath_debug_print("[ ref=1: %u, ref=2: %u, ref=3: %u, ref=4: %u, ref>4: %u]\n", 
+        num_multi[1], num_multi[2], num_multi[3], num_multi[4], num_multi[0]);
+    }
+#endif // PMATH_DEBUG_LOG
+    pmath_ht_destroy(me->parser_cache);
+    me->parser_cache = old_parser_cache;
+  }
+  
+  //pmath_unref(pmath_thread_local_save(pmath_System_DollarInput, old_input));
+  pmath_unref(_pmath_thread_local_save_with(pmath_System_DollarInput, old_input, me));
   pmath_file_close(file);
   pmath_unref(info.filename);
   pmath_unref(name);
