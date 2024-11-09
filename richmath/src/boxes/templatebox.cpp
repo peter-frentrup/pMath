@@ -62,6 +62,7 @@ namespace richmath {
       static TemplateBox *find_owner(Box *box, bool same_document_only) { return find_owner_or_self(box->parent(), same_document_only); }
       static TemplateBox *find_owner_or_self(Box *box, bool same_document_only = false);
       
+      void is_content_loaded(bool value) { self.is_content_loaded(value); }
       void ensure_content_loaded();
       void reload_content();
       Expr get_content();
@@ -136,8 +137,22 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   bool change_args = arguments != args;
   arguments = args;
   _tag = tag;
-  if(change_args)
+  if(change_args) {
     is_content_loaded(false);
+    
+    // Need to inform template slots in case the display function did not change:
+    // Otherwise nested TemplateBox might not update correctly
+    // Example: 50 Quantity("Kilometers")/Quantity("Hours")
+    // Then edit the 50 to 4 and evaluate again
+    
+    TemplateBoxSlot *slot = search_next_box<TemplateBoxSlot>(this, LogicalDirection::Forward, this);
+    while(slot) {
+      if(slot->find_owner() == this && slot->argument() > 0) 
+        TemplateBoxSlotImpl(*slot).is_content_loaded(false);
+        
+      slot = search_next_box<TemplateBoxSlot>(slot, LogicalDirection::Forward, this);
+    }
+  }
   style.clear();
   style.add_pmath(options);
   style.set_pmath(BaseStyleName, tag);
