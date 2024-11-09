@@ -3827,7 +3827,8 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
         }
         
       case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
-      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
+      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+      case PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION: {
           pmath_t debug_metadata = pmath_get_debug_metadata(obj);
           obj = expr_to_boxes(thread, obj);
           obj = pmath_try_set_debug_metadata(obj, debug_metadata);
