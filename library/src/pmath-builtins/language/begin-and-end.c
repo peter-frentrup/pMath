@@ -204,7 +204,7 @@ PMATH_PRIVATE pmath_t builtin_end(pmath_expr_t expr) {
     pmath_unref(oldns);
     pmath_unref(nsstack);
     pmath_message(PMATH_NULL, "nons", 0);
-    return oldns;
+    return PMATH_NULL;
   }
 
   len = pmath_expr_length(nsstack);
@@ -379,7 +379,7 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr) {
     pmath_unref(nsstack);
     pmath_unref(nspathstack);
     pmath_message(PMATH_NULL, "nons", 0);
-    return oldns;
+    return PMATH_NULL;
   }
 
   nslen     = pmath_expr_length(nsstack);
