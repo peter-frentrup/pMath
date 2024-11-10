@@ -131,7 +131,6 @@
 				<Option compiler="msvc_2015_x64" />
 				<Option projectCompilerOptionsRelation="-1" />
 				<Option projectLinkerOptionsRelation="-1" />
-				<Option projectIncludeDirsRelation="-1" />
 				<Option projectLibDirsRelation="-1" />
 				<Compiler>
 					<Add option="/MD" />
