@@ -15,82 +15,82 @@
 /**\brief Token classes known in the pMath language.
  */
 typedef enum {
-  PMATH_TOK_NONE = 0,
-  PMATH_TOK_SPACE = 1,
-  PMATH_TOK_DIGIT = 2,
-  PMATH_TOK_STRING = 3,
-  PMATH_TOK_NAME = 4,
-  PMATH_TOK_NAME2 = 5,
-  PMATH_TOK_BINARY_LEFT = 6,
-  PMATH_TOK_BINARY_RIGHT = 7,
-  PMATH_TOK_NARY = 10,
-  PMATH_TOK_NARY_AUTOARG = 11,
-  PMATH_TOK_NARY_OR_PREFIX = 12,
-  PMATH_TOK_POSTFIX_OR_PREFIX = 13,
-  PMATH_TOK_PREFIX = 14,
-  PMATH_TOK_POSTFIX = 15,
-  PMATH_TOK_CALL = 16,
-  PMATH_TOK_LEFTCALL = 17,
-  PMATH_TOK_LEFT = 18,
-  PMATH_TOK_RIGHT = 19,
-  PMATH_TOK_PRETEXT = 20,
-
-  PMATH_TOK_ASSIGNTAG = 21,
-  PMATH_TOK_PLUSPLUS = 22,
-  PMATH_TOK_COLON = 23,
-  PMATH_TOK_TILDES = 24,
-  PMATH_TOK_SLOT = 25,
-  PMATH_TOK_QUESTION = 26,
-  PMATH_TOK_INTEGRAL = 27, /* acts like PMATH_TOK_PREFIX */
-  PMATH_TOK_COMMENTEND = 28,
-  PMATH_TOK_NEWLINE = 29,
-  PMATH_TOK_CALLPIPE = 30,
+  PMATH_TOK_NONE              =  0, ///< invalid character
+  PMATH_TOK_SPACE             =  1, ///< A space, tab or similar ignorable character
+  PMATH_TOK_DIGIT             =  2, ///< A decimal digit or U+206F (NOMINAL DIGIT SHAPES)
+  PMATH_TOK_STRING            =  3, ///< String delimiter (") and string escape character (\\)
+  PMATH_TOK_NAME              =  4, ///< An identifier character other than a digit
+  PMATH_TOK_NAME2             =  5, ///< A single-letter identifier character
+  PMATH_TOK_BINARY_LEFT       =  6, ///< A binary operator X that groups like <i>a X b X c = (a X b) X c</i>
+  PMATH_TOK_BINARY_RIGHT      =  7, ///< A binary operator X that groups like <i>a X b X c = a X (b X c)</i>
+  
+  PMATH_TOK_NARY              = 10, ///< A flat infix operator with arbitrarily many operands, e.g. times (*)
+  PMATH_TOK_NARY_AUTOARG      = 11, ///< A flat infix operator whose operands may be empty, e.g. comma (,), semicolon (;)
+  PMATH_TOK_NARY_OR_PREFIX    = 12, ///< A prefix or flat infix operator, e.g. plus (+)
+  PMATH_TOK_POSTFIX_OR_PREFIX = 13, ///< A prefix or postfix operator, e.g. exclamation mark (!)
+  PMATH_TOK_PREFIX            = 14, ///< A prefix operator, e.g. U+00AC (NOT SIGN)
+  PMATH_TOK_POSTFIX           = 15, ///< A postfix operartor, e.g. differentiation apostrophe (')
+  PMATH_TOK_CALL              = 16, ///< The dot (.) in `x.f(y)` separating a first argument before a function name
+  PMATH_TOK_LEFTCALL          = 17, ///< An opening parenthesis or bracket that can continue a call syntax `f(x)`
+  PMATH_TOK_LEFT              = 18, ///< An opening parenthesis-like character that cannot continue a call syntax `f(x)`, e.g. curly brace ({)
+  PMATH_TOK_RIGHT             = 19, ///< A closing parenthesis
+  PMATH_TOK_PRETEXT           = 20, ///< A prefix operator after which non-whitespace characters combine into a single text token, e.g. `<<` or `??`
+  PMATH_TOK_ASSIGNTAG         = 21, ///< That /: token as part of composite tagged  assignment syntax (a/:b:=c, a/:b::=c)
+  PMATH_TOK_PLUSPLUS          = 22, ///< An token that can be a prefix, postfix or flat infix operator, i.e. ++
+  PMATH_TOK_COLON             = 23, ///< The colon (:) token, part of composite pattern matching syntax (~x:t, ~:t, x:p)
+  PMATH_TOK_TILDES            = 24, ///< The tilde tokens (~, ~~, ~~~), part of pattern matching syntax
+  PMATH_TOK_SLOT              = 25, ///< The 'hash pound' (#) character
+  PMATH_TOK_QUESTION          = 26, ///< The quastion token (?), part of composite pattern matching syntax (?x, ?x:t, ?:t, x?f)
+  PMATH_TOK_INTEGRAL          = 27, ///< An integral sign, acts like PMATH_TOK_PREFIX
+  PMATH_TOK_COMMENTEND        = 28, ///< The end of a multi-line comment (*/)
+  PMATH_TOK_NEWLINE           = 29, ///< The new-line character (U+000A) that may be ignored after other operators
+  PMATH_TOK_CALLPIPE          = 30, ///< The `|>` streaming call operator in "a |> b(c) |> d"
 } pmath_token_t;
 
 enum {
-  PMATH_PREC_ANY =              0,
-  PMATH_PREC_SEQ =             10,
-  PMATH_PREC_EVAL =            20,
-  PMATH_PREC_ASS =             30,
-  PMATH_PREC_MODY =            40,
-  PMATH_PREC_LAZY =            50,
-  PMATH_PREC_FUNC =            60,
+  PMATH_PREC_ANY =              0, ///< Lowest precedence
+  PMATH_PREC_SEQ =             10, ///< Precedence of comma (,)
+  PMATH_PREC_EVAL =            20, ///< Precedence of semicolon (;) and new-line (U+000A) when that is treated as an operator
+  PMATH_PREC_ASS =             30, ///< Precedence of assignments (/:, :=, ::=)
+  PMATH_PREC_MODY =            40, ///< Precedence of modification assignments (+=, -=, *=, /=, //=)
+  PMATH_PREC_LAZY =            50, ///< Precedence of postfix function call token (//) in `x // f`
+  PMATH_PREC_FUNC =            60, ///< Precedence of pstfix function definition token (&) in `body &`
 //  PMATH_PREC_COLON =           70,
-  PMATH_PREC_REPL =            80,
-  PMATH_PREC_RULE =            90,
-  PMATH_PREC_MAP =            100,
-  PMATH_PREC_STR =            110,
-  PMATH_PREC_COND =           120,
-  PMATH_PREC_ALT =            130,
-  PMATH_PREC_OR =             150,
-  PMATH_PREC_XOR =            155,
-  PMATH_PREC_AND =            160,
-  PMATH_PREC_ARROW =          170,
-  PMATH_PREC_REL =            180,
-  PMATH_PREC_UNION =          190,
-  PMATH_PREC_ISECT =          200,
-  PMATH_PREC_RANGE =          210,
-  PMATH_PREC_ADD =            220,
-  PMATH_PREC_CIRCADD =        230,
-  PMATH_PREC_PLUMI =          240,
-  PMATH_PREC_CIRCMUL =        250,
-  PMATH_PREC_CALLPIPE_RIGHT = 255,
-  PMATH_PREC_MUL =            260,
-  PMATH_PREC_DIV =            270,
-  PMATH_PREC_MIDDOT =         280,
-  PMATH_PREC_CROSS =          290,
-  PMATH_PREC_MUL2 =           300,
-  PMATH_PREC_POW =            310,
-  PMATH_PREC_FAC =            320,
-  PMATH_PREC_APL =            330,
-  PMATH_PREC_REPEAT =         340,
-  PMATH_PREC_TEST =           350,
-  PMATH_PREC_INC =            360,
+  PMATH_PREC_REPL =            80, ///< Precedence of replacement tokens (/. and //.)
+  PMATH_PREC_RULE =            90, ///< Precedence of rule arrows (->,  :>)
+  PMATH_PREC_MAP =            100, ///< Precedence of mapping tokens (`/@`, `//@`)
+  PMATH_PREC_STR =            110, ///< Precedence of the `++` string concatenation infix operator
+  PMATH_PREC_COND =           120, ///< Precedence of pattern condition operator `/?`
+  PMATH_PREC_ALT =            130, ///< Precedence of `|`
+  PMATH_PREC_OR =             150, ///< Precedence of logical OR and NOR (`||`, U+2228, U+22BD, U+22C1)
+  PMATH_PREC_XOR =            155, ///< Precedence of logical XOR (U+22BB)
+  PMATH_PREC_AND =            160, ///< Precedence of logical AND and NAND (`&&`, U+2227, U+22BC, U+22C0)
+  PMATH_PREC_ARROW =          170, ///< Precedence of arrows other than rule arrows
+  PMATH_PREC_REL =            180, ///< Precedence of relational operators (<, <=, >, >=, ...)
+  PMATH_PREC_UNION =          190, ///< Precedence of set union and similar operators
+  PMATH_PREC_ISECT =          200, ///< Precedence of set intersection and similar operators
+  PMATH_PREC_RANGE =          210, ///< Precedence of `..` range operator
+  PMATH_PREC_ADD =            220, ///< Precedence of `+` and `-` infix operators 
+  PMATH_PREC_CIRCADD =        230, ///< Precedence of circled plus and minus infix operators
+  PMATH_PREC_PLUMI =          240, ///< Precedence of plus-minus ans minus-plus operators
+  PMATH_PREC_CIRCMUL =        250, ///< Precedence of circled multiplication and division operators
+  PMATH_PREC_CALLPIPE_RIGHT = 255, ///< Precedence on the right of the `|>` operator-like token
+  PMATH_PREC_MUL =            260, ///< Precedence of multiplication operators
+  PMATH_PREC_DIV =            270, ///< Precedence of division operators
+  PMATH_PREC_MIDDOT =         280, ///< Precedence of the middle dot operator (U+00B7)
+  PMATH_PREC_CROSS =          290, ///< Precedence of the cross-product operator
+  PMATH_PREC_MUL2 =           300, ///< Precedence of strongly binding multiplication like operators
+  PMATH_PREC_POW =            310, ///< Precedence of the power binary operator `^`
+  PMATH_PREC_FAC =            320, ///< Precedence of factorial postfix operators (`!`, `!!`)
+  PMATH_PREC_APL =            330, ///< Precedence of the prefix function application operator `@` in `f @ x` and of the invisible function application operator (U+2061)
+  PMATH_PREC_REPEAT =         340, ///< Precedence of the pattern repetition postfix operators (`**`, `***`)
+  PMATH_PREC_TEST =           350, ///< Precedence of the pattern test operator (`?` in `p ? f`)
+  PMATH_PREC_INC =            360, ///< Precedence of the increment and decrement prefix and postfix operators (`++`, `--`)
 
-  PMATH_PREC_CALL =           400,
-  PMATH_PREC_INVISADD =       410,
-  PMATH_PREC_DIFF =           450,
-  PMATH_PREC_PRIM =          1000
+  PMATH_PREC_CALL =           400, ///< Precedence of call-like operator tokens (`(`, `.`, `::`)
+  PMATH_PREC_INVISADD =       410, ///< Precedence of the INVISIBLE PLUS (U+2064) operator
+  PMATH_PREC_DIFF =           450, ///< Precedence of differentiation apostrophe (`'`) and similar tightly binding postfix operators (e.g. unicode superscript two U+00B2)
+  PMATH_PREC_PRIM =          1000  ///< Precedence of atomic tokens (names, numbers, strings), also called primary operands
 };
 
 #define PMATH_CHAR_PLUSMINUS                 ((uint16_t) 0x00B1 ) ///< The "+/-" character
