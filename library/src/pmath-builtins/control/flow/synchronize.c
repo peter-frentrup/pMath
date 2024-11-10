@@ -133,7 +133,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr) {
   }
   
   if(!pmath_is_symbol(sync)) {
-    pmath_message(PMATH_NULL, "sym", 1, sync, PMATH_FROM_INT32(1));
+    pmath_message(PMATH_NULL, "sym", 2, sync, PMATH_FROM_INT32(1));
     pmath_unref(block);
     return expr;
   }
