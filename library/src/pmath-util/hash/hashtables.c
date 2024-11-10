@@ -136,6 +136,24 @@ static pmath_bool_t resize(pmath_hashtable_t ht, unsigned int minused) {
 
 /*============================================================================*/
 
+PMATH_PRIVATE
+size_t _pmath_ht_bytecount_without_entries(pmath_hashtable_t ht) {
+  if(!ht)
+    return 0;
+  
+  struct _pmath_hashtable_impl_t *impl = ht_get_impl(ht);
+  size_t capa = impl->capacity;
+  
+  size_t result = sizeof(*impl);
+  result += sizeof(void*); // extra bytes not known. Assume one void*
+  if(impl->table != impl->small_table)
+    result += impl->capacity * sizeof(impl->table[0]);
+    
+  return result;
+}
+
+/*============================================================================*/
+
 struct _ht_simple_class_extra_t {
   const pmath_ht_class_t *klass;
 };

@@ -44,6 +44,7 @@ static struct {
 static void         association_list_destroy_data(        struct _pmath_custom_expr_data_t *_data);
 static size_t       association_list_get_length(          struct _pmath_custom_expr_t *e);
 static pmath_t      association_list_get_item(            struct _pmath_custom_expr_t *e, size_t i);
+static size_t       association_list_get_extra_bytecount( struct _pmath_custom_expr_t *e);  
 static pmath_bool_t association_list_try_item_equals(     struct _pmath_custom_expr_t *e, size_t i, pmath_t expected_item, pmath_bool_t *result); // does not free e or expected_item
 static pmath_bool_t association_list_try_set_item_copy(   struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item, pmath_expr_t *result);      // does not free e, but frees new_item (only if returning TRUE)
 static pmath_bool_t association_list_try_set_item_mutable(struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item);
@@ -54,6 +55,7 @@ static const struct _pmath_custom_expr_api_t association_list_expr_api = {
   .destroy_data         = association_list_destroy_data,
   .get_length           = association_list_get_length,
   .get_item             = association_list_get_item,
+  .get_extra_bytecount  = association_list_get_extra_bytecount,
   .try_item_equals      = association_list_try_item_equals,
   .try_set_item_copy    = association_list_try_set_item_copy,
   .try_set_item_mutable = association_list_try_set_item_mutable,
@@ -265,6 +267,15 @@ static pmath_t association_list_get_item(struct _pmath_custom_expr_t *e, size_t 
     head, 2,
     pmath_expr_get_item(keys, i),
     pmath_expr_get_item(values, i));
+}
+
+static size_t association_list_get_extra_bytecount( struct _pmath_custom_expr_t *e) {
+  const struct _pmath_association_list_extra_data_t *assoc_extra = ASSOC_EXPR_EXTRA(e);
+  
+  size_t result = offsetof(struct _pmath_association_list_extra_data_t, rule_delayed_bitset);
+  result += (assoc_extra->used_length + 7) / 8; // size of rule_delayed_bitset
+  result = (result + 2*sizeof(void*) - 1) / (2*sizeof(void*)); // pad to multiples of two void* (TODO: only multiples of 8?)
+  return result;
 }
 
 static pmath_bool_t association_list_try_item_equals(

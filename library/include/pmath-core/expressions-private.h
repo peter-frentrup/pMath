@@ -38,7 +38,8 @@ struct _pmath_custom_expr_data_t {
 struct _pmath_custom_expr_api_t {
   void         (*destroy_data)(           struct _pmath_custom_expr_data_t *data); // disposes contents of data, but not data itself
   size_t       (*get_length)(             struct _pmath_custom_expr_t *e);                                                        // does not free e
-  pmath_t      (*get_item)(               struct _pmath_custom_expr_t *e, size_t i);       
+  pmath_t      (*get_item)(               struct _pmath_custom_expr_t *e, size_t i);   
+  size_t       (*get_extra_bytecount)(    struct _pmath_custom_expr_t *e);    
   pmath_bool_t (*try_prevent_destruction)(struct _pmath_custom_expr_t *e);                                                        // does not free e
   pmath_bool_t (*try_get_item_range)(     struct _pmath_custom_expr_t *e, size_t start, size_t length, pmath_expr_t *result);     // does not free e
   pmath_bool_t (*try_set_item_copy)(      struct _pmath_custom_expr_t *e, size_t i, pmath_t new_item, pmath_expr_t *result);      // does not free e, but frees new_item (only if returning TRUE)

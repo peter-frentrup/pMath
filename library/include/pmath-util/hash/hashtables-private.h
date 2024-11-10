@@ -36,6 +36,9 @@ PMATH_PRIVATE unsigned int _pmath_hash_pointer(void *ptr);
 
 /*============================================================================*/
 
+PMATH_PRIVATE
+size_t _pmath_ht_bytecount_without_entries(pmath_hashtable_t ht);
+
 #ifdef PMATH_DEBUG_TESTS
 PMATH_PRIVATE void PMATH_TEST_NEW_HASHTABLES(void);
 #else

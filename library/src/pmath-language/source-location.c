@@ -23,14 +23,17 @@ struct _pmath_source_location_extra_data_t {
 #define SRCLOC_EXPR_EXTRA(EXPR_PTR)      ((struct _pmath_source_location_extra_data_t*)PMATH_CUSTOM_EXPR_DATA(EXPR_PTR))
 
 
-static void    source_location_destroy_data(struct _pmath_custom_expr_data_t *_data);
-static size_t  source_location_get_length(  struct _pmath_custom_expr_t *e);
-static pmath_t source_location_get_item(    struct _pmath_custom_expr_t *e, size_t i);
+static void         source_location_destroy_data(       struct _pmath_custom_expr_data_t *_data);
+static size_t       source_location_get_length(         struct _pmath_custom_expr_t *e);
+static pmath_t      source_location_get_item(           struct _pmath_custom_expr_t *e, size_t i);
+static size_t       source_location_get_extra_bytecount(struct _pmath_custom_expr_t *e);
+
 
 static const struct _pmath_custom_expr_api_t source_location_expr_api = {
-  .destroy_data = source_location_destroy_data,
-  .get_length   = source_location_get_length,
-  .get_item     = source_location_get_item,
+  .destroy_data        = source_location_destroy_data,
+  .get_length          = source_location_get_length,
+  .get_item            = source_location_get_item,
+  .get_extra_bytecount = source_location_get_extra_bytecount,
 };
 
 PMATH_API
@@ -109,4 +112,10 @@ static pmath_t source_location_get_item(struct _pmath_custom_expr_t *e, size_t i
              pmath_build_value("(ii)", data->start, data->startcol),
              pmath_build_value("(ii)", data->end,   data->endcol));
   }
+}
+
+static size_t source_location_get_extra_bytecount(struct _pmath_custom_expr_t *e) {
+  //const struct _pmath_source_location_extra_data_t *data = SRCLOC_EXPR_EXTRA(e);
+  
+  return sizeof(struct _pmath_source_location_extra_data_t);
 }
