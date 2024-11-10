@@ -167,7 +167,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
   
   sym = pmath_expr_get_item(lhs, 1);
   if(!pmath_is_symbol(sym)) {
-    pmath_message(PMATH_NULL, "sym", 1, sym,
+    pmath_message(PMATH_NULL, "sym", 2, sym,
                   pmath_expr_new_extended(
                     pmath_ref(pmath_System_List), 2,
                     PMATH_FROM_INT32(pmath_same(tag, PMATH_UNDEFINED) ? 1 : 2),
