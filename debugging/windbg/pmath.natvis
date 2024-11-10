@@ -588,9 +588,9 @@
 	</Type>
 	
 	<Type Name="_memory_header_t">
-		<DisplayString>debug header for {((uintptr_t)this + ((sizeof(pmath.dll!_memory_header_t) + 9 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),!}</DisplayString>
+		<DisplayString>debug header for {((uintptr_t)this + ((sizeof(pmath.dll!_memory_header_t) + 64 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),!}</DisplayString>
 		<Expand>
-			<Item Name="[ptr]">(void*)((char*)this + ((sizeof(pmath.dll!_memory_header_t) + 9 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),[size]</Item>
+			<Item Name="[ptr]">(void*)((char*)this + ((sizeof(pmath.dll!_memory_header_t) + 64 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),[size]</Item>
 			<Item Name="size">size</Item>
 			<Item Name="alloc_time">alloc_time</Item>
 			<Item Name="prev">prev</Item>
