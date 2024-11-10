@@ -710,10 +710,7 @@ Expr SelectionReference::to_pmath() const {
   if(id == FrontEndReference::None)
     return Expr();
   
-  return Call(
-           Symbol(richmath_Language_SourceLocation),
-           id.to_pmath(),
-           Call(Symbol(richmath_System_Range), start, end));
+  return Expr(pmath_language_new_simple_location(id.to_pmath().release(), start, end));
 }
 
 SelectionReference SelectionReference::from_pmath(Expr expr) {

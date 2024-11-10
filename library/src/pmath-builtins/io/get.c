@@ -2,8 +2,10 @@
 #include <pmath-core/numbers.h>
 
 #include <pmath-language/scanner.h>
+#include <pmath-language/source-location.h>
 
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files/abstract-file.h>
 #include <pmath-util/files/filesystem.h>
@@ -36,12 +38,9 @@ extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_OpenRead;
 extern pmath_symbol_t pmath_System_Path;
 extern pmath_symbol_t pmath_System_Sequence;
-extern pmath_symbol_t pmath_System_Range;
 extern pmath_symbol_t pmath_System_Rule;
 extern pmath_symbol_t pmath_System_TrackSourceLocations;
 extern pmath_symbol_t pmath_System_True;
-
-extern pmath_symbol_t pmath_Language_SourceLocation;
 
 static pmath_bool_t check_path(pmath_t path) {
   size_t i;
@@ -119,7 +118,6 @@ static pmath_t add_debug_metadata(
 ) {
   pmath_t debug_metadata;
   struct _get_file_info *data = _data;
-  int start_line, end_line, start_column, end_column;
   
   assert(0 <= start->index);
   assert(start->index <= end->index);
@@ -128,20 +126,17 @@ static pmath_t add_debug_metadata(
   if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
     return token_or_span;
     
-  start_line   = start->line + data->startline;
-  start_column = start->index - start->line_start_index;
+  int startline = start->line + data->startline;
+  int startcol  = start->index - start->line_start_index;
   
-  end_line   = end->line + data->startline;
-  end_column = end->index - end->line_start_index;
+  int endline   = end->line + data->startline;
+  int endcol    = end->index - end->line_start_index;
   
-  debug_metadata = pmath_expr_new_extended(
-                 pmath_ref(pmath_Language_SourceLocation), 2,
-                 pmath_ref(data->filename),
-                 pmath_expr_new_extended(
-                   pmath_ref(pmath_System_Range), 2,
-                   pmath_build_value("(ii)", start_line, start_column),
-                   pmath_build_value("(ii)", end_line,   end_column)));
-                   
+  debug_metadata = pmath_language_new_file_location(
+                     pmath_ref(data->filename), 
+                     startline, startcol, 
+                     endline, endcol);
+  
   return pmath_try_set_debug_metadata(token_or_span, debug_metadata);
 }
 

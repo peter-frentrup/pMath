@@ -386,7 +386,6 @@ static pmath_t add_debug_metadata(
 ) {
   pmath_t debug_metadata;
   struct parse_data_t *data = _data;
-  int start_line, end_line, start_column, end_column;
   
   assert(0 <= start->index);
   assert(start->index <= end->index);
@@ -395,19 +394,16 @@ static pmath_t add_debug_metadata(
   if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
     return token_or_span;
     
-  start_line   = start->line + data->start_line;
-  start_column = start->index - start->line_start_index;
+  int startline = start->line + data->start_line;
+  int startcol  = start->index - start->line_start_index;
   
-  end_line   = end->line + data->start_line;
-  end_column = end->index - end->line_start_index;
+  int endline   = end->line + data->start_line;
+  int endcol    = end->index - end->line_start_index;
   
-  debug_metadata = pmath_expr_new_extended(
-                 pmath_ref(pmath_Language_SourceLocation), 2,
-                 pmath_ref(data->filename),
-                 pmath_expr_new_extended(
-                   pmath_ref(pmath_System_Range), 2,
-                   pmath_build_value("(ii)", start_line, start_column),
-                   pmath_build_value("(ii)", end_line,   end_column)));
+  debug_metadata = pmath_language_new_file_location(
+                     pmath_ref(data->filename), 
+                     startline, startcol, 
+                     endline, endcol);
                    
   return pmath_try_set_debug_metadata(token_or_span, debug_metadata);
 }

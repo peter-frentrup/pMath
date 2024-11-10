@@ -859,6 +859,7 @@
 		<Unit filename="include/pmath-language/patterns-private.h" />
 		<Unit filename="include/pmath-language/regex-private.h" />
 		<Unit filename="include/pmath-language/scanner.h" />
+		<Unit filename="include/pmath-language/source-location.h" />
 		<Unit filename="include/pmath-language/tokens.h" />
 		<Unit filename="include/pmath-private.h" />
 		<Unit filename="include/pmath-types.h" />
@@ -1673,6 +1674,9 @@
 		<Unit filename="src/pmath-language/scanner.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-language/source-location.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-language/tokens.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -1799,7 +1803,7 @@
 			</AutoVersioning>
 			<DoxyBlocks>
 				<comment_style block="0" line="2" />
-				<doxyfile_project project_number="0.5.1007" use_auto_version="1" />
+				<doxyfile_project project_number="0.5.1010" use_auto_version="1" />
 				<doxyfile_build />
 				<doxyfile_warnings />
 				<doxyfile_output html_help="1" xml="1" />

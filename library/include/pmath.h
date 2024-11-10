@@ -43,6 +43,7 @@
 #include <pmath-language/charnames.h>
 #include <pmath-language/tokens.h>
 #include <pmath-language/scanner.h>
+#include <pmath-language/source-location.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/compression.h>
