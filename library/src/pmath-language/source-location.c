@@ -59,6 +59,8 @@ pmath_t pmath_language_new_file_location(pmath_t ref, int startline, int startco
   data->startcol = startcol;
   data->endcol   = endcol;
 
+  //_pmath_expr_update(PMATH_FROM_PTR(result));
+  result->internals.inherited.inherited.last_change = _pmath_timer_get();
   return PMATH_FROM_PTR(result);
 }
 
@@ -80,6 +82,8 @@ pmath_t pmath_language_new_simple_location(pmath_t ref, int start, int end) {
   data->startcol = -1;
   data->endcol   = -1;
 
+  //_pmath_expr_update(PMATH_FROM_PTR(result));
+  result->internals.inherited.inherited.last_change = _pmath_timer_get();
   return PMATH_FROM_PTR(result);
 }
 
