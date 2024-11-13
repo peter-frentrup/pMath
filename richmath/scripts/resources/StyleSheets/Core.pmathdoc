@@ -649,8 +649,9 @@ Document({
                     ShowStringCharacters -> False), 
                    DynamicBox(ToBoxes(StringForm("`1` (`2`)", 
                       CurrentValue({TemplateSlot, 3}), 
-                      UnitKind(CurrentValue({TemplateSlot, 3}))))))}}, 
-                "QuantityPanel")), InterpretationFunction -> 
+                      Dynamic(UnitKind(CurrentValue({TemplateSlot, 3})), 
+                       SynchronousUpdating -> False)))))}}, "QuantityPanel")), 
+             InterpretationFunction -> 
               Function({"System`Quantity", "(", {
                  #1, ",", TemplateSlotSequence(##4, ",")}, ")"})})}, All), 
         SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
