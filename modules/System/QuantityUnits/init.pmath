@@ -7,6 +7,7 @@ ParseUnit
 DecomposeUnitFactors
 RecombineUnitFactors
 FormatQuantity
+UnitKind
 
 ConsolidateValidQuantityUnits
 
@@ -69,7 +70,16 @@ Function tryGetUnitDimensions(HoldPattern(Quantity(~, ~unit) ? IsValidQuantity))
 		ReplaceRepeated(~n?IsNumeric * ~x :> x) |>
 		Replace({ Times :> List, Power :> Rule }, Heads->True) |> 
 		{ ~x:List :> x, ~r:Rule :> {r}, ~u:String :> {u -> 1}, ~ -> {} } |> 
-		Map({~r:Rule :> r, ~u :> (u -> 1)})
+		Map({~r:Rule :> r, ~u :> (u -> 1)}) %|> Sort
+		%SortBy({
+		%		("TimeUnit" -> ~) :> 1, 
+		%		("LengthUnit" -> ~) :> 2, 
+		%		("MassUnit" -> ~) :> 3, 
+		%		("ElectricCurrentUnit" -> ~) :> 4, 
+		%		("TemperatureUnit" -> ~) :> 5, 
+		%		("AmountUnit" -> ~) :> 6, 
+		%		("LuminousIntensityUnit" -> ~) :> 7, 
+		%		~r :> r})
 }
 tryGetUnitDimensions(~unit?IsNumeric)::= {}
 Function tryGetUnitDimensions(~unit) {
@@ -91,7 +101,7 @@ Function tryGetUnitDimensions(~unit) {
 fundamentalUnitValue(~unit)::= unit |> Replace(~u:String :> System`QuantityUnits`$AllUnits[u, "FundamentalUnitValue"])
 
 
-Get(ToFileName({DirectoryName($Input)}, "define-units.pmath"), TrackSourceLocations -> False) |> Timing |> Echo;
+Get(ToFileName({DirectoryName($Input)}, "define-units.pmath"), TrackSourceLocations -> False); % |> Timing |> Echo;
 
 
 % Note that $AllShortUnits may contain several None -> ... entries.  Other duplicte entries are a bug (TODO: fix frong short name for "Teslas") 
@@ -144,6 +154,8 @@ AutoLoad(Hold(ConsolidateValidQuantityUnits),
 	ToFileName({DirectoryName($Input)}, "simplify.pmath"))
 AutoLoad(Hold(FormatQuantity, MakeQuantityBoxes),
 	ToFileName({DirectoryName($Input)}, "formatting.pmath"))
+AutoLoad(Hold(UnitKind),
+	ToFileName({DirectoryName($Input)}, "unit-descriptions.pmath"))
 Get(ToFileName({DirectoryName($Input)}, "calculations.pmath"));
 
 

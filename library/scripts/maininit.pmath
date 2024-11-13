@@ -142,7 +142,7 @@ AutoLoad(Hold(AiryAi, AiryAiPrime, AiryBi, AiryBiPrime,
 		Zeta,
 		System`ArithmeticGeometricMean),
 	"System`Numerics`")
-AutoLoad(Hold(IsKnownUnit, Quantity, QuantityMagnitude, QuantityUnit, UnitDimensions),
+AutoLoad(Hold(IsKnownUnit, Quantity, QuantityMagnitude, QuantityUnit, UnitDimensions, UnitKind),
 	"System`QuantityUnits`")
 AutoLoad(Hold(Clip),
 	ToFileName({$BaseDirectory, "auto", "core"}, "clip.pmath"))

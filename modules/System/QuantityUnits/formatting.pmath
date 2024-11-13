@@ -11,6 +11,8 @@ Function FormatQuantity(~mag, ~unit) {
 Function MakeQuantityBoxes(~mag, ~unit) {
     With(formattedUnit:= ToBoxes(FormatQuantityUnitShort(unit)))
     TemplateBox({MakeBoxes(mag), formattedUnit, unit, MakeBoxes(unit)}, "Quantity")
+    %With(descr:= DescribeUnit(unit))
+    %TemplateBox({MakeBoxes(mag), formattedUnit, StringForm("`1` (`2`)", unit, descr), MakeBoxes(unit)}, "Quantity")
 }
 
 Function FormatQuantityUnitShort(~unit) {

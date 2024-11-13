@@ -647,7 +647,9 @@ Document({
                   TooltipBox(
                    StyleBox(DynamicBox(CurrentValue({TemplateSlot, 2})), 
                     ShowStringCharacters -> False), 
-                   DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 3}))))}}, 
+                   DynamicBox(ToBoxes(StringForm("`1` (`2`)", 
+                      CurrentValue({TemplateSlot, 3}), 
+                      UnitKind(CurrentValue({TemplateSlot, 3}))))))}}, 
                 "QuantityPanel")), InterpretationFunction -> 
               Function({"System`Quantity", "(", {
                  #1, ",", TemplateSlotSequence(##4, ",")}, ")"})})}, All), 
