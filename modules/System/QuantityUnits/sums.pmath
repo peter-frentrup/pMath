@@ -11,7 +11,7 @@ Function QuantityPlus(HoldPattern(Quantity(~mag1, ~unit1)), HoldPattern(Quantity
 
     With(ratio:= fund2 / fund1)
 
-    If(!ratio.IsReal) {
+    If(ratio.IsReal =!= True) {
         Message(Quantity::compat, unit1, unit2)
         Return($Failed)
     }
