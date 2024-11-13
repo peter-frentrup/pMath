@@ -1,10 +1,19 @@
 BeginPackage("System`QuantityUnits`")
 
+QuantityCompare
+QuantityPower
 QuantityProduct
 QuantityPlus
 
 Begin("System`QuantityUnits`Private`")
 
+
+Quantity/: Less(        ~q:Quantity ? IsValidQuantity, ~y)::= With({res:= QuantityCompare(Less,         q, y)}, res /? res =!= $Failed)
+Quantity/: LessEqual(   ~q:Quantity ? IsValidQuantity, ~y)::= With({res:= QuantityCompare(LessEqual,    q, y)}, res /? res =!= $Failed)
+Quantity/: Greater(     ~q:Quantity ? IsValidQuantity, ~y)::= With({res:= QuantityCompare(Greater,      q, y)}, res /? res =!= $Failed)
+Quantity/: GreaterEqual(~q:Quantity ? IsValidQuantity, ~y)::= With({res:= QuantityCompare(GreaterEqual, q, y)}, res /? res =!= $Failed)
+Quantity/: Equal(       ~q:Quantity ? IsValidQuantity, ~y)::= With({res:= QuantityCompare(Equal,        q, y)}, res /? res =!= $Failed)
+Quantity/: Unequal(     ~q:Quantity ? IsValidQuantity, ~y)::= With({res:= QuantityCompare(Unequal,      q, y)}, res /? res =!= $Failed)
 
 Quantity/: Power(~q:Quantity ? IsValidQuantity, ~y)::= With({res:= QuantityPower(q, y)}, res /? res =!= $Failed)
 
@@ -14,6 +23,8 @@ Quantity/: Literal(Times)(~~~x, ~q:Quantity, ~~~y)::= With({res:= QuantityProduc
 Quantity/: ~q1:Quantity ? IsValidQuantity + ~q2:Quantity ? IsValidQuantity ::= With({res:= QuantityPlus(q1, q2)}, res /? res =!= $Failed)
 
 
+AutoLoad(Hold(QuantityCompare),
+    ToFileName({DirectoryName($Input)}, "comparisons.pmath"))
 AutoLoad(Hold(QuantityPower),
     ToFileName({DirectoryName($Input)}, "powers.pmath"))
 AutoLoad(Hold(QuantityProduct),

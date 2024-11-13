@@ -1,0 +1,35 @@
+BeginPackage("System`QuantityUnits`")
+
+Begin("System`QuantityUnits`Private`")
+
+
+%QuantityLess(        ~q1, ~q2)::= With({res:= QuantityCompare(Less,         q1, q2)}, res /? res =!= $Failed)
+%QuantityLessEqual(   ~q1, ~q2)::= With({res:= QuantityCompare(LessEqual,    q1, q2)}, res /? res =!= $Failed)
+%QuantityGreater(     ~q1, ~q2)::= With({res:= QuantityCompare(Greater,      q1, q2)}, res /? res =!= $Failed)
+%QuantityGreaterEqual(~q1, ~q2)::= With({res:= QuantityCompare(GreaterEqual, q1, q2)}, res /? res =!= $Failed)
+%QuantityEqual(       ~q1, ~q2)::= With({res:= QuantityCompare(Equal,        q1, q2)}, res /? res =!= $Failed)
+%QuantityUnequal(     ~q1, ~q2)::= With({res:= QuantityCompare(Unequal,      q1, q2)}, res /? res =!= $Failed)
+
+
+QuantityCompare(~~~)::= $Failed
+
+QuantityCompare(~cmp, HoldPattern(Quantity(~mag1, ~unit)), HoldPattern(Quantity(~mag2, ~unit))) ::= cmp(mag1, mag2)
+
+Function QuantityCompare(~cmp, HoldPattern(Quantity(~mag1, ~unit1)), HoldPattern(Quantity(~mag2, ~unit2))) {
+    With(fund1 := unit1 |> Replace(~s:String :> $AllUnits[s, "FundamentalUnitValue"], 0..))
+    With(fund2 := unit2 |> Replace(~s:String :> $AllUnits[s, "FundamentalUnitValue"], 0..))
+
+    With(ratio:= fund2 / fund1)
+
+    If(ratio.IsReal =!= True) {
+        Message(Quantity::compat, unit1, unit2)
+        Return($Failed)
+    }
+
+    cmp(mag1, mag2 * ratio)
+}
+
+
+End()
+
+EndPackage()
