@@ -31,6 +31,7 @@ namespace richmath { namespace strings {
 
 ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, AbstractSequence *content)
   : AbstractStyleBox(content),
+    margins(0, 0, 0),
     type(_type),
     old_state(ControlState::Normal),
     _unused_u16(0)
@@ -82,7 +83,7 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
     forced_h = h.resolve(em, LengthConversionFactors::ControlHeight, context.width);
   }
   
-  BoxSize margins(0,0,0);
+  margins = BoxSize(0,0,0);
   if(w != SymbolicSize::Automatic || h != SymbolicSize::Automatic || context.width < HUGE_VAL) {
     ControlPainter::std->calc_container_size(*this, context.canvas(), type, &margins);
   }

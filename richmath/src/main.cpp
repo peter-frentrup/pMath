@@ -167,11 +167,11 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(TagBox)                    ==  72, ""); // (64) + 8
     static_assert(sizeof(TooltipBox)                ==  72, ""); // (64) + 8
     static_assert(sizeof(NumberBox)                 == 104, ""); // (64) + 8 + 4*8
-    static_assert(sizeof(ContainerWidgetBox)        ==  88, ""); // (64 + 8) + 8 + 2*1 + 2 + 4 UNUSED PADDING BYTES
-    static_assert(sizeof(AbstractButtonBox)         ==  88, "");
-    static_assert(sizeof(ButtonBox)                 ==  88, "");
-    static_assert(sizeof(SetterBox)                 == 120, ""); // (88) + 24 + 8
-    static_assert(sizeof(InputFieldBox)             == 136, ""); // (88) + 4 + 4 UNUSED PADDING BYTES + 8 + 8 + 24
+    static_assert(sizeof(ContainerWidgetBox)        ==  96, ""); // (64 + 8) + 8 + 12 + 2*1 + 2 
+    static_assert(sizeof(AbstractButtonBox)         ==  96, "");
+    static_assert(sizeof(ButtonBox)                 ==  96, "");
+    static_assert(sizeof(SetterBox)                 == 128, ""); // (96) + 24 + 8
+    static_assert(sizeof(InputFieldBox)             == 144, ""); // (96) + 4 + 4 UNUSED PADDING BYTES + 8 + 8 + 24
     static_assert(sizeof(AbstractDynamicBox)        ==  64, "");
     static_assert(sizeof(DynamicBox)                ==  88, ""); // (64) + 24
     static_assert(sizeof(DynamicLocalBox)           ==  80, ""); // (64) + 2*8
@@ -184,7 +184,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(RotationBox)               == 120, ""); // (112) + 8
     static_assert(sizeof(TransformationBox)         == 120, ""); // (112) + 8
     static_assert(sizeof(PaneBox)                   == 112, "");
-    static_assert(sizeof(PanelBox)                  ==  88, "");
+    static_assert(sizeof(PanelBox)                  ==  96, "");
     static_assert(sizeof(PaneSelectorBox)           ==  96, ""); // (48) + 8 + 8 + 24 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(ProgressIndicatorBox)      == 120, ""); // (48 + 8) + 3*8 + 8 + 24 + 8
     static_assert(sizeof(RadicalBox)                ==  96, ""); // (48) + 8 + 8 + 12 + 4 + 4 + 2*4 + 4 UNUSED PADDING BYTES
@@ -240,11 +240,11 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(TagBox)                    ==  56, ""); // (48) + 8
     static_assert(sizeof(TooltipBox)                ==  56, ""); // (48) + 8
     static_assert(sizeof(NumberBox)                 ==  72, ""); // (48) + 8 + 4*4
-    static_assert(sizeof(ContainerWidgetBox)        ==  60, ""); // (48 + 4) + 4 + 2*1 + 2
-    static_assert(sizeof(AbstractButtonBox)         ==  60, "");
-    static_assert(sizeof(ButtonBox)                 ==  60, "");
-    static_assert(sizeof(SetterBox)                 ==  88, ""); // (60) + 4 UNUSED PADDING BYTES + 16 + 8
-    static_assert(sizeof(InputFieldBox)             ==  96, ""); // (60) + 4 + 8 + 8 + 16
+    static_assert(sizeof(ContainerWidgetBox)        ==  72, ""); // (48 + 4) + 4 + 12 + 2*1 + 2
+    static_assert(sizeof(AbstractButtonBox)         ==  72, "");
+    static_assert(sizeof(ButtonBox)                 ==  72, "");
+    static_assert(sizeof(SetterBox)                 ==  96, ""); // (72) + 16 + 8
+    static_assert(sizeof(InputFieldBox)             == 104, ""); // (72) + 4 + 4 + 8 + 16
     static_assert(sizeof(AbstractDynamicBox)        ==  48, "");
     static_assert(sizeof(DynamicBox)                ==  64, ""); // (48) + 16
     static_assert(sizeof(DynamicLocalBox)           ==  64, ""); // (48) + 2*8
@@ -257,7 +257,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(RotationBox)               == 104, ""); // (96) + 8
     static_assert(sizeof(TransformationBox)         == 104, ""); // (96) + 8
     static_assert(sizeof(PaneBox)                   ==  96, "");
-    static_assert(sizeof(PanelBox)                  ==  60, "");
+    static_assert(sizeof(PanelBox)                  ==  72, "");
     static_assert(sizeof(PaneSelectorBox)           ==  72, ""); // (36) + 4 + 4 + 4 UNUSED PADDING BYTES + 16 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(ProgressIndicatorBox)      ==  96, ""); // (36 + 4) + 3*8 + 8 + 16 + 4 + 2 (bools) + 2 UNUSED PADDING BYTES
     static_assert(sizeof(RadicalBox)                ==  72, ""); // (36) + 4 + 4 + 12 + 4 + 4 + 2*4
