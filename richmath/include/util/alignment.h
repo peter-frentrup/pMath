@@ -11,6 +11,9 @@ namespace richmath {
   public:
     float horizontal; // 0 = left .. 1 = right
     float vertical;   // 0 = bottom .. 1 = top
+    
+    float interpolate_left_to_right(float left, float right) { return left + horizontal * (right - left); }
+    float interpolate_bottom_to_top(float bottom, float top) { return bottom + vertical * (top - bottom); }
   
     static SimpleAlignment from_pmath(Expr expr);
   };

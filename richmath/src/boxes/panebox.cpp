@@ -159,23 +159,15 @@ void PaneBox::resize_default_baseline(Context &context) {
   
   float max_cx = _extents.width - content()->extents().width;
   if(max_cx > 0) {
-    cx = max_cx * alignment.horizontal;
+    cx = alignment.interpolate_left_to_right(0, max_cx);
   }
   
   float orig_ascent  = _extents.ascent;
   float orig_descent = _extents.descent;
   float new_h        = h.explicit_abs_value();
   
-//  // Top:
-//  _extents.ascent  = orig_ascent;
-//  _extents.descent = new_h - orig_ascent;
-//  
-//  // Bottom:
-//  _extents.ascent  = new_h - orig_descent; 
-//  _extents.descent = orig_descent;
-  
-  _extents.ascent  = alignment.vertical * orig_ascent           + (1 - alignment.vertical) * (new_h - orig_descent);
-  _extents.descent = alignment.vertical * (new_h - orig_ascent) + (1 - alignment.vertical) * orig_descent;
+  _extents.ascent  = alignment.interpolate_bottom_to_top(new_h - orig_descent, orig_ascent);
+  _extents.descent = alignment.interpolate_bottom_to_top(orig_descent,         new_h - orig_ascent);
 }
 
 float PaneBox::allowed_content_width(const Context &context) {
