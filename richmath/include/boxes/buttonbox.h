@@ -12,6 +12,7 @@ namespace richmath {
     
       virtual void resize_default_baseline(Context &context) override;
       
+      virtual SimpleAlignment default_alignment() override { return SimpleAlignment::Center; }
       virtual ContainerType default_container_type() { return ContainerType::PushButton; }
       
     public:

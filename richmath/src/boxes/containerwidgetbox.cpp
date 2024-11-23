@@ -87,14 +87,18 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
     ControlPainter::std->calc_container_size(*this, context.canvas(), type, &margins);
   }
   
+  if(margins.width > context.width)
+     margins.width = context.width;
+ 
   context.width -= margins.width;
   
   base::resize_default_baseline(context);
   
   context.width = old_w;
   
-  if(w != SymbolicSize::Automatic)
+  if(w != SymbolicSize::Automatic) {
     _extents.width = forced_w;
+  }
   
   if(h != SymbolicSize::Automatic) {
     if(forced_h <= _extents.height()) {
@@ -105,8 +109,8 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
       margins.ascent = margins.descent = max_margin_h / 2;
     }
     
-    _extents.ascent += margins.ascent; // Top aligned
-    _extents.descent = forced_h - _extents.ascent; // Top aligned
+//    _extents.ascent += margins.ascent; // Top aligned
+//    _extents.descent = forced_h - _extents.ascent; // Top aligned
   }
   else if(get_own_style(ContentPadding, false)) {
     if(_extents.ascent < 0.75f * em)
@@ -116,11 +120,17 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
   }
   
   if(w == SymbolicSize::Automatic && h == SymbolicSize::Automatic) {
+    auto old_size = _extents;
+    
     ControlPainter::std->calc_container_size(
       *this,
       context.canvas(),
       type,
       &_extents);
+    
+    margins.width   = _extents.width   - old_size.width;
+    margins.ascent  = _extents.ascent  - old_size.ascent;
+    margins.descent = _extents.descent - old_size.descent;
   }
   else {
     if(w == SymbolicSize::Automatic) {
@@ -131,8 +141,17 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
       _extents.descent += margins.descent;
     }
   }
+  
+  SimpleAlignment alignment = SimpleAlignment::from_pmath(get_own_style(Alignment), default_alignment());
+  cx = alignment.interpolate_left_to_right(margins.width / 2, _extents.width - content()->extents().width - margins.width / 2);
+  
+  if(h != SymbolicSize::Automatic) {
+    float orig_ascent  = _extents.ascent;
+    float orig_descent = _extents.descent;
     
-  cx = (_extents.width - _content->extents().width) / 2;
+    _extents.ascent  = alignment.interpolate_bottom_to_top(forced_h - (orig_descent + margins.descent), orig_ascent + margins.ascent);
+    _extents.descent = alignment.interpolate_bottom_to_top(orig_descent + margins.descent,              forced_h - (orig_ascent + margins.ascent));
+  }
 }
 
 void ContainerWidgetBox::paint(Context &context) {

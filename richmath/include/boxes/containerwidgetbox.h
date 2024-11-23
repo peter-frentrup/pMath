@@ -3,6 +3,7 @@
 
 #include <boxes/stylebox.h>
 #include <gui/control-painter.h>
+#include <util/alignment.h>
 
 
 namespace richmath {
@@ -38,6 +39,7 @@ namespace richmath {
     
     protected:
       virtual void resize_default_baseline(Context &context) override;
+      virtual SimpleAlignment default_alignment() { return SimpleAlignment::TopLeft; }
       
     protected:
     

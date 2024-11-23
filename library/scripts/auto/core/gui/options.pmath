@@ -1,6 +1,7 @@
 Begin("System`Private`")
 
 Options(Button):= {
+    Alignment -> Automatic,
     BaselinePosition -> Automatic,
     BaseStyle -> "Button", 
     BoxID -> None,
@@ -13,6 +14,7 @@ Options(Button):= {
     Method -> "Preemptive"}
 
 Options(ButtonBox):= {
+    Alignment -> Automatic,
     BaselinePosition -> Automatic,
     BaseStyle -> "Button", 
     BoxID -> None,
@@ -210,6 +212,7 @@ Options(Pane):= Options(PaneBox):= {
     LineBreakWithin -> True}
 
 Options(Panel):= Options(PanelBox):= {
+    Alignment -> Automatic,
     Appearance -> Automatic,
     BaselinePosition -> Automatic, 
     BaseStyle -> "Panel",
@@ -321,6 +324,7 @@ Options(Section):= {
     BorderRadius -> 0,
     BoxID -> None,
     ButtonBoxOptions -> {
+        Alignment -> Automatic,
         BaselinePosition -> Automatic,
         ButtonData :> Automatic,
         ButtonFrame -> Automatic, 
@@ -422,6 +426,7 @@ Options(Section):= {
         ImageSize -> Automatic,
         ImageSizeAction -> "ShrinkToFit"},
     PanelBoxOptions -> {
+        Alignment -> Automatic,
         Appearance -> Automatic,
         BaselinePosition -> Automatic,
         ContentPadding -> True,
@@ -452,6 +457,7 @@ Options(Section):= {
     SectionLabelAutoDelete -> True,
     Selectable -> Inherited,
     SetterBoxOptions -> {
+        Alignment -> Automatic,
         BaselinePosition -> Automatic,
         ButtonFrame -> Automatic,
         ContentPadding -> True,
@@ -489,6 +495,7 @@ Options(Section):= {
     WindowTitle -> Inherited}    % only valid for StyleData-sections
 
 Options(Setter):= Options(SetterBox):= Options(SetterBar):= { 
+    Alignment -> Automatic,
     BaselinePosition -> Automatic,
     BaseStyle -> "Setter", 
     BoxID -> None,

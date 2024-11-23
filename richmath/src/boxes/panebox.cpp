@@ -153,7 +153,7 @@ void PaneBox::resize_default_baseline(Context &context) {
   cx = 0;// Left aligned
   cy = 0;
   
-  SimpleAlignment alignment = SimpleAlignment::from_pmath(get_own_style(Alignment));
+  SimpleAlignment alignment = SimpleAlignment::from_pmath(get_own_style(Alignment), SimpleAlignment::TopLeft);
   
   _extents.width = w.explicit_abs_value();
   

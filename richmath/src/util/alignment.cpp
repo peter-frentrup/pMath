@@ -4,8 +4,8 @@
 namespace richmath {
   class SimpleAlignment::Impl {
     public:
-      static float decode_horizontal(Expr horizontal_alignment);
-      static float decode_vertical(Expr vertical_alignment);
+      static float decode_horizontal(Expr horizontal_alignment, float fallback);
+      static float decode_vertical(Expr vertical_alignment, float fallback);
   };      
 }
 
@@ -21,28 +21,31 @@ extern pmath_symbol_t richmath_System_Top;
 
 //{ class SimpleAlignment ...
 
-SimpleAlignment SimpleAlignment::from_pmath(Expr expr) {
+const SimpleAlignment SimpleAlignment::TopLeft { 0.0f, 1.0f };
+const SimpleAlignment SimpleAlignment::Center {  0.5f, 0.5f };
+
+SimpleAlignment SimpleAlignment::from_pmath(Expr expr, SimpleAlignment fallback) {
   if(expr.is_symbol()) {
     return {
-      Impl::decode_horizontal(expr), 
-      Impl::decode_vertical(  expr)};
+      Impl::decode_horizontal(expr, fallback.horizontal), 
+      Impl::decode_vertical(  expr, fallback.vertical)};
   }
   else if(expr.is_number()) {
-    return { Impl::decode_horizontal(expr), 1.0f};
+    return { Impl::decode_horizontal(expr, fallback.horizontal), fallback.vertical};
   }
   else if(expr.expr_length() == 2 && expr[0] == richmath_System_List) {
     return {
-      Impl::decode_horizontal(expr[1]),
-      Impl::decode_vertical(  expr[2])};
+      Impl::decode_horizontal(expr[1], fallback.horizontal),
+      Impl::decode_vertical(  expr[2], fallback.vertical)};
   }
-  return { 0.0f, 1.0f };
+  return fallback;
 }
 
 //} ... class SimpleAlignment
 
 //{ class SimpleAlignment::Impl ...
 
-float SimpleAlignment::Impl::decode_horizontal(Expr horizontal_alignment) {
+float SimpleAlignment::Impl::decode_horizontal(Expr horizontal_alignment, float fallback) {
   if(horizontal_alignment.is_symbol()) {
     if(horizontal_alignment == richmath_System_Automatic) return 0;
     if(horizontal_alignment == richmath_System_Left)      return 0;
@@ -60,10 +63,10 @@ float SimpleAlignment::Impl::decode_horizontal(Expr horizontal_alignment) {
       return 1;
   }
   
-  return -1;
+  return fallback;
 }
 
-float SimpleAlignment::Impl::decode_vertical(Expr vertical_alignment) {
+float SimpleAlignment::Impl::decode_vertical(Expr vertical_alignment, float fallback) {
   if(vertical_alignment.is_symbol()) {
     if(vertical_alignment == richmath_System_Automatic) return 1;
     if(vertical_alignment == richmath_System_Center)    return 0.5f;
@@ -81,7 +84,7 @@ float SimpleAlignment::Impl::decode_vertical(Expr vertical_alignment) {
       return 1;
   }
   
-  return 1;
+  return fallback;
 }
 
 //} ... class SimpleAlignment::Impl
