@@ -61,8 +61,8 @@ ControlState ContainerWidgetBox::calc_state(Context &context) {
 }
 
 void ContainerWidgetBox::resize_default_baseline(Context &context) {
-  Length w = get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);//.resolve_scaled(context.width);
-  Length h = get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);//.resolve_scaled(-1);
+  Length w = get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
+  Length h = get_own_style(ImageSizeVertical,   SymbolicSize::Invalid);
   
   float em = context.canvas().get_font_size();
   auto old_w = context.width;
@@ -70,13 +70,18 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
   float forced_w = 0;
   if(w != SymbolicSize::Automatic) {
     forced_w = w.resolve(em, LengthConversionFactors::ControlWidth, context.width);
-    context.width = forced_w; //std::min(context.width, forced_w);
     
-    if(h == SymbolicSize::Automatic) {
+    if(get_own_style(LineBreakWithin, true))
+      context.width = forced_w; //std::min(context.width, forced_w);
+    
+    if(h == SymbolicSize::Invalid) {
       if(w.is_symbolic())
         h = w; // ImageSize -> Tiny   means   ImageSize -> {Tiny, Tiny} etc. for controls
     }
   }
+  
+  if(h == SymbolicSize::Invalid)
+    h = SymbolicSize::Automatic;
   
   float forced_h = 0;
   if(h != SymbolicSize::Automatic) {

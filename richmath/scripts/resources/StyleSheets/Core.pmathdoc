@@ -141,6 +141,8 @@ Document({
          BaseStyle -> "ControlStyle", ButtonBoxOptions -> {
            ContentPadding -> True}), Section(StyleData("Checkbox")), 
         Section(StyleData("InputField"), BaseStyle -> "ControlStyle", 
+         InputFieldBoxOptions -> {ContentPadding -> True, 
+           ImageSize -> {Large, Automatic}, LineBreakWithin -> False}, 
          ShowStringCharacters -> True), Section(StyleData("Pane"), 
          PaneBoxOptions -> {BaselinePosition -> Center -> Axis, 
            ImageSizeAction -> "ShrinkToFit"}), 

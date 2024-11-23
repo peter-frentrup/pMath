@@ -187,9 +187,11 @@ Options(InputField):= Options(InputFieldBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "InputField",
     BoxID -> None,
+    ContentPadding -> True,
     ContinuousAction -> False,
     Enabled -> Automatic,
-    ImageSize -> Automatic}
+    ImageSize -> Automatic,
+    LineBreakWithin -> False}
           
 Options(InterpretationBox):= Options(Interpretation):= {
     %BaselinePosition -> Automatic,
@@ -405,9 +407,11 @@ Options(Section):= {
     InputFieldBoxOptions -> {
         Appearance -> Automatic,
         BaselinePosition -> Automatic,
+        ContentPadding -> True,
         ContinuousAction -> False,
         Enabled -> Automatic,
-        ImageSize -> Automatic},
+        ImageSize -> Automatic,
+        LineBreakWithin -> False},
     "KeywordSymbolStyle" -> { FontColor -> Inherited },
     LanguageCategory -> Inherited,
     LineBreakWithin -> True,

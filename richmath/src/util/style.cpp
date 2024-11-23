@@ -3422,8 +3422,10 @@ void StyleInformation::add_style() {
     
     add(StyleType::Bool,            GridBoxDefaultAllowScriptLevelChange, List(Symbol(richmath_System_GridBoxOptions), Symbol( richmath_System_AllowScriptLevelChange)));
 
+    add(StyleType::AutoBool,        InputFieldBoxDefaultContentPadding,   List(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_ContentPadding)));
     add(StyleType::Bool,            InputFieldBoxDefaultContinuousAction, List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
     add(StyleType::Bool,            InputFieldBoxDefaultEnabled,          List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));
+    add(StyleType::Bool,            InputFieldBoxDefaultLineBreakWithin,  List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_LineBreakWithin)));
     
     add(StyleType::AutoBool,        OverscriptBoxDefaultLimitsPositioning,      List(Symbol(richmath_System_OverscriptBoxOptions),      Symbol( richmath_System_LimitsPositioning)));
     add(StyleType::AutoBool,        UnderoverscriptBoxDefaultLimitsPositioning, List(Symbol(richmath_System_UnderoverscriptBoxOptions), Symbol( richmath_System_LimitsPositioning)));

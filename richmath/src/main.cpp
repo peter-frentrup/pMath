@@ -171,7 +171,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(AbstractButtonBox)         ==  96, "");
     static_assert(sizeof(ButtonBox)                 ==  96, "");
     static_assert(sizeof(SetterBox)                 == 128, ""); // (96) + 24 + 8
-    static_assert(sizeof(InputFieldBox)             == 144, ""); // (96) + 4 + 4 UNUSED PADDING BYTES + 8 + 8 + 24
+    static_assert(sizeof(InputFieldBox)             == 136, ""); // (96) + 8 + 8 + 24
     static_assert(sizeof(AbstractDynamicBox)        ==  64, "");
     static_assert(sizeof(DynamicBox)                ==  88, ""); // (64) + 24
     static_assert(sizeof(DynamicLocalBox)           ==  80, ""); // (64) + 2*8
@@ -244,7 +244,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(AbstractButtonBox)         ==  72, "");
     static_assert(sizeof(ButtonBox)                 ==  72, "");
     static_assert(sizeof(SetterBox)                 ==  96, ""); // (72) + 16 + 8
-    static_assert(sizeof(InputFieldBox)             == 104, ""); // (72) + 4 + 4 + 8 + 16
+    static_assert(sizeof(InputFieldBox)             == 104, ""); // (72) + 4 + 4 UNUSED PADDING BYTES + 8 + 16
     static_assert(sizeof(AbstractDynamicBox)        ==  48, "");
     static_assert(sizeof(DynamicBox)                ==  64, ""); // (48) + 16
     static_assert(sizeof(DynamicLocalBox)           ==  64, ""); // (48) + 2*8

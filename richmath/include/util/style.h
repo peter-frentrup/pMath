@@ -176,9 +176,11 @@ namespace richmath {
     
     GridBoxDefaultAllowScriptLevelChange = AllowScriptLevelChange + (int)DefaultStyleOptionOffsets::GridBox,
     
+    InputFieldBoxDefaultContentPadding   = ContentPadding   + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::InputFieldBox,
-    
+    InputFieldBoxDefaultLineBreakWithin  = LineBreakWithin  + (int)DefaultStyleOptionOffsets::InputFieldBox,
+
     OverscriptBoxDefaultLimitsPositioning      = LimitsPositioning + (int)DefaultStyleOptionOffsets::OverscriptBox,
     UnderoverscriptBoxDefaultLimitsPositioning = LimitsPositioning + (int)DefaultStyleOptionOffsets::UnderoverscriptBox,
     UnderscriptBoxDefaultLimitsPositioning     = LimitsPositioning + (int)DefaultStyleOptionOffsets::UnderscriptBox,

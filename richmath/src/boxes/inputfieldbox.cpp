@@ -84,8 +84,7 @@ namespace {
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(AbstractSequence *content)
-  : base(ContainerType::InputField, content),
-    frame_x(0)
+  : base(ContainerType::InputField, content)
 {
   must_update(true);
   dynamic.init(this, Expr());
@@ -152,33 +151,12 @@ void InputFieldBox::resize_default_baseline(Context &context) {
   
   type = Impl::parse_appearance(get_own_style(Appearance));
   
-  float old_cx = cx;
-  AbstractStyleBox::resize_default_baseline(context); // not ContainerWidgetBox::resize_default_baseline() !
-  cx = old_cx;
+  float old_cx = cx - margins.width / 2;
+  base::resize_default_baseline(context);
+  cx = old_cx + margins.width / 2;
   
   context.math_spacing = old_math_spacing;
   context.width = old_width;
-  
-  if(_content->var_extents().ascent < 0.75 * _content->get_em())
-    _content->var_extents().ascent = 0.75 * _content->get_em();
-    
-  if(_content->var_extents().descent < 0.25 * _content->get_em())
-    _content->var_extents().descent = 0.25 * _content->get_em();
-    
-  _extents = _content->extents();
-  
-  float w = 10 * context.canvas().get_font_size();
-  _extents.width = w;
-  
-  ControlPainter::std->calc_container_size(
-    *this,
-    context.canvas(),
-    type,
-    &_extents);
-    
-  cx -= frame_x;
-  frame_x = (_extents.width - w) / 2;
-  cx += frame_x;
 }
 
 void InputFieldBox::paint_content(Context &context) {
@@ -292,7 +270,7 @@ void InputFieldBox::paint_content(Context &context) {
     context.canvas().restore();
   }
   
-  float dx = frame_x - 0.75f;
+  float dx = margins.width / 2 - 0.75f;
   float dy = 0;
   
   context.canvas().save();
@@ -322,6 +300,7 @@ void InputFieldBox::reset_style() {
 
 bool InputFieldBox::scroll_to(const RectangleF &rect) {
   float old_cx = cx;
+  float frame_x = margins.width / 2;
   
   if(rect.left() < -cx + frame_x) {
     cx = frame_x - rect.left();
