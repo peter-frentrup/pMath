@@ -16,6 +16,13 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_Bottom;
+extern pmath_symbol_t richmath_System_Center;
+extern pmath_symbol_t richmath_System_Left;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Right;
+extern pmath_symbol_t richmath_System_Top;
 extern pmath_symbol_t richmath_System_PaneBox;
 
 namespace richmath {
@@ -23,12 +30,21 @@ namespace richmath {
     extern String Pane;
   }
   
+  struct SimpleAlignment {
+    float horizontal;
+    float vertical;
+  };
+  
   class PaneBox::Impl {
     public:
       Impl(PaneBox &self) : self{self} {}
       
       double shrink_scale(Length w, Length h, bool line_break_within);
       double grow_scale(Length w, Length h, bool line_break_within);
+      
+      static SimpleAlignment decode_simple_alignment(Expr alignment);
+      static float decode_simple_alignment_horizontal(Expr horizontal_alignment);
+      static float decode_simple_alignment_vertical(Expr vertical_alignment);
       
     private:
       PaneBox &self;
@@ -149,13 +165,33 @@ void PaneBox::resize_default_baseline(Context &context) {
   if(!h.is_explicit_abs())
     h = Length::Absolute(_extents.height());
   
-  cx = 0;
+  cx = 0;// Left aligned
   cy = 0;
-  mat.y0 += _extents.ascent - h.explicit_abs_value();
+  
+  SimpleAlignment alignment = Impl::decode_simple_alignment(get_own_style(Alignment));
   
   _extents.width = w.explicit_abs_value();
-  _extents.ascent = h.explicit_abs_value();
-  _extents.descent = 0;
+  
+  float max_cx = _extents.width - content()->extents().width;
+  if(max_cx > 0) {
+    cx = max_cx * (alignment.horizontal - (-1.0)) / 2;
+  }
+  
+  float orig_ascent  = _extents.ascent;
+  float orig_descent = _extents.descent;
+  float new_h        = h.explicit_abs_value();
+  
+//  // Top:
+//  _extents.ascent  = orig_ascent;
+//  _extents.descent = new_h - orig_ascent;
+//  
+//  // Bottom:
+//  _extents.ascent  = new_h - orig_descent; 
+//  _extents.descent = orig_descent;
+  
+  float rel_top = (alignment.vertical - (-1.0)) / 2; // 1 = Top, 0 = Bottom
+  _extents.ascent  = rel_top * orig_ascent           + (1 - rel_top) * (new_h - orig_descent);
+  _extents.descent = rel_top * (new_h - orig_ascent) + (1 - rel_top) * orig_descent;
 }
 
 float PaneBox::allowed_content_width(const Context &context) {
@@ -246,6 +282,65 @@ double PaneBox::Impl::grow_scale(Length w, Length h, bool line_break_within) {
       result = scale;
   }
   return result;
+}
+
+SimpleAlignment PaneBox::Impl::decode_simple_alignment(Expr alignment) {
+  if(alignment.is_symbol()) {
+    return {
+      decode_simple_alignment_horizontal(alignment), 
+      decode_simple_alignment_vertical(  alignment)};
+  }
+  else if(alignment.is_number()) {
+    return { decode_simple_alignment_horizontal(alignment), 1.0f};
+  }
+  else if(alignment.expr_length() == 2 && alignment[0] == richmath_System_List) {
+    return {
+      decode_simple_alignment_horizontal(alignment[1]),
+      decode_simple_alignment_vertical(  alignment[2])};
+  }
+  return { -1.0f, 1.0f };
+}
+
+float PaneBox::Impl::decode_simple_alignment_horizontal(Expr horizontal_alignment) {
+  if(horizontal_alignment.is_symbol()) {
+    if(horizontal_alignment == richmath_System_Automatic) return -1;
+    if(horizontal_alignment == richmath_System_Left)      return -1;
+    if(horizontal_alignment == richmath_System_Right)     return 1;
+    if(horizontal_alignment == richmath_System_Center)    return 0;
+  }
+  else if(horizontal_alignment.is_number()) {
+    double val = horizontal_alignment.to_double();
+    if(-1.0 <= val && val <= 1.0)
+      return (float)val;
+    
+    if(val < -1.0)
+      return -1;
+    if(val > 1.0)
+      return 1;
+  }
+  
+  return -1;
+}
+
+float PaneBox::Impl::decode_simple_alignment_vertical(Expr vertical_alignment) {
+  if(vertical_alignment.is_symbol()) {
+    if(vertical_alignment == richmath_System_Automatic) return 1;
+    if(vertical_alignment == richmath_System_Center)    return 0;
+    if(vertical_alignment == richmath_System_Top)       return 1;
+    if(vertical_alignment == richmath_System_Bottom)    return -1;
+  }
+  else if(vertical_alignment.is_number()) {
+    double val = vertical_alignment.to_double();
+    if(-1.0 <= val && val <= 1.0)
+      return (float)val;
+    
+    if(val < -1.0)
+      return -1;
+    if(val > 1.0)
+      return 1;
+  }
+  
+  return 1;
 }
 
 //} ... class PaneBox::Impl

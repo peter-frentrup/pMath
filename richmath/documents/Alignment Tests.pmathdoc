@@ -1,0 +1,141 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Alignment Tests", "Title"), 
+    SectionGroup({
+      Section(
+       BoxData({
+         "{", {
+          {"Framed", "(", {"Pane", "(", {{SqrtBox("123"), "y"}, ",", {
+              "{", {"100", ",", "50"}, "}"}, ",", {
+              "Alignment", "\[Rule]", {"{", {"Center", ",", "Top"}, "}"}}}, 
+            ")"}, ")"}, ",", "a"}, "}"}), "Input", SectionLabel -> "in [3]:"), 
+      Section(
+       BoxData({
+         "{", {FrameBox(PaneBox({"y", " ", SqrtBox("123")}, 
+            Alignment -> {Center, Top}, ImageSize -> {100, 50})), ",", "a"}, 
+         "}"}), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [3]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         "{", {
+          {"Framed", "(", {"Pane", "(", {{SqrtBox("123"), "y"}, ",", {
+              "{", {"100", ",", "50"}, "}"}, ",", {
+              "Alignment", "\[Rule]", {"{", {"Center", ",", "Top"}, "}"}}, 
+             ",", {"BaselinePosition", "\[Rule]", "Baseline"}}, ")"}, ")"}, 
+          ",", "a"}, "}"}), "Input", SectionLabel -> "in [5]:"), 
+      Section(
+       BoxData({
+         "{", {FrameBox(PaneBox({"y", " ", SqrtBox("123")}, 
+            Alignment -> {Center, Top}, BaselinePosition -> Baseline, 
+            ImageSize -> {100, 50})), ",", "a"}, "}"}), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         "{", {
+          {"Framed", "(", {"Pane", "(", {{SqrtBox("123"), "y"}, ",", {
+              "{", {"100", ",", "50"}, "}"}, ",", {
+              "Alignment", "\[Rule]", {"{", {"Center", ",", "Bottom"}, "}"}}}, 
+            ")"}, ")"}, ",", "a"}, "}"}), "Input", SectionLabel -> "in [6]:"), 
+      Section(
+       BoxData({
+         "{", {FrameBox(PaneBox({"y", " ", SqrtBox("123")}, 
+            Alignment -> {Center, Bottom}, ImageSize -> {100, 50})), ",", 
+          "a"}, "}"}), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [6]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         "{", {
+          {"Framed", "(", {"Pane", "(", {{SqrtBox("123"), "y"}, ",", {
+              "{", {"100", ",", "50"}, "}"}, ",", {
+              "Alignment", "\[Rule]", {"{", {"Center", ",", "Bottom"}, "}"}}, 
+             ",", {"BaselinePosition", "\[Rule]", "Baseline"}}, ")"}, ")"}, 
+          ",", "a"}, "}"}), "Input", SectionLabel -> "in [7]:"), 
+      Section(
+       BoxData({
+         "{", {FrameBox(PaneBox({"y", " ", SqrtBox("123")}, 
+            Alignment -> {Center, Bottom}, BaselinePosition -> Baseline, 
+            ImageSize -> {100, 50})), ",", "a"}, "}"}), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         "{", {
+          {"Framed", "(", {"Pane", "(", {{SqrtBox("123"), "y"}, ",", {
+              "{", {"100", ",", "50"}, "}"}, ",", {
+              "BaselinePosition", "\[Rule]", "Baseline"}}, ")"}, ")"}, ",", 
+          "a"}, "}"}), "Input", SectionLabel -> "in [8]:"), 
+      Section(
+       BoxData({
+         "{", {FrameBox(PaneBox({"y", " ", SqrtBox("123")}, 
+            BaselinePosition -> Baseline, ImageSize -> {100, 50})), ",", "a"}, 
+         "}"}), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [8]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         "{", {
+          {"Framed", "(", {"Pane", "(", {{SqrtBox("123"), "y"}, ",", {
+              "{", {"100", ",", "50"}, "}"}, ",", {
+              "BaselinePosition", "\[Rule]", {"Center", "\[Rule]", "Axis"}}}, 
+            ")"}, ")"}, ",", "a"}, "}"}), "Input", SectionLabel -> "in [9]:"), 
+      Section(
+       BoxData({
+         "{", {FrameBox(PaneBox({"y", " ", SqrtBox("123")}, 
+            BaselinePosition -> Center -> Axis, ImageSize -> {100, 50})), ",", 
+          "a"}, "}"}), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [9]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {"{", {{"Slider", "(", {{"Dynamic", "(", "ax", ")"}, ",", {
+              {"-", "1"}, "..", "1"}}, ")"}, ",", {
+            "Slider", "(", {{"Dynamic", "(", "ay", ")"}, ",", {
+              {"-", "1"}, "..", "1"}}, ")"}, ",", {
+            "{", {
+             {"Framed", "(", {"Pane", "(", {{SqrtBox("123"), "y"}, ",", {
+                 "{", {"100", ",", "50"}, "}"}, ",", {
+                 "Alignment", "\[Rule]", {"Dynamic", "(", {
+                   "{", {"ax", ",", "ay"}, "}"}, ")"}}}, ")"}, ")"}, ",", 
+             "a"}, "}"}}, "}"}, "|>", "Column"}), "Input", 
+       SectionLabel -> "in [4]:"), 
+      Section(
+       BoxData(TagBox(GridBox({{SliderBox(Dynamic($Context`ax), -1 .. 1)}, {
+            SliderBox(Dynamic($Context`ay), -1 .. 1)}, {
+            {"{", {FrameBox(PaneBox({"y", " ", SqrtBox("123")}, 
+                Alignment -> Dynamic({$Context`ax, $Context`ay}), 
+                ImageSize -> {100, 50})), ",", "a"}, "}"}}}), "Column")), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {"{", {{"Slider", "(", {{"Dynamic", "(", "ax", ")"}, ",", {
+              {"-", "1"}, "..", "1"}}, ")"}, ",", {
+            "Slider", "(", {{"Dynamic", "(", "ay", ")"}, ",", {
+              {"-", "1"}, "..", "1"}}, ")"}, ",", {
+            "{", {
+             {"Framed", "(", {"Pane", "(", {{SqrtBox("123"), "y"}, ",", {
+                 "{", {"100", ",", "50"}, "}"}, ",", {
+                 "Alignment", "\[Rule]", {"Dynamic", "(", {
+                   "{", {"ax", ",", "ay"}, "}"}, ")"}}, ",", {
+                 "BaselinePosition", "\[Rule]", "Baseline"}}, ")"}, ")"}, ",", 
+             "a", ",", {"Framed", "(", {
+               "Pane", "(", {{SqrtBox("123"), "y"}, ",", {
+                 "{", {"100", ",", "50"}, "}"}, ",", {
+                 "Alignment", "\[Rule]", {"Dynamic", "(", {
+                   "{", {"ax", ",", "ay"}, "}"}, ")"}}}, ")"}, ")"}}, "}"}}, 
+          "}"}, "|>", "Column"}), "Input", SectionLabel -> "in [6]:"), 
+      Section(
+       BoxData(TagBox(GridBox({{SliderBox(Dynamic($Context`ax), -1 .. 1)}, {
+            SliderBox(Dynamic($Context`ay), -1 .. 1)}, {
+            {"{", {FrameBox(PaneBox({"y", " ", SqrtBox("123")}, 
+                Alignment -> Dynamic({$Context`ax, $Context`ay}), 
+                BaselinePosition -> Baseline, ImageSize -> {100, 50})), ",", 
+              "a", ",", FrameBox(PaneBox({"y", " ", SqrtBox("123")}, 
+                Alignment -> Dynamic({$Context`ax, $Context`ay}), 
+                ImageSize -> {100, 50}))}, "}"}}}), "Column")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

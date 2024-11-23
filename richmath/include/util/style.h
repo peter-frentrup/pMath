@@ -323,6 +323,7 @@ namespace richmath {
   
   enum ObjectStyleOptionName {
     Axes = 0x50000, // greater than any StringStyleOptionName value
+    Alignment,
     Ticks,
     Frame,
     FrameTicks,
@@ -458,6 +459,7 @@ namespace richmath {
     InputFieldBoxDefaultAppearance           = Appearance             + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultBaselinePosition     = BaselinePosition       + (int)DefaultStyleOptionOffsets::InputFieldBox,
     
+    PaneBoxDefaultAlignment                  = Alignment              + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultBaselinePosition           = BaselinePosition       + (int)DefaultStyleOptionOffsets::PaneBox,
     
     PanelBoxDefaultAppearance                = Appearance             + (int)DefaultStyleOptionOffsets::PanelBox,

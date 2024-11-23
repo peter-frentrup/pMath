@@ -76,6 +76,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( AiryAi,                             DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( AiryAiPrime,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( AiryBi,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( AiryBiPrime,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
+PMATH_DECLARE_SYSTEM_SYMBOL( Alignment,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( All,                                0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( AllowScriptLevelChange,             0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Alternatives,                       0 )

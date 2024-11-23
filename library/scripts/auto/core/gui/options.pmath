@@ -198,6 +198,7 @@ Options(Opener):= Options(OpenerBox):= {
     Enabled -> Automatic }
 
 Options(Pane):= Options(PaneBox):= {
+    Alignment -> Automatic,
     BaselinePosition -> Automatic, 
     BaseStyle -> "Pane",
     BoxID -> None,
@@ -410,6 +411,7 @@ Options(Section):= {
     "OccurenceHighlightStyle" -> { Background -> Inherited, Opacity -> Inherited },
     OverscriptBoxOptions -> { LimitsPositioning -> Inherited },
     PaneBoxOptions -> {
+        Alignment -> Automatic,
         BaselinePosition -> Automatic,
         ImageSize -> Automatic},
     PanelBoxOptions -> {

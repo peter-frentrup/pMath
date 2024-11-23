@@ -23,6 +23,7 @@ using namespace std;
 
 extern pmath_symbol_t richmath_System_DollarAborted;
 extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_Alignment;
 extern pmath_symbol_t richmath_System_AllowScriptLevelChange;
 extern pmath_symbol_t richmath_System_Antialiasing;
 extern pmath_symbol_t richmath_System_Appearance;
@@ -2578,6 +2579,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   auto impl = StyleImpl::of(*this);
   
   register_observer();
+  impl.emit_definition(Alignment);
   impl.emit_definition(AllowScriptLevelChange);
   impl.emit_definition(Antialiasing);
   impl.emit_definition(Appearance);
@@ -3524,6 +3526,7 @@ void StyleInformation::add_style() {
     
     add(StyleType::String,          ButtonBoxDefaultMethod,           List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Method)));
     
+    add(StyleType::Any,             Alignment,                        Symbol( richmath_System_Alignment));
     add(StyleType::Any,             Appearance,                       Symbol( richmath_System_Appearance));
     add(StyleType::Any,             Axes,                             Symbol( richmath_System_Axes));
     add(StyleType::Any,             AxesOrigin,                       Symbol( richmath_System_AxesOrigin));
@@ -3607,6 +3610,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any, InputFieldBoxDefaultAppearance,       List(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, InputFieldBoxDefaultBaselinePosition, List(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
+    add(StyleType::Any, PaneBoxDefaultAlignment,         List(Symbol(richmath_System_PaneBoxOptions), Symbol(richmath_System_Alignment)));
     add(StyleType::Any, PaneBoxDefaultBaselinePosition,  List(Symbol(richmath_System_PaneBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
     add(StyleType::Any, PanelBoxDefaultAppearance,       List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Appearance)));
