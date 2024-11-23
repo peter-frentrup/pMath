@@ -34,6 +34,8 @@ namespace richmath {
     static const LengthConversionFactors ToggleSwitchLengthScale;
     static const LengthConversionFactors ToggleSwitchThicknessScale;
     static const LengthConversionFactors PlotRangePadding;
+    static const LengthConversionFactors ControlWidth;
+    static const LengthConversionFactors ControlHeight;
     
     float Automatic;
     float Tiny;

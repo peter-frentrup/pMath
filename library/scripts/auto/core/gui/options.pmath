@@ -9,6 +9,7 @@ Options(Button):= {
     %ButtonSource -> Automatic,
     ContentPadding -> True,
     Enabled -> Automatic,
+    ImageSize -> Automatic,
     Method -> "Preemptive"}
 
 Options(ButtonBox):= {
@@ -21,6 +22,7 @@ Options(ButtonBox):= {
     ButtonSource -> Automatic,
     ContentPadding -> True,
     Enabled -> Automatic,
+    ImageSize -> Automatic,
     Method -> "Preemptive"}
 
 Options(CreateDocument):= Options(Document):= {
@@ -184,7 +186,8 @@ Options(InputField):= Options(InputFieldBox):= {
     BaseStyle -> "InputField",
     BoxID -> None,
     ContinuousAction -> False,
-    Enabled -> Automatic}
+    Enabled -> Automatic,
+    ImageSize -> Automatic}
           
 Options(InterpretationBox):= Options(Interpretation):= {
     %BaselinePosition -> Automatic,
@@ -211,6 +214,7 @@ Options(Panel):= Options(PanelBox):= {
     BaselinePosition -> Automatic, 
     BaseStyle -> "Panel",
     BoxID -> None,
+    ImageSize -> Automatic,
     ContentPadding -> True,
     Enabled -> Inherited}
 
@@ -324,6 +328,7 @@ Options(Section):= {
         ButtonSource -> Automatic,
         ContentPadding -> True,
         Enabled -> Automatic,
+        ImageSize -> Automatic,
         Method -> "Preemptive"},
     "ClosingAction" -> Inherited, % only valid for StyleData-sections
     "CharacterNameStyle" -> { FontColor -> Inherited },
@@ -397,7 +402,8 @@ Options(Section):= {
         Appearance -> Automatic,
         BaselinePosition -> Automatic,
         ContinuousAction -> False,
-        Enabled -> Automatic},
+        Enabled -> Automatic,
+        ImageSize -> Automatic},
     "KeywordSymbolStyle" -> { FontColor -> Inherited },
     LanguageCategory -> Inherited,
     LineBreakWithin -> True,
@@ -413,14 +419,14 @@ Options(Section):= {
     PaneBoxOptions -> {
         Alignment -> Automatic,
         BaselinePosition -> Automatic,
-        ImageSize -> Automatic},
+        ImageSize -> Automatic,
+        ImageSizeAction -> "ShrinkToFit"},
     PanelBoxOptions -> {
         Appearance -> Automatic,
         BaselinePosition -> Automatic,
         ContentPadding -> True,
         Enabled -> Automatic,
-        ImageSize -> Automatic,
-        ImageSizeAction -> "ShrinkToFit"},
+        ImageSize -> Automatic},
     "PatternVariableStyle" -> { FontColor -> Inherited },
     Placeholder -> Automatic,    % only valid for StyleData-sections
     ProgressIndicatorBoxOptions -> {
@@ -449,7 +455,8 @@ Options(Section):= {
         BaselinePosition -> Automatic,
         ButtonFrame -> Automatic,
         ContentPadding -> True,
-        Enabled -> Automatic},
+        Enabled -> Automatic,
+        ImageSize -> Automatic},
     ShowAutoStyles -> True,
     ShowContents -> True,
     ShowSectionBracket -> True,
@@ -487,7 +494,8 @@ Options(Setter):= Options(SetterBox):= Options(SetterBar):= {
     BoxID -> None,
     ButtonFrame -> Automatic,
     ContentPadding -> True,
-    Enabled -> Automatic }
+    Enabled -> Automatic,
+    ImageSize -> Automatic }
 
 Options(Slider):= Options(SliderBox):= {
     Appearance -> Automatic,

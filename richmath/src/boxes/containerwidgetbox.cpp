@@ -1,6 +1,5 @@
 #include <boxes/containerwidgetbox.h>
 
-#include <cmath>
 
 #include <boxes/mathsequence.h>
 #include <eval/dynamic.h>
@@ -10,6 +9,17 @@
 
 #include <boxes/inputfieldbox.h>
 #include <boxes/panebox.h>
+
+#ifdef max
+#  undef max
+#endif
+#ifdef min
+#  undef min
+#endif
+
+#include <algorithm>
+#include <cmath>
+
 
 using namespace richmath;
 
@@ -50,21 +60,77 @@ ControlState ContainerWidgetBox::calc_state(Context &context) {
 }
 
 void ContainerWidgetBox::resize_default_baseline(Context &context) {
+  Length w = get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);//.resolve_scaled(context.width);
+  Length h = get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);//.resolve_scaled(-1);
+  
+  float em = context.canvas().get_font_size();
+  auto old_w = context.width;
+  
+  float forced_w = 0;
+  if(w != SymbolicSize::Automatic) {
+    forced_w = w.resolve(em, LengthConversionFactors::ControlWidth, context.width);
+    context.width = forced_w; //std::min(context.width, forced_w);
+    
+    if(h == SymbolicSize::Automatic) {
+      if(w.is_symbolic())
+        h = w; // ImageSize -> Tiny   means   ImageSize -> {Tiny, Tiny} etc. for controls
+    }
+  }
+  
+  float forced_h = 0;
+  if(h != SymbolicSize::Automatic) {
+    forced_h = h.resolve(em, LengthConversionFactors::ControlHeight, context.width);
+  }
+  
+  BoxSize margins(0,0,0);
+  if(w != SymbolicSize::Automatic || h != SymbolicSize::Automatic || context.width < HUGE_VAL) {
+    ControlPainter::std->calc_container_size(*this, context.canvas(), type, &margins);
+  }
+  
+  context.width -= margins.width;
+  
   base::resize_default_baseline(context);
   
-  if(get_own_style(ContentPadding, false)) {
-    float em = context.canvas().get_font_size();
+  context.width = old_w;
+  
+  if(w != SymbolicSize::Automatic)
+    _extents.width = forced_w;
+  
+  if(h != SymbolicSize::Automatic) {
+    if(forced_h <= _extents.height()) {
+      margins.ascent = margins.descent = 0;
+    }
+    else if(forced_h < _extents.height() + margins.height()) {
+      float max_margin_h = (forced_h - _extents.height());
+      margins.ascent = margins.descent = max_margin_h / 2;
+    }
+    
+    _extents.ascent += margins.ascent; // Top aligned
+    _extents.descent = forced_h - _extents.ascent; // Top aligned
+  }
+  else if(get_own_style(ContentPadding, false)) {
     if(_extents.ascent < 0.75f * em)
       _extents.ascent = 0.75f * em;
     if(_extents.descent < 0.25f * em)
       _extents.descent = 0.25f * em;
   }
   
-  ControlPainter::std->calc_container_size(
-    *this,
-    context.canvas(),
-    type,
-    &_extents);
+  if(w == SymbolicSize::Automatic && h == SymbolicSize::Automatic) {
+    ControlPainter::std->calc_container_size(
+      *this,
+      context.canvas(),
+      type,
+      &_extents);
+  }
+  else {
+    if(w == SymbolicSize::Automatic) {
+      _extents.width += margins.width;
+    }
+    if(h == SymbolicSize::Automatic) {
+      _extents.ascent  += margins.ascent;
+      _extents.descent += margins.descent;
+    }
+  }
     
   cx = (_extents.width - _content->extents().width) / 2;
 }

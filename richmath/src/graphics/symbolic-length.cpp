@@ -31,6 +31,8 @@ const LengthConversionFactors LengthConversionFactors::ThicknessInPt {          
 const LengthConversionFactors LengthConversionFactors::ToggleSwitchLengthScale {                 1,       0.67,  0.8,     1,    1.25 };
 const LengthConversionFactors LengthConversionFactors::ToggleSwitchThicknessScale {              1,       0.67,  0.8,     1,    1.25 };
 const LengthConversionFactors LengthConversionFactors::PlotRangePadding {                       0.04,     0.01,  0.02,   0.04,  0.08 };
+const LengthConversionFactors LengthConversionFactors::ControlWidth {                            0,        4,    6,       8,     12 };
+const LengthConversionFactors LengthConversionFactors::ControlHeight {                           0,        1,    1.2,    1.5,     2 };
 
 static double convert_float_to_nice_double(float f);
 
