@@ -40,6 +40,7 @@ namespace richmath {
     protected:
       virtual void resize_default_baseline(Context &context) override;
       virtual SimpleAlignment default_alignment() { return SimpleAlignment::TopLeft; }
+      void apply_alignment();
       
     protected:
     

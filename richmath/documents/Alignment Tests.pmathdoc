@@ -173,37 +173,43 @@ Document({
         Section(
          BoxData({"Grid", "(", {
             "Table", "(", {
-             {"{", {"Button", "(", {
-                "123", ",", {"ImageSize", "\[Rule]", {
-                  "{", {"75", ",", "50"}, "}"}}, ",", {
-                 "Alignment", "\[Rule]", {"{", {"h", ",", "v"}, "}"}}}, ")"}, 
-              "}"}, ",", {"v", "\[Rule]", {
+             {"Button", "(", {{"123", "y"}, ",", {
+                "ImageSize", "\[Rule]", {"{", {"75", ",", "50"}, "}"}}, ",", {
+                "Alignment", "\[Rule]", {"{", {"h", ",", "v"}, "}"}}}, ")"}, 
+             ",", {"v", "\[Rule]", {
                "{", {"Top", ",", "Center", ",", "Bottom"}, "}"}}, ",", {
               "h", "\[Rule]", {"{", {"Left", ",", "Center", ",", "Right"}, 
-               "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+               "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
         Section(
          BoxData(
           TagBox(
            GridBox({
-             {{"{", ButtonBox("123", Alignment -> {Left, Top}, 
-                ImageSize -> {75, 50}), "}"}, {
-               "{", ButtonBox("123", Alignment -> {Center, Top}, 
-                ImageSize -> {75, 50}), "}"}, {
-               "{", ButtonBox("123", Alignment -> {Right, Top}, 
-                ImageSize -> {75, 50}), "}"}}, {
-              {"{", ButtonBox("123", Alignment -> {Left, Center}, 
-                ImageSize -> {75, 50}), "}"}, {
-               "{", ButtonBox("123", Alignment -> {Center, Center}, 
-                ImageSize -> {75, 50}), "}"}, {
-               "{", ButtonBox("123", Alignment -> {Right, Center}, 
-                ImageSize -> {75, 50}), "}"}}, {
-              {"{", ButtonBox("123", Alignment -> {Left, Bottom}, 
-                ImageSize -> {75, 50}), "}"}, {
-               "{", ButtonBox("123", Alignment -> {Center, Bottom}, 
-                ImageSize -> {75, 50}), "}"}, {
-               "{", ButtonBox("123", Alignment -> {Right, Bottom}, 
-                ImageSize -> {75, 50}), "}"}}}), "Grid")), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+             {ButtonBox({"123", "y"}, Alignment -> {Left, Top}, 
+               ImageSize -> {75, 50}), ButtonBox({"123", "y"}, 
+               Alignment -> {Center, Top}, ImageSize -> {75, 50}), 
+              ButtonBox({"123", "y"}, Alignment -> {Right, Top}, 
+               ImageSize -> {75, 50})}, {
+              ButtonBox({"123", "y"}, Alignment -> {Left, Center}, 
+               ImageSize -> {75, 50}), ButtonBox({"123", "y"}, 
+               Alignment -> {Center, Center}, ImageSize -> {75, 50}), 
+              ButtonBox({"123", "y"}, Alignment -> {Right, Center}, 
+               ImageSize -> {75, 50})}, {
+              ButtonBox({"123", "y"}, Alignment -> {Left, Bottom}, 
+               ImageSize -> {75, 50}), ButtonBox({"123", "y"}, 
+               Alignment -> {Center, Bottom}, ImageSize -> {75, 50}), 
+              ButtonBox({"123", "y"}, Alignment -> {Right, Bottom}, 
+               ImageSize -> {75, 50})}}), "Grid")), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+      Section(
+       BoxData({"Grid", "(", {
+          "Table", "(", {
+           {"{", {"Button", "(", {{"123", "y"}, ",", {
+               "ImageSize", "\[Rule]", {"{", {"75", ",", "50"}, "}"}}, ",", {
+               "Alignment", "\[Rule]", {"{", {"h", ",", "v"}, "}"}}}, ")"}, 
+            "}"}, ",", {"v", "\[Rule]", {
+             "{", {"Top", ",", "Center", ",", "Bottom"}, "}"}}, ",", {
+            "h", "\[Rule]", {"{", {"Left", ",", "Center", ",", "Right"}, 
+             "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
       SectionGroup({
         Section(BoxData({"Button", "(", {
             "123", ",", {"ImageSize", "\[Rule]", {

@@ -110,14 +110,20 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
       margins.ascent = margins.descent = max_margin_h / 2;
     }
     
-//    _extents.ascent += margins.ascent; // Top aligned
-//    _extents.descent = forced_h - _extents.ascent; // Top aligned
+    _extents.ascent += margins.ascent;
+    _extents.descent = forced_h - _extents.ascent;
   }
   else if(get_own_style(ContentPadding, false)) {
-    if(_extents.ascent < 0.75f * em)
-      _extents.ascent = 0.75f * em;
-    if(_extents.descent < 0.25f * em)
-      _extents.descent = 0.25f * em;
+    BoxSize &content_extents = content()->var_extents();
+    if(content_extents.ascent < 0.75f * em)
+       content_extents.ascent = 0.75f * em;
+    if(content_extents.descent < 0.25f * em)
+       content_extents.descent = 0.25f * em;
+       
+    if(_extents.ascent < content_extents.ascent)
+       _extents.ascent = content_extents.ascent;
+    if(_extents.descent < content_extents.descent)
+       _extents.descent = content_extents.descent;
   }
   
   if(w == SymbolicSize::Automatic && h == SymbolicSize::Automatic) {
@@ -143,15 +149,20 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
     }
   }
   
+  apply_alignment();
+}
+
+void ContainerWidgetBox::apply_alignment() {
   SimpleAlignment alignment = SimpleAlignment::from_pmath(get_own_style(Alignment), default_alignment());
+  
   cx = alignment.interpolate_left_to_right(margins.width / 2, _extents.width - content()->extents().width - margins.width / 2);
   
-  if(h != SymbolicSize::Automatic) {
-    float orig_ascent  = _extents.ascent;
-    float orig_descent = _extents.descent;
-    
-    _extents.ascent  = alignment.interpolate_bottom_to_top(forced_h - (orig_descent + margins.descent), orig_ascent + margins.ascent);
-    _extents.descent = alignment.interpolate_bottom_to_top(orig_descent + margins.descent,              forced_h - (orig_ascent + margins.ascent));
+  float eh = _extents.height();
+  float ca = content()->extents().ascent  + margins.ascent;
+  float cd = content()->extents().descent + margins.descent;
+  if(ca + cd < eh) {
+    _extents.ascent  = alignment.interpolate_bottom_to_top(eh - cd,      ca);
+    _extents.descent = alignment.interpolate_bottom_to_top(     cd, eh - ca);
   }
 }
 
