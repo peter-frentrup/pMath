@@ -1452,6 +1452,7 @@
 		<Unit filename="include/syntax/scope-colorizer.h" />
 		<Unit filename="include/syntax/spanexpr.h" />
 		<Unit filename="include/syntax/syntax-state.h" />
+		<Unit filename="include/util/alignment.h" />
 		<Unit filename="include/util/array.h" />
 		<Unit filename="include/util/autobool.h" />
 		<Unit filename="include/util/autovaluereset.h" />
@@ -2185,6 +2186,7 @@
 		<Unit filename="src/syntax/scope-colorizer.cpp" />
 		<Unit filename="src/syntax/spanexpr.cpp" />
 		<Unit filename="src/syntax/syntax-state.cpp" />
+		<Unit filename="src/util/alignment.cpp" />
 		<Unit filename="src/util/base.cpp" />
 		<Unit filename="src/util/double-point.cpp" />
 		<Unit filename="src/util/filesystem.cpp" />
