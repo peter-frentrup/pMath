@@ -3460,17 +3460,33 @@ void StyleInformation::add_style() {
     // ImageSizeHorizontal
     // ImageSizeVertical
     
+    add(StyleType::Size,            ButtonBoxDefaultImageSizeCommon,  List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ImageSize)));
+    // ButtonBoxDefaultImageSizeHorizontal
+    // ButtonBoxDefaultImageSizeVertical
+    
     add(StyleType::Size,            GraphicsBoxDefaultImageSizeCommon, List(Symbol(richmath_System_GraphicsBoxOptions), Symbol(richmath_System_ImageSize)));
     // GraphicsBoxDefaultImageSizeHorizontal
     // GraphicsBoxDefaultImageSizeVertical
+    
+    add(StyleType::Size,            InputFieldBoxDefaultImageSizeCommon, List(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_ImageSize)));
+    // InputFieldBoxDefaultImageSizeHorizontal
+    // InputFieldBoxDefaultImageSizeVertical
     
     add(StyleType::Size,            PaneBoxDefaultImageSizeCommon,    List(Symbol(richmath_System_PaneBoxOptions), Symbol(richmath_System_ImageSize)));
     // PaneBoxDefaultImageSizeHorizontal
     // PaneBoxDefaultImageSizeVertical
     
+    add(StyleType::Size,            PanelBoxDefaultImageSizeCommon,   List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_ImageSize)));
+    // PanelBoxDefaultImageSizeHorizontal
+    // PanelBoxDefaultImageSizeVertical
+    
     add(StyleType::Size,            ProgressIndicatorBoxDefaultImageSizeCommon, List(Symbol(richmath_System_ProgressIndicatorBoxOptions), Symbol(richmath_System_ImageSize)));
     // ProgressIndicatorBoxDefaultImageSizeHorizontal
     // ProgressIndicatorBoxDefaultImageSizeVertical
+    
+    add(StyleType::Size,            SetterBoxDefaultImageSizeCommon,  List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_ImageSize)));
+    // SetterBoxDefaultImageSizeHorizontal
+    // SetterBoxDefaultImageSizeVertical
     
     add(StyleType::Size,            SliderBoxDefaultImageSizeCommon,  List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_ImageSize)));
     // SliderBoxDefaultImageSizeHorizontal
@@ -3581,6 +3597,7 @@ void StyleInformation::add_style() {
     add(StyleType::AnyFlatList, InputAliases,              Symbol( richmath_System_InputAliases));
     add(StyleType::AnyFlatList, InputAutoReplacements,     Symbol( richmath_System_InputAutoReplacements));
     
+    add(StyleType::Any, ButtonBoxDefaultAlignment,        List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Alignment)));
     add(StyleType::Any, ButtonBoxDefaultAppearance,       List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, ButtonBoxDefaultBaselinePosition, List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_BaselinePosition)));
     add(StyleType::Any, ButtonBoxDefaultButtonData,       List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonData)));
@@ -3613,9 +3630,11 @@ void StyleInformation::add_style() {
     add(StyleType::Any, PaneBoxDefaultAlignment,         List(Symbol(richmath_System_PaneBoxOptions), Symbol(richmath_System_Alignment)));
     add(StyleType::Any, PaneBoxDefaultBaselinePosition,  List(Symbol(richmath_System_PaneBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
+    add(StyleType::Any, PanelBoxDefaultAlignment,        List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Alignment)));
     add(StyleType::Any, PanelBoxDefaultAppearance,       List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, PanelBoxDefaultBaselinePosition, List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
+    add(StyleType::Any, SetterBoxDefaultAlignment,        List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_Alignment)));
     add(StyleType::Any, SetterBoxDefaultBaselinePosition, List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
     add(StyleType::Any, SliderBoxDefaultAppearance,      List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_Appearance)));

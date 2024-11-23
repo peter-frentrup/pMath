@@ -283,6 +283,10 @@ namespace richmath {
     PointSize,
     Thickness,
     
+    ButtonBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::ButtonBox,
+    
     FrameBoxDefaultFrameMarginLeft   = FrameMarginLeft   + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultFrameMarginRight  = FrameMarginRight  + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultFrameMarginTop    = FrameMarginTop    + (int)DefaultStyleOptionOffsets::FrameBox,
@@ -296,13 +300,25 @@ namespace richmath {
     GraphicsBoxDefaultPlotRangePaddingTop    = PlotRangePaddingTop    + (int)DefaultStyleOptionOffsets::GraphicsBox,
     GraphicsBoxDefaultPlotRangePaddingBottom = PlotRangePaddingBottom + (int)DefaultStyleOptionOffsets::GraphicsBox,
     
+    InputFieldBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    InputFieldBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    InputFieldBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    
     PaneBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::PaneBox,
     
+    PanelBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::PanelBox,
+    PanelBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PanelBox,
+    PanelBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::PanelBox,
+    
     ProgressIndicatorBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::ProgressIndicatorBox,
     ProgressIndicatorBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::ProgressIndicatorBox,
     ProgressIndicatorBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::ProgressIndicatorBox,
+    
+    SetterBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::SetterBox,
+    SetterBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::SetterBox,
+    SetterBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::SetterBox,
     
     SliderBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::SliderBox,
     SliderBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::SliderBox,
@@ -430,6 +446,7 @@ namespace richmath {
     JoinForm,
     EdgeJoinForm,
     
+    ButtonBoxDefaultAlignment                = Alignment              + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultAppearance               = Appearance             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonData               = ButtonData             + (int)DefaultStyleOptionOffsets::ButtonBox,
@@ -462,9 +479,11 @@ namespace richmath {
     PaneBoxDefaultAlignment                  = Alignment              + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultBaselinePosition           = BaselinePosition       + (int)DefaultStyleOptionOffsets::PaneBox,
     
+    PanelBoxDefaultAlignment                 = Alignment              + (int)DefaultStyleOptionOffsets::PanelBox,
     PanelBoxDefaultAppearance                = Appearance             + (int)DefaultStyleOptionOffsets::PanelBox,
     PanelBoxDefaultBaselinePosition          = BaselinePosition       + (int)DefaultStyleOptionOffsets::PanelBox,
     
+    SetterBoxDefaultAlignment                = Alignment              + (int)DefaultStyleOptionOffsets::SetterBox,
     SetterBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::SetterBox,
     
     SliderBoxDefaultAppearance               = Appearance             + (int)DefaultStyleOptionOffsets::SliderBox,
