@@ -47,6 +47,21 @@ void AbstractTransformationBox::resize_default_baseline(Context &context) {
   }
   context.canvas().restore();
   
+  // Origin is (Left, Baseline) of the contents.                           //
+  //                                                                       //
+  //          0                          0                                 //
+  //          .                          .       P2                        //
+  //          .                          .     .-* -  -  -  - ya           //
+  //         P3         P2               .  .-'   \                        //
+  //   -my    *---------*            P3  .-'     . \                       //
+  //    |     |         |     mat      *'.    . ' .-* P1                   //
+  //    0  -  |- - - - -|    ====>  0 -.\._. ' .-'  .         0            //
+  //    |     *---------*              . \  .-'     .                      //
+  //    V    P4         P1             .  *' -  -  -. -  -  - yb           //
+  //                                   .  P4        .                      //
+  //  (y down)                         .            .                      //
+  //                                  xa 0          xb                     //
+  
   double mx = 0;//_content->extents().width / 2;
   double my = _content->extents().ascent;//_content->extents().height() / 2;
   
