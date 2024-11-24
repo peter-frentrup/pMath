@@ -1,0 +1,136 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Quantity", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Quantity"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({"In ", TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+           "(", StyleBox("m", "Arg"), ", ", StyleBox("u", "Arg"), 
+           "), the unit ", StyleBox("u", "Arg"), 
+           " may be given as a string, such as \"Meters\", or as a product of \
+           units, such as \"Kilometers\"/\"Hours\"."}), "Notes"), 
+        Section(TextData({TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+           "(", StyleBox("unit", "Arg"), ") is equivalent to ", 
+           TemplateBox({"Quantity"}, "ReferenceHyperlink"), "(1, ", 
+           StyleBox("unit", "Arg"), ")."}), "Notes"), 
+        Section(TextData({TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+           " has attributes ", TemplateBox({"HoldRest"}, 
+            "ReferenceHyperlink"), " and ", TemplateBox({"NHoldRest"}, 
+            "ReferenceHyperlink"), " to preserve the structure of ", 
+           StyleBox("unit", "Arg"), "."}), "Notes"), 
+        Section(TextData({TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+           " automatically recognizes common unit abbreviations such as \"m\", \
+           \"km\", and \"s\" for \"Meters\", \"Kilometers\", and \"Seconds\", \
+           respectively. "}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(
+         TextData({"A ", TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+           " represents a value with a specific physical unit:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Quantity", "(", {
+              "5", ",", StringBox("\"Meters\"")}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(TemplateBox({"5", StringBox("\"m\""), "Meters", 
+              StringBox("\"Meters\"")}, "Quantity")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("A unit can be a string or a product of strings:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Quantity", "(", {
+                "1", ",", StringBox("\"Seconds\"")}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({"1", StringBox("\"s\""), "Seconds", 
+                StringBox("\"Seconds\"")}, "Quantity")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Quantity", "(", {
+                "9.81", ",", {StringBox("\"Meters\""), "/", {
+                  StringBox("\"Seconds\""), "^", "2"}}}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData(TemplateBox({
+                "9.81", {StringBox("\"m\""), "/", {
+                  StringBox("\"s\""), SuperscriptBox("2")}}, 
+                "Meters"*1/("Seconds"^2), FractionBox(StringBox("\"Meters\""), 
+                 {StringBox("\"Seconds\""), SuperscriptBox("2")})}, 
+               "Quantity")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+             " recognizes common unit abbreviations:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Quantity", "(", {"3", ",", StringBox("\"m\"")}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({"3", StringBox("\"m\""), "Meters", 
+                StringBox("\"Meters\"")}, "Quantity")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Quantity", "(", {"10", ",", StringBox("\"s\"")}, 
+               ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(TemplateBox({"10", StringBox("\"s\""), "Seconds", 
+                StringBox("\"Seconds\"")}, "Quantity")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+          SectionGroup({
+            Section(
+             BoxData({{"Quantity", "(", {"7", ",", StringBox("\"ha\"")}, ")"}, 
+               "|>", "InputForm"}), "Input", SectionLabel -> "in [3]:"), 
+            Section(
+             BoxData(StyleBox({"Quantity", "(", {
+                 "7", ",", StringBox("\"Hectares\"")}, ")"}, 
+               AutoDelete -> True, AutoNumberFormating -> False, 
+               ShowStringCharacters -> True)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+           " expressions may be used in comparisons:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"Quantity", "(", {"70", ",", StringBox("\"cm\"")}, 
+              ")"}, "<", {"Quantity", "(", {"1", ",", StringBox("\"m\"")}, 
+              ")"}}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("True"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Calculate with ", 
+             TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+             " expressions:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({{"Quantity", "(", {"5", ",", StringBox("\"cm\"")}, ")"}, 
+               "+", {"Quantity", "(", {"7", ",", StringBox("\"cm\"")}, ")"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({"12", StringBox("\"cm\""), "Centimeters", 
+                StringBox("\"Centimeters\"")}, "Quantity")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Units are automatically combined:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({{"Quantity", "(", {"5", ",", StringBox("\"cm\"")}, ")"}, 
+               "+", {"Quantity", "(", {"3", ",", StringBox("\"mm\"")}, ")"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({"53", StringBox("\"mm\""), "Millimeters", 
+                StringBox("\"Millimeters\"")}, "Quantity")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"QuantityMagnitude"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"QuantityUnit"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"IsKnownUnit"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
