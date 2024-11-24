@@ -1,0 +1,83 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("UnitDimensions", "ObjectName"), 
+      Section(BoxData(TemplateBox({"UnitDimensions"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         "Physical dimentsions are: \"AmountUnit\", \"ElectricCurrentUnit\", \
+         \"LengthUnit\", \"LuminousIntensityUnit\", \"MassUnit\", \
+         \"TemperatureUnit\", \"TimeUnit\".", "Notes"), 
+        Section(
+         "Further unit dimensions are: \"AngleUnit\", \"InformationUnit\".", 
+         "Notes"), 
+        Section(
+         TextData({TemplateBox({"UnitDimensions"}, "ReferenceHyperlink"), 
+           " automatically threads over lists."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Get the dimensions associated with a unit:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"UnitDimensions", "(", StringBox("\"Meters\""), 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {StringBox("\"LengthUnit\""), "\[Rule]", "1"}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"UnitDimensions", "(", 
+             TemplateBox({"1", StringBox("\"N\""), "Newtons", 
+               StringBox("\"Newtons\"")}, "Quantity"), ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData({"{", {{StringBox("\"LengthUnit\""), "\[Rule]", "1"}, ",", {
+               StringBox("\"MassUnit\""), "\[Rule]", "1"}, ",", {
+               StringBox("\"TimeUnit\""), "\[Rule]", {"-", "2"}}}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), SectionGroup({
+          Section(BoxData({"UnitDimensions", "(", 
+             TemplateBox({"5", StringBox("\"V\""), "Volts", 
+               StringBox("\"Volts\"")}, "Quantity"), ")"}), "Input", 
+           SectionLabel -> "in [3]:"), 
+          Section(BoxData({"{", {{StringBox("\"MassUnit\""), "\[Rule]", "1"}, 
+              ",", {StringBox("\"ElectricCurrentUnit\""), "\[Rule]", {
+                "-", "1"}}, ",", {StringBox("\"LengthUnit\""), "\[Rule]", 
+               "2"}, ",", {StringBox("\"TimeUnit\""), "\[Rule]", {"-", "3"}}}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [3]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Get the dimensions associated with products of units:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"UnitDimensions", "(", {
+                StringBox("\"Kilometers\""), "/", StringBox("\"Hours\"")}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {{StringBox("\"LengthUnit\""), "\[Rule]", "1"}, 
+                ",", {StringBox("\"TimeUnit\""), "\[Rule]", {"-", "1"}}}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"UnitDimensions", "(", 
+               TemplateBox({"3", {StringBox("\"m\""), "/", {
+                   StringBox("\"s\""), SuperscriptBox("2")}}, 
+                 "Meters"*1/"Seconds"^2, FractionBox(StringBox("\"Meters\""), {
+                   StringBox("\"Seconds\""), SuperscriptBox("2")})}, 
+                "Quantity"), ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData({"{", {{StringBox("\"LengthUnit\""), "\[Rule]", "1"}, 
+                ",", {StringBox("\"TimeUnit\""), "\[Rule]", {"-", "2"}}}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All)}, All), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"IsKnownUnit"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UnitKind"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"QuantityUnit"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Quantity"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
