@@ -39,9 +39,9 @@ Color Color::from_pmath(Expr expr) {
     return Color::None;
     
   if(expr.is_expr()) {
-    if(expr[0] == richmath_System_RGBColor) {
+    if(expr.item_equals(0, richmath_System_RGBColor)) {
       if( expr.expr_length() == 1 &&
-          expr[1][0] == richmath_System_List)
+          expr[1].item_equals(0, richmath_System_List))
       {
         expr = expr[1];
       }
@@ -55,9 +55,9 @@ Color Color::from_pmath(Expr expr) {
       }
     }
     
-    if(expr[0] == richmath_System_Hue) {
+    if(expr.item_equals(0, richmath_System_Hue)) {
       if( expr.expr_length() == 1 &&
-          expr[1][0] == richmath_System_List)
+          expr[1].item_equals(0, richmath_System_List))
       {
         expr = expr[1];
       }
@@ -109,7 +109,7 @@ Color Color::from_pmath(Expr expr) {
       }
     }
     
-    if( expr[0] == richmath_System_GrayLevel &&
+    if( expr.item_equals(0, richmath_System_GrayLevel) &&
         expr.expr_length() == 1 &&
         expr[1].is_number())
     {

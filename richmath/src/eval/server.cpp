@@ -272,7 +272,7 @@ Expr LocalServer::dialog(Data *me, Expr firsteval) {
     Application::notify(ClientNotification::StartSession, Expr());
     
     firsteval = Expr(pmath_evaluate(firsteval.release()));
-    if( firsteval[0] == richmath_System_Return &&
+    if( firsteval.item_equals(0, richmath_System_Return) &&
         firsteval.expr_length() <= 1)
     {
       result = firsteval[1];
@@ -368,7 +368,7 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
                      
         if( return_from_dialog                  &&
             !aborted                            &&
-            result[0] == richmath_System_Return &&
+            result.item_equals(0, richmath_System_Return) &&
             result.expr_length() <= 1)
         {
           *return_from_dialog = result[1];
@@ -389,7 +389,7 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
                         
       if( return_from_dialog                  &&
           !aborted                            &&
-          result[0] == richmath_System_Return &&
+          result.item_equals(0, richmath_System_Return) &&
           result.expr_length() <= 1)
       {
         *return_from_dialog = result[1];
@@ -409,7 +409,7 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
     
     if( return_from_dialog                  &&
         !aborted                            &&
-        result[0] == richmath_System_Return &&
+        result.item_equals(0, richmath_System_Return) &&
         result.expr_length() <= 1)
     {
       *return_from_dialog = result[1];

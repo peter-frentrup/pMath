@@ -969,7 +969,7 @@ static bool document_apply_cmd(Expr cmd) {
   if(auto ref = FrontEndReference::from_pmath(cmd[1])) {
     doc = FrontEndObject::find_cast<Document>(ref);
   }
-  else if(cmd[1] == richmath_System_Automatic) {
+  else if(cmd.item_equals(1, richmath_System_Automatic)) {
     doc = Menus::current_document();
   }
   
@@ -977,7 +977,7 @@ static bool document_apply_cmd(Expr cmd) {
     return false;
     
   Expr boxes = cmd[2];
-  if(boxes[0] == richmath_System_Section || boxes[0] == richmath_System_SectionGroup) {
+  if(boxes.item_equals(0, richmath_System_Section) || boxes.item_equals(0, richmath_System_SectionGroup)) {
     Box *box = doc->selection_box();
     int i = doc->selection_end();
     while(box && box != doc) {
@@ -1011,7 +1011,7 @@ static bool document_write_cmd(Expr cmd) {
   if(auto ref = FrontEndReference::from_pmath(cmd[1])) {
     doc = FrontEndObject::find_cast<Document>(ref);
   }
-  else if(cmd[1] == richmath_System_Automatic) {
+  else if(cmd.item_equals(1, richmath_System_Automatic)) {
     doc = Menus::current_document();
   }
   
@@ -1430,7 +1430,7 @@ static bool open_cmd(Expr cmd) {
   if(filenames.is_string())
     filenames = List(filenames);
     
-  if(filenames[0] != richmath_System_List)
+  if(!filenames.item_equals(0, richmath_System_List))
     return false;
     
   for(size_t i = 1; i <= filenames.expr_length(); ++i) {
@@ -1590,9 +1590,9 @@ static bool set_style_cmd(Expr cmd) {
     return false;
     
   if(Menus::current_scope == MenuCommandScope::Document) {
-    if(cmd.is_rule() && cmd[1] == richmath_System_StyleDefinitions) {
+    if(cmd.is_rule() && cmd.item_equals(1, richmath_System_StyleDefinitions)) {
       if(Expr style_def = doc->get_own_style(StyleDefinitions)) {
-        if(style_def[0] == richmath_System_Document) {
+        if(style_def.item_equals(0, richmath_System_Document)) {
           if(ask_remove_private_style_definitions(doc) != YesNoCancel::Yes)
             return false;
           

@@ -235,7 +235,7 @@ void ActiveStyledObject::update_cause(Expr cause) {
 
 bool ActiveStyledObject::is_option_supported(StyleOptionName key) {
   Expr name = StyleData::get_name(key);
-  if(name[0] == richmath_System_List) { // {opt, subopts...}
+  if(name.item_equals(0, richmath_System_List)) { // {opt, subopts...}
     return allowed_options().lookup(name[1], Expr{PMATH_UNDEFINED}) != PMATH_UNDEFINED;
   }
   else

@@ -38,7 +38,7 @@ CheckboxBox::CheckboxBox()
 }
 
 bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_CheckboxBox)
+  if(!expr.item_equals(0, richmath_System_CheckboxBox))
     return false;
   
   Expr options(PMATH_UNDEFINED);
@@ -46,7 +46,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() >= 2) {
     Expr _values = expr[2];
     
-    if(_values.expr_length() != 2 || _values[0] != richmath_System_List) {
+    if(_values.expr_length() != 2 || !_values.item_equals(0, richmath_System_List)) {
       _values = Expr();
       options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     }
@@ -198,7 +198,7 @@ void CheckboxBox::Impl::finish_update_value() {
     return;
     
   if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
-    if(self.values.expr_length() == 2 && self.values[0] == richmath_System_List)
+    if(self.values.expr_length() == 2 && self.values.item_equals(0, richmath_System_List))
       val = self.values[1];
     else
       val = Symbol(richmath_System_False);
@@ -219,13 +219,13 @@ void CheckboxBox::Impl::finish_update_value() {
 
 Expr CheckboxBox::Impl::next_value_when_clicked() {
   if(self.type == ContainerType::CheckboxChecked) {
-    if(self.values.expr_length() == 2 && self.values[0] == richmath_System_List)
+    if(self.values.expr_length() == 2 && self.values.item_equals(0, richmath_System_List))
       return self.values[1];
     else
       return Symbol(richmath_System_False);
   }
   else {
-    if(self.values.expr_length() == 2 && self.values[0] == richmath_System_List)
+    if(self.values.expr_length() == 2 && self.values.item_equals(0, richmath_System_List))
       return self.values[2];
     else
       return Symbol(richmath_System_True);

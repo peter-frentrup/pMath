@@ -94,7 +94,7 @@ InputFieldBox::InputFieldBox(AbstractSequence *content)
 }
 
 bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_InputFieldBox)
+  if(!expr.item_equals(0, richmath_System_InputFieldBox))
     return false;
     
   if(expr.expr_length() < 2)
@@ -184,7 +184,7 @@ void InputFieldBox::paint_content(Context &context) {
       
       switch(input_type()) {
         case InputFieldType::HeldExpression:
-            if(result.expr_length() == 1 && result[0] == richmath_System_Hold) {
+            if(result.expr_length() == 1 && result.item_equals(0, richmath_System_Hold)) {
               result = result[1];
             }
             // Fall through
@@ -556,7 +556,7 @@ InputFieldType InputFieldBox::Impl::type_from_expr(Expr expr) {
   if(expr == richmath_System_Number)     return InputFieldType::Number;
   
   // Hold(Expression)
-  if(expr[0] == richmath_System_Hold)    return InputFieldType::HeldExpression;
+  if(expr.item_equals(0, richmath_System_Hold))    return InputFieldType::HeldExpression;
   
   return InputFieldType::Expression;
 }
@@ -589,7 +589,7 @@ bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
         value = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(value), EvaluationContexts::resolve_context(&self));
         value = Evaluate(PMATH_CPP_MOVE(value));
         
-        if(value[0] == richmath_System_HoldComplete) {
+        if(value.item_equals(0, richmath_System_HoldComplete)) {
           if(self.input_type() == InputFieldType::HeldExpression) {
             value.set(0, Symbol(richmath_System_Hold));
           }
@@ -640,7 +640,7 @@ bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
                           
         value = Evaluate(value);
         
-        if( value[0] == richmath_System_HoldComplete &&
+        if( value.item_equals(0, richmath_System_HoldComplete) &&
             value.expr_length() == 1                 &&
             value[1].is_number())
         {

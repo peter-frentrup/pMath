@@ -18,7 +18,7 @@ TooltipBox::TooltipBox(AbstractSequence *content)
 }
 
 bool TooltipBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_TooltipBox)
+  if(!expr.item_equals(0, richmath_System_TooltipBox))
     return false;
     
   if(expr.expr_length() < 2)

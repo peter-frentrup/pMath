@@ -98,7 +98,7 @@ namespace {
       }
       
       uint16_t expr_to_glyph(const Expr expr, uint8_t font) {
-        if(expr.is_expr() && expr[0] == richmath_System_Alternatives) {
+        if(expr.is_expr() && expr.item_equals(0, richmath_System_Alternatives)) {
           for(size_t i = 1; i <= expr.expr_length(); ++i) {
             if(uint16_t res = expr_to_glyph(expr[i], font))
               return res;
@@ -150,7 +150,7 @@ namespace {
       explicit GlyphFontOffset(Expr expr)
         : glyph(0), font(0), offset(0)
       {
-        if(expr[0] == richmath_System_List) {
+        if(expr.item_equals(0, richmath_System_List)) {
           if(expr.expr_length() == 2) {
             font  = expr_to_ui8(expr[2]) - 1;
             glyph = GG.expr_to_glyph(expr[1], font);
@@ -194,7 +194,7 @@ namespace {
       {
         float f;
         
-        if(expr[0] == richmath_System_List) {
+        if(expr.item_equals(0, richmath_System_List)) {
           if(expr.expr_length() == 2) {
             f = expr[1].to_double();
             super = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
@@ -319,7 +319,7 @@ namespace richmath {
                   return nullptr;
               }
               
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 tables->math_fontnames.length(rhs.expr_length());
                 
                 for(int j = 0; j < tables->math_fontnames.length(); ++j) {
@@ -340,7 +340,7 @@ namespace richmath {
                   return nullptr;
               }
               
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 tables->text_fontnames.length(rhs.expr_length());
                 
                 for(int j = 0; j < tables->text_fontnames.length(); ++j) {
@@ -360,7 +360,7 @@ namespace richmath {
             }
             
             if(lhs.equals("ScriptSizeMultipliers")) {
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 tables->script_size_multipliers.length(rhs.expr_length());
                 
                 for(int i = 0; i < tables->script_size_multipliers.length(); ++i) {
@@ -374,13 +374,13 @@ namespace richmath {
             }
             
             if(lhs.equals("SmallRadical")) {
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 tables->radical.small_glyphs.length(rhs.expr_length() + 1);
                 
                 for(int j = 0; j < tables->radical.small_glyphs.length() - 1; ++j) {
                   Expr g = rhs[j + 1];
                   
-                  if(g[0] == richmath_System_List && g.expr_length() == 5) {
+                  if(g.item_equals(0, richmath_System_List) && g.expr_length() == 5) {
                     tables->radical.small_glyphs[j].index          = GG.expr_to_glyph(g[1], tables->radical.font);
                     tables->radical.small_glyphs[j].hbar_index     = GG.expr_to_glyph(g[2], tables->radical.font);
                     tables->radical.small_glyphs[j].rel_ascent     = g[3].to_double();
@@ -398,7 +398,7 @@ namespace richmath {
             }
             
             if(lhs.equals("BigRadical")) {
-              if(rhs[0] == richmath_System_List && rhs.expr_length() == 6) {
+              if(rhs.item_equals(0, richmath_System_List) && rhs.expr_length() == 6) {
                 tables->radical.big_glyph.bottom              = GG.expr_to_glyph(rhs[1], tables->radical.font);
                 tables->radical.big_glyph.vertical            = GG.expr_to_glyph(rhs[2], tables->radical.font);
                 tables->radical.big_glyph.edge                = GG.expr_to_glyph(rhs[3], tables->radical.font);
@@ -410,7 +410,7 @@ namespace richmath {
             }
             
             if(lhs.equals("Glyphs")) {
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 for(size_t j = rhs.expr_length(); j > 0; --j) {
                   Expr rule = rhs[j];
                   
@@ -430,13 +430,13 @@ namespace richmath {
             }
             
             if(lhs.equals("Ligatures")) {
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 for(size_t j = rhs.expr_length(); j > 0; --j) {
                   Expr rule = rhs[j];
                   
-                  if( rule[0] == richmath_System_Rule && 
+                  if( rule.item_equals(0, richmath_System_Rule) && 
                       rule.expr_length() == 2 && 
-                      rule[2][0] == richmath_System_List)
+                      rule[2].item_equals(0, richmath_System_List))
                   {
                     Expr v = rule[2];
                     
@@ -463,12 +463,12 @@ namespace richmath {
               StretchGlyphArray sga;
               sga.vertical = lhs[0] == 'V';
               
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 for(size_t j = rhs.expr_length(); j > 0; --j) {
                   Expr rule = rhs[j];
                   
                   if( rule.is_rule() &&
-                      rule[2][0] == richmath_System_List)
+                      rule[2].item_equals(0, richmath_System_List))
                   {
                     Expr list = rule[2];
                     
@@ -476,7 +476,7 @@ namespace richmath {
                     sga.fonts.length(sga.glyphs.length(), 0);
                     for(int k = 0; k < sga.glyphs.length(); ++k) {
                       if(list[k + 1].expr_length() == 2
-                          && list[k + 1][0] == richmath_System_List) {
+                          && list[k + 1].item_equals(0, richmath_System_List)) {
                         sga.fonts[k]  = expr_to_ui8(list[k + 1][2]) - 1;
                         sga.glyphs[k] = GG.expr_to_glyph(list[k + 1][1], sga.fonts[k]);
                       }
@@ -497,12 +497,12 @@ namespace richmath {
               ComposedGlyph cg;
               cg.vertical = false;
               
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 for(size_t j = rhs.expr_length(); j > 0; --j) {
                   Expr rule = rhs[j];
                   
                   if( rule.is_rule() &&
-                      rule[2][0] == richmath_System_List &&
+                      rule[2].item_equals(0, richmath_System_List) &&
                       rule[2].expr_length() == 2)
                   {
                     Expr list = rule[2];
@@ -510,7 +510,7 @@ namespace richmath {
                     
                     cg.tbms_font = expr_to_ui8(list[2]) - 1;
                     
-                    if(gs[0] == richmath_System_List) {
+                    if(gs.item_equals(0, richmath_System_List)) {
                       switch(gs.expr_length()) {
                         case 1:
                           cg.top = cg.bottom = cg.special_center = 0;
@@ -553,12 +553,12 @@ namespace richmath {
               ComposedGlyph cg;
               cg.vertical = true;
               
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 for(size_t j = rhs.expr_length(); j > 0; --j) {
                   Expr rule = rhs[j];
                   
                   if( rule.is_rule() &&
-                      rule[2][0] == richmath_System_List &&
+                      rule[2].item_equals(0, richmath_System_List) &&
                       rule[2].expr_length() == 4)
                   {
                     Expr list = rule[2];
@@ -567,7 +567,7 @@ namespace richmath {
                     cg.tbms_font = expr_to_ui8(list[3]) - 1;
                     cg.ul_font   = expr_to_ui8(list[4]) - 1;
                     
-                    if(gs[0] == richmath_System_List) {
+                    if(gs.item_equals(0, richmath_System_List)) {
                       cg.top            = GG.expr_to_glyph(gs[1], cg.tbms_font);
                       cg.bottom         = GG.expr_to_glyph(gs[2], cg.tbms_font);
                       cg.middle         = GG.expr_to_glyph(gs[3], cg.tbms_font);
@@ -575,7 +575,7 @@ namespace richmath {
                     }
                     
                     gs = list[2];
-                    if(gs[0] == richmath_System_List) {
+                    if(gs.item_equals(0, richmath_System_List)) {
                       cg.upper = GG.expr_to_glyph(gs[1], cg.ul_font);
                       cg.lower = GG.expr_to_glyph(gs[2], cg.ul_font);
                     }
@@ -595,7 +595,7 @@ namespace richmath {
             }
             
             if(lhs.equals("ScriptIndent")) {
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 for(size_t j = rhs.expr_length(); j > 0; --j) {
                   Expr rule = rhs[j];
                   
@@ -611,7 +611,7 @@ namespace richmath {
                       
                       key = expr_to_char(lhs) | (1 << 31);
                     }
-                    else if(lhs[0] == richmath_System_List) {
+                    else if(lhs.item_equals(0, richmath_System_List)) {
                       if(lhs.expr_length() == 1 || lhs[2].is_string()) {
                         key = expr_to_char(lhs[1]) | (1 << 31);
                         
@@ -640,7 +640,7 @@ namespace richmath {
             }
             
             if(lhs.equals("PostScriptNames")) {
-              if(rhs[0] == richmath_System_List) {
+              if(rhs.item_equals(0, richmath_System_List)) {
                 for(size_t j = 1; j <= rhs.expr_length(); ++j) {
                   uint8_t font = expr_to_ui8(rhs[j]) - 1;
                   
@@ -715,7 +715,7 @@ namespace richmath {
       }
       
       static String find_font(Expr name) {
-        if(name[0] == richmath_System_Alternatives) {
+        if(name.item_equals(0, richmath_System_Alternatives)) {
           for(size_t i = 1; i <= name.expr_length(); ++i) {
             String s = find_font(name[i]);
             if(s.length() > 0)

@@ -168,7 +168,7 @@ Section *BoxFactory::create_empty_section(SectionKind kind) {
 }
 
 SectionKind BoxFactory::kind_of_section(Expr expr) {
-  if(expr[0] == richmath_System_Section) {
+  if(expr.item_equals(0, richmath_System_Section)) {
     Expr content = expr[1];
     
     if(content.is_string()) return SectionKind::Text;

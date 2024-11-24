@@ -151,7 +151,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
              alias),
            Application::button_timeout);
            
-  if(expr[0] != richmath_System_List || expr.expr_length() == 0)
+  if(!expr.item_equals(0, richmath_System_List) || expr.expr_length() == 0)
     return false;
     
   {
@@ -188,7 +188,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     expr = g.end();
   }
   
-  if(expr[0] != richmath_System_List || expr.expr_length() == 0)
+  if(!expr.item_equals(0, richmath_System_List) || expr.expr_length() == 0)
     return false;
     
   current_boxes_list = expr;
@@ -271,7 +271,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
                  str),
                Application::button_timeout);
                
-      if(expr[0] != richmath_System_List || expr.expr_length() == 0)
+      if(!expr.item_equals(0, richmath_System_List) || expr.expr_length() == 0)
         return false;
         
       document->move_to(seq, seq->length(), false);
@@ -381,7 +381,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
              Symbol(richmath_System_MakeExpression),
              Call(Symbol(richmath_System_StringBox), str)));
   expr = Evaluate(expr);
-  if(expr.expr_length() != 1 || expr[0] != richmath_System_HoldComplete)
+  if(expr.expr_length() != 1 || !expr.item_equals(0, richmath_System_HoldComplete))
     return false;
     
   str = String(expr[1]);
@@ -394,7 +394,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
              str),
            Application::button_timeout);
            
-  if(expr[0] != richmath_System_List || expr.expr_length() == 0)
+  if(!expr.item_equals(0, richmath_System_List) || expr.expr_length() == 0)
     return false;
     
   // enquote
@@ -404,7 +404,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       return false;
       
     Expr boxes = Evaluate(Call(Symbol(richmath_System_MakeBoxes), s));
-    if(boxes.expr_length() != 1 || boxes[0] != richmath_System_StringBox)
+    if(boxes.expr_length() != 1 || !boxes.item_equals(0, richmath_System_StringBox))
       return false;
       
     s = String(boxes[1]);
@@ -454,7 +454,7 @@ bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
                            text),
                          Application::button_timeout);
                          
-  if(current_boxes_list[0] != richmath_System_List || current_boxes_list.expr_length() == 0) {
+  if(!current_boxes_list.item_equals(0, richmath_System_List) || current_boxes_list.expr_length() == 0) {
     current_boxes_list = Expr();
     delete span;
     return false;

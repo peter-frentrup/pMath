@@ -35,7 +35,7 @@ Expr Win32FontDialog::show(Style initial_style) {
     if(initial_style.get(FontFamilies, &families)) {
       String family(families);
       
-      if(families[0] == richmath_System_List){
+      if(families.item_equals(0, richmath_System_List)){
         for(size_t i = 1;i <= families.expr_length();++i){
           family = String(families[i]);
           

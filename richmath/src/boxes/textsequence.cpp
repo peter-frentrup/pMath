@@ -457,7 +457,7 @@ void TextSequence::load_from_object(Expr obj, BoxInputFlags options) {
   boxes_invalid(true);
   text_changed(true);
   
-  if(obj[0] == richmath_System_TextData && obj.expr_length() == 1)
+  if(obj.item_equals(0, richmath_System_TextData) && obj.expr_length() == 1)
     obj = obj[1];
     
   if(has(options, BoxInputFlags::AllowTemplateSlots))
@@ -468,7 +468,7 @@ void TextSequence::load_from_object(Expr obj, BoxInputFlags options) {
     
   int next_box = 0;
   
-  if(obj[0] == richmath_System_List) {
+  if(obj.item_equals(0, richmath_System_List)) {
     for(size_t i = 1; i <= obj.expr_length(); ++i) 
       Impl(*this).append_object(next_box, obj[i], options);
   }

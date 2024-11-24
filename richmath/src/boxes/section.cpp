@@ -735,11 +735,11 @@ MathSection::MathSection(Style _style)
 }
 
 bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_Section)
+  if(!expr.item_equals(0, richmath_System_Section))
     return false;
     
   Expr content = expr[1];
-  if(content.expr_length() != 1 || content[0] != richmath_System_BoxData)
+  if(content.expr_length() != 1 || !content.item_equals(0, richmath_System_BoxData))
     return false;
     
   content = content[1];
@@ -782,14 +782,14 @@ TextSection::TextSection(Style _style)
 }
 
 bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_Section)
+  if(!expr.item_equals(0, richmath_System_Section))
     return false;
     
   Expr content = expr[1];
-  if(content[0] == richmath_System_TextData)
+  if(content.item_equals(0, richmath_System_TextData))
     content = content[1];
   
-  if(!content.is_string() && content[0] != richmath_System_List)
+  if(!content.is_string() && !content.item_equals(0, richmath_System_List))
     return false;
     
   Expr options(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
@@ -870,7 +870,7 @@ Expr EditSection::to_pmath_impl(BoxOutputFlags flags) {
       result = original->to_pmath(flags);
   }
   
-  if(result.expr_length() == 1 && result[0] == richmath_System_HoldComplete) {
+  if(result.expr_length() == 1 && result.item_equals(0, richmath_System_HoldComplete)) {
     return result[1];
   }
   
@@ -899,11 +899,11 @@ StyleDataSection::StyleDataSection()
    (like symbols are by `FrontEndObject`s). TODO: they are already!
  */
 bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_Section)
+  if(!expr.item_equals(0, richmath_System_Section))
     return false;
     
   Expr new_style_data = expr[1];
-  if(new_style_data[0] != richmath_System_StyleData)
+  if(!new_style_data.item_equals(0, richmath_System_StyleData))
     return false;
   
   if(new_style_data.expr_length() < 1)

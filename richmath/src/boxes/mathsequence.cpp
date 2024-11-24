@@ -1496,7 +1496,7 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   
   Expr obj = object;
   
-  if(obj[0] == richmath_System_BoxData && obj.expr_length() == 1)
+  if(obj.item_equals(0, richmath_System_BoxData) && obj.expr_length() == 1)
     obj = obj[1];
     
   if(has(options, BoxInputFlags::FormatNumbers))

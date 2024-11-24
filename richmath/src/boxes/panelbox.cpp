@@ -41,7 +41,7 @@ PanelBox::PanelBox(AbstractSequence *content)
 }
 
 bool PanelBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_PanelBox)
+  if(!expr.item_equals(0, richmath_System_PanelBox))
     return false;
   
   if(expr.expr_length() < 1)

@@ -302,11 +302,11 @@ StyledObject *Document::style_parent() {
 }
 
 bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
-  if(expr[0] != richmath_System_Document)
+  if(!expr.item_equals(0, richmath_System_Document))
     return false;
     
   Expr sections_expr = expr[1];
-  if(sections_expr[0] != richmath_System_List)
+  if(!sections_expr.item_equals(0, richmath_System_List))
     return false;
     
   Expr options_expr { pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY) };
@@ -1870,7 +1870,7 @@ void Document::paste_from_boxes(Expr boxes) {
   // TODO: just call edit_selection() once here. On success, the selection is editable.
   
   if(context.selection.get() == this && editable()) {
-    if(boxes[0] == richmath_System_Section || boxes[0] == richmath_System_SectionGroup) {
+    if(boxes.item_equals(0, richmath_System_Section) || boxes.item_equals(0, richmath_System_SectionGroup)) {
       int i = context.selection.start;
       insert_pmath(&i, boxes, context.selection.end);
       
@@ -1999,7 +1999,7 @@ void Document::paste_from_binary(String mimetype, Expr file) {
 }
 
 void Document::paste_from_filenames(Expr list_of_files, bool import_contents) {
-  if(list_of_files[0] != richmath_System_List) {
+  if(!list_of_files.item_equals(0, richmath_System_List)) {
     native()->beep();
     return;
   }
@@ -3634,9 +3634,9 @@ Expr Document::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   Expr content = base::to_pmath_impl(flags);
-  if(content[0] == richmath_System_SectionGroup) {
+  if(content.item_equals(0, richmath_System_SectionGroup)) {
     Expr inner = content[1];
-    if(inner.expr_length() == 1 && inner[0] == richmath_System_List)
+    if(inner.expr_length() == 1 && inner.item_equals(0, richmath_System_List))
       content = inner[1];
   }
   

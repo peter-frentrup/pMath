@@ -125,7 +125,7 @@ DynamicBox::~DynamicBox() {
 }
 
 bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_DynamicBox)
+  if(!expr.item_equals(0, richmath_System_DynamicBox))
     return false;
     
   if(expr.expr_length() < 1) 

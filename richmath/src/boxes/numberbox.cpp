@@ -146,7 +146,7 @@ NumberBox::NumberBox(String number)
 }
 
 bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_FE_NumberBox)
+  if(!expr.item_equals(0, richmath_FE_NumberBox))
     return false;
     
   if(expr.expr_length() != 1)
@@ -237,7 +237,7 @@ Expr NumberBox::prepare_boxes(Expr boxes) {
     return s;
   }
   
-  if(boxes[0] == richmath_System_List) {
+  if(boxes.item_equals(0, richmath_System_List)) {
     pmath_t old_debug_metadata = pmath_get_debug_metadata(boxes.get());
     for(size_t i = 0; i <= boxes.expr_length(); ++i) {
       boxes.set(i, prepare_boxes(boxes[i]));

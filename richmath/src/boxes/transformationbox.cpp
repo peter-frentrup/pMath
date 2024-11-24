@@ -162,7 +162,7 @@ RotationBox::RotationBox(AbstractSequence *content)
 }
 
 bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_RotationBox)
+  if(!expr.item_equals(0, richmath_System_RotationBox))
     return false;
     
   if(expr.expr_length() < 1)
@@ -235,7 +235,7 @@ TransformationBox::TransformationBox(AbstractSequence *content)
 }
 
 bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_TransformationBox)
+  if(!expr.item_equals(0, richmath_System_TransformationBox))
     return false;
     
   if(expr.expr_length() < 1)
@@ -266,11 +266,11 @@ bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 bool TransformationBox::matrix(Expr m) {
   if(m.expr_length() == 2         &&
-      m[0] == richmath_System_List    &&
+      m.item_equals(0, richmath_System_List)    &&
       m[1].expr_length() == 2      &&
-      m[1][0] == richmath_System_List &&
+      m[1].item_equals(0, richmath_System_List) &&
       m[2].expr_length() == 2      &&
-      m[2][0] == richmath_System_List)
+      m[2].item_equals(0, richmath_System_List))
   {
     _matrix = m;
     mat.xx =   _matrix[1][1].to_double();

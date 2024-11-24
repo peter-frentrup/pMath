@@ -89,7 +89,7 @@ String EventHandlers::key_name(SpecialKey key) {
 }
 
 EventHandlerResult EventHandlers::decode_handler_result(Expr result) {
-  if(result[0] == richmath_System_Break)
+  if(result.item_equals(0, richmath_System_Break))
     return EventHandlerResult::StopPropagation;
   
   return EventHandlerResult::Continue;
@@ -100,9 +100,9 @@ EventHandlerResult EventHandlers::execute_key_down_handler(FrontEndObject *obj, 
     return EventHandlerResult::Continue;
   
   if(handler.expr_length() == 0) {
-    if(handler[0] == richmath_System_Break)
+    if(handler.item_equals(0, richmath_System_Break))
       return EventHandlerResult::StopPropagation;
-    if(handler[0] == richmath_System_Continue)
+    if(handler.item_equals(0, richmath_System_Continue))
       return EventHandlerResult::Continue;
   }
   
@@ -122,9 +122,9 @@ EventHandlerResult EventHandlers::execute_key_press_handler(FrontEndObject *obj,
     return EventHandlerResult::Continue;
   
   if(handler.expr_length() == 0) {
-    if(handler[0] == richmath_System_Break)
+    if(handler.item_equals(0, richmath_System_Break))
       return EventHandlerResult::StopPropagation;
-    if(handler[0] == richmath_System_Continue)
+    if(handler.item_equals(0, richmath_System_Continue))
       return EventHandlerResult::Continue;
   }
   

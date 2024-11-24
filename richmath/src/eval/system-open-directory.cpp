@@ -73,7 +73,7 @@ static bool system_open_directory(String dir, Expr items) {
   if(!dir)
     return false;
   
-  if(items[0] != richmath_System_List)
+  if(!items.item_equals(0, richmath_System_List))
     return false;
   
   if(dir.length() == 0) {

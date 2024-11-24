@@ -33,7 +33,7 @@ static void get_tick_length(Expr expr, float *plen, float *nlen) {
   *plen = 0.0;
   *nlen = 0.02;
   
-  if(expr[0] == richmath_System_NCache)
+  if(expr.item_equals(0, richmath_System_NCache))
     expr = expr[2];
     
   if(expr.is_number()) {
@@ -42,10 +42,10 @@ static void get_tick_length(Expr expr, float *plen, float *nlen) {
     return;
   }
   
-  if(expr[0] == richmath_System_List && expr.expr_length() == 2) {
+  if(expr.item_equals(0, richmath_System_List) && expr.expr_length() == 2) {
     Expr sub = expr[1];
     
-    if(sub[0] == richmath_System_NCache)
+    if(sub.item_equals(0, richmath_System_NCache))
       sub = sub[2];
       
     if(sub.is_number())
@@ -53,7 +53,7 @@ static void get_tick_length(Expr expr, float *plen, float *nlen) {
       
     sub = expr[2];
     
-    if(sub[0] == richmath_System_NCache)
+    if(sub.item_equals(0, richmath_System_NCache))
       sub = sub[2];
       
     if(sub.is_number())
@@ -91,7 +91,7 @@ bool AxisTicks::try_load_from_object(Expr object, BoxInputFlags options) {
 void AxisTicks::load_from_object(Expr expr, BoxInputFlags options) {
   /* {{pos1, label1, __ignored_rest__}, {pos2, label2, __ignored_rest__}, ...}
    */
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     return;
     
   set_count((int)expr.expr_length());
@@ -101,11 +101,11 @@ void AxisTicks::load_from_object(Expr expr, BoxInputFlags options) {
     AbstractSequence *seq = label(i);
     Expr tick = expr[i + 1];
     
-    if( tick[0] == richmath_System_List &&
+    if( tick.item_equals(0, richmath_System_List) &&
         tick.expr_length() >= 2)
     {
       Expr pos_expr = tick[1];
-      if(pos_expr[0] == richmath_System_NCache)
+      if(pos_expr.item_equals(0, richmath_System_NCache))
         pos_expr = pos_expr[2];
         
       if(pos_expr.is_number())

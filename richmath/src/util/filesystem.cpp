@@ -29,11 +29,11 @@ String FileSystem::to_existing_absolute_file_name(String filename) {
     return String();
   
   Expr info = Evaluate(Call(Symbol(richmath_System_FileInformation), filename));
-  if(info[0] == richmath_System_List) {
+  if(info.item_equals(0, richmath_System_List)) {
     size_t len = info.expr_length();
     for(size_t i = 1; i <= len; ++i) {
       Expr rule = info[i];
-      if(rule.is_rule() && rule[1] == richmath_System_File) 
+      if(rule.is_rule() && rule.item_equals(1, richmath_System_File)) 
         return rule[2];
     }
   }

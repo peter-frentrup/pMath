@@ -1220,7 +1220,7 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt, const REC
   
   SharedPtr<Win32Menu> popup_menu;
   Expr context_menu = src.box->get_finished_flatlist_style(ContextMenu);
-  if(context_menu[0] == richmath_System_List && context_menu.expr_length() > 0) {
+  if(context_menu.item_equals(0, richmath_System_List) && context_menu.expr_length() > 0) {
     popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, PMATH_CPP_MOVE(context_menu)), true);
   }
   if(!popup_menu)
@@ -2007,7 +2007,7 @@ void Win32Widget::ask_drop_data(IDataObject *data_object, POINTL pt, DWORD *effe
   
   SharedPtr<Win32Menu> popup_menu;
   Expr context_menu = dst_obj->get_finished_flatlist_style(DragDropContextMenu);
-  if(context_menu[0] == richmath_System_List && context_menu.expr_length() > 0) {
+  if(context_menu.item_equals(0, richmath_System_List) && context_menu.expr_length() > 0) {
     popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, PMATH_CPP_MOVE(context_menu)), true);
   }
   
@@ -2090,7 +2090,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
         break;
       }
       
-      if(local_data_object->source_content[0] == richmath_System_RawBoxes && local_data_object->source_content.expr_length() == 1) {
+      if(local_data_object->source_content.item_equals(0, richmath_System_RawBoxes) && local_data_object->source_content.expr_length() == 1) {
         box_data = local_data_object->source_content[1];
         break;
       }

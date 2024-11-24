@@ -77,7 +77,7 @@ class SyntaxInformationImpl {
         self.minargs = self.maxargs = PMATH_AS_INT32(value.get());
       }
       else if( value.is_expr()                   &&
-               value[0] == richmath_System_Range &&
+               value.item_equals(0, richmath_System_Range) &&
                value.expr_length() == 2)
       {
         if( value[1].is_int32() &&
@@ -95,7 +95,7 @@ class SyntaxInformationImpl {
     }
     
     void init_local_variables(Expr value) {
-      if( !value.is_expr() || value.expr_length() != 2 || value[0] != richmath_System_List)
+      if( !value.is_expr() || value.expr_length() != 2 || !value.item_equals(0, richmath_System_List))
         return;
         
       String form(value[1]);
@@ -115,7 +115,7 @@ class SyntaxInformationImpl {
           self.locals_min = self.locals_max = PMATH_AS_INT32(value.get());
         }
         else if( value.is_expr()                   &&
-                 value[0] == richmath_System_Range &&
+                 value.item_equals(0, richmath_System_Range) &&
                  value.expr_length() == 2)
         {
           if( value[1].is_int32() &&
@@ -156,7 +156,7 @@ SyntaxInformation::SyntaxInformation(Expr name)
                   name));
                   
   if( expr.is_expr() &&
-      expr[0] == richmath_System_List)
+      expr.item_equals(0, richmath_System_List))
   {
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr opt = expr[i];

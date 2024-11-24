@@ -301,7 +301,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
       ++old_index;
       bool is_empty = true;
       
-      if(item_list[0] == richmath_System_List) {
+      if(item_list.item_equals(0, richmath_System_List)) {
         for(Expr item : item_list.items()) {
           MenuItemType type = Menus::menu_item_type(item);
           if(type == MenuItemType::Invalid)
@@ -391,7 +391,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
       Expr scope;
       Expr lhs;
       if(Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(menu_item))) {
-        if(cmd[0] == richmath_FE_ScopedCommand) {
+        if(cmd.item_equals(0, richmath_FE_ScopedCommand)) {
           scope = cmd[2];
           cmd = cmd[1];
         }
@@ -489,14 +489,14 @@ void MathGtkMenuBuilder::collect_menu_matches(Array<MenuSearchResult> &results, 
 }
 
 void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference evalution_box_id) {
-  if(expr[0] != richmath_System_Menu || expr.expr_length() != 2)
+  if(!expr.item_equals(0, richmath_System_Menu) || expr.expr_length() != 2)
     return;
     
   if(!expr[1].is_string())
     return;
     
   Expr list = expr[2];
-  if(list[0] != richmath_System_List)
+  if(!list.item_equals(0, richmath_System_List))
     return;
     
   for(size_t i = 1; i <= list.expr_length(); ++i) {
@@ -923,7 +923,7 @@ GtkMenu *MenuItemBuilder::create_popup_for(GtkMenuItem *menu_item) {
   Expr list_cmd = inline_menu_list_data(GTK_WIDGET(menu_item));
   
   GtkWidget *sub_item = gtk_menu_item_new_with_label(
-                          (cmd[0] == richmath_FrontEnd_DocumentOpen) ? "Open" : "Select");
+                          (cmd.item_equals(0, richmath_FrontEnd_DocumentOpen)) ? "Open" : "Select");
   g_signal_connect(sub_item, "activate", G_CALLBACK((void (*)(GtkMenuItem*, GtkMenuItem*))
     [](GtkMenuItem *sub_menu_item, GtkMenuItem *super_menu_item) {
       gtk_menu_item_activate(super_menu_item);
@@ -939,7 +939,7 @@ GtkMenu *MenuItemBuilder::create_popup_for(GtkMenuItem *menu_item) {
     
     if(list_cmd == strings::MenuListSearchCommands)
       label = "Go to Definition";
-    else if(cmd[0] == richmath_FrontEnd_DocumentOpen || cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+    else if(cmd.item_equals(0, richmath_FrontEnd_DocumentOpen) || cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument))
       label = "Open containing folder";
     else
       label = "Go to Definition";
@@ -962,7 +962,7 @@ GtkMenu *MenuItemBuilder::create_popup_for(GtkMenuItem *menu_item) {
   
   if(Menus::has_submenu_item_deleter(list_cmd)) {
     const char *label;
-    if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+    if(cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument))
       label = "Close";
     else
       label = "Remove";
@@ -1110,11 +1110,11 @@ gboolean MenuItemBuilder::on_button_release(GtkMenuItem *menu_item, GdkEventButt
 Array<String> MathGtkAccelerators::all_accelerators;
 
 static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mods) {
-  if(expr[0] != richmath_FE_KeyEvent || expr.expr_length() != 2)
+  if(!expr.item_equals(0, richmath_FE_KeyEvent) || expr.expr_length() != 2)
     return false;
     
   Expr modifiers = expr[2];
-  if(modifiers[0] != richmath_System_List)
+  if(!modifiers.item_equals(0, richmath_System_List))
     return false;
     
   int mods = 0;
@@ -1212,7 +1212,7 @@ void MathGtkAccelerators::load(Expr expr) {
   gtk_accel_map_add_entry(accel_path_item_GoToDefinition, GDK_F12,    (GdkModifierType)0);
   gtk_accel_map_add_entry(accel_path_item_Delete,         GDK_Delete, (GdkModifierType)0);
 
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     return;
     
   for(size_t i = 1; i <= expr.expr_length(); ++i) {
@@ -1222,7 +1222,7 @@ void MathGtkAccelerators::load(Expr expr) {
     guint           accel_key = 0;
     GdkModifierType accel_mod = (GdkModifierType)0;
     
-    if( item[0] == richmath_System_MenuItem                &&
+    if( item.item_equals(0, richmath_System_MenuItem)                &&
         item.expr_length() == 2                        &&
         set_accel_key(item[1], &accel_key, &accel_mod) &&
         gtk_accelerator_valid(accel_key, accel_mod))
@@ -1878,7 +1878,7 @@ StyledObject *MathGtkMenuSliderRegion::resolve_scope(Document *doc) {
 bool MathGtkMenuSliderRegion::try_get_rhs_value(Expr cmd, float *value) {
   *value = NAN;
   
-  if(cmd[0] == richmath_FE_ScopedCommand)
+  if(cmd.item_equals(0, richmath_FE_ScopedCommand))
     cmd = cmd[1];
 
   if(!cmd.is_rule())

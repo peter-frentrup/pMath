@@ -48,7 +48,7 @@ PaneBox::~PaneBox() {
 }
 
 bool PaneBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_PaneBox)
+  if(!expr.item_equals(0, richmath_System_PaneBox))
     return false;
   
   if(expr.expr_length() < 1)

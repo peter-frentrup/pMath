@@ -145,7 +145,7 @@ Expr CurrentValue::get(FrontEndObject *obj, Expr item) {
     return Symbol(richmath_System_DollarFailed);
   
   auto func = Impl::providers[item];
-  if(!func && item[0] == richmath_System_List) {
+  if(!func && item.item_equals(0, richmath_System_List)) {
     if(item.expr_length() == 1) {
       item = item[1];
       func = Impl::providers[item];
@@ -168,7 +168,7 @@ bool CurrentValue::put(FrontEndObject *obj, Expr item, Expr rhs) {
     return false;
   
   auto func = Impl::setters[item];
-  if(!func && item[0] == richmath_System_List) {
+  if(!func && item.item_equals(0, richmath_System_List)) {
     if(item.expr_length() == 1) {
       item = item[1];
       func = Impl::setters[item];
@@ -233,7 +233,7 @@ FrontEndObject *CurrentValueImpl::object(Expr obj) {
 }
 
 Expr CurrentValueImpl::get_object_value(FrontEndObject *obj, Expr items) {
-  if(items[0] == richmath_System_List) {
+  if(items.item_equals(0, richmath_System_List)) {
     auto exprlen = items.expr_length();
     if(exprlen == 0)
       return Symbol(richmath_System_DollarFailed);
@@ -264,7 +264,7 @@ Expr CurrentValueImpl::get_object_value(FrontEndObject *obj, Expr items) {
 }
 
 bool CurrentValueImpl::put_object_value(FrontEndObject *obj, Expr items, Expr rhs) {
-  if(items[0] == richmath_System_List && items.expr_length() > 1) {
+  if(items.item_equals(0, richmath_System_List) && items.expr_length() > 1) {
     Expr first = items[1];
     if(auto provider = object_providers[first]) {
       if(auto next_obj = provider(obj, PMATH_CPP_MOVE(first)))
@@ -289,8 +289,8 @@ Expr CurrentValueImpl::get_AttachmentSource(FrontEndObject *obj, Expr item) {
 }
 
 bool CurrentValueImpl::put_AttachmentSource(FrontEndObject *obj, Expr items, Expr rhs) {
-  if(items[0] == richmath_System_List && items.expr_length() > 1) {
-    if(items[1] != strings::AttachmentSource)
+  if(items.item_equals(0, richmath_System_List) && items.expr_length() > 1) {
+    if(!items.item_equals(1, strings::AttachmentSource))
       return false;
     
     auto next_obj = get_AttachmentSourceBox(obj, {});
@@ -531,7 +531,7 @@ Expr richmath_eval_FrontEnd_AssignCurrentValue(Expr expr) {
     return Symbol(richmath_System_DollarFailed);
   
   Expr rhs = expr[3];
-  if(rhs[0] != richmath_System_HoldComplete || rhs.expr_length() != 1)
+  if(!rhs.item_equals(0, richmath_System_HoldComplete) || rhs.expr_length() != 1)
     return Symbol(richmath_System_DollarFailed);
   
   rhs = rhs[1];

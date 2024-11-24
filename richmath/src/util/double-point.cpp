@@ -21,7 +21,7 @@ extern pmath_symbol_t richmath_System_List;
 //{ class DoublePoint ...
 
 bool DoublePoint::load_point(DoublePoint &point, Expr coords) {
-  if(coords[0] != richmath_System_List)
+  if(!coords.item_equals(0, richmath_System_List))
     return false;
     
   if(coords.expr_length() != 2)
@@ -62,7 +62,7 @@ bool DoublePoint::load_line(DoubleMatrix &line, Expr coords) {
     }
   }
   
-  if(coords[0] != richmath_System_List)
+  if(!coords.item_equals(0, richmath_System_List))
     return false;
   
   size_t rows = coords.expr_length();
@@ -86,7 +86,7 @@ bool DoublePoint::load_line(DoubleMatrix &line, Expr coords) {
 }
 
 bool DoublePoint::load_line_or_lines(Array< DoubleMatrix > &lines, Expr coords) {
-  if(coords[0] != richmath_System_List)
+  if(!coords.item_equals(0, richmath_System_List))
     return false;
     
   lines.length(1);

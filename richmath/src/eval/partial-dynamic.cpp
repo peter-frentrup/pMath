@@ -122,7 +122,7 @@ bool PartialDynamic::get_value(Expr *result, Expr job_info) {
 
 Expr PartialDynamic::finish_dynamic(Expr dyn_eval_result) {
   Expr held = Impl::replace_parts(_held_expr, PMATH_CPP_MOVE(dyn_eval_result));
-  if(held.expr_length() == 1 && held[0] == richmath_System_HoldComplete)
+  if(held.expr_length() == 1 && held.item_equals(0, richmath_System_HoldComplete))
     return held[1];
   
   return Expr();
@@ -172,7 +172,7 @@ Expr PartialDynamic::Impl::prepare_dyn_eval_template(Expr expr) {
 }
 
 Expr PartialDynamic::Impl::replace_parts(Expr expr, Expr part_rules) {
-  if(part_rules[0] != richmath_System_List)
+  if(!part_rules.item_equals(0, richmath_System_List))
     return expr;
   
   return Evaluate(Call(Symbol(richmath_System_ReplacePart), PMATH_CPP_MOVE(expr), PMATH_CPP_MOVE(part_rules)));
@@ -187,7 +187,7 @@ Expr PartialDynamic::Impl::get_dyncall_unevaluated(bool &synchronous_updating) {
     sync_settings |= 1 << dyn.synchronous_updating();
     
     Expr eval_dyn_i = dyn.get_value_unevaluated();
-    if(eval_dyn_i[0] == richmath_Internal_DynamicEvaluateMultiple) {
+    if(eval_dyn_i.item_equals(0, richmath_Internal_DynamicEvaluateMultiple)) {
       rule.set(2, eval_dyn_i[1]);
       eval.set(i, PMATH_CPP_MOVE(rule));
     }

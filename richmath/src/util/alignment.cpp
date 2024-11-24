@@ -33,7 +33,7 @@ SimpleAlignment SimpleAlignment::from_pmath(Expr expr, SimpleAlignment fallback)
   else if(expr.is_number()) {
     return { Impl::decode_horizontal(expr, fallback.horizontal), fallback.vertical};
   }
-  else if(expr.expr_length() == 2 && expr[0] == richmath_System_List) {
+  else if(expr.expr_length() == 2 && expr.item_equals(0, richmath_System_List)) {
     return {
       Impl::decode_horizontal(expr[1], fallback.horizontal),
       Impl::decode_vertical(  expr[2], fallback.vertical)};

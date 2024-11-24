@@ -73,7 +73,7 @@ void FontFeatureSet::add(const FontFeatureSet &other) {
 void FontFeatureSet::add(Expr features) {
   // { "liga", "ssty"->1, ... }
   
-  if(features[0] != richmath_System_List)
+  if(!features.item_equals(0, richmath_System_List))
     return;
     
   for(size_t i = 1; i <= features.expr_length(); ++i) {

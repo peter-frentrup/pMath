@@ -1330,7 +1330,7 @@ void ErrorColorizerImpl::arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se
                      Call(Symbol(richmath_System_Options), name));
                      
     if( options.expr_length() == 0 ||
-        options[0] != richmath_System_List)
+        !options.item_equals(0, richmath_System_List))
     {
       mark_excess_args(call, info.maxargs);
       return;

@@ -307,6 +307,12 @@ namespace pmath {
       /**\brief Get the pmath_t. Reference is held by the Expr object. */
       const pmath_t get() const noexcept { return _obj; }
       
+      /**\brief Test whether the object is an expression with given item at a particular index. */
+      const bool item_equals(size_t index, pmath_t expected_item) const noexcept { return pmath_is_expr(_obj) && pmath_expr_item_equals(_obj, index, expected_item); }
+      
+      /**\brief Test whether the object is an expression with given item at a particular index. */
+      const bool item_equals(size_t index, Expr expected_item) const noexcept { return pmath_is_expr(_obj) && pmath_expr_item_equals(_obj, index, expected_item._obj); }
+      
       /**\brief Check for not holding the null pointer. */
       bool is_valid() const noexcept { return !is_null(); }
       

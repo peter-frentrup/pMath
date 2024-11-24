@@ -195,7 +195,7 @@ GridBox::~GridBox() {
 }
 
 bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_GridBox)
+  if(!expr.item_equals(0, richmath_System_GridBox))
     return false;
     
   if(expr.expr_length() < 1)
@@ -208,7 +208,7 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   Expr matrix = expr[1];
   
-  if(matrix[0] != richmath_System_List)
+  if(!matrix.item_equals(0, richmath_System_List))
     return false;
     
   if(matrix.expr_length() < 1)
@@ -218,7 +218,7 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(n_rows <= 0)
     return false;
     
-  if(matrix[1][0] != richmath_System_List)
+  if(!matrix[1].item_equals(0, richmath_System_List))
     return false;
     
   int n_cols = (int)matrix[1].expr_length();
@@ -232,7 +232,7 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     // compile with gcc -O1 ..., the app crashes, because matrix[row]._obj
     // is freed 1 time too often.
     
-    if(row[0] != richmath_System_List)
+    if(!row.item_equals(0, richmath_System_List))
       return false;
       
     if(row.expr_length() != (size_t)n_cols)
@@ -1453,7 +1453,7 @@ float GridBox::Impl::calculate_ascent_for_baseline_position(float em, Expr basel
   if(baseline_pos == richmath_System_Axis || baseline_pos == richmath_System_Automatic) 
     return 0.5f * height + 0.25f * em; // TODO: use actual math axis from font
   
-  if(baseline_pos[0] == richmath_System_Scaled) {
+  if(baseline_pos.item_equals(0, richmath_System_Scaled)) {
     double factor = 0.0;
     if(get_factor_of_scaled(baseline_pos, &factor) && isfinite(factor)) {
       return height - height * factor;
@@ -1483,7 +1483,7 @@ float GridBox::Impl::calculate_ascent_for_baseline_position(float em, Expr basel
       float ref_pos = 0.75f * em;
       return lhs_ascent + ref_pos;
     }
-    else if(rhs[0] == richmath_System_Scaled) {
+    else if(rhs.item_equals(0, richmath_System_Scaled)) {
       double factor = 0.0;
       if(get_factor_of_scaled(rhs, &factor) && isfinite(factor)) {
         //float ref_pos = 0.75 * em * factor - 0.25 * em * (1 - factor);
@@ -1502,7 +1502,7 @@ float GridBox::Impl::calculate_ascent_for_baseline_position(float em, Expr basel
     if(row >= 1 && row <= self.rows()) 
       gi = self.item(row - 1, 0);
   }
-  else if(baseline_pos[0] == richmath_System_List) {
+  else if(baseline_pos.item_equals(0, richmath_System_List)) {
     if(baseline_pos.expr_length() == 2) {
       Expr row_expr = baseline_pos[1];
       Expr col_expr = baseline_pos[2];

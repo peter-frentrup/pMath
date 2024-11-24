@@ -43,7 +43,7 @@ ProgressIndicatorBox::~ProgressIndicatorBox() {
 }
 
 bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_ProgressIndicatorBox)
+  if(!expr.item_equals(0, richmath_System_ProgressIndicatorBox))
     return false;
     
   if(expr.expr_length() < 2)
@@ -54,7 +54,7 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   Expr new_range = expr[2];
-  if(new_range[0] != richmath_System_Range)
+  if(!new_range.item_equals(0, richmath_System_Range))
     return false;
     
   if(new_range.expr_length() != 2)

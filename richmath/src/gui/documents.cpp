@@ -281,13 +281,13 @@ bool Documents::focus_lost(Document *old_focus_doc) {
 }
 
 Expr Documents::make_section_boxes(Expr boxes, Document *doc) {
-  if(boxes[0] == richmath_System_Section)
+  if(boxes.item_equals(0, richmath_System_Section))
     return boxes;
     
-  if(boxes[0] == richmath_System_SectionGroup)
+  if(boxes.item_equals(0, richmath_System_SectionGroup))
     return boxes;
   
-  if(boxes[0] != richmath_System_BoxData) {
+  if(!boxes.item_equals(0, richmath_System_BoxData)) {
     boxes = Application::interrupt_wait(Call(Symbol(richmath_System_MakeBoxes), PMATH_CPP_MOVE(boxes))); // ToBoxes instead?
     boxes = Call(Symbol(richmath_System_BoxData), PMATH_CPP_MOVE(boxes));
   }
@@ -298,7 +298,7 @@ Expr Documents::make_section_boxes(Expr boxes, Document *doc) {
 }
 
 bool Documents::locate_document_from_command(Expr item_cmd) {
-  if(item_cmd.expr_length() >= 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
+  if(item_cmd.expr_length() >= 1 && item_cmd.item_equals(0, richmath_FrontEnd_DocumentOpen)) {
     String path{ item_cmd[1] };
     if(path.length() > 0) {
       Expr expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), path);
@@ -418,7 +418,7 @@ MenuCommandStatus DocumentsImpl::can_edit_style_definitions(Expr cmd) {
   
   Expr stylesheet = doc->get_style(StyleDefinitions);
   MenuCommandStatus status{ true };
-  status.checked = stylesheet[0] == richmath_System_Document;
+  status.checked = stylesheet.item_equals(0, richmath_System_Document);
   return status;
 }
 
@@ -431,7 +431,7 @@ Document *DocumentsImpl::open_private_style_definitions(Document *doc, bool crea
     return style_doc;
   
   Expr stylesheet = doc->get_style(StyleDefinitions);
-  if(create && stylesheet[0] != richmath_System_Document) {
+  if(create && !stylesheet.item_equals(0, richmath_System_Document)) {
     stylesheet = Call(
                    Symbol(richmath_System_Document),
                    Call(
@@ -444,7 +444,7 @@ Document *DocumentsImpl::open_private_style_definitions(Document *doc, bool crea
     doc->style.set(StyleDefinitions, stylesheet);
   }
   
-  if(stylesheet[0] != richmath_System_Document)
+  if(!stylesheet.item_equals(0, richmath_System_Document))
     return nullptr;
   
   style_doc = Application::try_create_document(stylesheet);
@@ -575,7 +575,7 @@ Section *DocumentsImpl::find_style_definition(Document *style_doc, int index, St
     }
     else {
       Expr def = style_sect->style_data[1];
-      if(def.is_rule() && def[1] == richmath_System_StyleDefinitions) {
+      if(def.is_rule() && def.item_equals(1, richmath_System_StyleDefinitions)) {
         if(auto result = find_style_definition(def[2], style_name))
           return result;
       }
@@ -586,7 +586,7 @@ Section *DocumentsImpl::find_style_definition(Document *style_doc, int index, St
 }
 
 bool DocumentsImpl::find_style_definition_cmd(Expr cmd) {
-  if(cmd[0] == richmath_FrontEnd_FindStyleDefinition) {
+  if(cmd.item_equals(0, richmath_FrontEnd_FindStyleDefinition)) {
     cmd = richmath_eval_FrontEnd_FindStyleDefinition(PMATH_CPP_MOVE(cmd));
     return cmd != richmath_System_DollarFailed;
   }
@@ -595,7 +595,7 @@ bool DocumentsImpl::find_style_definition_cmd(Expr cmd) {
 }
 
 void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr expr) {
-  if(expr[0] == richmath_System_List) {
+  if(expr.item_equals(0, richmath_System_List)) {
     for(auto item : expr.items())
       collect_selections(sels, PMATH_CPP_MOVE(item));
     return;
@@ -938,7 +938,7 @@ void StylesMenuImpl::dynamic_updated() {
 }
 
 String StylesMenuImpl::style_name_from_command(Expr cmd) {
-  if(cmd[0] == richmath_FE_ScopedCommand)
+  if(cmd.item_equals(0, richmath_FE_ScopedCommand))
     cmd = cmd[1];
   
   if(String str = cmd) {
@@ -950,7 +950,7 @@ String StylesMenuImpl::style_name_from_command(Expr cmd) {
     return {};
   }
   
-  if(cmd.is_rule() && cmd[1] == richmath_System_BaseStyle)
+  if(cmd.is_rule() && cmd.item_equals(1, richmath_System_BaseStyle))
     return cmd[2];
   
   return {};
@@ -1030,7 +1030,7 @@ void SelectDocumentMenuImpl::done() {
 }
 
 MenuCommandStatus SelectDocumentMenuImpl::can_set_selected_document(Expr cmd) {
-  if(cmd[0] != richmath_FrontEnd_SetSelectedDocument)
+  if(!cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument))
     return MenuCommandStatus{ false };
   
   if(cmd.expr_length() != 1) 
@@ -1049,7 +1049,7 @@ MenuCommandStatus SelectDocumentMenuImpl::can_set_selected_document(Expr cmd) {
 }
 
 bool SelectDocumentMenuImpl::set_selected_document_cmd(Expr cmd) {
-  if(cmd[0] != richmath_FrontEnd_SetSelectedDocument)
+  if(!cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument))
     return false;
   
   cmd = richmath_eval_FrontEnd_SetSelectedDocument(PMATH_CPP_MOVE(cmd));
@@ -1076,7 +1076,7 @@ Expr SelectDocumentMenuImpl::enum_windows_menu(Expr name) {
 }
 
 MenuCommandStatus SelectDocumentMenuImpl::can_locate_window(Expr submenu_cmd, Expr item_cmd) {
-  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+  if(item_cmd.expr_length() == 1 && item_cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument)) {
     auto doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(item_cmd[1]));
     if(doc) {
       if(doc->native()->full_filename()) 
@@ -1090,7 +1090,7 @@ MenuCommandStatus SelectDocumentMenuImpl::can_locate_window(Expr submenu_cmd, Ex
 }
 
 bool SelectDocumentMenuImpl::locate_window(Expr submenu_cmd, Expr item_cmd) {  
-  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+  if(item_cmd.expr_length() == 1 && item_cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument)) {
     auto doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(item_cmd[1]));
     if(doc) {
       Expr expr;
@@ -1115,7 +1115,7 @@ bool SelectDocumentMenuImpl::locate_window(Expr submenu_cmd, Expr item_cmd) {
 }
 
 bool SelectDocumentMenuImpl::remove_window(Expr submenu_cmd, Expr item_cmd) {  
-  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+  if(item_cmd.expr_length() == 1 && item_cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument)) {
     auto doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(item_cmd[1]));
     if(doc) {
       doc->native()->close();
@@ -1144,7 +1144,7 @@ void OpenDocumentMenuImpl::done() {
 }
 
 bool OpenDocumentMenuImpl::document_open_cmd(Expr cmd) {
-  if(cmd[0] != richmath_FrontEnd_DocumentOpen)
+  if(!cmd.item_equals(0, richmath_FrontEnd_DocumentOpen))
     return false;
   
   size_t exprlen = cmd.expr_length();
@@ -1163,7 +1163,7 @@ Expr OpenDocumentMenuImpl::enum_palettes_menu(Expr name) {
                   String("*.pmathdoc")),
                  Application::dynamic_timeout);
   
-  if(list[0] == richmath_System_List) {
+  if(list.item_equals(0, richmath_System_List)) {
     for(size_t i = 1; i <= list.expr_length(); ++i) {
       String full = list[i];
       String name = full;
@@ -1196,7 +1196,7 @@ bool OpenDocumentMenuImpl::locate_document(Expr submenu_cmd, Expr item_cmd) {
 }
 
 bool OpenDocumentMenuImpl::remove_recent_document(Expr submenu_cmd, Expr item_cmd) {
-  if(item_cmd.expr_length() >= 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
+  if(item_cmd.expr_length() >= 1 && item_cmd.item_equals(0, richmath_FrontEnd_DocumentOpen)) {
     String path{ item_cmd[1] };
     if(path.length() > 0)
       return RecentDocuments::remove(PMATH_CPP_MOVE(path));
@@ -1246,7 +1246,7 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
     popup_doc->style.add_pmath(options);
     
   Expr sections = expr[3];
-  if(sections[0] != richmath_System_List)
+  if(!sections.item_equals(0, richmath_System_List))
     sections = List(sections);
     
   for(auto item : sections.items()) {
@@ -1326,7 +1326,7 @@ Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr) {
     DocumentsImpl::collect_selections(sels, expr[1]);
   }
   
-  if(sels.length() == 0 && expr[1][0] != richmath_System_List)
+  if(sels.length() == 0 && !expr[1].item_equals(0, richmath_System_List))
     return Symbol(richmath_System_DollarFailed);
   
   std::sort(sels.items(), sels.items() + sels.length());
@@ -1374,7 +1374,7 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
   if(exprlen > 2)
     return Symbol(richmath_System_DollarFailed);
   
-  if(exprlen == 0 || expr[1] == richmath_System_Automatic) {
+  if(exprlen == 0 || expr.item_equals(1, richmath_System_Automatic)) {
     if(Box *box = Documents::selected_document()) {
       sel = {box, 0, box->length()};
       use_range = false;
@@ -1616,7 +1616,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
   
     if(selbox) {
       if(Document *seldoc = selbox->find_parent<Document>(true)) {
-        if(expr[1] == richmath_System_Automatic) 
+        if(expr.item_equals(1, richmath_System_Automatic)) 
           doc = seldoc;
         
         if(seldoc == doc) 

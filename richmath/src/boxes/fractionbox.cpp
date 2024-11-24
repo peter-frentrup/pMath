@@ -40,7 +40,7 @@ FractionBox::~FractionBox() {
 }
 
 bool FractionBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_FractionBox)
+  if(!expr.item_equals(0, richmath_System_FractionBox))
     return false;
     
   if(expr.expr_length() < 2)

@@ -83,16 +83,16 @@ GraphicsDirective::GraphicsDirective(Expr expr)
 }
 
 bool GraphicsDirective::is_graphics_directive(Expr expr) {
-  if(expr[0] == richmath_System_Directive) return true;
-  if(expr[0] == richmath_System_RGBColor)  return true;
-  if(expr[0] == richmath_System_Hue)       return true;
-  if(expr[0] == richmath_System_GrayLevel) return true;
-  if(expr[0] == richmath_System_CapForm)   return true;
-  if(expr[0] == richmath_System_Dashing)   return true;
-  if(expr[0] == richmath_System_EdgeForm)  return true;
-  if(expr[0] == richmath_System_JoinForm)  return true;
-  if(expr[0] == richmath_System_PointSize) return true;
-  if(expr[0] == richmath_System_Thickness) return true;
+  if(expr.item_equals(0, richmath_System_Directive)) return true;
+  if(expr.item_equals(0, richmath_System_RGBColor))  return true;
+  if(expr.item_equals(0, richmath_System_Hue))       return true;
+  if(expr.item_equals(0, richmath_System_GrayLevel)) return true;
+  if(expr.item_equals(0, richmath_System_CapForm))   return true;
+  if(expr.item_equals(0, richmath_System_Dashing))   return true;
+  if(expr.item_equals(0, richmath_System_EdgeForm))  return true;
+  if(expr.item_equals(0, richmath_System_JoinForm))  return true;
+  if(expr.item_equals(0, richmath_System_PointSize)) return true;
+  if(expr.item_equals(0, richmath_System_Thickness)) return true;
   
   return false;
 }
@@ -160,7 +160,7 @@ bool GraphicsDirective::decode_dashing(Array<double> &dash_array, double &offset
       int capform_val = (int)CapFormButt;
       
       if(dashing_expr.expr_length() == 3) {
-        if(dashing_expr[3][0] == richmath_System_CapForm)
+        if(dashing_expr[3].item_equals(0, richmath_System_CapForm))
           capform_val = StyleData::decode_enum(dashing_expr[3][1], IntStyleOptionName::CapForm, -1);
         else
           capform_val = StyleData::decode_enum(dashing_expr[3], IntStyleOptionName::CapForm, -1);
@@ -181,7 +181,7 @@ bool GraphicsDirective::decode_dashing(Array<double> &dash_array, double &offset
 }
 
 bool GraphicsDirective::decode_dash_array(Array<double> &dash_array, Expr dashes, float scale_factor) {
-  if(dashes[0] == richmath_System_List && dashes.expr_length() < 1000) {
+  if(dashes.item_equals(0, richmath_System_List) && dashes.expr_length() < 1000) {
     int num_dashes = (int)dashes.expr_length();
     dash_array.length(num_dashes);
     for(int i = 0; i < num_dashes; ++i) {
@@ -253,7 +253,7 @@ bool GraphicsDirective::decode_joinform(enum JoinForm &join_form, float &miter_l
     return true;
   }
   
-  if(expr[0] == richmath_System_List && expr.expr_length() == 2 && expr[1] == strings::Miter) {
+  if(expr.item_equals(0, richmath_System_List) && expr.expr_length() == 2 && expr.item_equals(1, strings::Miter)) {
     join_form = JoinFormMiter;
     
     Expr miter_limit_obj = expr[2];
@@ -273,13 +273,13 @@ bool GraphicsDirective::decode_joinform(enum JoinForm &join_form, float &miter_l
 //{ class GraphicsDirective::Impl ...
 
 void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
-  if(directive[0] == richmath_System_Directive) {
+  if(directive.item_equals(0, richmath_System_Directive)) {
     for(auto item : directive.items())
       apply_to_style(item, style);
     return;
   }
   
-  if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
+  if(directive.item_equals(0, richmath_System_RGBColor) || directive.item_equals(0, richmath_System_Hue) || directive.item_equals(0, richmath_System_GrayLevel)) {
     if(Color c = Color::from_pmath(directive)) {
       style.set(ColorForGraphics, c);
       style.set(FontColor,        c);
@@ -287,14 +287,14 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
     return;
   }
   
-  if(directive[0] == richmath_System_EdgeForm) {
+  if(directive.item_equals(0, richmath_System_EdgeForm)) {
     Expr edgeform = directive[1];
     if(edgeform == richmath_System_None || directive.expr_length() != 1) {
       style.set(DrawEdges, false);
     }
     else {
       style.set(DrawEdges, true);
-      if(edgeform[0] == richmath_System_List) {
+      if(edgeform.item_equals(0, richmath_System_List)) {
         for(auto item : edgeform.items())
           apply_edgeform_to_style(PMATH_CPP_MOVE(item), style);
       }
@@ -304,28 +304,28 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
     return;
   }
   
-  if(directive[0] == richmath_System_CapForm) {
+  if(directive.item_equals(0, richmath_System_CapForm)) {
     style.set_pmath(IntStyleOptionName::CapForm, directive[1]);
     return;
   }
   
-  if(directive[0] == richmath_System_Dashing) {
+  if(directive.item_equals(0, richmath_System_Dashing)) {
     // TODO: support Dashing(dashes, offset, capform)
     style.set_pmath(Dashing, directive[1]);
     return;
   }
   
-  if(directive[0] == richmath_System_JoinForm) {
+  if(directive.item_equals(0, richmath_System_JoinForm)) {
     style.set_pmath(ObjectStyleOptionName::JoinForm, directive[1]);
     return;
   }
   
-  if(directive[0] == richmath_System_PointSize) {
+  if(directive.item_equals(0, richmath_System_PointSize)) {
     style.set_pmath(PointSize, directive[1]);
     return;
   }
   
-  if(directive[0] == richmath_System_Thickness) {
+  if(directive.item_equals(0, richmath_System_Thickness)) {
     style.set_pmath(Thickness, directive[1]);
     return;
   }
@@ -337,52 +337,52 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
 }
 
 void GraphicsDirective::Impl::apply_edgeform_to_style(Expr directive, Style &style) {
-  if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
+  if(directive.item_equals(0, richmath_System_RGBColor) || directive.item_equals(0, richmath_System_Hue) || directive.item_equals(0, richmath_System_GrayLevel)) {
     if(Color c = Color::from_pmath(directive)) {
       style.set(EdgeColor, c);
     }
     return;
   }
   
-  if(directive[0] == richmath_System_Dashing) {
+  if(directive.item_equals(0, richmath_System_Dashing)) {
     // TODO: support Dashing(dashes, offset, capform)
     style.set_pmath(EdgeDashing, directive[1]);
     return;
   }
   
-  if(directive[0] == richmath_System_JoinForm) {
+  if(directive.item_equals(0, richmath_System_JoinForm)) {
     style.set_pmath(EdgeJoinForm, directive[1]);
     return;
   }
   
-  if(directive[0] == richmath_System_Thickness) {
+  if(directive.item_equals(0, richmath_System_Thickness)) {
     style.set_pmath(EdgeThickness, directive[1]);
     return;
   }
 }
 
 void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingContext &gc) {
-  if(directive[0] == richmath_System_Directive) {
+  if(directive.item_equals(0, richmath_System_Directive)) {
     for(auto item : directive.items())
       apply_to_context(item, gc);
     return;
   }
   
-  if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
+  if(directive.item_equals(0, richmath_System_RGBColor) || directive.item_equals(0, richmath_System_Hue) || directive.item_equals(0, richmath_System_GrayLevel)) {
     if(Color c = Color::from_pmath(directive)) {
       gc.canvas().set_color(c);
     }
     return;
   }
   
-  if(directive[0] == richmath_System_EdgeForm) {
+  if(directive.item_equals(0, richmath_System_EdgeForm)) {
     Expr edgeform = directive[1];
     if(edgeform == richmath_System_None || directive.expr_length() != 1) {
       gc.draw_edges = false;
     }
     else {
       gc.draw_edges = true;
-      if(edgeform[0] == richmath_System_List || edgeform[0] == richmath_System_Directive) {
+      if(edgeform.item_equals(0, richmath_System_List) || edgeform.item_equals(0, richmath_System_Directive)) {
         for(auto item : edgeform.items())
           apply_edgeform_to_context(PMATH_CPP_MOVE(item), gc);
       }
@@ -392,11 +392,11 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
     return;
   }
   
-  if(directive[0] == richmath_System_Rule) { // directive -> val  is  like  directive(val) for most directives
+  if(directive.item_equals(0, richmath_System_Rule)) { // directive -> val  is  like  directive(val) for most directives
     directive = Call(directive[1], directive[2]);
   }
   
-  if(directive[0] == richmath_System_CapForm) {
+  if(directive.item_equals(0, richmath_System_CapForm)) {
     int val = StyleData::decode_enum(directive[1], IntStyleOptionName::CapForm, -1);
     if(val >= 0 && gc.canvas().dash_count() == 0) {
       gc.canvas().cap_form((enum CapForm)val);
@@ -404,7 +404,7 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
     return;
   }
   
-  if(directive[0] == richmath_System_Dashing) {
+  if(directive.item_equals(0, richmath_System_Dashing)) {
     Array<double> dash_array;
     double offset;
     enum CapForm capform;
@@ -417,7 +417,7 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
     return;
   }
   
-  if(directive[0] == richmath_System_JoinForm) {
+  if(directive.item_equals(0, richmath_System_JoinForm)) {
     enum JoinForm join_form;
     float miter_limit;
     if(GraphicsDirective::decode_joinform(join_form, miter_limit, directive[1])) {
@@ -428,14 +428,14 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
     return;
   }
   
-  if(directive[0] == richmath_System_PointSize) {
+  if(directive.item_equals(0, richmath_System_PointSize)) {
     if(Length len = Length::from_pmath(directive[1])) {
       gc.point_size = len;
     }
     return;
   }
   
-  if(directive[0] == richmath_System_Thickness) {
+  if(directive.item_equals(0, richmath_System_Thickness)) {
     if(Length len = Length::from_pmath(directive[1])) {
       gc.apply_thickness(len);
     }
@@ -444,21 +444,21 @@ void GraphicsDirective::Impl::apply_to_context(Expr directive, GraphicsDrawingCo
 }
 
 void GraphicsDirective::Impl::apply_edgeform_to_context(Expr directive, GraphicsDrawingContext &gc) {
-  if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
+  if(directive.item_equals(0, richmath_System_RGBColor) || directive.item_equals(0, richmath_System_Hue) || directive.item_equals(0, richmath_System_GrayLevel)) {
     if(Color c = Color::from_pmath(directive)) {
       gc.edge_color = c;
     }
     return;
   }
   
-  if(directive[0] == richmath_System_Thickness) {
+  if(directive.item_equals(0, richmath_System_Thickness)) {
     if(Length len = Length::from_pmath(directive[1])) {
       gc.edge_thickness = len;
     }
     return;
   }
   
-  if(directive[0] == richmath_System_Dashing) {
+  if(directive.item_equals(0, richmath_System_Dashing)) {
     Array<double> dash_array;
     double offset;
     enum CapForm capform;
@@ -472,7 +472,7 @@ void GraphicsDirective::Impl::apply_edgeform_to_context(Expr directive, Graphics
     return;
   }
   
-  if(directive[0] == richmath_System_JoinForm) {
+  if(directive.item_equals(0, richmath_System_JoinForm)) {
     enum JoinForm join_form;
     float miter_limit;
     if(GraphicsDirective::decode_joinform(join_form, miter_limit, directive[1])) {
@@ -485,7 +485,7 @@ void GraphicsDirective::Impl::apply_edgeform_to_context(Expr directive, Graphics
 }
 
 bool GraphicsDirective::Impl::decode_dash_offset(double &offset, Expr obj, float scale_factor) {
-  if(obj[0] == richmath_System_NCache)
+  if(obj.item_equals(0, richmath_System_NCache))
     obj = obj[2];
   
   if(obj.is_number()) {
@@ -493,10 +493,10 @@ bool GraphicsDirective::Impl::decode_dash_offset(double &offset, Expr obj, float
     return true;
   }
   
-  if(obj[0] == richmath_System_Scaled && obj.expr_length() == 1) {
+  if(obj.item_equals(0, richmath_System_Scaled) && obj.expr_length() == 1) {
     Expr scale = obj[1];
     
-    if(scale[0] == richmath_System_NCache)
+    if(scale.item_equals(0, richmath_System_NCache))
       scale = scale[2];
     
     if(scale.is_number()) {

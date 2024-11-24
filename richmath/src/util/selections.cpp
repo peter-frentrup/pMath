@@ -716,7 +716,7 @@ Expr SelectionReference::to_pmath() const {
 SelectionReference SelectionReference::from_pmath(Expr expr) {
   SelectionReference result;
   
-  if(expr[0] != richmath_Language_SourceLocation)
+  if(!expr.item_equals(0, richmath_Language_SourceLocation))
     return result;
   
   if(expr.expr_length() != 2)
@@ -725,7 +725,7 @@ SelectionReference SelectionReference::from_pmath(Expr expr) {
   result.id = FrontEndReference::from_pmath(expr[1]);
   Expr range = expr[2];
   if( range.expr_length() == 2 && 
-      range[0] == richmath_System_Range &&
+      range.item_equals(0, richmath_System_Range) &&
       range[1].is_int32() &&
       range[2].is_int32())
   {

@@ -85,16 +85,16 @@ Length Length::from_pmath(Expr obj) {
   if(obj == richmath_System_Small)     return SymbolicSize::Small;
   if(obj == richmath_System_Tiny)      return SymbolicSize::Tiny;
   
-  if(obj[0] == richmath_System_NCache)
+  if(obj.item_equals(0, richmath_System_NCache))
     obj = obj[2];
   
   if(obj.is_number())
     return Length::Absolute(obj.to_double());
   
-  if(obj[0] == richmath_System_Scaled && obj.expr_length() == 1) {
+  if(obj.item_equals(0, richmath_System_Scaled) && obj.expr_length() == 1) {
     Expr scale = obj[1];
       
-    if(scale[0] == richmath_System_NCache)
+    if(scale.item_equals(0, richmath_System_NCache))
       scale = scale[2];
     
     if(scale.is_number())

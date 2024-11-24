@@ -33,14 +33,14 @@ bool PaneSelectorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* PaneSelectorBox({v1 -> pane1, v2 -> pane2, ...}, v)
      PaneSelectorBox({v1 -> pane1, v2 -> pane2, ...}, v, def)
    */
-  if(expr[0] != richmath_System_PaneSelectorBox)
+  if(!expr.item_equals(0, richmath_System_PaneSelectorBox))
     return false;
   
   if(expr.expr_length() < 2)
     return false;
   
   Expr pane_rules = expr[1];
-  if(pane_rules[0] != richmath_System_List)
+  if(!pane_rules.item_equals(0, richmath_System_List))
     return false;
   
   if(pane_rules.expr_length() >= INT_MAX)
@@ -94,7 +94,7 @@ bool PaneSelectorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   for(int i = _cases.length(); i > 0; --i) {
     Expr rule = pane_rules[i];
     Expr val = rule[1];
-    if(val.expr_length() == 1 && val[0] == richmath_System_HoldPattern)
+    if(val.expr_length() == 1 && val.item_equals(0, richmath_System_HoldPattern))
       val = val[1];
     
     if(i - 1 == _current_selection && _cases[i - 1] != val)

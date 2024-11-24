@@ -232,7 +232,7 @@ MathSequence *InlineSequenceBox::as_inline_span() {
 }
 
 bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options) {
-  if(expr[0] == richmath_System_BoxData) {
+  if(expr.item_equals(0, richmath_System_BoxData)) {
     if(content()->kind() != LayoutKind::Math)
       return false;
     
@@ -242,7 +242,7 @@ bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options) {
     _content->load_from_object(expr[1], options);
     has_explicit_head(true);
   }
-  else if(expr[0] == richmath_System_TextData) {
+  else if(expr.item_equals(0, richmath_System_TextData)) {
     if(content()->kind() != LayoutKind::Text)
       return false;
     
@@ -252,7 +252,7 @@ bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options) {
     _content->load_from_object(expr[1], options);
     has_explicit_head(true);
   }
-  else if(expr[0] == richmath_System_List || expr.is_string()) {
+  else if(expr.item_equals(0, richmath_System_List) || expr.is_string()) {
     if(has_explicit_head())
       return false;
     
@@ -369,7 +369,7 @@ float OwnerBox::Impl::calculate_baseline(float em, Expr baseline_pos) const {
   if(baseline_pos == richmath_System_Baseline) 
     return -self.cy;
     
-  if(baseline_pos[0] == richmath_System_Scaled) {
+  if(baseline_pos.item_equals(0, richmath_System_Scaled)) {
     double factor = 0.0;
     if(get_factor_of_scaled(baseline_pos, &factor) && isfinite(factor)) 
       return self.calculate_scaled_baseline(factor);
@@ -398,7 +398,7 @@ float OwnerBox::Impl::calculate_baseline(float em, Expr baseline_pos) const {
       float ref_pos = NormalTextAscentFactor * em;
       return lhs_y - ref_pos;
     }
-    else if(rhs[0] == richmath_System_Scaled) {
+    else if(rhs.item_equals(0, richmath_System_Scaled)) {
       double factor = 0.0;
       if(get_factor_of_scaled(rhs, &factor) && isfinite(factor)) {
         //float ref_pos = NormalTextAscentFactor * em * factor - NormalTextDescentFactor * em * (1 - factor);

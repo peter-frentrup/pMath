@@ -381,7 +381,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   
   HMENU menu = WIN32report(CreatePopupMenu());
   String select_label;
-  if(cmd[0] == richmath_FrontEnd_DocumentOpen)
+  if(cmd.item_equals(0, richmath_FrontEnd_DocumentOpen))
     select_label = "Open";
   else
     select_label = "Select";
@@ -394,7 +394,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
     String gotodef_label;
     if(list_cmd == strings::MenuListSearchCommands)
       gotodef_label = String("Go to Definition");
-    else if(cmd[0] == richmath_FrontEnd_DocumentOpen || cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+    else if(cmd.item_equals(0, richmath_FrontEnd_DocumentOpen) || cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument))
       gotodef_label = String("Open containing folder");
     else
       gotodef_label = String("Go to Definition");
@@ -411,7 +411,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   
   if(Menus::has_submenu_item_deleter(list_cmd)) {
     String remove_label;
-    if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+    if(cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument))
       remove_label = strings::CloseMenu_label;
     else
       remove_label = String("Remove");

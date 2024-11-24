@@ -149,7 +149,7 @@ GraphicsBox::~GraphicsBox() {
 }
 
 bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_GraphicsBox)
+  if(!expr.item_equals(0, richmath_System_GraphicsBox))
     return false;
     
   if(expr.expr_length() < 1)
@@ -762,7 +762,7 @@ float GraphicsBox::Impl::calculate_ascent_for_baseline_position(float em, Expr b
   if(baseline_pos == richmath_System_Axis) 
     return self.ticks[AxisIndexX]->start_pos.y;
   
-  if(baseline_pos[0] == richmath_System_Scaled) {
+  if(baseline_pos.item_equals(0, richmath_System_Scaled)) {
     double factor = 0.0;
     if(get_factor_of_scaled(baseline_pos, &factor) && isfinite(factor)) {
       return height - height * factor;
@@ -792,7 +792,7 @@ float GraphicsBox::Impl::calculate_ascent_for_baseline_position(float em, Expr b
       float ref_pos = 0.75f * em;
       return lhs_ascent + ref_pos;
     }
-    else if(rhs[0] == richmath_System_Scaled) {
+    else if(rhs.item_equals(0, richmath_System_Scaled)) {
       double factor = 0.0;
       if(get_factor_of_scaled(rhs, &factor) && isfinite(factor)) {
         //float ref_pos = 0.75 * em * factor - 0.25 * em * (1 - factor);
@@ -1063,19 +1063,19 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
 void GraphicsBox::Impl::try_get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy) {
   Expr e = self.get_own_style(AxesOrigin);
   
-  if(e[0] == richmath_System_NCache)
+  if(e.item_equals(0, richmath_System_NCache))
     e = e[2];
     
-  if(e[0] == richmath_System_List && e.expr_length() == 2) {
+  if(e.item_equals(0, richmath_System_List) && e.expr_length() == 2) {
     Expr sub = e[1];
-    if(sub[0] == richmath_System_NCache)
+    if(sub.item_equals(0, richmath_System_NCache))
       sub = sub[2];
       
     if(sub.is_number())
       *ox = sub.to_double();
       
     sub = e[2];
-    if(sub[0] == richmath_System_NCache)
+    if(sub.item_equals(0, richmath_System_NCache))
       sub = sub[2];
       
     if(sub.is_number())
@@ -1111,10 +1111,10 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
   
   Expr plot_range = self.get_own_style(PlotRange, Symbol(richmath_System_Automatic));
   
-  if(plot_range[0] == richmath_System_NCache)
+  if(plot_range.item_equals(0, richmath_System_NCache))
     plot_range = plot_range[2];
   
-  if(plot_range[0] == richmath_System_List && plot_range.expr_length() == 2) {
+  if(plot_range.item_equals(0, richmath_System_List) && plot_range.expr_length() == 2) {
     get_range_from_pmath(bounds.x_range, plot_range[1]);
     get_range_from_pmath(bounds.y_range, plot_range[2]);
   }
@@ -1185,7 +1185,7 @@ GraphicsBounds GraphicsBox::Impl::calculate_plotrange() {
 }
 
 bool GraphicsBox::Impl::get_range_from_pmath(Interval<double> &result, Expr expr) {
-  if(expr[0] == richmath_System_Range && expr.expr_length() == 2)
+  if(expr.item_equals(0, richmath_System_Range) && expr.expr_length() == 2)
     return get_double_from_pmath(result.from, expr[1]) && get_double_from_pmath(result.to, expr[2]);
     
   double d;
@@ -1200,7 +1200,7 @@ bool GraphicsBox::Impl::get_range_from_pmath(Interval<double> &result, Expr expr
 }
 
 bool GraphicsBox::Impl::get_double_from_pmath(double &result, Expr expr) {
-  if(expr[0] == richmath_System_NCache)
+  if(expr.item_equals(0, richmath_System_NCache))
     expr = expr[2];
   
   if(expr.is_number()) {
@@ -1230,17 +1230,17 @@ bool GraphicsBox::Impl::have_frame(bool *left, bool *right, bool *bottom, bool *
     return true;
   }
   
-  if(e[0] == richmath_System_List && e.expr_length() == 2) {
+  if(e.item_equals(0, richmath_System_List) && e.expr_length() == 2) {
     Expr sub = e[1];
     if(sub == richmath_System_True) {
       *left   = true;
       *right  = true;
     }
-    else if(sub[0] == richmath_System_List && sub.expr_length() == 2) {
-      if(sub[1] == richmath_System_True)
+    else if(sub.item_equals(0, richmath_System_List) && sub.expr_length() == 2) {
+      if(sub.item_equals(1, richmath_System_True))
         *left = true;
         
-      if(sub[2] == richmath_System_True)
+      if(sub.item_equals(2, richmath_System_True))
         *right = true;
     }
     
@@ -1249,11 +1249,11 @@ bool GraphicsBox::Impl::have_frame(bool *left, bool *right, bool *bottom, bool *
       *bottom = true;
       *top    = true;
     }
-    else if(sub[0] == richmath_System_List && sub.expr_length() == 2) {
-      if(sub[1] == richmath_System_True)
+    else if(sub.item_equals(0, richmath_System_List) && sub.expr_length() == 2) {
+      if(sub.item_equals(1, richmath_System_True))
         *bottom = true;
         
-      if(sub[2] == richmath_System_True)
+      if(sub.item_equals(2, richmath_System_True))
         *top = true;
     }
     
@@ -1278,11 +1278,11 @@ bool GraphicsBox::Impl::have_axes(bool *x, bool *y) {
     return true;
   }
   
-  if(e[0] == richmath_System_List && e.expr_length() == 2) {
-    if(e[1] == richmath_System_True)
+  if(e.item_equals(0, richmath_System_List) && e.expr_length() == 2) {
+    if(e.item_equals(1, richmath_System_True))
       *x = true;
       
-    if(e[2] == richmath_System_True)
+    if(e.item_equals(2, richmath_System_True))
       *y = true;
       
     return *x || *y;
@@ -1300,7 +1300,7 @@ Expr GraphicsBox::Impl::generate_default_ticks(const Interval<double> &range, bo
 Expr GraphicsBox::Impl::generate_ticks(const GraphicsBounds &bounds, enum AxisIndex part) {
   Expr ticks = get_ticks(bounds, part);
   
-  if(ticks[0] == richmath_System_List)
+  if(ticks.item_equals(0, richmath_System_List))
     return ticks;
     
   if(ticks == richmath_System_None)
@@ -1357,13 +1357,13 @@ Expr GraphicsBox::Impl::get_ticks(const GraphicsBounds &bounds, enum AxisIndex p
       break;
   }
   
-  if(e[0] == richmath_System_NCache)
+  if(e.item_equals(0, richmath_System_NCache))
     e = e[2];
     
   if(e == richmath_System_True)
     return Symbol(richmath_System_Automatic);
     
-  if(e[0] == richmath_System_List) {
+  if(e.item_equals(0, richmath_System_List)) {
     if(e.expr_length() != 2)
       return List();
       
@@ -1383,10 +1383,10 @@ Expr GraphicsBox::Impl::get_ticks(const GraphicsBounds &bounds, enum AxisIndex p
         break;
     }
     
-    if(sub[0] == richmath_System_NCache)
+    if(sub.item_equals(0, richmath_System_NCache))
       sub = sub[2];
       
-    if(sub[0] == richmath_System_List) {
+    if(sub.item_equals(0, richmath_System_List)) {
       if(sub.expr_length() != 2)
         return List();
         

@@ -280,7 +280,7 @@ void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
 //      Expr cmd = Win32Menu::id_to_command(item_or_index);
 //      pmath_debug_print_object("[WM_MENUSELECT ", cmd.get(), "]\n");
 //      
-//      if(cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+//      if(cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument)) {
 //        auto id = FrontEndReference::from_pmath(cmd[1]);
 //        auto doc = FrontEndObject::find_cast<Document>(id);
 //        if(doc) {
@@ -384,7 +384,7 @@ LRESULT Win32Menu::on_menudrag(WPARAM wParam, LPARAM lParam) {
   if(WIN32report(GetMenuItemInfoW(menu, wParam, TRUE, &mii))) {
     Expr cmd = id_to_command(mii.wID);
     
-    if(cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+    if(cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument)) {
       DataObject *data_object = new DataObject;
       data_object->source_content = cmd[1];
       data_object->add_source_format(Win32Clipboard::AtomBoxesText);
@@ -494,7 +494,7 @@ DWORD MenuItemBuilder::get_or_create_command_id(Expr cmd) {
 }
 
 HMENU MenuItemBuilder::create_menu(Expr expr, bool is_popup) {
-  if(expr[0] != richmath_System_Menu || expr.expr_length() != 2)
+  if(!expr.item_equals(0, richmath_System_Menu) || expr.expr_length() != 2)
     return nullptr;
     
   String name(expr[1]);
@@ -502,7 +502,7 @@ HMENU MenuItemBuilder::create_menu(Expr expr, bool is_popup) {
     return nullptr;
     
   expr = expr[2];
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     return nullptr;
   
   HMENU menu = is_popup ? WIN32report(CreatePopupMenu()) : WIN32report(CreateMenu());
@@ -538,7 +538,7 @@ void MenuItemBuilder::update_items(HMENU sub) {
         // dwItemData != 0 means that this item is dynamically generated from the menu item command of that id
         Expr new_items = Menus::generate_dynamic_submenu(Win32Menu::id_to_command(list_id));
         
-        if(new_items.expr_length() == 0 || new_items[0] != richmath_System_List) {
+        if(new_items.expr_length() == 0 || !new_items.item_equals(0, richmath_System_List)) {
           mii.fMask |= MIIM_STRING | MIIM_STATE;
           mii.fState |= MFS_DISABLED;
           mii.dwTypeData = const_cast<wchar_t*>(L"(empty)");
@@ -668,10 +668,10 @@ bool MenuItemBuilder::init_info(MENUITEMINFOW *info, Expr item, String *buffer) 
   if(item == richmath_System_Delimiter)
     return init_delimiter_info(info);
   
-  if(item[0] == richmath_System_MenuItem && item.expr_length() == 2)
+  if(item.item_equals(0, richmath_System_MenuItem) && item.expr_length() == 2)
     return init_item_info(info, PMATH_CPP_MOVE(item), buffer);
   
-  if(item[0] == richmath_System_Menu && item.expr_length() == 2)
+  if(item.item_equals(0, richmath_System_Menu) && item.expr_length() == 2)
     return init_submenu_info(info, PMATH_CPP_MOVE(item), buffer);
   
   return false;
@@ -773,7 +773,7 @@ bool MenuItemBuilder::init_submenu_info(MENUITEMINFOW *info, Expr item, String *
     info->dwTypeData = const_cast<wchar_t*>(L"(empty)");
     info->cch        = 7;
   }
-  else if(sub_items[0] == richmath_System_List) {
+  else if(sub_items.item_equals(0, richmath_System_List)) {
     info->fMask |= MIIM_SUBMENU;
     info->hSubMenu = create_menu(PMATH_CPP_MOVE(item), true);
   }
@@ -1156,7 +1156,7 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
     if(WIN32report(GetMenuItemInfoW(menu, i, TRUE, &mii))) {
       if(Expr cmd = Win32Menu::id_to_command(mii.wID)) {
         
-        if(cmd[0] == richmath_FE_ScopedCommand) {
+        if(cmd.item_equals(0, richmath_FE_ScopedCommand)) {
           scope = cmd[2];
           cmd = cmd[1];
         }
@@ -1400,11 +1400,11 @@ LRESULT CALLBACK StaticMenuOverride::wnd_proc(HWND hwnd, UINT msg, WPARAM wParam
 //{ class Win32AcceleratorTable ...
 
 static bool set_accel_key(Expr expr, ACCEL *accel) {
-  if(expr[0] != richmath_FE_KeyEvent || expr.expr_length() != 2)
+  if(!expr.item_equals(0, richmath_FE_KeyEvent) || expr.expr_length() != 2)
     return false;
     
   Expr modifiers = expr[2];
-  if(modifiers[0] != richmath_System_List)
+  if(!modifiers.item_equals(0, richmath_System_List))
     return false;
     
   accel->fVirt = 0;
@@ -1556,7 +1556,7 @@ static String accel_text(const ACCEL &accel) {
 }
 
 static HACCEL create_accel(Expr expr) {
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     return nullptr;
     
   Array<ACCEL> accel(expr.expr_length());
@@ -1566,7 +1566,7 @@ static HACCEL create_accel(Expr expr) {
     Expr item(expr[i]);
     Expr cmd( item[2]);
     
-    if( item[0] == richmath_System_MenuItem &&
+    if( item.item_equals(0, richmath_System_MenuItem) &&
         item.expr_length() == 2          &&
         set_accel_key(item[1], &accel[j]))
     {

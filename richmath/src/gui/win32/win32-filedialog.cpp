@@ -63,7 +63,7 @@ void Win32FileDialog::set_title(String title) {
 }
 
 void Win32FileDialog::set_filter(Expr filter) {
-  if(filter.expr_length() == 0 || filter[0] != richmath_System_List)
+  if(filter.expr_length() == 0 || !filter.item_equals(0, richmath_System_List))
     return;
     
   for(size_t i = 1; i <= filter.expr_length(); ++i) {
@@ -120,7 +120,7 @@ void Win32FileDialog::Impl::add_filter(Expr caption, Expr extensions) {
     if(ext.starts_with("*."))
       try_set_default_ext(ext.part(2));
   }
-  else if(extensions.expr_length() >= 1 && extensions[0] == richmath_System_List) {
+  else if(extensions.expr_length() >= 1 && extensions.item_equals(0, richmath_System_List)) {
     bool all_strings = true;
     
     for(size_t j = extensions.expr_length(); j > 0; --j) {

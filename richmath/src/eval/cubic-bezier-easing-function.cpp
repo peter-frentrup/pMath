@@ -143,7 +143,7 @@ static void map_double_func(Expr &args, F func) {
     }
   }
   
-  if(args[0] == richmath_System_List) {
+  if(args.item_equals(0, richmath_System_List)) {
     pmath_t obj = args.release();
     size_t len = pmath_expr_length(obj);
     

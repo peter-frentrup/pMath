@@ -402,7 +402,7 @@ namespace {
         size_t expr_len = expr.expr_length();
         int count = se->count();
         
-        if(expr_len > 0 && (size_t)count == expr_len && (expr[0] == PMATH_NULL || expr[0] == richmath_System_List)) {
+        if(expr_len > 0 && (size_t)count == expr_len && (expr[0] == PMATH_NULL || expr.item_equals(0, richmath_System_List))) {
           for(int i = 0; i < count; ++i) {
             Expr item = expr[(size_t)i + 1];
             SelectionReference item_source = SelectionReference::from_debug_metadata_of(item);
@@ -417,7 +417,7 @@ namespace {
           return;
         }
         
-        if(count == 0 && expr[0] == richmath_System_StringBox) {
+        if(count == 0 && expr.item_equals(0, richmath_System_StringBox)) {
           if(expr_len == 1) {
             auto str = expr[1];
             if(auto str_src = SelectionReference::from_debug_metadata_of(str)) {
@@ -543,7 +543,7 @@ namespace {
           return;
         }
         
-        if(expr[0] == richmath_System_List) {
+        if(expr.item_equals(0, richmath_System_List)) {
           ArrayView<const uint16_t> o_buf = buffer_view(seq->text());
           int o_pos = 0;
           int boxi = 0;

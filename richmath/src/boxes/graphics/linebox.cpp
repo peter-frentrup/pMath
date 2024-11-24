@@ -26,7 +26,7 @@ LineBox::~LineBox() {
 }
 
 bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_LineBox)
+  if(!expr.item_equals(0, richmath_System_LineBox))
     return false;
     
   if(expr.expr_length() != 1)
@@ -38,7 +38,7 @@ bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   }
     
   Expr data = expr[1];
-  if(data[0] == richmath_System_CompressedData && data[1].is_string()) {
+  if(data.item_equals(0, richmath_System_CompressedData) && data[1].is_string()) {
     data = Expr{ pmath_decompress_from_string(data[1].release()) };
     if(data.is_expr())
       expr.set(1, data);
@@ -103,7 +103,7 @@ Expr LineBox::to_pmath_impl(BoxOutputFlags flags) {
     
   Expr data = _uncompressed_expr[1];
   bool should_compress = false;
-  if(data[0] == richmath_System_List && data.expr_length() > 1) {
+  if(data.item_equals(0, richmath_System_List) && data.expr_length() > 1) {
     if(data.is_packed_array() && pmath_packed_array_get_element_type(data.get()) == PMATH_PACKED_DOUBLE) {
       should_compress = true;
     }

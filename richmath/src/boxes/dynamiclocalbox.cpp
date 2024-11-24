@@ -45,7 +45,7 @@ DynamicLocalBox::~DynamicLocalBox() {
 }
 
 bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_DynamicLocalBox)
+  if(!expr.item_equals(0, richmath_System_DynamicLocalBox))
     return false;
     
   if(expr.expr_length() < 2)
@@ -56,7 +56,7 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   Expr symbols = expr[1];
-  if(symbols[0] != richmath_System_List)
+  if(!symbols.item_equals(0, richmath_System_List))
     return false;
     
   for(auto sym : symbols.items()) {
@@ -139,7 +139,7 @@ Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
 pmath_t DynamicLocalBox::Impl::internal_replace_symbols(pmath_t expr, const Expr &old_syms, const Expr &new_syms) {
   if(pmath_is_symbol(expr)) {
     for(size_t i = old_syms.expr_length();i > 0;--i) {
-      if(old_syms[i] == expr) {
+      if(old_syms.item_equals(i, expr)) {
         pmath_unref(expr);
         return new_syms[i].release();
       }
@@ -198,7 +198,7 @@ void DynamicLocalBox::Impl::emit_values(Expr symbol, String eval_ctx) {
                       eval_ctx)),
                   Application::dynamic_timeout);
                   
-  if(rules[0] == richmath_System_HoldComplete && rules.expr_length() > 0) {
+  if(rules.item_equals(0, richmath_System_HoldComplete) && rules.expr_length() > 0) {
     rules.set(0, Symbol(richmath_System_List));
     Gather::emit(rules);
   }

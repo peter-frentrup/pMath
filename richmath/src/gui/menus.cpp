@@ -288,14 +288,14 @@ MenuItemType Menus::menu_item_type(Expr item) {
   if(item == richmath_System_Delimiter) 
     return MenuItemType::Delimiter;
   
-  if(item[0] == richmath_System_MenuItem && item.expr_length() == 2) {
+  if(item.item_equals(0, richmath_System_MenuItem) && item.expr_length() == 2) {
     if(!item[1].is_string())
       return MenuItemType::Invalid;
     
     return command_type(item[2]);
   }
   
-  if(item[0] == richmath_System_Menu) {
+  if(item.item_equals(0, richmath_System_Menu)) {
     if(!item[1].is_string())
       return MenuItemType::Invalid;
     
@@ -303,7 +303,7 @@ MenuItemType Menus::menu_item_type(Expr item) {
     if(submenu.is_string()) 
       return MenuItemType::InlineMenu;
     
-    if(submenu[0] == richmath_System_List) 
+    if(submenu.item_equals(0, richmath_System_List)) 
       return MenuItemType::SubMenu;
   }
   
@@ -311,7 +311,7 @@ MenuItemType Menus::menu_item_type(Expr item) {
 }
 
 MenuItemType Menus::command_type(Expr cmd) {
-  if(cmd[0] == richmath_FE_ScopedCommand)
+  if(cmd.item_equals(0, richmath_FE_ScopedCommand))
     cmd = cmd[1];
   
   if(String str = cmd) {
@@ -331,7 +331,7 @@ MenuItemType Menus::command_type(Expr cmd) {
   if(cmd.is_rule()) // style->value  is a simple setter (does not toggle)
     return MenuItemType::RadioButton;
   
-  if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+  if(cmd.item_equals(0, richmath_FrontEnd_SetSelectedDocument))
     return MenuItemType::RadioButton;
   
   return MenuItemType::Normal;

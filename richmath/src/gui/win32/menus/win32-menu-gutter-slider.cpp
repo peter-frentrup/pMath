@@ -191,7 +191,7 @@ bool Win32MenuGutterSlider::Impl::collect_float_values(Array<float> &values, HME
       return false;
     
     Expr cmd = Win32Menu::id_to_command(mii.wID);
-    if(cmd[0] == richmath_FE_ScopedCommand)
+    if(cmd.item_equals(0, richmath_FE_ScopedCommand))
       cmd = cmd[1];
     
     if(!cmd.is_rule())

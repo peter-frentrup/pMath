@@ -374,7 +374,7 @@ static void message_dialog(const char *title, const char *content) {
 static void load_fonts() {
   Expr font_files = Expr{pmath_symbol_get_value(richmath_FE_DollarPrivateStartupFontFiles)};
   
-  if(font_files[0] == richmath_System_List) {
+  if(font_files.item_equals(0, richmath_System_List)) {
     for(auto item : font_files.items()) {
       if(FontInfo::add_private_font(String { item })) {
         pmath_debug_print_object("add private font ", item.get(), "\n");
@@ -403,7 +403,7 @@ static void load_math_shapers() {
   SharedPtr<MathShaper> def;
   String def_name;
   
-  if(prefered_fonts[0] == richmath_System_List) {
+  if(prefered_fonts.item_equals(0, richmath_System_List)) {
     for(String s : prefered_fonts.items()) {
       SharedPtr<MathShaper> shaper = MathShaper::available_shapers[s];
       

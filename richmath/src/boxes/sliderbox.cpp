@@ -119,7 +119,7 @@ SliderBox::~SliderBox() {
 }
 
 bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_SliderBox)
+  if(!expr.item_equals(0, richmath_System_SliderBox))
     return false;
     
   if(expr.expr_length() < 2)
@@ -135,7 +135,7 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   double new_range_step        = 0.0;
   bool   new_use_double_values = true;
   
-  if(new_range[0] == richmath_System_Range) {
+  if(new_range.item_equals(0, richmath_System_Range)) {
     if(new_range.expr_length() == 2) {
       new_range_interval.from = new_range[1].to_double(NAN);
       new_range_interval.to   = new_range[2].to_double(NAN);
@@ -159,7 +159,7 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     else
       return false;
   }
-  else if(new_range.expr_length() > 0 && new_range[0] == richmath_System_List) {
+  else if(new_range.expr_length() > 0 && new_range.item_equals(0, richmath_System_List)) {
     new_range_interval.from = 1;
     new_range_interval.to   = new_range.expr_length();
     new_range_step          = 1;
@@ -580,7 +580,7 @@ bool SliderBox::Impl::approximately_equals(double val1, double val2) {
 }
 
 Expr SliderBox::Impl::position_to_value(double d, bool evaluate) {
-  if(self._range_expr[0] == richmath_System_List)
+  if(self._range_expr.item_equals(0, richmath_System_List))
     return self._range_expr[(size_t)d];
   
   if(self.use_double_values())
@@ -630,10 +630,10 @@ void SliderBox::Impl::finish_update_value() {
 }
 
 double SliderBox::Impl::translate_range_value(Expr val) {
-  if(self._range_expr[0] == richmath_System_List) {
+  if(self._range_expr.item_equals(0, richmath_System_List)) {
     size_t i;
     for(i = 1; i <= self._range_expr.expr_length(); ++i) {
-      if(self._range_expr[i] == val) {
+      if(self._range_expr.item_equals(i, val)) {
         return i;
       }
     }

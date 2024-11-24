@@ -53,7 +53,7 @@ CircleOrDiskBox::~CircleOrDiskBox() {
 }
 
 bool CircleOrDiskBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_CircleBox && expr[0] != richmath_System_DiskBox)
+  if(!expr.item_equals(0, richmath_System_CircleBox) && !expr.item_equals(0, richmath_System_DiskBox))
     return false;
     
   if(expr.expr_length() > 3)
@@ -80,7 +80,7 @@ bool CircleOrDiskBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(expr.expr_length() >= 2) {
     Expr rad = expr[2];
-    if(rad.expr_length() == 2 && rad[0] == richmath_System_List) {
+    if(rad.expr_length() == 2 && rad.item_equals(0, richmath_System_List)) {
       DoublePoint radii;
       if(DoublePoint::load_point(radii, rad)) {
         rx = radii.x;
@@ -99,7 +99,7 @@ bool CircleOrDiskBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(expr.expr_length() >= 3) {
     Expr angle_range = expr[3];
-    if(angle_range.expr_length() == 2 && angle_range[0] == richmath_System_Range) {
+    if(angle_range.expr_length() == 2 && angle_range.item_equals(0, richmath_System_Range)) {
       double a1 = angle_range[1].to_double(NAN);
       double a2 = angle_range[2].to_double(NAN);
       
@@ -156,7 +156,7 @@ void CircleOrDiskBox::find_extends(GraphicsBounds &bounds) {
     double c2 = cos(t2);
     double s2 = sin(t2);
     
-    if(_expr[0] == richmath_System_DiskBox) {
+    if(_expr.item_equals(0, richmath_System_DiskBox)) {
       bounds.add_point(0.0, 0.0);
     }
     
@@ -191,7 +191,7 @@ void CircleOrDiskBox::find_extends(GraphicsBounds &bounds) {
 void CircleOrDiskBox::paint(GraphicsDrawingContext &gc) {
   auto mat = gc.canvas().get_matrix();
   
-  bool is_disk = _expr[0] == richmath_System_DiskBox;
+  bool is_disk = _expr.item_equals(0, richmath_System_DiskBox);
   
   cairo_matrix_t std_circle_mat = mat;
   if(Impl(*this).transform_to_std_circle(std_circle_mat)) {

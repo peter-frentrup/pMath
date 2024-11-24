@@ -344,7 +344,7 @@ BoxRadius::BoxRadius(const Expr &expr)
     return;
   }
   
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     return;
     
   if(expr.expr_length() == 1) { // {all}
@@ -363,7 +363,7 @@ BoxRadius::BoxRadius(const Expr &expr)
     if(tmp.is_number()) {
       top_left_x = top_left_y = tmp.to_double(0);
     }
-    else if(tmp.expr_length() == 2 && tmp[0] == richmath_System_List) {
+    else if(tmp.expr_length() == 2 && tmp.item_equals(0, richmath_System_List)) {
       top_left_x = tmp[1].to_double(0);
       top_left_y = tmp[2].to_double(0);
     }
@@ -372,7 +372,7 @@ BoxRadius::BoxRadius(const Expr &expr)
     if(tmp.is_number()) {
       top_right_x = top_right_y = tmp.to_double(0);
     }
-    else if(tmp.expr_length() == 2 && tmp[0] == richmath_System_List) {
+    else if(tmp.expr_length() == 2 && tmp.item_equals(0, richmath_System_List)) {
       top_right_x = tmp[1].to_double(0);
       top_right_y = tmp[2].to_double(0);
     }
@@ -381,7 +381,7 @@ BoxRadius::BoxRadius(const Expr &expr)
     if(tmp.is_number()) {
       bottom_right_x = bottom_right_y = tmp.to_double(0);
     }
-    else if(tmp.expr_length() == 2 && tmp[0] == richmath_System_List) {
+    else if(tmp.expr_length() == 2 && tmp.item_equals(0, richmath_System_List)) {
       bottom_right_x = tmp[1].to_double(0);
       bottom_right_y = tmp[2].to_double(0);
     }
@@ -390,7 +390,7 @@ BoxRadius::BoxRadius(const Expr &expr)
     if(tmp.is_number()) {
       bottom_left_x = bottom_left_y = tmp.to_double(0);
     }
-    else if(tmp.expr_length() == 2 && tmp[0] == richmath_System_List) {
+    else if(tmp.expr_length() == 2 && tmp.item_equals(0, richmath_System_List)) {
       bottom_left_x = tmp[1].to_double(0);
       bottom_left_y = tmp[2].to_double(0);
     }

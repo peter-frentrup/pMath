@@ -49,7 +49,7 @@ FrameBox::FrameBox(AbstractSequence *content)
 }
 
 bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
-  if(expr[0] != richmath_System_FrameBox)
+  if(!expr.item_equals(0, richmath_System_FrameBox))
     return false;
     
   if(expr.expr_length() < 1)

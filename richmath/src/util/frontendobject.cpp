@@ -100,11 +100,11 @@ FrontEndObjectInitializer::~FrontEndObjectInitializer() {
 const FrontEndReference FrontEndReference::None = FrontEndReferenceImpl::init_none();
 
 FrontEndReference FrontEndReference::from_pmath(pmath::Expr expr) {
-  if(expr.expr_length() == 1 && expr[0] == richmath_System_DocumentObject)
+  if(expr.expr_length() == 1 && expr.item_equals(0, richmath_System_DocumentObject))
     expr = expr[1];
   
-  if(expr.expr_length() == 2 && expr[0] == richmath_System_FrontEndObject) {
-    if(expr[1] == Application::session_id)
+  if(expr.expr_length() == 2 && expr.item_equals(0, richmath_System_FrontEndObject)) {
+    if(expr.item_equals(1, Application::session_id))
       return from_pmath_raw(expr[2]);
   }
   
@@ -215,7 +215,7 @@ FrontEndObject *FrontEndObject::find(FrontEndReference id) {
 }
 
 FrontEndObject *FrontEndObject::find_box_reference(Expr boxref) {
-  if(boxref[0] != richmath_FE_BoxReference)
+  if(!boxref.item_equals(0, richmath_FE_BoxReference))
     return nullptr;
   
   auto basis_id = FrontEndReference::from_pmath(boxref[1]);
@@ -227,7 +227,7 @@ FrontEndObject *FrontEndObject::find_box_reference(Expr boxref) {
     return nullptr;
   
   Expr boxid = boxref[2];
-  if(boxid[0] == richmath_System_List)
+  if(boxid.item_equals(0, richmath_System_List))
     boxid = boxid[1];
   
   if(!boxid || boxid == richmath_System_None)

@@ -119,14 +119,14 @@ TemplateBox::TemplateBox(AbstractSequence *content)
 }
 
 bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_TemplateBox)
+  if(!expr.item_equals(0, richmath_System_TemplateBox))
     return false;
     
   if(expr.expr_length() < 2)
     return false;
     
   Expr args = expr[1];
-  if(args[0] != richmath_System_List)
+  if(!args.item_equals(0, richmath_System_List))
     return false;
     
   Expr tag = expr[2];
@@ -410,7 +410,7 @@ Expr TemplateBox::to_pmath_impl(BoxOutputFlags flags) {
   
   if(has(flags, BoxOutputFlags::Parseable)) {
     Expr ifun = get_own_style(InterpretationFunction);
-    if(ifun.expr_length() == 1 && ifun[0] == richmath_System_Function) {
+    if(ifun.expr_length() == 1 && ifun.item_equals(0, richmath_System_Function)) {
       ifun = Call(
                Symbol(richmath_System_Function), 
                Call(
@@ -424,7 +424,7 @@ Expr TemplateBox::to_pmath_impl(BoxOutputFlags flags) {
       Expr boxes = args;
       boxes.set(0, PMATH_CPP_MOVE(ifun));
       boxes = Application::interrupt_wait(PMATH_CPP_MOVE(boxes), Application::button_timeout);
-      if(boxes.expr_length() == 1 && boxes[0] == richmath_System_HoldComplete) 
+      if(boxes.expr_length() == 1 && boxes.item_equals(0, richmath_System_HoldComplete)) 
         return boxes[1];
     }
   }
@@ -516,7 +516,7 @@ Expr TemplateBoxSlot::prepare_boxes(Expr boxes) {
 }
 
 bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_TemplateSlot || expr.expr_length() != 1)
+  if(!expr.item_equals(0, richmath_System_TemplateSlot) || expr.expr_length() != 1)
     return false;
     
   Expr arg = expr[1];
@@ -700,10 +700,10 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateSlotCount(FrontEndObject *obj
 }
 
 Expr TemplateBoxSlot::get_current_value_of_HeldTemplateSlot(FrontEndObject *obj, Expr item) {
-  if(item[0] != richmath_System_List)
+  if(!item.item_equals(0, richmath_System_List))
     return Symbol(richmath_System_DollarFailed);
   
-  if(item[1] != strings::HeldTemplateSlot)
+  if(!item.item_equals(1, strings::HeldTemplateSlot))
     return Symbol(richmath_System_DollarFailed);
   
   TemplateBox *tb = Impl::find_owner_or_self(dynamic_cast<Box*>(obj));
@@ -722,10 +722,10 @@ Expr TemplateBoxSlot::get_current_value_of_HeldTemplateSlot(FrontEndObject *obj,
 }
 
 Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item) {
-  if(item[0] != richmath_System_List)
+  if(!item.item_equals(0, richmath_System_List))
     return Symbol(richmath_System_DollarFailed);
   
-  if(item[1] != richmath_System_TemplateSlot)
+  if(!item.item_equals(1, richmath_System_TemplateSlot))
     return Symbol(richmath_System_DollarFailed);
   
   TemplateBox *tb = Impl::find_owner_or_self(dynamic_cast<Box*>(obj));
@@ -740,17 +740,17 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
     expr = CurrentValueOfTemplateSlot::get_next(PMATH_CPP_MOVE(expr), item[depth], depth == 2);
   
   expr = Dynamic(tb, PMATH_CPP_MOVE(expr)).get_value_unevaluated();
-  if(expr[0] == richmath_Internal_DynamicEvaluateMultiple)
+  if(expr.item_equals(0, richmath_Internal_DynamicEvaluateMultiple))
     expr.set(2, obj->id().to_pmath_raw());
   
   return expr;
 }
 
 bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item, Expr rhs) {
-  if(item[0] != richmath_System_List)
+  if(!item.item_equals(0, richmath_System_List))
     return false;
   
-  if(item[1] != richmath_System_TemplateSlot)
+  if(!item.item_equals(1, richmath_System_TemplateSlot))
     return false;
   
   TemplateBox *tb = Impl::find_owner_or_self(dynamic_cast<Box*>(obj));
@@ -769,7 +769,7 @@ bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
   
   expr = tb->arguments;
   if(CurrentValueOfTemplateSlot::set(expr, item, 2, PMATH_CPP_MOVE(rhs))) {
-    if(expr[0] == richmath_System_List) {
+    if(expr.item_equals(0, richmath_System_List)) {
       TemplateBoxImpl(*tb).reset_arguments(expr);
       return true;
     }
@@ -806,7 +806,7 @@ void TemplateBoxImpl::load_content(Expr dispfun) {
 }
 
 bool TemplateBoxImpl::is_valid_display_function(Expr dispfun) {
-  return dispfun[0] == richmath_System_Function && dispfun.expr_length() == 1;
+  return dispfun.item_equals(0, richmath_System_Function) && dispfun.expr_length() == 1;
 }
 
 Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
@@ -820,7 +820,7 @@ Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
   dispfun = Call(Symbol(richmath_System_TimeConstrained), PMATH_CPP_MOVE(dispfun), Application::button_timeout);
   dispfun = Evaluate(PMATH_CPP_MOVE(dispfun));
   
-  if(dispfun[0] == richmath_System_Function && dispfun.expr_length() == 1)
+  if(dispfun.item_equals(0, richmath_System_Function) && dispfun.expr_length() == 1)
     return dispfun[1];
     
   return strings::DollarFailed;
@@ -854,7 +854,7 @@ void TemplateBoxImpl::reset_arguments(Expr new_args) {
   while(slot) {
     auto num = slot->argument();
     if(slot->find_owner() == &self) {
-      if(num <= 0 || new_args[num] != self.arguments[num]) {
+      if(num <= 0 || !new_args.item_equals(num, self.arguments[num])) {
         //slot->_is_content_loaded = false;
         slot->invalidate();
         TemplateBoxSlotImpl(*slot).reload_content();
@@ -955,10 +955,10 @@ void TemplateBoxSlotImpl::assign_content() {
 }
 
 Expr TemplateBoxSlotImpl::prepare_boxes(Expr boxes) {
-  if(boxes[0] == richmath_System_PureArgument)
+  if(boxes.item_equals(0, richmath_System_PureArgument))
     return prepare_pure_arg(boxes);
     
-  if(boxes[0] == richmath_System_List || boxes[0] == richmath_System_StringBox) {
+  if(boxes.item_equals(0, richmath_System_List) || boxes.item_equals(0, richmath_System_StringBox)) {
     for(size_t i = 0; i <= boxes.expr_length(); ++i) {
       boxes.set(i, prepare_boxes(boxes[i]));
     }
@@ -987,14 +987,14 @@ Expr CurrentValueOfTemplateSlot::get_next(Expr expr, Expr key, bool allow_option
   if(key.is_int32())
     return get_next_by_index(PMATH_CPP_MOVE(expr), PMATH_AS_INT32(key.get()));
   
-  if(key[0] == richmath_System_Key && key.expr_length() == 1)
+  if(key.item_equals(0, richmath_System_Key) && key.expr_length() == 1)
     return get_next_by_lookup(PMATH_CPP_MOVE(expr), key[1], allow_options);
   
   return Symbol(richmath_System_DollarFailed);
 }
 
 Expr CurrentValueOfTemplateSlot::get_next_by_index(Expr expr, int index) {
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     return Symbol(richmath_System_DollarFailed);
     
   if(index <= 0 || (size_t)index > expr.expr_length())
@@ -1019,7 +1019,7 @@ Expr CurrentValueOfTemplateSlot::get_next_by_lookup(Expr expr, Expr name, bool a
     if(!last.is_rule())
       return Symbol(richmath_System_Inherited);
     
-    if(last[1] == name) 
+    if(last.item_equals(1, name)) 
       return last[2];
   }
   
@@ -1039,14 +1039,14 @@ bool CurrentValueOfTemplateSlot::set(Expr &expr, const Expr &items, size_t depth
   if(key.is_int32()) 
     return set_by_index(expr, PMATH_AS_INT32(key.get()), items, depth, PMATH_CPP_MOVE(value));
   
-  if(key[0] == richmath_System_Key && key.expr_length() == 1)
+  if(key.item_equals(0, richmath_System_Key) && key.expr_length() == 1)
     return set_by_lookup(expr, key[1], items, depth, PMATH_CPP_MOVE(value));
   
   return false;
 }
 
 bool CurrentValueOfTemplateSlot::set_by_index(Expr &expr, int index, const Expr &items, size_t depth, Expr value) {
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     return false;
     
   if(index <= 0 || (size_t)index > expr.expr_length())
@@ -1071,7 +1071,7 @@ bool CurrentValueOfTemplateSlot::set_by_lookup(Expr &expr, Expr name, const Expr
     return success;
   }
   
-  bool allow_options = (depth == 2 && items[1] == richmath_System_TemplateSlot) || depth == 1;
+  bool allow_options = (depth == 2 && items.item_equals(1, richmath_System_TemplateSlot)) || depth == 1;
   if(!allow_options)
     return false;
   
@@ -1088,7 +1088,7 @@ bool CurrentValueOfTemplateSlot::set_by_lookup(Expr &expr, Expr name, const Expr
     if(!last.is_rule())
       break;
     
-    if(last[1] == name) {
+    if(last.item_equals(1, name)) {
       Expr rhs = last[2];
       bool success = set(rhs, items, depth + 1, PMATH_CPP_MOVE(value));
       if(success) {

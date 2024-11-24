@@ -21,7 +21,7 @@ FillBox::~FillBox() {
 }
 
 bool FillBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_FillBox)
+  if(!expr.item_equals(0, richmath_System_FillBox))
     return false;
     
   if(expr.expr_length() < 1)

@@ -274,7 +274,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   }
   
   String details;
-  if(stack[0] == richmath_System_List && stack.expr_length() > 1) {
+  if(stack.item_equals(0, richmath_System_List) && stack.expr_length() > 1) {
     Expr default_name = String("?");
     
     for(size_t i = stack.expr_length() - 1; i > 0; --i) {
@@ -289,7 +289,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
       if(frame.try_lookup(strings::Location, location)) {
         location = Application::interrupt_wait(Call(Symbol(richmath_Developer_SourceLocationOpenerFunction), PMATH_CPP_MOVE(location)));
         
-        if(location[0] == richmath_System_Function) {
+        if(location.item_equals(0, richmath_System_Function)) {
           if(location.expr_length() == 1)
             location = location[1];
           else

@@ -29,11 +29,11 @@ bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   size_t last_non_opt;
   bool has_exponent;
   
-  if(expr[0] == richmath_System_RadicalBox) {
+  if(expr.item_equals(0, richmath_System_RadicalBox)) {
     last_non_opt = 2;
     has_exponent = true;
   }
-  else if(expr[0] == richmath_System_SqrtBox) {
+  else if(expr.item_equals(0, richmath_System_SqrtBox)) {
     last_non_opt = 1;
     has_exponent = false;
   }

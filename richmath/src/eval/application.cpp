@@ -539,9 +539,9 @@ void Application::gui_print_section(Expr expr) {
   Section *sect = try_make_output(BoxFactory::kind_of_section(expr));
   
   if(!sect) {
-    if(expr[0] == richmath_System_Section) {
+    if(expr.item_equals(0, richmath_System_Section)) {
       Expr boxes = expr[1];
-      if(boxes[0] == richmath_System_BoxData)
+      if(boxes.item_equals(0, richmath_System_BoxData))
         boxes = boxes[1];
         
       expr = Call(Symbol(richmath_System_RawBoxes), boxes);
@@ -1007,7 +1007,7 @@ Document *Application::try_create_document(Expr data) {
       doc->style.add_pmath(options);
       
     Expr sections = data[1];
-    if(sections[0] != richmath_System_List)
+    if(!sections.item_equals(0, richmath_System_List))
       sections = List(sections);
     
     for(auto item : sections.items()) {
@@ -1054,7 +1054,7 @@ Document *Application::open_new_document(String full_filename) {
                           
                           
       if( held_boxes.expr_length() == 1 &&
-          held_boxes[0] == richmath_System_HoldComplete &&
+          held_boxes.item_equals(0, richmath_System_HoldComplete) &&
           doc->try_load_from_object(held_boxes[1], BoxInputFlags::Default))
       {
         break;
@@ -1104,7 +1104,7 @@ Expr Application::run_filedialog(Expr data) {
     ++argi;
   }
   
-  if(data[argi][0] == richmath_System_List) {
+  if(data[argi].item_equals(0, richmath_System_List)) {
     filter = data[argi];
     ++argi;
   }
@@ -1552,7 +1552,7 @@ static Expr cnt_documentread(Expr data) {
   BoxOutputFlags flags = BoxOutputFlags::WithDebugMetadata;
   int depth = INT_MAX;
   
-  if(data.expr_length() == 0 || data[1] == richmath_System_Automatic) {
+  if(data.expr_length() == 0 || data.item_equals(1, richmath_System_Automatic)) {
     doc = Documents::selected_document();
   }
   else {

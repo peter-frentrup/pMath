@@ -258,7 +258,7 @@ FallbackTextShaper::FallbackTextShaper(SharedPtr<TextShaper> default_shaper)
   if(++fallback_shaper_count == 1) {
     default_fallback_fontlist = Expr{pmath_symbol_get_value(richmath_FE_DollarFallbackFonts)};
     
-    if(default_fallback_fontlist[0] != richmath_System_List)
+    if(!default_fallback_fontlist.item_equals(0, richmath_System_List))
       default_fallback_fontlist = Expr();
   }
 }

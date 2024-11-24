@@ -119,7 +119,7 @@ Expr Dynamic::operator=(Expr expr) {
   if(!_expr.is_expr())
     return _expr;
   
-  if(_expr[0] == richmath_System_Dynamic) {
+  if(_expr.item_equals(0, richmath_System_Dynamic)) {
     if(_expr.expr_length() < 1)
       return _expr;
     
@@ -189,7 +189,7 @@ bool Dynamic::is_dynamic_of(Expr sym) {
 //{ class Dynamic::Impl ...
 
 bool Dynamic::Impl::is_template_slot(Expr expr, int *index) {
-  if(expr[0] == richmath_System_PureArgument && expr.expr_length() == 1) {
+  if(expr.item_equals(0, richmath_System_PureArgument) && expr.expr_length() == 1) {
     Expr arg = expr[1];
     if(arg.is_int32()) {
       if(index) 
@@ -250,7 +250,7 @@ void Dynamic::Impl::get_assignment_functions(Expr expr, Expr *pre, Expr *middle,
   *middle = Symbol(richmath_System_None);
   *post   = Symbol(richmath_System_None);
   
-  if(expr[0] != richmath_System_Dynamic)
+  if(!expr.item_equals(0, richmath_System_Dynamic))
     return;
   
   if(expr.expr_length() < 2) {
@@ -259,7 +259,7 @@ void Dynamic::Impl::get_assignment_functions(Expr expr, Expr *pre, Expr *middle,
   }
   
   Expr fun = expr[2];
-  if(fun[0] != richmath_System_List) {
+  if(!fun.item_equals(0, richmath_System_List)) {
     *middle = PMATH_CPP_MOVE(fun);
     if(*middle == richmath_System_Temporary)
       *post = Symbol(richmath_System_Automatic);
@@ -295,7 +295,7 @@ bool Dynamic::Impl::has_pre_or_post_assignment() {
     }
   }
   
-  if(self._expr[0] != richmath_System_Dynamic)
+  if(!self._expr.item_equals(0, richmath_System_Dynamic))
     return false;
 
   if(self._expr.expr_length() < 2)
@@ -305,7 +305,7 @@ bool Dynamic::Impl::has_pre_or_post_assignment() {
   if(fun == richmath_System_Temporary)
     return true;
   
-  if(fun[0] != richmath_System_List)
+  if(!fun.item_equals(0, richmath_System_List))
     return false;
   
   return fun.expr_length() > 1;
@@ -322,7 +322,7 @@ bool Dynamic::Impl::has_temporary_assignment() {
     }
   }
   
-  if(self._expr[0] != richmath_System_Dynamic)
+  if(!self._expr.item_equals(0, richmath_System_Dynamic))
     return false;
 
   if(self._expr.expr_length() < 2)
@@ -367,7 +367,7 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
       }
       
       dyn_expr = dyn._expr;
-      if(dyn._expr[0] != richmath_System_Dynamic) {
+      if(!dyn._expr.item_equals(0, richmath_System_Dynamic)) {
         dyn.assign(value, pre, middle, post);
         if(dyn._expr != dyn_expr) {
           source_template->reset_argument(source_index, dyn._expr);
@@ -427,7 +427,7 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
 bool Dynamic::Impl::is_dynamic_of(Expr sym) {
   bool is_dyn;
   Expr dyn = get_prepared_dynamic(&is_dyn);
-  return is_dyn && dyn[0] == richmath_System_Dynamic && dyn[1] == sym;
+  return is_dyn && dyn.item_equals(0, richmath_System_Dynamic) && dyn.item_equals(1, sym);
 }
 
 Expr Dynamic::Impl::get_value_unevaluated() {
@@ -467,7 +467,7 @@ Expr Dynamic::Impl::get_prepared_dynamic(bool *is_dynamic) {
       }
       
       dyn_expr = PMATH_CPP_MOVE(dyn._expr);
-      if(dyn_expr[0] != richmath_System_Dynamic) {
+      if(!dyn_expr.item_equals(0, richmath_System_Dynamic)) {
         /* Note that dynamic changes in the find_template_box_dynamic-chain above would not be visible 
            for self._owner and would thus break its dynamic updating facility.
            This scenario can happen if a TemplateBox in the chain (a parent of self._owner)
@@ -497,7 +497,7 @@ Expr Dynamic::Impl::get_value_now() {
   Expr call = get_value_unevaluated(&is_dynamic);
   
   if(!is_dynamic) {
-    if(call.expr_length() == 1 && call[0] == richmath_System_Unevaluated)
+    if(call.expr_length() == 1 && call.item_equals(0, richmath_System_Unevaluated))
       return call[1];
     return call;
   }
@@ -589,7 +589,7 @@ Expr richmath_eval_FrontEnd_PrepareDynamicEvaluation(Expr expr) {
     return Symbol(richmath_System_DollarFailed);
   
   StyledObject *obj = nullptr;
-  if(expr[1] == richmath_System_Automatic)
+  if(expr.item_equals(1, richmath_System_Automatic))
     obj = dynamic_cast<StyledObject*>(Application::get_evaluation_object());
   else
     obj = FrontEndObject::find_cast<StyledObject>(FrontEndReference::from_pmath(expr[1]));
@@ -608,7 +608,7 @@ Expr richmath_eval_FrontEnd_AssignDynamicValue(Expr expr) {
     return Symbol(richmath_System_DollarFailed);
   
   StyledObject *obj = nullptr;
-  if(expr[1] == richmath_System_Automatic)
+  if(expr.item_equals(1, richmath_System_Automatic))
     obj = dynamic_cast<StyledObject*>(Application::get_evaluation_object());
   else
     obj = FrontEndObject::find_cast<StyledObject>(FrontEndReference::from_pmath(expr[1]));

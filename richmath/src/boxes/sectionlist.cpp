@@ -34,7 +34,7 @@ Expr SectionList::group(Expr sections) {
              Symbol(richmath_System_All));
   }
   
-  if(sections[0] == richmath_System_List) {
+  if(sections.item_equals(0, richmath_System_List)) {
     return Call(
              Symbol(richmath_System_SectionGroup),
              sections,
@@ -557,7 +557,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int *overwrite_unt
   if(*overwrite_until_index > _sections.length())
     *overwrite_until_index  = _sections.length();
     
-  if(boxes[0] == richmath_System_SectionGroup && boxes[1][0] == richmath_System_List) {
+  if(boxes.item_equals(0, richmath_System_SectionGroup) && boxes[1].item_equals(0, richmath_System_List)) {
     Expr sect = boxes[1];
     Expr open = boxes[2];
     

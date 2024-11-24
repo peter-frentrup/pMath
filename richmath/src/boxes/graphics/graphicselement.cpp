@@ -187,7 +187,7 @@ GraphicsElementCollection::~GraphicsElementCollection()
 }
 
 bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     return false;
   
   int oldlen = _items.length();
@@ -229,7 +229,7 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags op
 }
 
 void GraphicsElementCollection::load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     expr = List(expr);
     
   try_load_from_object(PMATH_CPP_MOVE(expr), opts);

@@ -42,7 +42,7 @@ SubsuperscriptBox::~SubsuperscriptBox() {
 }
 
 bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] == richmath_System_SubscriptBox) {
+  if(expr.item_equals(0, richmath_System_SubscriptBox)) {
     if(expr.expr_length() != 1)
       return false;
       
@@ -62,7 +62,7 @@ bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return true;
   }
   
-  if(expr[0] == richmath_System_SuperscriptBox) {
+  if(expr.item_equals(0, richmath_System_SuperscriptBox)) {
     if(expr.expr_length() != 1)
       return false;
       
@@ -82,7 +82,7 @@ bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return true;
   }
   
-  if(expr[0] == richmath_System_SubsuperscriptBox) {
+  if(expr.item_equals(0, richmath_System_SubsuperscriptBox)) {
     if(expr.expr_length() != 2)
       return false;
       

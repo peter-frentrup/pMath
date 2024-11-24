@@ -236,17 +236,17 @@ static MultiMap<Expr, FrontEndReference> box_registry;
 bool richmath::get_factor_of_scaled(Expr expr, double *value) {
   RICHMATH_ASSERT(value != nullptr);
   
-  if(expr[0] != richmath_System_Scaled)
+  if(!expr.item_equals(0, richmath_System_Scaled))
     return false;
   
   if(expr.expr_length() != 1)
     return false;
   
   Expr val = expr[1];
-  if(val[0] == richmath_System_NCache)
+  if(val.item_equals(0, richmath_System_NCache))
     val = val[2];
   
-  if(val[0] == richmath_System_List && val.expr_length() == 1)
+  if(val.item_equals(0, richmath_System_List) && val.expr_length() == 1)
     val = val[1];
   
   if(val.is_number()) {
@@ -846,7 +846,7 @@ bool StyleImpl::add_pmath(Expr options, bool amend) {
   if(allow_strings && options.is_string()) 
     return set_pmath_string(BaseStyleName, String(options));
   
-  if(options[0] == richmath_System_List) {
+  if(options.item_equals(0, richmath_System_List)) {
     bool old_allow_strings = allow_strings;
     allow_strings = false;
     
@@ -984,7 +984,7 @@ bool StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
   if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
-  if(obj[0] == richmath_System_NCache) {
+  if(obj.item_equals(0, richmath_System_NCache)) {
     any_change = raw_set_float(n, obj[2].to_double()) || any_change;
     
     if(n.is_literal()) // TODO: do not treat NCache as Dynamic, but as Definition
@@ -1019,7 +1019,7 @@ bool StyleImpl::set_pmath_posnum_auto(StyleOptionName n, Expr obj) {
   if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
-  if(obj[0] == richmath_System_NCache) {
+  if(obj.item_equals(0, richmath_System_NCache)) {
     double val = obj[2].to_double();
     if(val > 0 && isfinite(val))
       any_change = raw_set_float(n, val) || any_change;
@@ -1051,7 +1051,7 @@ bool StyleImpl::set_pmath_length(StyleOptionName n, Expr obj) {
   if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
-  if(obj[0] == richmath_System_NCache) {
+  if(obj.item_equals(0, richmath_System_NCache)) {
     any_change = raw_set_length(n, Length(obj[2].to_double())) || any_change;
     
     if(n.is_literal()) // TODO: do not treat NCache as Dynamic, but as Definition
@@ -1097,7 +1097,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if( obj.is_expr() && obj[0] == richmath_System_List) {
+  if( obj.is_expr() && obj.item_equals(0, richmath_System_List)) {
     if(obj.expr_length() == 4) {
       any_change = set_pmath_length(Left,   obj[1]) || any_change;
       any_change = set_pmath_length(Right,  obj[2]) || any_change;
@@ -1110,7 +1110,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
       {
         Expr horz = obj[1];
         if( horz.is_expr() &&
-            horz[0] == richmath_System_List &&
+            horz.item_equals(0, richmath_System_List) &&
             horz.expr_length() == 2)
         {
           any_change = set_pmath_length(Left,  horz[1]) || any_change;
@@ -1125,7 +1125,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
       {
         Expr vert = obj[2];
         if( vert.is_expr() &&
-            vert[0] == richmath_System_List &&
+            vert.item_equals(0, richmath_System_List) &&
             vert.expr_length() == 2)
         {
           any_change = set_pmath_length(Top,    vert[1]) || any_change;
@@ -1178,7 +1178,7 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if(obj[0] == richmath_System_List && obj.expr_length() == 2) {
+  if(obj.item_equals(0, richmath_System_List) && obj.expr_length() == 2) {
     any_change = raw_remove_length(n) || any_change;
     
     any_change = set_pmath_length(Horizontal, obj[1]) || any_change;
@@ -1204,7 +1204,7 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if(obj[0] == richmath_System_NCache) {
+  if(obj.item_equals(0, richmath_System_NCache)) {
     any_change = set_pmath_size(n, obj[2]) || any_change;
     
     if(n.is_literal()) // TODO: do not treat NCache as Dynamic, but as Definition
@@ -1321,7 +1321,7 @@ bool StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
   RICHMATH_ASSERT(key_converter.is_valid());
   
   bool any_change = false;
-  if(obj[0] == richmath_System_List) {
+  if(obj.item_equals(0, richmath_System_List)) {
     for(size_t i = 1; i <= obj.expr_length(); ++i) {
       Expr rule = obj[i];
       
@@ -1423,7 +1423,7 @@ Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr olde
   SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(key);
   RICHMATH_ASSERT(key_converter.is_valid());
   
-  if(newer[0] == richmath_System_List) {
+  if(newer.item_equals(0, richmath_System_List)) {
     for(size_t i = newer.expr_length(); i > 0; --i) {
       Expr rule = newer[i];
       
@@ -1461,12 +1461,12 @@ Expr StyleImpl::merge_tuple_members(Expr newer, Expr older) {
   if(older == richmath_System_Inherited)
     return newer;
     
-  if(newer[0] == richmath_System_List && older[0] == richmath_System_List && newer.expr_length() == older.expr_length()) {
+  if(newer.item_equals(0, richmath_System_List) && older.item_equals(0, richmath_System_List) && newer.expr_length() == older.expr_length()) {
     for(size_t i = newer.expr_length(); i > 0; --i) {
       Expr item = newer[i];
       if(item == richmath_System_Inherited)
         newer.set(i, older[i]);
-      else if(item[0] == richmath_System_List)
+      else if(item.item_equals(0, richmath_System_List))
         newer.set(i, merge_tuple_members(item, older[i]));
     }
     return newer;
@@ -1478,7 +1478,7 @@ Expr StyleImpl::merge_tuple_members(Expr newer, Expr older) {
 }
 
 Expr StyleImpl::merge_margin_values(Expr newer, Expr older) {
-  if(newer[0] == richmath_System_List) {
+  if(newer.item_equals(0, richmath_System_List)) {
     if(newer.expr_length() == 2)
       return merge_tuple_members(newer, List(inherited_margin_leftright(older), inherited_margin_topbottom(older)));
       
@@ -1488,12 +1488,12 @@ Expr StyleImpl::merge_margin_values(Expr newer, Expr older) {
 }
 
 Expr StyleImpl::merge_flatlist_members(Expr newer, Expr older) {
-  if(newer[0] == richmath_System_List) {
+  if(newer.item_equals(0, richmath_System_List)) {
     bool need_flatten = false;
     for(size_t i = newer.expr_length(); i > 0; --i) {
       Expr item = newer[i];
       if(item == richmath_System_Inherited) {
-        if(older[0] == richmath_System_List) {
+        if(older.item_equals(0, richmath_System_List)) {
           if(older.expr_length() == 1) {
             newer.set(i, older[1]);
           }
@@ -1508,7 +1508,7 @@ Expr StyleImpl::merge_flatlist_members(Expr newer, Expr older) {
         continue;
       }
       if(!need_flatten)
-        need_flatten = item[0] == richmath_System_List;
+        need_flatten = item.item_equals(0, richmath_System_List);
     }
 
     if(need_flatten)
@@ -1544,7 +1544,7 @@ Expr StyleImpl::finish_ruleset_merge(StyleOptionName key, Expr value) {
   SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(key);
   RICHMATH_ASSERT(key_converter.is_valid());
   
-  if(value[0] == richmath_System_List) {
+  if(value.item_equals(0, richmath_System_List)) {
     for(size_t i = value.expr_length(); i > 0; --i) {
       Expr rule = value[i];
       
@@ -1580,7 +1580,7 @@ Expr StyleImpl::finish_flatlist_merge(StyleOptionName key, Expr value) {
 Expr StyleImpl::inherited_tuple_member(Expr inherited, int index) {
   RICHMATH_ASSERT(index >= 1);
   
-  if(inherited[0] == richmath_System_List) {
+  if(inherited.item_equals(0, richmath_System_List)) {
     if((size_t)index <= inherited.expr_length())
       return inherited[index];
   }
@@ -1593,11 +1593,11 @@ Expr StyleImpl::inherited_tuple_member(Expr inherited, int index) {
 }
 
 Expr StyleImpl::inherited_ruleset_member(Expr inherited, Expr key) {
-  if(inherited[0] == richmath_System_List) {
+  if(inherited.item_equals(0, richmath_System_List)) {
     size_t len = inherited.expr_length();
     for(size_t i = 1; i <= len; ++i) {
       Expr item = inherited[i];
-      if(item.is_rule() && item[1] == key)
+      if(item.is_rule() && item.item_equals(1, key))
         return item[2];
     }
   }
@@ -1610,7 +1610,7 @@ Expr StyleImpl::inherited_ruleset_member(Expr inherited, Expr key) {
 }
 
 Expr StyleImpl::inherited_margin_leftright(Expr inherited) {
-  if(inherited[0] == richmath_System_List) {
+  if(inherited.item_equals(0, richmath_System_List)) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(PMATH_CPP_MOVE(inherited), 1);
   }
@@ -1619,7 +1619,7 @@ Expr StyleImpl::inherited_margin_leftright(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_left(Expr inherited) {
-  if(inherited[0] == richmath_System_List) {
+  if(inherited.item_equals(0, richmath_System_List)) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(inherited_tuple_member(PMATH_CPP_MOVE(inherited), 1), 1);
   }
@@ -1628,7 +1628,7 @@ Expr StyleImpl::inherited_margin_left(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_right(Expr inherited) {
-  if(inherited[0] == richmath_System_List) {
+  if(inherited.item_equals(0, richmath_System_List)) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(inherited_tuple_member(PMATH_CPP_MOVE(inherited), 1), 2);
   }
@@ -1637,7 +1637,7 @@ Expr StyleImpl::inherited_margin_right(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_topbottom(Expr inherited) {
-  if(inherited[0] == richmath_System_List) {
+  if(inherited.item_equals(0, richmath_System_List)) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(PMATH_CPP_MOVE(inherited), 2);
   }
@@ -1646,7 +1646,7 @@ Expr StyleImpl::inherited_margin_topbottom(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_top(Expr inherited) {
-  if(inherited[0] == richmath_System_List) {
+  if(inherited.item_equals(0, richmath_System_List)) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(inherited_tuple_member(PMATH_CPP_MOVE(inherited), 2), 1);
   }
@@ -1655,7 +1655,7 @@ Expr StyleImpl::inherited_margin_top(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_bottom(Expr inherited) {
-  if(inherited[0] == richmath_System_List) {
+  if(inherited.item_equals(0, richmath_System_List)) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(inherited_tuple_member(PMATH_CPP_MOVE(inherited), 2), 2);
   }
@@ -2083,7 +2083,7 @@ bool FlagsStyleConverter::is_valid_key(int val) {
 }
 
 bool FlagsStyleConverter::is_valid_expr(Expr expr) {
-  if(expr[0] == richmath_System_List) {
+  if(expr.item_equals(0, richmath_System_List)) {
     for(auto item : expr.items()) {
       if(_expr_to_int.search(item) == nullptr)
         return false;
@@ -2095,7 +2095,7 @@ bool FlagsStyleConverter::is_valid_expr(Expr expr) {
 }
 
 int FlagsStyleConverter::to_int(Expr expr) {
-  if(expr[0] == richmath_System_List) {
+  if(expr.item_equals(0, richmath_System_List)) {
     unsigned uval = 0;
     for(auto item : expr.items()) {
       uval |= _expr_to_int[item];
@@ -2912,7 +2912,7 @@ SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
                         Parse("Get(`1`, Head->HoldComplete)", Application::stylesheet_path_base + expr),
                         Application::button_timeout);
                         
-    if(held_boxes.expr_length() == 1 && held_boxes[0] == richmath_System_HoldComplete) {
+    if(held_boxes.expr_length() == 1 && held_boxes.item_equals(0, richmath_System_HoldComplete)) {
       stylesheet = new Stylesheet();
       stylesheet->base = Stylesheet::Default->base;
       stylesheet->register_as(expr);
@@ -2923,7 +2923,7 @@ SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
     return nullptr;
   }
   
-  if(expr[0] == richmath_System_Document) {
+  if(expr.item_equals(0, richmath_System_Document)) {
     SharedPtr<Stylesheet> stylesheet = new Stylesheet();
     stylesheet->base = Stylesheet::Default->base;
     stylesheet->reload(expr);
@@ -3138,17 +3138,17 @@ void StylesheetImpl::internal_add(Expr expr) {
   // TODO: detect stack overflow/infinite recursion
   
   while(expr.is_expr()) {
-    if(expr[0] == richmath_System_Document) {
+    if(expr.item_equals(0, richmath_System_Document)) {
       expr = expr[1];
       continue;
     }
     
-    if(expr[0] == richmath_System_SectionGroup) {
+    if(expr.item_equals(0, richmath_System_SectionGroup)) {
       expr = expr[1];
       continue;
     }
     
-    if(expr[0] == richmath_System_List) {
+    if(expr.item_equals(0, richmath_System_List)) {
       size_t len = expr.expr_length();
       for(size_t i = 1; i < len; ++i) {
         internal_add(expr[i]);
@@ -3157,7 +3157,7 @@ void StylesheetImpl::internal_add(Expr expr) {
       continue;
     }
     
-    if(expr[0] == richmath_System_Section) {
+    if(expr.item_equals(0, richmath_System_Section)) {
       add_section(expr);
       return;
     }
@@ -3168,7 +3168,7 @@ void StylesheetImpl::internal_add(Expr expr) {
 
 void StylesheetImpl::add_section(Expr expr) {
   Expr name = expr[1];
-  if(name[0] == richmath_System_StyleData) {
+  if(name.item_equals(0, richmath_System_StyleData)) {
     Expr data = name[1];
     if(data.is_string()) {
       Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
@@ -3187,7 +3187,7 @@ void StylesheetImpl::add_section(Expr expr) {
           return;
         }
       }
-      else if(base_sd[0] == richmath_System_StyleData) {
+      else if(base_sd.item_equals(0, richmath_System_StyleData)) {
         if(Style *base_style_ptr = self.styles.search(String(base_sd[1]))) {
           Style style = base_style_ptr->copy();
           style.add_pmath(options);
@@ -3203,7 +3203,7 @@ void StylesheetImpl::add_section(Expr expr) {
       return;
     }
     
-    if(expr.expr_length() == 1 && data.is_rule() && data[1] == richmath_System_StyleDefinitions) {
+    if(expr.expr_length() == 1 && data.is_rule() && data.item_equals(1, richmath_System_StyleDefinitions)) {
       SharedPtr<Stylesheet> stylesheet = Stylesheet::try_load(data[2]);
       if(stylesheet) {
         self.used_stylesheets.add(stylesheet);
@@ -3732,7 +3732,7 @@ void StyleInformation::add_enum(IntStyleOptionName key, const Expr &name, Shared
 }
 
 void StyleInformation::add_to_ruleset(StyleOptionName key, const Expr &name) {
-  if(name[0] == richmath_System_List && name.expr_length() == 2) {
+  if(name.item_equals(0, richmath_System_List) && name.expr_length() == 2) {
     Expr super_name = name[1];
     Expr sub_name   = name[2];
     
@@ -3767,7 +3767,7 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
   if(!styled_obj)
     return Symbol(richmath_System_DollarFailed);
   
-  if(item[0] == richmath_System_List) {
+  if(item.item_equals(0, richmath_System_List)) {
     size_t item_len = item.expr_length();
     for(size_t k_len = item_len; k_len > 0; --k_len) {
       StyleOptionName key = StyleData::get_key(item.items(1, k_len));
@@ -3778,7 +3778,7 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
         Expr res = styled_obj->get_pmath_style(key);
         
         if(k_len < item_len) {
-          if(res[0] != richmath_System_List)
+          if(!res.item_equals(0, richmath_System_List))
             return Symbol(richmath_System_DollarFailed);
           
           Expr rest = item.items(k_len, item_len);
@@ -3803,7 +3803,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   if(!styled_obj)
     return false;
   
-  if(item[0] == richmath_System_List && item.expr_length() == 1)
+  if(item.item_equals(0, richmath_System_List) && item.expr_length() == 1)
     item = item[1];
     
   StyleOptionName key = StyleData::get_key(item);
@@ -3835,7 +3835,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
 }
 
 bool StyleInformation::is_list_with_inherited(Expr expr) {
-  if(expr[0] != richmath_System_List)
+  if(!expr.item_equals(0, richmath_System_List))
     return false;
   
   for(auto e : expr.items())

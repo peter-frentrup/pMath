@@ -152,7 +152,7 @@ StyleBox::StyleBox(AbstractSequence *content)
 }
 
 bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_StyleBox)
+  if(!expr.item_equals(0, richmath_System_StyleBox))
     return false;
   
   if(expr.expr_length() < 1)
@@ -238,7 +238,7 @@ TagBox::TagBox(AbstractSequence *content, Expr _tag)
 }
 
 bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != richmath_System_TagBox)
+  if(!expr.item_equals(0, richmath_System_TagBox))
     return false;
   
   if(expr.expr_length() < 2)
