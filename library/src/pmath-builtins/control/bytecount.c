@@ -52,7 +52,7 @@ size_t pmath_object_bytecount(pmath_t obj) {
       size_t len = cust_expr->internals.length;
       size_t result = len * sizeof(pmath_t) + sizeof(struct _pmath_custom_expr_t);
       
-      struct _pmath_custom_expr_api_t *api = PMATH_CUSTOM_EXPR_DATA(cust_expr)->api;
+      const struct _pmath_custom_expr_api_t *api = PMATH_CUSTOM_EXPR_DATA(cust_expr)->api;
       if(api->get_extra_bytecount)
         result += api->get_extra_bytecount(cust_expr);
       else
