@@ -143,6 +143,31 @@ Document({
                   Alignment -> Dynamic({$Context`ax, $Context`ay}), 
                   ImageSize -> {100, 50}))}, "}"}}}), "Column")), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [6]:")}, All)}, All), 
+    SectionGroup({Section("Panel", "Section"), 
+      SectionGroup({
+        Section(
+         BoxData({"Grid", "(", {
+            "{", {
+             {"{", {",", {"Slider", "(", {{"Dynamic", "(", "ax", ")"}, ",", {
+                  {"-", "1"}, "..", "1"}}, ")"}}, "}"}, ",", {
+              "{", {{"Slider", "(", {{"Dynamic", "(", "ay", ")"}, ",", {
+                  {"-", "1"}, "..", "1"}, ",", {
+                  "Appearance", "\[Rule]", StringBox("\"Vertical\"")}}, ")"}, 
+               ",", {"Pane", "@", {"Panel", "(", {
+                  {SqrtBox("123"), "y"}, ",", {"ImageSize", "\[Rule]", {
+                    "{", {"100", ",", "100"}, "}"}}, ",", {
+                   "Alignment", "\[Rule]", {"Dynamic", "(", {
+                     "{", {"ax", ",", "ay"}, "}"}, ")"}}}, ")"}}}, "}"}}, 
+            "}"}, ")"}), "Input", SectionLabel -> "in [9]:"), 
+        Section(
+         BoxData(
+          TagBox(GridBox({{"", SliderBox(Dynamic($Context`ax), -1 .. 1)}, {
+              SliderBox(Dynamic($Context`ay), -1 .. 1, 
+               Appearance -> "Vertical"), 
+              PaneBox(PanelBox({"y", " ", SqrtBox("123")}, 
+                Alignment -> Dynamic({$Context`ax, $Context`ay}), 
+                ImageSize -> {100, 100}))}}), "Grid")), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [9]:")}, All)}, All), 
     SectionGroup({Section("Button", "Section"), 
       SectionGroup({Section(BoxData({"Button", "(", "123", ")"}), "Input", 
          SectionLabel -> "in [1]:"), Section(BoxData(ButtonBox("123")), 

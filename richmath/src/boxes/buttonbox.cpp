@@ -50,7 +50,10 @@ void AbstractButtonBox::resize_default_baseline(Context &context) {
 bool AbstractButtonBox::expand(Context &context, const BoxSize &size) {
   base::expand(context, size);
   _extents.merge(size);
+  // Only horizontal alignment. The caller decided vetical alignment
+  auto new_ext = _extents;
   apply_alignment();
+  _extents = new_ext; 
   return true;
 }
 

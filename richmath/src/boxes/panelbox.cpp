@@ -82,8 +82,11 @@ ControlState PanelBox::calc_state(Context &context) {
 
 bool PanelBox::expand(Context &context, const BoxSize &size) {
   base::expand(context, size);
-  _extents = size;
+  _extents.merge(size);
+  // Only horizontal alignment. The caller decided vetical alignment
+  auto new_ext = _extents;
   apply_alignment();
+  _extents = new_ext; 
   return true;
 }
 
