@@ -1,0 +1,138 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Alignment", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Alignment"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section("The following settings can be given:", "Notes"), 
+        Section(
+         TextData({
+           GridBox({{{TemplateBox({"Automatic"}, "ReferenceHyperlink")}, 
+              "default alignment based on environment"}, {
+              {TemplateBox({"Left"}, "ReferenceHyperlink")}, "left aligned"}, {
+              {TemplateBox({"Right"}, "ReferenceHyperlink")}, 
+              "right aligned"}, {{TemplateBox({"Top"}, "ReferenceHyperlink")}, 
+              "top aligned"}, {
+              {TemplateBox({"Bottom"}, "ReferenceHyperlink")}, 
+              "bottom aligned"}, {
+              {TemplateBox({"Center"}, "ReferenceHyperlink")}, 
+              "center aligned"}, {
+              {"{", StyleBox("h", "Arg"), ", ", StyleBox("v", "Arg"), "}"}, 
+              "separate horizontal and vertical alignments"}, {
+              {StyleBox("x", "Arg")}, {"aligned at position ", 
+               StyleBox("x", "Arg"), " between ", BoxData({"-", "1"}), 
+               " (left) and ", BoxData({"+", "1"}), " (right)"}}, {
+              {"{", StyleBox("x", "Arg"), ", ", StyleBox("y", "Arg"), "}"}, {
+               "aligned at horizontal and vertical positions ", 
+               StyleBox("x", "Arg"), " and ", StyleBox("y", "Arg")}}})}), 
+         "2ColumnTableNotes"), 
+        Section(TextData({TemplateBox({"Alignment"}, "ReferenceHyperlink"), 
+           " \[Rule] ", TemplateBox({"Center"}, "ReferenceHyperlink"), 
+           " is generally equivalent to ", TemplateBox({"Alignment"}, 
+            "ReferenceHyperlink"), " \[Rule] {", 
+           TemplateBox({"Center"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Center"}, "ReferenceHyperlink"), "}."}), "Notes"), 
+        Section(
+         TextData({"In ", TemplateBox({"Alignment"}, "ReferenceHyperlink"), 
+           " -> {", StyleBox("x", "Arg"), ", ", StyleBox("y", "Arg"), 
+           "}, values for ", StyleBox("y", "Arg"), " run from ", 
+           BoxData({"-", "1"}), " (bottom) to ", BoxData({"+", "1"}), 
+           " (top)."}), "Notes")}, All), Section("", "SectionFooterSpacer")}, 
+     1), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Predefined button alignments:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Row", "(", {
+              {"Table", "(", {
+                {"Button", "(", {"y", ",", {"ImageSize", "\[Rule]", {
+                    "{", {"Automatic", ",", "40"}, "}"}}, ",", {
+                   "Alignment", "\[Rule]", "a"}}, ")"}, ",", {
+                 "a", "\[Rule]", {"{", {"Top", ",", "Center", ",", "Bottom"}, 
+                  "}"}}}, ")"}, ",", StringBox("\"xxx\"")}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(TemplateBox({
+              "xxx", "xxx", ButtonBox("y", ImageSize -> {Automatic, 40}, 
+               Alignment -> Top), ButtonBox("y", ImageSize -> {Automatic, 40}, 
+               Alignment -> Center), ButtonBox("y", 
+               ImageSize -> {Automatic, 40}, Alignment -> Bottom)}, 
+             "RowWithSeparators")), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Align contents within panels:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Grid", "(", {
+                "Table", "(", {
+                 {"Panel", "(", {{"a", "+", "b", "+", "c"}, ",", {
+                    "ImageSize", "\[Rule]", {"{", {"75", ",", "50"}, "}"}}, 
+                   ",", {"Alignment", "\[Rule]", {
+                     "{", {"w", ",", "h"}, "}"}}}, ")"}, ",", {
+                  "h", "\[Rule]", {"{", {"Top", ",", "Center", ",", "Bottom"}, 
+                   "}"}}, ",", {"w", "\[Rule]", {
+                   "{", {"Left", ",", "Center", ",", "Right"}, "}"}}}, ")"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              TagBox(
+               GridBox({
+                 {PanelBox({"a", "+", "b", "+", "c"}, 
+                   Alignment -> {Left, Top}, ImageSize -> {75, 50}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, 
+                   Alignment -> {Center, Top}, ImageSize -> {75, 50}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, 
+                   Alignment -> {Right, Top}, ImageSize -> {75, 50})}, {
+                  PanelBox({"a", "+", "b", "+", "c"}, 
+                   Alignment -> {Left, Center}, ImageSize -> {75, 50}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, 
+                   Alignment -> {Center, Center}, ImageSize -> {75, 50}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, 
+                   Alignment -> {Right, Center}, ImageSize -> {75, 50})}, {
+                  PanelBox({"a", "+", "b", "+", "c"}, 
+                   Alignment -> {Left, Bottom}, ImageSize -> {75, 50}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, 
+                   Alignment -> {Center, Bottom}, ImageSize -> {75, 50}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, 
+                   Alignment -> {Right, Bottom}, ImageSize -> {75, 50})}}), 
+               "Grid")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+        Section("Place content in a panel using sliders:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Grid", "(", {
+              "{", {
+               {"{", {",", {"Slider", "(", {{"Dynamic", "(", "x", ")"}, ",", {
+                    {"-", "1"}, "..", "1"}}, ")"}}, "}"}, ",", {
+                "{", {{"Slider", "(", {{"Dynamic", "(", "y", ")"}, ",", {
+                    {"-", "1"}, "..", "1"}, ",", {
+                    "Appearance", "\[Rule]", StringBox("\"Vertical\"")}}, 
+                  ")"}, ",", {"Pane", "@", {
+                   "Panel", "(", {SqrtBox("123"), ",", {
+                     "ImageSize", "\[Rule]", {"{", {"100", ",", "100"}, "}"}}, 
+                    ",", {"Alignment", "\[Rule]", {
+                      "Dynamic", "(", {"{", {"x", ",", "y"}, "}"}, ")"}}}, 
+                   ")"}}}, "}"}}, "}"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            TagBox(
+             GridBox({{"", SliderBox(Dynamic(Section$$4516`x), -1 .. 1)}, {
+                SliderBox(Dynamic(Section$$4516`y), -1 .. 1, 
+                 Appearance -> "Vertical"), 
+                PaneBox(PanelBox(SqrtBox("123"), 
+                  Alignment -> Dynamic({Section$$4516`x, Section$$4516`y}), 
+                  ImageSize -> {100, 100}))}}), "Grid")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"BaselinePosition"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ImageSize"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

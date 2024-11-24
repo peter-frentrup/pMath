@@ -22,12 +22,13 @@ Document({
            " \[Rule] \"Queued\" to facilitate longer-running actions without \
            freezing the front-end. "}), "Notes"), 
         Section(TextData({TemplateBox({"Button"}, "ReferenceHyperlink"), 
-           " has options ", TemplateBox({"BaselinePosition"}, 
-            "ReferenceHyperlink"), ", ", TemplateBox({"BaseStyle"}, 
-            "ReferenceHyperlink"), ", ", TemplateBox({"ButtonFrame"}, 
-            "ReferenceHyperlink"), ", ", TemplateBox({"ContentPadding"}, 
-            "ReferenceHyperlink"), ", ", TemplateBox({"Enabled"}, 
-            "ReferenceHyperlink"), ", and ", 
+           " has options ", TemplateBox({"Alignment"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"BaselinePosition"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"BaseStyle"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"ButtonFrame"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Enabled"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"ImageSize"}, "ReferenceHyperlink"), ", and ", 
            TemplateBox({"Method"}, "ReferenceHyperlink"), "."}), "Notes"), 
         Section(TextData({TemplateBox({"Button"}, "ReferenceHyperlink"), 
            " by default applies the current stylesheet\[Prime]s \"Button\" \
@@ -67,7 +68,31 @@ Document({
              SectionGenerated -> True), Section(BoxData("$Aborted"), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Options", "ExampleSection"), 
-        SectionGroup({Section("BaselinePosition", "ExampleSubsection"), 
+        SectionGroup({Section("Alignment", "ExampleSubsection"), 
+          Section(TextData({"The default setting is ", 
+             TemplateBox({"Alignment"}, "ReferenceHyperlink"), " \[Rule] ", 
+             TemplateBox({"Center"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Button", "(", {
+                "123", ",", {"ImageSize", "\[Rule]", "Medium"}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox("123", 
+               ImageSize -> {Medium, Automatic})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Left-align the contents:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Button", "(", {
+                  "123", ",", {"ImageSize", "\[Rule]", "Medium"}, ",", {
+                   "Alignment", "\[Rule]", "Left"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(ButtonBox("123", Alignment -> Left, 
+                 ImageSize -> {Medium, Automatic})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({
+          Section("BaselinePosition", "ExampleSubsection"), 
           Section("Vertically align buttons:", "ExampleText"), 
           SectionGroup({
             Section(
@@ -232,7 +257,60 @@ Document({
                        Function(Print(RandomReal())), Enabled -> False)}, 
                     "RowDefault"), Enabled -> False)}}), "Grid")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         1), SectionGroup({Section("Method", "ExampleSubsection"), 
+         1), SectionGroup({Section("ImageSize", "ExampleSubsection"), 
+          Section("Use predefined button sizes:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Button", "(", {"123", ",", {"ImageSize", "\[Rule]", "s"}}, 
+                 ")"}, ",", {"s", "\[Rule]", {
+                  "{", {"Tiny", ",", "Small", ",", "Medium", ",", "Large"}, 
+                  "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {ButtonBox("123", ImageSize -> {Tiny, Automatic}), 
+                ",", ButtonBox("123", ImageSize -> {Small, Automatic}), ",", 
+                ButtonBox("123", ImageSize -> {Medium, Automatic}), ",", 
+                ButtonBox("123", ImageSize -> {Large, Automatic})}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(
+             "Specify the button\[HighNineQuote]s size regardless of its \
+             contents:", "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({"Grid", "(", {
+                  "Table", "(", {
+                   {"Button", "(", {{"a", "+", "b", "+", "c"}, ",", {
+                      "ImageSize", "\[Rule]", {"{", {"w", ",", "h"}, "}"}}}, 
+                    ")"}, ",", {"h", "\[Rule]", {
+                     "{", {"30", ",", "40", ",", "50"}, "}"}}, ",", {
+                    "w", "\[Rule]", {"{", {"40", ",", "50", ",", "80"}, 
+                     "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(
+                TagBox(
+                 GridBox({
+                   {ButtonBox({"a", "+", "b", "+", "c"}, 
+                     ImageSize -> {40, 30}), 
+                    ButtonBox({"a", "+", "b", "+", "c"}, 
+                     ImageSize -> {50, 30}), 
+                    ButtonBox({"a", "+", "b", "+", "c"}, 
+                     ImageSize -> {80, 30})}, {
+                    ButtonBox({"a", "+", "b", "+", "c"}, 
+                     ImageSize -> {40, 40}), 
+                    ButtonBox({"a", "+", "b", "+", "c"}, 
+                     ImageSize -> {50, 40}), 
+                    ButtonBox({"a", "+", "b", "+", "c"}, 
+                     ImageSize -> {80, 40})}, {
+                    ButtonBox({"a", "+", "b", "+", "c"}, 
+                     ImageSize -> {40, 50}), 
+                    ButtonBox({"a", "+", "b", "+", "c"}, 
+                     ImageSize -> {50, 50}), 
+                    ButtonBox({"a", "+", "b", "+", "c"}, 
+                     ImageSize -> {80, 50})}}), "Grid")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("Method", "ExampleSubsection"), 
           Section(TextData({"The default setting ", 
              TemplateBox({"Method"}, "ReferenceHyperlink"), 
              " \[Rule] \"Preemptive\" only allows short actions and blocks \

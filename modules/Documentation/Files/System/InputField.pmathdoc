@@ -31,8 +31,17 @@ Document({
            " or moving focus away from the input field."}), "Notes"), 
         Section(
          "The setting for the input field is only updated if it can be \
-         converted to the specified type.", "Notes")}, All), 
-      Section("", "SectionFooterSpacer")}, 1), 
+         converted to the specified type.", "Notes"), 
+        Section(TextData({TemplateBox({"InputField"}, "ReferenceHyperlink"), 
+           " has options ", TemplateBox({"Appearance"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"BaselinePosition"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"BaseStyle"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"ContinuousAction"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Enabled"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"ImageSize"}, "ReferenceHyperlink"), ", and ", 
+           TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink"), "."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section(TextData({"Update a variable via ", 
@@ -160,7 +169,42 @@ Document({
                      BaselinePosition -> Bottom), ",", "Bottom"}, "}"}}}), 
                "Column")), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, 1), 
-        SectionGroup({Section("ContinuousAction", "ExampleSubsection"), 
+        SectionGroup({Section("ContentPadding", "ExampleSubsection"), 
+          Section(TextData({"The default setting is ", 
+             TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({"{", {{"InputField", "(", ")"}, ",", {
+                 "InputField", "(", "x", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {InputFieldBox(, Expression), ",", 
+                InputFieldBox($Context`x, Expression)}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(TextData({"Use ", TemplateBox({"ContentPadding"}, 
+                "ReferenceHyperlink"), " \[Rule] ", 
+               TemplateBox({"False"}, "ReferenceHyperlink"), 
+               " to tighly wrap the field:"}), "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({
+                 "{", {
+                  {"InputField", "(", {
+                    ",", {"ContentPadding", "\[Rule]", "False"}}, ")"}, ",", {
+                   "InputField", "(", {
+                    "x", ",", {"ContentPadding", "\[Rule]", "False"}}, ")"}}, 
+                 "}"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData({
+                 "{", {InputFieldBox(, Expression, ContentPadding -> False), 
+                  ",", InputFieldBox(Section$$3861`x, Expression, 
+                   ContentPadding -> False)}, "}"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({
+          Section("ContinuousAction", "ExampleSubsection"), 
           Section(TextData({"With the default setting ", 
              TemplateBox({"ContinuousAction"}, "ReferenceHyperlink"), 
              " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), 
@@ -240,6 +284,106 @@ Document({
                   GridBox({{InputFieldBox(123, Expression, Enabled -> True)}, {
                      InputFieldBox(456, Expression)}}), "Column"), 
                  Enabled -> False)), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("ImageSize", "ExampleSubsection"), 
+          Section("Set the width of the field:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"InputField", "(", {"x", ",", {"ImageSize", "\[Rule]", "s"}}, 
+                 ")"}, ",", {"s", "\[Rule]", {
+                  "{", {"30", ",", "50", ",", "80"}, "}"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {InputFieldBox(Section$$3713`x, Expression, 
+                 ImageSize -> {30, Automatic}), ",", 
+                InputFieldBox(Section$$3713`x, Expression, 
+                 ImageSize -> {50, Automatic}), ",", 
+                InputFieldBox(Section$$3713`x, Expression, 
+                 ImageSize -> {80, Automatic})}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Set the overall size of the field:", "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({"Grid", "(", {
+                  "Table", "(", {
+                   {"InputField", "(", {
+                     "x", ",", {"ImageSize", "\[Rule]", {
+                       "{", {"w", ",", "h"}, "}"}}}, ")"}, ",", {
+                    "h", "\[Rule]", {"{", {"20", ",", "30", ",", "50"}, "}"}}, 
+                   ",", {"w", "\[Rule]", {"{", {"30", ",", "50", ",", "80"}, 
+                     "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(
+                TagBox(
+                 GridBox({
+                   {InputFieldBox(Section$$3750`x, Expression, 
+                     ImageSize -> {30, 20}), InputFieldBox(Section$$3750`x, 
+                     Expression, ImageSize -> {50, 20}), 
+                    InputFieldBox(Section$$3750`x, Expression, 
+                     ImageSize -> {80, 20})}, {
+                    InputFieldBox(Section$$3750`x, Expression, 
+                     ImageSize -> {30, 30}), InputFieldBox(Section$$3750`x, 
+                     Expression, ImageSize -> {50, 30}), 
+                    InputFieldBox(Section$$3750`x, Expression, 
+                     ImageSize -> {80, 30})}, {
+                    InputFieldBox(Section$$3750`x, Expression, 
+                     ImageSize -> {30, 50}), InputFieldBox(Section$$3750`x, 
+                     Expression, ImageSize -> {50, 50}), 
+                    InputFieldBox(Section$$3750`x, Expression, 
+                     ImageSize -> {80, 50})}}), "Grid")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Predefined field sizes:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Table", "(", {
+                  {"InputField", "(", {
+                    "x", ",", {"ImageSize", "\[Rule]", "s"}}, ")"}, ",", {
+                   "s", "\[Rule]", {"{", {"Tiny", ",", "Small", ",", "Medium", 
+                     ",", "Large"}, "}"}}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData({
+                 "{", {InputFieldBox(Section$$3801`x, Expression, 
+                   ImageSize -> {Tiny, Automatic}), ",", 
+                  InputFieldBox(Section$$3801`x, Expression, 
+                   ImageSize -> {Small, Automatic}), ",", 
+                  InputFieldBox(Section$$3801`x, Expression, 
+                   ImageSize -> {Medium, Automatic}), ",", 
+                  InputFieldBox(Section$$3801`x, Expression, 
+                   ImageSize -> {Large, Automatic})}, "}"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({
+          Section("LineBreakWithin", "ExampleSubsection"), 
+          Section(TextData({"The default setting is ", 
+             TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"InputField", "(", {
+                "N", "(", {"Pi", ",", "30"}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(InputFieldBox(
+               3.14159265358979323846264338327950288419716939937510582097494[448+/-250]`60, Expression)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Allow multi-line text:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"InputField", "(", {
+                  {"N", "(", {"Pi", ",", "30"}, ")"}, ",", {
+                   "LineBreakWithin", "\[Rule]", "True"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(InputFieldBox(
+                 3.14159265358979323846264338327950288419716939937510582097494[448+/-250]`60, Expression, LineBreakWithin -> True)), 
+               "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
       SectionGroup({Section("Applications", "ExampleSection"), 
         Section("Plot any function:", "ExampleText"), 

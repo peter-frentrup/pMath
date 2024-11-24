@@ -9,7 +9,16 @@ Document({
         Section(TextData({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
            " by default displays ", StyleBox("expr", "Arg"), 
            " in \"Panel\" style which uses the system panel font."}), 
-         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
+           " has options ", TemplateBox({"Alignment"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"Appearance"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"BaselinePosition"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"BaseStyle"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Enabled"}, "ReferenceHyperlink"), ", and ", 
+           TemplateBox({"ImageSize"}, "ReferenceHyperlink"), "."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A simple panel:", "ExampleText"), 
@@ -34,7 +43,32 @@ Document({
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, All)}, All), 
       SectionGroup({Section("Options", "ExampleSection"), 
-        SectionGroup({Section("Appearance", "ExampleSubsection"), 
+        SectionGroup({Section("Alignment", "ExampleSubsection"), 
+          Section(TextData({"The default setting is ", 
+             TemplateBox({"Alignment"}, "ReferenceHyperlink"), " \[Rule] {", 
+             TemplateBox({"Left"}, "ReferenceHyperlink"), ", ", 
+             TemplateBox({"Top"}, "ReferenceHyperlink"), "}:"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Panel", "(", {StringBox("\"Content\""), ",", {
+                 "ImageSize", "\[Rule]", {"{", {"100", ",", "75"}, "}"}}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(PanelBox(StringBox("\"Content\""), 
+               ImageSize -> {100, 75})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Center-align the contents:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Panel", "(", {StringBox("\"Content\""), ",", {
+                   "ImageSize", "\[Rule]", {"{", {"100", ",", "75"}, "}"}}, 
+                  ",", {"Alignment", "\[Rule]", "Center"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(PanelBox(StringBox("\"Content\""), 
+                 Alignment -> Center, ImageSize -> {100, 75})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({
+          Section("Appearance", "ExampleSubsection"), 
           Section(TextData({"The default setting is ", 
              TemplateBox({"Appearance"}, "ReferenceHyperlink"), 
              " \[Rule] \"Framed\":"}), "ExampleText"), 
@@ -236,11 +270,73 @@ Document({
                TagBox(
                 GridBox({{StringBox("\"Button:\""), 
                    ButtonBox(StringBox("\"Ok\""))}, {
-                   StringBox("\"Slider:\""), SliderBox(0.5`, 0 .. 1)}, {
+                   StringBox("\"Slider:\""), SliderBox(0.5, 0 .. 1)}, {
                    StringBox("\"InputField:\""), InputFieldBox("", String)}}), 
                 "Grid"), Enabled -> False)), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         1)}, 1), Section("", "SectionFooterSpacer")}, All), 
+         1), SectionGroup({Section("ImageSize", "ExampleSubsection"), 
+          Section(
+           "Specify the panel\[HighNineQuote]s size regardless of its \
+           contents:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Grid", "(", {
+                "Table", "(", {
+                 {"Panel", "(", {{"a", "+", "b", "+", "c"}, ",", {
+                    "ImageSize", "\[Rule]", {"{", {"w", ",", "h"}, "}"}}}, 
+                  ")"}, ",", {"h", "\[Rule]", {
+                   "{", {"30", ",", "40", ",", "50"}, "}"}}, ",", {
+                  "w", "\[Rule]", {"{", {"40", ",", "50", ",", "80"}, "}"}}}, 
+                ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              TagBox(
+               GridBox({
+                 {PanelBox({"a", "+", "b", "+", "c"}, ImageSize -> {40, 30}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, ImageSize -> {50, 30}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, ImageSize -> {80, 30})}, 
+                 {PanelBox({"a", "+", "b", "+", "c"}, ImageSize -> {40, 40}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, ImageSize -> {50, 40}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, ImageSize -> {80, 40})}, 
+                 {PanelBox({"a", "+", "b", "+", "c"}, ImageSize -> {40, 50}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, ImageSize -> {50, 50}), 
+                  PanelBox({"a", "+", "b", "+", "c"}, 
+                   ImageSize -> {80, 50})}}), "Grid")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(
+             TextData({"Use ", TemplateBox({"ImageSize"}, 
+                "ReferenceHyperlink"), 
+               " to force line breaking at a defined width:"}), 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"Panel", "(", {
+                  {"Expand", "(", {{"(", {"a", "+", "b"}, ")"}, 
+                    SuperscriptBox("10")}, ")"}, ",", {
+                   "ImageSize", "\[Rule]", {"{", {"150", ",", "Automatic"}, 
+                    "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(PanelBox({{"a", SuperscriptBox("10")}, "+", {
+                   "b", SuperscriptBox("10")}, "+", {
+                   "10", "a", " ", {"b", SuperscriptBox("9")}}, "+", {
+                   "10", "b", " ", {"a", SuperscriptBox("9")}}, "+", {
+                   "45", {"a", SuperscriptBox("2")}, " ", {
+                    "b", SuperscriptBox("8")}}, "+", {
+                   "45", {"a", SuperscriptBox("8")}, " ", {
+                    "b", SuperscriptBox("2")}}, "+", {
+                   "120", {"a", SuperscriptBox("3")}, " ", {
+                    "b", SuperscriptBox("7")}}, "+", {
+                   "120", {"a", SuperscriptBox("7")}, " ", {
+                    "b", SuperscriptBox("3")}}, "+", {
+                   "210", {"a", SuperscriptBox("4")}, " ", {
+                    "b", SuperscriptBox("6")}}, "+", {
+                   "210", {"a", SuperscriptBox("6")}, " ", {
+                    "b", SuperscriptBox("4")}}, "+", {
+                   "252", {"a", SuperscriptBox("5")}, " ", {
+                    "b", SuperscriptBox("5")}}}, 
+                 ImageSize -> {150, Automatic})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Framed"}, 

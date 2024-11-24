@@ -1,0 +1,163 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ImageSize", "ObjectName"), 
+      Section(BoxData(TemplateBox({"ImageSize"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section("The following settings can be given:", "Notes"), 
+        Section(
+         TextData({
+           GridBox({{{StyleBox("w", "Arg")}, {
+               "width specified by ", StyleBox("w", "Arg")}}, {
+              {"{", StyleBox({StyleBox("w", "Arg")}, "Arg"), ", ", 
+               StyleBox("h", "Arg"), "}"}, "explicit width and height"}})}), 
+         "2ColumnTableNotes"), 
+        Section(
+         "Specifications for both width and height can be any of the \
+         following:", "Notes"), 
+        Section(
+         TextData({
+           GridBox({{{TemplateBox({"Automatic"}, "ReferenceHyperlink")}, 
+              "determined by location or dimension (default)"}, {
+              {TemplateBox({"Tiny"}, "ReferenceHyperlink"), ", ", 
+               TemplateBox({"Smal"}, "ReferenceHyperlink"), ", ", 
+               TemplateBox({"Medium"}, "ReferenceHyperlink"), ", ", 
+               TemplateBox({"Large"}, "ReferenceHyperlink")}, 
+              "pre-defined sizes"}, {{StyleBox("d", "Arg")}, {
+               StyleBox("d", "Arg"), " points (before magnification)"}}, {
+              {TemplateBox({"Scaled"}, "ReferenceHyperlink"), "(", 
+               StyleBox("s", "Arg"), ")"}, {
+               "a fraction ", StyleBox("s", "Arg"), 
+               " of the available width"}}})}), "2ColumnTableNotes"), 
+        Section(
+         TextData({"With ", TemplateBox({"ImageSize"}, "ReferenceHyperlink"), 
+           " \[Rule] {", StyleBox("w", "Arg"), ", ", StyleBox("h", "Arg"), 
+           "}, an object will be drawn in a ", StyleBox("w", "Arg"), 
+           "\[Times]", StyleBox("h", "Arg"), 
+           " region and will be sized to fit."}), "Notes"), 
+        Section(TextData({"The position of the object within the ", 
+           StyleBox({"w\[Times]", StyleBox("h", "Arg")}, "Arg"), 
+           " region is determined by the object\[HighNineQuote]s ", 
+           TemplateBox({"Alignment"}, "ReferenceHyperlink"), " option."}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"ImageSize"}, "ReferenceHyperlink"), 
+           " \[Rule] ", StyleBox("w", "Arg"), " is equivalent to ", 
+           TemplateBox({"ImageSize"}, "ReferenceHyperlink"), " \[Rule] {", 
+           StyleBox("w", "Arg"), ", ", TemplateBox({"Automatic"}, 
+            "ReferenceHyperlink"), "}."}), "Notes"), 
+        Section(TextData({"Settings such as ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), " and ", 
+           TemplateBox({"Large"}, "ReferenceHyperlink"), 
+           " yield different image sizes for different objects."}), "Notes"), 
+        Section(TextData({"Graphics with ", 
+           TemplateBox({"ImageSize"}, "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+           " are rendered smaller when they appear in lists or grids, and even \
+           smaller when they appear in text-like constructs."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Use predefined symbolic sizes:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Graphics", "(", {{"Circle", "(", ")"}, ",", {
+                 "ImageSize", "\[Rule]", "s"}}, ")"}, ",", {
+               "s", "\[Rule]", {"{", {"Tiny", ",", "Small"}, "}"}}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {GraphicsBox({CircleBox()}, ImageSize -> {Tiny, Automatic}), 
+              ",", GraphicsBox({CircleBox()}, 
+               ImageSize -> {Small, Automatic})}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use an explicit width:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"Graphics", "(", {{"Circle", "(", ")"}, ",", {
+                   "ImageSize", "\[Rule]", "100"}}, ")"}, ",", {
+                 "Graphics", "(", {
+                  {"Circle", "(", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                     "{", {"1", ",", "1.5"}, "}"}}, ")"}, ",", {
+                   "ImageSize", "\[Rule]", "100"}}, ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {GraphicsBox({CircleBox()}, 
+                 ImageSize -> {100, Automatic}), ",", 
+                GraphicsBox({CircleBox({0, 0}, {1, 1.5})}, 
+                 ImageSize -> {100, Automatic})}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use explicit width and height:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"Graphics", "(", {{"Circle", "(", ")"}, ",", {
+                   "ImageSize", "\[Rule]", {"{", {"100", ",", "100"}, "}"}}, 
+                  ",", {"Axes", "\[Rule]", "True"}}, ")"}, ",", {
+                 "Graphics", "(", {
+                  {"Circle", "(", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                     "{", {"1", ",", "2"}, "}"}}, ")"}, ",", {
+                   "ImageSize", "\[Rule]", {"{", {"100", ",", "100"}, "}"}}, 
+                  ",", {"Axes", "\[Rule]", "True"}}, ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {GraphicsBox({CircleBox()}, Axes -> True, 
+                 ImageSize -> NCache({100, 100}, {100.0, 100.0})), ",", 
+                GraphicsBox({CircleBox({0, 0}, {1, 2})}, Axes -> True, 
+                 ImageSize -> NCache({100, 100}, {100.0, 100.0}))}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Specify the size of controls:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Slider", "(", {{"Dynamic", "(", "x", ")"}, ",", {
+                   "ImageSize", "\[Rule]", "s"}}, ")"}, ",", {
+                 "s", "\[Rule]", {"{", {"Tiny", ",", "Small", ",", "Medium"}, 
+                  "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {SliderBox(Dynamic(Section$$704`x), 0 .. 1, 
+                 ImageSize -> {Tiny, Automatic}), ",", 
+                SliderBox(Dynamic(Section$$704`x), 0 .. 1, 
+                 ImageSize -> {Small, Automatic}), ",", 
+                SliderBox(Dynamic(Section$$704`x), 0 .. 1, 
+                 ImageSize -> {Medium, Automatic})}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           "Use a fraction of the enclosing region\[HighNineQuote]s width:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "Pane", "(", {
+                 {"Graphics", "(", {{"Circle", "(", ")"}, ",", {
+                    "ImageSize", "\[Rule]", {"Scaled", "(", "0.5", ")"}}}, 
+                  ")"}, ",", "100"}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              FrameBox(PaneBox(GraphicsBox({CircleBox()}, 
+                 ImageSize :> {Scaled(0.5), Automatic}), 
+                ImageSize -> {100, Automatic}))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"XXX"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"XXX"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"XXX"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
