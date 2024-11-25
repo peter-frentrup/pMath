@@ -154,7 +154,7 @@ AutoLoad(Hold(ConsolidateValidQuantityUnits),
 	ToFileName({DirectoryName($Input)}, "simplify.pmath"))
 AutoLoad(Hold(FormatQuantity, MakeQuantityBoxes),
 	ToFileName({DirectoryName($Input)}, "formatting.pmath"))
-AutoLoad(Hold(UnitKind),
+AutoLoad(Hold(UnitKind, UnitKindObject),
 	ToFileName({DirectoryName($Input)}, "unit-descriptions.pmath"))
 Get(ToFileName({DirectoryName($Input)}, "calculations.pmath"));
 

@@ -635,6 +635,7 @@
 {"Union", {"ArgumentCount" -> 0..}},
 {"UnitDimensions", {"ArgumentCount" -> 1}},
 {"UnitKind", {"ArgumentCount" -> 1}},
+{"UnitKindObject", {"ArgumentCount" -> 1..2}},
 {"UnitVector", {"ArgumentCount" -> 1..2}},
 {"UnixTime", {"ArgumentCount" -> 0..1}},
 {"Unprotect", {"ArgumentCount" -> 1..}},

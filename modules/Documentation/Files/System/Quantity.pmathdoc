@@ -126,11 +126,29 @@ Document({
              BoxData(TemplateBox({"53", StringBox("\"mm\""), "Millimeters", 
                 StringBox("\"Millimeters\"")}, "Quantity")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"UnitKind"}, "ReferenceHyperlink"), 
+             "(", StyleBox("q", "Arg"), 
+             ") gives information about a quantity unit:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"UnitKind", "(", 
+               TemplateBox({"9.81", {StringBox("\"m\""), "/", {
+                   StringBox("\"s\""), SuperscriptBox("2")}}, 
+                 "Meters"*1/"Seconds"^2, FractionBox(StringBox("\"Meters\""), {
+                   StringBox("\"Seconds\""), SuperscriptBox("2")})}, 
+                "Quantity"), ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({StringBox("\"acceleration\"")}, 
+               "UnitKindObject")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(
        TextData({TemplateBox({"QuantityMagnitude"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"QuantityUnit"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-         TemplateBox({"IsKnownUnit"}, "ReferenceHyperlink")}), "SeeAlso")}, 
-     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+         TemplateBox({"IsKnownUnit"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UnitKind"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
