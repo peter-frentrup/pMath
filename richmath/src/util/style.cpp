@@ -51,6 +51,7 @@ extern pmath_symbol_t richmath_System_ButtonData;
 extern pmath_symbol_t richmath_System_ButtonFrame;
 extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_ButtonSource;
+extern pmath_symbol_t richmath_System_CachedValue;
 extern pmath_symbol_t richmath_System_CapForm;
 extern pmath_symbol_t richmath_System_ContentPadding;
 extern pmath_symbol_t richmath_System_ContextMenu;
@@ -2604,6 +2605,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ButtonFrame);
   impl.emit_definition(ButtonFunction);
   impl.emit_definition(ButtonSource);
+  //impl.emit_definition(CachedValue);
   impl.emit_definition(CapForm);
   impl.emit_definition(CharacterNameStyle);
   impl.emit_definition(ClosingAction);
@@ -3555,6 +3557,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             BoxTransformation,                Symbol( richmath_System_BoxTransformation));
     add(StyleType::Any,             ButtonData,                       Symbol( richmath_System_ButtonData));
     add(StyleType::Any,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
+    add(StyleType::Any,             CachedValue,                      Symbol( richmath_System_CachedValue));
     add(StyleType::Any,             Dashing,                          Symbol( richmath_System_Dashing));
     add(StyleType::Any,             DefaultDuplicateSectionStyle,     Symbol( richmath_System_DefaultDuplicateSectionStyle));
     add(StyleType::Any,             DefaultNewSectionStyle,           Symbol( richmath_System_DefaultNewSectionStyle));
@@ -3605,6 +3608,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any, ButtonBoxDefaultButtonData,       List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonData)));
     add(StyleType::Any, ButtonBoxDefaultButtonFunction,   List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonFunction)));
     
+    add(StyleType::Any, DynamicBoxDefaultCachedValue,      List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_CachedValue)));
     add(StyleType::Any, DynamicBoxDefaultDeinitialization, List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_Deinitialization)));
     add(StyleType::Any, DynamicBoxDefaultInitialization,   List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_Initialization)));
     add(StyleType::Any, DynamicBoxDefaultTrackedSymbols,   List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_TrackedSymbols)));

@@ -146,6 +146,10 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     must_update(true);
   }
   
+  Expr cached = get_own_style(CachedValue);
+  if(cached)
+    content()->load_from_object(cached, opts);
+  
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
 }
@@ -185,7 +189,7 @@ void DynamicBox::before_paint_inline(Context &context) {
     }
     
     Expr result;
-    if(dynamic.get_value(&result)) 
+    if(dynamic.get_value(&result))
       dynamic_finished(Expr(), result);
   }
   
@@ -211,7 +215,7 @@ void DynamicBox::paint_content(Context &context) {
     }
     
     Expr result;
-    if(dynamic.get_value(&result)) 
+    if(dynamic.get_value(&result))
       dynamic_finished(Expr(), result);
   }
 }

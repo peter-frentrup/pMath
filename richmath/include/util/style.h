@@ -356,6 +356,7 @@ namespace richmath {
     
     ButtonData,
     ButtonFunction,
+    CachedValue,
     
     InternalRegisteredBoxID,
     BoxID,
@@ -454,6 +455,7 @@ namespace richmath {
     ButtonBoxDefaultButtonData               = ButtonData             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFunction           = ButtonFunction         + (int)DefaultStyleOptionOffsets::ButtonBox,
     
+    DynamicBoxDefaultCachedValue             = CachedValue            + (int)DefaultStyleOptionOffsets::DynamicBox,
     DynamicBoxDefaultDeinitialization        = Deinitialization       + (int)DefaultStyleOptionOffsets::DynamicBox,
     DynamicBoxDefaultInitialization          = Initialization         + (int)DefaultStyleOptionOffsets::DynamicBox,
     DynamicBoxDefaultTrackedSymbols          = TrackedSymbols         + (int)DefaultStyleOptionOffsets::DynamicBox,

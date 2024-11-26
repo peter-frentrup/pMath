@@ -118,6 +118,7 @@ Options(Checkbox):= Options(CheckboxBox):= {
 Options(Dynamic):= Options(DynamicBox):= {
     %BaselinePosition -> Automatic,
     BoxID -> None,
+    CachedValue -> /\/,
     Deinitialization -> None,
     Initialization -> None,
     SynchronousUpdating -> True,
@@ -347,6 +348,7 @@ Options(Section):= {
     DocumentEventActions -> Inherited,
     "DrawEdges" -> Inherited, % only valid for StyleData-sections
     DynamicBoxOptions -> {
+        CachedValue -> /\/,
         Deinitialization -> None,
         Initialization -> None,
         SynchronousUpdating -> True,
