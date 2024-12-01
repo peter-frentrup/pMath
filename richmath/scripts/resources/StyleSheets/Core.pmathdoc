@@ -659,7 +659,18 @@ Document({
           Section(StyleData("UnitKindObject"), 
            TemplateBoxOptions -> {
              DisplayFunction -> 
-              Function(StyleBox(FrameBox(#1), 
+              Function(
+               StyleBox(TooltipBox(
+                 FrameBox(DynamicBox(
+                   ToBoxes({
+                      StringBox(~Global`s:String) :> 
+                       ToExpression({{"System`UnitKindObject", "(", {
+                           Global`s}, ")"}, "(", {"\"Description\""}, 
+                         ")"}), ~Global`x :> Global`x}(
+                     CurrentValue({TemplateSlot, 1}))), 
+                   CachedValue -> DynamicBox(CurrentValue({TemplateSlot, 1})), 
+                   SynchronousUpdating -> False)), 
+                 DynamicBox(CurrentValue({TemplateSlot, 1}))), 
                 FrameBoxOptions -> {BorderRadius -> 5, FrameMargins -> {3, 1}, 
                   FrameStyle -> GrayLevel(0.8), 
                   Background -> RGBColor(0.996, 0.99, 0.863)}, 

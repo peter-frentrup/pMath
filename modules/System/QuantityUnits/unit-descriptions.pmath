@@ -21,19 +21,24 @@ Function simpleUnitDimensionCanonicalUnit(~dimName:String) {
 }
 
 
-unitKindDescription(~~):= "unknown unit type"
-unitKindDescription(UnitKindObject(~s:String))::= s
-unitKindDescription(UnitKindObject(~, l: {(~ -> ~)**}))::= Row({"unknown unit type: ", l.Map({(~u -> ~n) :> simpleUnitDimensionName(u)^If(n < 0, HoldForm(n), n)}) |> Riffle("-") |> Row})
-(~uko: UnitKindObject)("Description")::= unitKindDescription(uko)
+unitKindLocalizedDescription(~lang, ~~)::= Lookup(allLocalizedUnitKindDescriptions(lang), "UnknownUnitType")
+unitKindLocalizedDescription(~lang, UnitKindObject(~s:String))::= Lookup(allLocalizedUnitKindDescriptions(lang), s, s)
+unitKindLocalizedDescription(~lang, UnitKindObject(~, l: {(~ -> ~)**}))::= Row({Lookup(allLocalizedUnitKindDescriptions(lang), "UnknownUnitType"), ": ", l.Map({(~u -> ~n) :> simpleUnitDimensionName(u)^If(n < 0, HoldForm(n), n)}) |> Riffle("-") |> Row})
+(~uko: UnitKindObject)("Description")::=                        unitKindLocalizedDescription("English", uko)
+(~uko: UnitKindObject)("LocalizedDescription", ~lang:String)::= unitKindLocalizedDescription(lang,      uko)
+
+unitKindName(~~)::= None
+unitKindName(UnitKindObject(~s:String))::= s
+(~uko: UnitKindObject)("Name")::= unitKindName(uko)
 
 unitKindCanonicalUnit(~~~):= $Failed
 unitKindCanonicalUnit(UnitKindObject(~, l: {(~ -> ~)**}))::= l.Map({(~u -> ~n) :> simpleUnitDimensionCanonicalUnit(u)^n}).Apply(Times)
-unitKindCanonicalUnit(UnitKindObject("dimensionless")):= 1
+unitKindCanonicalUnit(UnitKindObject("Dimensionless")):= 1
 (~uko: UnitKindObject)("CanonicalUnit")::= unitKindCanonicalUnit(uko)
 
 unitKindDimensions(~~~):= $Failed
 unitKindDimensions(UnitKindObject(~, l: {(~ -> ~)**}))::= l
-unitKindDimensions(UnitKindObject("dimensionless")):= {}
+unitKindDimensions(UnitKindObject("Dimensionless")):= {}
 (~uko: UnitKindObject)("UnitDimensions")::= unitKindDimensions(uko)
 UnitKindObject /: UnitDimensions(~uko: UnitKindObject)::= unitKindDimensions(uko)
 
@@ -41,12 +46,12 @@ UnitKindObject /: UnitDimensions(~uko: UnitKindObject)::= unitKindDimensions(uko
 UnitKindObject /: MakeBoxes(HoldPattern(uko: UnitKindObject(~~args)))::= 
     HoldComplete(args) |> Map(MakeBoxes) |> Apply(List) |> TemplateBox("UnitKindObject")
 
-UnitKindObject /: Format(HoldPattern(uko: UnitKindObject(~~args)))::= unitKindDescription(uko)
+UnitKindObject /: Format(HoldPattern(uko: UnitKindObject(~~args)))::= unitKindName(uko)
 
 
-unitKindFromUnitDimensions(~)::=               UnitKindObject("unknown unit type")
-unitKindFromUnitDimensions({})::=              UnitKindObject("dimensionless")
-unitKindFromUnitDimensions(l: {(~ -> ~)**})::= UnitKindObject("unknown unit type", l)
+unitKindFromUnitDimensions(~)::=               UnitKindObject("UnknownUnitType")
+unitKindFromUnitDimensions({})::=              UnitKindObject("Dimensionless")
+unitKindFromUnitDimensions(l: {(~ -> ~)**})::= UnitKindObject("UnknownUnitType", l)
 
 
 Function makeCanonicalUnit(~unit, ~name) {
@@ -68,76 +73,87 @@ Function makeCanonicalFundamentalUnit(~unit:String, ~name) {
     unitKindCanonicalUnit(uko):= unit
 }
 
-makeCanonicalFundamentalUnit("Meters",                  "length")
-makeCanonicalUnit("Meters"^2,                           "area")
-makeCanonicalUnit("Meters"^3,                           "volume")
-makeCanonicalFundamentalUnit("Seconds",                 "time")
-makeCanonicalUnit(1/"Seconds",                          "frequency")
-makeCanonicalUnit("Meters" / "Seconds",                 "velocity")
-makeCanonicalUnit("Meters" / "Seconds"^2,               "acceleration")
-makeCanonicalFundamentalUnit("Kilograms",               "mass")
-makeCanonicalUnit("Kilograms" * "Meters" / "Seconds",   "momentum")
-makeCanonicalUnit("Kilograms" / "Meters"^2,             "area density")
-makeCanonicalUnit("Kilograms" / "Meters",               "linear mass density")
-makeCanonicalUnit("Meters" / "Kilograms",               "reciprocal linear mass density")
-makeCanonicalUnit("Newtons",                            "force")
-makeCanonicalUnit("Joules",                             "energy") % Caution: 1 J = 1 N m, but J is only used for energy, while N m is also used for torque. Cannot tell the difference just by unit dimensions
-makeCanonicalUnit("Watts",                              "power")
-makeCanonicalUnit("Pascals",                            "pressure")
-makeCanonicalUnit("Kilograms" * "Meters"^2 / "Seconds", "angular momentum")
-makeCanonicalUnit("Kilograms" * "Meters"^2,             "moment of inertia")
-makeCanonicalUnit("Meters"^3 / "Seconds",               "flow") % volumetric flow rate
-makeCanonicalUnit("Kilograms" / "Meters"^3,             "mass density")
-makeCanonicalUnit("Meters"^3 / "Kilograms",             "specific volume")
-makeCanonicalFundamentalUnit("Kelvins",                 "temperature")
-makeCanonicalFundamentalUnit("Amperes",                 "electric current")
-makeCanonicalUnit("Amperes" / "Meters"^2,               "electric current density")
-makeCanonicalUnit("Amperes" * "Meters"^2,               "magnetic moment")
-makeCanonicalUnit("Joules" / "Meters"^2,                "surface tension")
-makeCanonicalUnit("Coulombs",                           "charge")
-makeCanonicalUnit("Coulombs" / "Meters"^2,              "surface charge density")
-makeCanonicalUnit("Coulombs" / "Meters"^3,              "electric charge density")
-makeCanonicalUnit("Volts",                              "electric potential")
-makeCanonicalUnit("Volts" / "Meters",                   "electric field strength")
-makeCanonicalUnit("Amperes" / "Meters",                 "magnetic field strength")
-makeCanonicalUnit("Ohms",                               "electric resistance")
-makeCanonicalUnit("Siemens",                            "electric conductance")
-makeCanonicalUnit("Ohms" * "Meters",                    "electric resistivity")
-makeCanonicalUnit("Siemens" / "Meters",                 "electric conductivity")
-makeCanonicalUnit("Farads",                             "capacitance")
-makeCanonicalUnit("Webers",                             "magnetic flux")
-%makeCanonicalUnit("Henrys",                             "inductance")
-makeCanonicalUnit("Teslas",                             "magnetic flux density")
-makeCanonicalUnit("Joules" / "Kelvins",                 "heat capacity")
-makeCanonicalUnit("Joules" / "Kilograms" / "Kelvins",   "specific heat capacity")
-%makeCanonicalUnit("Sturgeons",                          "magnetic reluctance")
-%makeCanonicalUnit(1 / "Henrys",                         "magnetic reluctance")
-makeCanonicalFundamentalUnit("Moles",                    "amount")
-makeCanonicalUnit("Moles" / "Liters",                    "concentration by volume")
-makeCanonicalUnit("Moles" / "Kilograms",                 "concentration by mass")
-makeCanonicalUnit("Meters"^3 / "Moles",                  "molar volume")
-makeCanonicalUnit("Grams" / "Moles",                     "molar mass")
-makeCanonicalUnit("Pascals" * "Seconds",                 "viscosity")
-makeCanonicalUnit("Lumens" * "Seconds",                  "luminous energy")
-makeCanonicalUnit("Lumens",                              "luminous flux")
-makeCanonicalFundamentalUnit("Candelas",                 "luminous intensity")
-makeCanonicalUnit("Candelas" / "Meters"^2,               "luminance")
-%makeCanonicalUnit("Lumens" / "Meters"^2,                 "illuminance")
-%makeCanonicalUnit("Lux",                                 "illuminance")
-%makeCanonicalUnit("Lux" * "Seconds",                    "luminous exposure")
-makeCanonicalUnit("Lumens" / "Watts",                    "luminous efficacy")
-makeCanonicalUnit("Watts" / "Meters"   / "Kelvins",      "thermal conductivity")
-makeCanonicalUnit("Watts" / "Meters"^2 / "Kelvins",      "thermal conductance")
-makeCanonicalUnit("Kelvins" / "Watts",                   "thermal resistance")
-makeCanonicalUnit("Meters"   * "Kelvins" / "Watts",      "thermal resistivity")
-makeCanonicalUnit("Meters"^2 * "Kelvins" / "Watts",      "thermal insulance")
-makeCanonicalUnit("Joules" / "Kilograms",                "specific energy")
-makeCanonicalUnit("Watts" / "Meters"^2,                  "heat flux density")
-makeCanonicalUnit("Joules" / "Moles",                    "molar energy")
-makeCanonicalUnit("Joules" / "Moles" / "Kelvins",        "molar heat capacity")
-makeCanonicalFundamentalUnit("Bits",                     "information")
-makeCanonicalFundamentalUnit("Radians",                  "dimensionless angle")
+makeCanonicalFundamentalUnit("Meters",                  "Length")
+makeCanonicalUnit("Meters"^2,                           "Area")
+makeCanonicalUnit("Meters"^3,                           "Volume")
+makeCanonicalFundamentalUnit("Seconds",                 "Time")
+makeCanonicalUnit(1/"Seconds",                          "Frequency")
+makeCanonicalUnit("Meters" / "Seconds",                 "Velocity")
+makeCanonicalUnit("Meters" / "Seconds"^2,               "Acceleration")
+makeCanonicalFundamentalUnit("Kilograms",               "Mass")
+makeCanonicalUnit("Kilograms" * "Meters" / "Seconds",   "Momentum")
+makeCanonicalUnit("Kilograms" / "Meters"^2,             "AreaDensity")
+makeCanonicalUnit("Kilograms" / "Meters",               "LinearMassDensity")
+makeCanonicalUnit("Meters" / "Kilograms",               "ReciprocalLinearMassDensity")
+makeCanonicalUnit("Newtons",                            "Force")
+makeCanonicalUnit("Joules",                             "Energy") % Caution: 1 J = 1 N m, but J is only used for energy, while N m is also used for torque. Cannot tell the difference just by unit dimensions
+makeCanonicalUnit("Watts",                              "Power")
+makeCanonicalUnit("Pascals",                            "Pressure")
+makeCanonicalUnit("Kilograms" * "Meters"^2 / "Seconds", "AngularMomentum")
+makeCanonicalUnit("Kilograms" * "Meters"^2,             "MomentOfInertia")
+makeCanonicalUnit("Meters"^3 / "Seconds",               "Flow") % volumetric flow rate
+makeCanonicalUnit("Kilograms" / "Meters"^3,             "MassDensity")
+makeCanonicalUnit("Meters"^3 / "Kilograms",             "SpecificVolume")
+makeCanonicalFundamentalUnit("Kelvins",                 "Temperature")
+makeCanonicalFundamentalUnit("Amperes",                 "ElectricCurrent")
+makeCanonicalUnit("Amperes" / "Meters"^2,               "ElectricCurrentDensity")
+makeCanonicalUnit("Amperes" * "Meters"^2,               "MagneticMoment")
+makeCanonicalUnit("Joules" / "Meters"^2,                "SurfaceTension")
+makeCanonicalUnit("Coulombs",                           "Charge")
+makeCanonicalUnit("Coulombs" / "Meters"^2,              "SurfaceChargeDensity")
+makeCanonicalUnit("Coulombs" / "Meters"^3,              "ElectricChargeDensity")
+makeCanonicalUnit("Volts",                              "ElectricPotential")
+makeCanonicalUnit("Volts" / "Meters",                   "ElectricFieldStrength")
+makeCanonicalUnit("Amperes" / "Meters",                 "MagneticFieldStrength")
+makeCanonicalUnit("Ohms",                               "ElectricResistance")
+makeCanonicalUnit("Siemens",                            "ElectricConductance")
+makeCanonicalUnit("Ohms" * "Meters",                    "ElectricResistivity")
+makeCanonicalUnit("Siemens" / "Meters",                 "ElectricConductivity")
+makeCanonicalUnit("Farads",                             "Capacitance")
+makeCanonicalUnit("Webers",                             "MagneticFlux")
+%makeCanonicalUnit("Henrys",                             "Inductance")
+makeCanonicalUnit("Teslas",                             "MagneticFluxDensity")
+makeCanonicalUnit("Joules" / "Kelvins",                 "HeatCapacity")
+makeCanonicalUnit("Joules" / "Kilograms" / "Kelvins",   "SpecificHeatCapacity")
+%makeCanonicalUnit("Sturgeons",                          "MagneticReluctance")
+%makeCanonicalUnit(1 / "Henrys",                         "MagneticReluctance")
+makeCanonicalFundamentalUnit("Moles",                    "Amount")
+makeCanonicalUnit("Moles" / "Liters",                    "ConcentrationByVolume")
+makeCanonicalUnit("Moles" / "Kilograms",                 "ConcentrationByMass")
+makeCanonicalUnit("Meters"^3 / "Moles",                  "MolarVolume")
+makeCanonicalUnit("Grams" / "Moles",                     "MolarMass")
+makeCanonicalUnit("Pascals" * "Seconds",                 "Viscosity")
+makeCanonicalUnit("Lumens" * "Seconds",                  "LuminousEnergy")
+makeCanonicalUnit("Lumens",                              "LuminousFlux")
+makeCanonicalFundamentalUnit("Candelas",                 "LuminousIntensity")
+makeCanonicalUnit("Candelas" / "Meters"^2,               "Luminance")
+%makeCanonicalUnit("Lumens" / "Meters"^2,                 "Illuminance")
+%makeCanonicalUnit("Lux",                                 "Illuminance")
+%makeCanonicalUnit("Lux" * "Seconds",                    "LuminousExposure")
+makeCanonicalUnit("Lumens" / "Watts",                    "LuminousEfficacy")
+makeCanonicalUnit("Watts" / "Meters"   / "Kelvins",      "ThermalConductivity")
+makeCanonicalUnit("Watts" / "Meters"^2 / "Kelvins",      "ThermalConductance")
+makeCanonicalUnit("Kelvins" / "Watts",                   "ThermalResistance")
+makeCanonicalUnit("Meters"   * "Kelvins" / "Watts",      "ThermalResistivity")
+makeCanonicalUnit("Meters"^2 * "Kelvins" / "Watts",      "ThermalInsulance")
+makeCanonicalUnit("Joules" / "Kilograms",                "SpecificEnergy")
+makeCanonicalUnit("Watts" / "Meters"^2,                  "HeatFluxDensity")
+makeCanonicalUnit("Joules" / "Moles",                    "MolarEnergy")
+makeCanonicalUnit("Joules" / "Moles" / "Kelvins",        "MolarHeatCapacity")
+makeCanonicalFundamentalUnit("Bits",                     "Information")
+makeCanonicalFundamentalUnit("Radians",                  "DimensionlessAngle")
 
+
+$TranslationDirectory:= $Input.DirectoryName
+Function allLocalizedUnitKindDescriptions(~lang:String) {
+    With(found:= $TranslationDirectory |> FileNames("unit-kind-descriptions." ++ lang ++ ".pmath"))
+    If(found === {}) {
+        Return(allLocalizedUnitKindDescriptions("English"))
+    }
+
+    % TODO: ensure delay loading works in SecuredEvaluation
+    Return(allLocalizedUnitKindDescriptions(lang):= Get(First(found)))
+}
 
 UnitKind(~~~args) /? (IsValidArgumentCount(UnitKind, Length(Hold(args)), 1, 1); False) := $Failed
 UnitKind(~unit)::= With({dims:= tryGetUnitDimensions(unit)}, unitKindFromUnitDimensions(Sort(dims)) /? dims =!= $Failed)
