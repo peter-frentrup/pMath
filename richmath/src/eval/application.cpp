@@ -1484,10 +1484,13 @@ static void cnt_printsection(Expr data) {
 }
 
 static Expr cnt_callfrontend(Expr data) {
+  AutoResetCurrentObserver auto_reset_observer;
   AutoValueReset<FrontEndReference> auto_reset_eval(current_evaluation_object_id);
-  if(FrontEndReference source = FrontEndReference::from_pmath_raw(data[0])) 
+  if(FrontEndReference source = FrontEndReference::from_pmath_raw(data[0])) {
     current_evaluation_object_id = source;
-  
+    Dynamic::current_observer_id = source;  
+  }
+
   Expr expr = data[1];
   data = {};
   return Evaluate(PMATH_CPP_MOVE(expr));

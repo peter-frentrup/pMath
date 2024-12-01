@@ -94,8 +94,7 @@ namespace richmath {
       virtual void returned(Expr expr) override;
       
     protected:
-      Expr              _info;
-      FrontEndReference old_observer_id;
+      Expr _info;
   };
   
   class ReplacementJob: public InputJob {

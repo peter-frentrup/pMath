@@ -275,23 +275,18 @@ void EvaluationJob::end() {
 
 DynamicEvaluationJob::DynamicEvaluationJob(Expr info, Expr expr, FrontEndObject *obj)
   : EvaluationJob(expr, obj),
-    _info(info),
-    old_observer_id(FrontEndReference::None)
+    _info(info)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 bool DynamicEvaluationJob::start() {
   set_context();
-  
-  old_observer_id = Dynamic::current_observer_id;
-  Dynamic::current_observer_id = _position.object_id;
   return EvaluationJob::start();
 }
 
 void DynamicEvaluationJob::end() {
   EvaluationJob::end();
-  Dynamic::current_observer_id = old_observer_id;
 }
 
 void DynamicEvaluationJob::returned(Expr expr) {
