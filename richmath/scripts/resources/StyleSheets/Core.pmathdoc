@@ -663,10 +663,10 @@ Document({
                StyleBox(TooltipBox(
                  FrameBox(DynamicBox(
                    ToBoxes({
-                      StringBox(~Global`s:String) :> 
+                      StringBox(~FE`Private`s:String) :> 
                        ToExpression({{"System`UnitKindObject", "(", {
-                           Global`s}, ")"}, "(", {"\"Description\""}, 
-                         ")"}), ~Global`x :> Global`x}(
+                           FE`Private`s}, ")"}, "(", {"\"Description\""}, 
+                         ")"}), ~FE`Private`x :> FE`Private`x}(
                      CurrentValue({TemplateSlot, 1}))), 
                    CachedValue -> DynamicBox(CurrentValue({TemplateSlot, 1})), 
                    SynchronousUpdating -> False)), 
