@@ -45,8 +45,18 @@ Document({
            StyleBox("extended syntax", FontSlant -> Italic), " variant: ", 
            StyleBox({"Function(x", BoxData(SubscriptBox("1")), ", x", 
              BoxData(SubscriptBox("2")), ", \[Ellipsis]) { ", 
-             StyleBox("body", "Arg"), " }"}, "TT")}), "Notes")}, All), 
-      Section("", "SectionFooterSpacer")}, 1), 
+             StyleBox("body", "Arg"), " }"}, "TT")}), "Notes"), 
+        Section(
+         TextData({"The ", TemplateBox({"Function"}, "ReferenceHyperlink"), 
+           " ", StyleBox("extended syntax", FontSlant -> Italic), 
+           " keyword is also used for ", TemplateBox({"List"}, 
+            "ReferenceHyperlink"), " of rules: ", 
+           StyleBox({"Function { Case(", StyleBox("pattern", "Arg"), 
+             SubscriptBox("1"), ") { ", StyleBox("body", "Arg"), 
+             SubscriptBox("1"), " } \[Ellipsis] }"}, "TT"), " is actually {", 
+           StyleBox("pattern", "Arg"), SubscriptBox("1"), " \[RuleDelayed] ", 
+           StyleBox("body", "Arg"), SubscriptBox("1"), ", \[Ellipsis]}"}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A pure function with one parameter:", "ExampleText"), 
@@ -243,8 +253,36 @@ Document({
           Section(BoxData({{"Function", "(", {"f", "(", {"#", "2"}, ")"}, 
               ")"}, "(", "x", ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData({"f", "(", "/\\/", ")"}), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
-      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({"A ", TemplateBox({"Function"}, "ReferenceHyperlink"), 
+             " block containing only ", TemplateBox({"Case"}, 
+              "ReferenceHyperlink"), 
+             " blocks is actually just a list of rules rather than a ", 
+             TemplateBox({"Function"}, "ReferenceHyperlink"), 
+             "(\[Ellipsis]) expression:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Function", {
+                "{", {
+                 "\n", {
+                  {{{"Case", "(", {"0", ",", "0"}, ")"}, {
+                     "{", StringBox("\"well...\""), "}"}}, "\n", {
+                    {"Case", "(", {{"~", "x"}, ",", {"~", "y"}}, ")"}, {
+                     "{", {"x", SuperscriptBox("y")}, "}"}}}, "\n"}}, "}"}}), 
+             "Input", SectionLabel -> "in [3]:"), 
+            Section(
+             BoxData({
+               "{", {{{"PatternSequence", "(", {"0", ",", "0"}, ")"}, 
+                 "\[RuleDelayed]", StringBox("\"well...\"")}, ",", {
+                 {"PatternSequence", "(", {{"~", "x"}, ",", {"~", "y"}}, ")"}, 
+                 "\[RuleDelayed]", {"x", SuperscriptBox("y")}}}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, 
+           All)}, All)}, 1), SectionGroup({
+        Section("Neat Examples", "ExampleSection"), 
         Section("Sort by comparing the second part of each element:", 
          "ExampleText"), SectionGroup({
           Section(
