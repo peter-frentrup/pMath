@@ -216,7 +216,7 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section("Functions can be nestest:", "ExampleText"), 
+          Section("Functions can be nested:", "ExampleText"), 
           SectionGroup({
             Section(
              BoxData({
