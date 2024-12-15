@@ -22,6 +22,8 @@ namespace richmath {
       
       virtual Expr prepare_dynamic(Expr expr) override;
       
+      bool is_private_symbol(pmath_symbol_t sym);
+      
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::DynamicLocalBox; }

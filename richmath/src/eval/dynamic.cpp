@@ -3,6 +3,7 @@
 #include <eval/application.h>
 #include <eval/eval-contexts.h>
 #include <eval/job.h>
+#include <eval/simple-evaluator.h>
 
 #include <boxes/templatebox.h>
 #include <util/styled-object.h>
@@ -19,6 +20,7 @@ extern pmath_symbol_t richmath_System_DollarAborted;
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Assign;
 extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_CurrentValue;
 extern pmath_symbol_t richmath_System_EvaluationSequence;
 extern pmath_symbol_t richmath_System_Hold;
 extern pmath_symbol_t richmath_System_List;
@@ -56,6 +58,8 @@ namespace richmath {
       Expr get_value_now();
       void get_value_later(Expr job_info);
       bool get_value(Expr *result, Expr job_info);
+      
+      Expr wrap_dyn_eval_call(Expr expr);
     
     private:
       Expr get_prepared_dynamic(bool *is_dynamic);
@@ -440,6 +444,10 @@ Expr Dynamic::Impl::get_value_unevaluated(bool *is_dynamic) {
   if(!*is_dynamic)
     return expr;
   
+  return wrap_dyn_eval_call(PMATH_CPP_MOVE(expr));
+}
+
+Expr Dynamic::Impl::wrap_dyn_eval_call(Expr expr) {
   return Call(
            Symbol(richmath_Internal_DynamicEvaluateMultiple),
            PMATH_CPP_MOVE(expr),
@@ -494,7 +502,7 @@ Expr Dynamic::Impl::get_prepared_dynamic(bool *is_dynamic) {
 
 Expr Dynamic::Impl::get_value_now() {
   bool is_dynamic = false;
-  Expr call = get_value_unevaluated(&is_dynamic);
+  Expr call = get_prepared_dynamic(&is_dynamic);
   
   if(!is_dynamic) {
     if(call.expr_length() == 1 && call.item_equals(0, richmath_System_Unevaluated))
@@ -504,14 +512,19 @@ Expr Dynamic::Impl::get_value_now() {
   
   self._owner->own_style().remove(InternalUsesCurrentValueOfMouseOver);
   
-  call = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(call), EvaluationContexts::resolve_context(self.owner()));
+  Expr value;
+  if(!SimpleEvaluator::try_eval(self._owner, &value, call)) {
+    call = wrap_dyn_eval_call(PMATH_CPP_MOVE(call));
+    call = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(call), EvaluationContexts::resolve_context(self.owner()));
+    
+    auto old_observer_id         = Dynamic::current_observer_id;
+    Dynamic::current_observer_id = self._owner->id();
   
-  auto old_eval_id = Dynamic::current_observer_id;
-  Dynamic::current_observer_id = self._owner->id();
+    value = Application::interrupt_wait_for(PMATH_CPP_MOVE(call), self._owner, Application::dynamic_timeout);
   
-  Expr value = Application::interrupt_wait_for(PMATH_CPP_MOVE(call), self._owner, Application::dynamic_timeout);
-                 
-  Dynamic::current_observer_id = old_eval_id;
+    Dynamic::current_observer_id = old_observer_id;
+  }
+  
   
   if(value == PMATH_UNDEFINED)
     return Symbol(richmath_System_DollarAborted);

@@ -132,6 +132,15 @@ Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
   return AbstractDynamicBox::prepare_dynamic(PMATH_CPP_MOVE(expr));
 }
 
+bool DynamicLocalBox::is_private_symbol(pmath_symbol_t sym) {
+  for(size_t i = _private_symbols.expr_length(); i > 0; --i) {
+    if(_private_symbols.item_equals(i, sym))
+      return true;
+  }
+  
+  return false;
+}
+
 //} ... class DynamicLocalBox
 
 //{ class DynamicLocalBox::Impl ...

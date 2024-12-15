@@ -15,7 +15,8 @@ namespace richmath {
       static void init();
       static void done();
       
-      static Expr get(Expr item);
+      static Expr get(                     Expr item);
+      static Expr get(Expr            obj, Expr item);
       static Expr get(FrontEndObject *obj, Expr item);
       static bool put(FrontEndObject *obj, Expr item, Expr rhs);
       

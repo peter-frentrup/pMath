@@ -53,6 +53,7 @@
 #include <eval/application.h>
 #include <eval/eval-contexts.h>
 #include <eval/server.h>
+#include <eval/simple-evaluator.h>
 #include <graphics/config-shaper.h>
 #include <graphics/ot-math-shaper.h>
 #include <gui/control-painter.h>
@@ -761,6 +762,7 @@ QUIT:
   
   EvaluationContexts::done();
   Application::done();
+  SimpleEvaluator::done();
   
 #ifdef RICHMATH_USE_WIN32_GUI
   Win32Clipboard::done();

@@ -137,6 +137,10 @@ Expr CurrentValue::get(Expr item) {
   return get(Application::get_evaluation_object(), PMATH_CPP_MOVE(item));
 }
 
+Expr CurrentValue::get(Expr obj, Expr item) {
+  return get(CurrentValueImpl::object(PMATH_CPP_MOVE(obj)), PMATH_CPP_MOVE(item));
+}
+
 Expr CurrentValue::get(FrontEndObject *obj, Expr item) {
   static int reclim = 20;
   
@@ -548,5 +552,5 @@ Expr richmath_eval_FrontEnd_CurrentValue(Expr expr) {
   if(expr.expr_length() != 2)
     return Symbol(richmath_System_DollarFailed);
   
-  return CurrentValue::get(CurrentValueImpl::object(expr[1]), expr[2]);
+  return CurrentValue::get(expr[1], expr[2]);
 }
