@@ -63,6 +63,8 @@ Box *SectionList::item(int i) {
 }
 
 void SectionList::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   unfilled_width = 0;
   _extents.ascent = 0;
   _extents.descent = 0;
@@ -111,7 +113,7 @@ void SectionList::finish_resize(Context &context) {
 }
 
 void SectionList::paint(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
     
   float x, y;
   context.canvas().current_pos(&x, &y);

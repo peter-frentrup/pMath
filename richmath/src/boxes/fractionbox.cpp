@@ -79,6 +79,8 @@ int FractionBox::child_script_level(int index, const int *opt_ambient_script_lev
 }
 
 void FractionBox::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   float old_width         = context.width;
   float old_fs            = context.canvas().get_font_size();
   int   old_script_level = context.script_level;
@@ -109,7 +111,7 @@ void FractionBox::resize(Context &context) {
 }
 
 void FractionBox::paint(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   
   float old_fs = context.canvas().get_font_size();
   float x, y;

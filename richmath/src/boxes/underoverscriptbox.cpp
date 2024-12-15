@@ -183,6 +183,8 @@ int UnderoverscriptBox::child_script_level(int index, const int *opt_ambient_scr
 }
 
 void UnderoverscriptBox::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   float old_w = context.width;
   context.width = HUGE_VAL;
   
@@ -306,7 +308,7 @@ void UnderoverscriptBox::colorize_scope(SyntaxState &state) {
 }
 
 void UnderoverscriptBox::paint(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
     
   Point pos = context.canvas().current_pos();
   

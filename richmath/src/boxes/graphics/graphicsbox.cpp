@@ -253,6 +253,8 @@ bool GraphicsBox::request_repaint(const RectangleF &rect) {
 }
 
 void GraphicsBox::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   is_currently_resizing(true);
   cached_bitmap = nullptr;
   
@@ -273,7 +275,7 @@ void GraphicsBox::resize(Context &context) {
 void GraphicsBox::paint(Context &context) {
   error_boxes_expr = Expr();
   
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   
   float w = _extents.width;
   float h = _extents.height();

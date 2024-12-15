@@ -219,6 +219,8 @@ bool SliderBox::expand(Context &context, const BoxSize &size) {
 }
 
 void SliderBox::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   float em = context.canvas().get_font_size();
   
   bool vertical = Impl(*this).is_vertical();
@@ -287,7 +289,7 @@ void SliderBox::paint(Context &context) {
   if(context.canvas().show_only_text)
     return;
     
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   type = Impl(*this).parse_thumb_appearance(get_own_style(Appearance));
   
   double old_value = _range_value;

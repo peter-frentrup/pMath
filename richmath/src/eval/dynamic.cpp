@@ -56,6 +56,7 @@ namespace richmath {
       Expr get_value_unevaluated();
       Expr get_value_unevaluated(bool *is_dynamic);
       Expr get_value_now();
+      bool try_get_value_now(Expr *result, Evaluator evaluator);
       void get_value_later(Expr job_info);
       bool get_value(Expr *result, Expr job_info);
       
@@ -174,6 +175,10 @@ Expr Dynamic::get_value_unevaluated() {
 
 Expr Dynamic::get_value_now() {
   return Impl(*this).get_value_now();
+}
+
+bool Dynamic::try_get_simple_value(Expr *result) {
+  return Impl(*this).try_get_value_now(result, Evaluator::Simple);
 }
 
 void Dynamic::get_value_later(Expr job_info) {
@@ -501,35 +506,57 @@ Expr Dynamic::Impl::get_prepared_dynamic(bool *is_dynamic) {
 }
 
 Expr Dynamic::Impl::get_value_now() {
+  Expr result;
+  if(try_get_value_now(&result, Evaluator::Full)) 
+    return result;
+  return Symbol(richmath_System_DollarAborted);
+}
+
+bool Dynamic::Impl::try_get_value_now(Expr *result, Evaluator evaluator) {
   bool is_dynamic = false;
   Expr call = get_prepared_dynamic(&is_dynamic);
   
   if(!is_dynamic) {
-    if(call.expr_length() == 1 && call.item_equals(0, richmath_System_Unevaluated))
-      return call[1];
-    return call;
+    if(call.expr_length() == 1 && call.item_equals(0, richmath_System_Unevaluated)) {
+      *result = call[1];
+      return true;
+    }
+    *result = call;
+    return true;
   }
+  
+  int mouseover_observer;
+  if(!self._owner->own_style().get(InternalUsesCurrentValueOfMouseOver, &mouseover_observer))
+    mouseover_observer = ObserverKindNone;
   
   self._owner->own_style().remove(InternalUsesCurrentValueOfMouseOver);
   
-  Expr value;
-  if(!SimpleEvaluator::try_eval(self._owner, &value, call)) {
+  bool has_result = SimpleEvaluator::try_eval(self._owner, result, call);
+  if(!has_result && evaluator == Evaluator::Full) {
     call = wrap_dyn_eval_call(PMATH_CPP_MOVE(call));
     call = EvaluationContexts::make_context_block(PMATH_CPP_MOVE(call), EvaluationContexts::resolve_context(self.owner()));
     
     auto old_observer_id         = Dynamic::current_observer_id;
     Dynamic::current_observer_id = self._owner->id();
   
-    value = Application::interrupt_wait_for(PMATH_CPP_MOVE(call), self._owner, Application::dynamic_timeout);
+    *result = Application::interrupt_wait_for(PMATH_CPP_MOVE(call), self._owner, Application::dynamic_timeout);
   
     Dynamic::current_observer_id = old_observer_id;
+    
+    has_result = true;
   }
   
+  if(has_result) {
+    if(*result == PMATH_UNDEFINED)
+      *result = Symbol(richmath_System_DollarAborted);
+  }
+  else {
+    if(mouseover_observer != ObserverKindNone) {
+      self._owner->own_style().set(InternalUsesCurrentValueOfMouseOver, mouseover_observer);
+    }
+  }
   
-  if(value == PMATH_UNDEFINED)
-    return Symbol(richmath_System_DollarAborted);
-    
-  return value;
+  return has_result;
 }
 
 void Dynamic::Impl::get_value_later(Expr job_info) {

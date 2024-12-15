@@ -101,7 +101,7 @@ void FrameBox::resize_default_baseline(Context &context) {
 }
 
 void FrameBox::paint(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   
   Point p0 = context.canvas().current_pos();
   

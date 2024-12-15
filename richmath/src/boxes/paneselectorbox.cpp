@@ -127,6 +127,8 @@ Box *PaneSelectorBox::item(int i) {
 }
 
 void PaneSelectorBox::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   ContextState cc(context);
   cc.begin(style);
   
@@ -145,7 +147,7 @@ void PaneSelectorBox::resize(Context &context) {
 void PaneSelectorBox::paint(Context &context) {
   Point p0 = context.canvas().current_pos();
   
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   
   if(_current_selection >= 0 && _current_selection < _panes.length()) {
     ContextState cc(context);

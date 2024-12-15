@@ -178,6 +178,11 @@ bool SimpleEvaluator::Impl::eval_symbol(Expr *result, pmath_symbol_t sym) {
     return true;
   }
   
+  if(StyleData::is_style_name(Symbol(sym))) {
+    *result = Symbol(sym);
+    return true;
+  }
+  
   if(can_evaluate_symbol(sym)) {
     Expr val(pmath_symbol_get_value(sym));
     if(val == PMATH_UNDEFINED)

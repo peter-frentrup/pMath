@@ -62,6 +62,17 @@ namespace richmath {
     ObserverKindBoth  = ObserverKindSelf | ObserverKindOther,
   };
   
+  enum DynamicUpdateKind: uint8_t {
+    DynamicUpdateKindNone   = 0,
+    DynamicUpdateKindPaint  = 1,
+    DynamicUpdateKindLayout = 2,
+  };
+  
+  enum Evaluator: uint8_t {
+    Simple = 0,
+    Full   = 1,
+  };
+  
   enum RemovalConditionFlags {
     RemovalConditionFlagSelectionExit          = 0x01,
     RemovalConditionFlagMouseExit              = 0x02,
@@ -730,7 +741,7 @@ namespace richmath {
       
       Expr get_pmath(Style s, StyleOptionName n);
       
-      bool update_dynamic(Style s, StyledObject *parent);
+      DynamicUpdateKind update_dynamic(Style s, StyledObject *parent, Evaluator evaluator);
       
       using IterBoxReferences = MultiMap<Expr, FrontEndReference>::ValuesIterable;
       static IterBoxReferences find_registered_box(Expr box_id);

@@ -113,7 +113,7 @@ void AbstractTransformationBox::adjust_baseline_after_resize(Context &context) {
 }
 
 void AbstractTransformationBox::paint_content(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   
   float x, y;
   context.canvas().current_pos(&x, &y);
@@ -200,11 +200,11 @@ bool RotationBox::angle(Expr a) {
 }
 
 void RotationBox::paint(Context &context) {
-  bool have_dynamic = update_dynamic_styles(context);
+  DynamicUpdateKind performed_updates = update_dynamic_styles_on_paint(context);
   
   base::paint(context);
   
-  if(have_dynamic) {
+  if(performed_updates != DynamicUpdateKindNone) {
     Expr e = get_style(BoxRotation, Expr());
     if(e.is_valid())
       angle(e);
@@ -289,11 +289,11 @@ bool TransformationBox::matrix(Expr m) {
 }
 
 void TransformationBox::paint(Context &context) {
-  bool have_dynamic = update_dynamic_styles(context);
+  DynamicUpdateKind performed_updates = update_dynamic_styles_on_paint(context);
   
   base::paint(context);
   
-  if(have_dynamic) {
+  if(performed_updates != DynamicUpdateKindNone) {
     Expr e = get_style(BoxTransformation, Expr());
     if(e.is_valid())
       matrix(e);

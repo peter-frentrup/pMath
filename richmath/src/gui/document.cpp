@@ -3406,7 +3406,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
   context.active = native()->is_focused_widget();
   
   context.with_canvas(canvas, [&]() {
-    update_dynamic_styles(context);
+    update_dynamic_styles_on_paint(context);
     
     if(get_own_style(InternalRequiresChildResize)) {
       style.set(InternalRequiresChildResize, false);

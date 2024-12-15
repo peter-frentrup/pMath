@@ -2786,7 +2786,7 @@ namespace richmath {
     public:
       void reload(Expr expr);
       void add(Expr expr);
-      bool update_dynamic(Style s, StyledObject *parent);
+      DynamicUpdateKind update_dynamic(Style s, StyledObject *parent, Evaluator evaluator);
       
       static void add_remove_stylesheet(int delta);
       
@@ -3030,8 +3030,8 @@ Expr Stylesheet::get_pmath(Style s, StyleOptionName n) {
   return result;
 }
 
-bool Stylesheet::update_dynamic(Style s, StyledObject *parent) {
-  return StylesheetImpl(*this).update_dynamic(s, parent);
+DynamicUpdateKind Stylesheet::update_dynamic(Style s, StyledObject *parent, Evaluator evaluator) {
+  return StylesheetImpl(*this).update_dynamic(s, parent, evaluator);
 }
 
 //} ... class Stylesheet
@@ -3062,9 +3062,9 @@ void StylesheetImpl::add(Expr expr) {
     currently_loading.remove(self._name);
 }
 
-bool StylesheetImpl::update_dynamic(Style s, StyledObject *parent) {
+DynamicUpdateKind StylesheetImpl::update_dynamic(Style s, StyledObject *parent, Evaluator evaluator) {
   if(!s || !parent)
-    return false;
+    return DynamicUpdateKindNone;
     
   StyleImpl s_impl = StyleImpl::of(*s.data.ptr());
   
@@ -3088,7 +3088,7 @@ bool StylesheetImpl::update_dynamic(Style s, StyledObject *parent) {
     
     if(!has_parent_pending_dynamic) {
       Stylesheet::update_box_registry(parent);
-      return false;
+      return DynamicUpdateKindNone;
     }
   }
   s_impl.raw_set_int(InternalHasNewBaseStyle, false);
@@ -3107,7 +3107,7 @@ bool StylesheetImpl::update_dynamic(Style s, StyledObject *parent) {
   
   if(dynamic_styles.size() == 0) {
     Stylesheet::update_box_registry(parent);
-    return false;
+    return DynamicUpdateKindNone;
   }
     
   bool resize = false;
@@ -3118,9 +3118,21 @@ bool StylesheetImpl::update_dynamic(Style s, StyledObject *parent) {
     }
   }
   
-  for(auto &e : dynamic_styles.entries()) {
-    Dynamic dyn(parent, e.value);
-    e.value = dyn.get_value_now();
+  bool still_has_pending_dynamic = false;
+  if(evaluator == Evaluator::Full) {
+    for(auto &e : dynamic_styles.entries()) {
+      Dynamic dyn(parent, e.value);
+      e.value = dyn.get_value_now();
+    }
+  }
+  else {
+    for(auto &e : dynamic_styles.entries()) {
+      Dynamic dyn(parent, e.value);
+      if(!dyn.try_get_simple_value(&e.value)) {
+        e.value = Symbol(richmath_System_DollarAborted);
+        still_has_pending_dynamic = true;
+      }
+    }
   }
   
   for(const auto &e : dynamic_styles.entries()) {
@@ -3128,12 +3140,16 @@ bool StylesheetImpl::update_dynamic(Style s, StyledObject *parent) {
       StyleOptionName key = e.key.to_volatile(); // = e.key.to_literal().to_volatile()
       s_impl.set_pmath(key, e.value);
     }
+//    else
+//      still_has_pending_dynamic = true;
   }
+  
+  if(still_has_pending_dynamic)
+    s_impl.raw_set_int(InternalHasPendingDynamic, true);
   
   Stylesheet::update_box_registry(parent);
   
-  parent->on_style_changed(resize);
-  return true;
+  return resize ? DynamicUpdateKindLayout : DynamicUpdateKindPaint;
 }
 
 void StylesheetImpl::internal_add(Expr expr) {

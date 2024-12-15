@@ -274,6 +274,8 @@ bool ErrorSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void ErrorSection::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   must_resize(false);
   
   float em = get_em();
@@ -291,7 +293,7 @@ void ErrorSection::resize(Context &context) {
 }
 
 void ErrorSection::paint(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   
   float x, y;
   context.canvas().current_pos(&x, &y);
@@ -352,6 +354,8 @@ int AbstractSequenceSection::count() {
 }
       
 void AbstractSequenceSection::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   must_resize(false);
   
   float old_scww = context.section_content_window_width;
@@ -468,7 +472,7 @@ void AbstractSequenceSection::paint(Context &context) {
   float b = get_style(SectionFrameBottom).resolve(em, LengthConversionFactors::SectionMargins, context.width);
   
   // TODO: suppress request_repaint_all if only non-layout styles changed during update_dynamic_styles()
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   cc.apply_non_layout_styles(style);
   
   if(_dingbat.reload_if_necessary(make_adoptor(), get_own_style(SectionDingbat), BoxInputFlags::Default)) {

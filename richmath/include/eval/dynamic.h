@@ -29,6 +29,7 @@ namespace richmath {
       void assign(Expr value, bool pre, bool middle, bool post);
       Expr get_value_unevaluated();
       Expr get_value_now();
+      bool try_get_simple_value(Expr *result);
       void get_value_later() { get_value_later(Expr()); }
       void get_value_later(Expr job_info);
       bool get_value(Expr *result) { return get_value(result, Expr()); }

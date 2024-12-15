@@ -125,6 +125,8 @@ int SubsuperscriptBox::child_script_level(int index, const int *opt_ambient_scri
 }
 
 void SubsuperscriptBox::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   float old_w = context.width;
   float old_fs = context.canvas().get_font_size();
   int old_script_level = context.script_level;
@@ -206,7 +208,7 @@ void SubsuperscriptBox::adjust_x(
 }
 
 void SubsuperscriptBox::paint(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   
   Point pos = context.canvas().current_pos();
   

@@ -260,11 +260,31 @@ int Box::child_script_level(int index, const int *opt_ambient_script_level) {
   return ambient_script_level;
 }
 
-bool Box::update_dynamic_styles(Context &context) {
+DynamicUpdateKind Box::update_dynamic_styles(Evaluator evaluator, Context &context) {
   if(context.stylesheet)
-    return context.stylesheet->update_dynamic(style, this);
+    return context.stylesheet->update_dynamic(style, this, evaluator);
   
-  return false;
+  return DynamicUpdateKindNone;
+}
+
+DynamicUpdateKind Box::update_simple_dynamic_styles_on_resize(Context &context) {
+  DynamicUpdateKind result = update_dynamic_styles(Evaluator::Simple, context);
+  
+//  if(result == DynamicUpdateKindLayout)
+//    on_style_changed(true);
+//  else if(result == DynamicUpdateKindPaint)
+//    on_style_changed(false);
+  return result;
+}
+
+DynamicUpdateKind Box::update_dynamic_styles_on_paint(Context &context) {
+  DynamicUpdateKind result = update_dynamic_styles(Evaluator::Full, context);
+  
+  if(result == DynamicUpdateKindLayout)
+    on_style_changed(true);
+//  else if(result == DynamicUpdateKindPaint)
+//    on_style_changed(false);
+  return result;
 }
 
 void Box::colorize_scope(SyntaxState &state) {

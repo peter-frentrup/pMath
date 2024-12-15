@@ -414,6 +414,8 @@ bool GridBox::expand(Context &context, const BoxSize &size) {
 }
 
 void GridBox::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   float em = context.canvas().get_font_size();
   rowspacing = em;
   colspacing = em;
@@ -441,7 +443,7 @@ void GridBox::resize(Context &context) {
 void GridBox::paint(Context &context) {
   need_pos_vectors();
   
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   
   float x, y;
   context.canvas().current_pos(&x, &y);

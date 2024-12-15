@@ -73,14 +73,20 @@ float OwnerBox::calculate_scaled_baseline(double scale) const {
   return (float)(-(double)_extents.descent + scale * (double)(_extents.ascent + _extents.descent));
 }
 
+void OwnerBox::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  resize_default_baseline(context);
+  adjust_baseline_after_resize(context);
+}
+
 void OwnerBox::before_paint_inline(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
   
   base::before_paint_inline(context);
 }
 
 void OwnerBox::paint(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
     
   paint_content(context);
 }

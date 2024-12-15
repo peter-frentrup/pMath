@@ -97,6 +97,8 @@ int RadicalBox::child_script_level(int index, const int *opt_ambient_script_leve
 }
 
 void RadicalBox::resize(Context &context) {
+  update_simple_dynamic_styles_on_resize(context);
+  
   _radicand->resize(context);
   
   _extents = _radicand->extents();
@@ -135,7 +137,7 @@ void RadicalBox::resize(Context &context) {
 }
 
 void RadicalBox::paint(Context &context) {
-  update_dynamic_styles(context);
+  update_dynamic_styles_on_paint(context);
     
   float x, y;
   context.canvas().current_pos(&x, &y);

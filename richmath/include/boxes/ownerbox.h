@@ -21,7 +21,7 @@ namespace richmath {
       virtual int count() override { return 1; }
       
       virtual void resize_inline(Context &context) override;
-      virtual void resize(Context &context) final override { resize_default_baseline(context); adjust_baseline_after_resize(context); }
+      virtual void resize(Context &context) final override;
       virtual void before_paint_inline(Context &context) override;
       virtual void paint(Context &context) override;
       virtual void paint_content(Context &context);

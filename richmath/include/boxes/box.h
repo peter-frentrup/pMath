@@ -247,7 +247,9 @@ namespace richmath {
       
       virtual int child_script_level(int index, const int *opt_ambient_script_level);
       virtual bool expand(Context &context, const BoxSize &size) { return false; }
-      bool update_dynamic_styles(Context &context);
+      DynamicUpdateKind update_dynamic_styles(Evaluator evaluator, Context &context);
+      DynamicUpdateKind update_simple_dynamic_styles_on_resize(Context &context);
+      DynamicUpdateKind update_dynamic_styles_on_paint(Context &context);
       virtual void resize_inline(Context &context) {}
       virtual void resize(Context &context) = 0;
       virtual void colorize_scope(SyntaxState &state);
