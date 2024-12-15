@@ -61,12 +61,7 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
                                         ImageSizeAction -> "Clip",
                                         LineBreakWithin -> False)},
                                 ButtonData -> matches[#, 2],
-                                ButtonFrame -> Dynamic(
-                                    If(# === selIndex) { 
-                                        "ListViewItemSelected"
-                                    } Else {
-                                        "ListViewItem"
-                                    }),
+                                ButtonFrame -> "ListViewItem",
                                 ButtonFunction -> Function(
                                     DocumentClose(popup); DocumentApply(doc,#)),
                                 BoxID -> {"ResultButton", #})
@@ -83,25 +78,33 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
             "EscapeKeyDown" -> Function(DocumentClose(popup);Break()),
             "UpArrowKeyDown" -> Function {
                 If(selIndex > 1) {
+                    With(oldId:= {"ResultButton", selIndex})
                     selIndex-= 1
                     With(id := {"ResultButton", selIndex})
                     With(popup:= popup)
-                    FE`CallFrontEnd(
-                        FE`BoxReference(popup, {id}) |>
-                        FrontEnd`BoxReferenceBoxObject |>
-                        FrontEnd`ScrollIntoView)
+                    FE`CallFrontEnd(Block {
+                        With(oldbox:= FrontEnd`BoxReferenceBoxObject(FE`BoxReference(popup, {oldId})))
+                        With(newbox:= FrontEnd`BoxReferenceBoxObject(FE`BoxReference(popup, {id})))
+                        FrontEnd`AssignCurrentValue(oldbox, ButtonFrame, HoldComplete("ListViewItem"))
+                        FrontEnd`AssignCurrentValue(newbox, ButtonFrame, HoldComplete("ListViewItemSelected"))
+                        FrontEnd`ScrollIntoView(newbox)
+                    })
                 }
                 Break()
             },
             "DownArrowKeyDown" -> Function {
                 If(selIndex < Length(matches)) {
+                    With(oldId:= {"ResultButton", selIndex})
                     selIndex+= 1
                     With(id := {"ResultButton", selIndex})
                     With(popup:= popup)
-                    FE`CallFrontEnd(
-                        FE`BoxReference(popup, {id}) |>
-                        FrontEnd`BoxReferenceBoxObject |>
-                        FrontEnd`ScrollIntoView)
+                    FE`CallFrontEnd(Block {
+                        With(oldbox:= FrontEnd`BoxReferenceBoxObject(FE`BoxReference(popup, {oldId})))
+                        With(newbox:= FrontEnd`BoxReferenceBoxObject(FE`BoxReference(popup, {id})))
+                        FrontEnd`AssignCurrentValue(oldbox, ButtonFrame, HoldComplete("ListViewItem"))
+                        FrontEnd`AssignCurrentValue(newbox, ButtonFrame, HoldComplete("ListViewItemSelected"))
+                        FrontEnd`ScrollIntoView(newbox)
+                    })
                 }
                 Break()
             },
@@ -119,7 +122,7 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
                     }
                 }
             }
-        },
+        } ,
         RemovalConditions -> {"MouseClickOutsidePopup", "SelectionExit"})
     SetSelectedDocument(popup)
 }
