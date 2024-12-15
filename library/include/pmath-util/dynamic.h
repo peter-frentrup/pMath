@@ -28,9 +28,9 @@
     and binds to that if it is non-zero (the symbol first checks the internal
     _pmath_dynamic_trackers flag to speed up the common case when there is no tracker). 
     The binding is done by the internal function 
-    <c>_pmath_symbol_track_dynamic(symbol, pmath_dynamic_get_current_tracker_id())</c>
+    <c>pmath_symbol_track_dynamic(symbol, pmath_dynamic_get_current_tracker_id())</c>
     everywhere where the symbol's definitions (value, rules, attributes) are returned.
-    _pmath_symbol_track_dynamic() calls the internal function _pmath_dynamic_bind() 
+    pmath_symbol_track_dynamic() calls the internal function _pmath_dynamic_bind() 
     if the symbol is not yet bound to id but may bind to it (e.g. local symbols created during 
     the current Internal`DynamicEvaluate may not bind, their <c>ignore_dynamic_id</c> is set
     to <c>current_dynamic_id</c> during creation).

@@ -622,7 +622,7 @@ static pmath_t evaluate_symbol(
     }
     
     if(current_thread->current_dynamic_id) {
-      _pmath_symbol_track_dynamic(sym, current_thread->current_dynamic_id);
+      pmath_symbol_track_dynamic(sym, current_thread->current_dynamic_id);
     }
   }
   

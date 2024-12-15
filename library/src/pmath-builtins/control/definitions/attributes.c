@@ -215,7 +215,7 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr) {
     pmath_thread_t thread = pmath_thread_get_current();
     
     if(thread->current_dynamic_id) {
-      _pmath_symbol_track_dynamic(sym, thread->current_dynamic_id);
+      pmath_symbol_track_dynamic(sym, thread->current_dynamic_id);
     }
   }
   

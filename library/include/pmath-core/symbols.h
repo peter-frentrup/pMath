@@ -329,6 +329,26 @@ void pmath_symbol_remove(pmath_symbol_t symbol);
  */
 PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old);
 
+/** \brief Bind a symbol to a dynamic object, if applicable, or (partly) reset the binding.
+    \addtogroup dynamics
+     
+    Caution! This should never be called with id==0, because id==0 causes a hard reset of id 
+    bindings without clearing the list of bound ids.
+    In particular, you should always use the pattern
+    <code>
+    id = pmath_dynamic_get_current_tracker_id() // gets current_thread->current_dynamic_id
+    if(id != 0)
+      pmath_symbol_track_dynamic(symbol, id)
+    </code>
+    
+    \param symbol  Wont be freed.
+    \param id      An opaque dynamic object id (should be non-zero, except when called from _pmath_dynamic_remove).
+    
+    \see pmath_dynamic_get_current_tracker_id()
+ */
+PMATH_API
+void pmath_symbol_track_dynamic(pmath_symbol_t symbol, intptr_t id);
+
 /** @} */
 
 #endif /* __PMATH_CORE__SYMBOLS_H__ */
