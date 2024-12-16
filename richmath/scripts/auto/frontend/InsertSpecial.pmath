@@ -113,6 +113,8 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
                     DocumentClose(popup)
                     DocumentApply(doc, matches[selIndex, 2])
                     Break()
+                } Else If(macroName === "") {
+                    allowEmpty:= True
                 } Else {
                     With(apply := Lookup(matches, macroName, $Failed))
                     If(apply =!= $Failed) {
