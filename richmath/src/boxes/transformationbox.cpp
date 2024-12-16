@@ -204,7 +204,7 @@ void RotationBox::paint(Context &context) {
   
   base::paint(context);
   
-  if(performed_updates != DynamicUpdateKindNone) {
+  if(performed_updates != DynamicUpdateKindNone) { // TODO: this needs to be done also after update_simple_dynamic_styles_on_resize()
     Expr e = get_style(BoxRotation, Expr());
     if(e.is_valid())
       angle(e);
@@ -293,7 +293,7 @@ void TransformationBox::paint(Context &context) {
   
   base::paint(context);
   
-  if(performed_updates != DynamicUpdateKindNone) {
+  if(performed_updates != DynamicUpdateKindNone) { // TODO: this needs to be done also after update_simple_dynamic_styles_on_resize()
     Expr e = get_style(BoxTransformation, Expr());
     if(e.is_valid())
       matrix(e);
