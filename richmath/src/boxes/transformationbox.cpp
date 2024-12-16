@@ -216,12 +216,15 @@ Expr RotationBox::to_pmath_symbol() {
 }
 
 Expr RotationBox::to_pmath_impl(BoxOutputFlags flags) {
-  return Call(
-           Symbol(richmath_System_RotationBox),
-           _content->to_pmath(flags),
-           Rule(
-             Symbol(richmath_System_BoxRotation),
-             _angle));
+  Gather g;
+  
+  g.emit(_content->to_pmath(flags));
+  
+  style.emit_to_pmath(/* with_inherited */ true);
+  
+  Expr e = g.end();
+  e.set(0, Symbol(richmath_System_RotationBox));
+  return e;
 }
 
 //} ... class RotationBox
@@ -305,12 +308,15 @@ Expr TransformationBox::to_pmath_symbol() {
 }
 
 Expr TransformationBox::to_pmath_impl(BoxOutputFlags flags) {
-  return Call(
-           Symbol(richmath_System_TransformationBox),
-           _content->to_pmath(flags),
-           Rule(
-             Symbol(richmath_System_BoxTransformation),
-             _matrix));
+  Gather g;
+  
+  g.emit(_content->to_pmath(flags));
+  
+  style.emit_to_pmath(/* with_inherited */ true);
+  
+  Expr e = g.end();
+  e.set(0, Symbol(richmath_System_TransformationBox));
+  return e;
 }
 
 //} ... class TransformationBox
