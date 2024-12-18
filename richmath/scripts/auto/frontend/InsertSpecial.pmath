@@ -53,22 +53,27 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
                 } Else {
                     Array(Length(matches)) |> 
                         Map(Function({
-                            ButtonBox({
-                                    PaneBox(makeAliasBoxes(matches[#, 1]),
+                            SetterBox(
+                                Dynamic(selIndex, 
+                                    {Automatic, 
+                                    Function {
+                                        DocumentClose(popup)
+                                        DocumentApply(doc, matches[#, 2])
+                                    }
+                                    }),
+                                #,
+                                {PaneBox(makeAliasBoxes(matches[#, 1]),
                                         ImageSize -> {75, Automatic}, LineBreakWithin -> False), 
                                     PaneBox({makeBoxesVisible(matches[#, 2]), " "},
                                         ImageSize -> {150, Automatic}, 
                                         ImageSizeAction -> "Clip",
                                         LineBreakWithin -> False)},
-                                ButtonData -> matches[#, 2],
                                 ButtonFrame -> "ListViewItem",
-                                ButtonFunction -> Function(
-                                    DocumentClose(popup); DocumentApply(doc,#)),
                                 BoxID -> {"ResultButton", #})
                             })) |>
                         GridBox
                 }
-            })),
+            }, TrackedSymbols :> {macroName, allowEmpty})),
             "PopupWindowSection",
             ButtonBoxOptions -> { ButtonFrame -> "ListViewItem" },
             SectionMargins -> {{4,4}, {2,4}},
@@ -78,15 +83,11 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
             "EscapeKeyDown" -> Function(DocumentClose(popup);Break()),
             "UpArrowKeyDown" -> Function {
                 If(selIndex > 1) {
-                    With(oldId:= {"ResultButton", selIndex})
                     selIndex-= 1
                     With(id := {"ResultButton", selIndex})
                     With(popup:= popup)
                     FE`CallFrontEnd(Block {
-                        With(oldbox:= FrontEnd`BoxReferenceBoxObject(FE`BoxReference(popup, {oldId})))
                         With(newbox:= FrontEnd`BoxReferenceBoxObject(FE`BoxReference(popup, {id})))
-                        FrontEnd`AssignCurrentValue(oldbox, ButtonFrame, HoldComplete("ListViewItem"))
-                        FrontEnd`AssignCurrentValue(newbox, ButtonFrame, HoldComplete("ListViewItemSelected"))
                         FrontEnd`ScrollIntoView(newbox)
                     })
                 }
@@ -94,15 +95,11 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
             },
             "DownArrowKeyDown" -> Function {
                 If(selIndex < Length(matches)) {
-                    With(oldId:= {"ResultButton", selIndex})
                     selIndex+= 1
                     With(id := {"ResultButton", selIndex})
                     With(popup:= popup)
                     FE`CallFrontEnd(Block {
-                        With(oldbox:= FrontEnd`BoxReferenceBoxObject(FE`BoxReference(popup, {oldId})))
                         With(newbox:= FrontEnd`BoxReferenceBoxObject(FE`BoxReference(popup, {id})))
-                        FrontEnd`AssignCurrentValue(oldbox, ButtonFrame, HoldComplete("ListViewItem"))
-                        FrontEnd`AssignCurrentValue(newbox, ButtonFrame, HoldComplete("ListViewItemSelected"))
                         FrontEnd`ScrollIntoView(newbox)
                     })
                 }
