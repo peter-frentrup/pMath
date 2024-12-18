@@ -2484,14 +2484,19 @@ bool StyleData::modifies_size(StyleOptionName style_name) {
     case AutoDelete:
     case ContinuousAction:
     case DebugColorizeChanges:
+    case DebugFollowMouse:
+    case DebugSelectionBounds:
+    case DrawEdges:
     case Editable:
     case Enabled:
     case Evaluatable:
+    case ImageSizeAction:
     case InternalHasModifiedWindowOption:
     case InternalHasPendingDynamic:
     case InternalHasNewBaseStyle:
     case InternalUsesCurrentValueOfMouseOver:
     case Placeholder:
+    case RemovalConditions:
     case ReturnCreatesNewSection:
     case Saveable:
     case SectionEditDuplicate:
@@ -2503,19 +2508,37 @@ bool StyleData::modifies_size(StyleOptionName style_name) {
     case ShowContents:
     case StripOnInput:
     
+    case ContextMenu:
+    case DragDropContextMenu:
+    case InputAliases:
+    case InputAutoReplacements:
     case LanguageCategory:
     case Method:
     case SectionLabel:
+    case WindowProgress:
     case WindowTitle:
+
+    case Deinitialization:
+    case Initialization:
+    case TrackedSymbols:
+    case Tooltip:
     
     case BoxID:
+    case ButtonData:
     case ButtonFunction:
+    case ButtonSource:
+    case InterpretationFunction:
     case ScriptSizeMultipliers:
     case TextShadow:
     case DefaultDuplicateSectionStyle:
     case DefaultNewSectionStyle:
     case DefaultReturnCreatedSectionStyle:
     case GeneratedSectionStyles:
+
+    case InlineAutoCompletionHighlightOpacity:
+    case InlineSectionEditingHighlightOpacity:
+    case MatchingBracketHighlightOpacity:
+    case OccurenceHighlightOpacity:
       return false;
   }
   
