@@ -234,6 +234,7 @@ namespace richmath {
     private:
       bool handle_auto_replacements(Expr table);
       bool handle_backslash_aliases(Expr table);
+      void finish_insert_alias(AbstractSequence *seq, int i, int e, Expr repl);
       Expr get_current_replacements(ObjectStyleOptionName n);
       
     public:
@@ -4885,32 +4886,8 @@ bool Document::Impl::handle_backslash_aliases(Expr table) {
       }
       
       if(repl) {
-        if(String s = repl) {
-          int repl_index = index_of_replacement(s);
-          if(repl_index >= 0) {
-            int new_sel_start = seq->insert(e, s.part(0, repl_index));
-            int new_sel_end   = seq->insert(new_sel_start, PMATH_CHAR_PLACEHOLDER);
-            seq->insert(new_sel_end, s.part(repl_index + 1));
-            seq->remove(i, e);
-            
-            self.select(seq, new_sel_start - (e - i), new_sel_end - (e - i));
-          }
-          else {
-            seq->insert(e, s);
-            seq->remove(i, e);
-            self.move_to(self.selection_box(), i + s.length());
-          }
-          return true;
-        }
-        else {
-          AbstractSequence *repl_seq = seq->create_similar();
-          repl_seq->load_from_object(repl, BoxInputFlags::Default);
-          
-          seq->remove(i, e);
-          self.move_to(self.selection_box(), i);
-          self.insert_box(repl_seq, true);
-          return true;
-        }
+        finish_insert_alias(seq, i, e, PMATH_CPP_MOVE(repl));
+        return true;
       }
     }
   }
@@ -4965,41 +4942,36 @@ bool Document::Impl::handle_alias_delimiter() { // handle "CAPSLOCK alias CAPSLO
   if(repl.is_null())
     return false;
   
-  if(String ins = repl) {
-    int repl_index = index_of_replacement(ins);
+  finish_insert_alias(seq, alias_pos, alias_end, PMATH_CPP_MOVE(repl));
+  return true;
+}
+
+void Document::Impl::finish_insert_alias(AbstractSequence *seq, int i, int e, Expr repl) {
+  if(String s = repl) {
+    int repl_index = index_of_replacement(s);
     
     if(repl_index >= 0) {
-      int new_sel_start = seq->insert(alias_end, ins.part(0, repl_index));
+      int new_sel_start = seq->insert(e, s.part(0, repl_index));
       int new_sel_end   = seq->insert(new_sel_start, PMATH_CHAR_PLACEHOLDER);
-      seq->insert(new_sel_end, ins.part(repl_index + 1));
-      seq->remove(alias_pos, alias_end);
+      seq->insert(new_sel_end, s.part(repl_index + 1));
+      seq->remove(i, e);
       
-      self.select(seq, new_sel_start - (alias_end - alias_pos), new_sel_end - (alias_end - alias_pos));
+      self.select(seq, new_sel_start - (e - i), new_sel_end - (e - i));
     }
     else {
-      int i = seq->insert(alias_end, ins);
-      seq->remove(alias_pos, alias_end);
-      self.move_to(seq, i - (alias_end - alias_pos));
+      seq->insert(e, s);
+      seq->remove(i, e);
+      self.move_to(seq, i + s.length());
     }
   }
   else {
     AbstractSequence *repl_seq = seq->create_similar();
     repl_seq->load_from_object(repl, BoxInputFlags::Default);
     
+    seq->remove(i, e);
+    self.move_to(self.selection_box(), i);
     self.insert_box(repl_seq, true);
-    int sel_start = self.selection_start();
-    int sel_end   = self.selection_end();
-    seq->remove(alias_pos, alias_end);
-    
-    if(self.selection_box() == seq) { // renormalizes selection_[start|end]()
-      self.select(
-        seq,
-        sel_start - (alias_end - alias_pos),
-        sel_end   - (alias_end - alias_pos));
-    }
   }
-  
-  return true;
 }
 
 //}
