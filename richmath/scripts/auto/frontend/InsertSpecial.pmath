@@ -130,6 +130,7 @@ makeAliasBoxes(~s)::= s |> StringReplace(" " -> "\(StyleBox(\"\[U+2423]\", FontC
 
 makeBoxesVisible(~box)::= box
 makeBoxesVisible(ButtonBox(~~~b))::= ButtonBox(b, ButtonFrame -> Automatic)
+makeBoxesVisible(~s:Section)::= makeSectionVisible(s)
 Function makeBoxesVisible(~s:String) {
     With(chars:= ToCharacterCode(s))
     If(Length(chars) === 1 || (Length(chars) === 2 && 16^^D800 <= chars[1] <= 16^^DBFF)) {
@@ -140,6 +141,13 @@ Function makeBoxesVisible(~s:String) {
         s
     }
 }
+
+makeSectionVisible(~s)::= s
+makeSectionVisible(Section("", ~stylename, ~~~opts))::= StyleBox(TextData(stylename), stylename, opts)
+makeSectionVisible(Section({}|BoxData({}|""), ~stylename, ~~~opts))::= StyleBox(stylename, stylename, opts)
+makeSectionVisible(Section(~content, ~~styles))::= StyleBox(TextData(content), styles)
+makeSectionVisible(Section(TextData(~~~content), ~~styles))::= StyleBox(TextData(content), styles)
+makeSectionVisible(Section(BoxData(~~~content), ~~styles))::= StyleBox(BoxData(content), styles)
 
 End()
 

@@ -4963,15 +4963,65 @@ void Document::Impl::finish_insert_alias(AbstractSequence *seq, int i, int e, Ex
       seq->remove(i, e);
       self.move_to(seq, i + s.length());
     }
+    
+    return;
   }
-  else {
-    AbstractSequence *repl_seq = seq->create_similar();
-    repl_seq->load_from_object(repl, BoxInputFlags::Default);
+  
+  if(repl.item_equals(0, richmath_System_Section) || repl.item_equals(0, richmath_System_SectionGroup)) {
+    Box *box = seq;
+    int new_sect_index = e;
+    while(box && box != &self) {
+      new_sect_index = box->index() + 1;
+      box = box->parent();
+    }
+    if(!box) {
+      box = &self;
+      new_sect_index = self.length();
+    }
+    self.insert_pmath(&new_sect_index, repl);
+    
+    self.move_to(box, new_sect_index);
+    if(new_sect_index > 0 && self.section(new_sect_index - 1)->count() > 0)
+      self.move_horizontal(LogicalDirection::Backward, false);
     
     seq->remove(i, e);
-    self.move_to(self.selection_box(), i);
-    self.insert_box(repl_seq, true);
+    e = i;
+    if(i < seq->length()) {
+      if(auto newseq = dynamic_cast<AbstractSequence*>(self.selection_box())) {
+        /*int after_ins =*/ newseq->insert(self.selection_start(), seq, e, seq->length());
+        seq->remove(i, seq->length());
+        //self.move_to(newseq, after_ins);
+      }
+    }
+    
+    if(seq->length() == 0) { // FIXME: does not normally happen, because there is still a space or closing  \[AliasDelimiter]
+      if(auto sect = dynamic_cast<Section*>(seq->parent())) {
+        if(sect->parent() == &self) {
+          int old_sect_index = sect->index();
+          self.remove(old_sect_index, old_sect_index + 1);
+          if(self.selection_box() == &self)
+            self.move_to(box, new_sect_index - 1);
+          return;
+        }
+      }
+      
+      // See also Document::remove_selection()
+      if(seq->parent() && seq->parent()->remove_inserts_placeholder()) {      
+        if(auto mseq = dynamic_cast<MathSequence*>(seq)) {
+          mseq->insert(0, PMATH_CHAR_PLACEHOLDER);
+        }
+      }
+    }
+    
+    return;
   }
+  
+  AbstractSequence *repl_seq = seq->create_similar();
+  repl_seq->load_from_object(repl, BoxInputFlags::Default);
+  
+  seq->remove(i, e);
+  self.move_to(self.selection_box(), i);
+  self.insert_box(repl_seq, true);
 }
 
 //}

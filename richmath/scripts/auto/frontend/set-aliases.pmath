@@ -46,11 +46,21 @@
 		"1F1" -> BoxData(TemplateBox({"\[Placeholder]", "\[Placeholder]", "\[SelectionPlaceholder]"},"Hypergeometric1F1")),
 		"2F1" -> BoxData(TemplateBox({"\[Placeholder]", "\[Placeholder]", "\[Placeholder]", "\[SelectionPlaceholder]"},"Hypergeometric2F1")),
 
-		"input" -> InputFieldBox("\[SelectionPlaceholder]", String),
+		"inputfield" -> InputFieldBox("\[SelectionPlaceholder]", String),
 		"rot" -> RotationBox("\[SelectionPlaceholder]", BoxRotation->Pi/4),
 		"scale" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{2,0},{0,2}}),
 		"trans" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{1,0.3},{0,1}}),
 		
+		"title" -> Section("", "Title"),
+		"subtitle" -> Section("", "Subtitle"),
+		"subsubtitle" -> Section("", "Subsubtitle"),
+		"section" -> Section("", "Section"),
+		"subsection" -> Section("", "Subsection"),
+		"subsubsection" -> Section("", "Subsubsection"),
+		"text" -> Section("", "Text"),
+		"code" -> Section(BoxData(""), "Code"),
+		"input" -> Section(BoxData(""), "Input"),
+
 		"<~" -> "\[U+21DC]",
 		"~>" -> "\[U+21DD]",
 		
