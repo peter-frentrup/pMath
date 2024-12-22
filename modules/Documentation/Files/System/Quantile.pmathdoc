@@ -25,26 +25,24 @@ Document({
              {"(", {StyleBox("c", "Arg"), "+", {
                 StyleBox("d", "Arg"), " ", {
                  TemplateBox({"FractionalPart"}, "ReferenceHyperlink"), "(", 
-                 StyleBox("q", "Arg"), ")"}}}, ")"}, " ", {
+                 StyleBox("x", "Arg"), ")"}}}, ")"}, " ", {
               "(", {StyleBox("right", "Arg"), "-", StyleBox("left", "Arg")}, 
-              ")"}}}, " where ", StyleBox("left", "Arg"), " equals ", {
+              ")"}}}, " where ", StyleBox("x", "Arg"), " is defined as ", 
+           BoxData({StyleBox("x", "Arg"), "\[Assign]", {
+              StyleBox("a", "Arg"), "+", {
+               {"(", {StyleBox("n", "Arg"), "+", StyleBox("b", "Arg")}, ")"}, 
+               StyleBox("q", "Arg")}}}), ", ", StyleBox("left", "Arg"), 
+           " equals ", {{TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", {
+              StyleBox("list", "Arg"), ",", 
+              TemplateBox({"Less"}, "ReferenceHyperlink")}, ")"}, "[", {
+             TemplateBox({"Floor"}, "ReferenceHyperlink"), "(", "x", ")"}, 
+            "]"}, " and ", StyleBox("right", "Arg"), " is ", {
             {TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", {
               StyleBox("list", "Arg"), ",", 
               TemplateBox({"Less"}, "ReferenceHyperlink")}, ")"}, "[", {
-             TemplateBox({"Floor"}, "ReferenceHyperlink"), "(", {
-              StyleBox("a", "Arg"), "+", {
-               {"(", {StyleBox("n", "Arg"), "+", StyleBox("b", "Arg")}, ")"}, 
-               StyleBox("q", "Arg")}}, ")"}, "]"}, " and ", 
-           StyleBox("right", "Arg"), " is  ", {
-            {TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", {
-              StyleBox("list", "Arg"), ",", 
-              TemplateBox({"Less"}, "ReferenceHyperlink")}, ")"}, "[", {
-             TemplateBox({"Ceiling"}, "ReferenceHyperlink"), "(", {
-              StyleBox("a", "Arg"), "+", {
-               {"(", {StyleBox("n", "Arg"), "+", StyleBox("b", "Arg")}, ")"}, 
-               StyleBox("q", "Arg")}}, ")"}, "]"}, 
-           ", with indices clamped to the range 1 .. ", StyleBox("n", "Arg"), 
-           "."}), "Notes"), 
+             TemplateBox({"Ceiling"}, "ReferenceHyperlink"), "(", "x", ")"}, 
+            "]"}, ", with indices clamped to the range 1 .. ", 
+           StyleBox("n", "Arg"), "."}), "Notes"), 
         Section(TextData({"Typical values for {{", StyleBox("a", "Arg"), ", ", 
            StyleBox("b", "Arg"), "}, {", StyleBox("c", "Arg"), ", ", 
            StyleBox("d", "Arg"), "}} are:"}), "Notes"), 
@@ -105,7 +103,7 @@ Document({
            SectionLabel -> "in [1]:"), 
           Section(
            BoxData(GraphicsBox({
-              {RGBColor(0.75`, 0, 0), {
+              {RGBColor(0.75, 0, 0), {
                 LineBox(CompressedData(
                   "1:c$,hue@NVA90zdk,O1(nWQ>rAh=?m9A}gT[q9h,AV+(O6TSiD&WZQ};L#\
                   jm,BBEyI4iPaCkwZjGMC6+[6BCjBYRF},o}!Xe&gPIYWQ?(OpZ6!epSRp!FZ\
@@ -132,9 +130,9 @@ Document({
                   ja^QRQ3)+Etou<qnk=mD8Dq->bCRR8pnQrhJuzO{G=Zt>HtJ4r>_MfOJwrl,\
                   hK)Ux##4mP(Ij-}{A;*RyZ=2Bgok-,*Wa(z7>Z57O_^TW]{UfEpfx40,ldLW\
                   U?S0vYz,{ep]8mJb=_scn%lY8d@j#OJ9Uk#TOgo00zjZAA5y"))}}}, 
-             AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
+             AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
              Axes -> True, PlotRange -> NCache({0 .. 1, 1 .. 5}, {
-                0.0` .. 1.0`, 1.0` .. 5.0`}))), "Output", 
+                0.0 .. 1.0, 1.0 .. 5.0}))), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -152,7 +150,7 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {RGBColor(0.75`, 0, 0), {
+                {RGBColor(0.75, 0, 0), {
                   LineBox(CompressedData(
                     "1:c$,(34,,fs8OQJ5doQ#ui(A[+u62}di;9&ZrHG1GWXNu8Qra$bMx;m-\
                     tGkj*LQpI22qC03#,Fv!w561ClsUFBN<C[Sl,]}QKfRQC#?bYxHOaD=WS5\
@@ -207,9 +205,9 @@ Document({
                     f-Tu76-zvcLwc#3lrru;47P1zUy%im>1;kO<2TXMwh,tlee=?O[NhS,c)E\
                     MX(h?XIM^TClQ<ui(mplS6Bp3A?Oan!3#l8SOilDk}3By&<lbdf<6$eT>{\
                     V#f@uV2LC{+Ua2^B$D+2xx#p-W^"))}}}, 
-               AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
-               Axes -> True, PlotRange -> NCache({0 .. 1, 1.0` .. 5.0`}, {
-                  0.0` .. 1.0`, 1.0` .. 5.0`}))), "Output", 
+               AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
+               Axes -> True, PlotRange -> NCache({0 .. 1, 1.0 .. 5.0}, {
+                  0.0 .. 1.0, 1.0 .. 5.0}))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
