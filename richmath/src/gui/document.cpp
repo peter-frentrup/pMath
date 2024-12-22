@@ -47,7 +47,6 @@ extern pmath_symbol_t richmath_System_DollarAborted;
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_All;
 extern pmath_symbol_t richmath_System_Automatic;
-extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
 extern pmath_symbol_t richmath_System_Document;
 extern pmath_symbol_t richmath_System_DocumentObject;
@@ -56,7 +55,6 @@ extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_StringReplace;
-extern pmath_symbol_t richmath_System_TextData;
 
 extern pmath_symbol_t richmath_FE_BoxesToText;
 extern pmath_symbol_t richmath_FE_SectionsToBoxes;

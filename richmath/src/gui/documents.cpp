@@ -24,8 +24,10 @@ namespace richmath {
     extern String DocumentFileName;
     extern String DocumentFullFileName;
     extern String EditStyleDefinitions;
+    extern String EmptyString;
     extern String Input;
     extern String MenuListPalettesMenu;
+    extern String NaturalLanguage;
     extern String Output;
     extern String PageWidthCharacters;
     extern String ShowHideMenu;
@@ -74,6 +76,8 @@ namespace {
     public:
       static void init();
       static void done();
+      
+      static Expr get_styles_list(SharedPtr<Stylesheet> stylesheet);
     
     private:
       static MenuCommandStatus can_set_style(Expr cmd);
@@ -104,7 +108,8 @@ namespace {
         friend bool operator<(const StyleItem &left, const StyleItem &right) { return left.sorting_value < right.sorting_value; }
       };
       
-      const Array<StyleItem> &enum_styles();
+      const Array<StyleItem> &enum_current_styles();
+      const Array<StyleItem> &enum_styles(SharedPtr<Stylesheet> stylesheet);
       
       static StylesMenuImpl cache;
       Stylesheet *latest_stylesheet;
@@ -883,8 +888,31 @@ bool StylesMenuImpl::set_style(Expr cmd) {
   return false;
 }
 
+Expr richmath_eval_FrontEnd_GetStylesList(Expr expr) {
+  // FrontEnd`GetStylesList()    = FrontEnd`GetStylesList(Automatic)
+  // FrontEnd`GetStylesList(obj)
+  // 
+  // Similar to Mma's front-end only FEPrivate`GetPopupList["Style"], but gives a 
+  // list of "name" -> Section(..., "name") for style names that would appear in the Styles menu.
+
+  if(expr.expr_length() > 1)
+    return Symbol(richmath_System_DollarFailed);
+  
+  SharedPtr<Stylesheet> stylesheet = nullptr;
+  if(expr.expr_length() < 1 || expr.item_equals(1, richmath_System_Automatic)) {
+    Document *doc = Menus::current_document();
+    stylesheet = doc ? doc->stylesheet() : nullptr;
+  }
+  else {
+    StyledObject *obj = FrontEndObject::find_cast<StyledObject>(FrontEndReference::from_pmath(expr[1])); 
+    stylesheet = obj ? obj->stylesheet() : nullptr;
+  }
+  
+  return StylesMenuImpl::get_styles_list(stylesheet);
+}
+
 Expr StylesMenuImpl::enum_styles_menu(Expr name) {
-  const Array<StyleItem> &styles = cache.enum_styles();
+  const Array<StyleItem> &styles = cache.enum_current_styles();
   
   Expr commands = MakeCall(Symbol(richmath_System_List), (size_t)styles.length());
   for(int i = 0; i < styles.length(); ++i) {
@@ -905,6 +933,26 @@ Expr StylesMenuImpl::enum_styles_menu(Expr name) {
   }
   
   return commands;
+}
+
+Expr StylesMenuImpl::get_styles_list(SharedPtr<Stylesheet> stylesheet) {
+  const Array<StylesMenuImpl::StyleItem> &styles = cache.enum_styles(stylesheet);
+
+  Style s;
+  Expr list = MakeCall(Symbol(richmath_System_List), styles.length());
+  for(int i = 0; i < styles.length(); ++i) {
+    s.set(BaseStyleName, styles[i].name);
+    String lang = stylesheet->get_or_default(s, LanguageCategory);
+    Expr content;
+    if(lang == strings::NaturalLanguage)
+      content = strings::EmptyString;
+    else
+      content = Call(Symbol(richmath_System_BoxData), strings::EmptyString);
+    
+    list.set(i + 1, Rule(styles[i].name, Call(Symbol(richmath_System_Section), content, styles[i].name)));
+  }
+
+  return list;
 }
 
 bool StylesMenuImpl::find_style_definition(Expr submenu_cmd, Expr item_cmd) {
@@ -957,7 +1005,7 @@ String StylesMenuImpl::style_name_from_command(Expr cmd) {
 }
 
 String StylesMenuImpl::style_name_from_command_key(int command_key) {
-  for(auto &item : enum_styles()) {
+  for(auto &item : enum_current_styles()) {
     if(item.command_key == command_key)
       return item.name;
   }
@@ -965,16 +1013,20 @@ String StylesMenuImpl::style_name_from_command_key(int command_key) {
   return {};
 }
       
-const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_styles() {
+const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_current_styles() {
   SharedPtr<Stylesheet> stylesheet;
   if(Document *doc = Menus::current_document())
     stylesheet = doc->stylesheet();
   
+  return enum_styles(PMATH_CPP_MOVE(stylesheet));
+}
+
+const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_styles(SharedPtr<Stylesheet> stylesheet) {
   if(!stylesheet) {
     static const Array<StyleItem> empty;
     return empty;
   }
-  
+
   if(latest_stylesheet == stylesheet.ptr())
     return latest_items;
   
