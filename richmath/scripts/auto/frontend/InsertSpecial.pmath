@@ -12,15 +12,23 @@ Function FE`InsertSpecial(~doc) {
 
 getInputAliasesFor(~, ~)::= CurrentValue(InputAliases)
 
-Function getInputAliasesFor(~selboxes, Language`SourceLocation(~feo:FrontEndObject, ~range)) {
-     With(allMacros:= CurrentValue(feo, InputAliases) |> Cases(Except(~ -> ("\[Placeholder]" | "\[SelectionPlaceholder]"))))
-     If(Match(range, ~x .. ~x) || selboxes === "\[Placeholder]" || selboxes === "\[SelectionPlaceholder]") {
+Function getInputAliasesFor(~selboxes, loc: Language`SourceLocation(~feo:FrontEndObject, ~range)) {
+    With(allMacros:= CurrentValue(feo, InputAliases) |> Cases(Except(~ -> ("\[Placeholder]" | "\[SelectionPlaceholder]"))))
+    
+    If(Match(range, ~x .. ~x)) {
+        If(DocumentGet(loc) |> Head === SectionGroup) {
+            With(styleTemplates:= FE`CallFrontEnd(FrontEnd`GetStylesList(feo)))
+            Return(Join(styleTemplates, allMacros))
+        } Else {
+            Return(allMacros)
+        }
+    } Else If(selboxes === "\[Placeholder]" || selboxes === "\[SelectionPlaceholder]") {
         allMacros
-     } Else {
+    } Else {
         allMacros |>
             Select(Function( #[2] |> 
                 Position(~s:String /? StringPosition(s, "\[Placeholder]" | "\[SelectionPlaceholder]") =!= {}) =!= {}))
-     }
+    }
 }
 
 Function insertSpecialAt(~doc, ~selboxes, ~loc) {
