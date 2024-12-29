@@ -140,9 +140,7 @@ namespace richmath {
         NumFlagsBits,
       };
       
-      enum {
-        MaximumFlagsBits = 8 * sizeof(_flags)
-      };
+      static const int MaximumFlagsBits = 8 * sizeof(_flags);
   };
   
   inline FrontEndReference FrontEndReference::of(FrontEndObject *obj) {
