@@ -5,6 +5,7 @@
 #include <string.h>
 
 
+static char *get_new_fmpz_str(const fmpz_t f, int base);
 static void free_fmpz_str(char *str);
 
 static void pow_ui_fmpz(arb_t res, int base, const fmpz_t e, slong prec) {
@@ -309,7 +310,7 @@ static void get_str_parts_new(
   out_parts->is_negative = arf_sgn(arb_midref(in_value)) < 0;
   fmpz_abs(mid, mid);
   
-  out_parts->mid_digits = fmpz_get_str(NULL, in_base, mid);
+  out_parts->mid_digits = get_new_fmpz_str(mid, in_base);
   mid_len = strlen(out_parts->mid_digits);
   rad_len = fmpz_sizeinbase(rad, in_base);
   
@@ -339,7 +340,7 @@ static void get_str_parts_new(
   }
   
   rad_trailing_zeros = 0;
-  out_parts->rad_digits = fmpz_get_str(NULL, in_base, rad);
+  out_parts->rad_digits = get_new_fmpz_str(rad, in_base);
   assert(rad_len == strlen(out_parts->rad_digits));
   
   if(rad_len > in_max_rad_digits) {
@@ -437,7 +438,7 @@ static void get_str_2exp_parts_new(
     fmpz_mul_2exp(mant, mant, remainder);
   }
   
-  out_parts->mid_digits = fmpz_get_str(NULL, 1 << in_baselog, mant);
+  out_parts->mid_digits = get_new_fmpz_str(mant, 1 << in_baselog);
   midlen = strlen(out_parts->mid_digits);
   fmpz_add_si_inline(out_parts->exponent, out_parts->exponent, midlen);
   
@@ -454,7 +455,7 @@ static void get_str_2exp_parts_new(
     fmpz_mul_2exp(mant, mant, remainder);
   }
   
-  out_parts->rad_digits = fmpz_get_str(NULL, 1 << in_baselog, mant);
+  out_parts->rad_digits = get_new_fmpz_str(mant, 1 << in_baselog);
   radlen = strlen(out_parts->rad_digits);
   fmpz_add_si_inline(out_parts->rad_exponent_extra, out_parts->rad_exponent_extra, radlen);
   
@@ -707,7 +708,7 @@ void _pmath_write_number_part(
             fmpz_init(exp);
             fmpz_add_si_inline(exp, exp, -1);
             {
-              char *tmp = fmpz_get_str(NULL, 10, exp);
+              char *tmp = get_new_fmpz_str(exp, 10);
               writer(ctx, tmp, strlen(tmp));
               free_fmpz_str(tmp);
             }
@@ -716,7 +717,7 @@ void _pmath_write_number_part(
         }
         else {
           if(!fmpz_is_zero(parts->rad_exponent_extra)) {
-            char *tmp = fmpz_get_str(NULL, 10, parts->rad_exponent_extra);
+            char *tmp = get_new_fmpz_str(parts->rad_exponent_extra, 10);
             writer(ctx, tmp, strlen(tmp));
             free_fmpz_str(tmp);
           }
@@ -749,7 +750,7 @@ void _pmath_write_number_part(
         fmpz_sub_si_inline(exp, exp, 1);
       
       if(!fmpz_is_zero(exp)) {
-        char *tmp = fmpz_get_str(NULL, 10, exp);
+        char *tmp = get_new_fmpz_str(exp, 10);
         writer(ctx, tmp, strlen(tmp));
         free_fmpz_str(tmp);
       }
@@ -759,7 +760,7 @@ void _pmath_write_number_part(
 
     case PMATH_NUMBER_PART_EXPONENT: {
       if(!fmpz_is_zero(parts->exponent)) {
-        char *tmp = fmpz_get_str(NULL, 10, parts->exponent);
+        char *tmp = get_new_fmpz_str(parts->exponent, 10);
         writer(ctx, tmp, strlen(tmp));
         free_fmpz_str(tmp);
       }
@@ -820,6 +821,13 @@ PMATH_PRIVATE void _pmath_raw_number_parts_clear(struct _pmath_raw_number_parts_
   free_fmpz_str(parts->rad_digits);
 }
 
+
+static char *get_new_fmpz_str(const fmpz_t f, int base) {
+  size_t len = fmpz_sizeinbase(f, base);
+  char *buf = pmath_mem_alloc(len + 2);
+  return fmpz_get_str(buf, base, f);
+}
+
 static void free_fmpz_str(char *str) {
   // fmpz_get_str() uses mpz_get_str() which uses our memory functions (see memory.c)
   // But it might be that we fail to redirect flint_free() [too old flint lib]. Then flint_free(str) 
@@ -830,8 +838,7 @@ static void free_fmpz_str(char *str) {
   // Thus we would segfault when using pmath_mem_free() instead of flint_free() here and
   // not redirecting in memory.c
   //
-  // It would be better to either ditch old FLINT versions (which is the minimum version?) 
-  // and call flint_free() here, or only call fmpz_get_str() with a preallocated buffer
+  // Because of this, we only call fmpz_get_str() with a preallocated buffer, using pmath_mem_alloc()
   
   //flint_free(str);
 
