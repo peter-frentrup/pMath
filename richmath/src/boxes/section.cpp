@@ -138,7 +138,7 @@ Box *Section::move_vertical(
   bool              called_from_child
 ) {
   if(auto par = parent()) {
-    if(index < 0) { // called from parent
+    if(*index < 0) { // called from parent
       if(direction == LogicalDirection::Forward)
         *index = _index + 1;
       else
