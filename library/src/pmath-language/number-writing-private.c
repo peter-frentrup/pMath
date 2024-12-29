@@ -821,9 +821,18 @@ PMATH_PRIVATE void _pmath_raw_number_parts_clear(struct _pmath_raw_number_parts_
 }
 
 static void free_fmpz_str(char *str) {
-  // fmpz_get_str() uses mpz_get_str which uses our memory functions (see memory.c)
+  // fmpz_get_str() uses mpz_get_str() which uses our memory functions (see memory.c)
   // But it might be that we fail to redirect flint_free() [too old flint lib]. Then flint_free(str) 
   // would call the system free() which would segfault.
+  //
+  // Note: this is not true any more in newer FLINT (e.g. 2.8.0). Those use flint_alloc() in 
+  // fmpz_get_str() before calling mpz_get_str(). 
+  // Thus we would segfault when using pmath_mem_free() instead of flint_free() here and
+  // not redirecting in memory.c
+  //
+  // It would be better to either ditch old FLINT versions (which is the minimum version?) 
+  // and call flint_free() here, or only call fmpz_get_str() with a preallocated buffer
+  
   //flint_free(str);
 
   pmath_mem_free(str);
