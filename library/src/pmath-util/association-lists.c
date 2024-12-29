@@ -6,6 +6,9 @@
 
 #include <pmath-core/symbols.h>
 
+#include <stddef.h>
+#include <string.h>
+
 
 struct _pmath_association_list_extra_data_t {
   struct _pmath_custom_expr_data_t base;
