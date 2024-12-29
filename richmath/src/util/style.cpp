@@ -11,6 +11,7 @@
 #include <util/filesystem.h>
 
 #include <cmath>
+#include <cstdio>
 #include <limits>
 
 

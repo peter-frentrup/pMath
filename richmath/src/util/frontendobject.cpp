@@ -4,6 +4,7 @@
 #include <eval/application.h>
 #include <util/styled-object.h>
 
+#include <cstdio>
 #include <new> // placement new
 
 
