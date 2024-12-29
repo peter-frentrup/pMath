@@ -657,9 +657,12 @@ static void register_flint_memory_functions(void) {
   {
     Dl_info info_flint;
     if(dladdr(flint_cleanup, &info_flint)) {
-      void *flint_lib_handle = dlopen(info_flint.dli_fname, RTLD_NOLOAD);
+      void *flint_lib_handle = dlopen(info_flint.dli_fname, RTLD_LAZY | RTLD_NOLOAD);
       if(flint_lib_handle) {
         p__flint_set_memory_functions = dlsym(flint_lib_handle, "__flint_set_memory_functions");
+      }
+      else {
+        pmath_debug_print("[dlerror() gives: %s]\n", dlerror());
       }
     }
   }

@@ -2434,9 +2434,12 @@ static void unload_flint(void) {
   {
     Dl_info info_flint;
     if(dladdr(flint_cleanup, &info_flint)) {
-      void *flint_lib_handle = dlopen(info_flint.dli_fname, RTLD_NOLOAD);
+      void *flint_lib_handle = dlopen(info_flint.dli_fname, RTLD_LAZY | RTLD_NOLOAD);
       if(flint_lib_handle) {
         cleanup_master_ptr = (void(*)(void))dlsym(flint_lib_handle, "flint_cleanup_master");
+      }
+      else {
+        pmath_debug_print("[dlerror() gives: %s]\n", dlerror());
       }
     }
   }
