@@ -521,6 +521,10 @@ Options(Slider):= Options(SliderBox):= {
 Options(StyleData):= {
     StyleDefinitions -> Automatic }
 
+Options(TabView):= {
+    Alignment -> {Top, Left},
+    Enabled -> Automatic}
+
 Options(TagBox):= {
     AutoDelete -> False,
     BoxID -> None,

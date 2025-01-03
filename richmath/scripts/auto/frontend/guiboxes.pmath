@@ -213,10 +213,17 @@ makeSliderBox(~x)::= makeCallBoxes(x)
 
 MakeBoxes(~x: TabView)::= makeTabViewBox(x) /? allowGuiBoxes
 Attributes(makeTabViewBox):= {HoldAllComplete}
-makeTabViewBox(TabView(tabs:{(~ -> ~)**},~i))::= TemplateBox({ReleaseHold @ Hold(tabs).Map(makeNullBoxes, 3), i}, "TabView")
-makeTabViewBox(TabView(panes:{~~}, ~i))::=       TemplateBox({ReleaseHold @ Hold(panes).MapIndexed(Function(, ToBoxes(Last(#2))->makeNullBoxes(#), HoldAllComplete), 2), i}, "TabView")
-makeTabViewBox(TabView(~panes))::=               makeTabViewBox(TabView(panes, 1))
-makeTabViewBox(~x)::= makeCallBoxes(x)
+makeTabViewBox(~t)::= HoldComplete(t) |> Function {
+	Case(HoldComplete(TabView(~panes,                options:OptionsPattern()))) { makeTabViewBox(TabView(panes, 1, options)) }
+	Case(HoldComplete(TabView(tabs:{(~ -> ~)**}, ~i, options:OptionsPattern()))) { TemplateBox({ReleaseHold @ Hold(tabs).Map(makeNullBoxes, 3), i, options}, "TabView") }
+	Case(HoldComplete(TabView(panes:{~~},        ~i, options:OptionsPattern()))) { TemplateBox({ReleaseHold @ Hold(panes).MapIndexed(Function(, ToBoxes(Last(#2))->makeNullBoxes(#), HoldAllComplete), 2), i, options}, "TabView") }
+	Case(HoldComplete(~t)) { makeCallBoxes(t) }
+}
+
+%makeTabViewBox(TabView(tabs:{(~ -> ~)**}, ~i, options:OptionsPattern()))::= TemplateBox({ReleaseHold @ Hold(tabs).Map(makeNullBoxes, 3), i, options}, "TabView")
+%makeTabViewBox(TabView(panes:{~~},        ~i, options:OptionsPattern()))::= TemplateBox({ReleaseHold @ Hold(panes).MapIndexed(Function(, ToBoxes(Last(#2))->makeNullBoxes(#), HoldAllComplete), 2), i, options}, "TabView")
+%makeTabViewBox(TabView(~panes                 options:OptionsPattern()))::= makeTabViewBox(TabView(panes, 1, options))
+%makeTabViewBox(~x)::= makeCallBoxes(x)
 
 
 MakeBoxes(~x: ToggleSwitch)::= makeToggleSwitchBox(x) /? allowGuiBoxes
@@ -345,9 +352,9 @@ SliderBox/: MakeExpression(SliderBox(~val, 0..1,   options:OptionsPattern()))::=
 SliderBox/: MakeExpression(SliderBox(~val, ~range, options:OptionsPattern()))::= HoldComplete(Slider(val, range, options))
 
 
-FE`TabViewBox /: MakeExpression(FE`TabViewBox(tabBoxes: {(~->~)**},~i))::=
+FE`TabViewBox /: MakeExpression(FE`TabViewBox(tabBoxes: {(~->~)**}, ~i, options:OptionsPattern()))::=
     With(tabs:= HoldComplete(tabBoxes).Map(MakeExpression, 3).Replace(HoldComplete(~x) :> x, 3)) {
-        HoldComplete(TabView(tabs, i)).Replace(HoldComplete(~x) :> x, 2)
+        HoldComplete(TabView(tabs, i, options)).Replace(HoldComplete(~x) :> x, 2)
     }
 
 

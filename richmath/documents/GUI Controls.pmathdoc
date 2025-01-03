@@ -326,8 +326,10 @@ Document({
                             StringBox("\"content 4\"")}}}, "}"}, ",", {
                          "\n", {"Dynamic", "(", "idx", ")"}}}, ")"}}, ",", {
                       "\n", {"Appearance", "\[Rule]", 
-                       StringBox("\"TabBody\"")}}}, ")"}, "}"}}}, "}"}, ",", {
-                "RowSpacing", "\[Rule]", "0"}}, ")"}}}, ")"}), "Input"), 
+                       StringBox("\"TabBody\"")}}, ",", {
+                      "Alignment", "\[Rule]", "Center"}}, ")"}, "}"}}}, "}"}, 
+               ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}}}, ")"}), "Input", 
+         SectionLabel -> "in [24]:"), 
         Section(BoxData(DynamicLocalBox({$Context`idx}, 
            TagBox(
             GridBox({
@@ -360,11 +362,12 @@ Document({
                   2 -> StringBox("\"content 2\""), 
                   3 -> StringBox("\"content 3\""), 
                   4 -> StringBox("\"content 4\"")}, Dynamic($Context`idx)), 
-                Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), "Grid"), 
+                Alignment -> Center, Appearance -> "TabBody")}}, 
+             GridBoxRowSpacing -> 0), "Grid"), 
            DynamicLocalValues :> {
              {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}})), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 2), 
-      SectionGroup({
+         "Output", SectionGenerated -> True, SectionLabel -> "out [24]:")}, 
+       2), SectionGroup({
         Section(
          BoxData({
            {{"{", {
@@ -383,7 +386,7 @@ Document({
                 ")"}, ")"}, ",", "2"}, ")"}}, "|>", {
             "Grid", "(", {{"ColumnSpacing", "\[Rule]", "0"}, ",", {
               "RowSpacing", "\[Rule]", "0"}}, ")"}}), "Input", 
-         SectionLabel -> "in [7]:"), 
+         SectionLabel -> "in [25]:"), 
         Section(
          BoxData(
           TagBox(
@@ -405,8 +408,8 @@ Document({
               PanelBox(StringBox("\" x \""), 
                Appearance -> "TabPanelBottomRight")}}, 
             GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid")), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, 2), 
-      SectionGroup({
+         "Output", SectionGenerated -> True, SectionLabel -> "out [25]:")}, 
+       2), SectionGroup({
         Section(BoxData({"DynamicLocal", "(", {
             {"{", {"idx", "\[Assign]", "1"}, "}"}, ",", {
              {{{"{", {
@@ -483,7 +486,7 @@ Document({
                       ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}, ",", {
                      "Appearance", "\[Rule]", 
                      StringBox("\"TabPanelCenterLeft\"")}}, ")"}}}}, "}"}, 
-              ")"}}}, ")"}), "Input", SectionLabel -> "in [5]:"), 
+              ")"}}}, ")"}), "Input", SectionLabel -> "in [26]:"), 
         Section(BoxData(DynamicLocalBox({$Context`idx}, 
            TagBox(
             GridBox({
@@ -529,8 +532,8 @@ Document({
              GridBoxRowSpacing -> 0), "Grid"), 
            DynamicLocalValues :> {
              {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}})), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [5]:")}, 2), 
-      SectionGroup({
+         "Output", SectionGenerated -> True, SectionLabel -> "out [26]:")}, 
+       2), SectionGroup({
         Section(BoxData({"DynamicLocal", "(", {
             {"{", {"idx", "\[Assign]", "1"}, "}"}, ",", {
              {{{"{", {
@@ -575,8 +578,8 @@ Document({
                        ",", {"\n", {"12", "\[Rule]", 
                          StringBox("\"content 12\"")}}}, "}"}, ",", {
                       "\n", {"Dynamic", "(", "idx", ")"}}}, ")"}, ",", {
-                    "Appearance", "\[Rule]", 
-                    StringBox("\"TabPanelCenter\"")}}, ")"}}, ",", {
+                    "Appearance", "\[Rule]", StringBox("\"TabPanelCenter\"")}, 
+                   ",", {"Alignment", "\[Rule]", "Center"}}, ")"}}, ",", {
                  "\n", {
                   {"Panel", "(", {"~", ",", {"Appearance", "\[Rule]", 
                      StringBox("\"TabPanelCenterLeft\"")}}, ")"}, "\[Rule]", {
@@ -738,7 +741,7 @@ Document({
                        "RowSpacing", "\[Rule]", "0"}}, ")"}, ",", {
                      "Appearance", "\[Rule]", 
                      StringBox("\"TabPanelBottomCenter\"")}}, ")"}}}}, "}"}, 
-              ")"}}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+              ")"}}}, ")"}), "Input", SectionLabel -> "in [27]:"), 
         Section(BoxData(DynamicLocalBox({$Context`idx}, 
            TagBox(
             GridBox({
@@ -797,7 +800,7 @@ Document({
                   10 -> StringBox("\"content 10\""), 
                   11 -> StringBox("\"content 11\""), 
                   12 -> StringBox("\"content 12\"")}, Dynamic($Context`idx)), 
-                Appearance -> "TabPanelCenter"), 
+                Alignment -> Center, Appearance -> "TabPanelCenter"), 
                PanelBox(
                 TagBox(
                  GridBox({
@@ -846,6 +849,6 @@ Document({
              GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
            DynamicLocalValues :> {
              {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}})), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [27]:")}, 
        2)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
  Visible -> True)

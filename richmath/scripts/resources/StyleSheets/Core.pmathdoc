@@ -285,7 +285,9 @@ Document({
                                 "TabHeadAbuttingLeftRight"})), 
                            BaseStyle -> "TabViewLabel")))}, 
                        GridBoxColumnSpacing -> 0)), " ", FillBox("")}, 
-                    Appearance -> "TabHead")}, {
+                    Appearance -> "TabHead", 
+                    Enabled -> 
+                     Dynamic(CurrentValue({TemplateSlot, Key(Enabled)})))}, {
                    PanelBox({
                      DynamicBox(PaneSelectorBox(MapIndexed(FE`Private`rules, 
                         Function(First(#2) -> StyleBox(Last(#1), 
@@ -293,10 +295,14 @@ Document({
                             Dynamic(CurrentValue(CurrentValue(TemplateBox), 
                               Selectable))))), 
                        Dynamic(CurrentValue({TemplateSlot, 2})), 
-                       BaseStyle -> "TabView")), FillBox("")}, 
-                    Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
-                Initialization :> (FE`Private`rules:= 
-                  CurrentValue({TemplateSlot, 1})))), 
+                       BaseStyle -> "TabView")), "\[NoBreak]"}, 
+                    Appearance -> "TabBody", 
+                    Alignment -> 
+                     Dynamic(CurrentValue({TemplateSlot, Key(Alignment)})), 
+                    Enabled -> 
+                     Dynamic(CurrentValue({TemplateSlot, Key(Enabled)})))}}, 
+                 GridBoxRowSpacing -> 0), Initialization :> (
+                  FE`Private`rules:= CurrentValue({TemplateSlot, 1})))), 
              InterpretationFunction -> Function(FE`TabViewBox(##1))}), 
           Section(StyleData("TooltipContent"), 
            TemplateBoxOptions -> {

@@ -13,8 +13,11 @@ Document({
            updated current value of ", StyleBox("s", "Arg"), "."}), "Notes"), 
         Section(TextData({TemplateBox({"TabView"}, "ReferenceHyperlink"), 
            " uses styles \"TabView\" for the contents and \"TabViewLabel\" for \
-           the tab labels."}), "Notes")}, All), 
-      Section("", "SectionFooterSpacer")}, 1), 
+           the tab labels."}), "Notes"), 
+        Section(TextData({TemplateBox({"TabView"}, "ReferenceHyperlink"), 
+           " has options ", TemplateBox({"Alignment"}, "ReferenceHyperlink"), 
+           " and ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), "."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Use default labels for tabs:", "ExampleText"), 
@@ -39,7 +42,60 @@ Document({
             Section(BoxData(TemplateBox({{"x" -> "a", "y" -> "b", "z" -> "c"}, 
                 1}, "TabView")), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All)}, All), 
-      SectionGroup({Section("Scope", "ExampleSection"), 
+      SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("Alignment", "ExampleSubsection"), 
+          Section("By default, contents is left-aligned:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"TabView", "(", {
+                "{", {"a", ",", "b", ",", "c", ",", "d"}, "}"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                {"1" -> "a", "2" -> "b", "3" -> "c", "4" -> "d"}, 1}, 
+               "TabView")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Center-align teh contents instead:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"TabView", "(", {
+                  {"{", {"a", ",", "b", ",", "c", ",", "d"}, "}"}, ",", {
+                   "Alignment", "\[Rule]", "Center"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(TemplateBox({
+                  {"1" -> "a", "2" -> "b", "3" -> "c", "4" -> "d"}, 1, 
+                  Alignment -> Center}, "TabView")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("Enabled", "ExampleSubsection"), 
+          Section(TextData({"By default, ", 
+             TemplateBox({"TabView"}, "ReferenceHyperlink"), " is enabled:"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"TabView", "(", {
+                "{", {"a", ",", "b", ",", "c"}, "}"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 
+                1}, "TabView")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(TextData({"By setting ", 
+               TemplateBox({"Enabled"}, "ReferenceHyperlink"), " \[Rule] ", 
+               TemplateBox({"False"}, "ReferenceHyperlink"), ", ", 
+               TemplateBox({"TabView"}, "ReferenceHyperlink"), 
+               " is disabled, but displays its current state:"}), 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"TabView", "(", {
+                  {"{", {"a", ",", "b", ",", "c"}, "}"}, ",", {
+                   "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1, 
+                  Enabled -> False}, "TabView")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1)}, 1), SectionGroup({Section("Scope", "ExampleSection"), 
         SectionGroup({Section("TabView contents", "ExampleSubsection"), 
           Section(TextData({TemplateBox({"TabView"}, "ReferenceHyperlink"), 
              " can be nested:"}), "ExampleText"), 
@@ -1689,5 +1745,6 @@ Document({
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"PaneSelector"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"OpenerView"}, 
-          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Panel"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
