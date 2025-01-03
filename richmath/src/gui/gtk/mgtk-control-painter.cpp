@@ -581,16 +581,10 @@ void MathGtkControlPainter::calc_container_size(
     
     GtkBorder border = MathGtkStyleContextCache::get_all_border_padding(gtk_ctx);
     
-    //gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
     extents->ascent +=  0.75f * border.top;
     extents->descent += 0.75f * border.bottom;
     extents->width +=   0.75f * (border.left + border.right);
-//    
-//    gtk_style_context_get_border(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
-//    extents->ascent +=  0.75f * border.top;
-//    extents->descent += 0.75f * border.bottom;
-//    extents->width +=   0.75f * (border.left + border.right);
-//    
+    
     return;
   }
   

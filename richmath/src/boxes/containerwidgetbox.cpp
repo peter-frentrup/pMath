@@ -90,7 +90,14 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
   
   margins = BoxSize(0,0,0);
   if(w != SymbolicSize::Automatic || h != SymbolicSize::Automatic || context.width < HUGE_VAL) {
+    BoxSize dummy(1000, 1000, 1000);
+    margins = dummy;
     ControlPainter::std->calc_container_size(*this, context.canvas(), type, &margins);
+    margins.ascent  -= dummy.ascent;
+    margins.descent -= dummy.descent;
+    margins.width   -= dummy.width;
+    //pmath_debug_print("[w: %s(%f), h: %s(%f)]\n", w.is_symbolic() ? "sym" : "val", w.is_symbolic() ? (float)w.symblic_value() : w.raw_value(), 
+    //                                              h.is_symbolic() ? "sym" : "val", h.is_symbolic() ? (float)h.symblic_value() : h.raw_value());
   }
   
   if(margins.width > context.width)
@@ -131,28 +138,25 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
        _extents.descent = content_extents.descent;
   }
   
-  if(w == SymbolicSize::Automatic && h == SymbolicSize::Automatic) {
-    auto old_size = _extents;
-    
-    ControlPainter::std->calc_container_size(
-      *this,
-      context.canvas(),
-      type,
-      &_extents);
-    
-    margins.width   = _extents.width   - old_size.width;
-    margins.ascent  = _extents.ascent  - old_size.ascent;
-    margins.descent = _extents.descent - old_size.descent;
+  auto old_size = _extents;
+  
+  ControlPainter::std->calc_container_size(
+    *this,
+    context.canvas(),
+    type,
+    &_extents);
+  
+  if(!w.is_symbolic())
+    _extents.width = old_size.width + margins.width;
+  
+  if(!h.is_symbolic()) {
+    _extents.ascent  = old_size.ascent  + margins.ascent;
+    _extents.descent = old_size.descent + margins.descent;
   }
-  else {
-    if(w == SymbolicSize::Automatic) {
-      _extents.width += margins.width;
-    }
-    if(h == SymbolicSize::Automatic) {
-      _extents.ascent  += margins.ascent;
-      _extents.descent += margins.descent;
-    }
-  }
+
+  margins.width   = _extents.width   - old_size.width;
+  margins.ascent  = _extents.ascent  - old_size.ascent;
+  margins.descent = _extents.descent - old_size.descent;
   
   apply_alignment();
 }
