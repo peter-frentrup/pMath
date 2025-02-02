@@ -68,7 +68,7 @@ pmath_bool_t pmath_register_code(
    Any previous approximation-binding to the symbol will be overwritten.
 
    The native function will be called as <tt>func(obj, precision)</tt>
-   when evaluating the pMath expression <tt>N(obj, precision)</tt>,
+   when evaluating the pMath expression <tt>Numericalize(obj, precision)</tt>,
    where obj is either `symbol` or `symbol(...)`.
  */
 PMATH_API

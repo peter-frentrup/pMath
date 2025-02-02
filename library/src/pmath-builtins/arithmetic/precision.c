@@ -250,14 +250,14 @@ static pmath_t approximate_to_finite_precision(pmath_t obj, double precision_goa
   pmath_message(
     PMATH_NULL, "meprec", 2, 
     _pmath_from_precision(me->max_extra_precision), 
-    pmath_ref(obj)); // N(obj)
+    pmath_ref(obj)); // Numericalize(obj)
   return obj;
 }
 
 PMATH_PRIVATE
 pmath_t builtin_approximate(pmath_expr_t expr) {
-/* N(x)             = N(x, MachinePrecision)
-   N(x, precision)
+/* Numericalize(x)             = Numericalize(x, MachinePrecision)
+   Numericalize(x, precision)
  */
   size_t exprlen = pmath_expr_length(expr);
   pmath_t x;

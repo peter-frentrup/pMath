@@ -29,8 +29,8 @@ Document({
            simplify to ", TemplateBox({"True"}, "ReferenceHyperlink"), " or ", 
            TemplateBox({"False"}, "ReferenceHyperlink"), ":"}), 
          "ExampleText"), SectionGroup({
-          Section(BoxData({{"N", "(", {"1", ",", "5"}, ")"}, "<", {
-              "N", "(", {{"1", "+", {"10", SuperscriptBox({"-", "10"})}}, ",", 
+          Section(BoxData({{"Numericalize", "(", {"1", ",", "5"}, ")"}, "<", {
+              "Numericalize", "(", {{"1", "+", {"10", SuperscriptBox({"-", "10"})}}, ",", 
                "5"}, ")"}}), "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData({"1.000000[+/-0.0]`5", "<", 
              "1.000000000[+/-1.17*^-10]`10"}), "Output", 

@@ -71,7 +71,7 @@ Document({
           Section("Evaluate to arbitrary precision:", "ExampleText"), 
           SectionGroup({
             Section(
-             BoxData({"N", "(", {{"Abs", "(", {"1", "-", "ImaginaryI"}, ")"}, 
+             BoxData({"Numericalize", "(", {{"Abs", "(", {"1", "-", "ImaginaryI"}, ")"}, 
                 ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(

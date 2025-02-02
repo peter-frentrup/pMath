@@ -37,9 +37,9 @@ AssertEqual(mixedList, failPackMixedAsInteger)
 
 AssertUnequal(mixedList, packMixedAsReal)
 
-AssertEqual(mixedList // N, packMixedAsReal)
+AssertEqual(mixedList // Numericalize, packMixedAsReal)
 
-AssertEqual(Hash(mixedList // N), Hash(packMixedAsReal))
+AssertEqual(Hash(mixedList // Numericalize), Hash(packMixedAsReal))
 
 
 

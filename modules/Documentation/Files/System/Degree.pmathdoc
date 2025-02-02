@@ -34,7 +34,7 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Evaluate to any precision:", "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"N", "(", {{"30", "Degree"}, ",", "20"}, ")"}), 
+            Section(BoxData({"Numericalize", "(", {{"30", "Degree"}, ",", "20"}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(

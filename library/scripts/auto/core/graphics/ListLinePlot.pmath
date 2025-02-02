@@ -104,7 +104,7 @@ Function tryListLinePlot(~data, opts: OptionsPattern(ListLinePlot)) {
 	gRules:= Complement(gRules, Options(Graphics));
 	
 	Return(Graphics(
-		makeMultipleLines(makeXyLists(data, DataRange.Replace(allRules) // N), PlotStyle.Replace(allRules)),
+		makeMultipleLines(makeXyLists(data, DataRange.Replace(allRules) // Numericalize), PlotStyle.Replace(allRules)),
 		gRules));
 }
 	

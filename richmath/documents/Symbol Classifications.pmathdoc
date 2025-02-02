@@ -443,7 +443,7 @@ Document({
                /\/(ButtonBox(StringBox("\"Most\"")), " "), 
                /\/(ButtonBox(StringBox("\"Throw\"")), " ")}, {
                /\/(ButtonBox(StringBox("\"EvaluateDelayed\"")), " "), 
-               /\/(ButtonBox(StringBox("\"N\"")), " "), 
+               /\/(ButtonBox(StringBox("\"Numericalize\"")), " "), 
                /\/(ButtonBox(StringBox("\"TimeConstrained\"")), " ")}, {
                /\/(ButtonBox(StringBox("\"EvaluationBox\"")), " "), 
                /\/(ButtonBox(StringBox("\"NRules\"")), " "), 

@@ -19,7 +19,7 @@ struct _pmath_symbol_rules_t {
   struct _pmath_rulecache_t  up_rules;      // ~(~~~,f,~~~), ~(~~~,f(~~~),~~~)
   struct _pmath_rulecache_t  down_rules;    // f(~~~)
   struct _pmath_rulecache_t  sub_rules;     // f(~~~)(~~~)...
-  struct _pmath_rulecache_t  approx_rules;  // N(~~~)
+  struct _pmath_rulecache_t  approx_rules;  // Numericalize(~~~)
   struct _pmath_rulecache_t  default_rules; // Default(~~~), Options(~~~)
   struct _pmath_rulecache_t  format_rules;  // MakeBoxes(~~~)
   

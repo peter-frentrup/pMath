@@ -97,7 +97,7 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Evaluate to arbitrary precision:", "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"N", "(", {{"Sin", "(", {"12", "/", "10"}, ")"}, 
+            Section(BoxData({"Numericalize", "(", {{"Sin", "(", {"12", "/", "10"}, ")"}, 
                 ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
@@ -187,7 +187,7 @@ Document({
            "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
          All), Section("With exact input, the answer is correct:", 
          "ExampleText"), SectionGroup({
-          Section(BoxData({"N", "(", {{"Sin", "(", {"10", "^", "40"}, ")"}, 
+          Section(BoxData({"Numericalize", "(", {{"Sin", "(", {"10", "^", "40"}, ")"}, 
               ",", "20"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
           Section(
            BoxData({

@@ -136,7 +136,7 @@ public class ParserArguments {
         return withPostProcessor("System`ToString", String.class);
     }
 
-    /** Gets a copy of this parsing environment with {@code System`N} post-processor.
+    /** Gets a copy of this parsing environment with {@code System`Numericalize} post-processor.
      * 
      * @return A new parsing environment based on this, with {@code Double} expected return type.
      */
@@ -144,13 +144,13 @@ public class ParserArguments {
         return withDoubleConversion(Double.class);
     }
 
-    /** Gets a copy of this parsing environment with {@code System`N} post-processor.
+    /** Gets a copy of this parsing environment with {@code System`Numericalize} post-processor.
      * 
      * @param newExpectedType The new expected return type, e.g. {@code Double} or {@code Double[]}.
      * @return A new parsing environment based on this.
      */
     public ParserArguments withDoubleConversion(Class<?> newExpectedType) {
-        return withPostProcessor("System`N", newExpectedType);
+        return withPostProcessor("System`Numericalize", newExpectedType);
     }
 
     /** Parse and evaluate the pMath code.

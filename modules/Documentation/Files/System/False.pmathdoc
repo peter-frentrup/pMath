@@ -31,8 +31,8 @@ Document({
          "ExampleText"), SectionGroup({
           Section(
            BoxData({
-             {"N", "(", {{"1", "+", {"10", SuperscriptBox({"-", "10"})}}, ",", 
-               "5"}, ")"}, "<", {"N", "(", {"1", ",", "5"}, ")"}}), "Input", 
+             {"Numericalize", "(", {{"1", "+", {"10", SuperscriptBox({"-", "10"})}}, ",", 
+               "5"}, ")"}, "<", {"Numericalize", "(", {"1", ",", "5"}, ")"}}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section(BoxData({"1.000000000[+/-1.17*^-10]`10", "<", 
              "1.000000[+/-0.0]`5"}), "Output", SectionGenerated -> True, 

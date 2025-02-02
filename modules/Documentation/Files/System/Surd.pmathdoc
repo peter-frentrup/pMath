@@ -59,7 +59,7 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Evaluate to arbitrary precision:", "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"N", "(", {{"Surd", "(", {"2", ",", "5"}, ")"}, 
+            Section(BoxData({"Numericalize", "(", {{"Surd", "(", {"2", ",", "5"}, ")"}, 
                 ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(

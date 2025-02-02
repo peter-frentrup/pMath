@@ -39,7 +39,7 @@ Attributes(isHeldNumeric):= {HoldAllComplete}
 isHeldNumeric(~val)::= IsNumeric @ Unevaluated(val)
 
 Function cache(~t) {
-	With(nt:= N(t))
+	With(nt:= Numericalize(t))
 	If(nt === t) {
 		t
 	} Else {
@@ -67,7 +67,7 @@ tickListsToBoxes(~, ~other)::= HoldComplete(other) /* error */
 Attributes(makeHeldGraphicsBoxOption):= {HoldAllComplete}
 makeHeldGraphicsBoxOption(~r)::= HoldComplete(r)
 Function makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(~lhs ? isNumericCachableOption, ~rhs ? isHeldNumericList)) {
-	With(num:= N(rhs))
+	With(num:= Numericalize(rhs))
 	If(HoldComplete(num) === HoldComplete(rhs)) {
 		Return @ HoldComplete(h(lhs, rhs))
 	}

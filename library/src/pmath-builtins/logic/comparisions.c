@@ -19,7 +19,7 @@ extern pmath_symbol_t pmath_System_Greater;
 extern pmath_symbol_t pmath_System_GreaterEqual;
 extern pmath_symbol_t pmath_System_Less;
 extern pmath_symbol_t pmath_System_LessEqual;
-extern pmath_symbol_t pmath_System_N;
+extern pmath_symbol_t pmath_System_Numericalize;
 extern pmath_symbol_t pmath_System_Plus;
 extern pmath_symbol_t pmath_System_Times;
 extern pmath_symbol_t pmath_System_True;
@@ -379,7 +379,7 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
         pmath_unref(n_diff);
         if(prec >= maxprec) {
           pmath_message(
-            pmath_System_N, "meprec", 2,
+            pmath_System_Numericalize, "meprec", 2,
             _pmath_from_precision(me->max_extra_precision),
             pmath_ref(diff));
           break;

@@ -205,7 +205,7 @@ Function compileFunction(~f, ~args:List) {
 
 compileFunction(~f, ~args)::= newCode(All, OpCallUnknown, args, {f})
 
-Function compileFunction(N, {~x}) {
+Function compileFunction(Numericalize, {~x}) {
 	If(typeOf(x) === Integer) {
 		Return(newCode(Real, OpCast, {x}, {}))
 	}
@@ -253,7 +253,7 @@ Function compileCast(~tr, ~tx, ~x) {
 isConst(~i)::= HoldComplete @@ {constValueOf(i)} =!= HoldComplete(constValueOf(i))
 
 Function makeConst(~i, ~v) {
-	constValueOf(i):= If(typeOf(i) === Real, N(v), v);
+	constValueOf(i):= If(typeOf(i) === Real, Numericalize(v), v);
 	opCodeOf(i):= OpLoadConst;
 	extraArgsOf(i):= {constValueOf(i)};
 	checkSideEffectConst(i);
@@ -311,7 +311,7 @@ Function inferTypes(OpLoadConst, Number | All -> t: Integer, ~eff, ~, ~i) {
 
 Function inferTypes(OpLoadConst, ~ -> Real, ~eff, {~c}, ~i) {
 	typeOf(i):= Real
-	extraArgsOf(i):= {N(c)}
+	extraArgsOf(i):= {Numericalize(c)}
 	varArgsOf(i):= eff.Map((typeOf(#):= typeOf(#) -> None) &);
 }
 

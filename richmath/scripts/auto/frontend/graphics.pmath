@@ -16,11 +16,11 @@ stepSize(~width ? IsPositive)::=
 
 smallTickPositions(~start .. ~end) /? start < end ::=
 	With({step:= stepSize(stepSize(end - start))},
-		N @ Array(Ceiling(start, step) .. end .. step))
+		Numericalize @ Array(Ceiling(start, step) .. end .. step))
 		
 largeTickPositions(~start .. ~end) /? start < end ::=
 	With({step:= stepSize(end - start)},
-		N @ Array(Ceiling(start, step) .. end .. step))
+		Numericalize @ Array(Ceiling(start, step) .. end .. step))
 
 snapRange(~start .. ~end) /? start < end ::=
 	With({err:= (end - start) * 10^-5, step:= stepSize(end - start)},

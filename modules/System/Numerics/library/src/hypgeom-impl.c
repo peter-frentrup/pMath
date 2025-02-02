@@ -188,9 +188,9 @@ PMATH_PRIVATE pmath_t eval_System_Hypergeometric1F1Regularized(pmath_expr_t expr
   return do_special_hypgeom_pfq(expr, 1, 1, TRUE);
 }
 
-/* TODO: implement N(Hypergeometric2F1(a1,a2,b,x)) by using  acb_hypgeom_2f1 with the 
+/* TODO: implement Numericalize(Hypergeometric2F1(a1,a2,b,x)) by using  acb_hypgeom_2f1 with the 
    ACB_HYPGEOM_2F1_ABC etc. flags as appropriate to avoid catastrophic cancellation,
-   e.e. in N(Hypergeometric2F1(Sqrt(2), 1/2, Sqrt(2) + 3/2, 9/10))
+   e.g. in Numericalize(Hypergeometric2F1(Sqrt(2), 1/2, Sqrt(2) + 3/2, 9/10))
  */
 PMATH_PRIVATE pmath_t eval_System_Hypergeometric2F1(pmath_expr_t expr) {
   return do_special_hypgeom_pfq(expr, 2, 1, FALSE);

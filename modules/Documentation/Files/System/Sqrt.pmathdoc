@@ -36,7 +36,7 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Evaluate to arbitrary precision:", "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"N", "(", {{"Sqrt", "(", "2", ")"}, ",", "30"}, 
+            Section(BoxData({"Numericalize", "(", {{"Sqrt", "(", "2", ")"}, ",", "30"}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
@@ -189,11 +189,11 @@ Document({
                               SqrtBox("2")})})})})})})})})})), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
-          Section(BoxData({"N", "(", {"$History", "(", {"-", "1"}, ")"}, 
+          Section(BoxData({"Numericalize", "(", {"$History", "(", {"-", "1"}, ")"}, 
              ")"}), "Input", SectionLabel -> "in [2]:"), 
           Section(BoxData("1.6180285974702324`"), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
-        SectionGroup({Section(BoxData({"N", "(", "GoldenRatio", ")"}), 
+        SectionGroup({Section(BoxData({"Numericalize", "(", "GoldenRatio", ")"}), 
            "Input", SectionLabel -> "in [3]:"), 
           Section(BoxData("1.618033988749895`"), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 

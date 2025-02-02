@@ -365,7 +365,7 @@ Document({
              " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), ":"}), 
            "ExampleText"), SectionGroup({
             Section(BoxData({"InputField", "(", {
-                "N", "(", {"Pi", ",", "30"}, ")"}, ")"}), "Input", 
+                "Numericalize", "(", {"Pi", ",", "30"}, ")"}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(InputFieldBox(
@@ -377,7 +377,7 @@ Document({
             Section("Allow multi-line text:", "ExampleText"), 
             SectionGroup({
               Section(BoxData({"InputField", "(", {
-                  {"N", "(", {"Pi", ",", "30"}, ")"}, ",", {
+                  {"Numericalize", "(", {"Pi", ",", "30"}, ")"}, ",", {
                    "LineBreakWithin", "\[Rule]", "True"}}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(

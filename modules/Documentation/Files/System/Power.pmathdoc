@@ -91,7 +91,7 @@ Document({
           Section("Get a numerical approximation:", "ExampleText"), 
           SectionGroup({
             Section(
-             BoxData({"N", "(", {"24", "^", {"(", {"1", "/", "3"}, ")"}}, 
+             BoxData({"Numericalize", "(", {"24", "^", {"(", {"1", "/", "3"}, ")"}}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData("2.8844991406148166`"), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
@@ -161,7 +161,7 @@ Document({
              SuperscriptBox({"1", "/", "3"})}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
-          Section(BoxData({"N", "(", {"$History", "(", {"-", "1"}, ")"}, 
+          Section(BoxData({"Numericalize", "(", {"$History", "(", {"-", "1"}, ")"}, 
              ")"}), "Input", SectionLabel -> "in [2]:"), 
           Section(BoxData({"0.5`", "+", {"0.86602540378443849`", " ", 
               "\[ImaginaryI]"}}), "Output", SectionGenerated -> True, 

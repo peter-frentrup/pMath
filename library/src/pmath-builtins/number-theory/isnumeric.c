@@ -16,7 +16,7 @@ extern pmath_symbol_t pmath_System_DollarFailed;
 extern pmath_symbol_t pmath_System_Complex;
 extern pmath_symbol_t pmath_System_False;
 extern pmath_symbol_t pmath_System_IsNumeric;
-extern pmath_symbol_t pmath_System_N;
+extern pmath_symbol_t pmath_System_Numericalize;
 extern pmath_symbol_t pmath_System_True;
 
 static void destroy_symset_entry(void *p) {
@@ -287,7 +287,7 @@ PMATH_PRIVATE int _pmath_number_class(pmath_t obj) {
           
         if(prec >= maxprec) {
           pmath_message(
-            pmath_System_N, "meprec", 2,
+            pmath_System_Numericalize, "meprec", 2,
             _pmath_from_precision(me->max_extra_precision),
             pmath_ref(obj));
           break;

@@ -1081,7 +1081,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
       PMATH_RUN("Default(Ceiling,2):=1");
       PMATH_RUN("Default(Floor,2):=1");
-      PMATH_RUN("Default(N,2):=MachinePrecision");
+      PMATH_RUN("Default(Numericalize,2):=MachinePrecision");
       PMATH_RUN("Default(Piecewise,2):=0");
       PMATH_RUN("Default(Plus):=0");
       PMATH_RUN("Default(PolyGamma,1):=0");

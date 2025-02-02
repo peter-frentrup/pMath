@@ -66,7 +66,7 @@ Function getRangeList(~ys) {
 }
 
 Function initData(~f, ~xmin .. ~xmax, ~numPoints, ~prec) {
-	With(xs:= Array(N(SetPrecision(xmin .. xmax .. (xmax - xmin)/(numPoints - 1), prec), prec)))
+	With(xs:= Array(Numericalize(SetPrecision(xmin .. xmax .. (xmax - xmin)/(numPoints - 1), prec), prec)))
 	% TODO: improve Map so that it does not unpack below:
 	Return(xs.Map({#, f(#)} &).Developer`ToPackedArray)
 	%Return(xs.Map({#, f(#)} &))
@@ -115,7 +115,7 @@ Function refineData(~f, ~xrange, ~xys, ~prec, ~stepNumber) {
 	is:= Union(is, is + 1);
 	
 	% TODO: avoid unpacking xys in Part below:
-	newxs:= N(SetPrecision(xys[is, 1] / 2 + xys[is + 1, 1] / 2, prec), prec)%.Developer`ToPackedArray;
+	newxs:= Numericalize(SetPrecision(xys[is, 1] / 2 + xys[is + 1, 1] / 2, prec), prec)%.Developer`ToPackedArray;
 	
 	% TODO: improve Map so that it does not unpack below:
 	%Return(newxs.Map({#, f(#)} &).Developer`ToPackedArray)

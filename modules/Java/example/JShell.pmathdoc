@@ -320,7 +320,7 @@ Document({
       Section(
        BoxData({{{"var", " ", "x"}, " ", "=", " ", 
           TemplateBox({
-            {"N", "(", RadicalBox("Pi", TemplateBox({{"2", "+", "3"}}, 
+            {"Numericalize", "(", RadicalBox("Pi", TemplateBox({{"2", "+", "3"}}, 
                "InlineJavaInput")), ")"}}, "MathInJava")}, ";"}), 
        "JavaInput"), Section(BoxData(StringBox("\"1.2572741156691851\"")), 
        "JavaOutput", SectionGenerated -> True)}, All), 

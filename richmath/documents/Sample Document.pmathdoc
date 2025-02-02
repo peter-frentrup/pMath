@@ -30,7 +30,7 @@ Document({
          SectionLabel -> "in [1]:"), Section(BoxData("5"), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
       SectionGroup({
-        Section(BoxData({"N", "(", {"GoldenRatio", ",", "80"}, ")"}), "Input", 
+        Section(BoxData({"Numericalize", "(", {"GoldenRatio", ",", "80"}, ")"}), "Input", 
          SectionLabel -> "in [2]:"), 
         Section(
          BoxData(
