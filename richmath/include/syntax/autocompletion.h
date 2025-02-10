@@ -10,8 +10,10 @@ namespace richmath {
   
   class AutoCompletion {
     public:
-      AutoCompletion(Document *_document);
+      explicit AutoCompletion(Document *_document);
       ~AutoCompletion();
+      
+      AutoCompletion(const AutoCompletion &) = delete;
       
       bool next(LogicalDirection direction);
       void stop();
