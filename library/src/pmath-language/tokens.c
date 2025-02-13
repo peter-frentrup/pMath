@@ -97,7 +97,7 @@ static const struct char_info_t u2100_u23bf[704] = {
   /* 212 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 213 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 214 */ ID,  ID,  ID,  ID,  ID,  DID, DID, ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
-  /* 215 */ ERR, ERR, ERR, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2,
+  /* 215 */ ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2,
   /* 216 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 217 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 218 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
