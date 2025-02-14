@@ -22,6 +22,8 @@ namespace richmath {
   inline bool is_utf16_high(uint16_t c) { return (c & 0xFC00) == 0xD800; }
   inline bool is_utf16_low(uint16_t c) {  return (c & 0xFC00) == 0xDC00; }
   
+  inline bool is_line_break(uint16_t ch) { return ch == '\n' || ch == 0x0085; }
+  
   // 0xFFFFFFFFU on error
   uint32_t unicode_to_utf32(String s);
   

@@ -1197,6 +1197,8 @@ void TextSequence::Impl::Utf8Writer::append_all(TextSequence &seq) {
       unichar = 0xFFFD;
     } else if(unichar <= 0xFFFF && (is_utf16_high(unichar) || is_utf16_low(unichar))) { // stand alone UTF-16 surrogate char
       unichar = 0xFFFD;
+    } else if(unichar == 0x0085) { // Pango does not recognize U+0085 NEXT LINE [NEL] as a line breaking character.
+      unichar = '\n';
     }
     
     if(unichar <= 0x7F) {

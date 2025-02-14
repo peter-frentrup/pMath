@@ -495,7 +495,7 @@ void MathSequence::resize(Context &context) {
     _extents.width = 0;
     for(GlyphIterator iter{*this}; iter.has_more_glyphs(); iter.move_next_glyph()) {
       GlyphInfo &gi = iter.current_glyph();
-      if(iter.current_char() == '\n')
+      if(is_line_break(iter.current_char()))
         gi.right = _extents.width;
       else
         gi.right = _extents.width += gi.right;
@@ -849,7 +849,7 @@ Box *MathSequence::move_vertical(
     if(iter.glyph_index() > 0 && iter.has_more_glyphs() && iter.glyph_index() == lines[dstline].end) {
       auto prev = iter;
       prev.move_by_glyphs(-1);
-      if(direction == LogicalDirection::Backward || prev.current_char() == '\n')
+      if(direction == LogicalDirection::Backward || is_line_break(prev.current_char()))
         iter = prev;
     }
     
@@ -1002,7 +1002,7 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
   if(start.glyph_index() > 0) {
     auto prev = start;
     prev.move_by_glyphs(-1);
-    if(prev.current_char() == '\n' && (line == 0 || lines[line - 1].end != lines[line].end)) {
+    if(is_line_break(prev.current_char()) && (line == 0 || lines[line - 1].end != lines[line].end)) {
       start = prev;
     }
     else if(prev.current_char() == ' ')
@@ -2229,7 +2229,7 @@ void MathSequence::Impl::split_lines(Context &context) {
     
     bool end_with_nl = false;
     while(end_of_paragraph.has_more_glyphs()) {
-      if(end_of_paragraph.current_char() == '\n') {
+      if(is_line_break(end_of_paragraph.current_char())) {
         end_with_nl = true;
         end_of_paragraph.move_next_glyph();
         break;
@@ -3662,7 +3662,7 @@ void MathSequence::Impl::paint(Context &context) {
       for(; iter.glyph_index() < self.lines[line].end; iter.move_next_glyph()) {
         inline_span_painting.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Paint);
         
-        if(iter.current_char() == '\n') {
+        if(is_line_break(iter.current_char())) {
           glyph_left = iter.current_glyph().right;
           continue;
         }
