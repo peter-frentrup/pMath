@@ -747,6 +747,7 @@
 		" *" -> "\[InvisibleTimes]",
 		"," -> "\[InvisibleComma]",
 		"+" -> "\[InvisiblePlus]",
+		"nl" -> "\[IndentingNewLine]",
 		
 		"dhy" -> "\[DiscretionaryHyphen]",
 		"shy" -> "\[DiscretionaryHyphen]",
