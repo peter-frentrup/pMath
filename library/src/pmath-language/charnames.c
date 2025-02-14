@@ -300,6 +300,7 @@ static const struct pmath_named_char_t named_char_array[] = {
   { 0x007D, "RawRightBrace"},
   { 0x007E, "RawTilde"},
   
+  { 0x0085, "IndentingNewLine"},
   { 0x00A1, "DownExclamation"},
   { 0x00A2, "Cent"},
   { 0x00A3, "Sterling"},
