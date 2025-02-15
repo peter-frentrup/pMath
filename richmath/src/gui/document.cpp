@@ -3892,12 +3892,12 @@ void Document::Impl::add_containing_call_hook() {
             add_pre_fill(head->range(), bg, bg_alpha);
             
             // opening parenthesis, always exists
-            add_pre_fill({seq, span->item_pos(1), span->item_pos(1) + 1}, bg, bg_alpha);
+            add_pre_fill(span->item_range(1), bg, bg_alpha);
             
             // closing parenthesis, last item, might not exist
             int clos = span->count() - 1;
             if(clos >= 2 && span->item_equals(clos, ")")) {
-              add_pre_fill({seq, span->item_pos(clos), span->item_pos(clos) + 1}, bg, bg_alpha);
+              add_pre_fill(span->item_range(clos), bg, bg_alpha);
             }
           }
         }
@@ -3943,7 +3943,7 @@ void Document::Impl::add_containing_call_hook() {
           float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
           if(0 < bg_alpha && bg_alpha <= 1) {
             //  |>  pipe operator
-            add_pre_fill({seq, span->item_pos(1), span->item_pos(1) + 2}, bg, bg_alpha);
+            add_pre_fill(span->item_range(1), bg, bg_alpha);
             
             // head, always exists
             add_pre_fill(head->range(), bg, bg_alpha);
@@ -3954,12 +3954,12 @@ void Document::Impl::add_containing_call_hook() {
               
             if(FunctionCallSpan::is_simple_call(rhs)) {
               // opening parenthesis, always exists
-              add_pre_fill({seq, rhs->item_pos(1), rhs->item_pos(1) + 1}, bg, bg_alpha);
+              add_pre_fill(rhs->item_range(1), bg, bg_alpha);
               
               // closing parenthesis, last item, might not exist
               int clos = rhs->count() - 1;
               if(clos >= 2 && rhs->item_equals(clos, ")")) {
-                add_pre_fill({seq, rhs->item_pos(clos), rhs->item_pos(clos) + 1}, bg, bg_alpha);
+                add_pre_fill(rhs->item_range(clos), bg, bg_alpha);
               }
             }
           }
@@ -3988,17 +3988,17 @@ void Document::Impl::add_containing_call_hook() {
             add_pre_fill(head->range(), bg, bg_alpha);
             
             // dot, always exists
-            add_pre_fill({seq, span->item_pos(1), span->item_pos(1) + 1}, bg, bg_alpha);
+            add_pre_fill(span->item_range(1), bg, bg_alpha);
             
             // opening parenthesis, might not exist
             if(span->count() > 3) {
-              add_pre_fill({seq, span->item_pos(3), span->item_pos(3) + 1}, bg, bg_alpha);
+              add_pre_fill(span->item_range(3), bg, bg_alpha);
             }
             
             // closing parenthesis, last item, might not exist
             int clos = span->count() - 1;
             if(clos >= 2 && span->item_equals(clos, ")")) {
-              add_pre_fill({seq, span->item_pos(clos), span->item_pos(clos) + 1}, bg, bg_alpha);
+              add_pre_fill(span->item_range(clos), bg, bg_alpha);
             }
           }
         }
