@@ -28,6 +28,10 @@
 #include <cstdio>
 #include <functional>
 
+#ifdef min
+#  undef min
+#endif
+
 
 using namespace richmath;
 
@@ -4027,6 +4031,13 @@ void Document::Impl::add_matching_bracket_hook() {
     }
     
     if(other_bracket >= 0) {
+      uint32_t ch = seq->char_at(pos);
+      if(ch == '(' || ch == ')') {
+        // parentheses that do not surround a complete subsexpression are part of a function call, handled by add_containing_call_hook()
+        if(!seq->span_array().is_operand_start(std::min(pos, other_bracket)))
+          return;
+      }
+      
       if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
         float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
         if(0 < bg_alpha && bg_alpha <= 1) {
