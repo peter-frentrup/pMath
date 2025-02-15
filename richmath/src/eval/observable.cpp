@@ -29,7 +29,7 @@ namespace richmath {
 
 namespace {
   static int NiftyObservatoryInitializerCounter; // zero initialized at load time
-  static alignas(ObservatoryImpl) char TheObservatory_Buffer[sizeof(ObservatoryImpl)];
+  static char TheObservatory_Buffer[sizeof(ObservatoryImpl)] alignas(ObservatoryImpl);
   static ObservatoryImpl &TheObservatory = reinterpret_cast<ObservatoryImpl&>(TheObservatory_Buffer);
 };
 

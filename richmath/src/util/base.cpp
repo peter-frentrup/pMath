@@ -52,7 +52,7 @@ namespace {
   };
   
   static int NiftyBaseInitializerCounter; // zero initialized at load time
-  static alignas(BaseDebugImpl) char TheCounter_Buffer[sizeof(BaseDebugImpl)];
+  static char TheCounter_Buffer[sizeof(BaseDebugImpl)] alignas(BaseDebugImpl);
   static BaseDebugImpl &TheCounter = reinterpret_cast<BaseDebugImpl&>(TheCounter_Buffer);
 }
 

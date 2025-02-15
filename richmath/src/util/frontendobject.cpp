@@ -71,7 +71,7 @@ namespace richmath {
 
 namespace {
   static int NiftyFrontEndObjectInitializerCounter; // zero initialized at load time
-  static alignas(FrontEndReferenceImpl) char TheCache_Buffer[sizeof(FrontEndReferenceImpl)];
+  static char TheCache_Buffer[sizeof(FrontEndReferenceImpl)] alignas(FrontEndReferenceImpl);
   static FrontEndReferenceImpl &TheCache = reinterpret_cast<FrontEndReferenceImpl&>(TheCache_Buffer);
 };
 
