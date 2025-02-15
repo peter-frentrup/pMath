@@ -78,15 +78,6 @@ extern pmath_symbol_t richmath_System_UnderscriptBox;
 extern pmath_symbol_t richmath_System_UnderoverscriptBox;
 
 
-static Box *finish_create_or_error(Box *box, Expr expr, BoxInputFlags options) {
-  if(!box->try_load_from_object(expr, options)) {
-    box->safe_destroy();
-    return new ErrorBox(expr);
-  }
-  else
-    return box;
-}
-
 //{ class BoxFactory ...
 
 Box *BoxFactory::create_empty_box(LayoutKind layout_kind, Expr expr) {
