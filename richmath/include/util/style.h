@@ -105,6 +105,7 @@ namespace richmath {
     UndefinedSymbolSyntaxColor,
     UnknownOptionSyntaxColor,
     
+    ContainingCallBackgroundColor,
     InlineAutoCompletionBackgroundColor,
     InlineSectionEditingBackgroundColor,
     MatchingBracketBackgroundColor,
@@ -242,6 +243,7 @@ namespace richmath {
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
     
+    ContainingCallHighlightOpacity,       // 0 .. 1
     InlineAutoCompletionHighlightOpacity, // 0 .. 1
     InlineSectionEditingHighlightOpacity, // 0 .. 1
     MatchingBracketHighlightOpacity,      // 0 .. 1
@@ -437,6 +439,7 @@ namespace richmath {
     
     CharacterNameStyle,
     CommentStyle,
+    ContainingCallHighlightStyle,
     ExcessOrMissingArgumentStyle,
     FunctionLocalVariableStyle,
     FunctionNameStyle,

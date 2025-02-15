@@ -170,6 +170,7 @@ namespace richmath {
       void add_pre_fill(const VolatileSelection &sel, Color color, float alpha = 1.0f);
       void add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section);
       bool word_occurs_outside_visible_range(String str, int first_visible_section, int last_visible_section);
+      void add_containing_call_hook();
       void add_matching_bracket_hook();
       void add_autocompletion_hook();
       
@@ -3858,7 +3859,7 @@ bool Document::Impl::word_occurs_outside_visible_range(String str, int first_vis
   return false;
 }
 
-void Document::Impl::add_matching_bracket_hook() {
+void Document::Impl::add_containing_call_hook() {
   VolatileSelection sel = self.selection_now();
   auto seq = dynamic_cast<MathSequence*>(sel.box);
   if(!seq)
@@ -3885,8 +3886,8 @@ void Document::Impl::add_matching_bracket_hook() {
         while(head->count() == 1)
           head = head->item(0);
         
-        if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
-          float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
           if(0 < bg_alpha && bg_alpha <= 1) {
             add_pre_fill(head->range(), bg, bg_alpha);
             
@@ -3909,8 +3910,8 @@ void Document::Impl::add_matching_bracket_hook() {
       if(FunctionCallSpan::is_pipe_call(span)) {
         if(span->count() == 3 && document_order({span->sequence(), span->item_pos(2)}, sel.start_only()) <= 0) {
           
-          if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
-            float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+          if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+            float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
             if(0 < bg_alpha && bg_alpha <= 1) {
               //  |>  pipe operator
               add_pre_fill({seq, span->item_pos(1), span->item_pos(2)}, bg, bg_alpha);
@@ -3938,8 +3939,8 @@ void Document::Impl::add_matching_bracket_hook() {
         while(head->count() == 1)
           head = head->item(0);
         
-        if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
-          float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
           if(0 < bg_alpha && bg_alpha <= 1) {
             //  |>  pipe operator
             add_pre_fill({seq, span->item_pos(1), span->item_pos(1) + 2}, bg, bg_alpha);
@@ -3980,8 +3981,8 @@ void Document::Impl::add_matching_bracket_hook() {
         }
         seq = span->sequence();
         
-        if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
-          float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
           if(0 < bg_alpha && bg_alpha <= 1) {
             // head, always exists
             add_pre_fill(head->range(), bg, bg_alpha);
@@ -4008,6 +4009,13 @@ void Document::Impl::add_matching_bracket_hook() {
   }
   
   delete span;
+}
+
+void Document::Impl::add_matching_bracket_hook() {
+  VolatileSelection sel = self.selection_now();
+  auto seq = dynamic_cast<MathSequence*>(sel.box);
+  if(!seq)
+    return;
   
   if(sel.length() <= 1) {
     int pos = sel.start;
@@ -4046,6 +4054,7 @@ void Document::Impl::add_autocompletion_hook() {
 
 void Document::Impl::add_selection_highlights(int first_visible_section, int last_visible_section) {
   add_matching_bracket_hook();
+  add_containing_call_hook();
   add_selected_word_highlight_hooks(first_visible_section, last_visible_section);
   add_autocompletion_hook();
 }

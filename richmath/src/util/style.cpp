@@ -197,6 +197,7 @@ namespace richmath { namespace strings {
   extern String ClosingAction;
   extern String Color;
   extern String CommentStyle;
+  extern String ContainingCallHighlightStyle;
   extern String Delete;
   extern String DragDropContextMenu;
   extern String DrawEdges;
@@ -2535,7 +2536,8 @@ bool StyleData::modifies_size(StyleOptionName style_name) {
     case DefaultNewSectionStyle:
     case DefaultReturnCreatedSectionStyle:
     case GeneratedSectionStyles:
-
+    
+    case ContainingCallHighlightOpacity:
     case InlineAutoCompletionHighlightOpacity:
     case InlineSectionEditingHighlightOpacity:
     case MatchingBracketHighlightOpacity:
@@ -2635,6 +2637,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ClosingAction);
   //impl.emit_definition(ColorForGraphics);
   impl.emit_definition(CommentStyle);
+  impl.emit_definition(ContainingCallHighlightStyle);
   impl.emit_definition(ContentPadding);
   impl.emit_definition(ContextMenu);
   impl.emit_definition(ContinuousAction);
@@ -3296,6 +3299,7 @@ void StyleInformation::add_style() {
     add_ruleset_head(ButtonBoxOptions,              Symbol( richmath_System_ButtonBoxOptions));
     add_ruleset_head(CharacterNameStyle,            strings::CharacterNameStyle);
     add_ruleset_head(CommentStyle,                  strings::CommentStyle);
+    add_ruleset_head(ContainingCallHighlightStyle,  strings::ContainingCallHighlightStyle);
     add_ruleset_head(DockedSections,                Symbol( richmath_System_DockedSections));
     add_ruleset_head(DynamicBoxOptions,             Symbol( richmath_System_DynamicBoxOptions));
     add_ruleset_head(DynamicLocalBoxOptions,        Symbol( richmath_System_DynamicLocalBoxOptions));
@@ -3409,6 +3413,7 @@ void StyleInformation::add_style() {
     add(StyleType::Color,           UndefinedSymbolSyntaxColor,          List(strings::UndefinedSymbolStyle,              Symbol(richmath_System_FontColor)));
     add(StyleType::Color,           UnknownOptionSyntaxColor,            List(strings::UnknownOptionStyle,                Symbol(richmath_System_FontColor)));
     
+    add(StyleType::Color,           ContainingCallBackgroundColor,       List(strings::ContainingCallHighlightStyle,      Symbol(richmath_System_Background)));
     add(StyleType::Color,           InlineAutoCompletionBackgroundColor, List(strings::InlineAutoCompletionStyle,         Symbol(richmath_System_Background)));
     add(StyleType::Color,           InlineSectionEditingBackgroundColor, List(strings::InlineSectionEditingStyle,         Symbol(richmath_System_Background)));
     add(StyleType::Color,           MatchingBracketBackgroundColor,      List(strings::MatchingBracketHighlightStyle,     Symbol(richmath_System_Background)));
@@ -3491,6 +3496,7 @@ void StyleInformation::add_style() {
     add(StyleType::Number,          GridBoxRowSpacing,                Symbol( richmath_System_GridBoxRowSpacing));
     add(StyleType::Number,          Magnification,                    Symbol( richmath_System_Magnification));
     
+    add(StyleType::Number,          ContainingCallHighlightOpacity,       List(strings::ContainingCallHighlightStyle,  Symbol(richmath_System_Opacity)));
     add(StyleType::Number,          InlineAutoCompletionHighlightOpacity, List(strings::InlineAutoCompletionStyle,     Symbol(richmath_System_Opacity)));
     add(StyleType::Number,          InlineSectionEditingHighlightOpacity, List(strings::InlineSectionEditingStyle,     Symbol(richmath_System_Opacity)));
     add(StyleType::Number,          MatchingBracketHighlightOpacity,      List(strings::MatchingBracketHighlightStyle, Symbol(richmath_System_Opacity)));
