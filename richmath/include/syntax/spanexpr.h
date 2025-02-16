@@ -304,16 +304,20 @@ namespace richmath {
     public:
       FunctionCallSpan(SpanExpr *span);
       
-      static bool is_simple_call( SpanExpr *span); // f(a,b,c)
-      static bool is_dot_call(SpanExpr *span);     // a.f(b,c)
-      static bool is_pipe_call(SpanExpr *span);    // a |> f(b,c)
-      static bool is_call(        SpanExpr *span) { return is_simple_call(span) || is_dot_call(span) || is_pipe_call(span); }
+      static bool is_simple_call( SpanExpr *span); //  f(a,b,c)
+      static bool is_dot_call(SpanExpr *span);     //  a.f(b,c)
+      static bool is_pipe_call(SpanExpr *span);    //  a |> f(b,c)
+      static bool is_prefix_call(SpanExpr *span);  //  f @ a
+      static bool is_suffix_call(SpanExpr *span);  //  a // f
+      static bool is_call(        SpanExpr *span) { return is_simple_call(span) || is_dot_call(span) || is_pipe_call(span) || is_prefix_call(span) || is_suffix_call(span); }
       static bool is_list(        SpanExpr *span);
       static bool is_sequence(    SpanExpr *span);
       
       bool is_simple_call(){  return is_simple_call(_span); }
       bool is_dot_call(){     return is_dot_call(_span); }
       bool is_pipe_call(){    return is_pipe_call(_span); }
+      bool is_prefix_call(){  return is_prefix_call(_span); }
+      bool is_suffix_call(){  return is_suffix_call(_span); }
       bool is_call(){         return is_call(_span); }
       bool is_list() {        return is_list(_span); }
       

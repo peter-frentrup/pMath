@@ -4010,6 +4010,56 @@ void Document::Impl::add_containing_call_hook() {
       delete span;
       return;
     }
+    
+    if(FunctionCallSpan::is_prefix_call(span)) {
+      {
+        SpanExpr *head = span->item(0);
+        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+            document_order(head->range().end_only(),   sel.start_only()) >= 0)
+        {
+          continue;
+        }
+        seq = span->sequence();
+        
+        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
+          if(0 < bg_alpha && bg_alpha <= 1) {
+            // head
+            add_pre_fill(head->range(), bg, bg_alpha);
+            
+            // "@"
+            add_pre_fill(span->item_range(1), bg, bg_alpha);
+          }
+        }
+      }
+      delete span;
+      return;
+    }
+    
+    if(FunctionCallSpan::is_suffix_call(span)) {
+      {
+        SpanExpr *head = span->item(2);
+        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+            document_order(head->range().end_only(),   sel.start_only()) >= 0)
+        {
+          continue;
+        }
+        seq = span->sequence();
+        
+        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
+          if(0 < bg_alpha && bg_alpha <= 1) {
+            // head
+            add_pre_fill(head->range(), bg, bg_alpha);
+            
+            // "//"
+            add_pre_fill(span->item_range(1), bg, bg_alpha);
+          }
+        }
+      }
+      delete span;
+      return;
+    }
   }
   
   delete span;
