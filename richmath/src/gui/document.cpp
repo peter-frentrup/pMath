@@ -3872,40 +3872,44 @@ void Document::Impl::add_containing_call_hook() {
   SpanExpr *span = SpanExpr::find(seq, sel.start, true);
   while(span && span->end() + 1 < sel.end)
     span = span->expand(true);
+  
+  // Defer deletion of (top-most) 'span' to just before return:
+  struct IndirectSpanDeleter {
+    SpanExpr **span_location;
+    ~IndirectSpanDeleter() { delete *span_location; }
+  } defer_delete_at { &span };
     
   for(; span; span = span->expand(true)) {
     if(FunctionCallSpan::is_simple_call(span)) {
+      FunctionCallSpan call(span);
+      
+      SpanExpr *head = call.function_head();
+      if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+          document_order(head->range().end_only(),   sel.start_only()) >= 0)
       {
-        FunctionCallSpan call(span);
-        
-        SpanExpr *head = call.function_head();
-        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
-            document_order(head->range().end_only(),   sel.start_only()) >= 0)
-        {
-          continue;
-        }
-        seq = span->sequence();
-        
-        // head without white space
-        while(head->count() == 1)
-          head = head->item(0);
-        
-        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
-          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
-          if(0 < bg_alpha && bg_alpha <= 1) {
-            add_pre_fill(head->range(), bg, bg_alpha);
-            
-            // opening parenthesis, always exists
-            add_pre_fill(span->item_range(1), bg, bg_alpha);
-            
-            // closing parenthesis, last item, might not exist
-            int clos = span->count() - 1;
-            if(clos >= 2 && span->item_equals(clos, ")")) {
-              add_pre_fill(span->item_range(clos), bg, bg_alpha);
-            }
+        continue;
+      }
+      seq = span->sequence();
+      
+      // head without white space
+      while(head->count() == 1)
+        head = head->item(0);
+      
+      if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+        float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
+        if(0 < bg_alpha && bg_alpha <= 1) {
+          add_pre_fill(head->range(), bg, bg_alpha);
+          
+          // opening parenthesis, always exists
+          add_pre_fill(span->item_range(1), bg, bg_alpha);
+          
+          // closing parenthesis, last item, might not exist
+          int clos = span->count() - 1;
+          if(clos >= 2 && span->item_equals(clos, ")")) {
+            add_pre_fill(span->item_range(clos), bg, bg_alpha);
           }
         }
-      } // destroy call before deleting span
+      }
       
       span = span->expand(true);
       while(span && span->count() == 1)
@@ -3924,145 +3928,130 @@ void Document::Impl::add_containing_call_hook() {
         }
       }
       
-      delete span;
       return;
     }
     
     if(FunctionCallSpan::is_pipe_call(span)) {
+      FunctionCallSpan call(span);
+      
+      SpanExpr *head = call.function_head();
+      if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+          document_order(head->range().end_only(),   sel.start_only()) >= 0)
       {
-        FunctionCallSpan call(span);
-        
-        SpanExpr *head = call.function_head();
-        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
-            document_order(head->range().end_only(),   sel.start_only()) >= 0)
-        {
-          continue;
-        }
-        
-        // head without white space
-        while(head->count() == 1)
-          head = head->item(0);
-        
-        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
-          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
-          if(0 < bg_alpha && bg_alpha <= 1) {
-            //  |>  pipe operator
-            add_pre_fill(span->item_range(1), bg, bg_alpha);
+        continue;
+      }
+      
+      // head without white space
+      while(head->count() == 1)
+        head = head->item(0);
+      
+      if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+        float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
+        if(0 < bg_alpha && bg_alpha <= 1) {
+          //  |>  pipe operator
+          add_pre_fill(span->item_range(1), bg, bg_alpha);
+          
+          // head, always exists
+          add_pre_fill(head->range(), bg, bg_alpha);
+          
+          SpanExpr *rhs = span->item(2);
+          while(rhs->count() == 1)
+            rhs = rhs->item(0);
             
-            // head, always exists
-            add_pre_fill(head->range(), bg, bg_alpha);
+          if(FunctionCallSpan::is_simple_call(rhs)) {
+            // opening parenthesis, always exists
+            add_pre_fill(rhs->item_range(1), bg, bg_alpha);
             
-            SpanExpr *rhs = span->item(2);
-            while(rhs->count() == 1)
-              rhs = rhs->item(0);
-              
-            if(FunctionCallSpan::is_simple_call(rhs)) {
-              // opening parenthesis, always exists
-              add_pre_fill(rhs->item_range(1), bg, bg_alpha);
-              
-              // closing parenthesis, last item, might not exist
-              int clos = rhs->count() - 1;
-              if(clos >= 2 && rhs->item_equals(clos, ")")) {
-                add_pre_fill(rhs->item_range(clos), bg, bg_alpha);
-              }
+            // closing parenthesis, last item, might not exist
+            int clos = rhs->count() - 1;
+            if(clos >= 2 && rhs->item_equals(clos, ")")) {
+              add_pre_fill(rhs->item_range(clos), bg, bg_alpha);
             }
           }
         }
-      } // destroy call before deleting span
-      delete span;
+      }
       return;
     }
     
     if(FunctionCallSpan::is_dot_call(span)) {
+      FunctionCallSpan call(span);
+      
+      SpanExpr *head = span->item(2);
+      if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+          document_order(head->range().end_only(),   sel.start_only()) >= 0)
       {
-        FunctionCallSpan call(span);
-        
-        SpanExpr *head = span->item(2);
-        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
-            document_order(head->range().end_only(),   sel.start_only()) >= 0)
-        {
-          continue;
-        }
-        seq = span->sequence();
-        
-        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
-          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
-          if(0 < bg_alpha && bg_alpha <= 1) {
-            // head, always exists
-            add_pre_fill(head->range(), bg, bg_alpha);
-            
-            // dot, always exists
-            add_pre_fill(span->item_range(1), bg, bg_alpha);
-            
-            // opening parenthesis, might not exist
-            if(span->count() > 3) {
-              add_pre_fill(span->item_range(3), bg, bg_alpha);
-            }
-            
-            // closing parenthesis, last item, might not exist
-            int clos = span->count() - 1;
-            if(clos >= 2 && span->item_equals(clos, ")")) {
-              add_pre_fill(span->item_range(clos), bg, bg_alpha);
-            }
+        continue;
+      }
+      seq = span->sequence();
+      
+      if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+        float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
+        if(0 < bg_alpha && bg_alpha <= 1) {
+          // head, always exists
+          add_pre_fill(head->range(), bg, bg_alpha);
+          
+          // dot, always exists
+          add_pre_fill(span->item_range(1), bg, bg_alpha);
+          
+          // opening parenthesis, might not exist
+          if(span->count() > 3) {
+            add_pre_fill(span->item_range(3), bg, bg_alpha);
+          }
+          
+          // closing parenthesis, last item, might not exist
+          int clos = span->count() - 1;
+          if(clos >= 2 && span->item_equals(clos, ")")) {
+            add_pre_fill(span->item_range(clos), bg, bg_alpha);
           }
         }
-      } // destroy call before deleting span
-      delete span;
+      }
       return;
     }
     
     if(FunctionCallSpan::is_prefix_call(span)) {
+      SpanExpr *head = span->item(0);
+      if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+          document_order(head->range().end_only(),   sel.start_only()) >= 0)
       {
-        SpanExpr *head = span->item(0);
-        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
-            document_order(head->range().end_only(),   sel.start_only()) >= 0)
-        {
-          continue;
-        }
-        seq = span->sequence();
-        
-        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
-          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
-          if(0 < bg_alpha && bg_alpha <= 1) {
-            // head
-            add_pre_fill(head->range(), bg, bg_alpha);
-            
-            // "@"
-            add_pre_fill(span->item_range(1), bg, bg_alpha);
-          }
+        continue;
+      }
+      seq = span->sequence();
+      
+      if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+        float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
+        if(0 < bg_alpha && bg_alpha <= 1) {
+          // head
+          add_pre_fill(head->range(), bg, bg_alpha);
+          
+          // "@"
+          add_pre_fill(span->item_range(1), bg, bg_alpha);
         }
       }
-      delete span;
       return;
     }
     
     if(FunctionCallSpan::is_suffix_call(span)) {
+      SpanExpr *head = span->item(2);
+      if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+          document_order(head->range().end_only(),   sel.start_only()) >= 0)
       {
-        SpanExpr *head = span->item(2);
-        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
-            document_order(head->range().end_only(),   sel.start_only()) >= 0)
-        {
-          continue;
-        }
-        seq = span->sequence();
-        
-        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
-          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
-          if(0 < bg_alpha && bg_alpha <= 1) {
-            // head
-            add_pre_fill(head->range(), bg, bg_alpha);
-            
-            // "//"
-            add_pre_fill(span->item_range(1), bg, bg_alpha);
-          }
+        continue;
+      }
+      seq = span->sequence();
+      
+      if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+        float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
+        if(0 < bg_alpha && bg_alpha <= 1) {
+          // head
+          add_pre_fill(head->range(), bg, bg_alpha);
+          
+          // "//"
+          add_pre_fill(span->item_range(1), bg, bg_alpha);
         }
       }
-      delete span;
       return;
     }
   }
-  
-  delete span;
 }
 
 void Document::Impl::add_matching_bracket_hook() {
