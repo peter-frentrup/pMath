@@ -3881,35 +3881,37 @@ void Document::Impl::add_containing_call_hook() {
     
   for(; span; span = span->expand(true)) {
     if(FunctionCallSpan::is_simple_call(span)) {
-      FunctionCallSpan call(span);
-      
-      SpanExpr *head = call.function_head();
-      if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
-          document_order(head->range().end_only(),   sel.start_only()) >= 0)
       {
-        continue;
-      }
-      seq = span->sequence();
-      
-      // head without white space
-      while(head->count() == 1)
-        head = head->item(0);
-      
-      if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
-        float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
-        if(0 < bg_alpha && bg_alpha <= 1) {
-          add_pre_fill(head->range(), bg, bg_alpha);
-          
-          // opening parenthesis, always exists
-          add_pre_fill(span->item_range(1), bg, bg_alpha);
-          
-          // closing parenthesis, last item, might not exist
-          int clos = span->count() - 1;
-          if(clos >= 2 && span->item_equals(clos, ")")) {
-            add_pre_fill(span->item_range(clos), bg, bg_alpha);
+        FunctionCallSpan call(span);
+        
+        SpanExpr *head = call.function_head();
+        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+            document_order(head->range().end_only(),   sel.start_only()) >= 0)
+        {
+          continue;
+        }
+        seq = span->sequence();
+        
+        // head without white space
+        while(head->count() == 1)
+          head = head->item(0);
+        
+        if(Color bg = seq->get_style(ContainingCallBackgroundColor, Color::None)) {
+          float bg_alpha = seq->get_style(ContainingCallHighlightOpacity, 1.0f);
+          if(0 < bg_alpha && bg_alpha <= 1) {
+            add_pre_fill(head->range(), bg, bg_alpha);
+            
+            // opening parenthesis, always exists
+            add_pre_fill(span->item_range(1), bg, bg_alpha);
+            
+            // closing parenthesis, last item, might not exist
+            int clos = span->count() - 1;
+            if(clos >= 2 && span->item_equals(clos, ")")) {
+              add_pre_fill(span->item_range(clos), bg, bg_alpha);
+            }
           }
         }
-      }
+      } // destroy call before moving (and thus possibly deleting) span
       
       span = span->expand(true);
       while(span && span->count() == 1)
