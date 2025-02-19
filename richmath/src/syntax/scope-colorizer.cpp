@@ -416,8 +416,8 @@ bool ScopeColorizerImpl::prepare_symbol_colorization(int start, SymbolKind kind,
     
     if(!info) {
       si->kind = kind;
-      si->pos = state.current_pos;
-      si->next = 0;
+      si->pos  = state.current_pos;
+      si->next = nullptr;
     }
   }
   else
