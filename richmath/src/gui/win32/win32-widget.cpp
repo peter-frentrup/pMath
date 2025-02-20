@@ -752,6 +752,9 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
       
     if(outer.right  - outer.left >= w_max)
       w_page = w_max + 1;
+    
+    if(h_page < 0) h_page = 0;
+    if(w_page < 0) w_page = 0;
       
     SCROLLINFO si;
     
