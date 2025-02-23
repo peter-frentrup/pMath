@@ -125,6 +125,8 @@ namespace richmath {
     void add_path(Canvas &canvas) const;
     void add_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0) const;
     
+    void move(const VolatileSelection &del, int ins_len);
+    
     void expand();
     void expand_to_parent();
     void expand_up_to_sibling(const VolatileSelection &sibling, int max_steps = INT_MAX);
@@ -136,6 +138,12 @@ namespace richmath {
     void dynamic_to_literal();
     
     VolatileLocation find_selection_placeholder(LogicalDirection direction, bool stop_early = false);
+    
+    PMATH_ATTRIBUTE_USE_RESULT VolatileSelection moved(const VolatileSelection &del, int ins_len) const {
+      VolatileSelection ret = *this;
+      ret.move(del, ins_len);
+      return ret; 
+    }
     
     PMATH_ATTRIBUTE_USE_RESULT VolatileSelection expanded() const {
       VolatileSelection ret = *this;

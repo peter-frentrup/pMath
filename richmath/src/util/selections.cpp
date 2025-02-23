@@ -384,6 +384,24 @@ void VolatileSelection::add_rectangles(Array<RectangleF> &rects, SelectionDispla
     box->selection_rectangles(rects, flags, p0, start, end);
 }
 
+void VolatileSelection::move(const VolatileSelection &del, int ins_len) {
+  if(!box)
+    return;
+  
+  if(box != del.box)
+    return;
+
+  if(del.end <= end)
+    end += ins_len - del.length();
+  else if (del.start < end)
+    end = del.start + ins_len;
+  
+  if(del.end <= start)
+    start += ins_len - del.length();
+  else if (del.start < start)
+    start = del.start + ins_len;
+}
+
 void VolatileSelection::expand() {
   VolatileSelectionImpl(*this).expand();
 }
