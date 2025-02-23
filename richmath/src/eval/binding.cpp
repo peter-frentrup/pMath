@@ -1007,28 +1007,127 @@ static bool document_apply_cmd(Expr cmd) {
 }
 
 static bool document_write_cmd(Expr cmd) {
+  VolatileSelection sel{};
+  Box *box = nullptr;
   Document *doc = nullptr;
-  if(auto ref = FrontEndReference::from_pmath(cmd[1])) {
-    doc = FrontEndObject::find_cast<Document>(ref);
+  if(cmd.item_equals(1, richmath_System_Automatic)) {
+    doc = Menus::current_document();
+  }
+  else if(auto ref = FrontEndReference::from_pmath(cmd[1])) {
+    box = FrontEndObject::find_cast<Box>(ref);
+    doc = dynamic_cast<Document*>(box);
+  }
+  else if(auto feo = FrontEndObject::find_box_reference(cmd[1])) {
+    box = dynamic_cast<Box*>(feo);
+    doc = dynamic_cast<Document*>(box);
+  }
+  else if(auto sel_ref = SelectionReference::from_pmath(cmd[1])) {
+    sel = sel_ref.get_all();
   }
   else if(cmd.item_equals(1, richmath_System_Automatic)) {
     doc = Menus::current_document();
   }
   
+  Expr boxes = cmd[2];
+  
+  if(doc) {
+    AbstractSequence *seq;
+    if(dynamic_cast<TextSequence *>(doc->selection_box()))
+      seq = new TextSequence;
+    else
+      seq = new MathSequence;
+      
+    seq->load_from_object(boxes, BoxInputFlags::Default);
+    doc->insert_box(seq, false);
+    
+    return true;
+  }
+  
+  if(box)
+    sel = VolatileSelection::all_of(box);
+  
+  if(!sel)
+    return false;
+  
+  doc = sel.box->find_parent<Document>(true);
   if(!doc)
     return false;
-    
-  AbstractSequence *seq;
   
-  if(dynamic_cast<TextSequence *>(doc->selection_box()))
-    seq = new TextSequence;
-  else
-    seq = new MathSequence;
-    
-  seq->load_from_object(cmd[2], BoxInputFlags::Default);
-  doc->insert_box(seq, false);
+  if(dynamic_cast<Section*>(sel.box)) {
+    sel.expand_to_parent();
+    if(sel.box != doc)
+      return false;
+  }
   
-  return true;
+  VolatileSelection doc_sel = doc->selection_now();
+  
+  if(doc_sel.box != sel.box && sel.logically_contains(doc_sel)) 
+    doc_sel = sel.end_only();
+  
+  bool did_write = false;
+  
+  int new_end = sel.start;
+  if(sel.box == doc) {
+    if(sel.start < 0 || doc->length() < sel.end || sel.end < sel.start)
+      return false;
+    
+    new_end = sel.start;
+    if(!boxes.item_equals(0, richmath_System_Section) && !boxes.item_equals(0, richmath_System_SectionGroup)) {
+      if(!boxes.item_equals(0, richmath_System_BoxData) && !boxes.item_equals(0, richmath_System_TextData) && !boxes.item_equals(0, richmath_System_StyleData))
+        boxes = Call(Symbol(richmath_System_BoxData), boxes);
+      
+      Expr style_expr = doc->get_group_style(new_end - 1, DefaultNewSectionStyle, Symbol(richmath_System_Automatic));
+      if(style_expr == richmath_System_Automatic) {
+        if(new_end > 0)
+          style_expr = doc->section(new_end - 1)->get_own_style(BaseStyleName);
+      }
+      boxes = Call(Symbol(richmath_System_Section), boxes, style_expr);
+    }
+    
+    doc->insert_pmath(&new_end, boxes, sel.end);
+    did_write = true;
+  }
+  else {
+    AbstractSequence *seq = dynamic_cast<AbstractSequence*>(sel.box);
+    if(!seq) {
+      auto sel2 = sel.expanded_to_parent();
+      seq = dynamic_cast<AbstractSequence*>(sel2.box);
+      if(seq)
+        sel = sel2;
+    }
+    
+    if(seq) {
+      if(sel.start < 0 || seq->length() < sel.end || sel.end < sel.start)
+        return false;
+      
+      if(sel.start > 0 || sel.end < seq->length()) {
+        auto *tmp = seq->create_similar();
+        tmp->load_from_object(boxes, BoxInputFlags::Default);
+        
+        new_end = seq->insert(sel.start, tmp);
+        
+        seq->remove(new_end, new_end + sel.end - sel.start);
+      }
+      else {
+        seq->load_from_object(boxes, BoxInputFlags::Default);
+        new_end = seq->length();
+      }
+      
+      seq->invalidate();
+      did_write = true;
+    }
+  }
+  
+  if(did_write) {
+    if(doc_sel.box && doc_sel.box == sel.box) {
+      doc_sel.move(sel, new_end - sel.start);
+      // TODO: only if destination is selectable, otherwise clear selection
+      doc->select(doc_sel);
+    }
+    return true;
+  }
+  
+  return false;
 }
 
 static bool duplicate_previous_input_output_cmd(Expr cmd) {
