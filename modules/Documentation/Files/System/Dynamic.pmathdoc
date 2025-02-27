@@ -14,11 +14,45 @@ Document({
         Section(TextData({"The update function specifications ", 
            StyleBox("f", "Arg"), ", ", StyleBox({"f", SubscriptBox("pre")}, 
             "Arg"), " and ", StyleBox({"f", SubscriptBox("post")}, "Arg"), 
-           " may also take special values such as ", 
-           TemplateBox({"Automatic"}, "ReferenceHyperlink"), ", ", 
-           TemplateBox({"None"}, "ReferenceHyperlink"), " or ", 
-           TemplateBox({"Temporary"}, "ReferenceHyperlink"), "."}), "Notes")}, 
-       All), Section("", "SectionFooterSpacer")}, 1), 
+           " may be:"}), "Notes"), 
+        Section(
+         TextData({
+           GridBox({{{TemplateBox({"Automatic"}, "ReferenceHyperlink")}, {
+               "set values using ", TemplateBox({"Assign"}, 
+                "ReferenceHyperlink")}}, {
+              {TemplateBox({"None"}, "ReferenceHyperlink")}, 
+              "perform no action"}, {
+              {TemplateBox({"Temporary"}, "ReferenceHyperlink")}, 
+              "let interactive operations make temporary changes"}, {
+              {StyleBox("func", "Arg")}, {
+               "evaluate ", StyleBox("func", "Arg"), "(", 
+               StyleBox("val", "Arg"), ", ", StyleBox("expr", "Arg"), 
+               ")"}}})}), "2ColumnTableNotes"), 
+        Section(TextData({TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ") is equivalent to ", 
+           TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ", ", TemplateBox({"Automatic"}, 
+            "ReferenceHyperlink"), ") and thus to ", 
+           TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ", ", TemplateBox({"Function"}, 
+            "ReferenceHyperlink"), "(", StyleBox("expr", "Arg"), " := #))."}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ", ", StyleBox("f", "Arg"), 
+           ") is equivalent to ", TemplateBox({"Dynamic"}, 
+            "ReferenceHyperlink"), "(", StyleBox("expr", "Arg"), ", {", 
+           TemplateBox({"None"}, "ReferenceHyperlink"), ", ", 
+           StyleBox("f", "Arg"), ", ", TemplateBox({"None"}, 
+            "ReferenceHyperlink"), "})."}), "Notes"), 
+        Section(TextData({TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ", ", TemplateBox({"Temporary"}, 
+            "ReferenceHyperlink"), ") is equivalent to ", 
+           TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), ", {", 
+           TemplateBox({"None"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Temporary"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), "})."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), "Input", 
@@ -249,7 +283,7 @@ Document({
         SectionGroup({Section("Dynamic Order of Evaluation", 
            "ExampleSubsection"), 
           Section(
-           "Assume we want to dynamically constrain a value to lie beteen 0 \
+           "Assume we want to dynamically constrain a value to lie between 0 \
            and 0.5. We can do this by resetting the value inside a (visible) \
            Dynamic box. However, if we modify the value with a slider, the \
            behaviour during slider movement depends on the order of Dynamic \
