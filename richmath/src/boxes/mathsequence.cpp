@@ -1094,15 +1094,21 @@ bool MathSequence::request_repaint(const RectangleF &rect) {
   return base::request_repaint(rect);
 }
 
-RectangleF MathSequence::range_rect(int start, int end) {
-  if(text_changed())
-    return _extents.to_rectangle();
+LineRangeMeasurement MathSequence::measure_range(int start, int end) {
+  LineRangeMeasurement result;
   
-  int l1, l2;
+  if(text_changed()) {
+    result.bounds = _extents.to_rectangle();
+    result.first_line = 0;
+    result.last_line = 0;
+    result.first_line_ascent = _extents.ascent;
+    result.last_line_descent = _extents.descent;
+    return result;
+  }
   
-  l1 = l2 = get_line(start);
+  result.first_line = result.last_line = get_line(start);
   if(start != end)
-    l2 = get_line(end, l1);
+    result.last_line = get_line(end, result.first_line);
   
   Point p1(Impl(*this).total_offest_to_index(start));
   
@@ -1112,20 +1118,26 @@ RectangleF MathSequence::range_rect(int start, int end) {
   else 
     p2 = Point(Impl(*this).total_offest_to_index(end));
   
-  float a1, d1;
-  get_line_heights(l1, &a1, &d1);
+  float d1;
+  get_line_heights(result.first_line, &result.first_line_ascent, &d1);
   
   MathSequence &outer = Impl(*this).outermost_span();
   
-  if(l1 == l2)
-    return {p1.x, p1.y - a1, p2.x - p1.x, a1 + d1};
-             
-  float a2, d2;
-  get_line_heights(l2, &a2, &d2);
-  
-  return RectangleF{p1.x, p1.y - a1, extents().width - p1.x, a1 + d1}
-    .union_hull({0.0f, p1.y + d1, extents().width, p2.y - a2 - p1.y - d1})
-    .union_hull({0.0f, p2.y - a2, p2.x, a2 + d2});
+  if(result.first_line == result.last_line) {
+    result.last_line_descent = d1;
+    result.bounds = {p1.x, p1.y - result.first_line_ascent, p2.x - p1.x, result.first_line_ascent + d1};
+    return result;
+  }
+  else {
+    float a2;
+    get_line_heights(result.last_line, &a2, &result.last_line_descent);
+    
+    result.bounds = RectangleF{p1.x, p1.y - result.first_line_ascent, extents().width - p1.x, result.first_line_ascent + d1}
+      .union_hull({0.0f, p1.y + d1, extents().width, p2.y - a2 - p1.y - d1})
+      .union_hull({0.0f, p2.y - a2, p2.x, a2 + result.last_line_descent});
+      
+    return result;
+  }
 }
 
 bool MathSequence::visible_rect(RectangleF &rect, Box *top_most) {

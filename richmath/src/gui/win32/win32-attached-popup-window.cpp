@@ -8,6 +8,9 @@
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-document-window.h>
 
+#include <boxes/abstractsequence.h>
+
+
 #ifdef max
 #  undef max
 #endif
@@ -418,7 +421,40 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   if(!anchor)
     return false;
   
-  target_rect = anchor.box->range_rect(anchor.start, anchor.end);
+  bool has_target_rect = false;
+  if(true /* content padding */) {
+    if(auto seq = dynamic_cast<AbstractSequence*>(anchor.box)) {
+//      Array<RectangleF> rects;
+//      anchor.add_rectangles(rects, SelectionDisplayFlags::BigCenterBlob | SelectionDisplayFlags::TightWidths, {0.0f, 0.0f});
+//      for(const RectangleF &rect: rects) {
+//        if(has_target_rect) {
+//          target_rect = target_rect.union_hull(rect);
+//        }
+//        else {
+//          target_rect = rect;
+//          has_target_rect = true;
+//        }
+//      }
+      LineRangeMeasurement measurement = seq->measure_range(anchor.start, anchor.start);
+      
+      target_rect = measurement.bounds;
+      float em = seq->get_em();
+      float min_accent  = 0.75 * em;
+      float min_descent = 0.25 * em;
+      if(measurement.first_line_ascent < min_accent)
+        target_rect.grow(Side::Top, min_accent - measurement.first_line_ascent);
+      
+      if(measurement.last_line_descent < min_descent)
+        target_rect.grow(Side::Bottom, min_descent - measurement.last_line_descent);
+      
+      has_target_rect = true;
+    }
+  }
+  
+  if(!has_target_rect) {
+    target_rect = anchor.box->range_rect(anchor.start, anchor.end);
+  }
+  
   if(!anchor.box->visible_rect(target_rect))
     return false;
   

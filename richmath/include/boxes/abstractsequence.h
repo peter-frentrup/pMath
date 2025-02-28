@@ -13,6 +13,14 @@ namespace richmath {
     Text
   };
   
+  struct LineRangeMeasurement {
+    RectangleF bounds;
+    float first_line_ascent;
+    float last_line_descent;
+    int first_line;
+    int last_line;
+  };
+  
   class AbstractSequence: public Box {
       using base = Box;
     private: // No other subclasses possible:
@@ -66,7 +74,8 @@ namespace richmath {
       virtual void get_line_heights(int line, float *ascent, float *descent) = 0;
       
       virtual bool request_repaint_range(int start, int end) override;
-      virtual RectangleF range_rect(int start, int end) override;
+      virtual LineRangeMeasurement measure_range(int start, int end);
+      virtual RectangleF range_rect(int start, int end) final override;
       virtual void selection_rectangles(Array<RectangleF> &rects, SelectionDisplayFlags flags, Point p0, int start, int end) override = 0;
 
       float get_em() { return em; }

@@ -399,17 +399,22 @@ bool AbstractSequence::request_repaint_range(int start, int end) {
   return result;
 }
 
-RectangleF AbstractSequence::range_rect(int start, int end) {
+LineRangeMeasurement AbstractSequence::measure_range(int start, int end) {
   // TODO: Move this to TextSequence, because MathSequence now has its own implementation.
+  LineRangeMeasurement result;
   
-  if(text_changed())
-    return _extents.to_rectangle();
+  if(text_changed()) {
+    result.bounds = _extents.to_rectangle();
+    result.first_line = 0;
+    result.last_line = 0;
+    result.first_line_ascent = _extents.ascent;
+    result.last_line_descent = _extents.descent;
+    return result;
+  }
   
-  int l1, l2;
-  
-  l1 = l2 = get_line(start);
+  result.first_line = result.last_line = get_line(start);
   if(start != end)
-    l2 = get_line(end, l1);
+    result.last_line = get_line(end, result.first_line);
     
   cairo_matrix_t mat;
   cairo_matrix_init_identity(&mat);
@@ -427,19 +432,28 @@ RectangleF AbstractSequence::range_rect(int start, int end) {
     p2 = Canvas::transform_point(mat, Point(0, 0));
   }
   
-  float a1, d1;
-  get_line_heights(l1, &a1, &d1);
+  float d1;
+  get_line_heights(result.first_line, &result.first_line_ascent, &d1);
   
-  if(l1 == l2)
-    return {p1.x, p1.y - a1, p2.x - p1.x, a1 + d1};
-  
-  float a2, d2;
-  get_line_heights(l2, &a2, &d2);
-  
-  return RectangleF{p1.x, p1.y - a1, extents().width - p1.x, a1 + d1}
-    .union_hull({0.0f, p1.y + d1, extents().width, p2.y - a2 - p1.y - d1})
-    .union_hull({0.0f, p2.y - a2, p2.x, a2 + d2});
-  
+  if(result.first_line == result.last_line) {
+    result.last_line_descent = d1;
+    result.bounds = {p1.x, p1.y - result.first_line_ascent, p2.x - p1.x, result.first_line_ascent + d1};
+    return result;
+  }
+  else {
+    float a2;
+    get_line_heights(result.last_line, &a2, &result.last_line_descent);
+    
+    result.bounds = RectangleF{p1.x, p1.y - result.first_line_ascent, extents().width - p1.x, result.first_line_ascent + d1}
+      .union_hull({0.0f, p1.y + d1, extents().width, p2.y - a2 - p1.y - d1})
+      .union_hull({0.0f, p2.y - a2, p2.x, a2 + result.last_line_descent});
+      
+    return result;
+  }
+}
+
+RectangleF AbstractSequence::range_rect(int start, int end) {
+  return measure_range(start, end).bounds;
 }
 
 //} ... class AbstractSequence
