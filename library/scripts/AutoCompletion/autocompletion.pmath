@@ -87,8 +87,8 @@ Function allNamespacesFromPath() {
 Function makeCamelCasePattern(~str:String) {
 	With(interWordPattern:= Shortest(Except("`")***))
 	Return(str.StringReplace({
-		(StartOfString|RegularExpression("(?<=`)")) ++ c: RegularExpression("[a-zA-Z]") :> RegularExpression("(?i:^" ++ c ++ ")") | RegularExpression("(?i:[^a-z]" ++ c ++ ")") | upperCaseChar(c),
-		c: RegularExpression("[a-zA-Z]") :> c | (interWordPattern ++ (RegularExpression("(?i:[^a-z]" ++ c ++ ")")) | upperCaseChar(c)),
+		(StartOfString|RegularExpression("(?<=`)")) ++ c: RegularExpression("[a-zA-Z]") :> RegularExpression("(?i:^" ++ c ++ ")") | RegularExpression("(?i:[^a-z`]" ++ c ++ ")") | upperCaseChar(c),
+		c: RegularExpression("[a-zA-Z]") :> c | (interWordPattern ++ (RegularExpression("(?i:[^a-z`]" ++ c ++ ")")) | upperCaseChar(c)),
 		c: RegularExpression("[^a-zA-Z]") :> interWordPattern ++ c}))
 }
 
@@ -135,7 +135,7 @@ Function makeShortNameList(~list:List, ~part:String) {
 }
 Function makeShortName(~fullname:String) {
 	Return(fullname.StringReplace({
-			long: ~~~ ++ "`" ++ (short: Except("`")**) :> 
+			long: (~~~ ++ "`" ++ (short: Except("`")**)) :> 
 				{short, 
 					If(Names(short).Length===1) { 
 						short
