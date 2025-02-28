@@ -592,6 +592,11 @@ void MathGtkControlPainter::calc_container_size(
 }
  
 Color MathGtkControlPainter::control_font_color(ControlContext &control, ContainerType type, ControlState state) {
+  if(type == ContainerType::ListViewItem) {
+    if(state == ControlState::Pressed || state == ControlState::PressedHovered)
+      type = ContainerType::ListViewItemSelected;
+  }
+
   if(GtkStyleContext *gsc = get_control_theme(control, type, true)) {
     GtkStateFlags old_state = gtk_style_context_get_state(gsc);
     GtkStateFlags new_state = get_state_flags(control, type, state);
@@ -642,6 +647,11 @@ void MathGtkControlPainter::draw_container(
       break;
     
     case ContainerType::AddressBandInputField: return;
+    
+    case ContainerType::ListViewItem:
+      if(state == ControlState::Pressed || state == ControlState::PressedHovered)
+        type = ContainerType::ListViewItemSelected;
+      break;
     
     default: break;
   }
@@ -1010,7 +1020,7 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
     case ContainerType::ListViewItemSelected: {
         switch(state) {
           case ControlState::Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_INSENSITIVE );
-          case ControlState::PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
+          case ControlState::PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | /*(int)GTK_STATE_FLAG_ACTIVE |*/ (int)GTK_STATE_FLAG_PRELIGHT );
           case ControlState::Hovered:        
           case ControlState::Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_PRELIGHT );
           case ControlState::Pressed:        
