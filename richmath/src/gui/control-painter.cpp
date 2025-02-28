@@ -310,6 +310,11 @@ void ControlPainter::calc_container_radii(
 
 
 Color ControlPainter::control_font_color(ControlContext &control, ContainerType type, ControlState state) {
+  if(type == ContainerType::ListViewItem) {
+    if(state == ControlState::Pressed || state == ControlState::PressedHovered)
+      type = ContainerType::ListViewItemSelected;
+  }
+  
   if(is_very_transparent(control, type, state))
     return Color::None;
   
@@ -355,6 +360,11 @@ void ControlPainter::draw_container(
     return;
   
   canvas.save();
+  
+  if(type == ContainerType::ListViewItem) {
+    if(state == ControlState::Pressed || state == ControlState::PressedHovered)
+      type = ContainerType::ListViewItemSelected;
+  }
   
   switch(type) {
     case ContainerType::None:
