@@ -1113,6 +1113,7 @@ static bool document_write_cmd(Expr cmd) {
         new_end = seq->length();
       }
       
+      seq->after_insertion(sel.start, new_end);
       seq->invalidate();
       did_write = true;
     }

@@ -193,6 +193,8 @@ namespace richmath {
       
       Document *find_next_attached_popup_window_for(Box *anchor_box, Document *prev, LogicalDirection dir);
       
+      AutoCompletion &private_auto_completion(AutoCompletion::AccessToken) { return auto_completion; }
+      
     public:
       Document *main_document; // not owned
       

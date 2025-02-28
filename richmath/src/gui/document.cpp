@@ -989,6 +989,11 @@ void Document::on_key_press(uint32_t unichar) {
   if(EventHandlers::execute_key_press_handler(this, DocumentEventActions, unichar) == EventHandlerResult::StopPropagation)
     return;
   
+  if(auto_completion.handle_key_press(unichar))
+    return;
+    
+  auto_completion.stop();
+  
   AbstractSequence *initial_seq = dynamic_cast<AbstractSequence *>(selection_box());
   
   if(!Impl(*this).prepare_insert(false)) {
@@ -1001,8 +1006,6 @@ void Document::on_key_press(uint32_t unichar) {
       
     return;
   }
-  
-  auto_completion.stop();
   
   if(unichar == '\n') {
     prev_sel_line = -1;
@@ -4095,6 +4098,12 @@ void Document::Impl::add_autocompletion_hook() {
   
   if(!ac)
     return;
+  
+  if(!self.auto_completion.is_active()) {
+    self.auto_completion.stop();
+    //ac.request_repaint();
+    return;
+  }
     
   if(Color bg = ac.box->get_style(InlineAutoCompletionBackgroundColor, Color::None)) {
     float bg_alpha = ac.box->get_style(InlineAutoCompletionHighlightOpacity, 1.0f);
@@ -4573,6 +4582,11 @@ void Document::Impl::handle_key_home_end(SpecialKeyEvent &event, LogicalDirectio
 }
 
 void Document::Impl::handle_key_up_down(SpecialKeyEvent &event, LogicalDirection direction) {
+  if(self.auto_completion.handle_key_up_down(direction)) {
+    event.key = SpecialKey::Unknown;
+    return;
+  }
+  
   self.move_vertical(direction, event.shift);
   event.key = SpecialKey::Unknown;
   self.auto_completion.stop();
@@ -4596,7 +4610,7 @@ void Document::Impl::handle_key_tab(SpecialKeyEvent &event) {
     SelectionReference oldpos = self.context.selection;
     
     if(!event.ctrl) {
-      if(self.auto_completion.next(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward)) {
+      if(self.auto_completion.handle_key_tab(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward)) {
         event.key = SpecialKey::Unknown;
         return;
       }
@@ -4713,6 +4727,11 @@ void Document::Impl::handle_key_backspace(SpecialKeyEvent &event) {
   if(self.selection_length() > 0) {
     if(self.remove_selection(true))
       event.key = SpecialKey::Unknown;
+    return;
+  }
+  
+  if(!event.ctrl && self.auto_completion.handle_key_backspace()) {
+    event.key = SpecialKey::Unknown;
     return;
   }
   
@@ -4837,6 +4856,11 @@ void Document::Impl::handle_key_escape(SpecialKeyEvent &event) {
       receiver->on_mouse_cancel();
       
     self.context.clicked_box_id = FrontEndReference::None;
+    event.key = SpecialKey::Unknown;
+    return;
+  }
+  
+  if(self.auto_completion.handle_key_escape()) {
     event.key = SpecialKey::Unknown;
     return;
   }

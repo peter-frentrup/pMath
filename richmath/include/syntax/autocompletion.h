@@ -15,7 +15,14 @@ namespace richmath {
       
       AutoCompletion(const AutoCompletion &) = delete;
       
-      bool next(LogicalDirection direction);
+      bool is_active() const;
+      bool has_popup() const;
+      
+      bool handle_key_backspace();
+      bool handle_key_escape();
+      bool handle_key_press(uint32_t unichar);
+      bool handle_key_tab(LogicalDirection direction);
+      bool handle_key_up_down(LogicalDirection direction);
       void stop();
     
     public:
@@ -24,6 +31,13 @@ namespace richmath {
     private:
       class Private;
       Private *priv;
+    
+    public:
+      class AccessToken final {
+        friend class AutoCompletion;
+        
+        explicit AccessToken() = default;
+      };
   };
 }
 

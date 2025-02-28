@@ -31,6 +31,7 @@ FE`Private`shortcuts:= {
 	MenuItem(KeyEvent("B", {KeyControl, KeyShift}),     "FindMatchingFence"),
 	MenuItem(KeyEvent("'", {KeyControl}),               "OpenCloseGroup"),
 	
+	MenuItem(KeyEvent(" ", {KeyControl}),               "CompleteSelection"),
 	MenuItem(KeyEvent("L", {KeyControl}),               "DuplicatePreviousInput"),
 	MenuItem(KeyEvent("L", {KeyControl, KeyShift}),     "DuplicatePreviousOutput"),
 	MenuItem(KeyEvent("Enter", {KeyAlt}),               "SimilarSectionBelow"),

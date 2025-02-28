@@ -47,7 +47,6 @@
 	or via Java Decompiler into *.class files for Java-bindings (same with ILSpy for later .Net-binding)
 
 - richmath: improve autocompletion: 
-	use drop-down-list, 
 	suggest local variables, 
 	suggest option names, 
 	suggest results for aliases,

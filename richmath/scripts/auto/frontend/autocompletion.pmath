@@ -8,4 +8,65 @@ FE`AutoCompleteFile(~part:String)::= AutoCompletion`AutoCompleteFullFilename(par
 
 FE`AutoCompleteOther(~list, ~part)::= AutoCompletion`AutoCompleteOther(list, part)
 
+Function FE`AttachAutoCompletionPopup(~loc) {
+    %Return($Failed)
+    Local(prevIndex:= 0)
+    Return(FE`AttachBoxes(loc, Bottom, {
+        % Section(
+        %     BoxData({"\"Auto completion in ", DynamicBox(ToBoxes(CurrentValue({"AttachmentSourceBox", WindowTitle})))," \[Ellipsis]\""}),
+        %     "PopupWindowSection",
+        %     SectionMargins -> {{4,4}, {4,2}},
+        %     LineBreakWithin -> False),
+        % Section(
+        %     BoxData({"\"Index: \"", DynamicBox(ToBoxes(CurrentValue({"AttachmentSourceBox", "AutoCompletionSuggestionIndex"})))}),
+        %     "PopupWindowSection",
+        %     SectionMargins -> {{4,4}, {2,4}},
+        %     LineBreakWithin -> False),
+        Section(
+            BoxData(DynamicBox(Block {
+                With(suggestions:= CurrentValue({"AttachmentSourceBox", "AutoCompletionSuggestionsList"}))
+                StyleBox(
+                    DynamicBox(
+                        Array(Length(suggestions)) |>
+                        Map(Function({
+                            SetterBox(
+                                Dynamic(CurrentValue({"AttachmentSourceBox", "AutoCompletionSuggestionIndex"}),
+                                    {Automatic,
+                                    Function {
+                                        DocumentWrite(CurrentValue("AttachmentSource"), suggestions[#2]),
+                                        DocumentClose(EvaluationDocument())
+                                    }}),
+                                #,
+                                suggestions[#],
+                                ButtonFrame -> "ListViewItem",
+                                Alignment -> Left,
+                                BoxID -> {"ResultButton", #})
+                            })) |> 
+                        GridBox
+                    ),
+                    % Some non-layout option that is not otherwise used for display here, just to trigger dynamic evaluation:
+                    "InlineAutoCompletionStyle" -> {Background -> Dynamic(Block {
+                        With(idx:= CurrentValue({"AttachmentSourceBox", "AutoCompletionSuggestionIndex"}))
+                        If(idx =!= prevIndex) {
+                            prevIndex:= idx
+                            With(id := {"ResultButton", idx})
+                            With(popup:= EvaluationDocument())
+                            FE`CallFrontEnd(Block {
+                                With(newbox:= FrontEnd`BoxReferenceBoxObject(FE`BoxReference(popup, {id})))
+                                FrontEnd`ScrollIntoView(newbox)
+                            })
+                        }
+                        None
+                    })
+                })
+            })),
+            "PopupWindowSection",
+            SectionMargins -> {{4,4}, {4,4}},
+            LineBreakWithin -> False)
+        },
+        RemovalConditions -> {"MouseClickOutsidePopup"}, % Cannot use "SelectionExit", because then the popup would be removed as soon as we type/tab through the completions
+        WindowFrame -> "ThinFrame", % "ThinFrameCallout"
+        Background -> CurrentValue(loc, Background)))
+}
+
 End()
