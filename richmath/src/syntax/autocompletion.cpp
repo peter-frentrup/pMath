@@ -150,8 +150,6 @@ Expr AutoCompletion::Private::get_AutoCompletionSuggestionIndex(FrontEndObject *
     return Symbol(richmath_System_DollarFailed);
   
   AutoCompletion &ac = doc->private_auto_completion(AutoCompletion::AccessToken{});
-  if(!ac.range)
-    return Symbol(richmath_System_DollarFailed);
   
   return ac.priv->current_index.get();
 }
@@ -189,10 +187,12 @@ Expr AutoCompletion::Private::get_AutoCompletionSuggestionsList(FrontEndObject *
     return Symbol(richmath_System_DollarFailed);
   
   AutoCompletion &ac = doc->private_auto_completion(AutoCompletion::AccessToken{});
-  if(!ac.range)
+  
+  Expr result = ac.priv->current_boxes_list;
+  if(!result)
     return List();
   
-  return ac.priv->current_boxes_list;
+  return result;
 }
 
 bool AutoCompletion::Private::continue_completion(LogicalDirection direction) {
@@ -924,6 +924,7 @@ void AutoCompletion::stop() {
   if(priv->no_stop_while_editing && range)
     return;
   
+  priv->current_boxes_list = Expr{};
   priv->current_filter_function = Expr{};
   priv->remove_popup();
   range.get_all().request_repaint();
