@@ -954,7 +954,7 @@ PMATH_API void pmath_symbol_update(pmath_symbol_t symbol) {
     _pmath_dynamic_update(symbol);
 }
 
-PMATH_PRIVATE
+PMATH_API
 void pmath_symbol_track_dynamic(
   pmath_symbol_t symbol, // wont be freed
   intptr_t       id
