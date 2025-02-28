@@ -60,10 +60,10 @@ class AutoCompletion::Private {
     bool set_current_completion_text() { return set_current_completion_text(current_index); }
     bool set_current_completion_text(int index);
     
-    String try_start();
+    String try_start(bool allow_empty);
     String try_start_alias();
     String try_start_filename();
-    String try_start_symbol();
+    String try_start_symbol(bool allow_empty);
     bool start(CompletionStyle style, LogicalDirection direction);
     
     bool reapply_filter();
@@ -255,7 +255,7 @@ bool AutoCompletion::Private::set_current_completion_text(int index) {
   return false;
 }
 
-String AutoCompletion::Private::try_start() {
+String AutoCompletion::Private::try_start(bool allow_empty) {
   String res;
   
   res = try_start_alias();
@@ -264,7 +264,7 @@ String AutoCompletion::Private::try_start() {
   res = try_start_filename();
   if(res) return res;
   
-  return try_start_symbol();
+  return try_start_symbol(allow_empty);
 }
 
 String AutoCompletion::Private::try_start_alias() {
@@ -585,26 +585,38 @@ String AutoCompletion::Private::try_start_filename() {
   return str;
 }
 
-String AutoCompletion::Private::try_start_symbol() {
+String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
   auto seq = dynamic_cast<MathSequence*>(document->selection_box());
   if(!seq)
     return {};
-    
-  SpanExpr *span = SpanExpr::find(seq, document->selection_end(), true);
-  if(!span)
-    return {};
-    
-  pmath_token_t tok = span->as_token();
   
-  if(tok != PMATH_TOK_NAME) {
+  VolatileSelection tok_range{document->selection_now().end_only()};
+  String text;
+  if(SpanExpr *span = SpanExpr::find(seq, document->selection_end(), true)) {
+    pmath_token_t tok = span->as_token();
+  
+    if(tok == PMATH_TOK_NAME) {
+      text      = span->as_text();
+      tok_range = span->range();
+    }
+    else if(allow_empty) {
+      if(tok != PMATH_TOK_DIGIT) {
+        text = "";
+      }
+    }
+
     delete span;
-    return {};
+  }
+  else if(allow_empty) {
+    text = "";
   }
   
   // TODO: Grab context: active symbol definitions, current values, options names for current call...
   //       ... similar to ScopeColorizer, but backwards ...
   
-  String text = span->as_text();
+  if(!text || !tok_range)
+    return {};
+  
   current_filter_function = Symbol(richmath_FE_AutoCompleteName);
   Expr suggestions = Application::interrupt_wait_cached(
                        Call(current_filter_function, text),
@@ -612,23 +624,21 @@ String AutoCompletion::Private::try_start_symbol() {
                          
   if(!suggestions.item_equals(0, richmath_System_List) || suggestions.expr_length() == 0) {
     current_boxes_list = Expr();
-    delete span;
     return {};
   }
   
   current_boxes_list = suggestions;
   
-  document->move_to(span->sequence(), span->end() + 1, false);
-  pub->range = SelectionReference(span->sequence()->id(), span->start(), span->end() + 1);
+  document->move_to(tok_range.box, tok_range.end, false);
+  pub->range = SelectionReference(tok_range);
   
   //pmath_debug_print_object("[completions: ", current_boxes_list.get(), "]\n");
   
-  delete span;
   return text;
 }
 
 bool AutoCompletion::Private::start(CompletionStyle style, LogicalDirection direction) {
-  if(String cur_text = try_start()) {
+  if(String cur_text = try_start(style == CompletionStyle::SuggestionsPopup)) {
     if(style == CompletionStyle::SuggestionsPopup && attach_popup()) {
       //current_index = 0; // continue_completion() will increase the index to 1
       //if(continue_completion(direction))
