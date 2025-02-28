@@ -5,6 +5,7 @@ Begin("FE`Private`")
 
 
 Options(FE`AttachBoxes):= Options(FrontEnd`AttachBoxes):= {
+    Background -> Inherited,
     BaseStyle -> "AttachedPopupWindow",
     "ClosingAction" -> "Delete",
     DocumentEventActions -> Inherited,
