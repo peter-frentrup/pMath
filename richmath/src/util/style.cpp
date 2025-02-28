@@ -4094,6 +4094,7 @@ RemovalConditionsStyleConverter::RemovalConditionsStyleConverter(): FlagsStyleCo
   add(RemovalConditionFlagMouseClickOutside,      String("MouseClickOutside"));
   add(RemovalConditionFlagMouseClickOutsidePopup, String("MouseClickOutsidePopup"));
   add(RemovalConditionFlagParentChanged,          String("ParentChanged"));
+  add(RemovalConditionFlagWindowFocusLost,        String("WindowFocusLost"));
 }
 
 WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {

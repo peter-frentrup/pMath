@@ -79,6 +79,7 @@ namespace richmath {
     RemovalConditionFlagMouseClickOutside      = 0x04,
     RemovalConditionFlagMouseClickOutsidePopup = 0x08,
     RemovalConditionFlagParentChanged          = 0x10,
+    RemovalConditionFlagWindowFocusLost        = 0x20,
   };
   
   enum ColorStyleOptionName {

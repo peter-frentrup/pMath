@@ -615,7 +615,7 @@ void Document::focus_killed(Document *new_focus) {
   reset_mouse();
   
   Impl(*this).close_popup_windows_if(
-    RemovalConditionFlagSelectionExit,
+    static_cast<RemovalConditionFlags>(RemovalConditionFlagSelectionExit | RemovalConditionFlagWindowFocusLost),
     [new_focus](VolatileSelection anchor, Document *popup) {
       bool focus_in_popup = false;
       int max_steps = 20;
