@@ -40,6 +40,7 @@ Options(CreateDocument):= Options(Document):= {
     "ClosingAction" -> Inherited,
     "CharacterNameStyle" -> Inherited,
     "CommentStyle" -> Inherited,
+    "ContainingCallHighlightStyle" -> Inherited,
     ContextMenu -> Inherited,
     DefaultDuplicateSectionStyle -> Inherited,
     DefaultNewSectionStyle -> Inherited,
@@ -256,6 +257,7 @@ Options(Style):= Options(StyleBox):= {
     ButtonBoxOptions -> Inherited,
     "CharacterNameStyle" -> Inherited,
     "CommentStyle" -> Inherited,
+    "ContainingCallHighlightStyle" -> Inherited,
     ContextMenu -> Inherited,
     DynamicBoxOptions -> Inherited,
     DynamicLocalBoxOptions -> Inherited,
@@ -340,6 +342,7 @@ Options(Section):= {
     "ClosingAction" -> Inherited, % only valid for StyleData-sections
     "CharacterNameStyle" -> { FontColor -> Inherited },
     "CommentStyle" -> { FontColor -> Inherited },
+    "ContainingCallHighlightStyle" -> { Background -> Inherited, Opacity -> Inherited },
     ContextMenu -> Inherited,
     DefaultDuplicateSectionStyle -> Inherited,
     DefaultNewSectionStyle -> Inherited,
