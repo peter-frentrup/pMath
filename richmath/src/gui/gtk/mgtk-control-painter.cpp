@@ -1595,6 +1595,9 @@ void MathGtkStyleContextCache::render_all_common_inset(GtkStyleContext *ctx, Can
   if(!ctx)
     return;
   
+  if(gtk_style_context_has_class(ctx, "pmath-dummy"))
+    return;
+  
   GtkStyleContext *parent = gtk_style_context_get_parent(ctx);
   render_all_common_inset(parent, canvas, rect);
   if(parent) {
@@ -1628,6 +1631,9 @@ void MathGtkStyleContextCache::render_all_common_inset(GtkStyleContext *ctx, Can
 
 GtkBorder MathGtkStyleContextCache::get_all_border_padding(GtkStyleContext *ctx) {
   if(!ctx) 
+    return {0,0,0,0};
+  
+  if(gtk_style_context_has_class(ctx, "pmath-dummy"))
     return {0,0,0,0};
   
   GtkStyleContext *parent = gtk_style_context_get_parent(ctx);
@@ -1834,18 +1840,29 @@ GtkStyleContext *MathGtkStyleContextCache::make_input_field_context() {
 
 GtkStyleContext *MathGtkStyleContextCache::make_list_item_context() {
   GtkWidgetPath *path = gtk_widget_path_new();
+  gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+  gtk_widget_path_iter_set_object_name(path, -1, "window");
+  gtk_widget_path_iter_add_class(path, -1, "background");
+  
+  GtkStyleContext *window = make_context_from_path_and_free(path);
+  gtk_style_context_add_class(window, "pmath-dummy"); // only here for its forground color definition, not for its frame/border/...
+  path = gtk_widget_path_copy(gtk_style_context_get_path(window));
+
   gtk_widget_path_append_type(path, GTK_TYPE_LIST_BOX);
   gtk_widget_path_iter_set_object_name(path, -1, "list");
   
-  gtk_widget_path_append_type(path, G_TYPE_NONE);
+  GtkStyleContext *list = make_context_from_path_and_free(path, window);
+  gtk_style_context_add_class(list, "pmath-dummy"); // only here for its forground color definition, not for its frame/border/...
+  path = gtk_widget_path_copy(gtk_style_context_get_path(list));
+  
+  gtk_widget_path_append_type(path, GTK_TYPE_LIST_BOX_ROW);
   gtk_widget_path_iter_set_object_name(path, -1, "row");
-  gtk_widget_path_iter_add_class(path, -1, "background");
   gtk_widget_path_iter_add_class(path, -1, "activatable");
   
 //  gtk_widget_path_append_type(path, GTK_TYPE_LABEL);
 //  gtk_widget_path_iter_set_object_name(path, -1, "label");
   
-  return make_context_from_path_and_free(path);
+  return make_context_from_path_and_free(path, list);
   
 //  GtkStyleContext *list_item_context = gtk_style_context_new();
 //  
@@ -1865,14 +1882,26 @@ GtkStyleContext *MathGtkStyleContextCache::make_list_item_context() {
 
 GtkStyleContext *MathGtkStyleContextCache::make_list_item_selected_context() {
   GtkWidgetPath *path = gtk_widget_path_new();
+  gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+  gtk_widget_path_iter_set_object_name(path, -1, "window");
+  gtk_widget_path_iter_add_class(path, -1, "background");
+  
+  GtkStyleContext *window = make_context_from_path_and_free(path);
+  gtk_style_context_add_class(window, "pmath-dummy"); // only here for its forground color definition, not for its frame/border/...
+  path = gtk_widget_path_copy(gtk_style_context_get_path(window));
+  
   gtk_widget_path_append_type(path, GTK_TYPE_LIST_BOX);
   gtk_widget_path_iter_set_object_name(path, -1, "list");
   
-  gtk_widget_path_append_type(path, G_TYPE_NONE);
+  GtkStyleContext *list = make_context_from_path_and_free(path, window);
+  gtk_style_context_add_class(list, "pmath-dummy"); // only here for its forground color definition, not for its frame/border/...
+  path = gtk_widget_path_copy(gtk_style_context_get_path(list));
+  
+  gtk_widget_path_append_type(path, GTK_TYPE_LIST_BOX_ROW);
   gtk_widget_path_iter_set_object_name(path, -1, "row");
   gtk_widget_path_iter_add_class(path, -1, "activatable");
   
-  return make_context_from_path_and_free(path);
+  return make_context_from_path_and_free(path, list);
   
 //  GtkStyleContext *list_item_selected_context = gtk_style_context_new();
 //  
