@@ -229,7 +229,11 @@ namespace richmath {
       static gboolean on_menu_button_press(  GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static gboolean on_menu_button_release(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static gboolean on_menu_motion_notify( GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
-  
+      
+      // Work-around for GTK 3.24.6 regression/feature "Fix submenu size"
+      static void on_menu_realize(GtkWidget *menu, void *user_data); 
+      static void on_menu_moved_to_rect(GdkWindow *window, const GdkRectangle *flipped_rect, const GdkRectangle *final_rect, gboolean flipped_x, gboolean flipped_y, GtkMenu *menu); 
+      
     private:
       static const char *style_provider_data_key;
   };
@@ -263,6 +267,15 @@ void MathGtkMenuBuilder::connect_events(GtkMenu *menu, FrontEndReference doc_id)
   
   MathGtkMenuGutterSliders::connect(menu, doc_id);
   
+  if(nullptr == gtk_check_version(3, 24, 6)) {
+    // Insired by Linux Mint's fix for https://github.com/linuxmint/nemo/issues/2118, 
+    // see https://github.com/linuxmint/nemo/commit/ff08b987b8630f690bfebb6b0b7a931e519079d7
+    pmath_debug_print("[Register work-around in menu %p for GTK 3.24.6 regression/feature 'Fix submenu size']\n", menu);
+    
+    g_signal_connect(menu, "realize", G_CALLBACK(Impl::on_menu_realize), nullptr);
+    gtk_widget_realize(GTK_WIDGET(menu)); // Need to force now, because 'menu' is typically already realized when connect_events() gets called.
+  }
+
   g_signal_connect(menu, "map-event",            G_CALLBACK(Impl::on_map_menu),            FrontEndReference::unsafe_cast_to_pointer(doc_id));
   g_signal_connect(menu, "unmap-event",          G_CALLBACK(Impl::on_unmap_menu),          FrontEndReference::unsafe_cast_to_pointer(doc_id));
   g_signal_connect(menu, "key-press-event",      G_CALLBACK(Impl::on_menu_key_press),      FrontEndReference::unsafe_cast_to_pointer(doc_id));
@@ -716,6 +729,26 @@ gboolean MathGtkMenuBuilder::Impl::on_menu_motion_notify(GtkWidget *menu, GdkEve
   
   return false;
 }
+
+void MathGtkMenuBuilder::Impl::on_menu_realize(GtkWidget *menu, void *user_data) {
+  GdkWindow *toplevel = gtk_widget_get_window(gtk_widget_get_toplevel(menu));
+  g_signal_handlers_disconnect_by_func(toplevel, (void*)on_menu_moved_to_rect, menu);
+  g_signal_connect(toplevel, "moved-to-rect", G_CALLBACK(on_menu_moved_to_rect), menu);
+}
+
+void MathGtkMenuBuilder::Impl::on_menu_moved_to_rect(
+  GdkWindow          *window,
+  const GdkRectangle *flipped_rect,
+  const GdkRectangle *final_rect,
+  gboolean            flipped_x,
+  gboolean            flipped_y,
+  GtkMenu            *menu
+) {
+  g_signal_emit_by_name(menu, "popped-up", 0, flipped_rect, final_rect, flipped_x, flipped_y);
+
+  // Prevent gtkmenu.c implementation run, because that would call gtk_window_fixate_size()
+  g_signal_stop_emission_by_name(window, "moved-to-rect");
+} 
 
 //} ... class MathGtkMenuBuilder::Impl
 
