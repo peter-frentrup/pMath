@@ -1700,8 +1700,7 @@ void MathGtkMenuSliderRegion::paint(GtkWidget *menu, Canvas &canvas, FrontEndRef
     {
       GtkStyleContext *style_ctx = gtk_widget_get_style_context(menu);
       GtkBorder padding = {0,0,0,0};
-      gtk_style_context_get_padding(style_ctx, GTK_STATE_FLAG_NORMAL, &padding);
-      
+      gtk_style_context_get_padding(style_ctx, gtk_style_context_get_state(style_ctx), &padding);
       canvas.translate(padding.left, padding.top);
     }
     #endif
