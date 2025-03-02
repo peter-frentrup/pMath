@@ -238,7 +238,9 @@ void MathGtkTooltipWindow::Impl::update_shape() {
   cairo_region_t *region = gdk_cairo_region_create_from_surface(surface);
   cairo_surface_destroy(surface);
   
-  gtk_widget_shape_combine_region(self._widget, region);
+  gtk_widget_shape_combine_region(self._widget, nullptr);
+  if(!cairo_region_is_empty(region))
+    gtk_widget_shape_combine_region(self._widget, region);
   cairo_region_destroy(region);
   //gdk_window_set_child_shapes(gtk_widget_get_parent_window(self._widget));
 #endif
