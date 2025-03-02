@@ -229,6 +229,9 @@ class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
     }
     
     virtual bool on_draw(cairo_t *cr) override {
+      //double clip_x1, clip_y1, clip_x2, clip_y2;
+      //cairo_clip_extents(cr, &clip_x1, &clip_y1, &clip_x2, &clip_y2);
+      //pmath_debug_print("[working area on_draw %f %f .. %f %f (%f x %f)]\n", clip_x1, clip_y1, clip_x2, clip_y2, clip_x2 - clip_x1, clip_y2 - clip_y1);
       bool result = base::on_draw(cr);
       rearrange();
       MathGtkDocumentWindowImpl(*parent()).update_scrollbar_overlay();
@@ -750,14 +753,14 @@ void MathGtkDocumentWindow::after_construction() {
   GtkWidget *scroll_grid = gtk_table_new(2, 2, FALSE);
   gtk_box_pack_start(GTK_BOX(client_area), scroll_grid, true, true, 0);
   
-  gtk_table_attach(GTK_TABLE(scroll_grid), _working_area->widget(), 0, 1, 0, 1, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
+  gtk_table_attach(GTK_TABLE(scroll_grid), _working_area->widget(), 0, 1, 0, 1, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 1, 1); // Need padding to cater for GTK 3 bug causing scrollbar redraw requests to leak into the working area widget
   
   g_object_ref(_hadjustment);
   g_object_ref(_vadjustment);
   _hscrollbar = gtk_hscrollbar_new(_hadjustment);
   _vscrollbar = gtk_vscrollbar_new(_vadjustment);
   gtk_table_attach(GTK_TABLE(scroll_grid), _vscrollbar, 1, 2, 0, 1, (GtkAttachOptions)0, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
-  gtk_table_attach(GTK_TABLE(scroll_grid), _hscrollbar, 0, 1, 1, 2, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                            0, 0);
+  gtk_table_attach(GTK_TABLE(scroll_grid), _hscrollbar, 0, 1, 1, 2, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0, 0, 0);
   
   Impl(*this).connect_scrollbar_overlay_signals();
   Impl(*this).connect_adjustment_changed_signals();
