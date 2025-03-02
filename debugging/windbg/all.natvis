@@ -420,6 +420,7 @@
 		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api &amp;&amp; 3 == ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length" >(dispatch table) {{ {internals.items[0]}, {internals.items[1]}, {internals.items[2]} }}</DisplayString>
 		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api &amp;&amp; 4 == ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length" >(dispatch table) {{ {internals.items[0]}, {internals.items[1]}, {internals.items[2]}, {internals.items[3]} }}</DisplayString>
 		<DisplayString Condition="&amp;pmath.dll!dispatch_expr_api         == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api" >(dispatch table) List({  ((pmath.dll!_pmath_dispatch_table_extra_data_t  *)&amp;internals.items[internals.length + 1])-&gt;used_length}&gt;&gt;)</DisplayString>
+		<DisplayString Condition="&amp;pmath.dll!source_location_expr_api  == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api" >{{ SourceLocation(...) }}</DisplayString>
 		
 		<DisplayString>{{ custom expr }}</DisplayString>
 		<Expand>
@@ -440,9 +441,6 @@
 				<LowerBound>1</LowerBound>
 				<ValuePointer>&amp;internals.items[0]</ValuePointer>
 			</ArrayItems>
-			<!--<Item Name="data" Condition="&amp;pmath.dll!dispatch_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
-				*(pmath.dll!_pmath_dispatch_table_extra_data_t*)&amp;internals.items[internals.length + 1]
-			</Item>-->
 			<Item Name="entries" Condition="&amp;pmath.dll!dispatch_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
 				((pmath.dll!_pmath_dispatch_table_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;entries,[
 					((pmath.dll!_pmath_dispatch_table_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;used_length
@@ -453,6 +451,13 @@
 			</Item>
 			<Item Name="hash_for_cache" Condition="&amp;pmath.dll!dispatch_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
 				((pmath.dll!_pmath_dispatch_table_extra_data_t*)&amp;internals.items[internals.length + 1])-&gt;hash_for_cache
+			</Item>
+			
+			<Item Name="source" Condition="&amp;pmath.dll!source_location_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				internals.items[0]
+			</Item>
+			<Item Name="location" Condition="&amp;pmath.dll!source_location_expr_api == ((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api">
+				(pmath.dll!_pmath_source_location_extra_data_t*)&amp;internals.items[internals.length + 1]
 			</Item>
 
 			<Item Name="api">((pmath.dll!_pmath_custom_expr_data_t*)&amp;internals.items[internals.length + 1])-&gt;api</Item>
