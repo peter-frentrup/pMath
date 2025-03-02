@@ -1786,9 +1786,19 @@ GtkStyleContext *MathGtkStyleContextCache::make_input_field_button_context() {
   GtkWidgetPath *path = gtk_widget_path_new();
   gtk_widget_path_append_type(path, GTK_TYPE_ENTRY);
   gtk_widget_path_iter_set_object_name(path, -1, "entry");
+  gtk_widget_path_iter_add_class(path, -1, GTK_STYLE_CLASS_LINKED);
+
+  GtkWidgetPath *sibling_path = gtk_widget_path_new();
+  gtk_widget_path_append_type(sibling_path, G_TYPE_NONE);
   
-  gtk_widget_path_append_type(path, GTK_TYPE_BUTTON);
-  gtk_widget_path_iter_set_object_name(path, -1, "button");
+  gtk_widget_path_append_type(sibling_path, GTK_TYPE_BUTTON);
+  gtk_widget_path_iter_set_object_name(sibling_path, -1, "button");
+  
+  gtk_widget_path_append_with_siblings(path, sibling_path, 1);
+  gtk_widget_path_unref(sibling_path);
+
+  //gtk_widget_path_append_type(path, GTK_TYPE_BUTTON);
+  //gtk_widget_path_iter_set_object_name(path, -1, "button");
   
   GtkStyleContext *button_context = make_context_from_path_and_free(path);
   gtk_style_context_add_class(button_context, GTK_STYLE_CLASS_FLAT);
