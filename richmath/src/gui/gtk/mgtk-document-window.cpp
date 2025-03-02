@@ -1557,6 +1557,11 @@ void MathGtkDocumentWindowImpl::add_remove_window(int delta) {
           "  padding: 0;"                                                 LN
           "  box-shadow: none;"                                           LN
           "}"                                                             LN
+          "menuitem entry {"                                              LN
+          "  min-height: 0px;"                                            LN
+          "  padding-top: 1px;"                                           LN
+          "  padding-bottom: 1px;"                                        LN
+          "}"
         ), -1,
         nullptr);
       
