@@ -710,6 +710,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
 #endif
 
     while(_pmath_status != PMATH_STATUS_NONE) {
+      pmath_atomic_loop_yield();
     }
     
     _pmath_status = PMATH_STATUS_INITIALIZING;
@@ -1304,6 +1305,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
     while(_pmath_status != PMATH_STATUS_RUNNING &&
         _pmath_status != PMATH_STATUS_INITIALIZING)
     {
+      pmath_atomic_loop_yield();
     }
     
     thread = _pmath_thread_new(NULL);
@@ -1326,6 +1328,7 @@ PMATH_API void pmath_done(void) {
   assert(pmath_count._data > 0);
   
   while(_pmath_status != PMATH_STATUS_RUNNING) {
+    pmath_atomic_loop_yield();
   }
   
   thread = pmath_thread_get_current();
