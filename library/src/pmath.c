@@ -773,6 +773,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
     if(!_pmath_dynamic_init())                goto FAIL_DYNAMIC;
     
     pmath_debug_print("[zlib %s]\n", zlib_version);
+
+    pmath_debug_set_thread_name("pmath-main");
     
     { // init static objects ...
       // SystemException("OutOfMemory")

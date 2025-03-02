@@ -57,6 +57,15 @@ void pmath_debug_print_debug_metadata(
     _In_  pmath_t     obj,
     _In_  const char *post);
 
+/**\brief Set the current thread's name
+   \param name The new name.
+   
+   Sets the calling thread's name using operating system functionality for improved 
+   display in a debugger.
+ */
+PMATH_API
+void pmath_debug_set_thread_name(const char *name);
+
 #ifndef PMATH_DOXYGEN
 #  ifndef PMATH_DEBUG_LOG
 #    define pmath_debug_print(...)                        ((void)0)

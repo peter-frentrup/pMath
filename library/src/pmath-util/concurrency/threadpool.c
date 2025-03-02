@@ -363,6 +363,8 @@ static pmath_bool_t daemon_init(void *arg) {
 static void daemon_proc(void *arg) {
   struct daemon_t *me = (struct daemon_t *)arg;
 
+  pmath_debug_set_thread_name("pmath-daemon");
+
   me->callback(me->cb_data);
 
   pmath_atomic_lock(&daemon_spin);
@@ -592,6 +594,8 @@ static struct worker_t {
 static THREAD_PROC(worker_thread_proc, arg) {
   uintptr_t worker_index = (uintptr_t)arg;
 
+  pmath_debug_set_thread_name("pmath-worker");
+
   (void)pmath_atomic_fetch_add(&init_threads_counter, -1);
 
   while(!stop_threadpool) {
@@ -673,6 +677,8 @@ static void timer_thread_proc(void *dummy) {
   struct _pmath_timed_message_t *sorted_msgs = NULL;
   double now;
   double next_event;
+
+  pmath_debug_set_thread_name("pmath-gc-timer");
 
   //(void)pmath_atomic_fetch_add(&init_threads_counter, -1);
 

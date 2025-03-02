@@ -316,6 +316,8 @@ Expr LocalServer::dialog(Data *me, Expr firsteval) {
 
 void LocalServer::thread_proc(void *arg) {
   Data *me = (Data *)arg;
+
+  pmath_debug_set_thread_name("pmath-server");
   
   pmath_register_code(richmath_System_Dialog, builtin_dialog, PMATH_CODE_USAGE_DOWNCALL);
   

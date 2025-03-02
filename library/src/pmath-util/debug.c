@@ -24,6 +24,7 @@
 #endif
 
 #ifdef PMATH_OS_WIN32
+static HRESULT (WINAPI *f_SetThreadDescription)(HANDLE, PCWSTR);
 /* no flockfile()/funlockfile() on windows/mingw -> do it your self */
 #  if PMATH_USE_PTHREAD
 #    include <pthread.h>
@@ -607,6 +608,33 @@ void pmath_debug_print_debug_metadata(
   pmath_unref(info);
 }
 
+PMATH_API
+void pmath_debug_set_thread_name(const char *name) {
+#ifdef PMATH_OS_WIN32
+  if(f_SetThreadDescription) {
+    wchar_t str[16];
+    int i;
+    for(i = 0; name[i] && i < (int)(sizeof(str)/sizeof(str[0]) - 1); ++i) {
+      str[i] = name[i];
+    }
+    str[i] = L'\0';
+    f_SetThreadDescription(GetCurrentThread(), str);
+  }
+#endif
+
+#if PMATH_USE_PTHREAD
+  {
+    char str[16];
+    int i;
+    for(i = 0; name[i] && i < (int)(sizeof(str)/sizeof(str[0]) - 1); ++i) {
+      str[i] = name[i];
+    }
+    str[i] = '\0';
+    pthread_setname_np(pthread_self(), str);
+  }
+#endif
+}
+
 /*============================================================================*/
 
 /* The following variables are used by the debugger visualizer (pmath.natvis) only.
@@ -626,6 +654,15 @@ struct _pmath_debug_span_t {
 
 PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void) {
 #ifdef PMATH_OS_WIN32
+  f_SetThreadDescription = NULL;
+  {
+    HMODULE kernel32 = GetModuleHandleW(L"Kernel32");
+    if(kernel32) {
+      f_SetThreadDescription = (HRESULT (WINAPI *)(HANDLE, PCWSTR))
+                               GetProcAddress(kernel32, "SetThreadDescription");
+    }
+  }
+  
 #if PMATH_USE_PTHREAD
   { /* initialize debuglog_mutex ... */
     int err = pthread_mutex_init(&debuglog_mutex, NULL);
