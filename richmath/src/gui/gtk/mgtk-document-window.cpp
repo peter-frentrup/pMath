@@ -799,7 +799,7 @@ void MathGtkDocumentWindow::after_construction() {
   document()->style.set(InternalHasModifiedWindowOption, true);
   update_dark_mode();
   Impl::register_theme_observer();
-  Impl(*this).on_auto_hide_menu(true);
+  Impl(*this).on_auto_hide_menu(true); // too early if menus get realized and mapped asynchronously via MathGtkMenuBuilder::connect_events() workaroung for GTK >=3.24.6 misfeature "Fix submenu size"
 }
 
 MathGtkDocumentWindow::~MathGtkDocumentWindow() {
@@ -1492,6 +1492,7 @@ bool MathGtkDocumentWindow::on_scroll(GdkEvent *e) {
 }
 
 bool MathGtkDocumentWindow::on_map(GdkEvent *e) {
+  Impl(*this).on_auto_hide_menu(true);
   document()->style.set(Visible, true);
   return false;
 }
