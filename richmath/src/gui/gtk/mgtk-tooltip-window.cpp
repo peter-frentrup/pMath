@@ -134,7 +134,7 @@ void MathGtkTooltipWindow::paint_canvas(Canvas &canvas, bool resize_only) {
     
   if(best_width < 1)
     best_width = 1;
-    
+
   if(old_bw != best_width || old_bh != best_height) {
     Impl(*this).resize(false);
   }
@@ -222,6 +222,10 @@ void MathGtkTooltipWindow::Impl::update_shape() {
   
   int w = self.best_width; //gdk_window_get_width(win);
   int h = self.best_height;//gdk_window_get_height(win);
+
+  if(w <= 1 || h <= 1)
+    return;
+
   cairo_surface_t *surface = gdk_window_create_similar_surface(win, CAIRO_CONTENT_COLOR_ALPHA, w, h);
   
   cairo_t *cr = cairo_create(surface);
