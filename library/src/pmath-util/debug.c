@@ -623,7 +623,7 @@ void pmath_debug_set_thread_name(const char *name) {
     f_SetThreadDescription(GetCurrentThread(), str);
   }
 #elif PMATH_USE_PTHREAD
-  if(0){
+  {
     char str[16] = {0};
     int i;
     for(i = 0; name[i] && i < (int)(sizeof(str)/sizeof(str[0]) - 1); ++i) {
