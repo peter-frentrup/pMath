@@ -687,6 +687,7 @@ void MathGtkDocumentWindow::after_construction() {
         g_object_unref(menu_icon);
         gtk_container_add(GTK_CONTAINER(menu_button), image);
         gtk_button_set_relief(GTK_BUTTON(menu_button), GTK_RELIEF_NONE);
+        gtk_widget_set_tooltip_text(menu_button, "Show/Hide Menu");
         
         g_signal_connect(
           menu_button, 
