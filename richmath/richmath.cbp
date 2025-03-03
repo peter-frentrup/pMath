@@ -727,7 +727,7 @@
 					<Add option="-lX11" />
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
-					<Add directory="../library/bin/linux/gcc-debug-x64" />
+					<Add directory="../library/bin/linux/gcc-release-x64" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-release-x64 x64  gcc-release-x64" />
@@ -847,7 +847,7 @@
 					<Add library="pmath" />
 					<Add library="fontconfig" />
 					<Add library="freetype" />
-					<Add directory="../library/bin/linux/gcc-debug-x64" />
+					<Add directory="../library/bin/linux/gcc-release-x64" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-release-x64 x64  gcc-release-x64-gtk3" />
