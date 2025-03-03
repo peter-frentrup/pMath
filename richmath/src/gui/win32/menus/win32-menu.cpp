@@ -804,7 +804,6 @@ void MenuBitmaps::clear() {
 void MenuBitmaps::stretch_item(MENUITEMINFOW *info) {
   if(!Win32Menu::use_large_items) {
     if((info->fMask & MIIM_BITMAP) != 0 && info->hbmpItem == stretch_bmp) {
-      info->fMask &= ~MIIM_BITMAP;
       info->hbmpItem = nullptr;
     }
     return;
