@@ -926,8 +926,6 @@ void MathGtkWidget::paint_canvas(Canvas &canvas, bool resize_only) {
       nullptr);
       
     if(may_blink) {
-      is_blinking = true;
-      
       Context *ctx = document_context();
       if(caret_blink_begin_location != ctx->selection) {
         caret_blink_begin_location = ctx->selection;
@@ -935,8 +933,9 @@ void MathGtkWidget::paint_canvas(Canvas &canvas, bool resize_only) {
       }
       if( ctx->old_selection == ctx->selection || // caret hidden
           blink_timeout < 0 || blink_timeout == INT_MAX ||
-          (pmath_tickcount() - caret_blink_begin_time) * 1000 < blink_timeout // blinking still active
+          (pmath_tickcount() - caret_blink_begin_time) < blink_timeout // blinking still active
       ) {
+        is_blinking = true;
         gdk_threads_add_timeout(blink_time / 2, blink_caret, FrontEndReference::unsafe_cast_to_pointer(document()->id()));
       }
     }
