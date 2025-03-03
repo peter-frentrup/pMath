@@ -23,11 +23,14 @@
 #    include <windows.h>
 #endif
 
+#if PMATH_USE_PTHREAD
+#    include <pthread.h>
+#endif
+
 #ifdef PMATH_OS_WIN32
 static HRESULT (WINAPI *f_SetThreadDescription)(HANDLE, PCWSTR);
 /* no flockfile()/funlockfile() on windows/mingw -> do it your self */
 #  if PMATH_USE_PTHREAD
-#    include <pthread.h>
 static pthread_mutex_t  debuglog_mutex;
 #    define flockfile(  file)  ((void)pthread_mutex_lock(  &debuglog_mutex))
 #    define funlockfile(file)  ((void)pthread_mutex_unlock(&debuglog_mutex))
@@ -46,7 +49,6 @@ static CRITICAL_SECTION  debuglog_critical_section;
 #ifdef _MSC_VER
 #  define snprintf sprintf_s
 #endif
-
 
 static FILE *debuglog = NULL;
 
@@ -620,19 +622,18 @@ void pmath_debug_set_thread_name(const char *name) {
     str[i] = L'\0';
     f_SetThreadDescription(GetCurrentThread(), str);
   }
-#endif
-
-#if PMATH_USE_PTHREAD
-  {
-    char str[16];
+#elif PMATH_USE_PTHREAD
+  if(0){
+    char str[16] = {0};
     int i;
     for(i = 0; name[i] && i < (int)(sizeof(str)/sizeof(str[0]) - 1); ++i) {
       str[i] = name[i];
     }
     str[i] = '\0';
+    
     pthread_setname_np(pthread_self(), str);
   }
-#endif
+#endif // PMATH_USE_PTHREAD
 }
 
 /*============================================================================*/
