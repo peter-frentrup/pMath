@@ -1110,8 +1110,8 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         _zorder_level = 1;
         
         style_ex |= WS_EX_TOOLWINDOW;
-        style    &= ~(WS_POPUP | WS_BORDER | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
-        style    |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME;
+        style    &= ~(WS_POPUP | WS_BORDER | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME);
+        style    |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
         
         _menubar->appearence(MenuAppearence::Hide);
       }
@@ -1126,7 +1126,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         _zorder_level = 0;
         
         style_ex &= ~WS_EX_TOOLWINDOW;
-        style    &= ~(WS_POPUP | WS_BORDER | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
+        style    &= ~(WS_POPUP | WS_BORDER | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_THICKFRAME);
         style    |= WS_CAPTION | WS_SYSMENU;
         
         _menubar->appearence(MenuAppearence::Hide);
