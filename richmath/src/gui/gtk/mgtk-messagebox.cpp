@@ -7,6 +7,7 @@
 
 #include <gui/gtk/mgtk-widget.h>
 #include <gui/gtk/mgtk-control-painter.h>
+#include <gui/gtk/mgtk-icons.h>
 
 #ifdef GDK_WINDOWING_X11
 #  include <gdk/gdkx.h>
@@ -54,11 +55,32 @@ namespace {
   };
 }
 
-static GtkWidget *make_left_aligned(GtkWidget *widget) {
+static GtkWidget *make_left_aligned(GtkWidget *widget, Margins<unsigned> padding) {
   GtkWidget *alignment = gtk_alignment_new(0.0f, 0.0f, 0.0f, 0.0f);
   gtk_container_add(GTK_CONTAINER(alignment), widget);
-  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment), 5, 0, 10, 10);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment), padding.top, padding.bottom, padding.left, padding.right);
   return alignment;
+}
+
+static GtkWidget *make_left_aligned(GtkWidget *widget) {
+  return make_left_aligned(widget, Margins<unsigned>(10));
+}
+
+static void mark_action_with_css_class(GtkWidget *dialog, GtkResponseType response_id, const char *css_class) {
+#if GTK_MAJOR_VERSION >= 3
+  if(GtkWidget *button = gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog), response_id)) {
+    GtkStyleContext *style_context = gtk_widget_get_style_context(button);
+    gtk_style_context_add_class(style_context, css_class);
+  }
+#endif
+}
+
+static void mark_suggested_action(GtkWidget *dialog, GtkResponseType response_id) {
+  mark_action_with_css_class(dialog, response_id, "suggested-action");
+}
+
+static void mark_destructive_action(GtkWidget *dialog, GtkResponseType response_id) {
+  mark_action_with_css_class(dialog, response_id, "destructive-action");
 }
 
 YesNoCancel richmath::mgtk_ask_save(Document *doc, String question) {
@@ -83,14 +105,25 @@ YesNoCancel richmath::mgtk_ask_save(Document *doc, String question) {
     GTK_RESPONSE_CANCEL,
     nullptr);
   
+  mark_suggested_action(  dialog, GTK_RESPONSE_YES);
+  mark_destructive_action(dialog, GTK_RESPONSE_NO);
   gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
+  gtk_window_set_skip_taskbar_hint(GTK_WINDOW(dialog), TRUE);
   
   char *utf8_question = pmath_string_to_utf8(question.get_as_string(), nullptr);
   GtkWidget *label = gtk_label_new(utf8_question ? utf8_question : "Save changes?");
   
+  MathGtkIcons need_app_icons;
+  GdkPixbuf *ico = need_app_icons.get_icon(MathGtkIcons::AppIcon48Index);
+  GtkWidget *image = gtk_image_new_from_pixbuf(ico);
+  g_object_unref(ico);
+
   GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-  //gtk_box_pack_end(GTK_BOX(content_box), label, TRUE, TRUE, 0);
-  gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(label));
+
+  GtkWidget *icon_and_label = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(icon_and_label), make_left_aligned(image, Margins<unsigned>(10, 10, 10, 0)), FALSE, FALSE, 0);
+  gtk_box_pack_end(  GTK_BOX(icon_and_label), make_left_aligned(label, Margins<unsigned>(10, 20)), TRUE,  TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(content_box), icon_and_label);
   gtk_widget_show_all(GTK_WIDGET(content_box));
   
   int result = mgtk_themed_dialog_run(doc ? *doc->native() : ControlContext::dummy, GTK_DIALOG(dialog));
@@ -124,12 +157,29 @@ YesNoCancel richmath::mgtk_ask_remove_private_style_definitions(Document *doc) {
     GTK_RESPONSE_NO,
     nullptr);
   
+  mark_suggested_action(  dialog, GTK_RESPONSE_NO);
+  mark_destructive_action(dialog, GTK_RESPONSE_YES);
   gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_NO);
-  GtkWidget *label = gtk_label_new("This document has private style definitions.\nAre you sure you want to replace them with a shared stylesheet?");
+  gtk_window_set_skip_taskbar_hint(GTK_WINDOW(dialog), TRUE);
   
+  GtkWidget *label = gtk_label_new(
+    "<big><b>Replace private style definitions?</b></big>\n"
+    "\n"
+    "This document has private style definitions.\n"
+    "Are you sure you want to replace them with a shared stylesheet?");
+  gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+  
+  MathGtkIcons need_app_icons;
+  GdkPixbuf *ico = need_app_icons.get_icon(MathGtkIcons::AppIcon48Index);
+  GtkWidget *image = gtk_image_new_from_pixbuf(ico);
+  g_object_unref(ico);
+
   GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-  //gtk_box_pack_end(GTK_BOX(content_box), label, TRUE, TRUE, 0);
-  gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(label));
+
+  GtkWidget *icon_and_label = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(icon_and_label), make_left_aligned(image, Margins<unsigned>(10, 10, 10, 0)), FALSE, FALSE, 0);
+  gtk_box_pack_end(  GTK_BOX(icon_and_label), make_left_aligned(label, Margins<unsigned>(10, 20)), TRUE,  TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(content_box), icon_and_label);
   gtk_widget_show_all(GTK_WIDGET(content_box));
   
   int result = mgtk_themed_dialog_run(GTK_DIALOG(dialog));
@@ -167,17 +217,27 @@ bool richmath::mgtk_ask_open_suspicious_system_file(String path) {
     nullptr);
   
   gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_NO);
+  gtk_window_set_skip_taskbar_hint(GTK_WINDOW(dialog), TRUE);
   
   GtkWidget *caption_label = gtk_label_new("<big><b>Open suspicous file?</b></big>");
   gtk_label_set_use_markup(GTK_LABEL(caption_label), TRUE);
   GtkWidget *desctiption_label = nullptr;
   
-  GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-  //gtk_container_set_border_width(GTK_CONTAINER(content_box), 5);
-  gtk_box_set_spacing(GTK_BOX(content_box), 5);
+  MathGtkIcons need_app_icons;
+  GdkPixbuf *ico = need_app_icons.get_icon(MathGtkIcons::AppIcon48Index);
+  GtkWidget *image = gtk_image_new_from_pixbuf(ico);
+  g_object_unref(ico);
+
+  GtkWidget *text_content = gtk_vbox_new(FALSE, 0);
   
-  //gtk_box_pack_end(GTK_BOX(content_box), caption_label, TRUE, TRUE, 0);
-  gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(caption_label));
+  GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
+  GtkWidget *icon_and_text = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(icon_and_text), make_left_aligned(image, Margins<unsigned>(10, 10, 10, 0)), FALSE, FALSE, 0);
+  gtk_box_pack_end(  GTK_BOX(icon_and_text), make_left_aligned(text_content, Margins<unsigned>(0)), TRUE,  TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(content_box), icon_and_text);
+  
+  gtk_container_add(GTK_CONTAINER(text_content), make_left_aligned(caption_label));
   
   String rich_question;
   rich_question = String("The file ") + String::FromChar(0x201C);
@@ -191,7 +251,7 @@ bool richmath::mgtk_ask_open_suspicious_system_file(String path) {
   rich_question+= "\">";
   rich_question+= path;
   rich_question+= "</a>";
-  rich_question+= String::FromChar(0x201D) + " has an unrecognized file extension.\n";
+  rich_question+= String::FromChar(0x201D) + " has an unrecognized file type.\n";
   rich_question+= "Do you really want to open it?";
   rich_question+= String::FromChar(0);
   
@@ -201,7 +261,7 @@ bool richmath::mgtk_ask_open_suspicious_system_file(String path) {
       gtk_label_set_markup(GTK_LABEL(desctiption_label), utf8);
       pmath_mem_free(utf8);
       
-      gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(desctiption_label));
+      gtk_container_add(GTK_CONTAINER(text_content), make_left_aligned(desctiption_label));
       
       hyperlinks.connect(desctiption_label);
     }
@@ -244,6 +304,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
     nullptr);
   
   gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+  gtk_window_set_skip_taskbar_hint(GTK_WINDOW(dialog), TRUE);
   
   GtkWidget *caption_label = gtk_label_new("<big><b>An interrupt occurred</b></big>");
   gtk_label_set_use_markup(GTK_LABEL(caption_label), TRUE);
@@ -251,12 +312,27 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   GtkWidget *details_section = nullptr;
   GtkWidget *details_label = nullptr;
   
-  GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-  //gtk_container_set_border_width(GTK_CONTAINER(content_box), 5);
-  gtk_box_set_spacing(GTK_BOX(content_box), 5);
+  MathGtkIcons need_app_icons;
+  GdkPixbuf *ico = need_app_icons.get_icon(MathGtkIcons::AppIcon48Index);
+  GtkWidget *image = gtk_image_new_from_pixbuf(ico);
+  g_object_unref(ico);
+
+  GtkWidget *text_content = gtk_vbox_new(FALSE, 0);
   
-  //gtk_box_pack_end(GTK_BOX(content_box), caption_label, TRUE, TRUE, 0);
-  gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(caption_label));
+  GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
+  GtkWidget *icon_and_text = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(icon_and_text), make_left_aligned(image, Margins<unsigned>(10, 10, 10, 0)), FALSE, FALSE, 0);
+  gtk_box_pack_end(  GTK_BOX(icon_and_text), make_left_aligned(text_content, Margins<unsigned>(0)), TRUE,  TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(content_box), icon_and_text);
+  
+  
+  //GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+  //gtk_container_set_border_width(GTK_CONTAINER(text_content), 5);
+  //gtk_box_set_spacing(GTK_BOX(text_content), 5);
+  
+  //gtk_box_pack_end(GTK_BOX(text_content), caption_label, TRUE, TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(text_content), make_left_aligned(caption_label, Margins<unsigned>(10, 20)));
   
   String content;
   if(box) {
@@ -313,7 +389,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
       gtk_label_set_markup(GTK_LABEL(desctiption_label), utf8);
       pmath_mem_free(utf8);
       
-      gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(desctiption_label));
+      gtk_container_add(GTK_CONTAINER(text_content), make_left_aligned(desctiption_label));
       
       hyperlinks.connect(desctiption_label);
     }
@@ -327,7 +403,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
       pmath_mem_free(utf8);
       
       gtk_container_add(GTK_CONTAINER(details_section), make_left_aligned(details_label));
-      gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(details_section));
+      gtk_container_add(GTK_CONTAINER(text_content), make_left_aligned(details_section));
       
       hyperlinks.connect(details_label);
     }
