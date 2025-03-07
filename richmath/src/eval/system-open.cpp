@@ -16,6 +16,10 @@
 #  include <gui/gtk/mgtk-widget.h>
 #endif
 
+#ifdef PMATH_OS_UNIX
+#  include <sys/stat.h>
+#endif
+
 
 using namespace richmath;
 
@@ -27,7 +31,7 @@ static bool contains_character_in_range(String s, uint16_t ch_min, uint16_t ch_m
 static bool system_open(String uriOrPath);
 static bool system_open_file_path(String path);
 static bool system_open_non_file_uri(String uri);
-static bool allow_file_extension_of(String path);
+static bool allow_file(String path);
 
 #ifdef RICHMATH_USE_WIN32_GUI
 static bool win32_shell_execute_ex(String uri);
@@ -79,7 +83,7 @@ static bool system_open(String uriOrPath) {
 }
 
 static bool system_open_file_path(String path) {
-  if(!allow_file_extension_of(path))
+  if(!allow_file(path))
     return false;
   
   // TODO: open *.pmathdoc files locally ?
@@ -103,7 +107,7 @@ static bool system_open_non_file_uri(String uri) {
 #endif
 }
 
-static bool allow_file_extension_of(String path) {
+static bool allow_file(String path) {
   const uint16_t *path_buf = path.buffer();
   if(!path_buf)
     return false;
@@ -166,15 +170,35 @@ static bool allow_file_extension_of(String path) {
     {
       int len;
       if(char *str = pmath_string_to_native(path.get(), &len)) {
-        gboolean uncertain = TRUE;
-        if(char *type = g_content_type_guess(str, nullptr, 0, &uncertain)) {
-          if(g_content_type_can_be_executable(type)) {
-            must_ask = true;
+#ifdef PMATH_OS_UNIX
+        {
+          struct stat stat_info;
+          if(0 == stat(str, &stat_info)) {
+            if((stat_info.st_mode & S_IFMT) == S_IFDIR) {
+              must_ask = false; // a directory
+            }
+            else if((stat_info.st_mode & S_IFMT) != S_IFREG) {
+              must_ask = true; // not a regular file
+            }
+            else if((stat_info.st_mode & (S_IXOTH | S_IXGRP | S_IXUSR))) {
+              must_ask = true; // an executable regular file
+            }
           }
-          g_free(type);
         }
-        else
-          must_ask = true;
+#else
+        {
+          gboolean uncertain = TRUE;
+          if(char *type = g_content_type_guess(str, nullptr, 0, &uncertain)) { // FIXME: gives application/octet-stream for /usr/bin/xclock  (does not look at content)
+            pmath_debug_print("[content_type: %s for %s]\n", type, str);
+            if(g_content_type_can_be_executable(type)) { // FIXME: only checks for application/x-executable and text/plain. Ignores application/x-ms-dos-executable
+              must_ask = true;
+            }
+            g_free(type);
+          }
+          else
+            must_ask = true;
+        }
+#endif
         
         pmath_mem_free(str);
       }
