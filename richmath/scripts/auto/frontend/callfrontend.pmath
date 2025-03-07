@@ -9,6 +9,7 @@ Options(FE`AttachBoxes):= Options(FrontEnd`AttachBoxes):= {
     BaseStyle -> "AttachedPopupWindow",
     "ClosingAction" -> "Delete",
     DocumentEventActions -> Inherited,
+    FontColor -> Inherited,
     RemovalConditions -> None,
     WindowFrame -> None
 };

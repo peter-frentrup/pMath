@@ -66,7 +66,8 @@ Function FE`AttachAutoCompletionPopup(~loc) {
         },
         RemovalConditions -> {"MouseClickOutsidePopup", "WindowFocusLost"}, % Cannot use "SelectionExit", because then the popup would be removed as soon as we type/tab through the completions
         WindowFrame -> "ThinFrame", % "ThinFrameCallout"
-        Background -> CurrentValue(loc, Background)))
+        Background -> CurrentValue(loc, Background),
+        FontColor -> CurrentValue(loc, FontColor)))
 }
 
 End()
