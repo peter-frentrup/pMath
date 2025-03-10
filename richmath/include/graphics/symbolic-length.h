@@ -52,10 +52,12 @@ namespace richmath {
       Length(SymbolicSize sym) { _raw_value.as_uint32 = QuietNanMask | (uint32_t)sym; }
       explicit Length(float raw_value) : _raw_value{raw_value} {}
       
+      static Length FromBits(uint32_t bits) { Length len; len._raw_value.as_uint32 = bits; return len; }
       static Length Absolute(float f) { Length len( f); return len.is_explicit_abs() ? len : Length(); }
       static Length Relative(float f) { Length len(-f); return len.is_explicit_rel() ? len : Length(); }
       
       float raw_value() const { return _raw_value.as_float; }
+      uint32_t raw_bits() const { return _raw_value.as_uint32; }
       float explicit_abs_value() const { return  _raw_value.as_float; }
       float explicit_rel_value() const { return -_raw_value.as_float; }
       SymbolicSize symblic_value() const { return (SymbolicSize)(_raw_value.as_uint32 & QuietNanPayloadMask); }

@@ -592,8 +592,8 @@ bool StyleImpl::raw_get_length(StyleOptionName n, Length *value) const {
   
   if(!v)
     return false;
-    
-  *value = Length(v->float_value);
+  
+  *value = Length::FromBits((unsigned)v->int_value);
   return true;
 }
 
@@ -637,7 +637,7 @@ bool StyleImpl::raw_set_float(StyleOptionName n, float value) {
 
 bool StyleImpl::raw_set_length(StyleOptionName n, Length value) {
   IntFloatUnion v;
-  v.float_value = value.raw_value();
+  v.int_value = (int)(unsigned)value.raw_bits();
   return self.int_float_values.modify(n, v, [](IntFloatUnion v1, IntFloatUnion v2) { return v1.int_value == v2.int_value; });
 }
 
