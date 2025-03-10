@@ -139,16 +139,12 @@ MakeBoxes(Panel())::=                                 PanelBox("") /? allowGuiBo
 MakeBoxes(Panel(~expr, options:OptionsPattern()))::=  PanelBox(makeNullBoxes(expr), options) /? allowGuiBoxes
 
 
-MakeBoxes(~p: PaneSelector)::= makePaneSelectorBox(p) /? allowGuiBoxes
-
 Attributes(HOLD):= {HoldAllComplete}
-Attributes(makePaneSelectorBox):= {HoldAllComplete}
-makePaneSelectorBox(PaneSelector(panes: {~~}, ~sel, options:OptionsPattern()))::= 
-	PaneSelectorBox(paneSelectorListToBoxes(panes), sel, options).Replace(HOLD(~x) :> x)
-makePaneSelectorBox(PaneSelector(panes: {~~}, ~sel, ~def, options:OptionsPattern()))::= 
-	PaneSelectorBox(paneSelectorListToBoxes(panes), sel, makeNullBoxes(def), options).Replace(HOLD(~x) :> x)
-makePaneSelectorBox(~x)::= makeCallBoxes(x)
-
+MakeBoxes(~p: PaneSelector)::= HoldComplete(p) |> {
+	HoldComplete(PaneSelector(panes: {~~}, ~sel,       options:OptionsPattern())) :> PaneSelectorBox(paneSelectorListToBoxes(panes), sel,                     options).Replace(HOLD(~x) :> x),
+	HoldComplete(PaneSelector(panes: {~~}, ~sel, ~def, options:OptionsPattern())) :> PaneSelectorBox(paneSelectorListToBoxes(panes), sel, makeNullBoxes(def), options).Replace(HOLD(~x) :> x),
+	HoldComplete(~x) :> makeCallBoxes(x)
+} /? allowGuiBoxes
 
 Attributes(paneSelectorRuleToBoxes):= {HoldAllComplete}
 paneSelectorRuleToBoxes(~val:HoldPattern -> ~pane)::=             val  -> makeNullBoxes(pane)
