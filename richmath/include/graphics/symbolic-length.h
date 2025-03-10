@@ -8,6 +8,7 @@ namespace richmath {
   enum class SymbolicSize {
     Invalid = 0,
     
+    All,
     Automatic,
     None,
     Tiny,

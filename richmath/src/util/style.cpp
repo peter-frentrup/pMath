@@ -1177,7 +1177,12 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     any_change = raw_remove_length(n) || any_change;
     
     any_change = raw_set_length(Horizontal, dim) || any_change;
-    any_change = raw_set_length(Vertical, /*dim.is_symbolic() ? dim :*/ SymbolicSize::Automatic) || any_change;
+    
+    if(dim == SymbolicSize::All)
+      any_change = raw_set_length(Vertical, dim) || any_change;
+    else
+      any_change = raw_set_length(Vertical, SymbolicSize::Automatic) || any_change;
+    
     return any_change;
   }
   

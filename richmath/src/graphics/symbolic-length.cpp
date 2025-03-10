@@ -5,6 +5,7 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_All;
 extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_Large;
 extern pmath_symbol_t richmath_System_Medium;
@@ -63,6 +64,7 @@ float Length::resolve(float em, const LengthConversionFactors &factors, float re
   
   if(is_symbolic()) {
     switch(symblic_value()) {
+      case SymbolicSize::All:
       case SymbolicSize::Automatic: return em * factors.Automatic;
       case SymbolicSize::Large:     return em * factors.Large;
       case SymbolicSize::Medium:    return em * factors.Medium;
@@ -78,6 +80,7 @@ float Length::resolve(float em, const LengthConversionFactors &factors, float re
 }
 
 Length Length::from_pmath(Expr obj) {
+  if(obj == richmath_System_All)       return SymbolicSize::All;
   if(obj == richmath_System_Automatic) return SymbolicSize::Automatic;
   if(obj == richmath_System_None)      return SymbolicSize::None;
   if(obj == richmath_System_Large)     return SymbolicSize::Large;
@@ -112,6 +115,7 @@ Expr Length::to_pmath() const {
     return Call(Symbol(richmath_System_Scaled), Number(convert_float_to_nice_double(explicit_rel_value())));
   
   switch(symblic_value()) {
+    case SymbolicSize::All:       return Symbol(richmath_System_All);
     case SymbolicSize::Automatic: return Symbol(richmath_System_Automatic);
     case SymbolicSize::None:      return Symbol(richmath_System_None);
     case SymbolicSize::Large:     return Symbol(richmath_System_Large);
