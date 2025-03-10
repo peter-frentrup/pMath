@@ -25,8 +25,7 @@ Function FE`AttachAutoCompletionPopup(~loc) {
         Section(
             BoxData(DynamicBox(Block {
                 With(suggestions:= CurrentValue({"AttachmentSourceBox", "AutoCompletionSuggestionsList"}))
-                StyleBox(
-                    DynamicBox(
+                PaneSelectorBox({111 -> DynamicBox(
                         Array(Length(suggestions)) |>
                         Map(Function({
                             SetterBox(
@@ -43,9 +42,8 @@ Function FE`AttachAutoCompletionPopup(~loc) {
                                 BoxID -> {"ResultButton", #})
                             })) |> 
                         GridBox
-                    ),
-                    % Some non-layout option that is not otherwise used for display here, just to trigger dynamic evaluation:
-                    "InlineAutoCompletionStyle" -> {Background -> Dynamic(Block {
+                    )},
+                    Dynamic(Block {
                         With(idx:= CurrentValue({"AttachmentSourceBox", "AutoCompletionSuggestionIndex"}))
                         If(idx =!= prevIndex) {
                             prevIndex:= idx
@@ -56,9 +54,8 @@ Function FE`AttachAutoCompletionPopup(~loc) {
                                 FrontEnd`ScrollIntoView(newbox)
                             })
                         }
-                        None
-                    })
-                })
+                        111
+                    }))
             })),
             "PopupWindowSection",
             SectionMargins -> {{4,4}, {4,4}},
