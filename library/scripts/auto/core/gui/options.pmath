@@ -230,7 +230,8 @@ Options(PaneSelector):= Options(PaneSelectorBox):= {
     %BaselinePosition -> Automatic, 
     BaseStyle -> "PaneSelector",
     BoxID -> None,
-    Enabled -> Automatic }
+    Enabled -> Automatic,
+    ImageSize -> All }
 
 Options(ProgressIndicator):= Options(ProgressIndicatorBox):= {
     BaseStyle -> "ProgressIndicator", 
@@ -444,7 +445,8 @@ Options(Section):= {
         Enabled -> Automatic,
         ImageSize -> Automatic},
     PaneSelectorBoxOptions -> {
-        Enabled -> Automatic},
+        Enabled -> Automatic,
+        ImageSize -> Automatic},
     "PatternVariableStyle" -> { FontColor -> Inherited },
     Placeholder -> Automatic,    % only valid for StyleData-sections
     ProgressIndicatorBoxOptions -> {

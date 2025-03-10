@@ -3,6 +3,12 @@
 
 #include <graphics/context.h>
 
+#include <algorithm>
+
+
+#ifdef max
+#  undef max
+#endif
 
 using namespace richmath;
 using namespace pmath;
@@ -128,20 +134,65 @@ Box *PaneSelectorBox::item(int i) {
 
 void PaneSelectorBox::resize(Context &context) {
   update_simple_dynamic_styles_on_resize(context);
+  // TODO: try to evaluate _dynamic already now ... ?
+  
+  float rel_scale = context.width;
   
   ContextState cc(context);
   cc.begin(style);
   
-  // TODO (?) : only resize the currently selected pane?
-  for(auto box : _panes)
-    box->resize(context);
+  float em = context.canvas().get_font_size();
+  
+  Length w = get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
+  Length h = get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
+  
+  float resolved_width = w.resolve(em, LengthConversionFactors::GraphicsSize, rel_scale);
+  if(w != SymbolicSize::All && w != SymbolicSize::Automatic) {
+    context.width = resolved_width;
+  }
+  
+  if(w == SymbolicSize::All || h == SymbolicSize::All) {
+    for(auto box : _panes)
+      box->resize(context);
+  }
+  else {
+    if(0 <= _current_selection && _current_selection < _panes.length())
+      _panes[_current_selection]->resize(context);
+  }
   
   cc.end();
   
-  if(_current_selection >= 0 && _current_selection < _panes.length())
-    _extents = _panes[_current_selection]->extents();
+  BoxSize current_pane_extents;
+  if(0 <= _current_selection && _current_selection < _panes.length())
+    current_pane_extents = _panes[_current_selection]->extents();
   else
+    current_pane_extents = BoxSize();
+  
+  if(w == SymbolicSize::All) {
     _extents = BoxSize();
+    for(auto box : _panes)
+      _extents.width = std::max(_extents.width, box->extents().width);
+  }
+  else if(w == SymbolicSize::Automatic)
+    _extents.width = current_pane_extents.width;
+  else
+    _extents.width = resolved_width;
+  
+  float total_height = 0.0f;
+  if(h == SymbolicSize::All) {
+    for(auto box : _panes)
+      total_height = std::max(total_height, box->extents().height());
+  }
+  else if(h == SymbolicSize::Automatic)
+    total_height = current_pane_extents.height();
+  else
+    total_height = h.resolve(em, LengthConversionFactors::GraphicsSize, rel_scale);
+  
+  // TODO: consider vertical Alignment ...
+  _extents.ascent  = current_pane_extents.ascent;
+  _extents.descent = total_height - _extents.ascent;
+  
+  // TODO: incorporate BaselinePosition
 }
 
 void PaneSelectorBox::paint(Context &context) {

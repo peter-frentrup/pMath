@@ -329,6 +329,10 @@ namespace richmath {
     PanelBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PanelBox,
     PanelBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::PanelBox,
     
+    PaneSelectorBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::PaneSelectorBox,
+    PaneSelectorBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PaneSelectorBox,
+    PaneSelectorBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::PaneSelectorBox,
+    
     ProgressIndicatorBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::ProgressIndicatorBox,
     ProgressIndicatorBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::ProgressIndicatorBox,
     ProgressIndicatorBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::ProgressIndicatorBox,

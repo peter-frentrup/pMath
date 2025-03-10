@@ -3538,6 +3538,10 @@ void StyleInformation::add_style() {
     // PanelBoxDefaultImageSizeHorizontal
     // PanelBoxDefaultImageSizeVertical
     
+    add(StyleType::Size,            PaneSelectorBoxDefaultImageSizeCommon, List(Symbol(richmath_System_PaneSelectorBoxOptions), Symbol(richmath_System_ImageSize)));
+    // PaneSelectorBoxDefaultImageSizeHorizontal
+    // PaneSelectorBoxDefaultImageSizeVertical
+    
     add(StyleType::Size,            ProgressIndicatorBoxDefaultImageSizeCommon, List(Symbol(richmath_System_ProgressIndicatorBoxOptions), Symbol(richmath_System_ImageSize)));
     // ProgressIndicatorBoxDefaultImageSizeHorizontal
     // ProgressIndicatorBoxDefaultImageSizeVertical
