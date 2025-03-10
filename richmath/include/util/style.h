@@ -29,12 +29,13 @@ namespace richmath {
     OverscriptBox        = 0x00A00000,
     PaneBox              = 0x00B00000,
     PanelBox             = 0x00C00000,
-    ProgressIndicatorBox = 0x00D00000,
-    SetterBox            = 0x00E00000,
-    SliderBox            = 0x00F00000,
-    TemplateBox          = 0x01000000,
-    UnderoverscriptBox   = 0x01100000,
-    UnderscriptBox       = 0x01200000,
+    PaneSelectorBox      = 0x00D00000,
+    ProgressIndicatorBox = 0x00E00000,
+    SetterBox            = 0x00F00000,
+    SliderBox            = 0x01000000,
+    TemplateBox          = 0x01100000,
+    UnderoverscriptBox   = 0x01200000,
+    UnderscriptBox       = 0x01300000,
   };
   
   enum ClosingActionValues {
@@ -411,6 +412,7 @@ namespace richmath {
     OverscriptBoxOptions,
     PaneBoxOptions,
     PanelBoxOptions,
+    PaneSelectorBoxOptions,
     ProgressIndicatorBoxOptions,
     SetterBoxOptions,
     SliderBoxOptions,

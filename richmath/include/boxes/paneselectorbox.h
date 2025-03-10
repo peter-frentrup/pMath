@@ -66,6 +66,8 @@ namespace richmath {
     
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::PaneSelectorBox; }
+
     private:
       Array<Expr>          _cases;
       Array<MathSequence*> _panes;

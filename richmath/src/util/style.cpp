@@ -126,6 +126,7 @@ extern pmath_symbol_t richmath_System_Opacity;
 extern pmath_symbol_t richmath_System_OverscriptBoxOptions;
 extern pmath_symbol_t richmath_System_PaneBoxOptions;
 extern pmath_symbol_t richmath_System_PanelBoxOptions;
+extern pmath_symbol_t richmath_System_PaneSelectorBoxOptions;
 extern pmath_symbol_t richmath_System_Part;
 extern pmath_symbol_t richmath_System_Placeholder;
 extern pmath_symbol_t richmath_System_Plain;
@@ -2716,6 +2717,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(OverscriptBoxOptions);
   impl.emit_definition(PaneBoxOptions);
   impl.emit_definition(PanelBoxOptions);
+  impl.emit_definition(PaneSelectorBoxOptions);
   impl.emit_definition(PatternVariableStyle);
   impl.emit_definition(Placeholder);
   impl.emit_definition(PlotRange);
@@ -3328,6 +3330,7 @@ void StyleInformation::add_style() {
     add_ruleset_head(OverscriptBoxOptions,          Symbol( richmath_System_OverscriptBoxOptions));
     add_ruleset_head(PaneBoxOptions,                Symbol( richmath_System_PaneBoxOptions));
     add_ruleset_head(PanelBoxOptions,               Symbol( richmath_System_PanelBoxOptions));
+    add_ruleset_head(PaneSelectorBoxOptions,        Symbol( richmath_System_PaneSelectorBoxOptions));
     add_ruleset_head(PatternVariableStyle,          strings::PatternVariableStyle);
     add_ruleset_head(ProgressIndicatorBoxOptions,   Symbol( richmath_System_ProgressIndicatorBoxOptions));
     add_ruleset_head(SetterBoxOptions,              Symbol( richmath_System_SetterBoxOptions));

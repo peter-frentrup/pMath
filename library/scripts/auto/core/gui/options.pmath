@@ -83,6 +83,7 @@ Options(CreateDocument):= Options(Document):= {
     "OccurenceHighlightStyle" -> Inherited,
     PaneBoxOptions -> Inherited,
     PanelBoxOptions -> Inherited,
+    PaneSelectorBoxOptions -> Inherited,
     "PatternVariableStyle" -> Inherited,
     %RemovalConditions -> None,   % only valid for AttchedBoxes
     ReturnCreatesNewSection -> Inherited,
@@ -294,6 +295,7 @@ Options(Style):= Options(StyleBox):= {
     OverscriptBoxOptions -> Inherited,
     PaneBoxOptions -> Inherited,
     PanelBoxOptions -> Inherited,
+    PaneSelectorBoxOptions -> Inherited,
     "PatternVariableStyle" -> Inherited,
     Placeholder -> Inherited,
     ProgressIndicatorBoxOptions -> Inherited,
@@ -441,6 +443,8 @@ Options(Section):= {
         ContentPadding -> True,
         Enabled -> Automatic,
         ImageSize -> Automatic},
+    PaneSelectorBoxOptions -> {
+        Enabled -> Automatic},
     "PatternVariableStyle" -> { FontColor -> Inherited },
     Placeholder -> Automatic,    % only valid for StyleData-sections
     ProgressIndicatorBoxOptions -> {
