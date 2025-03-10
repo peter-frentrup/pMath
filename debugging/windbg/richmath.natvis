@@ -78,7 +78,7 @@
 	</Type>
 
 	<Type Name="richmath::Length">
-		<DisplayString Condition="(_raw_value.as_uint32 &amp; ExponentMask) == ExponentMask">{(SymbolicSize)(_raw_value.as_uint32 &amp; FractionMask)}</DisplayString>
+		<DisplayString Condition="(_raw_value.as_uint32 &amp; ExponentMask) == ExponentMask">{(SymbolicSize)(_raw_value.as_uint32 &amp; QuietNanPayloadMask)}</DisplayString>
 		<DisplayString Condition="(_raw_value.as_uint32 &amp; SignMask) == 0">{_raw_value.as_float}</DisplayString>
 		<DisplayString >Scaled({-_raw_value.as_float})</DisplayString>
 	</Type>
