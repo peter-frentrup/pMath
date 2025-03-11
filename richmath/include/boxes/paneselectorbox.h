@@ -45,6 +45,8 @@ namespace richmath {
         bool              called_from_child) override;
         
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
+        
+      virtual void child_transformation(int index, cairo_matrix_t *matrix) override;
       
       virtual bool edit_selection(SelectionReference &selection, EditAction action) override;
       
@@ -72,6 +74,7 @@ namespace richmath {
       Array<Expr>          _cases;
       Array<MathSequence*> _panes;
       Dynamic              _dynamic;
+      Vector2F             _current_offset;
       int                  _current_selection;
   };
 }

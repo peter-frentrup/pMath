@@ -227,6 +227,7 @@ Options(Panel):= Options(PanelBox):= {
     Enabled -> Inherited}
 
 Options(PaneSelector):= Options(PaneSelectorBox):= { 
+    Alignment -> Automatic,
     %BaselinePosition -> Automatic, 
     BaseStyle -> "PaneSelector",
     BoxID -> None,
@@ -445,6 +446,7 @@ Options(Section):= {
         Enabled -> Automatic,
         ImageSize -> Automatic},
     PaneSelectorBoxOptions -> {
+        Alignment -> Automatic,
         Enabled -> Automatic,
         ImageSize -> Automatic},
     "PatternVariableStyle" -> { FontColor -> Inherited },

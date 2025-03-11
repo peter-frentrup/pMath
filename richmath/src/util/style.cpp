@@ -3698,6 +3698,8 @@ void StyleInformation::add_style() {
     add(StyleType::Any, PanelBoxDefaultAppearance,       List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, PanelBoxDefaultBaselinePosition, List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
+    add(StyleType::Any, PaneSelectorBoxDefaultAlignment, List(Symbol(richmath_System_PaneSelectorBoxOptions), Symbol(richmath_System_Alignment)));
+    
     add(StyleType::Any, SetterBoxDefaultAlignment,        List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_Alignment)));
     add(StyleType::Any, SetterBoxDefaultBaselinePosition, List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_BaselinePosition)));
     

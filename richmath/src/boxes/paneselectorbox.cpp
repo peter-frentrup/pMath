@@ -3,6 +3,8 @@
 
 #include <graphics/context.h>
 
+#include <util/alignment.h>
+
 #include <algorithm>
 
 
@@ -26,6 +28,7 @@ namespace richmath { namespace strings {
 PaneSelectorBox::PaneSelectorBox() 
   : Box(),
     _dynamic(this, Expr()),
+    _current_offset(0.0f, 0.0f),
     _current_selection(-1)
 {
 }
@@ -188,14 +191,17 @@ void PaneSelectorBox::resize(Context &context) {
   else
     total_height = h.resolve(em, LengthConversionFactors::GraphicsSize, rel_scale);
   
-  // TODO: consider vertical Alignment ...
-  _extents.ascent  = current_pane_extents.ascent;
-  _extents.descent = total_height - _extents.ascent;
+  SimpleAlignment alignment = SimpleAlignment::from_pmath(get_own_style(Alignment), SimpleAlignment::TopLeft);
   
-  // TODO: incorporate BaselinePosition
+  _extents.ascent  = alignment.interpolate_bottom_to_top(total_height - current_pane_extents.descent,                current_pane_extents.ascent);
+  _extents.descent = alignment.interpolate_bottom_to_top(               current_pane_extents.descent, total_height - current_pane_extents.ascent);
+  
+  _current_offset.x = alignment.interpolate_left_to_right(0.0f, _extents.width - current_pane_extents.width);
+  _current_offset.y = 0; // TODO: incorporate BaselinePosition
 }
 
 void PaneSelectorBox::paint(Context &context) {
+  context.canvas().rel_move_to(_current_offset);
   Point p0 = context.canvas().current_pos();
   
   update_dynamic_styles_on_paint(context);
@@ -357,8 +363,13 @@ Box *PaneSelectorBox::move_vertical(
   bool              called_from_child
 ) {
   if(*index < 0) {
-    if(_current_selection >= 0 && _current_selection < _cases.length())
+    if(_current_selection >= 0 && _current_selection < _cases.length()) {
+      *index_rel_x -= _current_offset.x;
       return _panes[_current_selection]->move_vertical(direction, index_rel_x, index, false);
+    }
+  }
+  else {
+    *index_rel_x += _current_offset.x;
   }
   
   return base::move_vertical(direction, index_rel_x, index, called_from_child);
@@ -366,9 +377,15 @@ Box *PaneSelectorBox::move_vertical(
 
 VolatileSelection PaneSelectorBox::mouse_selection(Point pos, bool *was_inside_start) {
   if(_current_selection >= 0 && _current_selection < _cases.length())
-    return _panes[_current_selection]->mouse_selection(pos, was_inside_start);
+    return _panes[_current_selection]->mouse_selection(pos - _current_offset, was_inside_start);
   
   return base::mouse_selection(pos, was_inside_start);
+}
+
+void PaneSelectorBox::child_transformation(int index, cairo_matrix_t *matrix) {
+  cairo_matrix_translate(matrix,
+                         _current_offset.x,
+                         _current_offset.y);
 }
 
 bool PaneSelectorBox::edit_selection(SelectionReference &selection, EditAction action) {
