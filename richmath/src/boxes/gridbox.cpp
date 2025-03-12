@@ -1538,7 +1538,7 @@ float GridBox::Impl::calculate_ascent_for_baseline_position(float em, Expr basel
 void GridBox::Impl::adjust_baseline(float em) {
   float height = self._extents.height();
   
-  float ascent = calculate_ascent_for_baseline_position(em, self.get_style(BaselinePosition));
+  float ascent = calculate_ascent_for_baseline_position(em, self.get_own_style(BaselinePosition));
   self._extents.ascent = ascent;
   self._extents.descent = height - ascent;
 }

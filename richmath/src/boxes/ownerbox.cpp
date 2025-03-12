@@ -356,7 +356,7 @@ Expr InlineSequenceBox::to_pmath_impl(BoxOutputFlags flags) {
 //} ... class InlineSequenceBox
 
 void OwnerBox::Impl::adjust_baseline(float em) {
-  float y = SimpleBoxBaselinePositioning{self._extents.ascent, self._extents.descent, self.cy}.calculate_baseline(em, self.get_style(BaselinePosition));
+  float y = SimpleBoxBaselinePositioning{self._extents.ascent, self._extents.descent, self.cy}.calculate_baseline(em, self.get_own_style(BaselinePosition));
   self.cy += y;
   self._extents.ascent-= y;
   self._extents.descent+= y;
