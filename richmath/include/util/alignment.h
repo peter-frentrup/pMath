@@ -21,6 +21,15 @@ namespace richmath {
     static SimpleAlignment from_pmath(Expr expr, SimpleAlignment fallback);
   };
   
+  class SimpleBoxBaselinePositioning {
+  public:
+    float ascent;
+    float descent;
+    float cy;
+    
+    float scaled_baseline(double scale) const { return (float)(-(double)descent + scale * (ascent + descent)); }
+    float calculate_baseline(float em, Expr baseline_pos) const;
+  };
 }
 
 #endif // RICHMATH__UTIL__ALIGNMENT_H__INCLUDED

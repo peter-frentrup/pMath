@@ -2,6 +2,7 @@
 
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
+#include <util/alignment.h>
 
 #include <math.h>
 
@@ -24,7 +25,6 @@ class OwnerBox::Impl {
   public:
     Impl(OwnerBox &_self) : self(_self) {}
     
-    float calculate_baseline(float em, Expr baseline_pos) const;
     void adjust_baseline(float em);
   
   private:
@@ -355,71 +355,8 @@ Expr InlineSequenceBox::to_pmath_impl(BoxOutputFlags flags) {
 
 //} ... class InlineSequenceBox
 
-static const float NormalTextAxisFactor = 0.25f; // TODO: use actual math axis from font
-static const float NormalTextDescentFactor = 0.25f;
-static const float NormalTextAscentFactor = 0.75f;
-
-float OwnerBox::Impl::calculate_baseline(float em, Expr baseline_pos) const {
-  if(baseline_pos == richmath_System_Bottom) 
-    return self.calculate_scaled_baseline(0);
-  
-  if(baseline_pos == richmath_System_Top) 
-    return self.calculate_scaled_baseline(1);
-  
-  if(baseline_pos == richmath_System_Center) 
-    return self.calculate_scaled_baseline(0.5);
-  
-  if(baseline_pos == richmath_System_Axis) 
-    return NormalTextAxisFactor * em - self.cy; // TODO: use actual math axis from font
-    
-  if(baseline_pos == richmath_System_Baseline) 
-    return -self.cy;
-    
-  if(baseline_pos.item_equals(0, richmath_System_Scaled)) {
-    double factor = 0.0;
-    if(get_factor_of_scaled(baseline_pos, &factor) && isfinite(factor)) 
-      return self.calculate_scaled_baseline(factor);
-  }
-  else if(baseline_pos.is_rule()) {
-    float lhs_y = calculate_baseline(em, baseline_pos[1]);
-    Expr rhs = baseline_pos[2];
-    
-    if(rhs == richmath_System_Axis) {
-      float ref_pos = NormalTextAxisFactor * em; // TODO: use actual math axis from font
-      return lhs_y - ref_pos;
-    }
-    else if(rhs == richmath_System_Baseline) {
-      float ref_pos = self.cy;
-      return lhs_y - ref_pos;
-    }
-    else if(rhs == richmath_System_Bottom) {
-      float ref_pos = - NormalTextDescentFactor * em;
-      return lhs_y - ref_pos;
-    }
-    else if(rhs == richmath_System_Center) {
-      float ref_pos = (NormalTextAscentFactor - NormalTextDescentFactor) * em; // (bottom + top)/2
-      return lhs_y - ref_pos;
-    }
-    else if(rhs == richmath_System_Top) {
-      float ref_pos = NormalTextAscentFactor * em;
-      return lhs_y - ref_pos;
-    }
-    else if(rhs.item_equals(0, richmath_System_Scaled)) {
-      double factor = 0.0;
-      if(get_factor_of_scaled(rhs, &factor) && isfinite(factor)) {
-        //float ref_pos = NormalTextAscentFactor * em * factor - NormalTextDescentFactor * em * (1 - factor);
-        float ref_pos = ((NormalTextAscentFactor + NormalTextDescentFactor) * factor - NormalTextDescentFactor) * em;
-        return lhs_y - ref_pos;
-      }
-    }
-  }
-  
-  // baseline_pos == richmath_System_Automatic
-  return 0;
-}
-
 void OwnerBox::Impl::adjust_baseline(float em) {
-  float y = calculate_baseline(em, self.get_style(BaselinePosition));
+  float y = SimpleBoxBaselinePositioning{self._extents.ascent, self._extents.descent, self.cy}.calculate_baseline(em, self.get_style(BaselinePosition));
   self.cy += y;
   self._extents.ascent-= y;
   self._extents.descent+= y;
