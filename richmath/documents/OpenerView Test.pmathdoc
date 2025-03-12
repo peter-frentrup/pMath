@@ -28,8 +28,9 @@ Document({
                {"{", {"True", "\[Rule]", {
                   "Grid", "(", {"{", {{"{", "/\\/", "}"}, ",", {
                      "{", "e2", "}"}}, "}"}, ")"}}, "}"}, ",", {
-                "Dynamic", "(", "open", ")"}}, ")"}}, "}"}}, "}"}, ",", {
-          "RowSpacing", "\[Rule]", "0"}, ",", {
+                "Dynamic", "(", "open", ")"}, ",", {
+                "ImageSize", "\[Rule]", "Automatic"}}, ")"}}, "}"}}, "}"}, 
+         ",", {"RowSpacing", "\[Rule]", "0"}, ",", {
           "ColumnSpacing", "\[Rule]", "0"}, ",", {
           "BaselinePosition", "\[Rule]", "1"}}, ")"}}), "Input", 
      SectionLabel -> "in [1]:"), 
@@ -78,10 +79,9 @@ Document({
                 BaseStyle -> ""), StringBox("\"\"")}, "RowDefault")}, {
              "", PaneSelectorBox({
                HoldPattern(True) -> 
-                TagBox(
-                 GridBox({
-                   {""}, {/\/(StringBox("\"long"), "\n", {"long", "\""})}}), 
-                 "Grid")}, Dynamic($Context`state))}}, BaselinePosition -> 1, 
+                TagBox(GridBox({{""}, {StringBox("\"long\nlong\"")}}), 
+                 "Grid")}, Dynamic($Context`state), 
+              ImageSize -> {Automatic, Automatic})}}, BaselinePosition -> 1, 
            GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
          DynamicLocalValues :> {
            {OwnRules($Context`state):= {
@@ -142,7 +142,8 @@ Document({
                                     TagBox(GridBox({{StringBox("\"file1\"")}, {
                                         StringBox("\"file2\"")}}), 
                                      "Column")}}), "Grid")}, 
-                              Dynamic($Context`state))}}, 
+                              Dynamic($Context`state), 
+                              ImageSize -> {Automatic, Automatic})}}, 
                            BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
                            GridBoxRowSpacing -> 0), "Grid"), 
                          DynamicLocalValues :> {
@@ -170,16 +171,17 @@ Document({
                                     TagBox(GridBox({{StringBox("\"file1\"")}, {
                                         StringBox("\"file2\"")}}), 
                                      "Column")}}), "Grid")}, 
-                              Dynamic($Context`state))}}, 
+                              Dynamic($Context`state), 
+                              ImageSize -> {Automatic, Automatic})}}, 
                            BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
                            GridBoxRowSpacing -> 0), "Grid"), 
                          DynamicLocalValues :> {
                            {OwnRules($Context`state):= {
                               HoldPattern($Context`state) :> False}}}, 
                          Initialization :> {$Context`state:= False})}}), 
-                     "Column")}}), "Grid")}, Dynamic($Context`state))}}, 
-           BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-           GridBoxRowSpacing -> 0), "Grid"), 
+                     "Column")}}), "Grid")}, Dynamic($Context`state), 
+              ImageSize -> {Automatic, Automatic})}}, BaselinePosition -> 1, 
+           GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
          DynamicLocalValues :> {
            {OwnRules($Context`state):= {
               HoldPattern($Context`state) :> False}}}, 
@@ -207,9 +209,9 @@ Document({
                 TagBox(
                  GridBox({
                    {""}, {{"(", GridBox({{"1", "2"}, {"3", "4"}, {"5", "6"}}), 
-                     ")"}}}), "Grid")}, Dynamic($Context`state))}}, 
-           BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-           GridBoxRowSpacing -> 0), "Grid"), 
+                     ")"}}}), "Grid")}, Dynamic($Context`state), 
+              ImageSize -> {Automatic, Automatic})}}, BaselinePosition -> 1, 
+           GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
          DynamicLocalValues :> {
            {OwnRules($Context`state):= {
               HoldPattern($Context`state) :> False}}}, 

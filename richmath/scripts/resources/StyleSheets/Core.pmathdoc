@@ -151,7 +151,8 @@ Document({
         Section(StyleData("Panel"), BaseStyle -> "ControlStyle", 
          PanelBoxOptions -> {BaselinePosition -> Center -> Axis, 
            ContentPadding -> True}), Section(StyleData("PaneSelector"), 
-         PaneSelectorBoxOptions -> {ImageSize -> {All, All}}), 
+         PaneSelectorBoxOptions -> {Alignment -> {Left, Top}, 
+           BaselinePosition -> Baseline, ImageSize -> {All, All}}), 
         Section(StyleData("Placeholder"), 
          Background -> RGBColor(1, 0.973, 0.8), FontColor -> GrayLevel(0.502), 
          FontSize -> 9, Placeholder -> True, ShowAutoStyles -> False, 
@@ -263,15 +264,17 @@ Document({
                          True)), ButtonFrame -> None), "\[InvisibleSpace]"}}, {
                    "", PaneSelectorBox({
                      True -> GridBox({{""}, {#2}}, GridBoxRowSpacing -> 0.2)}, 
-                    #3)}}, BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-                 GridBoxRowSpacing -> 0)}), InterpretationFunction -> 
+                    #3, ImageSize -> Automatic)}}, BaselinePosition -> 1, 
+                 GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0)}), 
+             InterpretationFunction -> 
               Function({"OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
                  InterpretationBox("", #3)}, ")"})}), 
           Section(StyleData("Spacer"), TemplateBoxOptions -> {
              DisplayFunction -> Function(PaneBox("", ImageSize -> #1)), 
              InterpretationFunction -> 
               Function({"Spacer", "(", InterpretationBox(, #1), ")"})}), 
-          Section(StyleData("TabView"), TemplateBoxOptions -> {
+          Section(StyleData("TabView"), PaneSelectorBoxOptions -> {
+             ImageSize -> {All, All}}, TemplateBoxOptions -> {
              DisplayFunction -> Function(DynamicLocalBox({FE`Private`rules}, 
                 GridBox({
                   {PanelBox({

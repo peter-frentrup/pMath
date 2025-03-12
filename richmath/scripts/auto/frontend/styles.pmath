@@ -49,16 +49,17 @@ Function asStyleDataExampleBox(~labelTextBox, ~exampleBox) {
     TemplateBox({False}, "", Tooltip -> None, DisplayFunction -> Function(
         StyleBox(
             GridBox({{{lbl, OpenerBox(#1)}},
-                {PaneSelectorBox({True -> 
-                    GridBox({{"  ", ""}, {"", DynamicBox(asStyleDataLabelBox(
-                        ToBoxes @ Grid(
-                            DocumentGet(CurrentValue(Section)).Replace({
-                                    Section(~,~~~rest):>{rest}
-                                }, 0).Replace(
-                                    {{}->{"(nothing)"}
-                                }, 0).Map(Function(makePropertyGridEntries("", {Section}, #))).Flatten(1)
-                        )))}, {"", ""}}, GridBoxRowSpacing -> 0.2)
-                }, #1)},
+                {PaneSelectorBox(
+                    {True -> GridBox({{"  ", ""}, {"", DynamicBox(asStyleDataLabelBox(
+                            ToBoxes @ Grid(
+                                DocumentGet(CurrentValue(Section)).Replace({
+                                        Section(~,~~~rest):>{rest}
+                                    }, 0).Replace(
+                                        {{}->{"(nothing)"}
+                                    }, 0).Map(Function(makePropertyGridEntries("", {Section}, #))).Flatten(1)
+                            )))}, {"", ""}}, GridBoxRowSpacing -> 0.2)
+                    }, #1,
+                    ImageSize->Automatic)},
                 {exampleBox}},
                 BaselinePosition -> -1, GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0),
             AutoSpacing->False)
