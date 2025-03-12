@@ -509,6 +509,7 @@ namespace richmath {
     PanelBoxDefaultBaselinePosition          = BaselinePosition       + (int)DefaultStyleOptionOffsets::PanelBox,
     
     PaneSelectorBoxDefaultAlignment          = Alignment              + (int)DefaultStyleOptionOffsets::PaneSelectorBox,
+    PaneSelectorBoxDefaultBaselinePosition   = BaselinePosition       + (int)DefaultStyleOptionOffsets::PaneSelectorBox,
     
     SetterBoxDefaultAlignment                = Alignment              + (int)DefaultStyleOptionOffsets::SetterBox,
     SetterBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::SetterBox,

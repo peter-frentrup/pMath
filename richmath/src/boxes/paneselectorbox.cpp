@@ -197,7 +197,10 @@ void PaneSelectorBox::resize(Context &context) {
   _extents.descent = alignment.interpolate_bottom_to_top(               current_pane_extents.descent, total_height - current_pane_extents.ascent);
   
   _current_offset.x = alignment.interpolate_left_to_right(0.0f, _extents.width - current_pane_extents.width);
-  _current_offset.y = 0; // TODO: incorporate BaselinePosition
+  
+  _current_offset.y = SimpleBoxBaselinePositioning{_extents.ascent, _extents.descent, 0.0f}.calculate_baseline(em, get_own_style(BaselinePosition));
+  _extents.ascent -= _current_offset.y;
+  _extents.descent+= _current_offset.y;
 }
 
 void PaneSelectorBox::paint(Context &context) {
