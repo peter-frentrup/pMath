@@ -1,0 +1,231 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("PaneSelector", "ObjectName"), 
+      Section(BoxData(TemplateBox({"PaneSelector"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"PaneSelector"}, "ReferenceHyperlink"), 
+           "(", StyleBox("list", "Arg"), ", ", 
+           TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "(", 
+           StyleBox("v", "Arg"), 
+           ")) determines the pane to be displayed dynamically by the updated \
+           current value of ", StyleBox("v", "Arg"), "."}), "Notes"), 
+        Section(TextData({"If ", StyleBox("v", "Arg"), 
+           " does not match any of the ", StyleBox({"v", SubscriptBox("i")}, 
+            "Arg"), ", then ", TemplateBox({"PaneSelector"}, 
+            "ReferenceHyperlink"), " displays as a blank area."}), "Notes"), 
+        Section(TextData({"With the default option setting ", 
+           TemplateBox({"ImageSize"}, "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"All"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"PaneSelector"}, "ReferenceHyperlink"), 
+           " leaves space for the largest of the ", 
+           StyleBox({"expr", SubscriptBox("i")}, "Arg"), 
+           " to be displayed, so its overall size does not change."}), 
+         "Notes"), 
+        Section(TextData({"With the option setting ", 
+           TemplateBox({"ImageSize"}, "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"PaneSelector"}, "ReferenceHyperlink"), 
+           " reserves space only for the ", 
+           StyleBox({"expr", SubscriptBox("i")}, "Arg"), 
+           " currently being displayed."}), "Notes"), 
+        Section(TextData({TemplateBox({"PaneSelector"}, "ReferenceHyperlink"), 
+           " obtains default option settings from the \"PaneSelector\" style \
+           of the current stylesheet."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Select which pane to display:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             "{", {{"PaneSelector", "(", {
+                {"{", {{"1", "\[Rule]", "a"}, ",", {"2", "\[Rule]", "b"}}, 
+                 "}"}, ",", "1"}, ")"}, ",", {
+               "\n", {"PaneSelector", "(", {
+                 {"{", {{"1", "\[Rule]", "a"}, ",", {"2", "\[Rule]", "b"}}, 
+                  "}"}, ",", "2"}, ")"}}}, "}"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {PaneSelectorBox({1 -> "a", 2 -> "b"}, 1), 
+              ",", PaneSelectorBox({1 -> "a", 2 -> "b"}, 2)}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Dynamically switch the displayed pane:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Column", "(", {
+                "{", {{"Checkbox", "(", {"Dynamic", "(", "x", ")"}, ")"}, ",", 
+                 {"PaneSelector", "(", {
+                   {"{", {{"True", "\[Rule]", StringBox("\"Disk\"")}, ",", {
+                      "False", "\[Rule]", {"Graphics", "(", {
+                        "Disk", "(", ")"}, ")"}}}, "}"}, ",", {
+                    "Dynamic", "(", "x", ")"}}, ")"}}, "}"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TagBox(GridBox({{CheckboxBox(Dynamic($Context`x))}, {
+                  PaneSelectorBox({HoldPattern(True) -> StringBox("\"Disk\""), 
+                    HoldPattern(False) -> GraphicsBox({DiskBox()}, 
+                      ImageSize -> {80, Automatic})}, Dynamic($Context`x))}}), 
+               "Column")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("Alignment", "ExampleSubsection"), 
+          Section(TextData({"The default setting is ", 
+             TemplateBox({"Alignment"}, "ReferenceHyperlink"), " \[Rule] {", 
+             TemplateBox({"Left"}, "ReferenceHyperlink"), ", ", 
+             TemplateBox({"Top"}, "ReferenceHyperlink"), "}:"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Panel", "(", {
+                "Column", "(", {
+                 "{", {{"Checkbox", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+                  ",", {"PaneSelector", "(", {
+                    {"{", {{"True", "\[Rule]", StringBox("\"Disk\"")}, ",", {
+                       "False", "\[Rule]", {"Graphics", "(", {
+                         "Disk", "(", ")"}, ")"}}}, "}"}, ",", {
+                     "Dynamic", "(", "x", ")"}}, ")"}}, "}"}, ")"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              PanelBox(
+               TagBox(GridBox({{CheckboxBox(Dynamic($Context`x))}, {
+                   PaneSelectorBox({
+                     HoldPattern(True) -> StringBox("\"Disk\""), 
+                     HoldPattern(False) -> GraphicsBox({DiskBox()}, 
+                       ImageSize -> {80, Automatic})}, 
+                    Dynamic($Context`x))}}), "Column"))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Center-align the contents:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Panel", "(", {
+                  "Column", "(", {
+                   "{", {{"Checkbox", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+                    ",", {"PaneSelector", "(", {
+                      {"{", {{"True", "\[Rule]", StringBox("\"Disk\"")}, ",", {
+                         "False", "\[Rule]", {"Graphics", "(", {
+                           "Disk", "(", ")"}, ")"}}}, "}"}, ",", {
+                       "Dynamic", "(", "x", ")"}, ",", {
+                       "Alignment", "\[Rule]", "Center"}}, ")"}}, "}"}, ")"}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(
+                PanelBox(
+                 TagBox(GridBox({{CheckboxBox(Dynamic($Context`x))}, {
+                     PaneSelectorBox({
+                       HoldPattern(True) -> StringBox("\"Disk\""), 
+                       HoldPattern(False) -> GraphicsBox({DiskBox()}, 
+                         ImageSize -> {80, Automatic})}, Dynamic($Context`x), 
+                      Alignment -> Center)}}), "Column"))), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({
+          Section("BaselinePosition", "ExampleSubsection"), 
+          Section(TextData({"The default setting ", 
+             TemplateBox({"BaselinePosition"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"Baseline"}, "ReferenceHyperlink"), 
+             " follows the currently selected pane:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"Checkbox", "(", {"Dynamic", "(", "x", ")"}, ")"}, ",", {
+                 "PaneSelector", "(", {
+                  {"{", {{"True", "\[Rule]", StringBox("\"Disk\"")}, ",", {
+                     "False", "\[Rule]", {"Graphics", "(", {"Disk", "(", ")"}, 
+                      ")"}}}, "}"}, ",", {"Dynamic", "(", "x", ")"}}, ")"}}, 
+               "}"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {CheckboxBox(Dynamic($Context`x)), ",", 
+                PaneSelectorBox({HoldPattern(True) -> StringBox("\"Disk\""), 
+                  HoldPattern(False) -> GraphicsBox({DiskBox()}, 
+                    ImageSize -> {80, Automatic})}, Dynamic($Context`x))}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(TextData({"Vertically center the ", 
+               TemplateBox({"PaneSelector"}, "ReferenceHyperlink"), 
+               " box in the text line:"}), "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({
+                 "{", {{"Checkbox", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+                  ",", {"PaneSelector", "(", {
+                    {"{", {{"True", "\[Rule]", StringBox("\"Disk\"")}, ",", {
+                       "False", "\[Rule]", {"Graphics", "(", {
+                         "Disk", "(", ")"}, ")"}}}, "}"}, ",", {
+                     "Dynamic", "(", "x", ")"}, ",", {
+                     "BaselinePosition", "\[Rule]", {
+                      "Center", "\[Rule]", "Axis"}}}, ")"}}, "}"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData({"{", {CheckboxBox(Dynamic($Context`x)), ",", 
+                  PaneSelectorBox({HoldPattern(True) -> StringBox("\"Disk\""), 
+                    HoldPattern(False) -> GraphicsBox({DiskBox()}, 
+                      ImageSize -> {80, Automatic})}, Dynamic($Context`x), 
+                   BaselinePosition -> Center -> Axis)}, "}"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("ImageSize", "ExampleSubsection"), 
+          Section(TextData({"The default setting ", 
+             TemplateBox({"ImageSize"}, "ReferenceHyperlink"), " \[Rule] ", 
+             TemplateBox({"All"}, "ReferenceHyperlink"), 
+             " reserves space for the largest pane:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Panel", "(", {
+                "Column", "(", {
+                 "{", {{"Checkbox", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+                  ",", {"PaneSelector", "(", {
+                    {"{", {{"True", "\[Rule]", StringBox("\"Disk\"")}, ",", {
+                       "False", "\[Rule]", {"Graphics", "(", {
+                         "Disk", "(", ")"}, ")"}}}, "}"}, ",", {
+                     "Dynamic", "(", "x", ")"}}, ")"}}, "}"}, ")"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              PanelBox(
+               TagBox(GridBox({{CheckboxBox(Dynamic($Context`x))}, {
+                   PaneSelectorBox({
+                     HoldPattern(True) -> StringBox("\"Disk\""), 
+                     HoldPattern(False) -> GraphicsBox({DiskBox()}, 
+                       ImageSize -> {80, Automatic})}, 
+                    Dynamic($Context`x))}}), "Column"))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(
+             TextData({"Use ", TemplateBox({"ImageSize"}, 
+                "ReferenceHyperlink"), " \[Rule] ", 
+               TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+               " to tightly wrap the current pane:"}), "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Panel", "(", {
+                  "Column", "(", {
+                   "{", {{"Checkbox", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+                    ",", {"PaneSelector", "(", {
+                      {"{", {{"True", "\[Rule]", StringBox("\"Disk\"")}, ",", {
+                         "False", "\[Rule]", {"Graphics", "(", {
+                           "Disk", "(", ")"}, ")"}}}, "}"}, ",", {
+                       "Dynamic", "(", "x", ")"}, ",", {
+                       "ImageSize", "\[Rule]", "Automatic"}}, ")"}}, "}"}, 
+                  ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(
+                PanelBox(
+                 TagBox(GridBox({{CheckboxBox(Dynamic($Context`x))}, {
+                     PaneSelectorBox({
+                       HoldPattern(True) -> StringBox("\"Disk\""), 
+                       HoldPattern(False) -> GraphicsBox({DiskBox()}, 
+                         ImageSize -> {80, Automatic})}, Dynamic($Context`x), 
+                      ImageSize -> {Automatic, Automatic})}}), "Column"))), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"TabView"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Pane"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Opener"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
