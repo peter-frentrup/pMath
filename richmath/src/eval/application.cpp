@@ -555,7 +555,7 @@ void Application::gui_print_section(Expr expr) {
   
   expr = EvaluationContexts::replace_symbol_namespace(
            PMATH_CPP_MOVE(expr), 
-           EvaluationContexts::resolve_context(sect),
+           EvaluationContexts::resolve_context(dynamic_cast<StyledObject*>(Application::get_evaluation_object())),
            strings::DollarContext_namespace);
 
   if(!sect->try_load_from_object(expr, BoxInputFlags::Default)) {

@@ -1,0 +1,86 @@
+/* pMath Document */
+
+Document({SectionGroup({Section("EvaluationContext and $Context", "Title"), 
+    Section(
+     TextData({
+       "Via a ", 
+       ButtonBox({StyleBox("private style sheet", 
+          FontColor -> RGBColor(0, 0, 1), StripOnInput -> False)}, 
+        ButtonFrame -> "Frameless", 
+        ButtonFunction -> 
+         Function(FrontEndTokenExecute("EditStyleDefinitions"))), 
+       ", Input and Output sections have different EvaluationContext \
+       settings:"}), "Text"), 
+    SectionGroup({
+      Section(BoxData({"Dynamic", "(", {
+          "CurrentValue", "(", StringBox("\"ResolvedEvaluationContext\""), 
+          ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+      Section(
+       BoxData(
+        DynamicBox(ToBoxes(CurrentValue("ResolvedEvaluationContext")))), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+    Section(
+     "Pasting that Dynamic box in an input section displays as \"AAA`\"", 
+     "Text"), 
+    Section(
+     BoxData(DynamicBox(ToBoxes(CurrentValue("ResolvedEvaluationContext")))), 
+     "Input"), SectionGroup({Section("Effect on $Context`", "Subsection"), 
+      Section(
+       "The input's setting (AAA`) gets converted to $Context` in box \
+       expressions, but that then means BBB` in the output:", "Text"), 
+      SectionGroup({
+        Section(
+         BoxData({
+           "{", {{"Button", "(", {StringBox("\"Global`g\""), ",", {
+               "Print", "(", {
+                "{", {"Global`g", ",", {"Namespace", "(", "Global`g", ")"}}, 
+                "}"}, ")"}}, ")"}, ",", {
+             "\n", {"Button", "(", {StringBox("\"x\""), ",", {
+                "Print", "(", {"{", {"x", ",", {"Namespace", "(", "x", ")"}}, 
+                 "}"}, ")"}}, ")"}}, ",", {
+             "\n", {"Button", "(", {StringBox("\"AAA`a\""), ",", {
+                "Print", "(", {
+                 "{", {"AAA`a", ",", {"Namespace", "(", "AAA`a", ")"}}, "}"}, 
+                ")"}}, ")"}}, ",", {
+             "\n", {"Button", "(", {StringBox("\"BBB`b\""), ",", {
+                "Print", "(", {
+                 "{", {"BBB`b", ",", {"Namespace", "(", "BBB`b", ")"}}, "}"}, 
+                ")"}}, ")"}}, ",", {
+             "\n", {"Button", "(", {StringBox("\"CCC`c\""), ",", {
+                "Print", "(", {
+                 "{", {"CCC`c", ",", {"Namespace", "(", "CCC`c", ")"}}, "}"}, 
+                ")"}}, ")"}}}, "}"}), "Input", SectionLabel -> "in [2]:"), 
+        Section(
+         BoxData({
+           "{", {ButtonBox(StringBox("\"Global`g\""), 
+             ButtonFunction -> 
+              Function(Print({Global`g, Namespace(Global`g)}))), ",", 
+            ButtonBox(StringBox("\"x\""), 
+             ButtonFunction -> 
+              Function(Print({$Context`x, Namespace($Context`x)}))), ",", 
+            ButtonBox(StringBox("\"AAA`a\""), 
+             ButtonFunction -> 
+              Function(Print({$Context`a, Namespace($Context`a)}))), ",", 
+            ButtonBox(StringBox("\"BBB`b\""), 
+             ButtonFunction -> Function(Print({BBB`b, Namespace(BBB`b)}))), 
+            ",", ButtonBox(StringBox("\"CCC`c\""), 
+             ButtonFunction -> Function(Print({CCC`c, Namespace(CCC`c)})))}, 
+           "}"}), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [2]:")}, All), 
+      Section(TextData({"The symbols ", BoxData("g"), ", ", BoxData("x"), 
+         ", ", BoxData("a"), ", ", BoxData("b"), ", ", BoxData("c"), 
+         " are stored as Global`g, $Context`x, $Context`a, BBB`b, CCC`c in the \
+         ButtonBox expressions. The three buttons for ", BoxData("x"), ", ", 
+         BoxData("a"), ", ", BoxData("b"), 
+         " then print BBB` for the namespace. The buttons for ", BoxData("g"), 
+         " and ", BoxData("c"), " print Global` and CCC` respectively."}), 
+       "Text")}, All)}, All)}, StyleDefinitions :> 
+  Document({
+    SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+      Section("\"Input\" sections receive EvaluationContext \[Rule] \"AAA`\"", 
+       "Text"), Section(StyleData("Input"), EvaluationContext -> "AAA`"), 
+      Section(
+       "\"Output\" sections receive EvaluationContext \[Rule] \"BBB`\"", 
+       "Text"), Section(StyleData("Output"), EvaluationContext -> "BBB`")}, 
+     All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
+   Visible -> True), Visible -> True)
