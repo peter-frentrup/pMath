@@ -14,7 +14,8 @@ Function SwitchEvaluationContext(~oldctx:String, ~newctx:String) {
             "FE`Private`SwitchEvaluationContextImpl(`1`, AAA, `2`, BBB)",
             {   "AAA" -> oldctx ++ "Private`SavedContextInfo",
                 "BBB" -> newctx ++ "Private`SavedContextInfo"}),
-            ParserArguments -> {oldctx, newctx}),
+            ParserArguments -> {oldctx, newctx},
+            ParseSymbols -> True),
         None)
 }
 
