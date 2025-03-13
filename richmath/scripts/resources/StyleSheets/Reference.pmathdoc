@@ -100,8 +100,9 @@ Document({
               SectionGroup({Section(StyleData("ExampleDelimiter"), 
                  DefaultNewSectionStyle -> "ExampleText", Editable -> False, 
                  Evaluatable -> True, FontSize -> 2, MenuCommandKey -> "6", 
-                 MenuSortingValue -> 1300, 
-                 SectionFrame -> {Inherited, {0.25, Inherited}}, 
+                 MenuSortingValue -> 1300, SectionEvaluationFunction :> (
+                   $Line:= 0; CurrentValue(SectionLabel):= Inherited; 
+                   Identity), SectionFrame -> {Inherited, {0.25, Inherited}}, 
                  SectionFrameColor -> GrayLevel(0.702), 
                  SectionGroupPrecedence -> -25, 
                  SectionMargins -> {{35, Inherited}, {8, 4}}, 
