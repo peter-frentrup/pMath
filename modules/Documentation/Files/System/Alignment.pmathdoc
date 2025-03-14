@@ -121,12 +121,11 @@ Document({
            SectionLabel -> "in [1]:"), 
           Section(
            BoxData(
-            TagBox(
-             GridBox({{"", SliderBox(Dynamic(Section$$4516`x), -1 .. 1)}, {
-                SliderBox(Dynamic(Section$$4516`y), -1 .. 1, 
+            TagBox(GridBox({{"", SliderBox(Dynamic($Context`x), -1 .. 1)}, {
+                SliderBox(Dynamic($Context`y), -1 .. 1, 
                  Appearance -> "Vertical"), 
                 PaneBox(PanelBox(SqrtBox("123"), 
-                  Alignment -> Dynamic({Section$$4516`x, Section$$4516`y}), 
+                  Alignment -> Dynamic({$Context`x, $Context`y}), 
                   ImageSize -> {100, 100}))}}), "Grid")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 

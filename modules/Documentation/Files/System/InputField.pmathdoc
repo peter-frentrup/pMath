@@ -200,7 +200,7 @@ Document({
               Section(
                BoxData({
                  "{", {InputFieldBox(, Expression, ContentPadding -> False), 
-                  ",", InputFieldBox(Section$$3861`x, Expression, 
+                  ",", InputFieldBox($Context`x, Expression, 
                    ContentPadding -> False)}, "}"}), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1), SectionGroup({
@@ -295,11 +295,11 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData({
-               "{", {InputFieldBox(Section$$3713`x, Expression, 
+               "{", {InputFieldBox($Context`x, Expression, 
                  ImageSize -> {30, Automatic}), ",", 
-                InputFieldBox(Section$$3713`x, Expression, 
+                InputFieldBox($Context`x, Expression, 
                  ImageSize -> {50, Automatic}), ",", 
-                InputFieldBox(Section$$3713`x, Expression, 
+                InputFieldBox($Context`x, Expression, 
                  ImageSize -> {80, Automatic})}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
@@ -320,20 +320,20 @@ Document({
                BoxData(
                 TagBox(
                  GridBox({
-                   {InputFieldBox(Section$$3750`x, Expression, 
-                     ImageSize -> {30, 20}), InputFieldBox(Section$$3750`x, 
+                   {InputFieldBox($Context`x, Expression, 
+                     ImageSize -> {30, 20}), InputFieldBox($Context`x, 
                      Expression, ImageSize -> {50, 20}), 
-                    InputFieldBox(Section$$3750`x, Expression, 
+                    InputFieldBox($Context`x, Expression, 
                      ImageSize -> {80, 20})}, {
-                    InputFieldBox(Section$$3750`x, Expression, 
-                     ImageSize -> {30, 30}), InputFieldBox(Section$$3750`x, 
+                    InputFieldBox($Context`x, Expression, 
+                     ImageSize -> {30, 30}), InputFieldBox($Context`x, 
                      Expression, ImageSize -> {50, 30}), 
-                    InputFieldBox(Section$$3750`x, Expression, 
+                    InputFieldBox($Context`x, Expression, 
                      ImageSize -> {80, 30})}, {
-                    InputFieldBox(Section$$3750`x, Expression, 
-                     ImageSize -> {30, 50}), InputFieldBox(Section$$3750`x, 
+                    InputFieldBox($Context`x, Expression, 
+                     ImageSize -> {30, 50}), InputFieldBox($Context`x, 
                      Expression, ImageSize -> {50, 50}), 
-                    InputFieldBox(Section$$3750`x, Expression, 
+                    InputFieldBox($Context`x, Expression, 
                      ImageSize -> {80, 50})}}), "Grid")), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All), SectionGroup({
@@ -349,13 +349,13 @@ Document({
                SectionLabel -> "in [1]:"), 
               Section(
                BoxData({
-                 "{", {InputFieldBox(Section$$3801`x, Expression, 
+                 "{", {InputFieldBox($Context`x, Expression, 
                    ImageSize -> {Tiny, Automatic}), ",", 
-                  InputFieldBox(Section$$3801`x, Expression, 
+                  InputFieldBox($Context`x, Expression, 
                    ImageSize -> {Small, Automatic}), ",", 
-                  InputFieldBox(Section$$3801`x, Expression, 
+                  InputFieldBox($Context`x, Expression, 
                    ImageSize -> {Medium, Automatic}), ",", 
-                  InputFieldBox(Section$$3801`x, Expression, 
+                  InputFieldBox($Context`x, Expression, 
                    ImageSize -> {Large, Automatic})}, "}"}), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1), SectionGroup({

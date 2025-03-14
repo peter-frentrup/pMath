@@ -43,10 +43,9 @@ Document({
           Section(
            BoxData({
              "x", SuperscriptBox(InterpretationBox(FractionBox("a", "b"), 
-               StandardForm(Section$$532`a*1/Section$$532`b), 
-               Editable -> False))}), "Output", SectionGenerated -> True, 
-           SectionLabel -> "out [3]:")}, All)}, 1), 
-      Section("", "SectionFooterSpacer")}, All), 
+               StandardForm($Context`a*1/$Context`b), Editable -> False))}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"StandardForm"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"OutputForm"}, 

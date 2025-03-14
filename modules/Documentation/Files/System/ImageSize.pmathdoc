@@ -129,11 +129,11 @@ Document({
                   "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData({
-               "{", {SliderBox(Dynamic(Section$$704`x), 0 .. 1, 
+               "{", {SliderBox(Dynamic($Context`x), 0 .. 1, 
                  ImageSize -> {Tiny, Automatic}), ",", 
-                SliderBox(Dynamic(Section$$704`x), 0 .. 1, 
+                SliderBox(Dynamic($Context`x), 0 .. 1, 
                  ImageSize -> {Small, Automatic}), ",", 
-                SliderBox(Dynamic(Section$$704`x), 0 .. 1, 
+                SliderBox(Dynamic($Context`x), 0 .. 1, 
                  ImageSize -> {Medium, Automatic})}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All), SectionGroup({
