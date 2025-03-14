@@ -972,12 +972,16 @@ static pmath_t make_expression_with_options(pmath_expr_t expr) {
     pmath_t args = pmath_option_value(PMATH_NULL, pmath_System_ParserArguments, options);
     pmath_t syms = pmath_option_value(PMATH_NULL, pmath_System_ParseSymbols,    options);
     pmath_t box;
+    pmath_bool_t changes_args = FALSE;
+    pmath_bool_t changes_syms = FALSE;
     
     if(!pmath_same(args, pmath_System_Automatic)) {
+      changes_args = TRUE;
       args = pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args);
     }
     
     if(!pmath_same(syms, pmath_System_Automatic)) {
+      changes_syms = TRUE;
       syms = pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms);
     }
     
@@ -986,13 +990,13 @@ static pmath_t make_expression_with_options(pmath_expr_t expr) {
     expr = _pmath_makeexpression_with_debugmetadata(box);
     
     pmath_unref(options);
-    if(!pmath_same(args, pmath_System_Automatic)) {
+    if(changes_args) {
       pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args));
     }
     else
       pmath_unref(args);
       
-    if(!pmath_same(syms, pmath_System_Automatic)) {
+    if(changes_syms) {
       pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms));
     }
     else
