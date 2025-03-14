@@ -73,7 +73,7 @@ AutoLoadFinish(heldall: Hold(~~~all), Hold(~sym), ~file)::=
 		(
 			protections:= Unprotect(all);
 			Clear(all);
-			Get(file);
+			Get(file, ParseSymbols->True);
 			sym
 		).Finally(Protect @@ protections))
 

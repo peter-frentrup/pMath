@@ -25,6 +25,7 @@ extern pmath_symbol_t pmath_System_DollarFailed;
 extern pmath_symbol_t pmath_System_DollarInput;
 extern pmath_symbol_t pmath_System_DollarNamespace;
 extern pmath_symbol_t pmath_System_DollarNamespacePath;
+extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_CharacterEncoding;
 extern pmath_symbol_t pmath_System_Directory;
 extern pmath_symbol_t pmath_System_False;
@@ -36,6 +37,7 @@ extern pmath_symbol_t pmath_System_HoldComplete;
 extern pmath_symbol_t pmath_System_Identity;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_OpenRead;
+extern pmath_symbol_t pmath_System_ParseSymbols;
 extern pmath_symbol_t pmath_System_Path;
 extern pmath_symbol_t pmath_System_Sequence;
 extern pmath_symbol_t pmath_System_Rule;
@@ -144,7 +146,8 @@ static pmath_t get_file(
   pmath_t        file,              // will be freed and closed
   pmath_string_t name,              // will be freed
   pmath_t        head,              // will be freed
-  pmath_bool_t   track_source_locations
+  pmath_bool_t   track_source_locations,
+  pmath_t        may_parse_symbols  // will be freed
 ) {
   struct _get_file_info              info;
   struct pmath_boxes_from_spans_ex_t parse_settings;
@@ -154,6 +157,12 @@ static pmath_t get_file(
   pmath_hashtable_t old_parser_cache            = me ? me->parser_cache : NULL;
   pmath_t old_input;
   pmath_t result = PMATH_NULL;
+  pmath_bool_t changed_allow_parse_syms = FALSE;
+  
+  if(!pmath_same(may_parse_symbols, pmath_System_Automatic)) {
+    changed_allow_parse_syms = TRUE;
+    may_parse_symbols = pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, may_parse_symbols);
+  }
   
   pmath_message(pmath_System_Get, "load", 1, pmath_ref(name));
   
@@ -310,6 +319,12 @@ static pmath_t get_file(
 //    pmath_unref(package_check);
 //  }
 
+  if(changed_allow_parse_syms) {
+    may_parse_symbols = pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, may_parse_symbols);
+  }
+  
+  pmath_unref(may_parse_symbols);
+  
   return result;
 }
 
@@ -326,7 +341,7 @@ static pmath_t open_read(pmath_t filename, pmath_t character_encoding) { // both
 
 
 PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
-  pmath_t options, character_encoding, head, path, name, file, file_type;
+  pmath_t options, character_encoding, head, path, name, file, file_type, may_parse_syms;
   pmath_bool_t track_source_locations = TRUE;
   
   if(pmath_expr_length(expr) < 1) {
@@ -347,6 +362,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
     
   character_encoding = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_CharacterEncoding, options));
   head               =                pmath_option_value(PMATH_NULL, pmath_System_Head,              options);
+  may_parse_syms     =                pmath_option_value(PMATH_NULL, pmath_System_ParseSymbols,      options);
   path               = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Path,              options));
   
   pmath_t obj = pmath_option_value(PMATH_NULL, pmath_System_TrackSourceLocations, options);
@@ -359,6 +375,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
   else {
     pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(pmath_System_TrackSourceLocations), obj);
     pmath_unref(path);
+    pmath_unref(may_parse_syms);
     pmath_unref(character_encoding);
     pmath_unref(head);
     return expr;
@@ -371,13 +388,13 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
     
   if(!check_path(path)) {
     pmath_unref(path);
+    pmath_unref(may_parse_syms);
     pmath_unref(character_encoding);
     pmath_unref(head);
     return expr;
   }
   
   pmath_unref(expr); expr = PMATH_NULL;
-  
   
   if(pmath_is_namespace(name)) {
     pmath_string_t fname;
@@ -401,6 +418,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
         name);
         
       pmath_unref(path);
+      pmath_unref(may_parse_syms);
       pmath_unref(character_encoding);
       pmath_unref(head);
       return PMATH_NULL;
@@ -412,6 +430,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
       pmath_unref(fname);
       pmath_unref(name);
       pmath_unref(path);
+      pmath_unref(may_parse_syms);
       pmath_unref(character_encoding);
       pmath_unref(head);
       return PMATH_NULL;
@@ -464,10 +483,11 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
           
           file = open_read(pmath_ref(testname), character_encoding);
           if(!pmath_same(file, pmath_System_DollarFailed))
-            return get_file(file, testname, head, track_source_locations);
+            return get_file(file, testname, head, track_source_locations, may_parse_syms);
             
           pmath_unref(testname);
           pmath_unref(file);
+          pmath_unref(may_parse_syms);
           pmath_unref(head);
           return pmath_ref(pmath_System_DollarFailed);
         }
@@ -495,10 +515,11 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
         
         file = open_read(pmath_ref(testname), character_encoding);
         if(!pmath_same(file, pmath_System_DollarFailed))
-          return get_file(file, testname, head, track_source_locations);
+          return get_file(file, testname, head, track_source_locations, may_parse_syms);
           
         pmath_unref(testname);
         pmath_unref(file);
+        pmath_unref(may_parse_syms);
         pmath_unref(head);
         return pmath_ref(pmath_System_DollarFailed);
       }
@@ -509,6 +530,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
     pmath_unref(character_encoding);
     pmath_unref(head);
     pmath_unref(path);
+    pmath_unref(may_parse_syms);
     pmath_message(PMATH_NULL, "noopen", 1, name);
     return pmath_ref(pmath_System_DollarFailed);
   }
@@ -522,6 +544,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
                   
   pmath_unref(file_type);
   if(!pmath_same(file_type, pmath_System_File)) {
+    pmath_unref(may_parse_syms);
     pmath_unref(character_encoding);
     pmath_unref(head);
     pmath_message(PMATH_NULL, "noopen", 1, name);
@@ -530,10 +553,11 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
   
   file = open_read(pmath_ref(name), character_encoding);
   if(!pmath_same(file, pmath_System_DollarFailed))
-    return get_file(file, name, head, track_source_locations);
+    return get_file(file, name, head, track_source_locations, may_parse_syms);
     
   pmath_unref(file);
   pmath_unref(name);
+  pmath_unref(may_parse_syms);
   pmath_unref(head);
   return pmath_ref(pmath_System_DollarFailed);
 }
