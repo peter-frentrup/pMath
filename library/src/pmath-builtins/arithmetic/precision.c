@@ -231,12 +231,16 @@ static pmath_t approximate_to_finite_precision(pmath_t obj, double precision_goa
     double n_prec = pmath_precision(pmath_ref(n_obj));
     
     if(n_prec >= precision_goal) {
+      if(prec > precision_goal + 3)
+        n_obj = pmath_set_precision(n_obj, precision_goal);
+      
       pmath_unref(obj);
       return n_obj;
     }
     
     pmath_unref(n_obj);
     if(prec < maxprec) {
+      // TODO: instead of precision doubling, try to extrapolate from (precision_goal - n_prec) how many bits might be needed
       prec = 2 * prec;
       if(prec > maxprec)
         prec = maxprec;
