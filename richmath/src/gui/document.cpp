@@ -217,6 +217,7 @@ namespace richmath {
       //}
       
       //{ key events
+      void preview_key_down(SpecialKeyEvent &event);
       void handle_key_left_right(SpecialKeyEvent &event, LogicalDirection direction);
       void handle_key_home_end(SpecialKeyEvent &event, LogicalDirection direction);
       void handle_key_up_down(SpecialKeyEvent &event, LogicalDirection direction);
@@ -643,6 +644,10 @@ void Document::focus_killed(Document *new_focus) {
 
 void Document::key_down(SpecialKeyEvent &event) {
   native()->hide_tooltip();
+  
+  Impl(*this).preview_key_down(event);
+  if(event.key == SpecialKey::Unknown)
+    return;
   
   bool found = false;
   context.for_each_selection([&](const VolatileSelection &sel) {
@@ -4535,6 +4540,36 @@ bool Document::Impl::needs_sub_suberscript_parentheses(MathSequence *seq, int st
 //}
 
 //{ key events
+void Document::Impl::preview_key_down(SpecialKeyEvent &event) {
+  if(self.auto_completion.is_active() && self.auto_completion.has_popup()) {
+    switch(event.key) {
+      case SpecialKey::Return:
+        if(!event.alt && !event.ctrl && !event.shift && self.auto_completion.handle_key_press('\n')) {
+          event.key = SpecialKey::Unknown;
+        }
+        break;
+      
+      case SpecialKey::Escape:
+        if(self.auto_completion.handle_key_escape()) {
+          event.key = SpecialKey::Unknown;
+        }
+        break;
+      
+      case SpecialKey::Up:
+        if(self.auto_completion.handle_key_up_down(LogicalDirection::Backward)) {
+          event.key = SpecialKey::Unknown;
+        }
+        break;
+        
+      case SpecialKey::Down:
+        if(self.auto_completion.handle_key_up_down(LogicalDirection::Forward)) {
+          event.key = SpecialKey::Unknown;
+        }
+        break;
+    }
+  }
+}
+
 void Document::Impl::handle_key_left_right(SpecialKeyEvent &event, LogicalDirection direction) {
   int sel_forward_start;
   int sel_forward_end;
