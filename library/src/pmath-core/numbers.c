@@ -335,7 +335,7 @@ pmath_mpfloat_t _pmath_create_mp_float_from_q(pmath_rational_t value, slong prec
         fmpz_set_mpz(tmp_den, PMATH_AS_MPZ(PMATH_QUOT_DEN(value)));
       }
       
-      arb_fmpz_div_fmpz(PMATH_AS_ARB(result), tmp_num, tmp_den, precision);
+      arb_fmpz_div_fmpz(PMATH_AS_ARB(result), tmp_num, tmp_den, precision + 2);
       
       fmpz_clear(tmp_num);
       fmpz_clear(tmp_den);
