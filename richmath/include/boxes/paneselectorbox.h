@@ -72,8 +72,8 @@ namespace richmath {
 
     private:
       Array<Expr>          _cases;
-      Array<MathSequence*> _panes;
       Dynamic              _dynamic;
+      Array<MathSequence*> _panes;
       Vector2F             _current_offset;
       int                  _current_selection;
   };

@@ -186,7 +186,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(TransformationBox)         == 120, ""); // (112) + 8
     static_assert(sizeof(PaneBox)                   == 112, "");
     static_assert(sizeof(PanelBox)                  ==  96, "");
-    static_assert(sizeof(PaneSelectorBox)           == 104, ""); // (48) + 8 + 8 + 24 + (4+4) + 4 + 4 UNUSED PADDING BYTES
+    static_assert(sizeof(PaneSelectorBox)           == 104, ""); // (48) + 8 + 24 + 8 + (4+4) + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(ProgressIndicatorBox)      == 120, ""); // (48 + 8) + 3*8 + 8 + 24 + 8
     static_assert(sizeof(RadicalBox)                ==  96, ""); // (48) + 8 + 8 + 12 + 4 + 4 + 2*4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(SubsuperscriptBox)         ==  88, ""); // (48) + 8 + 8 + 2*4 + 2*4 + 4 + 4 UNUSED PADDING BYTES
@@ -259,7 +259,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(TransformationBox)         == 104, ""); // (96) + 8
     static_assert(sizeof(PaneBox)                   ==  96, "");
     static_assert(sizeof(PanelBox)                  ==  72, "");
-    static_assert(sizeof(PaneSelectorBox)           ==  80, ""); // (36) + 4 + 4 + 4 UNUSED PADDING BYTES + 16 + (4+4) + 4 + 4 UNUSED PADDING BYTES
+    static_assert(sizeof(PaneSelectorBox)           ==  72, ""); // (36) + 4 + 16 + 4 + (4+4) + 4
     static_assert(sizeof(ProgressIndicatorBox)      ==  96, ""); // (36 + 4) + 3*8 + 8 + 16 + 4 + 2 (bools) + 2 UNUSED PADDING BYTES
     static_assert(sizeof(RadicalBox)                ==  72, ""); // (36) + 4 + 4 + 12 + 4 + 4 + 2*4
     static_assert(sizeof(SubsuperscriptBox)         ==  64, ""); // (36) + 4 + 4 + 2*4 + 2*4 + 4
