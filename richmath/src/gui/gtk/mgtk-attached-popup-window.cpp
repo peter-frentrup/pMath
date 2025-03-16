@@ -623,7 +623,7 @@ bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &t
 //          has_target_rect = true;
 //        }
 //      }
-      LineRangeMeasurement measurement = seq->measure_range(anchor.start, anchor.start);
+      LineRangeMeasurement measurement = seq->measure_range(anchor.start, anchor.end);
       
       target_rect = measurement.bounds;
       float em = seq->get_em();
