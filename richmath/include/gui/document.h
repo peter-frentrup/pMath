@@ -75,6 +75,9 @@ namespace richmath {
       void key_up(SpecialKeyEvent &event);
       void key_press(uint32_t unicode);
       
+      bool ignores_next_key_press() {       return get_flag(IgnoresNextKeyPress); }
+      void ignores_next_key_press(bool value) { change_flag(IgnoresNextKeyPress, value); }
+      
       virtual Box *mouse_sensitive() override { return this; }
       virtual void on_mouse_down(MouseEvent &event) override;
       virtual void on_mouse_move(MouseEvent &event) override;
@@ -217,6 +220,7 @@ namespace richmath {
     protected:
       enum {
         HasPendingRepaintBit = base::NumFlagsBits,
+        IgnoresNextKeyPress,
         
         NumFlagsBits
       };

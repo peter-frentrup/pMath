@@ -646,8 +646,10 @@ void Document::key_down(SpecialKeyEvent &event) {
   native()->hide_tooltip();
   
   Impl(*this).preview_key_down(event);
-  if(event.key == SpecialKey::Unknown)
+  if(event.key == SpecialKey::Unknown) {
+    ignores_next_key_press(true);
     return;
+  }
   
   bool found = false;
   context.for_each_selection([&](const VolatileSelection &sel) {
@@ -662,9 +664,14 @@ void Document::key_down(SpecialKeyEvent &event) {
     if(cur && cur != this)
       cur->key_down(event);
   }
+  
+  if(event.key == SpecialKey::Unknown)
+    ignores_next_key_press(true);
 }
 
 void Document::key_up(SpecialKeyEvent &event) {
+  ignores_next_key_press(false);
+  
   bool found = false;
   context.for_each_selection([&](const VolatileSelection &sel) {
     if(!found) {
@@ -681,6 +688,9 @@ void Document::key_up(SpecialKeyEvent &event) {
 }
 
 void Document::key_press(uint32_t unicode) {
+  if(ignores_next_key_press())
+    return;
+  
   native()->hide_tooltip();
   
   if(unicode == '\r') {
@@ -931,8 +941,10 @@ void Document::on_mouse_cancel() {
 }
 
 void Document::on_key_down(SpecialKeyEvent &event) {
-  if(EventHandlers::execute_key_down_handler(this, DocumentEventActions, event) == EventHandlerResult::StopPropagation)
+  if(EventHandlers::execute_key_down_handler(this, DocumentEventActions, event) == EventHandlerResult::StopPropagation) {
+    event.key = SpecialKey::Unknown;
     return;
+  }
    
   switch(event.key) {
     case SpecialKey::Left:
