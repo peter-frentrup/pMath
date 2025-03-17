@@ -342,7 +342,11 @@ void NumberBox::Impl::set_number(String n) {
       if(parts.mid_significant_range.from <= parts.mid_decimal_dot && parts.mid_decimal_dot < parts.mid_significant_range.to)
         num_digits -= 1;
       
+      const uint16_t *buf = parts._number.buffer();
+      
       int num_machine_precision_digits = (int)self.print_precision_or_zero();
+      if(buf[parts.mid_significant_range.from] == '0')
+        ++num_machine_precision_digits;
       
       if(num_machine_precision_digits < num_digits) {
         int new_end = parts.mid_significant_range.to - num_digits + num_machine_precision_digits;
@@ -350,7 +354,6 @@ void NumberBox::Impl::set_number(String n) {
           new_end = parts.mid_decimal_dot + 2;
         
         if(base == 10) {
-          const uint16_t *buf = parts._number.buffer();
           if(buf[new_end] >= (uint16_t)'5') { // round upwards. TODO: round to even instead??
             int pos_last_rounded = new_end - 1;
             while(pos_last_rounded >= parts.mid_significant_range.from && (buf[pos_last_rounded] == '9' || buf[pos_last_rounded] == '.'))
