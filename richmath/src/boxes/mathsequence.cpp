@@ -3463,9 +3463,14 @@ void MathSequence::Impl::EnlargeSpace::group_number_digits(const GlyphIterator &
       end - decimal_point >  frac_group_size)
   {
     int significant_end = decimal_point;
-    while(significant_end < end && buf[significant_end] != '[')
+    while(significant_end < end) {
+      if(buf[significant_end] == '[') {
+        --significant_end; // don't increase space just before '['
+        break;
+      }
       ++significant_end;
-  
+    }
+    
     for(int i = decimal_point + frac_group_size; i < significant_end; i += frac_group_size) {
       int glyph_index = start.glyph_index() + i - start.text_index();
       
