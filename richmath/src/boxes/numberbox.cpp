@@ -101,6 +101,8 @@ namespace richmath {
       void set_number(String n);
       PositionInRange selection_to_string_index(Box *selbox, int selpos);
       Box *string_index_to_selection(int char_index, int *selection_index);
+      
+      void resize_check_auto_formatting_change(Context &context);
     
     private:
       void append(uint16_t chr) {
@@ -136,12 +138,14 @@ namespace richmath {
 NumberBox::NumberBox()
   : base(new MathSequence)
 {
+  use_auto_formatting(true);
   Impl(*this).set_number(strings::EmptyString);
 }
 
 NumberBox::NumberBox(String number)
   : base(new MathSequence)
 {
+  use_auto_formatting(true);
   Impl(*this).set_number(number);
 }
 
@@ -208,6 +212,25 @@ void NumberBox::paint(Context &context) {
   context.math_spacing     = old_math_spacing;
   context.show_auto_styles = old_show_auto_styles;
   context.text_shaper      = old_text_shaper;
+  
+  if(get_style(AutoNumberFormating)) {
+    if(!use_auto_formatting())
+      invalidate();
+  }
+  else {
+    if(use_auto_formatting())
+      invalidate();
+  }
+}
+
+void NumberBox::resize_inline(Context &context) {
+  Impl(*this).resize_check_auto_formatting_change(context);
+  base::resize_inline(context);
+}
+
+void NumberBox::resize_default_baseline(Context &context) {
+  Impl(*this).resize_check_auto_formatting_change(context);
+  base::resize_default_baseline(context);
 }
 
 Expr NumberBox::to_pmath_impl(BoxOutputFlags flags) {
@@ -246,6 +269,10 @@ Expr NumberBox::prepare_boxes(Expr boxes) {
   }
   
   return boxes;
+}
+
+void NumberBox::dynamic_updated() {
+  base::dynamic_updated(); // TODO: invalidate() instead of request_repaint_all() ?
 }
 
 bool NumberBox::is_number_part(Box *box) {
@@ -292,49 +319,54 @@ void NumberBox::Impl::set_number(String n) {
   self._radius_exponent = nullptr;
   self._exponent = nullptr;
   
-  NumberPartPositions parts{ n };
-  
   self._content->remove(0, self._content->length());
   
-  int base = parts.parse_base();
-  
-  if(base != 10)
-    append(DigitsPrefix, DigitsPrefixLength);
-  
-  append(parts.midpoint_significant());
-  
-  if(!parts.has_radius() || !parts.has_midpoint_insignificant())
-    self._base = append_radix(parts);
-  
-  // TODO: only show radius when requested or when it is particularly big
-  if(parts.has_radius()) {
-    append('[');
+  if(self.use_auto_formatting()) {
+    NumberPartPositions parts{ n };
     
-    if(parts.has_midpoint_insignificant()) {
-      if(base != 10)
-        append(DigitsPrefix, DigitsPrefixLength);
-        
-      append(parts.midpoint_insignificant());
-      
-      assert(self._base == nullptr);
-      self._base = append_radix(parts);
-    }
+    int base = parts.parse_base();
     
-    append(PMATH_CHAR_PLUSMINUS);
     if(base != 10)
       append(DigitsPrefix, DigitsPrefixLength);
     
-    append(parts.radius_mantissa());
-    self._radius_base = append_radix(parts);
+    append(parts.midpoint_significant());
     
-    if(parts.has_radius_exponent())
-      self._radius_exponent = append_superscript(parts, parts.radius_exponent());
+    if(!parts.has_radius() || !parts.has_midpoint_insignificant())
+      self._base = append_radix(parts);
+    
+    // TODO: only show radius when requested or when it is particularly big
+    if(parts.has_radius()) {
+      append('[');
       
-    append(']');
+      if(parts.has_midpoint_insignificant()) {
+        if(base != 10)
+          append(DigitsPrefix, DigitsPrefixLength);
+          
+        append(parts.midpoint_insignificant());
+        
+        assert(self._base == nullptr);
+        self._base = append_radix(parts);
+      }
+      
+      append(PMATH_CHAR_PLUSMINUS);
+      if(base != 10)
+        append(DigitsPrefix, DigitsPrefixLength);
+      
+      append(parts.radius_mantissa());
+      self._radius_base = append_radix(parts);
+      
+      if(parts.has_radius_exponent())
+        self._radius_exponent = append_superscript(parts, parts.radius_exponent());
+        
+      append(']');
+    }
+    
+    if(parts.has_exponent())
+      self._exponent = append_superscript(parts, parts.exponent());
   }
-  
-  if(parts.has_exponent())
-    self._exponent = append_superscript(parts, parts.exponent());
+  else {
+    append(n);
+  }
 }
 
 PositionInRange NumberBox::Impl::selection_to_string_index(Box *selbox, int selpos) {
@@ -549,6 +581,21 @@ Box *NumberBox::Impl::string_index_to_selection(int char_index, int *selection_i
   
   *selection_index = buf_range.to;
   return self._content;
+}
+
+void NumberBox::Impl::resize_check_auto_formatting_change(Context &context) {
+  if(self.get_style(AutoNumberFormating)) {
+    if(!self.use_auto_formatting()) {
+      self.use_auto_formatting(true);
+      set_number(self._number);
+    }
+  }
+  else {
+    if(self.use_auto_formatting()) {
+      self.use_auto_formatting(false);
+      set_number(self._number);
+    }
+  }
 }
 
 MathSequence *NumberBox::Impl::append_radix(NumberPartPositions &parts) {

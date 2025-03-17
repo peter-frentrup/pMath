@@ -45,10 +45,12 @@ namespace richmath {
       
       virtual void colorize_scope(SyntaxState &state) override {}
       virtual void paint(Context &context) override;
+      virtual void resize_inline(Context &context) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       
       static Expr prepare_boxes(Expr boxes);
+      virtual void dynamic_updated() override;
       
       bool is_number_part(Box *box);
       PositionInRange selection_to_string_index(String number, Box *sel, int index);
@@ -56,6 +58,19 @@ namespace richmath {
       
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
+      virtual void resize_default_baseline(Context &context) override;
+      
+      bool use_auto_formatting() {       return get_flag(UseAutoFormattingBit); }
+      void use_auto_formatting(bool value) { change_flag(UseAutoFormattingBit, value); }
+    
+    protected:
+      enum {
+        UseAutoFormattingBit = base::NumFlagsBits,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
     private:
       String        _number;
