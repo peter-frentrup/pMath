@@ -249,7 +249,7 @@ Expr NumberBox::prepare_boxes(Expr boxes) {
     
     if(len > 0 && buf[0] >= '0' && buf[0] <= '9') {
       for(int i = 0; i < len; ++i) {
-        if(buf[i] == '`' || buf[i] == '^') {
+        if(buf[i] == '`' || buf[i] == '^' || buf[i] == '.') {
           pmath_t debug_metadata = pmath_get_debug_metadata(s.get());
           Expr result = Call(Symbol(richmath_FE_NumberBox), s);
           return Expr{ pmath_try_set_debug_metadata(result.release(), debug_metadata) };
@@ -326,6 +326,57 @@ void NumberBox::Impl::set_number(String n) {
     
     int base = parts.parse_base();
     
+    if(parts.precision_range.length() == 0 && parts.mid_significant_range.to + 1 >= parts.precision_range.from) {
+      // There is at most a single character between midpoint significant digits and precision. 
+      // That is a single backtick (`).
+      // This implies !parts.has_midpoint_insignificant(), as well as !parts.has_radius()
+      int num_digits = parts.mid_significant_range.length();
+      if(parts.mid_significant_range.from <= parts.mid_decimal_dot && parts.mid_decimal_dot < parts.mid_significant_range.to)
+        num_digits -= 1;
+      
+      if(DefaultMachinePrecisionDigits < num_digits) {
+        int new_end = parts.mid_significant_range.to - num_digits + DefaultMachinePrecisionDigits;
+        if(new_end <= parts.mid_decimal_dot + 1)
+          new_end = parts.mid_decimal_dot + 2;
+        
+        if(base == 10) {
+          const uint16_t *buf = parts._number.buffer();
+          if(buf[new_end] >= (uint16_t)'5') { // round upwards. TODO: round to even instead??
+            int pos_last_rounded = new_end - 1;
+            while(pos_last_rounded >= parts.mid_significant_range.from && (buf[pos_last_rounded] == '9' || buf[pos_last_rounded] == '.'))
+              --pos_last_rounded;
+            
+            if(parts.mid_significant_range.from <= pos_last_rounded) {
+              parts._number.edit([&](uint16_t *new_buf, int len) {
+                new_buf[pos_last_rounded] += 1;
+                for(int i = pos_last_rounded + 1; i < new_end; ++i) {
+                  if(new_buf[i] != '.')
+                    new_buf[i] = '0';
+                }
+              });
+            }
+            else {
+              // All digits are '9'. Need to set those to '0' and prepend a '1'.
+              // But have an unused digit at new_end. So instead of prepending, set first digit to '1',
+              // set all other up to and including new_end to '0', shift new_end and decimal dot by one place  
+              parts._number.edit([&](uint16_t *new_buf, int len) {
+                new_buf[parts.mid_significant_range.from] = '1';
+                for(int i = parts.mid_significant_range.from + 1; i <= new_end; ++i) {
+                  new_buf[i] = '0';
+                }
+
+                new_end += 1;
+                parts.mid_decimal_dot+= 1;
+                new_buf[parts.mid_decimal_dot] = '.';
+              });
+            }
+          }
+
+          parts.mid_significant_range.to = new_end;
+        }
+      }
+    }
+
     if(base != 10)
       append(DigitsPrefix, DigitsPrefixLength);
     
