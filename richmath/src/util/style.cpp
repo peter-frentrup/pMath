@@ -133,6 +133,7 @@ extern pmath_symbol_t richmath_System_Plain;
 extern pmath_symbol_t richmath_System_PlotRange;
 extern pmath_symbol_t richmath_System_PlotRangePadding;
 extern pmath_symbol_t richmath_System_PointSize;
+extern pmath_symbol_t richmath_System_PrintPrecision;
 extern pmath_symbol_t richmath_System_ProgressIndicatorBoxOptions;
 extern pmath_symbol_t richmath_System_PureArgument;
 extern pmath_symbol_t richmath_System_Range;
@@ -2723,6 +2724,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(PlotRange);
   impl.emit_definition(PlotRangePaddingLeft);
   impl.emit_definition(PointSize);
+  impl.emit_definition(PrintPrecision);
   impl.emit_definition(ProgressIndicatorBoxOptions);
   impl.emit_definition(ReturnCreatesNewSection);
   impl.emit_definition(Saveable);
@@ -3446,6 +3448,7 @@ void StyleInformation::add_style() {
     add(StyleType::AutoBool,        LimitsPositioning,                Symbol( richmath_System_LimitsPositioning));
     add(StyleType::Bool,            LineBreakWithin,                  Symbol( richmath_System_LineBreakWithin));
     add(StyleType::Bool,            Placeholder,                      Symbol( richmath_System_Placeholder));
+    add(StyleType::Integer,         PrintPrecision,                   Symbol( richmath_System_PrintPrecision));
     add(StyleType::Bool,            ReturnCreatesNewSection,          Symbol( richmath_System_ReturnCreatesNewSection));
     add(StyleType::Bool,            Saveable,                         Symbol( richmath_System_Saveable));
     add(StyleType::Integer,         ScriptLevel,                      Symbol( richmath_System_ScriptLevel));

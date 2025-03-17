@@ -63,12 +63,23 @@ namespace richmath {
       
       bool use_auto_formatting() {       return get_flag(UseAutoFormattingBit); }
       void use_auto_formatting(bool value) { change_flag(UseAutoFormattingBit, value); }
+
+      bool needs_print_precision() {       return get_flag(NeedsPrintPrecisionBit); }
+      void needs_print_precision(bool value) { change_flag(NeedsPrintPrecisionBit, value); }
+
+      unsigned print_precision_or_zero() { return get_flags_part(PrintPrecisionBit0, NumPrintPrecisionBits); }
+      void print_precision_or_zero(unsigned value) {  set_flags_part(PrintPrecisionBit0, NumPrintPrecisionBits, (value < (1u << NumPrintPrecisionBits)) ? value : 0); }
     
     protected:
       enum {
+        NumPrintPrecisionBits = 5,
+
         UseAutoFormattingBit = base::NumFlagsBits,
+        NeedsPrintPrecisionBit,
+        PrintPrecisionBit0,
+        PrintPrecisionBitHighest = PrintPrecisionBit0 + NumPrintPrecisionBits - 1,
         
-        NumFlagsBits
+        NumFlagsBits,
       };
       static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       

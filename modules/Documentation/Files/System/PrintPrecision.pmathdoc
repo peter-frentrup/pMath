@@ -1,0 +1,136 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("PrintPrecision", "ObjectName"), 
+      Section(BoxData(TemplateBox({"PrintPrecision"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"With the default setting ", 
+           TemplateBox({"PrintPrecision"}, "ReferenceHyperlink"), 
+           " \[Rule] 6, only the six most significant digits are displayed \
+           although the value of the number is stored internally with \
+           approximately ", TemplateBox({"$MachinePrecision"}, 
+            "ReferenceHyperlink"), " many significant digits."}), "Notes"), 
+        Section(
+         TextData({TemplateBox({"PrintPrecision"}, "ReferenceHyperlink"), 
+           " is only considered if the ", TemplateBox({"AutoNumberFormating"}, 
+            "ReferenceHyperlink"), " setting is ", 
+           TemplateBox({"True"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(
+         TextData({TemplateBox({"PrintPrecision"}, "ReferenceHyperlink"), 
+           " is only consulted for display of machine precision floating point \
+           numbers, but ignored for integers or multi-precision numbers."}), 
+         "Notes"), 
+        Section(
+         TextData({
+           "The default number of digits to be shown can be changed with ", 
+           TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), "(", 
+           TemplateBox({"$FrontEndSession"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"PrintPrecision"}, "ReferenceHyperlink"), 
+           ")\[Assign] ", StyleBox("n", "Arg")}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("By default, up to 6 decimal digits are displayed:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"CurrentValue", "(", "PrintPrecision", ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("6"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({Section(BoxData({"Numericalize", "(", "Pi", ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData("3.141592653589793`"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Display 10 digits:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Style", "(", {{"Numericalize", "(", "Pi", ")"}, 
+                ",", {"PrintPrecision", "\[Rule]", "10"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(StyleBox("3.141592653589793`", 
+               PrintPrecision -> 10, StripOnInput -> False)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"If fewer digits suffice, ", 
+             TemplateBox({"PrintPrecision"}, "ReferenceHyperlink"), 
+             " is ignored:"}), "ExampleText"), 
+          SectionGroup({Section(BoxData("1.5"), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("1.5"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(
+         TextData({TemplateBox({"PrintPrecision"}, "ReferenceHyperlink"), 
+           " only affects machine-precision floating point numbers:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"1", "/", "7.0"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData("0.14285714285714285`"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        Section("The input form uses all available digits:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"InputForm", "(", {"1", "/", "7.0"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData(StyleBox("0.14285714285714285`", AutoDelete -> True, 
+             AutoNumberFormating -> False, ShowStringCharacters -> True)), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), 
+        Section(
+         "Integers, rationals, and multi-precision floating point numbers are \
+         not affected:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"{", {{"1", "/", "7"}, ",", {"1", "/", "7.0`20"}}, 
+             "}"}), "Input", SectionLabel -> "in [3]:"), 
+          Section(
+           BoxData({"{", {FractionBox("1", "7"), ",", 
+              "0.14285714285714285714[262+/-170]`20"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(
+         TextData({TemplateBox({"PrintPrecision"}, "ReferenceHyperlink"), 
+           " only affects display, but cannot increase the precision:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Style", "(", {{"Numericalize", "(", "Pi", ")"}, 
+              ",", {"PrintPrecision", "\[Rule]", "50"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(StyleBox("3.141592653589793`", PrintPrecision -> 50, 
+             StripOnInput -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        Section(
+         "Use multi-precision numbers to get more digits with proven error \
+         bounds:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Numericalize", "(", {"Pi", ",", "50"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData(
+            "3.1415926535897932384626433832795028841971693993751[015+/-214]`50\
+            "), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All)}, 1), 
+      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+        Section("Dynamically adjust the number of displayed digits:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({
+             "{", {{"Slider", "(", {{"Dynamic", "(", "pp", ")"}, ",", {
+                 "1", "..", "20", "..", "1"}}, ")"}, ",", {
+               "Style", "(", {{"Numericalize", "(", "Pi", ")"}, ",", {
+                 "PrintPrecision", "\[Rule]", {"Dynamic", "(", "pp", ")"}}}, 
+               ")"}}, "}"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {SliderBox(Dynamic($Context`pp), 1 .. 20 .. 1), ",", 
+              StyleBox("3.141592653589793`", 
+               PrintPrecision -> Dynamic($Context`pp), 
+               StripOnInput -> False)}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"AutoNumberFormating"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"$MachinePrecision"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

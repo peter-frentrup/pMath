@@ -715,6 +715,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( PrecedesTilde,                      DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( Precision,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Prepend,                            0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Print,                              0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( PrintPrecision,                     0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Product,                            HOLDALL )
 PMATH_DECLARE_SYSTEM_SYMBOL( ProgressIndicator,                  0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( ProgressIndicatorBox,               0 )

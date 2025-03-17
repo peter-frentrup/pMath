@@ -129,6 +129,10 @@ namespace richmath {
       void change_flag(unsigned i, bool value) { if(value) { set_flag(i); } else { clear_flag(i); } }
       void set_flag(unsigned i) {    _flags |=  (1u << i); }
       void clear_flag(unsigned i) {  _flags &= ~(1u << i);}
+
+      unsigned get_flags_part(unsigned i, unsigned len) { return (_flags >> i) & ((1u << len) - 1); }
+      void set_flags_part(unsigned i, unsigned len, unsigned value) { _flags = (_flags & ~(((1u << len) - 1) << i)) | ((value & ((1u << len) - 1)) << i); }
+
     private:
       FrontEndReference _id;
       unsigned          _flags;

@@ -13,7 +13,7 @@ NewTask(SyntaxInformation(Sin))
 
 
 
-SetOptions($FrontEndSession, FontFamily -> MathFontFamily)
+SetOptions($FrontEndSession, {FontFamily -> MathFontFamily, PrintPrecision -> 6})
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "set-aliases.pmath"))
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "set-contextmenu.pmath"))
 

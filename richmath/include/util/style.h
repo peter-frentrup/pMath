@@ -147,6 +147,7 @@ namespace richmath {
     MenuCommandKey,
     MenuSortingValue,
     Placeholder,
+    PrintPrecision,
     RemovalConditions, // 0 or more of RemovalConditionFlagXXX
     ReturnCreatesNewSection,
     Saveable,

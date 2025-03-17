@@ -31,8 +31,6 @@ extern pmath_symbol_t richmath_System_List;
 
 using namespace richmath;
 
-static const int DefaultMachinePrecisionDigits = 6;
-
 namespace {
   static const uint16_t MULTIPLICATION_SPACE_CHAR = 0x2006;
   static const uint16_t TIMES_CHAR = 0x00D7;
@@ -102,6 +100,7 @@ namespace richmath {
       PositionInRange selection_to_string_index(Box *selbox, int selpos);
       Box *string_index_to_selection(int char_index, int *selection_index);
       
+      unsigned print_precision_from_style();
       void resize_check_auto_formatting_change(Context &context);
     
     private:
@@ -214,8 +213,15 @@ void NumberBox::paint(Context &context) {
   context.text_shaper      = old_text_shaper;
   
   if(get_style(AutoNumberFormating)) {
-    if(!use_auto_formatting())
+    if(use_auto_formatting()) {
+      if(needs_print_precision()) {
+        if(Impl(*this).print_precision_from_style() != print_precision_or_zero())
+          invalidate();
+      }
+    }
+    else {
       invalidate();
+    }
   }
   else {
     if(use_auto_formatting())
@@ -330,12 +336,16 @@ void NumberBox::Impl::set_number(String n) {
       // There is at most a single character between midpoint significant digits and precision. 
       // That is a single backtick (`).
       // This implies !parts.has_midpoint_insignificant(), as well as !parts.has_radius()
+      self.needs_print_precision(true);
+      
       int num_digits = parts.mid_significant_range.length();
       if(parts.mid_significant_range.from <= parts.mid_decimal_dot && parts.mid_decimal_dot < parts.mid_significant_range.to)
         num_digits -= 1;
       
-      if(DefaultMachinePrecisionDigits < num_digits) {
-        int new_end = parts.mid_significant_range.to - num_digits + DefaultMachinePrecisionDigits;
+      int num_machine_precision_digits = (int)self.print_precision_or_zero();
+      
+      if(num_machine_precision_digits < num_digits) {
+        int new_end = parts.mid_significant_range.to - num_digits + num_machine_precision_digits;
         if(new_end <= parts.mid_decimal_dot + 1)
           new_end = parts.mid_decimal_dot + 2;
         
@@ -376,7 +386,9 @@ void NumberBox::Impl::set_number(String n) {
         }
       }
     }
-
+    else
+      self.needs_print_precision(false);
+    
     if(base != 10)
       append(DigitsPrefix, DigitsPrefixLength);
     
@@ -634,19 +646,44 @@ Box *NumberBox::Impl::string_index_to_selection(int char_index, int *selection_i
   return self._content;
 }
 
+unsigned NumberBox::Impl::print_precision_from_style() {
+  int pp = self.get_style(PrintPrecision);
+  
+  if(pp < 1)
+    return 1u;
+  
+  if(pp >= (1 << NumberBox::NumPrintPrecisionBits))
+    return (1u << NumberBox::NumPrintPrecisionBits) - 1;
+    
+  return (unsigned)pp;
+}
+
 void NumberBox::Impl::resize_check_auto_formatting_change(Context &context) {
+  bool need_reload = false;
   if(self.get_style(AutoNumberFormating)) {
+    unsigned pp = print_precision_from_style();
+    
+    if(self.needs_print_precision()) {
+      if(self.print_precision_or_zero() != pp)
+        need_reload = true;
+    }
+    
+    self.print_precision_or_zero(pp);
+    
     if(!self.use_auto_formatting()) {
       self.use_auto_formatting(true);
-      set_number(self._number);
+      need_reload = true;
     }
   }
   else {
     if(self.use_auto_formatting()) {
       self.use_auto_formatting(false);
-      set_number(self._number);
+      need_reload = true;
     }
   }
+  
+  if(need_reload)
+    set_number(self._number);
 }
 
 MathSequence *NumberBox::Impl::append_radix(NumberPartPositions &parts) {
