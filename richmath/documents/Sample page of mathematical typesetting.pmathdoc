@@ -3,7 +3,7 @@
 Document({
   SectionGroup({Section("Sample page of mathematical typesetting", "Title"), 
     Section(TextData({"First some large operators both in text: ", 
-       BoxData({UnderscriptBox("\[U+222D]", "\[ScriptCapitalQ]"), {
+       BoxData({UnderscriptBox("\[TripleIntegral]", "\[ScriptCapitalQ]"), {
           {"f", "(", {"x", ",", "y", ",", "z"}, ")"}, {
            "\[DifferentialD]", "x"}, {"\[DifferentialD]", "y"}, {
            "\[DifferentialD]", "z"}}}), " and ", 
@@ -20,8 +20,8 @@ Document({
           {"f", "(", {"w", ",", "x", ",", "y", ",", "z"}, ")"}, {
            "\[DifferentialD]", "w"}, {"\[DifferentialD]", "x"}, {
            "\[DifferentialD]", "y"}, {"\[DifferentialD]", "z"}}}, 
-        "\[LessEqual]", {"\[ContourIntegral]", 
-         SubscriptBox({"\[PartialD]", "Q"}), {
+        "\[IndentingNewLine]", "\[LessEqual]", {
+         "\[ContourIntegral]", SubscriptBox({"\[PartialD]", "Q"}), {
           {"f", SuperscriptBox("\[Prime]")}, "\[InvisibleApply]", {
            "(", {
             "max", {
@@ -36,12 +36,12 @@ Document({
               FractionBox({"\[LeftDoubleBracketingBar]", {
                  "w", "\[CirclePlus]", "z"}, "\[RightDoubleBracketingBar]"}, {
                 "\[LeftDoubleBracketingBar]", {"x", "\[CirclePlus]", "y"}, 
-                "\[RightDoubleBracketingBar]"})}, "}"}}, ")"}}}}, "\n", {
-        "\[U+2AB7]", {
+                "\[RightDoubleBracketingBar]"})}, "}"}}, ")"}}}, 
+        "\[IndentingNewLine]", "\[U+2AB7]", {
          UnderscriptBox("\[U+228E]", {"\[DoubleStruckCapitalQ]", "\[U+22D0]", 
            "Q"}), {{"[", {{"f", SuperscriptBox("+")}, "\[InvisibleApply]", {
-             "(", FractionBox({{"\[U+23B0]\[DoubleStruckCapitalQ]", "(", "t", 
-                ")"}, "\[U+23B1]"}, 
+             "(", FractionBox({"\[U+23B0]", {"\[DoubleStruckCapitalQ]", "(", 
+                "t", ")"}, "\[U+23B1]"}, 
               SqrtBox({"1", "-", {"t", SuperscriptBox("2")}})), ")"}}, "]"}, 
           SubsuperscriptBox({"t", "=", "\[Alpha]"}, {
             "t", "=", "\[CurlyTheta]"})}}}, FillBox(" "), {"(", "1", ")"})), 
