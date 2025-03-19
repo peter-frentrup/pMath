@@ -134,20 +134,67 @@ static pmath_bool_t try_round_inexact(pmath_t *x, arf_func_t round_func) {
   return FALSE;
 }
 
+static slong arb_magnitude_as_precision(const arb_t x) {
+  slong prec = arf_abs_bound_lt_2exp_si(arb_midref(x));
+  return FLINT_MAX(prec, 0);
+}
+
+static slong magnitude_as_precision(pmath_t obj) { // obj wont be freed
+  if(pmath_is_double(obj)) {
+    int exp = 0;
+    frexp(PMATH_AS_DOUBLE(obj), &exp);
+    slong prec = (slong)exp + 1;
+    return FLINT_MAX(prec, 0);
+  }
+  
+  if(pmath_is_mpfloat(obj)) 
+    return arb_magnitude_as_precision(PMATH_AS_ARB(obj));
+  
+  if(pmath_is_expr_of_len(obj, pmath_System_Complex, 2)) {
+    pmath_t re = pmath_expr_get_item(obj, 1);
+    pmath_t im = pmath_expr_get_item(obj, 2);
+    
+    slong prec_re = magnitude_as_precision(re);
+    slong prec_im = magnitude_as_precision(im);
+    
+    pmath_unref(re);
+    pmath_unref(im);
+    
+    return FLINT_MAX(prec_re, prec_im);
+  }
+  
+  return 0;
+}
+
 static pmath_bool_t try_round_numeric(pmath_t *x, arf_func_t round_func) {
   pmath_thread_t me = pmath_thread_get_current();
   double precision;
-  double max_precision;
   
   if(!me)
     return FALSE;
-    
+  
+  // TODO: better first do a rough calculation with few digits to find the magnitude and then use that as the precision
+  // FIXME: Round(Pi^100) currently fails with Round::meprec message due to $MaxExtraPrecision = 50
+  //        But that should work (also Round(P^1000), Round(Pi^10000))
+  
   precision = FLINT_MIN(16, me->max_extra_precision);
   precision = FLINT_MAX(me->min_precision, precision);
-  max_precision = FLINT_MIN(me->max_precision, me->min_precision + me->max_extra_precision);
+  
+  pmath_t approx = pmath_set_precision(pmath_ref(*x), precision);
+  if(try_round_inexact(&approx, round_func)) {
+    pmath_unref(*x);
+    *x = approx;
+    return TRUE;
+  }
+  
+  slong necessary_prec = magnitude_as_precision(approx);
+  pmath_unref(approx);
+  
+  precision = FLINT_MIN(FLINT_MAX(precision, necessary_prec) + 2, me->max_precision);
+  double max_precision = FLINT_MIN(me->max_precision, precision + me->max_extra_precision);
   
   while(!pmath_aborting()) {
-    pmath_t approx = pmath_set_precision(pmath_ref(*x), precision);
+    approx = pmath_set_precision(pmath_ref(*x), precision);
     
     if(try_round_inexact(&approx, round_func)) {
       pmath_unref(*x);
@@ -155,16 +202,29 @@ static pmath_bool_t try_round_numeric(pmath_t *x, arf_func_t round_func) {
       return TRUE;
     }
     
-    if(!pmath_is_float(approx) && !_pmath_is_nonreal_complex_number(approx)) {
+    if(!pmath_is_float(approx) && !_pmath_is_nonreal_complex_number(approx))  {
       pmath_unref(approx);
       break;
     }
     
-    pmath_unref(approx);
+    if(precision >= max_precision) {
+      pmath_unref(approx);
+      break;
+    }
+    
+    necessary_prec = magnitude_as_precision(approx);
+    double effective_prec = pmath_precision(approx); // frees approx
+    
     if(precision >= max_precision)
       break;
-      
-    precision = FLINT_MIN(2 * precision, max_precision);
+    
+    if(effective_prec <= necessary_prec) {
+      double precision_delta = necessary_prec - effective_prec + 2;
+      precision = FLINT_MIN(precision + precision_delta, max_precision);
+    }
+    else { // Unexpected. try_round_inexact() should have succeeded.
+      precision = FLINT_MIN(2 * precision, max_precision);
+    }
   }
   
   if(precision >= max_precision) {
