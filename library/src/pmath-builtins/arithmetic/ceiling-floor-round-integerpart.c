@@ -173,10 +173,6 @@ static pmath_bool_t try_round_numeric(pmath_t *x, arf_func_t round_func) {
   if(!me)
     return FALSE;
   
-  // TODO: better first do a rough calculation with few digits to find the magnitude and then use that as the precision
-  // FIXME: Round(Pi^100) currently fails with Round::meprec message due to $MaxExtraPrecision = 50
-  //        But that should work (also Round(P^1000), Round(Pi^10000))
-  
   precision = FLINT_MIN(16, me->max_extra_precision);
   precision = FLINT_MAX(me->min_precision, precision);
   
