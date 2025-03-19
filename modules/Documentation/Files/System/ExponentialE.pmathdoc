@@ -1,0 +1,63 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ExponentialE", "ObjectName"), 
+      Section(BoxData(TemplateBox({"ExponentialE"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"Mathematical constant recognized as numeric by ", 
+           TemplateBox({"IsNumeric"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({TemplateBox({"ExponentialE"}, "ReferenceHyperlink"), 
+           " can be evaluated to any numerical precision with ", 
+           TemplateBox({"Numericalize"}, "ReferenceHyperlink"), "."}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"ExponentialE"}, "ReferenceHyperlink"), 
+           " can be entered as ", BoxData("\[ExponentialE]"), 
+           ", \[AliasIndicator]ee\[AliasIndicator], or \\[ExponentialE]."}), 
+         "Notes"), 
+        Section(
+         TextData({"In ", TemplateBox({"StandardForm"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"ExponentialE"}, "ReferenceHyperlink"), 
+           " is output as ", BoxData("\[ExponentialE]"), "."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({TemplateBox({"ExponentialE"}, "ReferenceHyperlink"), 
+           " can be entered as ", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), "ee", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData("ExponentialE"), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("\[ExponentialE]"), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Evaluate to any precision:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Numericalize", "(", {"ExponentialE", ",", "50"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              "2.7182818284590452353602874713526624977572470936999[577+/-214]`\
+              50"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Do an exact numerical computation:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Round", "(", {"ExponentialE", "^", "100"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("26881171418161354484126255515800135873611119"), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Exp"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Log"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Pi"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Numericalize"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

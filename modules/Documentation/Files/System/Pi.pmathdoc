@@ -1,0 +1,62 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Pi", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Pi"}, "UsageReference")), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"Mathematical constant recognized as numeric by ", 
+           TemplateBox({"IsNumeric"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({TemplateBox({"Pi"}, "ReferenceHyperlink"), 
+           " can be evaluated to any numerical precision with ", 
+           TemplateBox({"Numericalize"}, "ReferenceHyperlink"), "."}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"Pi"}, "ReferenceHyperlink"), 
+           " can be entered as ", BoxData("\[Pi]"), 
+           ", \[AliasIndicator]pi\[AliasIndicator], \
+           \[AliasIndicator]p\[AliasIndicator], or \\[Pi]."}), "Notes"), 
+        Section(
+         TextData({"In ", TemplateBox({"StandardForm"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"Pi"}, "ReferenceHyperlink"), " is output as ", 
+           BoxData("\[Pi]"), "."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Pi"}, "ReferenceHyperlink"), 
+           " can be entered as ", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), "p", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData("Pi"), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("\[Pi]"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Evaluate to any precision:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Numericalize", "(", {"Pi", ",", "50"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              "3.1415926535897932384626433832795028841971693993751[015+/-214]`\
+              50"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Do an exact numerical computation:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Round", "(", {"Pi", "^", "100"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData("51878483143196131920862615246303013562686760680406"), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Degree"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ExponentialE"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Numericalize"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

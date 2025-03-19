@@ -1,0 +1,67 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ImaginaryI", "ObjectName"), 
+      Section(BoxData(TemplateBox({"ImaginaryI"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({BoxData(TemplateBox({"ImaginaryI"}, "ReferenceHyperlink")), 
+           " can be entered as ", BoxData("\[ImaginaryI]"), 
+           ", \[AliasIndicator]ii\[AliasIndicator], or \\[ImaginaryI]"}), 
+         "Notes"), 
+        Section(TextData({BoxData("\[ImaginaryJ]"), 
+           ", \[AliasIndicator]jj\[AliasIndicator], or \\[ImaginaryJ] can also \
+           be used."}), "Notes"), 
+        Section(
+         TextData({"In ", TemplateBox({"StandardForm"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"ImaginaryI"}, "ReferenceHyperlink"), 
+           " is output as ", BoxData("\[ImaginaryI]"), "."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({TemplateBox({"ImaginaryI"}, "ReferenceHyperlink"), 
+           " can be entered as ", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), "ii", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData("ImaginaryI"), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("\[ImaginaryI]"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Square roots of negative numbers:", "ExampleText"), 
+          SectionGroup({Section(BoxData({"Sqrt", "(", {"-", "9"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"3", "\[ImaginaryI]"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({"Use ", TemplateBox({"ImaginaryI"}, 
+              "ReferenceHyperlink"), 
+             " in exact and approximate computations:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({{{"(", {"2", "+", "\[ImaginaryI]"}, ")"}, "^", 
+                "2"}, "/", {"(", {"3", "-", "\[ImaginaryI]"}, ")"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({FractionBox("1", "2"), "+", 
+               FractionBox({"3", "\[ImaginaryI]"}, "2")}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Tan", "(", {"3.5", "+", "\[ImaginaryI]"}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData({"0.1454766053920648`", "+", {
+                "0.8030960470021754`", " ", "\[ImaginaryI]"}}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Complex"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Re"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Im"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
