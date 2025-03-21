@@ -345,8 +345,12 @@ void NumberBox::Impl::set_number(String n) {
       const uint16_t *buf = parts._number.buffer();
       
       int num_machine_precision_digits = (int)self.print_precision_or_zero();
-      if(buf[parts.mid_significant_range.from] == '0')
-        ++num_machine_precision_digits;
+      for(int i = parts.mid_significant_range.from; i < parts.mid_significant_range.to; ++i) {
+        if(buf[i] == '0')
+          ++num_machine_precision_digits;
+        else if(buf[i] != '.')
+          break;
+      }
       
       if(num_machine_precision_digits < num_digits) {
         int new_end = parts.mid_significant_range.to - num_digits + num_machine_precision_digits;
