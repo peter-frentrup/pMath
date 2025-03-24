@@ -21,13 +21,18 @@ extern pmath_symbol_t richmath_FE_AttachAutoCompletionPopup;
 extern pmath_symbol_t richmath_FE_AutoCompleteName;
 extern pmath_symbol_t richmath_FE_AutoCompleteFile;
 extern pmath_symbol_t richmath_FE_AutoCompleteOther;
+extern pmath_symbol_t richmath_FE_Private_MakeEscapedStringContent;
+extern pmath_symbol_t richmath_FE_Private_ParseStringContent;
 
 extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_Function;
 extern pmath_symbol_t richmath_System_HoldComplete;
 extern pmath_symbol_t richmath_System_Keys;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_MakeBoxes;
 extern pmath_symbol_t richmath_System_MakeExpression;
+extern pmath_symbol_t richmath_System_Map;
+extern pmath_symbol_t richmath_System_PureArgument;
 extern pmath_symbol_t richmath_System_StringBox;
 extern pmath_symbol_t richmath_System_Try;
 
@@ -416,10 +421,9 @@ String AutoCompletion::Private::try_start_filename() {
       
       //string_end = sel_end; // seq->length();
       str = seq->text().part(0, string_end);
+      current_filter_function = Symbol(richmath_FE_AutoCompleteFile);
       expr = Application::interrupt_wait_cached(
-               Call(
-                 Symbol(richmath_FE_AutoCompleteFile),
-                 str),
+               Call(current_filter_function, str),
                Application::button_timeout);
                
       if(!expr.item_equals(0, richmath_System_List) || expr.expr_length() == 0)
@@ -464,59 +468,26 @@ String AutoCompletion::Private::try_start_filename() {
   if(!has_filename_sep(until_sel))
     return {};
   
-  str = seq->raw_substring(string_start, string_end - string_start);
-  bool had_end_quote = true;
-  if(str.length() < 2 || str[str.length() - 1] != '"') {
-    had_end_quote = false;
-    str = str + "\"";
+  if(after_sel.length() > 0 && after_sel[after_sel.length() - 1] == '"') {
+    string_end--;
   }
+  ++string_start;
+
+  Expr acfun = Symbol(richmath_FE_AutoCompleteFile);
+  acfun = Call(Symbol(richmath_System_Function), 
+            Call(Symbol(richmath_System_Map), 
+              Call(PMATH_CPP_MOVE(acfun), 
+                Call(Symbol(richmath_FE_Private_ParseStringContent), 
+                  Call(Symbol(richmath_System_PureArgument), Number(1)))),
+              Symbol(richmath_FE_Private_MakeEscapedStringContent)));
   
-  expr = Call(
-           Symbol(richmath_System_Try),
-           Call(
-             Symbol(richmath_System_MakeExpression),
-             Call(Symbol(richmath_System_StringBox), str)));
-  expr = Evaluate(expr);
-  if(expr.expr_length() != 1 || !expr.item_equals(0, richmath_System_HoldComplete))
-    return {};
-    
-  str = String(expr[1]);
-  if(!str.is_valid())
-    return {};
-    
-  expr = Application::interrupt_wait_cached(
-           Call(
-             Symbol(richmath_FE_AutoCompleteFile),
-             str),
-           Application::button_timeout);
-           
+  str = seq->raw_substring(string_start, string_end - string_start);
+  
+  current_filter_function = acfun;
+  expr = Application::interrupt_wait_cached(Call(acfun, str), Application::button_timeout);
+  
   if(!expr.item_equals(0, richmath_System_List) || expr.expr_length() == 0)
     return {};
-    
-  // enquote
-  for(size_t i = expr.expr_length(); i > 0; --i) {
-    String s = expr[i];
-    if(!s.is_valid())
-      return {};
-      
-    Expr boxes = Evaluate(Call(Symbol(richmath_System_MakeBoxes), s));
-    if(boxes.expr_length() != 1 || !boxes.item_equals(0, richmath_System_StringBox))
-      return {};
-      
-    s = String(boxes[1]);
-    if(s.length() < 2 || s[0] != '"' || s[s.length() - 1] != '"')
-      return {};
-      
-    s = s.part(1, s.length() - 2);
-    expr.set(i, s);
-  }
-  
-  
-  ++string_start;
-  if(had_end_quote)
-    --string_end;
-    
-  str = seq->raw_substring(string_start, string_end - string_start);
   
   document->move_to(seq, string_end, false);
   pub->range = SelectionReference(seq->id(), string_start, string_end);

@@ -8,6 +8,16 @@ FE`AutoCompleteFile(~part:String)::= AutoCompletion`AutoCompleteFullFilename(par
 
 FE`AutoCompleteOther(~list, ~part)::= AutoCompletion`AutoCompleteOther(list, part)
 
+FE`Private`ParseStringContent(~str:String) ::= 
+    MakeExpression(StringBox("\"" ++ str ++ "\""), ParseSymbols -> False) |>
+    {HoldComplete(~s:String) :> s, ~ -> $Failed}
+FE`Private`ParseStringContent(~)::= $Failed
+FE`Private`MakeEscapedStringContent(~str: String)::= MakeBoxes(str) |> 
+    {StringBox(~s:String) :> s |> StringReplace((StartOfString ++ "\"") | ("\"" ++ EndOfString) -> ""), 
+    ~ -> $Failed}
+FE`Private`MakeEscapedStringContent(~)::= $Failed
+%FE`Private`MakeEscapedStringContentList(~l:List)::= l |> Map(FE`Private`MakeEscapedStringContent)
+
 Function FE`AttachAutoCompletionPopup(~loc) {
     %Return($Failed)
     Local(prevIndex:= 0)
