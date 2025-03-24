@@ -84,6 +84,24 @@ namespace richmath {
         ARRAY_ASSERT(start < _length);
         return ArrayView<T>(_length - start, _items + start);
       }
+
+      ArrayView<T> take(int index) {
+        if(index < 0)
+          index = 0;
+        else if(index > _length)
+          index = _length;
+        
+        return ArrayView<T>(index, _items);
+      }
+
+      ArrayView<T> drop(int index) {
+        if(index < 0)
+          index = 0;
+        else if(index > _length)
+          index = _length;
+        
+        return ArrayView<T>(_length - index, _items + index);
+      }
       
     private:
       T *_items;

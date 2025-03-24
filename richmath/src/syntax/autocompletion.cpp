@@ -60,6 +60,9 @@ class AutoCompletion::Private {
     bool set_current_completion_text() { return set_current_completion_text(current_index); }
     bool set_current_completion_text(int index);
     
+    static bool has_only_valid_path_characters(ArrayView<const uint16_t> buf);
+    static bool has_filename_sep(ArrayView<const uint16_t> buf);
+    
     String try_start(bool allow_empty);
     String try_start_alias();
     String try_start_filename();
@@ -385,57 +388,34 @@ String AutoCompletion::Private::try_start_filename() {
     
   String str;
   Expr expr;
-  const uint16_t *buf = seq->text().buffer();
-  bool have_filename_sep = false;
+  ArrayView<const uint16_t> buf = buffer_view(seq->text());
+  
+  int sel_pos = document->selection_start();
+  int sel_end = document->selection_end();
   
   if(InputFieldBox *inp = dynamic_cast<InputFieldBox *>(seq->parent())) {
     if(inp->input_type() == InputFieldType::String) {
       if(seq->count() > 0)
         return {};
-        
+      
       int string_end = seq->length();
       if(string_end < 1)
         return {};
-        
-      for(int i = 0; i < document->selection_start(); ++i) {
-        if( buf[i] < ' '  ||
-            buf[i] == '|' ||
-            buf[i] == '"' ||
-            buf[i] == '<' ||
-            buf[i] == '>' ||
-            buf[i] == '\'' ||
-            buf[i] == '*' ||
-            buf[i] == '?' ||
-            buf[i] == ';')
-        {
-          return {};
-        }
-        
-        if(buf[i] == '/' || buf[i] == '\\')
-          have_filename_sep = true;
-      }
       
-      if(!have_filename_sep)
+      ArrayView<const uint16_t> until_sel = buf.take(sel_pos);
+      
+      if(!has_only_valid_path_characters(until_sel))
         return {};
-        
-      for(int i = document->selection_start(); i < string_end; ++i) {
-        if( buf[i] < ' '  ||
-            buf[i] == '|' ||
-            buf[i] == '<' ||
-            buf[i] == '>' ||
-            buf[i] == '/' ||
-            buf[i] == '\\' ||
-            buf[i] == '\'' ||
-            buf[i] == '"' ||
-            buf[i] == '*' ||
-            buf[i] == '?' ||
-            buf[i] == ';')
-        {
-          return {};
-        }
-      }
       
-      str = seq->text();
+      if(!has_filename_sep(until_sel))
+        return {};
+      
+//      ArrayView<const uint16_t> after_sel = buf.drop(sel_pos);
+//      if(!has_only_valid_path_characters(after_sel) || has_filename_sep(after_sel))
+//        return {};
+      
+      //string_end = sel_end; // seq->length();
+      str = seq->text().part(0, string_end);
       expr = Application::interrupt_wait_cached(
                Call(
                  Symbol(richmath_FE_AutoCompleteFile),
@@ -454,10 +434,20 @@ String AutoCompletion::Private::try_start_filename() {
   }
   
   int string_end;
-  int string_start = seq->find_string_start(document->selection_start(), &string_end);
+  int string_start = seq->find_string_start(sel_pos, &string_end);
   if(string_start < 0)
     return {};
     
+  ArrayView<const uint16_t> until_sel = buf.take(sel_pos).drop(string_start);
+  ArrayView<const uint16_t> after_sel = buf.take(string_end).drop(sel_pos);
+  
+  for(int i = 0; i < after_sel.length(); ++i) {
+    if(after_sel[i] == '\n') {
+      string_end = sel_end;
+      after_sel = buf.take(string_end).drop(sel_pos);
+    }
+  }
+  
   seq->ensure_boxes_valid();
   
   for(int i = 0; i < seq->count(); ++i) {
@@ -468,61 +458,11 @@ String AutoCompletion::Private::try_start_filename() {
       return {};
   }
   
-  
-  for(int i = string_start + 1; i < document->selection_start(); ++i) {
-    if( buf[i] < ' '  ||
-        buf[i] == '|' ||
-        buf[i] == '"' ||
-        buf[i] == '<' ||
-        buf[i] == '>' ||
-        buf[i] == '\'' ||
-        buf[i] == '*' ||
-        buf[i] == '?' ||
-        buf[i] == ';')
-    {
-      return {};
-    }
-    
-    if(buf[i] == '\\') {
-      if(i + 1 == document->selection_start() || buf[i + 1] == '"')
-        return {};
-        
-      ++i;
-      if(buf[i] == '\\')
-        have_filename_sep = true;
-    }
-    
-    if(buf[i] == '/')
-      have_filename_sep = true;
-  }
-  
-  if(!have_filename_sep)
+  if(!has_only_valid_path_characters(until_sel.drop(1)))
     return {};
-    
-  for(int i = document->selection_start(); i < string_end; ++i) {
-    if( buf[i] < ' '  ||
-        buf[i] == '|' ||
-        buf[i] == '<' ||
-        buf[i] == '>' ||
-        buf[i] == '/' ||
-        buf[i] == '\'' ||
-        buf[i] == '*' ||
-        buf[i] == '?' ||
-        buf[i] == ';')
-    {
-      return {};
-    }
-    
-    if(buf[i] == '"' && i + 1 < string_end)
-      return {};
-      
-    if(buf[i] == '\\') {
-      if(i + 1 >= string_end || buf[i + 1] == '"' || buf[i + 1] == '\\')
-        return {};
-        
-      ++i;
-    }
-  }
+  
+  if(!has_filename_sep(until_sel))
+    return {};
   
   str = seq->raw_substring(string_start, string_end - string_start);
   bool had_end_quote = true;
@@ -731,6 +671,34 @@ void AutoCompletion::Private::remove_popup() {
     }
     popup_id = FrontEndReference::None;
   }
+}
+
+bool AutoCompletion::Private::has_only_valid_path_characters(ArrayView<const uint16_t> buf) {
+  for(uint16_t ch : buf) {
+    if( ch < ' '  ||
+        ch == '|' ||
+        ch == '<' ||
+        ch == '>' ||
+        ch == '\'' ||
+        ch == '"' ||
+        ch == '*' ||
+        ch == '?' ||
+        ch == ';')
+    {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+bool AutoCompletion::Private::has_filename_sep(ArrayView<const uint16_t> buf) {
+  for(uint16_t ch : buf) {
+    if(ch == '\\' || ch == '/')
+      return true;
+  }
+  
+  return false;
 }
 
 //} ... class AutoCompletion::Private
