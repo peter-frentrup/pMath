@@ -601,7 +601,7 @@ bool AutoCompletion::Private::reapply_filter() {
   if(!seq)
     return false;
   
-  String text = seq->raw_substring(sel.start, sel.end);
+  String text = seq->raw_substring(sel.start, sel.length());
   Expr new_suggestions;
   if(current_filter_function) {
     new_suggestions = Application::interrupt_wait_cached(
