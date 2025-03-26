@@ -2883,7 +2883,7 @@ HANDLE Win32ControlPainter::get_control_theme(
           case ControlState::Hot:
           case ControlState::Hovered:        *theme_state = 2; break;
           case ControlState::Pressed:
-          case ControlState::PressedHovered: *theme_state = 3; break;
+          case ControlState::PressedHovered: *theme_state = 6; break; // *theme_state = 3;
           case ControlState::Disabled:        theme = nullptr; break; // the LISS_DISABLED part (4) has a border
         }
       } break;
@@ -2893,7 +2893,7 @@ HANDLE Win32ControlPainter::get_control_theme(
         
         switch(state) {
           case ControlState::Pressed:
-          case ControlState::Normal:         *theme_state = 3; break;
+          case ControlState::Normal:         *theme_state = 6; break; // *theme_state = 3;
           case ControlState::Hot:
           case ControlState::Hovered:        *theme_state = 6; break;
           case ControlState::PressedHovered: *theme_state = 6; break;
