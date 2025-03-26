@@ -173,7 +173,15 @@ bool Win32AttachedPopupWindow::is_using_dark_mode() {
 }
 
 bool Win32AttachedPopupWindow::is_focused_widget() {
-  return is_foreground_window() && base::is_focused_widget();
+  if(is_foreground_window() && base::is_focused_widget())
+    return true;
+  
+  Document *owner_doc = owner_document();
+  Document *doc = document();
+  if(doc && owner_doc && owner_doc->is_input_stealing_popup(doc))
+    return owner_doc->native()->is_focused_widget();
+  
+  return false;
 }      
 
 int Win32AttachedPopupWindow::dpi() {
@@ -402,7 +410,6 @@ HWND *Win32AttachedPopupWindow::Impl::get_owner_hwnd_location(Document *doc) {
 }
 
 Win32Widget *Win32AttachedPopupWindow::Impl::owner_widget() {
-  Document *owner = self.owner_document();
   if(Document *owner = self.owner_document())
     return dynamic_cast<Win32Widget*>(owner->native());
   

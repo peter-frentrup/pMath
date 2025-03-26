@@ -3700,6 +3700,13 @@ void Document::invalidate_popup_window_positions() {
   Impl(*this).invalidate_popup_window_positions();
 }
 
+bool Document::is_input_stealing_popup(Document *popup_window) {
+  if(!popup_window)
+    return false;
+  
+    return auto_completion.has_popup(popup_window->id());
+}
+
 Document *Document::find_next_attached_popup_window_for(Box *anchor_box, Document *prev, LogicalDirection dir) {
   return Impl(*this).find_next_attached_popup_window_for(anchor_box, prev, dir);
 }

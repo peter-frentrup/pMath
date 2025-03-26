@@ -193,6 +193,7 @@ namespace richmath {
       void popup_window_closed(Document *popup_window) { if(popup_window) popup_window_closed(popup_window->id()); };
       void popup_window_closed(FrontEndReference popup_window_id);
       void invalidate_popup_window_positions();
+      bool is_input_stealing_popup(Document *popup_window);
       
       Document *find_next_attached_popup_window_for(Box *anchor_box, Document *prev, LogicalDirection dir);
       

@@ -17,6 +17,7 @@ namespace richmath {
       
       bool is_active() const;
       bool has_popup() const;
+      bool has_popup(FrontEndReference id) const;
       
       bool handle_key_backspace();
       bool handle_key_escape();

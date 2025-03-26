@@ -49,7 +49,7 @@ namespace richmath {
       virtual void invalidate_source_location() override;
       
       virtual bool is_foreground_window() override { return _parent->is_foreground_window(); };
-      virtual bool is_focused_widget() override { return _parent->is_foreground_window() && base::is_focused_widget(); }
+      virtual bool is_focused_widget() override;
       virtual bool is_using_dark_mode() override { return _parent->is_using_dark_mode(); }
       virtual int dpi() override { return _parent->dpi(); }
       
@@ -815,6 +815,18 @@ void MathGtkPopupContentArea::invalidate_options() {
 void MathGtkPopupContentArea::invalidate_source_location() {
   base::invalidate_source_location();
   _parent->invalidate_source_location();
+}
+
+bool MathGtkPopupContentArea::is_focused_widget() {
+  if(is_foreground_window() && base::is_focused_widget())
+    return true;
+  
+  Document *owner_doc = owner_document();
+  Document *doc = document();
+  if(doc && owner_doc && owner_doc->is_input_stealing_popup(doc))
+    return owner_doc->native()->is_focused_widget();
+  
+  return false;
 }
 
 void MathGtkPopupContentArea::paint_background(Canvas &canvas) {

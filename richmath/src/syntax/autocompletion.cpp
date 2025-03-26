@@ -708,6 +708,13 @@ bool AutoCompletion::has_popup() const {
   return priv->popup_id.is_valid();
 }
 
+bool AutoCompletion::has_popup(FrontEndReference id) const {
+  if(!id.is_valid() || !is_active())
+    return false;
+  
+  return priv->popup_id.is_valid();
+}
+
 bool AutoCompletion::handle_key_backspace() {
   VolatileSelection dst = range.get_all();
   if(!dst)
