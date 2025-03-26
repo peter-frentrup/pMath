@@ -56,8 +56,14 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     is_initialized(false);
   }
   
-  value = expr[2];
-  is_down(!dynamic.is_dynamic() && dynamic.expr() == value);
+  if(value != expr[2]) {
+    value = expr[2];
+    must_update(true);
+  }
+  
+  if(must_update()) {
+    is_down(!dynamic.is_dynamic() && dynamic.expr() == value);
+  }
   
   _content->load_from_object(expr[3], opts);
   
