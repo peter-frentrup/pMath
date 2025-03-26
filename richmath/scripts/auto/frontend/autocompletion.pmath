@@ -51,7 +51,7 @@ Function FE`AttachAutoCompletionPopup(~loc) {
                                 Alignment -> Left,
                                 BoxID -> {"ResultButton", #})
                             })) |> 
-                        GridBox
+                        GridBox(GridBoxRowSpacing -> 0)
                     )},
                     Dynamic(Block {
                         With(idx:= CurrentValue({"AttachmentSourceBox", "AutoCompletionSuggestionIndex"}))
@@ -68,7 +68,7 @@ Function FE`AttachAutoCompletionPopup(~loc) {
                     }))
             })),
             "PopupWindowSection",
-            SectionMargins -> {{4,4}, {4,4}},
+            SectionMargins -> 0,
             LineBreakWithin -> False,
             AutoSpacing -> False)
         },
