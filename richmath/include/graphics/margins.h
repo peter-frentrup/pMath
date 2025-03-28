@@ -71,10 +71,10 @@ namespace richmath {
   };
   
   template<typename T, typename U>
-  inline bool operator==(const Margins<T> &a, const Margins<T> &b) { return a.left == b.left && a.right == b.right && a.top == b.top && a.bottom == b.bottom; }
+  inline bool operator==(const Margins<T> &a, const Margins<U> &b) { return a.left == b.left && a.right == b.right && a.top == b.top && a.bottom == b.bottom; }
   
   template<typename T, typename U>
-  inline bool operator!=(const Margins<T> &a, const Margins<T> &b) { return a.left != b.left || a.right != b.right || a.top != b.top || a.bottom != b.bottom; }
+  inline bool operator!=(const Margins<T> &a, const Margins<U> &b) { return a.left != b.left || a.right != b.right || a.top != b.top || a.bottom != b.bottom; }
   
   template<typename T>
   inline Margins<T> operator*(T factor, Margins<T> m) { return m *= factor; }
