@@ -151,9 +151,9 @@ void InputFieldBox::resize_default_baseline(Context &context) {
   
   type = Impl::parse_appearance(get_own_style(Appearance));
   
-  float old_cx = cx - margins.width / 2;
+  float old_cx = cx - margins.left;
   base::resize_default_baseline(context);
-  cx = old_cx + margins.width / 2;
+  cx = old_cx + margins.left;
   
   context.math_spacing = old_math_spacing;
   context.width = old_width;
@@ -270,7 +270,7 @@ void InputFieldBox::paint_content(Context &context) {
     context.canvas().restore();
   }
   
-  float dx = margins.width / 2 - 0.75f;
+  float dx = margins.left - 0.75f;
   float dy = 0;
   
   context.canvas().save();
@@ -300,30 +300,31 @@ void InputFieldBox::reset_style() {
 
 bool InputFieldBox::scroll_to(const RectangleF &rect) {
   float old_cx = cx;
-  float frame_x = margins.width / 2;
+  float frame_l = margins.left;
+  float frame_r = margins.left;
   
-  if(rect.left() < -cx + frame_x) {
-    cx = frame_x - rect.left();
+  if(rect.left() < -cx + frame_l) {
+    cx = frame_l - rect.left();
     
-    float extra = (_extents.width - 2 * frame_x) * 0.2;
-    if(extra + rect.width > _extents.width - 2 * frame_x)
-      extra = _extents.width - 2 * frame_x - rect.width;
+    float extra = (_extents.width - frame_l - frame_r) * 0.2;
+    if(extra + rect.width > _extents.width - frame_l - frame_r)
+      extra = _extents.width - frame_l - frame_r - rect.width;
       
     cx += extra;
-    if(cx > frame_x)
-      cx = frame_x;
+    if(cx > frame_l)
+      cx = frame_l;
   }
-  else if(rect.right() > -cx + _extents.width - 2 * frame_x) {
-    cx = _extents.width - frame_x - rect.right();
+  else if(rect.right() > -cx + _extents.width - frame_l - frame_r) {
+    cx = _extents.width - frame_r - rect.right();
     
-    float extra = (_extents.width - 2 * frame_x) * 0.2;
-    if(extra + rect.width > _extents.width - 2 * frame_x)
-      extra = _extents.width - 2 * frame_x - rect.width;
+    float extra = (_extents.width - frame_l - frame_r) * 0.2;
+    if(extra + rect.width > _extents.width - frame_l - frame_r)
+      extra = _extents.width - frame_l - frame_r - rect.width;
       
     cx -= extra;
   }
-  else if(rect.right() < _extents.width - 2 * frame_x)
-    cx = frame_x;
+  else if(rect.right() < _extents.width - frame_l - frame_r)
+    cx = frame_l;
     
   if(cx != old_cx) {
     request_repaint_all();

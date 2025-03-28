@@ -68,7 +68,7 @@ namespace richmath {
     
     protected:
       SharedPtr<BoxAnimation> animation;
-      BoxSize       margins;
+      Margins<float>  margins;
       ContainerType type;
       ControlState  old_state;
       uint16_t      _unused_u16;

@@ -31,7 +31,7 @@ namespace richmath { namespace strings {
 
 ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, AbstractSequence *content)
   : AbstractStyleBox(content),
-    margins(0, 0, 0),
+    margins(0.0f),
     type(_type),
     old_state(ControlState::Normal),
     _unused_u16(0)
@@ -88,22 +88,30 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
     forced_h = h.resolve(em, LengthConversionFactors::ControlHeight, context.width);
   }
   
-  margins = BoxSize(0,0,0);
+  margins = Margins<float>(0.0f);
   if(w != SymbolicSize::Automatic || h != SymbolicSize::Automatic || context.width < HUGE_VAL) {
     BoxSize dummy(1000, 1000, 1000);
-    margins = dummy;
-    ControlPainter::std->calc_container_size(*this, context.canvas(), type, &margins);
-    margins.ascent  -= dummy.ascent;
-    margins.descent -= dummy.descent;
-    margins.width   -= dummy.width;
+    BoxSize expanded = dummy;
+    ControlPainter::std->calc_container_size(*this, context.canvas(), type, &expanded);
+    expanded.ascent  -= dummy.ascent;
+    expanded.descent -= dummy.descent;
+    expanded.width   -= dummy.width;
+    margins.left   = expanded.width / 2;
+    margins.right  = expanded.width / 2;
+    margins.top    = expanded.ascent;
+    margins.bottom = expanded.ascent;
     //pmath_debug_print("[w: %s(%f), h: %s(%f)]\n", w.is_symbolic() ? "sym" : "val", w.is_symbolic() ? (float)w.symblic_value() : w.raw_value(), 
     //                                              h.is_symbolic() ? "sym" : "val", h.is_symbolic() ? (float)h.symblic_value() : h.raw_value());
   }
   
-  if(margins.width > context.width)
-     margins.width = context.width;
- 
-  context.width -= margins.width;
+  if(margins.left + margins.right > context.width) {
+     float too_wide = margins.left + margins.right - context.width;
+     margins.left-= too_wide/2;
+     if(margins.left < 0) margins.left = 0;
+     margins.right = context.width - margins.left;
+  }
+  
+  context.width -= (margins.left + margins.right);
   
   base::resize_default_baseline(context);
   
@@ -115,14 +123,14 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
   
   if(h != SymbolicSize::Automatic) {
     if(forced_h <= _extents.height()) {
-      margins.ascent = margins.descent = 0;
+      margins.top = margins.bottom = 0;
     }
-    else if(forced_h < _extents.height() + margins.height()) {
+    else if(forced_h < _extents.height() + margins.top + margins.bottom) {
       float max_margin_h = (forced_h - _extents.height());
-      margins.ascent = margins.descent = max_margin_h / 2;
+      margins.top = margins.bottom = max_margin_h / 2;
     }
     
-    _extents.ascent += margins.ascent;
+    _extents.ascent += margins.top;
     _extents.descent = forced_h - _extents.ascent;
   }
   else if(get_own_style(ContentPadding, false)) {
@@ -147,16 +155,17 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
     &_extents);
   
   if(!w.is_symbolic())
-    _extents.width = old_size.width + margins.width;
+    _extents.width = old_size.width + margins.left + margins.right;
   
   if(!h.is_symbolic()) {
-    _extents.ascent  = old_size.ascent  + margins.ascent;
-    _extents.descent = old_size.descent + margins.descent;
+    _extents.ascent  = old_size.ascent  + margins.top;
+    _extents.descent = old_size.descent + margins.bottom;
   }
 
-  margins.width   = _extents.width   - old_size.width;
-  margins.ascent  = _extents.ascent  - old_size.ascent;
-  margins.descent = _extents.descent - old_size.descent;
+  margins.left   = (_extents.width - old_size.width) / 2;
+  margins.right  = (_extents.width - old_size.width) / 2;
+  margins.top    = _extents.ascent  - old_size.ascent;
+  margins.bottom = _extents.descent - old_size.descent;
   
   apply_alignment();
 }
@@ -164,11 +173,11 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
 void ContainerWidgetBox::apply_alignment() {
   SimpleAlignment alignment = SimpleAlignment::from_pmath(get_own_style(Alignment), default_alignment());
   
-  cx = alignment.interpolate_left_to_right(margins.width / 2, _extents.width - content()->extents().width - margins.width / 2);
+  cx = alignment.interpolate_left_to_right(margins.left, _extents.width - content()->extents().width - margins.right);
   
   float eh = _extents.height();
-  float ca = content()->extents().ascent  + margins.ascent;
-  float cd = content()->extents().descent + margins.descent;
+  float ca = content()->extents().ascent  + margins.top;
+  float cd = content()->extents().descent + margins.bottom;
   if(ca + cd < eh) {
     _extents.ascent  = alignment.interpolate_bottom_to_top(eh - cd,      ca);
     _extents.descent = alignment.interpolate_bottom_to_top(     cd, eh - ca);
