@@ -108,7 +108,6 @@ void ControlPainter::calc_container_size(
     case ContainerType::FramelessButton: 
     case ContainerType::TabPanelTopLeft:
     case ContainerType::TabPanelTopRight:
-    case ContainerType::TabPanelCenter:
     case ContainerType::TabPanelBottomLeft:
     case ContainerType::TabPanelBottomRight:
       break;
@@ -132,44 +131,50 @@ void ControlPainter::calc_container_size(
     case ContainerType::GenericButton:
     case ContainerType::PushButton:
     case ContainerType::PaletteButton:
-    case ContainerType::AddressBandGoButton:
     case ContainerType::TooltipWindow:
     case ContainerType::ListViewItem:
     case ContainerType::ListViewItemSelected: {
-        extents->width +=   4.5;
-        extents->ascent +=  2.25;
-        extents->descent += 2.25;
+        extents->width +=   4.5;  // = 1.5(2px) + padding.left + padding.right + 1.5(2px)
+        extents->ascent +=  2.25; // = 1.5(2px) + padding.top
+        extents->descent += 2.25; // = 1.5(2px) + padding.bottom
       } break;
       
     case ContainerType::DefaultPushButton: {
-        extents->width +=   6.0;
-        extents->ascent +=  3.0;
-        extents->descent += 3.0;
+        extents->width +=   6.0; // = 2.25(3px) + padding.left + padding.right + 2.25(3px)
+        extents->ascent +=  3.0; // = 2.25(3px) + padding.top
+        extents->descent += 3.0; // = 2.25(3px) + padding.bottom
+      } break;
+    
+    case ContainerType::AddressBandGoButton:
+       {
+        extents->width +=   4.5;  // = 1.5(2px) + padding.left + padding.right + 1.5(2px)
+        extents->ascent +=  2.25; // = 2.25(3px) + padding.top
+        extents->descent += 2.25; // = 2.25(3px) + padding.bottom
       } break;
       
     case ContainerType::InputField: {
-        extents->width +=   6.0;
-        extents->ascent +=  3.0;
-        extents->descent += 3.0;
+        extents->width +=   6.0; // = 1.5(2px) + padding.left + padding.right + 1.5(2px)
+        extents->ascent +=  3.0; // = 1.5(2px) + padding.top
+        extents->descent += 3.0; // = 1.5(2px) + padding.bottom
       } break;
     
     case ContainerType::AddressBandInputField: {
-        extents->width +=   3.0;
-        extents->ascent +=  2.25;
-        extents->descent += 2.25;
+        extents->width +=   3.0;  // = 0.75(1px) + padding.left + padding.right + 0.75(1px)
+        extents->ascent +=  2.25; // = 0.75(1px) + padding.top
+        extents->descent += 2.25; // = 0.75(1px) + padding.bottom
       } break;
     
     case ContainerType::AddressBandBackground: {
-        extents->width +=   3.0;
-        extents->ascent +=  0.75;
-        extents->descent += 0.75;
+        extents->width +=   3.0;  // = 1.5(2px) + padding.left + padding.right + 1.5(2px)
+        extents->ascent +=  0.75; // = 0.75(1px) + padding.top
+        extents->descent += 0.75; // = 0.75(1px) + padding.bottom
       } break;
       
     case ContainerType::PopupPanel:
     case ContainerType::Panel: {
-        extents->width +=   12.0;
-        extents->ascent +=  6.0;
-        extents->descent += 6.0;
+        extents->width +=   12.0; // = 1.5(2px) + padding.left + padding.right + 1.5(2px)
+        extents->ascent +=   6.0; // = 1.5(2px) + padding.top
+        extents->descent +=  6.0; // = 1.5(2px) + padding.bottom
       } break;
     
     case ContainerType::HorizontalSliderChannel: {
@@ -257,7 +262,18 @@ void ControlPainter::calc_container_size(
     case ContainerType::TabHeadAbuttingRight:
     case ContainerType::TabHeadAbuttingLeftRight:
     case ContainerType::TabHeadAbuttingLeft:
-    case ContainerType::TabHead: 
+    case ContainerType::TabHead: {
+        if(extents->ascent < canvas.get_font_size() * 0.75f)
+          extents->ascent = canvas.get_font_size() * 0.75f;// - extents->ascent;
+          
+        if(extents->descent < canvas.get_font_size() * 0.25f)
+          extents->descent = canvas.get_font_size() * 0.25f;// - extents->descent;
+          
+        extents->width +=   6.0; // = 1.5(2px) + padding.left + padding.right + 1.5(2px)
+        extents->ascent +=  4.5; // = 3.0(4px) + padding.top
+        extents->descent += 1.5; // = 1.5(2px) + padding.bottom
+      } break;
+    
     case ContainerType::TabHeadBottomAbuttingRight:
     case ContainerType::TabHeadBottomAbuttingLeftRight:
     case ContainerType::TabHeadBottomAbuttingLeft:
@@ -268,9 +284,9 @@ void ControlPainter::calc_container_size(
         if(extents->descent < canvas.get_font_size() * 0.25f)
           extents->descent = canvas.get_font_size() * 0.25f;// - extents->descent;
           
-        extents->width +=   6.0;
-        extents->ascent +=  4.5;
-        extents->descent += 1.5;
+        extents->width +=   6.0; // = 1.5(2px) + padding.left + padding.right + 1.5(2px)
+        extents->ascent +=  3.0; // = 1.5(2px) + padding.top
+        extents->descent += 3.0; // = 3.0(4px) + padding.bottom
       } break;
     
     case ContainerType::TabHeadLeftAbuttingBottom:
@@ -287,16 +303,68 @@ void ControlPainter::calc_container_size(
         if(extents->descent < canvas.get_font_size() * 0.25f)
           extents->descent = canvas.get_font_size() * 0.25f;// - extents->descent;
           
-        extents->width +=   9.0;
-        extents->ascent +=  3.0;
-        extents->descent += 1.5;
+        extents->width +=   9.0; // = 3.0(4px) + padding.left + padding.right + 3.0(4px)
+        extents->ascent +=  3.0; // = 1.5(2px) + padding.top
+        extents->descent += 1.5; // = 0.75(1px) + padding.bottom
       } break;
     
     case ContainerType::TabBodyBackground: {
-        extents->width +=   12.0;
-        extents->ascent +=  4.5;
-        extents->descent += 6.0;
+        extents->width +=   12.0; // = 1.5(2px) + padding.left + padding.right + 1.5(2px)
+        extents->ascent +=   4.5; // = 0        + padding.top
+        extents->descent +=  6.0; // = 1.5(2px) + padding.bottom
       } break;
+      
+    case ContainerType::TabPanelCenter: {
+        extents->width +=   9.0; // = 0 + padding.left + padding.right + 0
+        extents->ascent +=  4.5; // = 0 + padding.top
+        extents->descent += 4.5; // = 0 + padding.bottom
+      } break;
+  }
+}
+
+Margins<float> ControlPainter::container_padding(ControlContext &control, ContainerType type) {
+  switch(type) {
+    case ContainerType::GenericButton:
+    case ContainerType::PushButton:
+    case ContainerType::PaletteButton:
+    case ContainerType::TooltipWindow:
+    case ContainerType::ListViewItem:
+    case ContainerType::ListViewItemSelected:            return Margins<float>(0.75f, 0.75f);
+    
+    case ContainerType::DefaultPushButton:               return Margins<float>(0.75f, 0.75f);
+    case ContainerType::AddressBandGoButton:             return Margins<float>(0.75f, 0.0f);
+    case ContainerType::InputField:                      return Margins<float>(1.5f, 1.5f);
+    case ContainerType::AddressBandInputField:           return Margins<float>(1.5f, 1.5f);
+    case ContainerType::AddressBandBackground:           return Margins<float>(0.0f, 0.0f);
+    
+    case ContainerType::PopupPanel:
+    case ContainerType::Panel:
+    case ContainerType::TabPanelCenter:
+    case ContainerType::TabBodyBackground:               return Margins<float>(4.5f);
+    
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead:                         return Margins<float>(1.5f, 1.5f, 1.5f, 0.0f);
+    
+    case ContainerType::TabHeadBottomAbuttingRight:
+    case ContainerType::TabHeadBottomAbuttingLeftRight:
+    case ContainerType::TabHeadBottomAbuttingLeft:
+    case ContainerType::TabHeadBottom:                   return Margins<float>(1.5f, 1.5f, 1.5f, 0.0f);
+    
+    
+    case ContainerType::TabHeadLeftAbuttingBottom:
+    case ContainerType::TabHeadLeftAbuttingTopBottom:
+    case ContainerType::TabHeadLeftAbuttingTop:
+    case ContainerType::TabHeadLeft:                     return Margins<float>(1.5f, 1.5f, 1.5f, 0.75f);
+    
+    case ContainerType::TabHeadRightAbuttingBottom:
+    case ContainerType::TabHeadRightAbuttingTopBottom:
+    case ContainerType::TabHeadRightAbuttingTop:
+    case ContainerType::TabHeadRight:                    return Margins<float>(1.5f, 1.5f, 1.5f, 0.75f);
+    
+    default:
+      return Margins<float>(0.0f);
   }
 }
 

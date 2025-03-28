@@ -3561,10 +3561,26 @@ void StyleInformation::add_style() {
     // SectionFrameMarginRight
     // SectionFrameMarginTop
     // SectionFrameMarginBottom
+    add(StyleType::Margin,          ButtonBoxDefaultFrameMarginLeft,  List(Symbol(richmath_System_ButtonBoxOptions), Symbol( richmath_System_FrameMargins)));
+    // ButtonBoxDefaultSectionFrameMarginRight
+    // ButtonBoxDefaultSectionFrameMarginTop
+    // ButtonBoxDefaultSectionFrameMarginBottom
     add(StyleType::Margin,          FrameBoxDefaultFrameMarginLeft,   List(Symbol(richmath_System_FrameBoxOptions), Symbol( richmath_System_FrameMargins)));
     // FrameBoxDefaultSectionFrameMarginRight
     // FrameBoxDefaultSectionFrameMarginTop
     // FrameBoxDefaultSectionFrameMarginBottom
+    add(StyleType::Margin,          InputFieldBoxDefaultFrameMarginLeft, List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_FrameMargins)));
+    // InputFieldBoxDefaultSectionFrameMarginRight
+    // InputFieldBoxDefaultSectionFrameMarginTop
+    // InputFieldBoxDefaultSectionFrameMarginBottom
+    add(StyleType::Margin,          PanelBoxDefaultFrameMarginLeft,   List(Symbol(richmath_System_PanelBoxOptions), Symbol( richmath_System_FrameMargins)));
+    // PanelBoxDefaultSectionFrameMarginRight
+    // PanelBoxDefaultSectionFrameMarginTop
+    // PanelBoxDefaultSectionFrameMarginBottom
+    add(StyleType::Margin,          SetterBoxDefaultFrameMarginLeft,  List(Symbol(richmath_System_SetterBoxOptions), Symbol( richmath_System_FrameMargins)));
+    // SetterBoxDefaultSectionFrameMarginRight
+    // SetterBoxDefaultSectionFrameMarginTop
+    // SetterBoxDefaultSectionFrameMarginBottom
     add(StyleType::Margin,          PlotRangePaddingLeft,             Symbol( richmath_System_PlotRangePadding));
     // PlotRangePaddingRight
     // PlotRangePaddingTop

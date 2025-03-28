@@ -136,6 +136,8 @@ namespace richmath {
         ContainerType         type,
         BoxSize              *extents);
       
+      virtual Margins<float> container_padding(ControlContext &control, ContainerType type); // only *inside* the border/frame
+      
       virtual void calc_container_radii(
         ControlContext       &control,
         ContainerType         type,

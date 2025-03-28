@@ -27,6 +27,14 @@ namespace richmath { namespace strings {
   extern String ControlStyle;
 }}
 
+static const LengthConversionFactors WidgetBoxMarginFactors = {
+  0.0f, // Automatic
+   1 / 16.0f, // Tiny     For FontSize->12, 96 dpi: 12 * 1/16 = 0.75pt = 1 pixel
+   3 / 16.0f, // Small
+   5 / 16.0f, // Medium
+  10 / 16.0f, // Large
+};
+
 //{ class ContainerWidgetBox ...
 
 ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, AbstractSequence *content)
@@ -69,7 +77,7 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
   
   float forced_w = 0;
   if(w != SymbolicSize::Automatic) {
-    forced_w = w.resolve(em, LengthConversionFactors::ControlWidth, context.width);
+    forced_w = w.resolve(em, LengthConversionFactors::ControlWidth, old_w);
     
     if(get_own_style(LineBreakWithin, true))
       context.width = forced_w; //std::min(context.width, forced_w);
@@ -85,11 +93,19 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
   
   float forced_h = 0;
   if(h != SymbolicSize::Automatic) {
-    forced_h = h.resolve(em, LengthConversionFactors::ControlHeight, context.width);
+    forced_h = h.resolve(em, LengthConversionFactors::ControlHeight, old_w);
   }
   
+  Margins<Length> frame_margins {
+    get_own_style(FrameMarginLeft,   SymbolicSize::Automatic),
+    get_own_style(FrameMarginRight,  SymbolicSize::Automatic),
+    get_own_style(FrameMarginTop,    SymbolicSize::Automatic),
+    get_own_style(FrameMarginBottom, SymbolicSize::Automatic)};
+  
+  bool has_auto_fame = frame_margins == Margins<SymbolicSize>(SymbolicSize::Automatic);
+  
   margins = Margins<float>(0.0f);
-  if(w != SymbolicSize::Automatic || h != SymbolicSize::Automatic || context.width < HUGE_VAL) {
+  if(w != SymbolicSize::Automatic || h != SymbolicSize::Automatic || !has_auto_fame || context.width < HUGE_VAL) {
     BoxSize dummy(1000, 1000, 1000);
     BoxSize expanded = dummy;
     ControlPainter::std->calc_container_size(*this, context.canvas(), type, &expanded);
@@ -104,6 +120,24 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
     //                                              h.is_symbolic() ? "sym" : "val", h.is_symbolic() ? (float)h.symblic_value() : h.raw_value());
   }
   
+  Margins<float> extra_padding {0.0f};
+  if(!has_auto_fame) {
+    // TODO: first remove additional 'Automatic' frame margins applied by ControlPainter
+    
+    auto auto_padding = ControlPainter::std->container_padding(*this, type);
+    
+    if(frame_margins.left != SymbolicSize::Automatic)
+      extra_padding.left   = frame_margins.left.resolve(  em, WidgetBoxMarginFactors, old_w) - auto_padding.left;
+    if(frame_margins.right != SymbolicSize::Automatic)
+      extra_padding.right  = frame_margins.right.resolve( em, WidgetBoxMarginFactors, old_w) - auto_padding.right;
+    if(frame_margins.top != SymbolicSize::Automatic)
+      extra_padding.top    = frame_margins.top.resolve(   em, WidgetBoxMarginFactors, old_w) - auto_padding.top;
+    if(frame_margins.bottom != SymbolicSize::Automatic)
+      extra_padding.bottom = frame_margins.bottom.resolve(em, WidgetBoxMarginFactors, old_w) - auto_padding.bottom;
+  }
+  
+  margins += extra_padding;
+  
   if(margins.left + margins.right > context.width) {
      float too_wide = margins.left + margins.right - context.width;
      margins.left-= too_wide/2;
@@ -116,6 +150,10 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
   base::resize_default_baseline(context);
   
   context.width = old_w;
+  
+  _extents.width   += extra_padding.left + extra_padding.right;
+  _extents.ascent  += extra_padding.top;
+  _extents.descent += extra_padding.bottom;
   
   if(w != SymbolicSize::Automatic) {
     _extents.width = forced_w;
@@ -162,10 +200,10 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
     _extents.descent = old_size.descent + margins.bottom;
   }
 
-  margins.left   = (_extents.width - old_size.width) / 2;
-  margins.right  = (_extents.width - old_size.width) / 2;
-  margins.top    = _extents.ascent  - old_size.ascent;
-  margins.bottom = _extents.descent - old_size.descent;
+  margins.left   = extra_padding.left   + (_extents.width - old_size.width) / 2;
+  margins.right  = extra_padding.right  + (_extents.width - old_size.width) / 2;
+  margins.top    = extra_padding.top    + _extents.ascent  - old_size.ascent;
+  margins.bottom = extra_padding.bottom + _extents.descent - old_size.descent;
   
   apply_alignment();
 }

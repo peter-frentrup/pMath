@@ -301,6 +301,10 @@ namespace richmath {
     PointSize,
     Thickness,
     
+    ButtonBoxDefaultFrameMarginLeft     = FrameMarginLeft     + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultFrameMarginRight    = FrameMarginRight    + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultFrameMarginTop      = FrameMarginTop      + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultFrameMarginBottom   = FrameMarginBottom   + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::ButtonBox,
@@ -318,6 +322,10 @@ namespace richmath {
     GraphicsBoxDefaultPlotRangePaddingTop    = PlotRangePaddingTop    + (int)DefaultStyleOptionOffsets::GraphicsBox,
     GraphicsBoxDefaultPlotRangePaddingBottom = PlotRangePaddingBottom + (int)DefaultStyleOptionOffsets::GraphicsBox,
     
+    InputFieldBoxDefaultFrameMarginLeft     = FrameMarginLeft     + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    InputFieldBoxDefaultFrameMarginRight    = FrameMarginRight    + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    InputFieldBoxDefaultFrameMarginTop      = FrameMarginTop      + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    InputFieldBoxDefaultFrameMarginBottom   = FrameMarginBottom   + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::InputFieldBox,
@@ -326,6 +334,10 @@ namespace richmath {
     PaneBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::PaneBox,
     
+    PanelBoxDefaultFrameMarginLeft     = FrameMarginLeft     + (int)DefaultStyleOptionOffsets::PanelBox,
+    PanelBoxDefaultFrameMarginRight    = FrameMarginRight    + (int)DefaultStyleOptionOffsets::PanelBox,
+    PanelBoxDefaultFrameMarginTop      = FrameMarginTop      + (int)DefaultStyleOptionOffsets::PanelBox,
+    PanelBoxDefaultFrameMarginBottom   = FrameMarginBottom   + (int)DefaultStyleOptionOffsets::PanelBox,
     PanelBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::PanelBox,
     PanelBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PanelBox,
     PanelBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::PanelBox,
@@ -338,6 +350,10 @@ namespace richmath {
     ProgressIndicatorBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::ProgressIndicatorBox,
     ProgressIndicatorBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::ProgressIndicatorBox,
     
+    SetterBoxDefaultFrameMarginLeft     = FrameMarginLeft     + (int)DefaultStyleOptionOffsets::SetterBox,
+    SetterBoxDefaultFrameMarginRight    = FrameMarginRight    + (int)DefaultStyleOptionOffsets::SetterBox,
+    SetterBoxDefaultFrameMarginTop      = FrameMarginTop      + (int)DefaultStyleOptionOffsets::SetterBox,
+    SetterBoxDefaultFrameMarginBottom   = FrameMarginBottom   + (int)DefaultStyleOptionOffsets::SetterBox,
     SetterBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::SetterBox,
     SetterBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::SetterBox,
     SetterBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::SetterBox,

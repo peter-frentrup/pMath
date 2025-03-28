@@ -10,6 +10,7 @@ Options(Button):= {
     %ButtonSource -> Automatic,
     ContentPadding -> True,
     Enabled -> Automatic,
+    FrameMargins -> Automatic,
     ImageSize -> Automatic,
     Method -> "Preemptive"}
 
@@ -24,6 +25,7 @@ Options(ButtonBox):= {
     ButtonSource -> Automatic,
     ContentPadding -> True,
     Enabled -> Automatic,
+    FrameMargins -> Automatic,
     ImageSize -> Automatic,
     Method -> "Preemptive"}
 
@@ -194,6 +196,7 @@ Options(InputField):= Options(InputFieldBox):= {
     ContentPadding -> True,
     ContinuousAction -> False,
     Enabled -> Automatic,
+    FrameMargins -> Automatic,
     ImageSize -> Automatic,
     LineBreakWithin -> False}
           
@@ -223,9 +226,10 @@ Options(Panel):= Options(PanelBox):= {
     BaselinePosition -> Automatic, 
     BaseStyle -> "Panel",
     BoxID -> None,
-    ImageSize -> Automatic,
     ContentPadding -> True,
-    Enabled -> Inherited}
+    Enabled -> Inherited,
+    FrameMargins -> Automatic,
+    ImageSize -> Automatic}
 
 Options(PaneSelector):= Options(PaneSelectorBox):= { 
     Alignment -> Automatic,
@@ -343,6 +347,7 @@ Options(Section):= {
         ButtonSource -> Automatic,
         ContentPadding -> True,
         Enabled -> Automatic,
+        FrameMargins -> Automatic,
         ImageSize -> Automatic,
         Method -> "Preemptive"},
     "ClosingAction" -> Inherited, % only valid for StyleData-sections
@@ -384,6 +389,7 @@ Options(Section):= {
         BaselinePosition -> Automatic,
         BorderRadius -> 0,
         ContentPadding -> True,
+        FrameMargins -> Automatic,
         FrameStyle -> Automatic,
         StripOnInput -> False},
     FontColor -> GrayLevel(0),
@@ -421,6 +427,7 @@ Options(Section):= {
         ContentPadding -> True,
         ContinuousAction -> False,
         Enabled -> Automatic,
+        FrameMargins -> Automatic,
         ImageSize -> Automatic,
         LineBreakWithin -> False},
     "KeywordSymbolStyle" -> { FontColor -> Inherited },
@@ -446,6 +453,7 @@ Options(Section):= {
         BaselinePosition -> Automatic,
         ContentPadding -> True,
         Enabled -> Automatic,
+        FrameMargins -> Automatic,
         ImageSize -> Automatic},
     PaneSelectorBoxOptions -> {
         Alignment -> Automatic,
@@ -483,6 +491,7 @@ Options(Section):= {
         ButtonFrame -> Automatic,
         ContentPadding -> True,
         Enabled -> Automatic,
+        FrameMargins -> Automatic,
         ImageSize -> Automatic},
     ShowAutoStyles -> True,
     ShowContents -> True,
@@ -523,6 +532,7 @@ Options(Setter):= Options(SetterBox):= Options(SetterBar):= {
     ButtonFrame -> Automatic,
     ContentPadding -> True,
     Enabled -> Automatic,
+    FrameMargins -> Automatic,
     ImageSize -> Automatic }
 
 Options(Slider):= Options(SliderBox):= {
