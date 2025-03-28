@@ -136,16 +136,15 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
       extra_padding.bottom = frame_margins.bottom.resolve(em, WidgetBoxMarginFactors, old_w) - auto_padding.bottom;
   }
   
-  margins += extra_padding;
-  
-  if(margins.left + margins.right > context.width) {
-     float too_wide = margins.left + margins.right - context.width;
-     margins.left-= too_wide/2;
-     if(margins.left < 0) margins.left = 0;
-     margins.right = context.width - margins.left;
+  if(extra_padding.left + extra_padding.right > context.width - (margins.left + margins.right)) {
+     float too_wide = extra_padding.left + extra_padding.right - (context.width - (margins.left + margins.right));
+     extra_padding.left-= too_wide/2;
+     if(extra_padding.left < 0) extra_padding.left = 0;
+     extra_padding.right = context.width - extra_padding.left;
+     if(extra_padding.right < 0) extra_padding.right = 0;
   }
   
-  context.width -= (margins.left + margins.right);
+  context.width -= (margins.left + margins.right + extra_padding.left + extra_padding.right);
   
   base::resize_default_baseline(context);
   
@@ -156,7 +155,7 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
   _extents.descent += extra_padding.bottom;
   
   if(w != SymbolicSize::Automatic) {
-    _extents.width = forced_w;
+    _extents.width = forced_w - margins.left - margins.right;
   }
   
   if(h != SymbolicSize::Automatic) {
@@ -168,8 +167,8 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
       margins.top = margins.bottom = max_margin_h / 2;
     }
     
-    _extents.ascent += margins.top;
-    _extents.descent = forced_h - _extents.ascent;
+    _extents.ascent -= margins.top;
+    _extents.descent = forced_h - margins.top - margins.bottom - _extents.ascent;
   }
   else if(get_own_style(ContentPadding, false)) {
     BoxSize &content_extents = content()->var_extents();
@@ -177,11 +176,13 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
        content_extents.ascent = 0.75f * em;
     if(content_extents.descent < 0.25f * em)
        content_extents.descent = 0.25f * em;
-       
-    if(_extents.ascent < content_extents.ascent)
-       _extents.ascent = content_extents.ascent;
-    if(_extents.descent < content_extents.descent)
-       _extents.descent = content_extents.descent;
+    
+    if(_extents.ascent < content_extents.ascent + extra_padding.top) {
+      _extents.ascent = content_extents.ascent + extra_padding.top;
+    }
+    if(_extents.descent < content_extents.descent + extra_padding.bottom) {
+      _extents.descent = content_extents.descent + extra_padding.bottom;
+    }
   }
   
   auto old_size = _extents;
