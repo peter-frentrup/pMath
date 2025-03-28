@@ -344,6 +344,22 @@ void Win32ControlPainter::calc_container_size(
         extents->descent += 4.5;
       }
       break;
+    
+    case ContainerType::TabPanelCenter: 
+      if(theme && Win32Themes::GetThemeMargins) {
+        extents->width +=   6.0;
+        extents->ascent +=  3.0;
+        extents->descent += 3.0;
+      }
+      break;
+    
+    case ContainerType::TabBodyBackground: 
+      if(theme && Win32Themes::GetThemeMargins) {
+        extents->width +=   9.0;
+        extents->ascent +=  3.0;
+        extents->descent += 4.5;
+      }
+      break;
       
     case ContainerType::ProgressIndicatorBackground: {
         if(theme && Win32Themes::GetThemePartSize) {
