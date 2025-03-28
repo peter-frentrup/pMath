@@ -548,7 +548,8 @@ Options(StyleData):= {
 
 Options(TabView):= {
     Alignment -> {Top, Left},
-    Enabled -> Automatic}
+    Enabled -> Automatic,
+    FrameMargins -> Automatic}
 
 Options(TagBox):= {
     AutoDelete -> False,

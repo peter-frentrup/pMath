@@ -306,7 +306,10 @@ Document({
                     Alignment -> 
                      Dynamic(CurrentValue({TemplateSlot, Key(Alignment)})), 
                     Enabled -> 
-                     Dynamic(CurrentValue({TemplateSlot, Key(Enabled)})))}}, 
+                     Dynamic(CurrentValue({TemplateSlot, Key(Enabled)})), 
+                    FrameMargins -> 
+                     Dynamic(CurrentValue({
+                        TemplateSlot, Key(FrameMargins)})))}}, 
                  GridBoxRowSpacing -> 0), Initialization :> (
                   FE`Private`rules:= CurrentValue({TemplateSlot, 1})))), 
              InterpretationFunction -> Function(FE`TabViewBox(##1))}), 
