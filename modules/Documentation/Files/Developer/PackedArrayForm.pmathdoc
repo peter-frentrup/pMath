@@ -1,0 +1,74 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({
+      Section(TextData({"PackedArrayForm ", 
+         TemplateBox({"Developer`"}, "ObjectNamespaceHint")}), "ObjectName"), 
+      Section(BoxData(TemplateBox({"Developer`PackedArrayForm"}, 
+         "UsageReference")), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Developer`", "PackedArrayForm"}, 
+            "ReferenceHyperlink2"), " displays packed arrays as PackedArray(", 
+           StyleBox("type", "Arg"), ", \[LeftGuillemet]\[NonBreakingSpace]", 
+           StyleBox("dims", "Arg"), 
+           "\[NonBreakingSpace]\[RightGuillemet])."}), "Notes"), 
+        Section(TextData({"The output of ", 
+           TemplateBox({"Developer`", "PackedArrayForm"}, 
+            "ReferenceHyperlink2"), "(", StyleBox("expr", "Arg"), 
+           ") typically cannot be used as input again."}), "Notes"), 
+        Section(TextData({TemplateBox({"Developer`", "PackedArrayForm"}, 
+            "ReferenceHyperlink2"), "(", StyleBox("expr", "Arg"), ", ", 
+           StyleBox("format", "Arg"), 
+           ") allows to specify the format. Valid ", 
+           StyleBox("format", "Arg"), " settings are:"}), "Notes"), 
+        Section(
+         TextData({
+           GridBox({{"\"Summary\"", "display a summary (default)"}, {
+              "\"Compressed\"", {"display as ", 
+               TemplateBox({"CompressedData"}, "ReferenceHyperlink"), "(\"", 
+               StyleBox("data", "Arg"), "\")"}}, {
+              "\"Uncompressed\"", "display the individual elements"}})}), 
+         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Summary of a packed array of integers:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Developer`PackedArrayForm", "(", {
+              "Array", "(", "20", ")"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({StringBox("\"PackedArray\""), "(", {
+              "Integer", ",", {"\[LeftGuillemet]", "\[NonBreakingSpace]", 
+               TemplateBox({",", ",", "20"}, "RowWithSeparators"), 
+               "\[NonBreakingSpace]", "\[RightGuillemet]"}}, ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        Section("Normally, the indivudual elements are shown:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Array", "(", "20", ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4", ",", "5", 
+              ",", "6", ",", "7", ",", "8", ",", "9", ",", "10", ",", "11", 
+              ",", "12", ",", "13", ",", "14", ",", "15", ",", "16", ",", 
+              "17", ",", "18", ",", "19", ",", "20"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+       All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({"Display as ", TemplateBox({"CompressedData"}, 
+            "ReferenceHyperlink"), "(\"", StyleBox("data", "Arg"), "\"):"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Developer`PackedArrayForm", "(", {
+              {"Array", "(", "20", ")"}, ",", StringBox("\"Compressed\"")}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"CompressedData", "(", 
+             StringBox(
+              "\"1:c$^Kx#[R-q3;-[=LNB2,8G!vKM7mSPTk>lnB5f^p_709t&MvNQ?p6;^FK-,\
+              zFxmkh\""), ")"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Short"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Shallow"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Developer`", "ToPackedArray"}, 
+          "ReferenceHyperlink2")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

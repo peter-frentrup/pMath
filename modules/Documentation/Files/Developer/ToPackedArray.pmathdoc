@@ -1,0 +1,81 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({
+      Section(TextData({"ToPackedArray ", 
+         TemplateBox({"Developer`"}, "ObjectNamespaceHint")}), "ObjectName"), 
+      Section(BoxData(TemplateBox({"Developer`ToPackedArray"}, 
+         "UsageReference")), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({"Using ", TemplateBox({"Developer`", "ToPackedArray"}, 
+            "ReferenceHyperlink2"), 
+           " will not change results, but can enhance the speed of execution \
+           and reduce memory usage."}), "Notes"), 
+        Section(TextData({"Possible types are ", 
+           TemplateBox({"Integer"}, "ReferenceHyperlink"), " and ", 
+           TemplateBox({"Real"}, "ReferenceHyperlink")}), "Notes"), 
+        Section(
+         "Only 32 bit integers and machine-precision approximate real numbers \
+         can be stored in packed form.", "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Packed arrays act like unpacked arrays:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData(
+            /\/({"l", "\[Assign]", {"{", {"1", ",", "2", ",", "3", ",", "4"}, 
+               "}"}}, "\n", {"p", "\[Assign]", {
+               "Developer`ToPackedArray", "(", "l", ")"}})), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), Section("They are considered identical:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"l", "===", "p"}), "Input", 
+           SectionLabel -> "in [3]:"), Section(BoxData("True"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        Section("Yet, they have different internal representation:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Developer`PackedArrayForm", "(", {
+              "{", {"l", ",", "p"}, "}"}, ")"}), "Input", 
+           SectionLabel -> "in [4]:"), 
+          Section(
+           BoxData({"{", {{"{", {"1", ",", "2", ",", "3", ",", "4"}, "}"}, 
+              ",", {StringBox("\"PackedArray\""), "(", {
+                "Integer", ",", {"\[LeftGuillemet]", "\[NonBreakingSpace]", 
+                 TemplateBox({",", ",", "4"}, "RowWithSeparators"), 
+                 "\[NonBreakingSpace]", "\[RightGuillemet]"}}, ")"}}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Arrays of mixed element types are left unpacked:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({{"Developer`ToPackedArray", "(", {
+               "{", {"1", ",", "2", ",", "3", ",", "4.0"}, "}"}, ")"}, "|>", 
+             "Developer`PackedArrayForm"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4.0"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), Section("Convert all elements to reals if possible:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Developer`ToPackedArray", "(", {
+              {"{", {"1", ",", "2", ",", "3", ",", "4.0"}, "}"}, ",", "Real"}, 
+             ")"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"1.0", ",", "2.0", ",", "3.0", ",", "4.0"}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Developer`", "IsPackedArray"}, 
+          "ReferenceHyperlink2"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Developer`", "PackedArrayForm"}, 
+          "ReferenceHyperlink2"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Developer`", "FromPackedArray"}, 
+          "ReferenceHyperlink2"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"ByteCount"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
