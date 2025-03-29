@@ -54,6 +54,12 @@ enum {
   BOXFORM_INPUT
 };
 
+enum {
+  PACKED_ARRAY_FORM_UNCOMPRESSED = 0,
+  PACKED_ARRAY_FORM_SUMMARY,
+  PACKED_ARRAY_FORM_COMPRESSED,
+};
+
 #define PMATH_BASE_FLAGS_BASE_MASK  0x3F
 #define PMATH_BASE_FLAGS_AUTOMATIC  0x80
 
@@ -89,13 +95,13 @@ struct _pmath_thread_t {
   
   intptr_t current_dynamic_id;
   
-  uint16_t security_level;           // actually a pmath_security_level_t
-  uint8_t critical_messages;         // TRUE / FALSE
-  uint8_t is_daemon;                 // TRUE / FALSE
-  uint8_t boxform;                   // BOXFORM_XXX
-  uint8_t longform;                  // TRUE / FALSE
-  uint8_t base_flags;                // 2..36
-  uint8_t use_packedarrayform_boxes; // TRUE/FALSE
+  uint16_t security_level;   // actually a pmath_security_level_t
+  uint8_t critical_messages; // TRUE / FALSE
+  uint8_t is_daemon;         // TRUE / FALSE
+  uint8_t boxform;           // BOXFORM_XXX
+  uint8_t longform;          // TRUE / FALSE
+  uint8_t base_flags;        // 2..36
+  uint8_t packed_array_form; // PACKED_ARRAY_FORM_xxx
 };
 
 PMATH_PRIVATE void _pmath_destroy_abortable_message(void *p);

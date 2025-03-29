@@ -7,6 +7,7 @@
 #include <pmath-language/scanner.h>
 #include <pmath-language/tokens.h>
 
+#include <pmath-util/compression.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/emit-and-gather.h>
@@ -56,6 +57,7 @@ extern pmath_symbol_t pmath_System_Column;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
 extern pmath_symbol_t pmath_System_Complex;
 extern pmath_symbol_t pmath_System_ComplexInfinity;
+extern pmath_symbol_t pmath_System_CompressedData;
 extern pmath_symbol_t pmath_System_Condition;
 extern pmath_symbol_t pmath_System_Congruent;
 extern pmath_symbol_t pmath_System_Cross;
@@ -2775,19 +2777,45 @@ static pmath_t outputform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { /
 }
 
 static pmath_t packedarrayform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
-  if(pmath_expr_length(expr) == 1) {
-    pmath_t obj = pmath_expr_get_item(expr, 1);
-    pmath_bool_t old_paf = thread->use_packedarrayform_boxes;
-    thread->use_packedarrayform_boxes = TRUE;
+  uint8_t old_paf = thread->packed_array_form;
+  size_t exprlen = pmath_expr_length(expr);
     
-    pmath_unref(expr);
-    expr = object_to_boxes(thread, obj);
+  if(exprlen == 2) {
+    pmath_t fmt = pmath_expr_get_item(expr, 2);
     
-    thread->use_packedarrayform_boxes = old_paf;
-    return expr;
+    if(pmath_is_string(fmt)) {
+      if(     pmath_string_equals_latin1(fmt, "Summary"))
+        thread->packed_array_form = PACKED_ARRAY_FORM_SUMMARY;
+      else if(pmath_string_equals_latin1(fmt, "Compressed"))
+        thread->packed_array_form = PACKED_ARRAY_FORM_COMPRESSED;
+      else if(pmath_string_equals_latin1(fmt, "Uncompressed"))
+        thread->packed_array_form = PACKED_ARRAY_FORM_UNCOMPRESSED;
+      else {
+        pmath_unref(fmt);
+        return call_to_boxes(thread, expr);
+      }
+    }
+    else {
+      pmath_unref(fmt);
+      return call_to_boxes(thread, expr);
+    }
+    
+    pmath_unref(fmt);
   }
+  else if(exprlen == 1) {
+    thread->packed_array_form = PACKED_ARRAY_FORM_SUMMARY;
+  }
+  else
+    return call_to_boxes(thread, expr);
+    
+  pmath_t obj = pmath_expr_get_item(expr, 1);
+  pmath_unref(expr);
   
-  return call_to_boxes(thread, expr);
+  expr = object_to_boxes(thread, obj);
+    
+  thread->packed_array_form = old_paf;
+  
+  return expr;
 }
 
 static pmath_t row_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
@@ -3618,12 +3646,24 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
 static pmath_t packed_array_to_boxes(pmath_thread_t thread, pmath_packed_array_t packed_array) {
   assert(pmath_is_packed_array(packed_array));
   
-  if(thread->use_packedarrayform_boxes) {
+  if(thread->packed_array_form == PACKED_ARRAY_FORM_SUMMARY) {
+    // TODO: that is a bit old-fashioned. Use nice summary boxes instead, possibly with attached Interpretation
     pmath_t obj = _pmath_packed_array_form(packed_array);
     pmath_unref(packed_array);
     
     return expr_to_boxes(thread, obj);
   }
+  
+  if(thread->packed_array_form == PACKED_ARRAY_FORM_COMPRESSED) {
+    pmath_string_t data = pmath_compress_to_string(pmath_ref(packed_array));
+    if(!pmath_is_null(data)) {
+      pmath_t obj = pmath_expr_new_extended(pmath_ref(pmath_System_CompressedData), 1, data);
+      pmath_unref(packed_array);
+      return expr_to_boxes(thread, obj);
+    }
+  }
+  
+  // else PACKED_ARRAY_FORM_UNCOMPRESSED
   
   return expr_to_boxes(thread, packed_array);
 }
