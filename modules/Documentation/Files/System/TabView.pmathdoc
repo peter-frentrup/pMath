@@ -16,7 +16,8 @@ Document({
            the tab labels."}), "Notes"), 
         Section(TextData({TemplateBox({"TabView"}, "ReferenceHyperlink"), 
            " has options ", TemplateBox({"Alignment"}, "ReferenceHyperlink"), 
-           " and ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), "."}), 
+           ", ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), ", and ", 
+           TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), "."}), 
          "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -95,7 +96,28 @@ Document({
                BoxData(TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1, 
                   Enabled -> False}, "TabView")), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-           All)}, 1)}, 1), SectionGroup({Section("Scope", "ExampleSection"), 
+           All)}, 1), SectionGroup({
+          Section("FrameMargins", "ExampleSubsection"), 
+          Section(TextData({"Make the content area larger by setting ", 
+             TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"TabView", "(", {{"{", {"a", ",", "b", ",", "c"}, "}"}, ",", {
+                   "FrameMargins", "\[Rule]", "m"}}, ")"}, ",", {
+                 "m", "\[Rule]", {"{", {"0", ",", "10", ",", "20", ",", "40"}, 
+                  "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1, 
+                  FrameMargins -> 0}, "TabView"), ",", 
+                TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1, 
+                  FrameMargins -> 10}, "TabView"), ",", 
+                TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1, 
+                  FrameMargins -> 20}, "TabView"), ",", 
+                TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1, 
+                  FrameMargins -> 40}, "TabView")}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         1)}, 1), SectionGroup({Section("Scope", "ExampleSection"), 
         SectionGroup({Section("TabView contents", "ExampleSubsection"), 
           Section(TextData({TemplateBox({"TabView"}, "ReferenceHyperlink"), 
              " can be nested:"}), "ExampleText"), 

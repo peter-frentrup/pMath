@@ -1,0 +1,76 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("FrameMargins", "ObjectName"), 
+      Section(BoxData(TemplateBox({"FrameMargins"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section("Possible settings are:", "Notes"), 
+        Section(
+         TextData({
+           GridBox({{{StyleBox("dist", "Arg")}, 
+              "the same distance on all sides"}, {
+              {"{", StyleBox("horz", "Arg"), ", ", StyleBox("vert", "Arg"), 
+               "}"}, "horizontal and vertical margins"}, {
+              {"{{", StyleBox("left", "Arg"), ", ", StyleBox("right", "Arg"), 
+               "}, {", StyleBox("top", "Arg"), ", ", 
+               StyleBox("bottom", "Arg"), "}}"}, 
+              "different margins on each side"}})}), "2ColumnTableNotes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Use predefined margins:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Framed", "(", {"123", ",", {"FrameMargins", "\[Rule]", "m"}}, 
+               ")"}, ",", {"m", "\[Rule]", {
+                "{", {"None", ",", "Tiny", ",", "Small", ",", "Medium", ",", 
+                 "Large"}, "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {FrameBox("123", FrameMargins -> None), ",", 
+              FrameBox("123", FrameMargins -> Tiny), ",", 
+              FrameBox("123", FrameMargins -> Small), ",", 
+              FrameBox("123", FrameMargins -> Medium), ",", 
+              FrameBox("123", FrameMargins -> Large)}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Specify frame margins in printer\[HighNineQuote]s points:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "abc", ",", {"FrameMargins", "\[Rule]", "10"}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(FrameBox("abc", FrameMargins -> 10)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Panel", "(", {
+                "abc", ",", {"FrameMargins", "\[Rule]", "15"}}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(PanelBox("abc", FrameMargins -> 15)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Specify different margins on each side:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Button", "(", {
+                "xyz", ",", {"FrameMargins", "\[Rule]", {
+                  "{", {{"{", {"20", ",", "40"}, "}"}, ",", {
+                    "{", {"5", ",", "15"}, "}"}}, "}"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox("xyz", 
+               FrameMargins -> {{20, 40}, {5, 15}})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Framed"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"FrameStyle"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ImageSize"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"SectionFrameMargins"}, "ReferenceHyperlink")}), 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)

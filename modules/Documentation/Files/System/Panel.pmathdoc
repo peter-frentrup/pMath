@@ -16,7 +16,8 @@ Document({
            TemplateBox({"BaselinePosition"}, "ReferenceHyperlink"), ", ", 
            TemplateBox({"BaseStyle"}, "ReferenceHyperlink"), ", ", 
            TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), ", ", 
-           TemplateBox({"Enabled"}, "ReferenceHyperlink"), ", and ", 
+           TemplateBox({"Enabled"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ", and ", 
            TemplateBox({"ImageSize"}, "ReferenceHyperlink"), "."}), "Notes")}, 
        All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
@@ -273,6 +274,20 @@ Document({
                    StringBox("\"Slider:\""), SliderBox(0.5, 0 .. 1)}, {
                    StringBox("\"InputField:\""), InputFieldBox("", String)}}), 
                 "Grid"), Enabled -> False)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         1), SectionGroup({Section("FrameMargins", "ExampleSubsection"), 
+          Section(TextData({"Make the content area larger by setting ", 
+             TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Panel", "(", {"123", ",", {"FrameMargins", "\[Rule]", "m"}}, 
+                 ")"}, ",", {"m", "\[Rule]", {
+                  "{", {"0", ",", "10", ",", "20", ",", "40"}, "}"}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {PanelBox("123", FrameMargins -> 0), ",", 
+                PanelBox("123", FrameMargins -> 10), ",", 
+                PanelBox("123", FrameMargins -> 20), ",", 
+                PanelBox("123", FrameMargins -> 40)}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          1), SectionGroup({Section("ImageSize", "ExampleSubsection"), 
           Section(

@@ -28,6 +28,7 @@ Document({
            TemplateBox({"ButtonFrame"}, "ReferenceHyperlink"), ", ", 
            TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), ", ", 
            TemplateBox({"Enabled"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ",", 
            TemplateBox({"ImageSize"}, "ReferenceHyperlink"), ", and ", 
            TemplateBox({"Method"}, "ReferenceHyperlink"), "."}), "Notes"), 
         Section(TextData({TemplateBox({"Button"}, "ReferenceHyperlink"), 
@@ -256,6 +257,20 @@ Document({
                      ButtonBox("False", ButtonFunction -> 
                        Function(Print(RandomReal())), Enabled -> False)}, 
                     "RowDefault"), Enabled -> False)}}), "Grid")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         1), SectionGroup({Section("FrameMargins", "ExampleSubsection"), 
+          Section(TextData({"Make the content area larger by setting ", 
+             TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Button", "(", {"123", ",", {"FrameMargins", "\[Rule]", 
+                   "m"}}, ")"}, ",", {"m", "\[Rule]", {
+                  "{", {"0", ",", "5", ",", "10", ",", "20"}, "}"}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {ButtonBox("123", FrameMargins -> 0), ",", 
+                ButtonBox("123", FrameMargins -> 5), ",", 
+                ButtonBox("123", FrameMargins -> 10), ",", 
+                ButtonBox("123", FrameMargins -> 20)}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          1), SectionGroup({Section("ImageSize", "ExampleSubsection"), 
           Section("Use predefined button sizes:", "ExampleText"), 

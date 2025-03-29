@@ -39,6 +39,7 @@ Document({
            TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), ", ", 
            TemplateBox({"ContinuousAction"}, "ReferenceHyperlink"), ", ", 
            TemplateBox({"Enabled"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ", ", 
            TemplateBox({"ImageSize"}, "ReferenceHyperlink"), ", and ", 
            TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink"), "."}), 
          "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
@@ -285,7 +286,22 @@ Document({
                      InputFieldBox(456, Expression)}}), "Column"), 
                  Enabled -> False)), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
-        SectionGroup({Section("ImageSize", "ExampleSubsection"), 
+        SectionGroup({Section("FrameMargins", "ExampleSubsection"), 
+          Section(TextData({"Make the content area larger by setting ", 
+             TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"InputField", "(", {"123", ",", "Number", ",", {
+                   "FrameMargins", "\[Rule]", "m"}}, ")"}, ",", {
+                 "m", "\[Rule]", {"{", {"0", ",", "5", ",", "10", ",", "20"}, 
+                  "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {InputFieldBox(123, Number, FrameMargins -> 0), 
+                ",", InputFieldBox(123, Number, FrameMargins -> 5), ",", 
+                InputFieldBox(123, Number, FrameMargins -> 10), ",", 
+                InputFieldBox(123, Number, FrameMargins -> 20)}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, 1), SectionGroup({Section("ImageSize", "ExampleSubsection"), 
           Section("Set the width of the field:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Table", "(", {
@@ -369,7 +385,7 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(InputFieldBox(
-               3.14159265358979323846264338327950288419716939937510582097494[448+/-250]`60, Expression)), "Output", 
+               3.14159265358979323846264338327950288419716939937510582097494[448+/-500]`60, Expression)), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -382,7 +398,7 @@ Document({
                SectionLabel -> "in [1]:"), 
               Section(
                BoxData(InputFieldBox(
-                 3.14159265358979323846264338327950288419716939937510582097494[448+/-250]`60, Expression, LineBreakWithin -> True)), 
+                 3.14159265358979323846264338327950288419716939937510582097494[448+/-500]`60, Expression, LineBreakWithin -> True)), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
       SectionGroup({Section("Applications", "ExampleSection"), 
