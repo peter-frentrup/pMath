@@ -1,0 +1,35 @@
+CompressedData
+
+should automatically try to Uncompress on evaluation
+
+ToString / ToBoxes:
+- [DONE] need way to output packed arrays as CompressedData(...)
+
+MakeExpression:
+- need way to force-Uncompress CompressedData(...) during parsing even if it is wrapped in some Hold(...) or similar
+  (Mma Frontend does this, normal parser not)
+- Maybe need to automatically call ToPackedArray(...) on lists of doubles that are long enough (Length >= 63 is what Mma front end seems to use)
+  (Mma Frontend does this for (nested rectangular lists) of total > 125 (for 8 byte Real) or > 255 (for 4 byte Integer) or > 62 (for 16 byte Complex), normal parser not)
+  
+- Mma 6 front-end bug: Note that Mma 6.0 front-end incorrectly converts Complex packed array forms to Real packed arrays of {re, im} fields, as can be seen in 
+  ```
+  With[{g = (Range[64] // N) + 1.0 I}, Dynamic[1 + g]]
+  ```
+  box form is:
+	\!\(\*DynamicBox[ToBoxes[1 + CompressedData["1:eJxdyUtKAgAUheGDI4cNHDRwYCIREmKmpmX5TE0tpSUIjd1CS24JvSDyu3A5fPxn+8PrWyHJ6Ou/9/c+hsf7k/+5iE9wCZ/iMq7gKq7hc3yB6/gSN3ATX+EWvsZt3MFdfIN7uI9v8R0e4Hv8gId4dOx3nDEdZ0LHmdJxZnScRzrOnI6zoOMs6ThPdJwVHWdNx9nQcZ7pOC90nC0dZ/fnTyWWdO0="], StandardForm], ImageSizeCache->{5803.625, {3., 10.}}]\)
+	
+  displays as:
+	{{2., 2.}, {3., 2.}, {4., 2.}, {5., 2.}, {6., 2.}, {7., 2.}, {8., 2.}, {9., 2.}, {10., 2.}, {11., 2.}, {12., 2.}, {13., 2.}, {14., 2.}, {15., 2.}, {16., 2.}, {17., 2.}, {18., 2.}, {19., 2.}, {20., 2.}, {21., 2.}, {22., 2.}, {23., 2.}, {24., 2.}, {25., 2.}, {26., 2.}, {27., 2.}, {28., 2.}, {29., 2.}, {30., 2.}, {31., 2.}, {32., 2.}, {33., 2.}, {34., 2.}, {35., 2.}, {36., 2.}, {37., 2.}, {38., 2.}, {39., 2.}, {40., 2.}, {41., 2.}, {42., 2.}, {43., 2.}, {44., 2.}, {45., 2.}, {46., 2.}, {47., 2.}, {48., 2.}, {49., 2.}, {50., 2.}, {51., 2.}, {52., 2.}, {53., 2.}, {54., 2.}, {55., 2.}, {56., 2.}, {57., 2.}, {58., 2.}, {59., 2.}, {60., 2.}, {61., 2.}, {62., 2.}, {63., 2.}, {64., 2.}, {65., 2.}}
+  
+  but without tripping through front-end first, we get:
+  ```
+  ((Range[64] // N) + 1.0 I) + 1
+  ```
+  displays as:
+	{2. + 1. \[ImaginaryI], 3. + 1. \[ImaginaryI], 4. + 1. \[ImaginaryI], 5. + 1. \[ImaginaryI], 6. + 1. \[ImaginaryI], 7. + 1. \[ImaginaryI], 8. + 1. \[ImaginaryI], 9. + 1. \[ImaginaryI], 10. + 1. \[ImaginaryI], 11. + 1. \[ImaginaryI], 12. + 1. \[ImaginaryI], 13. + 1. \[ImaginaryI], 14. + 1. \[ImaginaryI], 15. + 1. \[ImaginaryI], 16. + 1. \[ImaginaryI], 17. + 1. \[ImaginaryI], 18. + 1. \[ImaginaryI], 19. + 1. \[ImaginaryI], 20. + 1. \[ImaginaryI], 21. + 1. \[ImaginaryI], 22. + 1. \[ImaginaryI], 23. + 1. \[ImaginaryI], 24. + 1. \[ImaginaryI], 25. + 1. \[ImaginaryI], 26. + 1. \[ImaginaryI], 27. + 1. \[ImaginaryI], 28. + 1. \[ImaginaryI], 29. + 1. \[ImaginaryI], 30. + 1. \[ImaginaryI], 31. + 1. \[ImaginaryI], 32. + 1. \[ImaginaryI], 33. + 1. \[ImaginaryI], 34. + 1. \[ImaginaryI], 35. + 1. \[ImaginaryI], 36. + 1. \[ImaginaryI], 37. + 1. \[ImaginaryI], 38. + 1. \[ImaginaryI], 39. + 1. \[ImaginaryI], 40. + 1. \[ImaginaryI], 41. + 1. \[ImaginaryI], 42. + 1. \[ImaginaryI], 43. + 1. \[ImaginaryI], 44. + 1. \[ImaginaryI], 45. + 1. \[ImaginaryI], 46. + 1. \[ImaginaryI], 47. + 1. \[ImaginaryI], 48. + 1. \[ImaginaryI], 49. + 1. \[ImaginaryI], 50. + 1. \[ImaginaryI], 51. + 1. \[ImaginaryI], 52. + 1. \[ImaginaryI], 53. + 1. \[ImaginaryI], 54. + 1. \[ImaginaryI], 55. + 1. \[ImaginaryI], 56. + 1. \[ImaginaryI], 57. + 1. \[ImaginaryI], 58. + 1. \[ImaginaryI], 59. + 1. \[ImaginaryI], 60. + 1. \[ImaginaryI], 61. + 1. \[ImaginaryI], 62. + 1. \[ImaginaryI], 63. + 1. \[ImaginaryI], 64. + 1. \[ImaginaryI], 65. + 1. \[ImaginaryI]}
+Note:
+
+SystemOptions[] ...
+"PackedArrayOptions" -> {"ListableAutoPackLength" -> 250, 
+  "PackedArrayMathLinkRead" -> True, "PackedArrayPatterns" -> True, 
+  "PackedRange" -> True, "UnpackMessage" -> False}  
