@@ -286,12 +286,14 @@ enum {
   /**\hideinitializer
      Expressions are written in a form that is valid pMath input, except that
      this does not automatically imply PMATH_WRITE_OPTIONS_FULLSTR.
+     Note that PMATH_WRITE_OPTIONS_FULLEXPR takes precedence.
    */
   PMATH_WRITE_OPTIONS_INPUTEXPR       = 1 << 3,
 
   /**\hideinitializer
      Packed Arrays are written in the form
      `"PackedArray"(type, <<dimensions>>)` instead of nested lists.
+     Note that this is ignored if PMATH_WRITE_OPTIONS_INPUTEXPR or PMATH_WRITE_OPTIONS_FULLEXPR is given.
    */
   PMATH_WRITE_OPTIONS_PACKEDARRAYFORM = 1 << 4,
 
@@ -315,6 +317,12 @@ enum {
      parsing the output back gives the exact same representation.
    */
   PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS = 1 << 8,
+  
+  /**\hideinitializer
+     Write packaed arrays as CompressedData("...") instead of nested lists.
+     Note that PMATH_WRITE_OPTIONS_PACKEDARRAYFORM normally takes precedence.
+   */
+  PMATH_WRITE_OPTIONS_USECOMPRESSEDDATA = 1 << 9,
 };
 
 /**\brief A simple procedure operating on an object.

@@ -7,6 +7,7 @@
 #include <pmath-builtins/language-private.h>
 #include <pmath-builtins/lists-private.h>
 
+#include <pmath-util/compression.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/hash/incremental-hash-private.h>
@@ -33,6 +34,7 @@ static const uint64_t nan_as_uint64 = 0x7fffffffffffffff;
 #define PMATH_PACKED_ARRAY_FLAG_NO_PUNPACK_MESSAGE   0x01
 
 
+extern pmath_symbol_t pmath_System_CompressedData;
 extern pmath_symbol_t pmath_System_HoldForm;
 extern pmath_symbol_t pmath_System_Integer;
 extern pmath_symbol_t pmath_System_List;
@@ -612,6 +614,18 @@ static void write_packed_array(struct pmath_write_ex_t *info, pmath_t packed_arr
     
     pmath_unref(tmp_expr);
     return;
+  }
+  
+  if((info->options & PMATH_WRITE_OPTIONS_USECOMPRESSEDDATA)) {
+    pmath_string_t data = pmath_compress_to_string(pmath_ref(packed_array));
+    if(!pmath_is_null(data)) {
+      pmath_t tmp = pmath_expr_new_extended(pmath_ref(pmath_System_CompressedData), 1, data);
+      
+      _pmath_write_impl(info, tmp);
+    
+      pmath_unref(tmp);
+      return;
+    }
   }
   
   _pmath_expr_write(info, packed_array);

@@ -3485,15 +3485,42 @@ static void write_expr_ex(
     pmath_unref(item);
   }
   else if(pmath_same(head, pmath_Developer_PackedArrayForm)) {
-    if(exprlen != 1)
+    int old_options = info->options;
+    int other_opt = old_options & ~(PMATH_WRITE_OPTIONS_USECOMPRESSEDDATA | PMATH_WRITE_OPTIONS_PACKEDARRAYFORM);
+    
+    if(exprlen == 2) {
+      pmath_t fmt = pmath_expr_get_item(expr, 2);
+      
+      if(pmath_is_string(fmt)) {
+        if(pmath_string_equals_latin1(     fmt, "Summary"))
+          info->options = other_opt | PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
+        else if(pmath_string_equals_latin1(fmt, "Compressed"))
+          info->options = other_opt | PMATH_WRITE_OPTIONS_USECOMPRESSEDDATA;
+        else if(pmath_string_equals_latin1(fmt, "Uncompressed"))
+          info->options = other_opt;
+        else {
+          pmath_unref(fmt);
+          goto FULLFORM;
+        }
+      }
+      else {
+        pmath_unref(fmt);
+        goto FULLFORM;
+      }
+      
+      pmath_unref(fmt);
+    }
+    else if(exprlen == 1) {
+      info->options = other_opt | PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
+    }
+    else
       goto FULLFORM;
 
     pmath_t item    = pmath_expr_get_item(expr, 1);
-    int old_options = info->options;
-    info->options  |= PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
     _pmath_write_impl(info, item);
-    info->options = old_options;
     pmath_unref(item);
+    
+    info->options = old_options;
   }
   else if(pmath_same(head, pmath_System_StringForm)) {
     if(!_pmath_stringform_write(info, expr)) {
