@@ -125,7 +125,14 @@ Document({
                   ParseSymbols -> False), 
                  HoldComplete(~FE`Private`sym:Symbol) :> 
                   ToBoxes(Documentation`PrepareUsageSection(
-                    FE`Private`sym::"usage"))), Selectable -> True))}), 
+                    FE`Private`sym::"usage", {Namespace(FE`Private`sym)}))), 
+                Selectable -> True))}), 
+          Section(StyleData("ObjectNamespaceHint"), 
+           TemplateBoxOptions :> {
+             DisplayFunction -> 
+              Function(StyleBox({"(", #1, ")"}, 
+                FontSize -> Dynamic(0.8*CurrentValue(FontSize)), 
+                FontColor -> GrayLevel(0.5)))}), 
           SectionGroup({Section("Hyperlinks", "Subsubsection"), 
             Section(StyleData("ReferenceHyperlink"), 
              TemplateBoxOptions :> {
@@ -155,6 +162,36 @@ Document({
                    ParseSymbols -> False), 
                   HoldComplete(~FE`Private`sym:Symbol) :> 
                    ToBoxes(FE`Private`sym::"usage")))}), 
+            Section(StyleData("ReferenceHyperlink2"), 
+             TemplateBoxOptions :> {
+               DisplayFunction -> 
+                Function(StyleBox(StringBox("\"", 
+                   ButtonBox(#2, ButtonFunction -> 
+                     Function(
+                      With({
+                        FE`Private`file:= 
+                         Documentation`FindSymbolDocumentationByNamespaceAndName(CurrentValue({TemplateSlot, 1}), 
+                          CurrentValue({TemplateSlot, 2}))}, 
+                       If(IsString(FE`Private`file), 
+                        FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
+                          False))))), BaseStyle -> "Text", 
+                    ButtonFrame -> "Frameless"), "\""), 
+                  ShowStringCharacters -> False, 
+                  FontColor -> 
+                   Dynamic(
+                    With({
+                      FE`Private`file:= 
+                       Documentation`FindSymbolDocumentationByNamespaceAndName(
+                        CurrentValue({TemplateSlot, 1}), 
+                        CurrentValue({TemplateSlot, 2}))}, 
+                     If(FE`Private`file === None, RGBColor(0.8, 0, 0), 
+                      RGBColor(0, 0, 0.8)))), ShowAutoStyles -> False)), 
+               Tooltip -> DynamicBox(
+                 Replace(MakeExpression(CurrentValue({TemplateSlot, 1}) ++ 
+                    CurrentValue({TemplateSlot, 2}), ParseSymbols -> False), 
+                  HoldComplete(~FE`Private`sym:Symbol) :> 
+                   ToBoxes(Row({ToString(LongForm(FE`Private`sym)), "\n", 
+                     FE`Private`sym::"usage"}))))}), 
             Section(StyleData("NamedCharacterHyperlink"), 
              TemplateBoxOptions -> {
                DisplayFunction -> 

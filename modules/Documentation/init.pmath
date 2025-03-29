@@ -356,8 +356,28 @@ OpenDocumentationForUnderoverscript("\[Sum]",     ~src)::= OpenDocumentationForS
 OpenDocumentationForUnderoverscript("\[Product]", ~src)::= OpenDocumentationForSelection("System`Product", src)
 
 
-PrepareUsageSection(~text)::= ToString(text)
-Function PrepareUsageSection(~text:String) {
+MakeReferenceHyperlink(~name:String)::= MakeReferenceHyperlink(
+    name.StringReplace(StartOfString ++ Longest(~~~) ++ "`" :> ""),
+    name.StringCases(  StartOfString ++ Longest(~~~) ++ "`", 1))
+Function MakeReferenceHyperlink(~name:String, ~namespaces:List) {
+    If(StringPosition(name, "`", 1) === {}) {
+        namespaces.Scan(Function {
+            With(n:= Names(# ++ name))
+            If(n =!= {}) {
+                If(# === "System`") {
+                    Return(TemplateBox({name}, "ReferenceHyperlink"))
+                } Else {
+                    Return(TemplateBox({#, name}, "ReferenceHyperlink2"))
+                }
+            }
+        })
+    }
+    Return(TemplateBox({name}, "ReferenceHyperlink"))
+}
+
+PrepareUsageSection(~x, ~)::= ToString(x)
+PrepareUsageSection(~text)::= PrepareUsageSection(text, {})
+Function PrepareUsageSection(~text:String, ~namespaces:List) {
     Local(nesting:=0)
     With(reflown:= text.StringReplace(
             tok:("\n" | "(" | ")" | "{" | "}" | "\(" | "\)" | " ") :> 
@@ -373,7 +393,7 @@ Function PrepareUsageSection(~text:String) {
         s: ("." ++ " "** ++ "A".."Z") :> s,
         s: ("\"" ++ Except("\"")*** ++ "\"" ) :> s,
         (WordBoundary ++ s: (("A".."Z"|"$") ++ (LetterCharacter|DigitCharacter)**) ++ WordBoundary
-        ) :> "\(" ++ ToString@InputForm@TemplateBox({s}, "ReferenceHyperlink") ++ "\)"})
+        ) :> "\(" ++ ToString@InputForm@MakeReferenceHyperlink(s, namespaces) ++ "\)"})
 }
 
 
@@ -423,9 +443,10 @@ Function InteractiveCreateHelpDocument() {
                         If(name === "") {
                             ""
                         } Else {
+                            With(components:= name.StringSplit("`"))
                             With(paths:= FileNames(
-                                    ToFileName(Documentation`$DocumentationPath.Join({"System"})),
-                                    name ++ ".pmathdoc"))
+                                    ToFileName(Documentation`$DocumentationPath.Join(If(Length(Components) === 1, {"System"}, Most(components)))),
+                                    Last(components) ++ ".pmathdoc"))
                             If(paths === {}) {
                                 ButtonBox(
                                     ToBoxes @ StringForm("Create `1`.pmathdoc", name),
@@ -484,11 +505,19 @@ CreateHelpDocument(~sym:Symbol)::= CreateHelpDocument(SymbolName(sym))
 Function CreateHelpDocument(~name:String) {
     Local(doc)
     With(attr:= Attributes(name))
+    With(ns:=        name.StringCases(  StartOfString ++ Longest(~~~) ++ "`", 1))
+    With(shortName:= name.StringReplace(StartOfString ++ Longest(~~~) ++ "`" -> ""))
     With(optionNames:= Options(name).Map({~(~opt:Symbol, ~) :> SymbolName(opt), ~ -> Nothing}).Sort)
 
     doc:= CreateDocument({
-            Section(name, "ObjectName"),
-            Section(BoxData(TemplateBox({name},"UsageReference")),"Usage"),
+            Section(
+                If(ns === {}) {
+                    name
+                } Else {
+                    TextData({shortName, " ", TemplateBox(ns, "ObjectNamespaceHint")})
+                }, 
+                "ObjectName"),
+            Section(BoxData(TemplateBox({name}, "UsageReference")), "Usage"),
             SectionGroup({Section("Details", "NotesSection"),
                 SectionGroup({
                     Section("", "NotesSectionHeaderSpacer"),
@@ -501,7 +530,7 @@ Function CreateHelpDocument(~name:String) {
                     If(Position(attr, Listable) === {},
                         Nothing,
                         Section(TextData({
-                            TemplateBox({name}, "ReferenceHyperlink"), 
+                            MakeReferenceHyperlink(name, ns), 
                             " automatically threads over lists."}), "Notes")
                     ),
                     Section("", "SectionFooterSpacer")
@@ -535,23 +564,27 @@ Function CreateHelpDocument(~name:String) {
         },
         StyleDefinitions -> "Reference.pmathdoc")
     
-    CurrentValue(doc, "DocumentFullFileName"):= ToFileName($DocumentationPath.Append("System"), name ++ ".pmathdoc")
-
+    If(ns === {}) {
+        CurrentValue(doc, "DocumentFullFileName"):= ToFileName($DocumentationPath.Append("System"), name ++ ".pmathdoc")
+    } Else {
+        CurrentValue(doc, "DocumentFullFileName"):= ToFileName($DocumentationPath.Join(ns.First.StringSplit("`")), shortName ++ ".pmathdoc")
+    }
+    
     doc
 }
 
 genericAttributesNoteSection(~, ~)::= Nothing
 Function genericAttributesNoteSection(~name, {~attr}) {
     Section(TextData({
-        TemplateBox({name},"ReferenceHyperlink"), 
+        MakeReferenceHyperlink(name), 
         " has attribute ",
-        TemplateBox({ToString(attr)},"ReferenceHyperlink"),
+        TemplateBox({ToString(attr)}, "ReferenceHyperlink"),
         "."
     }), "Notes")
 }
 Function genericAttributesNoteSection(~name, {~~mostAttrs, ~lastAttr}) {
     Section(TextData({
-        TemplateBox({name}, "ReferenceHyperlink"), 
+        MakeReferenceHyperlink(name), 
         " has attributes ",
         Sequence @@ {mostAttrs}.Map(Function(TemplateBox({ToString(#)}, "ReferenceHyperlink"))).Riffle(", "),
         " and ",
