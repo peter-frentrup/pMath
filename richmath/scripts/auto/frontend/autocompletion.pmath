@@ -48,6 +48,7 @@ Function FE`AttachAutoCompletionPopup(~loc) {
                                 #,
                                 suggestions[#],
                                 ButtonFrame -> "ListViewItem",
+                                FrameMargins -> Small,
                                 Alignment -> Left,
                                 BoxID -> {"ResultButton", #})
                             })) |> 

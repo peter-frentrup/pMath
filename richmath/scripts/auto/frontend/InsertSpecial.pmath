@@ -58,7 +58,9 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
         %     LineBreakWithin -> False),
         Section(BoxData(DynamicBox(
             If(macroName === "" && !$AllowEmpty) {
-                StringForm("Type an `1` name", Button("input alias", $AllowEmpty:=True, BaseStyle -> "Hyperlink")) |> ToBoxes
+                PanelBox(StringForm("Type an `1` name", Button("input alias", $AllowEmpty:=True, BaseStyle -> "Hyperlink")) |> ToBoxes,
+                    Appearance -> None,
+                    FrameMargins -> {{4,4}, {2,4}})
             } Else {
                 With(m:= allMacros |> Select(Function(StringMatch(#[1], macroName ++ ~~~, IgnoreCase->True)))) {
                     If(matches =!= m) {
@@ -89,14 +91,15 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
                                         ImageSizeAction -> "Clip",
                                         LineBreakWithin -> False)},
                                 ButtonFrame -> "ListViewItem",
+                                FrameMargins -> {4, 2},
                                 BoxID -> {"ResultButton", #})
                             })) |>
-                        GridBox
+                        GridBox(GridBoxRowSpacing -> 0)
                 }
             }, TrackedSymbols :> {macroName, $AllowEmpty})),
             "PopupWindowSection",
             ButtonBoxOptions -> { ButtonFrame -> "ListViewItem" },
-            SectionMargins -> {{4,4}, {2,4}},
+            SectionMargins -> 0,
             LineBreakWithin -> False)},
         WindowFrame -> "ThinFrameCallout",
         DocumentEventActions -> {
