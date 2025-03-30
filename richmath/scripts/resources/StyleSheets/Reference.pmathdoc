@@ -17,7 +17,10 @@ Document({
              "ControlKeyEvent"), "keyshift" -> 
             TemplateBox({"\[SelectionPlaceholder]"}, "ShiftKeyEvent"), 
            "keyctrlshift" -> TemplateBox({"\[SelectionPlaceholder]"}, 
-             "ControlShiftKeyEvent"), Inherited}, Saveable -> False)}, All), 
+             "ControlShiftKeyEvent"), Inherited}, Saveable -> False, 
+         WindowTitle -> 
+          Dynamic(StringReplace(CurrentValue("DocumentFileName"), 
+            ".pmathdoc" -> " \[Dash] Documentation")))}, All), 
       SectionGroup({Section("Section styles for symbol documentation", 
          "Section"), Section(StyleData("Input"), 
          EvaluationContext -> SectionGroup), 
@@ -128,7 +131,7 @@ Document({
                     FE`Private`sym::"usage", {Namespace(FE`Private`sym)}))), 
                 Selectable -> True))}), 
           Section(StyleData("ObjectNamespaceHint"), 
-           TemplateBoxOptions :> {
+           TemplateBoxOptions -> {
              DisplayFunction -> 
               Function(StyleBox({"(", #1, ")"}, 
                 FontSize -> Dynamic(0.8*CurrentValue(FontSize)), 
