@@ -3432,6 +3432,11 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
   context.with_canvas(canvas, [&]() {
     update_dynamic_styles_on_paint(context);
     
+    if(get_own_style(InternalHasModifiedWindowOption)) {
+      style.set(InternalHasModifiedWindowOption, false);
+      native()->invalidate_options();
+    }
+    
     if(get_own_style(InternalRequiresChildResize)) {
       style.set(InternalRequiresChildResize, false);
       if(resize_only) {

@@ -1082,7 +1082,7 @@ Document *Application::open_new_document(String full_filename) {
     
   doc->style.set(Visible,                         true);
   doc->style.set(InternalHasModifiedWindowOption, true);
-  doc->on_style_changed(true);
+  doc->on_style_changed(true); // Note: Dynamic option values are not yet evaluated
   //doc->native()->bring_to_front();
   return doc;
 }
@@ -1758,7 +1758,7 @@ namespace {
             // update document ...
             
             doc->style.set(InternalLastStyleDefinitions, Expr());
-            doc->style.set(InternalHasModifiedWindowOption, true);
+            doc->style.set(InternalHasPendingDynamic, true);
             doc->on_style_changed(true);
           }
           else {
