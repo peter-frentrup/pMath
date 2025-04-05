@@ -434,6 +434,8 @@ pmath_t pmath_decompress_from_string(pmath_string_t str) {
   if(err != PMATH_SERIALIZE_OK) {
     if(err != PMATH_SERIALIZE_NO_MEMORY)
       pmath_message(PMATH_NULL, "corrupt", 1, str);
+    else
+      pmath_unref(str);
     pmath_unref(result);
     return PMATH_UNDEFINED;
   }
