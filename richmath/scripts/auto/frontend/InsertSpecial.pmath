@@ -58,7 +58,7 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
         %     LineBreakWithin -> False),
         Section(BoxData(DynamicBox(
             If(macroName === "" && !$AllowEmpty) {
-                PanelBox(StringForm("Type an `1` name", Button("input alias", $AllowEmpty:=True, BaseStyle -> "Hyperlink")) |> ToBoxes,
+                PanelBox(ToBoxes(StringForm("Type an `1` name", Button("input alias", $AllowEmpty:=True, BaseStyle -> "Hyperlink"))),
                     Appearance -> None,
                     FrameMargins -> {{4,4}, {2,4}})
             } Else {
@@ -71,7 +71,9 @@ Function insertSpecialAt(~doc, ~selboxes, ~loc) {
                     }
                 }
                 If(matches === {}) {
-                    ToBoxes(StringForm("\[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] not found", macroName))
+                    PanelBox(ToBoxes(StringForm("\[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] not found", macroName)),
+                        Appearance -> None,
+                        FrameMargins -> {{4,4}, {2,4}})
                 } Else {
                     Array(Length(matches)) |> 
                         Map(Function({
