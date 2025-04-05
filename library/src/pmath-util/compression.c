@@ -400,11 +400,29 @@ pmath_string_t pmath_compress_to_string(pmath_t obj) {
 
 PMATH_API
 pmath_t pmath_decompress_from_string(pmath_string_t str) {
+  pmath_serialize_error_t err = PMATH_SERIALIZE_OK;
+  
+  pmath_t result = pmath_decompress_from_string_quiet(pmath_ref(str), &err);
+
+  if(err != PMATH_SERIALIZE_OK) {
+    pmath_unref(result); 
+    result = PMATH_UNDEFINED;
+    if(err != PMATH_SERIALIZE_NO_MEMORY)
+      pmath_message(PMATH_NULL, "corrupt", 1, pmath_ref(str));
+  }
+  
+  pmath_unref(str);
+  return result;
+}
+
+PMATH_API
+pmath_t pmath_decompress_from_string_quiet(pmath_string_t str, enum pmath_serialize_error_t *err) {
   pmath_t bfile, tfile, zfile;
-  pmath_serialize_error_t err;
   pmath_t result;
   int len;
   const uint16_t *buf;
+  
+  assert(err != NULL);
   
   if(pmath_is_null(str))
     return PMATH_UNDEFINED;
@@ -418,7 +436,7 @@ pmath_t pmath_decompress_from_string(pmath_string_t str) {
     len-= 2;
   }
   else {
-    pmath_message(PMATH_NULL, "corrupt", 1, str);
+    pmath_unref(str);
     return PMATH_UNDEFINED;
   }
   
@@ -427,18 +445,9 @@ pmath_t pmath_decompress_from_string(pmath_string_t str) {
   pmath_file_close(tfile);
   
   zfile = pmath_file_create_decompressor(pmath_ref(bfile), NULL);
-  result = pmath_deserialize(zfile, &err);
+  result = pmath_deserialize(zfile, err);
   pmath_file_close(zfile);
   pmath_file_close(bfile);
-  
-  if(err != PMATH_SERIALIZE_OK) {
-    if(err != PMATH_SERIALIZE_NO_MEMORY)
-      pmath_message(PMATH_NULL, "corrupt", 1, str);
-    else
-      pmath_unref(str);
-    pmath_unref(result);
-    return PMATH_UNDEFINED;
-  }
   
   pmath_unref(str);
   return result;

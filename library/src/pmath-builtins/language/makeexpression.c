@@ -18,6 +18,7 @@
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
+#include <pmath-util/serialize.h>
 #include <pmath-util/strtod.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -42,6 +43,7 @@ extern pmath_symbol_t pmath_System_Apply;
 extern pmath_symbol_t pmath_System_Assign;
 extern pmath_symbol_t pmath_System_AssignDelayed;
 extern pmath_symbol_t pmath_System_AssignWith;
+extern pmath_symbol_t pmath_System_AutoExpandCompressedData;
 extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_BoxRotation;
 extern pmath_symbol_t pmath_System_BracketingBar;
@@ -250,6 +252,8 @@ static pmath_bool_t are_linebreaks_only_at(pmath_expr_t expr, size_t i);
 static pmath_bool_t is_subsuperscript_at(pmath_expr_t expr, size_t i);
 static pmath_bool_t is_underoverscript_at(pmath_expr_t expr, size_t i);
 
+PMATH_PRIVATE pmath_t _pmath_object_makeexpression_key_auto_uncompress;
+
 #define is_parse_error(x)  pmath_is_magic(x)
 static pmath_bool_t parse(    pmath_t *box);
 static pmath_bool_t parse_seq(pmath_t *box, pmath_symbol_t seq); // seq wont be freed
@@ -270,6 +274,7 @@ static pmath_t parse_gridbox(pmath_expr_t expr, pmath_bool_t remove_styling); //
 
 static pmath_t make_expression_with_options(pmath_expr_t expr);
 static pmath_t get_parser_argument_from_string(pmath_string_t string); // string will be freed
+static pmath_t handle_call_expr(pmath_expr_t expr);
 
 static pmath_t make_expression_from_box_or_string(pmath_t box);
 static pmath_t make_expression_from_string(pmath_string_t string);
@@ -382,8 +387,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
      returns $Failed on error and HoldComplete(result) on success.
   
      options:
-       ParserArguments     {arg1, arg2, ...}
-       ParseSymbols        True/False
+       ParserArguments            {arg1, arg2, ...}
+       ParseSymbols               True/False
+       AutoExpandCompressedData   True/False
    */
   pmath_t box;
   size_t exprlen = pmath_expr_length(expr);
@@ -969,11 +975,13 @@ static pmath_t make_expression_with_options(pmath_expr_t expr) {
   pmath_expr_t options = pmath_options_extract(expr, 1);
   
   if(!pmath_is_null(options)) {
-    pmath_t args = pmath_option_value(PMATH_NULL, pmath_System_ParserArguments, options);
-    pmath_t syms = pmath_option_value(PMATH_NULL, pmath_System_ParseSymbols,    options);
+    pmath_t args            = pmath_option_value(PMATH_NULL, pmath_System_ParserArguments,          options);
+    pmath_t syms            = pmath_option_value(PMATH_NULL, pmath_System_ParseSymbols,             options);
+    pmath_t auto_uncompress = pmath_option_value(PMATH_NULL, pmath_System_AutoExpandCompressedData, options);
     pmath_t box;
     pmath_bool_t changes_args = FALSE;
     pmath_bool_t changes_syms = FALSE;
+    pmath_bool_t changes_auto_uncompress = FALSE;
     
     if(!pmath_same(args, pmath_System_Automatic)) {
       changes_args = TRUE;
@@ -983,6 +991,11 @@ static pmath_t make_expression_with_options(pmath_expr_t expr) {
     if(!pmath_same(syms, pmath_System_Automatic)) {
       changes_syms = TRUE;
       syms = pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms);
+    }
+    
+    if(!pmath_same(auto_uncompress, pmath_System_Automatic)) {
+      changes_auto_uncompress = TRUE;
+      auto_uncompress = pmath_thread_local_save(_pmath_object_makeexpression_key_auto_uncompress, auto_uncompress);
     }
     
     box = pmath_expr_get_item(expr, 1);
@@ -1001,6 +1014,12 @@ static pmath_t make_expression_with_options(pmath_expr_t expr) {
     }
     else
       pmath_unref(syms);
+      
+    if(changes_auto_uncompress) {
+      pmath_unref(pmath_thread_local_save(_pmath_object_makeexpression_key_auto_uncompress, auto_uncompress));
+    }
+    else
+      pmath_unref(auto_uncompress);
   }
   
   return expr;
@@ -1032,6 +1051,30 @@ static pmath_t get_parser_argument_from_string(pmath_string_t string) { // will 
   result = pmath_expr_get_item(args, argi);
   pmath_unref(args);
   return HOLDCOMPLETE(result);
+}
+
+static pmath_t handle_call_expr(pmath_expr_t expr) {
+  if(pmath_is_expr_of_len(expr, pmath_System_CompressedData, 1)) {
+    pmath_t str = pmath_expr_get_item(expr, 1);
+    
+    if(pmath_is_string(str)) {
+      pmath_t auto_uncompress = pmath_thread_local_load(_pmath_object_makeexpression_key_auto_uncompress);
+      pmath_unref(auto_uncompress);
+      if(pmath_same(auto_uncompress, pmath_System_True)) {
+        pmath_serialize_error_t err = PMATH_SERIALIZE_OK;
+        pmath_t data = pmath_decompress_from_string_quiet(str, &err);
+        if(err == PMATH_SERIALIZE_OK) {
+          pmath_unref(expr);
+          return data;
+        }
+        pmath_unref(data);
+      }
+    }
+    else
+      pmath_unref(str);
+  }
+  
+  return expr;
 }
 
 static pmath_t make_expression_from_name_token(pmath_string_t string) {
@@ -3228,7 +3271,7 @@ static pmath_t make_simple_dot_call(pmath_expr_t boxes) {
     pmath_t f = parse_at(boxes, 3);
     
     if(!is_parse_error(f)) {
-      return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new_extended(f, 1, arg));
+      return wrap_hold_with_debug_metadata_from(boxes, handle_call_expr(pmath_expr_new_extended(f, 1, arg)));
     }
     
     pmath_unref(arg);
@@ -3272,11 +3315,12 @@ static pmath_t make_dot_call(pmath_expr_t boxes) {
     
     return wrap_hold_with_debug_metadata_from(
              boxes,
-             pmath_expr_set_item(
+             handle_call_expr(
                pmath_expr_set_item(
-                 args, 0,
-                 f), 1,
-               arg1));
+                 pmath_expr_set_item(
+                   args, 0,
+                   f), 1,
+                 arg1)));
   }
   
   pmath_unref(arg1);
@@ -3312,7 +3356,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
       }
       
       pmath_unref(box);
-      return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new_extended(f, 1, arg1));
+      return wrap_hold_with_debug_metadata_from(boxes, handle_call_expr(pmath_expr_new_extended(f, 1, arg1)));
     }
     
     if(boxlen == 4 && unichar_at(box, 2) == '(' && unichar_at(box, 4) == ')') {
@@ -3338,6 +3382,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
         
         call = pmath_expr_set_item(call, 1, arg1);
         call = pmath_expr_set_item(call, 0, f);
+        call = handle_call_expr(call);
         
         pmath_unref(box);
         return wrap_hold_with_debug_metadata_from(boxes, call);
@@ -3358,7 +3403,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
     return pmath_ref(pmath_System_DollarFailed);
   }
   
-  return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new_extended(box, 1, arg1));
+  return wrap_hold_with_debug_metadata_from(boxes, handle_call_expr(pmath_expr_new_extended(box, 1, arg1)));
 }
 
 // f @ a
@@ -3374,7 +3419,7 @@ static pmath_t make_prefix_call(pmath_expr_t boxes) {
       else
         arg = pmath_expr_new_extended(f, 1, arg);
         
-      return wrap_hold_with_debug_metadata_from(boxes, arg);
+      return wrap_hold_with_debug_metadata_from(boxes, handle_call_expr(arg));
     }
     
     pmath_unref(f);
@@ -3394,7 +3439,7 @@ static pmath_t make_postfix_call(pmath_expr_t boxes) {
     if(!is_parse_error(f)) {
       return wrap_hold_with_debug_metadata_from(
                boxes,
-               pmath_expr_new_extended(f, 1, arg));
+               handle_call_expr(pmath_expr_new_extended(f, 1, arg)));
     }
     
     pmath_unref(arg);
@@ -3427,7 +3472,7 @@ static pmath_t make_simple_call(pmath_expr_t boxes) {
     if(!is_parse_error(f)) {
       return wrap_hold_with_debug_metadata_from(
                boxes,
-               pmath_expr_set_item(args, 0, f));
+               handle_call_expr(pmath_expr_set_item(args, 0, f)));
     }
   }
   

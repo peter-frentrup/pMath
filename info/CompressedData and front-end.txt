@@ -7,7 +7,15 @@ ToString / ToBoxes:
 
 MakeExpression:
 - need way to force-Uncompress CompressedData(...) during parsing even if it is wrapped in some Hold(...) or similar
-  (Mma Frontend does this, normal parser not)
+  (Mma Frontend does this, normal parser does not)
+  MakeExpression(..., AutoExpandCompressedData -> True)
+  e.g.:
+  ```
+  MakeExpression({"f", "(", {"CompressedData", "(", StringBox("\"1:c${Nm;A3NA;$dRp5DTs>E=kQz@X0JLVPfN9;@[W)&&f}p%t=UO;^JZAfpe3X_;{EE;M,;Yys{3z\""), ")"}, ")"}, AutoExpandCompressedData -> True)
+  ```
+  gives:
+    HoldComplete(f({a,b,c}))
+  
 - Maybe need to automatically call ToPackedArray(...) on lists of doubles that are long enough (Length >= 63 is what Mma front end seems to use)
   (Mma Frontend does this for (nested rectangular lists) of total > 125 (for 8 byte Real) or > 255 (for 4 byte Integer) or > 62 (for 16 byte Complex), normal parser not)
   

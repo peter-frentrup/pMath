@@ -5,7 +5,7 @@
 
 /**\brief (De-)Serialization error codes.
  */
-typedef enum {
+typedef enum pmath_serialize_error_t {
   PMATH_SERIALIZE_OK         = 0, ///< No error occured.
   PMATH_SERIALIZE_NO_MEMORY  = 1,
   PMATH_SERIALIZE_BAD_OBJECT = 2, ///< The object cannot be serialized (e.g. custom objects)

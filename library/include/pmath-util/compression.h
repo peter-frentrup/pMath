@@ -103,6 +103,17 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_decompress_from_string(pmath_string_t str);
 
+/**\brief Decompress an expression from a string without printing messages on error.
+   \param str     A string representing a compressed expression. It will be freed.
+   \param err     Receives PMATH_SERIALIZE_OK on success or an error code on failure.
+   \return The decompressed expression or PMATH_UNDEFINED on failure.
+   
+   \see pmath_compress_to_string()
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_decompress_from_string_quiet(pmath_string_t str, enum pmath_serialize_error_t *err);
+
 /** @} */
 
 #endif /* __PMATH_UTIL__COMPRESSION_H__ */

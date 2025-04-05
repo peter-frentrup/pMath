@@ -10,7 +10,9 @@
 /* This header exports definitions of the sources in
    src/pmath-builtins/language/
  */
-  
+
+PMATH_PRIVATE extern pmath_t _pmath_object_makeexpression_key_auto_uncompress;
+
 // evaluates MakeExpression(box) but also retains debug metadata
 PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debugmetadata(pmath_t box);
 
