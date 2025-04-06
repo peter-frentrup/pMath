@@ -31,6 +31,9 @@ Developer`SourceLocationOpenerFunction(src: Language`SourceLocation(~:FrontEndOb
 Protect(Developer`SourceLocationOpenerFunction)
 
 
+FrontEnd`KernelExecute(Off("Packing"))
+
+
 If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ~~~ ++ ".png" ++ EndOfString)) {
 	FE`$WindowFrameImage:= $CommandLine[2]
 }
