@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays.h>
 #include <pmath-core/strings.h>
 
 #include <pmath-language/charnames.h>
@@ -275,6 +276,8 @@ static pmath_t parse_gridbox(pmath_expr_t expr, pmath_bool_t remove_styling); //
 static pmath_t make_expression_with_options(pmath_expr_t expr);
 static pmath_t get_parser_argument_from_string(pmath_string_t string); // string will be freed
 static pmath_t handle_call_expr(pmath_expr_t expr);
+static pmath_t try_make_auto_packed_array(pmath_expr_t expr);
+static size_t estimate_rect_array_elements_size(pmath_t obj);
 
 static pmath_t make_expression_from_box_or_string(pmath_t box);
 static pmath_t make_expression_from_string(pmath_string_t string);
@@ -1075,6 +1078,45 @@ static pmath_t handle_call_expr(pmath_expr_t expr) {
   }
   
   return expr;
+}
+
+static pmath_t try_make_auto_packed_array(pmath_expr_t expr) {
+  size_t size = estimate_rect_array_elements_size(expr);
+  
+  if(size > 1000)
+    return pmath_to_packed_array(expr, 0);
+  
+  return expr;
+}
+
+static size_t estimate_rect_array_elements_size(pmath_t obj) {
+  if(!pmath_is_expr_of(obj, pmath_System_List)) {
+    if(pmath_is_int32(obj))
+      return sizeof(int32_t);
+    
+    if(pmath_is_double(obj))
+      return sizeof(double);
+    
+    return 0;
+  }
+  
+  if(pmath_is_packed_array(obj)) {
+    const size_t *sizes = pmath_packed_array_get_sizes(obj);
+    size_t dims = pmath_packed_array_get_dimensions(obj);
+    
+    pmath_packed_type_t et = pmath_packed_array_get_element_type(obj);
+    size_t total = pmath_packed_element_size(et);
+    for(size_t i = 0; i < dims; ++i)
+      total *= sizes[i];
+    
+    return total;
+  }
+  
+  pmath_t item = pmath_expr_get_item(obj, 1);
+  size_t item_size = estimate_rect_array_elements_size(item);
+  pmath_unref(item);
+  
+  return item_size * pmath_expr_length(obj);
 }
 
 static pmath_t make_expression_from_name_token(pmath_string_t string) {
@@ -2807,6 +2849,7 @@ static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t sym) {
   if(pmath_is_expr(args)) {
     args = pmath_expr_set_item(args, 0, pmath_ref(sym));
     
+    args = try_make_auto_packed_array(args);
     pmath_try_make_association_list(&args);
     
     return wrap_hold_with_debug_metadata_from(boxes, args);

@@ -16,7 +16,7 @@ MakeExpression:
   gives:
     HoldComplete(f({a,b,c}))
   
-- Maybe need to automatically call ToPackedArray(...) on lists of doubles that are long enough (Length >= 63 is what Mma front end seems to use)
+- [DONE] Maybe need to automatically call ToPackedArray(...) on lists of doubles that are long enough (Length >= 63 is what Mma front end seems to use)
   (Mma Frontend does this for (nested rectangular lists) of total > 125 (for 8 byte Real) or > 255 (for 4 byte Integer) or > 62 (for 16 byte Complex), normal parser not)
   
 - Mma 6 front-end bug: Note that Mma 6.0 front-end incorrectly converts Complex packed array forms to Real packed arrays of {re, im} fields, as can be seen in 
