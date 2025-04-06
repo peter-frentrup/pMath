@@ -11,7 +11,6 @@
 using namespace richmath;
 using namespace std;
 
-extern pmath_symbol_t richmath_System_CompressedData;
 extern pmath_symbol_t richmath_System_LineBox;
 extern pmath_symbol_t richmath_System_List;
 
@@ -36,15 +35,8 @@ bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
   }
-    
-  Expr data = expr[1];
-  if(data.item_equals(0, richmath_System_CompressedData) && data[1].is_string()) {
-    data = Expr{ pmath_decompress_from_string(data[1].release()) };
-    if(data.is_expr())
-      expr.set(1, data);
-  }
   
-  if(DoublePoint::load_line_or_lines(_lines, data)) {
+  if(DoublePoint::load_line_or_lines(_lines, expr[1])) {
     _uncompressed_expr = expr;
     finish_load_from_object(PMATH_CPP_MOVE(expr));
     return true;
@@ -98,29 +90,6 @@ void LineBox::paint(GraphicsDrawingContext &gc) {
 }
 
 Expr LineBox::to_pmath_impl(BoxOutputFlags flags) { 
-  if(_uncompressed_expr.expr_length() != 1)
-    return _uncompressed_expr;
-    
-  Expr data = _uncompressed_expr[1];
-  bool should_compress = false;
-  if(data.item_equals(0, richmath_System_List) && data.expr_length() > 1) {
-    if(data.is_packed_array() && pmath_packed_array_get_element_type(data.get()) == PMATH_PACKED_DOUBLE) {
-      should_compress = true;
-    }
-  }
-  
-  if(!should_compress) {
-    size_t size = pmath_object_bytecount(data.get());
-    should_compress = size > 4096;
-  }
-  
-  if(should_compress) {
-    data = Call(
-      Symbol(richmath_System_CompressedData), 
-      Expr{ pmath_compress_to_string(data.release()) });
-    return Call(_uncompressed_expr[0], data);
-  }
-  
   return _uncompressed_expr;
 }
 
