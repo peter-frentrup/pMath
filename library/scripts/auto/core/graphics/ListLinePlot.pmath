@@ -80,6 +80,9 @@ Function makeXyLists(~data, ~dataRange) {
 }
 
 Function makeLine(~xyData) {
+	If(Developer`IsPackedArray(xyData)) {
+		Return(Line(xyData)) % TODO what about Infinity and Undefined elements??
+	}
 	With(splitXyData:= xyData.Split(#1.Map(IsNumber) === #2.Map(IsNumber) &))
 	With(numericsXy:= splitXyData.Select(#[1].Map(IsNumber) === {True, True} &))
 	Return(splitXyData.Map(Line))

@@ -139,7 +139,7 @@ Function generateData(~f, ~xrange, ~numPoints, ~prec, ~maxrecurs) {
 		% TODO: improve SortBy so that it does not unpack below:
 		xys:= Sort(Join(xys, newxys))%.Developer`ToPackedArray;
 	}
-	Return(xys);
+	Return(Developer`ToPackedArray(xys))
 }
 
 joinLists():= {}
