@@ -42,23 +42,22 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {RGBColor(0.75, 0, 0), {
-                  LineBox(CompressedData(
-                    "1:c$,I(ze,(D7>2{krHDu<L4uS[B)t_WA}gSGNWKuPjaExZMMOlT=-,k=\
-                    UAj6thy>[-QTi815r^U@{S#bTupmgcZVp,(+J3)I@A5wH!_DR7obRAeTmk\
-                    x!^_1Vf-,U;ltj[-l?BYQM$O,sccs9@@_Qz@G>a=smo,hbpXHu?yvnQcX>\
-                    ,^[3&1Y[flTZ}Ut-t)mo,i>DKj=F*>,5qz{iyAdJqi8AEJOKN>sJmSl+]Y\
-                    TJ>dYtfci_V#]eU-q,vf2YL^2D74==MdmKP,Y<@,UHU}&[%@0d,#{q<@,4\
-                    OpY4j};_Yf_sWKo]MVEp?m&2*c(#q*ghA@XY)tsU;2}jF,{o{#9@QVbuLA\
-                    If(OsI>y{D$flnM)G_{l0xrIIPNC*+ztEQwV8Z=N{b&L_ci+-QB*3JvzNL\
-                    #!fGP7oTlyyxpl&}1O-X=;,F,8P1ZbMC*rq4IwE00hqy(5TU$sL,fR_0uH\
-                    UtSUXVa70&?LaT,nC^Q0=!ng?L(OWZ,AMk5GO!ec7NYzJ,#&!5Bz>aVoB^\
-                    bze}x=7JKOTE)pwZKl>ex#H!fuexD<;Ciec1J{0*EYz8]$"))}}}, 
-               AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
-               Axes -> True, PlotRange -> NCache({-2 .. 2, 0 .. 2.0}, {
-                  -2.0 .. 2.0, 0.0 .. 2.0}))), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+                {RGBColor(0.75, 0, 0), 
+                 LineBox(
+                  CompressedData(
+                    "1:c$,Jju[T9$5XSLv+!Gv@DI]69VI,I!BcgawY*JbV+cbHElqp08v9Jtz\
+                    f*,>{GU6koQHUUjot=e^f@b&rquczr<?eRpo5^bREI-X_)w;*s=V@;-?R^\
+                    =_ZDjFjD3_tFq5WYfFX_E^L%B-(uZD7+oEyq0,CurM<it?s$&sNH>rpinO\
+                    %4o2H==z*(amVrP;@KWF%;d2?iq^iN4E_{&!P=O(Q&je6b(m9GsETcam-<\
+                    cEe$8J?isd-_YRvH4$[U=hkWOj{1?Y%b*[qXR,+sq?(MEnms_W9ca>b+2D\
+                    !Ow<cdY8a(6rQ#qHBKcR*j=A$@nxnG5%kxp6O;EBA)EbDx+?_xmTUKYs!J\
+                    ?IaQ~"))}}, AspectRatio -> NCache(1/GoldenRatio, 
+                 0.6180339887498948`), Axes -> True, 
+               PlotRange -> NCache({-2 .. 2, 0 .. 2.0}, {
+                  -2.0 .. 2.0, 0.0 .. 2.0}), PlotRangePadding :> {
+                 None, Scaled(0.04)})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Evaluate numerically:", "ExampleText"), 
         SectionGroup({
           Section(BoxData({"Abs", "(", {"1.0", "-", "ImaginaryI"}, ")"}), 
@@ -70,9 +69,9 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Evaluate to arbitrary precision:", "ExampleText"), 
           SectionGroup({
-            Section(
-             BoxData({"Numericalize", "(", {{"Abs", "(", {"1", "-", "ImaginaryI"}, ")"}, 
-                ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"Numericalize", "(", {
+                {"Abs", "(", {"1", "-", "ImaginaryI"}, ")"}, ",", "30"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
               "1.414213562373095048801688724209698078569671875376948073176679[\

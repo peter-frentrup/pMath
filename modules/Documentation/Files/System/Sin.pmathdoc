@@ -49,37 +49,32 @@ Document({
              "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {RGBColor(0.75, 0, 0), {
-                  LineBox(CompressedData(
-                    "1:c${68drVYE6vnxS)gr-ld5!pp7E&uVKEYSjIG4I&i)gGMDx$84t0)>2\
-                    6g4WQ1-c-%NVNqY1PK+3Mjo}3SjrfovBFaD9fN37DoQJ>6_vN!Vdh?U(*5\
-                    )I4Z[U>eBT*x(3VL6E[(HjA-m$@*KIZgN5{oO}KR,{hyVS+sgKGh%,-<{e\
-                    t@r>*[C9LRRacRtwsar#U)G3y}l*}-Do[VXKq^)1{cP?#_2=5y<0G{%uF=\
-                    q<Thi_+HZM=gC6$VUa4uppkt@cr)3[V_I-hoK78Qvm0tf]aAUk;eZqmi2m\
-                    Xsu<l@Wex20zoJQ)8?za;smHp*ioYJM!gO*vxxrni6Mp8GE,3Owjnw<)6)\
-                    gBRlu-s*PEC2bfb<CXP6ldTwrGQOtO_IixpD]w)EbPe#?OZjldn;Wd#v_D\
-                    WDF87}hLnt4?_@?T{=Pw7p#%OA[<C&#Bl)v9s6>q}8yrE@TzvF(-G5E04+\
-                    Y8Js=3aWbIHJAo,$)<^V7%){p)oi14MtJPw+sR4lz+&0Vp4WfQWNEm+iOE\
-                    IiYWJGToY$9M2EFww8[jyeXoV,j]Gu]lhC-[I_1@8Moe>TqI@jl+C}22zg\
-                    Zm^&EHZ{J-m(b@r*CJ)}i#Qo$]mCly1^N,9#LQoxS89Dx!RS<){JIdMNi[\
-                    {O->d&(x=sAG=yiCfO*TEX=kOBOCisK9%wCd]@dJ6,jKQ>5QKk=6]bS;ZE\
-                    WH8I1ptSvY9%@14T;%wpWf*=J$ZdtJi!&t}-!LsxTpcb8DF%=p+Rws{9zy\
-                    M+FH!g$FYYt>dmx6n^L<5Q]}1Hx,]3;hpd++1p@m=V},%<EITXM1q8I^7_\
-                    4,qys?FFB6w#b[!9g<!^m_GM3bn$s(IXCdQtF{V<B>s!HVix>[GkuaeoiS\
-                    iWHn]ND=HGRpL-5YI!mqUfDILK(L>isarKi*]1_CH4XS]V-ngbYctJzL>@\
-                    Rq+T(@_aRk5ki7MMzv]gR}yGnl+jH!=LWm;,^i_;tq}Eqxj_cVY<-+MISZ\
-                    ofeRPp4_*nu*p?<B5>iNwCHVE}(l2Hx+5&}3hZsFzYWMzX8h!LvS$!HF*l\
-                    E4<m_q?zL@4QWU6z>XwSfMMfvbsSCY-8Nvk@b4SJj(UF>jdH%pA%+us@qS\
-                    wvOx&!VEixFywRo;l(+Gz64=RjN^N6cKpEvLxC;pEW_)z&5M$R[$,#iT*k\
-                    hlDtE_Ag0{htMXoo[jF*-LH6>&!r*e@[,x!h7YY8(]Tatjmqf(vI8oSGhf\
-                    Mg_(51d_P0z+VqpMk**FA&}lat2NR4^Dn8Oq>6xv3mJuG**TXAN(>34alv\
-                    3(UT-,{1tqrx(z!6n*uJ{5oC-?N34F]3&>wj}vW5!EW+0Fu33j7,vPuYKa\
-                    v{%Fuf6}7{ENd[h-=)EGv$r=KfdFF-t00yQ{ygtRTdXKvI]E)y15H=9Oc4\
-                    =(B=mP6WoQ$k8@$E&Zox^Ooi2IuX4E1QL[Q,&[b?&tKH4z!qKm?XWUArLX\
-                    <j>JTA<fb7y&a9u<n!3Fb?E1Lt{im!s8zpW^5DmIY_MZEzR-aheMwc9<?+\
-                    ?4Uw]YN$dkT$xmLH,dcbR,&{lvy$+*Q6WXO>^UyvM<q-?zKIHRRgV,-!n5\
-                    b,ZnY37<$,aBv1I>4Dy&mebY2o3L{EB^8oLXUeJ^;*!D>n,Ny3xp,EI=sD\
-                    3gRY5xv_l1j^Y({OuboSE);*Lb7j}A<Bj+DgO_%Q9>p~"))}}}, 
+                {RGBColor(0.75, 0, 0), 
+                 LineBox(
+                  CompressedData(
+                    "1:c${6-drVVT90%[H%BDoIy}?u-jRq2<COQZB*u?DjBNWUK7N>yYrBzuS\
+                    gBh4(okoVqfEC3I+05uvf,pB&EF$iq(vCx<i<6dt@-PO9%Q{gu=tT>(ltP\
+                    zy4%cM&-+Rxw-[C)_a-@<KQdx6=O!B,6FPWlN-57w@hWx[<OFxWVx8>eD^\
+                    $_lip8l)G<$$Fd)JfB!!(fXl(pJ}D0sVdi;s=8Y+GNA<(<#H*(6wWrPFt9\
+                    ox%6LXIjlSV&%!5gaQBV!o,4bfU7cL=qw5LeWmvyA_l&^Z(8!___n$)CnT\
+                    XDuicuJtl^=^GE+]P_uJ[z(I56s;SQjx4<F6>9!wQ,+)bIQt<ePCw!<oyy\
+                    #0fd=cH!xg3D{x}Y[o5_vb+=U?(o}}7a{]Gs5cFpW+vcDhP(5tg93QZ8MQ\
+                    TelaN)?t%)udps3j3D0WQ3LwCoXibersNA;TQ6gTYSv&su?0+b!l*%NQOp\
+                    [k?{)<A]<A-l9,5!*em^GHkk3YP%8ZrQ8q3Ow*(ed#pu2=K-0$@dmFdf;%\
+                    }>iM^P0,&cCQ<XjT!1<e3NVs2M{Y,=Y*&{$&ovHHu^eOTE#pRKA9(*}^uK\
+                    %;rxM=quQ{w(%!C,M&Ui6CpulLBU-yQdg,PM)3?>IB+74tXsIxYE{Y4Lnp\
+                    EcWP>?rHJ-rmMD=ZE-%aA39GTWV8N$,,mavaQzHyW&Or]V%Yq+dPeNOGgp\
+                    7rrkEAyla#L8*i<}VrEGrtUQJ$i{5,)oU+P1G,E35L9n*)ra9)Ckm=EeD0\
+                    O$NrF9Eod,J!H=*unf!FM)WM,K0p?!kf%5?R!2x!]N]0?eu&Lu!X)SG;au\
+                    Y(e;GpU4&M;KcRW$$b1u;SB^0>A2]7RPx!b;j#)H6q4^cad=tq7=k1Ig3R\
+                    Khclb96kyv]yfWWLGYirO{$iwbnn{zz$uJubRgf$6kgvZidA*4w8*)<2<r\
+                    D3JLk*^;w$xpEF0>HJ8r+19pt1BZv,e8]^Gd5*z1IArrDiIHk)m6k*1gE*\
+                    Z<p>KW4A@f5jj3x[O;gI<v8hvV)_A-ae9}_mG_qUljWIl;heNI?q<&gO$b\
+                    Uqw1-=x;x6>}U4^Y=&XN2)hZK3[gkEqJ+7#*6za4aQ%c954R=m!zSA,i;D\
+                    pZ?8Per%B*(Kg;j2W-fmzo5vw,zOO$sZ0j!Jk@+T3F[<nfwLCK4gnHqT,6\
+                    h+U301TGyx8x,kM!5Bd3elV{kMi&,tnptWWEW#kCe!Kle#S3rVBYrjAiqs\
+                    _mgtYH(9$!+jMeJiSIBU^uAJIEb]LXsxX21qW6_*&Nrd=)#5qdgx*g[(8B\
+                    yu-^-ZqCi8#feF8x~"))}}, 
                AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
                Axes -> True, PlotRange :> 
                 NCache({0 .. 2*Pi, -0.9999999999999999` .. 
@@ -97,12 +92,13 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Evaluate to arbitrary precision:", "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"Numericalize", "(", {{"Sin", "(", {"12", "/", "10"}, ")"}, 
-                ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"Numericalize", "(", {
+                {"Sin", "(", {"12", "/", "10"}, ")"}, ",", "50"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
-              "0.93203908596722634967013443549482599541507058820873073536659[7\
-              12+/-188]`60"), "Output", SectionGenerated -> True, 
+              "0.93203908596722634967013443549482599541507058820872[590+/-535]\
+              `50"), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -187,12 +183,10 @@ Document({
            "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
          All), Section("With exact input, the answer is correct:", 
          "ExampleText"), SectionGroup({
-          Section(BoxData({"Numericalize", "(", {{"Sin", "(", {"10", "^", "40"}, ")"}, 
-              ",", "20"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
-          Section(
-           BoxData({
-             "-", 
-             "0.5696334009536363273080341815735687231328[927+/-926]`40"}), 
+          Section(BoxData({"Numericalize", "(", {
+              {"Sin", "(", {"10", "^", "40"}, ")"}, ",", "20"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"-", "0.56963340095363632730[174+/-679]`20"}), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
          All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 

@@ -104,36 +104,120 @@ Document({
           Section(
            BoxData(GraphicsBox({
               {RGBColor(0.75, 0, 0), {
-                LineBox(CompressedData(
-                  "1:c$,hue@NVA90zdk,O1(nWQ>rAh=?m9A}gT[q9h,AV+(O6TSiD&WZQ};L#\
-                  jm,BBEyI4iPaCkwZjGMC6+[6BCjBYRF},o}!Xe&gPIYWQ?(OpZ6!epSRp!FZ\
-                  ?}3_xHKydymV?9rK(!;Ieb_j(=Vg,zTs=w4x^F_T^@0yS%Lb{}-8r14x7;nN\
-                  Qyv8Q4!SDsTYcN7M2V$ORn6zx*U{kVYm14$%nU5dc<*o)^diR6+ocQn5*a#{\
-                  dzm3V57S08dy-Dd0&fRt}W}Mk)Yd8#x7dhKd26wPKZk=d4&2;CU;i@PehB0l\
-                  a7_3NKkPg_nboq(Xi$@,J)FR!rg5pvSbrYXC{TD3I-54]nG[3hY@F-UR%ZS#\
-                  w9>Eql0Xz[xmL3WtM]h{6$j7KNh#eAf!^*yGm#3T?+?fFdha3n&hXMb83CtX\
-                  Ldy!iqHk-m_u[!24D#3HZQ@,G7JymVgiGjQuQ7PRA1Pu@y^C34B85bXwq3TH\
-                  _ai({xT[1S+ZNtUwj@m=ma,Q+Qb*Mk(_GwX}qT;4>QeP2dX[SrGV=VgX-KEF\
-                  d1Dncqd]Li99{,jBl&KBR%B3LuRkY6oc!S-oSB7Md!Aw1%u;5u,0-4Ua<-G*\
-                  t{]r-mvW)KI09rrw2gQA3q(YnZRnV^akxz0^>p&l(<6N!nDQO20KMQW>!HVw\
-                  FLamCQmVBKzEs%F]&#lPbgZT%{@_mQ})QYActkjD_sPs,xe)R]c71B4a8O*2\
-                  h<wq&+NwOj*N-$]5h]$_!1NfXvd)pM=a&!&1lvnks,_qK4&=E7ULwxk^)U$U\
-                  HSnKvLAuhb-,!Uldv7(+gRmhH1z$Pc4b8@SF07$SSY1EV4%DISpB-_ad4W+2\
-                  DqdP0m^o+2Sn7HfKR@QdTMCR*0@c$SzG)KyK62Daaje2-%]Cm5{sCunKaI8m\
-                  io<tTT,Yl%*1PbT2]c99@i%dPg@Sq,[eE2x)Xd![BW5j&4gxiwhdgsI*$vtV\
-                  )[$Jg1UybjfBU$F;lQR=KRwVGVy(>9nkrN}!ZEt8_cMiy=MMIjb7dYYoFHeb\
-                  y(UlB7LU>9>Yyl>uuQt$_?$!$b@+L=9^p!,3i*7BWH&<B(Bm*aR7)h6#vI4U\
-                  >>@YUo2Is9_p1Ne#n)icC>MA2Ll1)2kvg)G%vJWR[;tCNf8zBkLj;9Q}%=h+\
-                  N{V>mpY;Yg6Q^qhF+dMCLhtOC-fvkOkf!$Rh6sWQnFOLY8SN1zDk]MaU[eA!\
-                  JQu85;&!S9vIZe?c[V>l$Q[veqG6l%=vwQ-4El(v-?An<,b=rG_fEtzoUo9c\
-                  %ct%ARG_tK7A$CY5,Z^^MAXn,%*cVCmng#JwQBRb;=b^Mds6RO-DT>zqo1XX\
-                  ja^QRQ3)+Etou<qnk=mD8Dq->bCRR8pnQrhJuzO{G=Zt>HtJ4r>_MfOJwrl,\
-                  hK)Ux##4mP(Ij-}{A;*RyZ=2Bgok-,*Wa(z7>Z57O_^TW]{UfEpfx40,ldLW\
-                  U?S0vYz,{ep]8mJb=_scn%lY8d@j#OJ9Uk#TOgo00zjZAA5y"))}}}, 
+                LineBox({{0.0, 1}, {0.03571428571428571`, 1}, {
+                   0.07142857142857142`, 1}, {0.08928571428571427`, 1}, {
+                   0.0982142857142857, 1}, {0.10267857142857142`, 1}, {
+                   0.10491071428571427`, 1}, {0.10714285714285714`, 1}, {
+                   0.10825892857142858`, 1}, {0.109375, 1}, {
+                   0.10993303571428571`, 1}, {0.11049107142857142`, 1}, {
+                   0.11077008928571427`, 1}, {0.1109095982142857`, 1}, {
+                   0.11097935267857142`, 1}, {0.11101422991071427`, 1}, {
+                   0.11104910714285714`, 1}, {0.11106654575892858`, 1}, {
+                   0.111083984375, 1}, {0.11109270368303571`, 1}, {
+                   0.11110142299107142`, 1}, {0.11110578264508927`, 1}, {
+                   0.1111079624720982`, 1}, {0.11110905238560267`, 1}, {
+                   0.1111095973423549`, 1}, {0.11111014229910714`, 1}, {
+                   0.11111068725585938`, 1}, {0.1111112322126116`, 2}, {
+                   0.11111177716936384`, 2}, {0.11111232212611608`, 2}, {
+                   0.11111341203962054`, 2}, {0.11111450195312, 2}, {
+                   0.11111668178013392`, 2}, {0.11111886160714285`, 2}, {
+                   0.1111232212611607`, 2}, {0.11112758091517856`, 2}, {
+                   0.11113630022321427`, 2}, {0.11115373883928571`, 2}, {
+                   0.11118861607142858`, 2}, {0.11125837053571429`, 2}, {
+                   0.11132812, 2}, {0.11146763392857142`, 2}, {
+                   0.11160714285714285`, 2}, {0.1118861607142857`, 2}, {
+                   0.11216517857142856`, 2}, {0.11272321428571427`, 2}, {
+                   0.11383928571428571`, 2}, {0.11607142857142858`, 2}, {
+                   0.12053571428571429`, 2}, {0.125, 2}, {
+                   0.13392857142857142`, 2}, {0.14285714285714285`, 2}, {
+                   0.1607142857142857`, 2}, {0.17857142857142855`, 2}, {
+                   0.21428571428571427`, 2}, {0.25, 2}, {
+                   0.2857142857142857`, 2}, {0.30357142857142855`, 2}, {
+                   0.3125, 2}, {0.3214285714285714`, 2}, {
+                   0.3258928571428571`, 2}, {0.32812499999999994`, 2}, {
+                   0.3303571428571428`, 2}, {0.3314732142857142`, 2}, {
+                   0.3320312499999999`, 2}, {0.33258928571428564`, 2}, {
+                   0.3328683035714285`, 2}, {0.33300781249999994`, 2}, {
+                   0.3331473214285714`, 2}, {0.3332170758928571`, 2}, {
+                   0.33325195312499994`, 2}, {0.3332868303571428`, 2}, {
+                   0.3333042689732142`, 2}, {0.3333129882812499`, 2}, {
+                   0.33332170758928564`, 2}, {0.3333260672433035`, 2}, {
+                   0.33332824707031244`, 2}, {0.3333304268973214`, 2}, {
+                   0.33333151681082585`, 2}, {0.33333206176757807`, 2}, {
+                   0.3333326067243303`, 2}, {0.3333331516810825`, 2}, {
+                   0.33333369663783474`, 3}, {0.333334241594587, 3}, {
+                   0.33333478655133925`, 3}, {0.33333587646484375`, 3}, {
+                   0.3333369663783482`, 3}, {0.3333391462053571`, 3}, {
+                   0.33334350585937494`, 3}, {0.3333478655133928`, 3}, {
+                   0.3333565848214285`, 3}, {0.33337402343749994`, 3}, {
+                   0.3333914620535714`, 3}, {0.33342633928571425`, 3}, {
+                   0.33349609375, 3}, {0.3335658482142857`, 3}, {
+                   0.3337053571428571`, 3}, {0.33398437499999994`, 3}, {
+                   0.3342633928571428`, 3}, {0.3348214285714285`, 3}, {
+                   0.33593749999999994`, 3}, {0.3370535714285714`, 3}, {
+                   0.33928571428571425`, 3}, {0.34375, 3}, {
+                   0.3482142857142857`, 3}, {0.3571428571428571`, 3}, {
+                   0.37499999999999994`, 3}, {0.3928571428571428`, 3}, {
+                   0.41071428571428564`, 3}, {0.4196428571428571`, 3}, {
+                   0.4285714285714285`, 3}, {0.4330357142857142`, 3}, {
+                   0.4374999999999999`, 3}, {0.43973214285714274`, 3}, {
+                   0.4419642857142856`, 3}, {0.44308035714285704`, 3}, {
+                   0.4436383928571428`, 3}, {0.44391741071428564`, 3}, {
+                   0.4440569196428571`, 3}, {0.4441964285714285`, 3}, {
+                   0.4442661830357142`, 3}, {0.4443359374999999`, 3}, {
+                   0.44437081473214274`, 3}, {0.4444056919642856`, 3}, {
+                   0.44442313058035704`, 3}, {0.4444318498883928`, 3}, {
+                   0.44443620954241064`, 3}, {0.4444383893694196`, 3}, {
+                   0.4444405691964285`, 3}, {0.44444165910993294`, 3}, {
+                   0.4444427490234374`, 3}, {0.4444432939801896`, 3}, {
+                   0.44444383893694184`, 3}, {0.4444443838936941`, 3}, {
+                   0.44444492885044634`, 4}, {0.44444547380719857`, 4}, {
+                   0.44444601876395085`, 4}, {0.4444471086774553`, 4}, {
+                   0.4444492885044642`, 4}, {0.44445364815848204`, 4}, {
+                   0.4444580078124999`, 4}, {0.4444667271205356`, 4}, {
+                   0.44447544642857134`, 4}, {0.4444928850446428`, 4}, {
+                   0.4445103236607142`, 4}, {0.4445452008928571`, 4}, {
+                   0.4446149553571428`, 4}, {0.4447544642857142`, 4}, {
+                   0.44503348214285704`, 4}, {0.4453124999999999`, 4}, {
+                   0.4458705357142856`, 4}, {0.44642857142857134`, 4}, {
+                   0.4475446428571428`, 4}, {0.4486607142857142`, 4}, {
+                   0.4508928571428571`, 4}, {0.4553571428571428`, 4}, {
+                   0.4642857142857142`, 4}, {0.48214285714285704`, 4}, {
+                   0.4999999999999999`, 4}, {0.5357142857142856`, 4}, {
+                   0.5714285714285713`, 4}, {0.6428571428571427`, 4}, {
+                   0.6785714285714284`, 4}, {0.7142857142857141`, 4}, {
+                   0.732142857142857, 4}, {0.7499999999999998`, 4}, {
+                   0.7589285714285712`, 4}, {0.7678571428571426`, 4}, {
+                   0.7723214285714283`, 4}, {0.7745535714285712`, 4}, {
+                   0.7756696428571426`, 4}, {0.7762276785714283`, 4}, {
+                   0.776785714285714, 4}, {0.7770647321428568`, 4}, {
+                   0.7773437499999997`, 4}, {0.7774832589285712`, 4}, {
+                   0.7776227678571426`, 4}, {0.7776925223214283`, 4}, {
+                   0.7777273995535712`, 4}, {0.7777448381696426`, 4}, {
+                   0.7777535574776783`, 4}, {0.777762276785714, 4}, {
+                   0.7777666364397318`, 4}, {0.7777709960937497`, 4}, {
+                   0.7777731759207587`, 4}, {0.7777753557477676`, 4}, {
+                   0.777776445661272, 4}, {0.7777769906180243`, 4}, {
+                   0.7777775355747765`, 4}, {0.7777780805315286`, 5}, {
+                   0.7777786254882809`, 5}, {0.7777791704450332`, 5}, {
+                   0.7777797154017854`, 5}, {0.7777808053152898`, 5}, {
+                   0.7777818952287943`, 5}, {0.7777840750558032`, 5}, {
+                   0.7777884347098211`, 5}, {0.7777971540178568`, 5}, {
+                   0.7778145926339282`, 5}, {0.7778320312499997`, 5}, {
+                   0.7778669084821426`, 5}, {0.7779017857142854`, 5}, {
+                   0.7779715401785711`, 5}, {0.7780412946428568`, 5}, {
+                   0.7781808035714283`, 5}, {0.7784598214285712`, 5}, {
+                   0.7790178571428569`, 5}, {0.7801339285714284`, 5}, {
+                   0.7812499999999998`, 5}, {0.7834821428571426`, 5}, {
+                   0.7857142857142855`, 5}, {0.7901785714285712`, 5}, {
+                   0.794642857142857, 5}, {0.8035714285714284`, 5}, {
+                   0.8214285714285712`, 5}, {0.8571428571428569`, 5}, {
+                   0.9285714285714283`, 5}, {0.9999999999999997`, 5}})}}}, 
              AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
              Axes -> True, PlotRange -> NCache({0 .. 1, 1 .. 5}, {
-                0.0 .. 1.0, 1.0 .. 5.0}))), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+                0.0 .. 1.0, 1.0 .. 5.0}), PlotRangePadding :> {
+               None, Scaled(0.04)})), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
@@ -150,66 +234,50 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {RGBColor(0.75, 0, 0), {
-                  LineBox(CompressedData(
-                    "1:c$,(34,,fs8OQJ5doQ#ui(A[+u62}di;9&ZrHG1GWXNu8Qra$bMx;m-\
-                    tGkj*LQpI22qC03#,Fv!w561ClsUFBN<C[Sl,]}QKfRQC#?bYxHOaD=WS5\
-                    X-F]lsr^Lc*v,@PTi7Xo{EKFjkwpZEQ[zvtK22]_om9jDT9x78f[RddTvV\
-                    #i)M-rV9;RJpEG6VN]UVkP2iQ[JYNlzuNoB>pLgUx9d]il<{9}3bV<#h+7\
-                    u@K=aG26?VSyc+Ug{0S9T*<%9,uTk+63Sj)R;B^DyPpNoR6]_2Z=m+CZOF\
-                    #7(-z8oR7=K3c9LIRA<oN]0cY_zkza(BKF#Z+sYQ*?g#mkC+P5Oyre6RFl\
-                    #lJ3IR(zkICuPO=,+459;@=Q2EB;O2Yru+s+xN;?@$dL,hphMkKY!MWe^<\
-                    p>ca-CN5#;!@D$csMIL;Ri$G_+IKhAN!2yy&5}9<8<&KDINe_oyo$NAzBj\
-                    =!Mdf1y8L;y7PC$?@;Y^J>z4?&A1Cc,h91i+vnF<o6$K()]v{e#GzJYtsF\
-                    n<9MAs$7bFC6336qdT7!8CxaCKf%M<1,[Z7*}IqJ0c2f5r3sd}@(tpC-=W\
-                    P@[CjFn%{ntK9@gGb7Nz;Ed#T%smwC>;AP4S<?,>y+seT(8hgZK0u-G2kc\
-                    e-7{aJG%cg#b1&By_>rK,i];c3D^fRW[U1?oJPq1H{E]q<A]D),@o>?Ke-\
-                    lhTA<IY?mzv%h}>!D+i0ZbjQWGEi1SOxGiLHUj5xoB_x+ak^@<VaH{eC_,\
-                    ]2TMrHJ!e=s&0XPf$D&1c96u_!EJ)AXLuj%6S6qLD<T2T49brM-cY1oObw\
-                    #KqsU+Zc?oiI2{CwoVNIcKvxj9t(?[_BG4U#eam<h3G{$RqxMKKNJ8<rDP\
-                    AJb3m$RpagISBc*M2G5QBb6l,^T,V{jHc;@V@0!Fll*h-;5k1{cI56W1Oa\
-                    3@(btU}f4_GPoqghfMK@3{p[&Yl@c,T$UOmrUv]Sa9#_-=7!*PF(0$Q8$s\
-                    Ci5WFQfaohrLi$]r9SK!fF;A#-IJ_Koa=1mB$!K1anbrFnO;08Qe3)]bz&\
-                    jJ[(CCvy1VZpT^7y,jo1X&S,okTDKf(Zm;Ab1Kv4g,[3Zi8S7!5t7xBgli\
-                    GhhPGChH(IsAecsQ7X-cA0PcZc;0[QMSmW;i9^mei2QY<O#y<eeV2ud?vv\
-                    {u%%%M4gc[(?B0E^fzf&$!<{RoyJ)d2)6D2QMc1Ybn32B{7rSO>vF2sS}Q\
-                    FoI1;bp*i{2wI>Bf)+?PlIkS{ZH@?9pxyBW_gkPtQXQ]Brz3(EIPLg?FIu\
-                    2WQXRBFx8n;QvOtgH3m&#WQap[WpjWzj$pU?j{]9R3ITh$HgXbw%9fLp8k\
-                    tWFCY#H!$P]aN<sRHN4<EW_-VsN1hzDUJiX23aJ1{cMno&o2qU]oxN9W$v\
-                    a8Kgw8fdLCW&fv0m#Ei!dH9sU(!lc@(=7$I-wP5mDH9tf!Z3JU#e!%jn)2\
-                    T9Qeu!YSP7Bh_qWK}$UY!<9Gq?(=j+*BY;,sq9@ntPYH;d*62-a&sx>+<o\
-                    Ak{IGs*>ji2sUUzx>+<oKrm(mckujxR0)%6FV7DUOlm>8Su{UDFl_{5JU<\
-                    {+U{a^b@caP5=%hI;2WftQpf_nwxdd{U>aJP4A(}iZe$d&*oM&B{AM)1Hu\
-                    Q_m5(EPx5}7F_UPV)n6Oqm*$G(X^VP7>%*SC7*Cz]a;9uv<m*1Me<@Mzwi\
-                    -n&t=IL;[5PQWAIo4=P1qxBAXNU<%uv)(^@fFa!5$U}M^8KwuU;GSk{)g[\
-                    @wm3{Gp0{[Px7k0Il+NnjB?-ZdUu1Pb7hH6BF*%ixjK9-}Caz$0rsN(5HL\
-                    V=1dW,WUQ%$FTOuFjyCl?Zet*g29G(R1a&91qPeqQ8TPPK4!2b9-kZ59vc\
-                    jb;_=k5_V}QBBIJAQ7[g#S8MK9b4+W@LeUU+X$oJT3JW32YLVmkDb-O7AI\
-                    z#^Z;r]S-@EFaHkZ=BZ3v@}w8+3<!^QSG)BVFyXKvKGT#sa<4Rjmd3q^mD\
-                    mpg-h]yFC^-8<LS]f%B3oYJm$P7_-1d5lma)k_ZMy5TryfX@SciIEvsk=x\
-                    PkX>mnGth2RYlOphaY3sU6]ybXdLf-4[ngy1R&24(=HL9iCVH4uy<xDH(<\
-                    5![G85Zr{WV($aUgkXo81u!Tt4((F_hOovQfGpPd4[cLgp9e68f(UXbh]R\
-                    bz{+WT,4lV,+d3=HhCLq-$f=O5<9)i1Na8FGl1oz6I#6SN=a38vwM(_Z-n\
-                    n5rHU0GlTQoWC07E)PYPEyrdU>*c5uqcA97AT0}s[@+6uG%fIB3+%bz^Zi\
-                    hI[5BysxAwxORC>nU_(;bU{eHbuq7TgD3$^LySAIb85&6nBwYWNDDY>>sX\
-                    $v9yh6qQz<]ab,XGaL*RP=fUntPw,W}N(aIp[BPS-D<)WwsonjccU&lKOT\
-                    =7$tNr;B@4YJQXfXGk&l0#8acKO}M!q[rqAhotgMsya14#G_<9URCo$Jfg\
-                    GOBd_KMc+6^#+91ylDE@&i9&>npxU$;k2&mUO#Ph?I)xI#Vk2n=PKU]?Vm\
-                    *(}3@e!UMuIyLq^ZI=CB+m]QcAo}P%y;qp0FUa0vPW_s&kq+i<OOp,<@w>\
-                    l4!58WMdx^aK=Jf]F22O,13aRO=E(Ut%@6R1eQ3_R)igga)raN_>t}?wph\
-                    rP_BnYIj-GceVO5hq6FPKlP1g^WX0n,,FCsqPC;0ZPq%qLa?HzCz=lWLtn\
-                    20aSq6Dxs1@HkO0pI8YDfk&h9C=$qmM,OW!VkIyF#p9-UiNF}m#0%yVD[f\
-                    w%#0%yVD[mdRDrHi=$KVcl#0%yVD[lUt48#lO6DxrU@yNur#}DE*@feI3%\
-                    qLa?ccu7{DgKbbJ@I(gcoZ4j7muv=s4g*hAgQuCRf7Uk;*m8T3e3oAA2#g\
-                    <0#DHV5J4NviQtF@=B2m}7Ny3h1q$LZW,Skd0B%,eMQ+Ks1y<$m<[I)W3(\
-                    f-Tu76-zvcLwc#3lrru;47P1zUy%im>1;kO<2TXMwh,tlee=?O[NhS,c)E\
-                    MX(h?XIM^TClQ<ui(mplS6Bp3A?Oan!3#l8SOilDk}3By&<lbdf<6$eT>{\
-                    V#f@uV2LC{+Ua2^B$D+2xx#p-W^"))}}}, 
-               AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
+                {RGBColor(0.75, 0, 0), 
+                 LineBox(
+                  CompressedData(
+                    "1:c${6APi$0G7{xnnX(Sa!S[{>jP$woX8a9NDi,Rt#XF*7yQzc#Kq8r4A\
+                    eFN!+MOnCM<d4jPm]>[m!@>>X7;UlGlqsdH(b^X4ljyWirqU4sMTB;)_r7\
+                    !9ym!AzlgpWW_x#Si?}$zx^>th88$VswSZ96ya&oD({,<_a^@W-)xW4(T>\
+                    9>M{uSNYgqCV2WY<IAxj}5*t8skt+rvt+w;Xh>icMaKjx<&mVQGa+y<QcN\
+                    _92v6n^oTq?!rv4Ap2*}b^?6bMxhL{?cAi1c&U0D#jf(ljm^SgowKiiyYZ\
+                    GrmYctl9Kc%%98@Rq{t<BgJ?uXW9Y[WcKU02cCjGM##$%3]%+z+kIxRd;J\
+                    7W_2%eir<JaKDa%UkUg382Gsa,Mu!#_29e5!FSh@e[e0Miu,,?Qya+7k>5\
+                    go0et_p@O*;rz7d}cOBlPu^LdFQ,Tn;UyY6wHFLS)l,QP!JKHxaQ9DkEnW\
+                    RCyXKjY5XpkS5t*I2*C^EttJRpyv*el<gzB6pJepva$u&v,}^N%&1G_RA#\
+                    rON#w63I09SA7cGOMgAn_JyGnBN$^+6?;*cReh>KhD*ZhADe^t=2Nd[p_@\
+                    hd(KTtof$oIgnD8+sN}GrY[2k;*$@JBrGAJcD?erxnA(ob>zRnFI+cJxc6\
+                    O[=X[jsA%=,X}!ppGc#BB8]ouH2Npf=pQ>zI&0_2W$iqE*3RP}we#eTi9E\
+                    e_9{0G&b3)}l7kP3bPhR9Hh&;Z?lbW*g6sGJv{,YpCx*x>+AMJeU>6*rQ{\
+                    YlK95&36CzDTR!Gh?qWHCxjknDSkbu9}Wu(&*zz}6%[pXKnv}vv!{Svv!^\
+                    XqCTdBJRKrWhse_*@?,8hyE3-FlM#6,cAmYWeqYAUvp-}!IgqjW9l[2&{E\
+                    art4*fc{*7I5t%xm<Qx*$RR+gh8ko_+_lHuD;J{<^d_+tS46{]mcy^SpFx\
+                    ZRTwX_nZ7J^zWnpj&Q$,C--LfJekK0pAYMY!]N?-9=!ncLnrd+1q6BO-r@\
+                    QiczzEek6r-sbRmyk0Q[#DziMWlZsgGmKpvNQwy?gB^*h4zjy!q+>,&%#!\
+                    ]U2<p37lB&GEiWus,N_UnSTd*Ws_]*&p+]zZ#jxM;^Zk=d*Cb!T0NNKGkm\
+                    y#%AXG-T5T=#}HY9oL7SHH,1@<ydU&kvi;TI,;v1ycrPXS{$c%vBzYz0V!\
+                    %(f2RQ]y&d=uSTS@STOU}kp?<U)Wc_Ss]r1ASF*[f;ZFiOsL^Znx__*ckZ\
+                    CBI01mHZ<3<5lvD<SXziMexrl@{8aPEAZEkfj^_bZy5uBS%LrD82Aqq_}K\
+                    1l}44!V!Wj5Z6!=@lz+WTZXwC1cl5e!(SIOH7US4T!o,cai7taLwUW{qu7\
+                    uP1=OEGQyx5c#ae<h[a=PdkRk7<*;EvDzqV;A*lk;fHz3L=jZd2&[po^j!\
+                    S&CcUa*m(+5qJCQB@kO4B$fF{S^S)5i=%YxZKO&9xTCn[y#hONc+^lKz!!\
+                    40-NzA,3^4+%gCtbGJn]U_[z,rc^Q,Aq3,nj^bzkZ]HKD,m?wcvFj{7b@r\
+                    LHI9-,bAN{XxDcwiad*Up58?[Pv4^L}B>+T7yciM,jevml&C)?@}+U<xZb\
+                    Uob6V>&,n3_[HTnxZ&uH,BIHUD-z03sX8*Rn[,De8@J,MEC!7tZHzjO3kP\
+                    rm{9,5U!1b$P8{Ht(hI,LVu@^*-x6!{<qUU-&$3f<GPdZ-Spn(C-%f+<HF\
+                    Wr83^<4Sc@KWxW5J*q@a$-oMQ[{[0Q!e>R8byNvs18]H8E0YA5s?[yYf@1\
+                    w9kmT{jAg#EM(ze?C2fAGHA1ipKR_fHG!@1VY}mHa#4_qCF@0^a#n,mMlk\
+                    x)tZKYX$euQY-eSdj<P*kM)OG}FD((74V<5f,4QM{8jQlTmgTL{2uW0Rr-\
+                    1KQ{;Q#4=D0I@JAKu^Q@m&<a^*(6!?Q4,1cj]!yfqmD)2,<@E_A[lzwaEU\
+                    m?Frei8f@#rh)ZyA[CG@{Kk=V_KtMo(=NEwaF3J#_wuO2lskR?+$(sM*48\
+                    @doa=$gWrRZ-V^*DwE2Ea2me11d6dYL%G!C-SvyZIYv=K^b{_YrohNrp<m\
+                    t8ZxW,4FK9Q$i<jILVd6B0e^7x,YRT1?SQU7O62k#Gcx2FFGEGGr}"))}}, AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
                Axes -> True, PlotRange -> NCache({0 .. 1, 1.0 .. 5.0}, {
-                  0.0 .. 1.0, 1.0 .. 5.0}))), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+                  0.0 .. 1.0, 1.0 .. 5.0}), PlotRangePadding :> {
+                 None, Scaled(0.04)})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Sort"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Ordering"}, 

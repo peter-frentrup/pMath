@@ -76,61 +76,53 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {Directive(RGBColor(0.75, 0, 0), Thickness(3)), {
-                  LineBox(CompressedData(
-                    "1:c${67dr*{B7>C)z)q+J9=Rk;v1eA<9$#4lW&Zk(o2<1>F1hWDnmw+W$\
-                    B*ccm5d{KKC=?AtBpL<@q7g-!J}h,[QAiXhFogscR_@4xTzmKIAK#h2*[t\
-                    CWo%6oucg}U)BQ6&qWQ_ET@P}hf$%o=Y{bCf!$iNyQJ)Qr3$Vfx4#rHMD_\
-                    jME75LM0n1Kk9@B-YbISXyWgzX5,6YOQiA_w^HGEL1-wWxaUxkb00HF}C$\
-                    sXu[A>sby)hF(V]GYbm#<%Zw7-I]nDjHabj@gmPLQKS8h}w=>SUR7KD_&F\
-                    b2wQ^fVg!F,u4MhU{Snils>5$s^PCG0C6xFxgtG{Geeb8oZ;juB)<IbB6M\
-                    LvUW,P=WXfaBIr7+kOswhuO+H**HNq%=Ew)-#Oh-+6vs3@,tqXEWz6qibs\
-                    hK69m]&UZh#S6[XT0fKQA+aC^#qX=63Pc5T0xh9?4d6#8ZWCt2yzpfkW<7\
-                    qV0nsb7@4v<9e?Fpb+B!G-cYJzHCVZ(()}eDLK#Ys0^RZxyl[1KwZak<l>\
-                    >{7oi>d4fH2)XQ1VfjbK)TLIilr^;gU5^xtLofiZLl+WD1whG*hayn)(@C\
-                    ]w>U$<%aTTE)eWnPoR#S6eaDR<B,kSq}K,?kf1atio%CQab6;_6<9A>dw2\
-                    n!w*R@R9{Q0M0RKE)pzOx}JmGz;{wEqG<xp?ap=0s06-?^6NBC;O=3OVJC\
-                    BdzsKac1gBEo(w-d+e77cjI%eS#892XKpY09Qmq]4zV8>T3?L0dMcfpTIX\
-                    9Z4Wre68zB=Gl{6o5w;4P+HbfbV5?yGpP$p>cXLAMRiPla3CDjdyM6@mzq\
-                    r{1H<Rye_0U@0b0+KNenui1Xs4AvcupP6C-1A>wdWm;bZBxDkRrVeSax@N\
-                    Jv&D=Cri4nu^OugBH3b(qvTJ}RfP^wj6DiD]AExo;j46e,?H1J3KPzi!v;\
-                    J%YkDRJ+kNocnJVg72NJ=TU@^qA_=oB>SGJ?&VP=la,pnn+y)CJ$?V>QM9\
-                    I7+t8F#+,6l{RrQodpE8-O<#6Xlxhkl5m,8EUe84TQHtuQLtKyMdIHOkJf\
-                    BYG<qoC^<k3JL5LJeHk@>P$nW1]Du5;8R7?q+(b3O0@LC}SrVz>LF14h}v\
-                    mpMa+@uN8RG9ktVI&f,2v72a75@K[S+E2)=(r!i*%+{7iye6#)pkG>G5Tq\
-                    EJIp*%6iU_bD5VSQWR^CQN0=8pi+5K%$baRZ^t+4(8YfjFiWy_y#OAliqn\
-                    TeSZS;<#4q*7S$]fk?v5sx[ZOM8Zr*L8!i01%Lhzh-{H23hn)naIU3p$6Z\
-                    DN=Zb_,tDydpjd}c>HHbWsFzihbWlP(RrYwUvB@(jk24VHVLHuGB#Ay-pc\
-                    Ld^xp[L;P6%d8YuzKbkZf=U6=I23t%?!I9L]%Ucs6PRsSR}Z]GYFp_V=uT\
-                    5fH=pDD+O,2*[^HP1H^e}+)xk?^iN6R8bN%^WSas)oZe)s_zuKHCfj@v,u\
-                    WuriJ2hEm]ksWeA%)-DfR$[a%S8n5FWEDk0U%lR50Uqf=ExAxE*c^qLPNb\
-                    N<VYXwWNPGvv!>S4^u&?um~~~"))}}, {
-                 Directive(RGBColor(0, 0, 0.75), Thickness(1)), {
-                  LineBox(CompressedData(
-                    "1:c$,(#ZBUd}6bEqjwu,V3Z{d]99HlMAQE>vPFg!POL>DAfFo_^!Ff9VH\
-                    MKJ^h8bAdl1;Sz2#uvnbaY]y6r@<aWUIPvAWvCTalNL]x#c3AD5u]$sKRm\
-                    Z*_S0}g-t)ibo@a@J+c5<pu0-iXw}uF]*pZqT@u@C@IL;$P>F]d20*I5FQ\
-                    b[lIs-Yp(Pzh8Y_HCJU+5$u^_&J]*p>vMjd4lfBeM6ZBKNo@a4u&_@n9<#\
-                    Y^$kEBqE{s(7}[hrYxobEfF3<Ru*K;*x}gueZ$KwvhR16f(7n0a<Fx=?+>\
-                    )&h)T2{j}2ClYD{iZra?pLar[46#Kp*FIUxPUGxkBA;peK,(>#qf(&lBqQ\
-                    0?mK5YxX_EIFR{5-CIB*<mFSVb?6IhU9*?H1I-<@&ik1eh_6ufPoRrBopV\
-                    m=&^1EUyFlIJ_N>$li])IrJ71n^1gbN)eq(tHeX)?{KG4v*sG*pGM?jVcX\
-                    @-Cn_#Zd#,gat_QaOzYBGcDRmo6ItvRp_r3iSF9^DpcOG67j3q!}Oc&7]&\
-                    5;yDE5P1,Q^qK_fV+0W2ZI}w9D-g^?7_8e^aMbiu<$fmFJ#Z!<KR$TT$M3\
-                    +R]<]!fz=a]VTbwZ,@Kin^oV0mW+Q;%3H2RGlB$h$%g!f5dF9Bb>%e<ZS+\
-                    J72xw1x9yw87J#+4oif}ld5DnC54tJXGSFwDx6ZuXvWUq>1QF2B(jz[kLa\
-                    ahH1?11,2I=sbwWn;pDS+}(@&2{WIgwCTh&hVBRR)&(?ZM=(Q?=FIF5}wT\
-                    I$c,}BfCZ-$fq!UcJZmr1j$xiIn^0$gZSp%<O4EjgnIa&0-YX*Ho0xwn${\
-                    NeACJ3k^Z[@RDd2W^aedT-;{VD8GWl<^(uNuV$o}8h3MPlNiw6Cw2bIKu0\
-                    j8hJ3s6zPK>%&SzOwh&_5D-j6M}w0So%j6Xcxx&<B6]J]rh6dZL{3Ec(4m\
-                    ,P$kE^dvcFAG)&E9Mk<2Jz1DkXGR04_a@_W^iSmOFGE+)39B5KLEk06$8q\
-                    ST;XbPNDfG}eoQKghp7BI)MgQE^W&5Q&Gv6[{_s2g(O_T3x2v>KlD!J,yK\
-                    u;HDLCt8Kw$AN*JNg%LN{0T<>6QAB3+NfbjG%9CUvr?P0(]F%%Qmh?-<o7\
-                    xx^^%6eqnad=XO_Jy1EHHOPC!OMlUb)GdDlSX]^cT;Io5X9eXR&T8*A7?{\
-                    7di,D>es{m[Ci!uYr{>QVE)&z0}R2)}Ou@1ZMuFz]eb21PDV$Okav,u8-$\
-                    _0E}%<V6bM-d}+&>*<40QU}^jhZMqvxiLDqv*;&P=tGGV3#A+Ii,MAy_Fo\
-                    G[Byxn8w)e=L^)@!2%{XC_NU2ad)q]Nt$(]u(z,rGOOd<aXc(MqKZ@Dh[F\
-                    Nu_Kwhy,&^Y$]CmULc[NCoE^{=CFGwJGU^i]8U{}880b"))}}}, 
+                {Directive(RGBColor(0.75, 0, 0), Thickness(3)), 
+                 LineBox(
+                  CompressedData(
+                    "1:c${65eN0nV7>CP8%gmtAdl%]bKxEcMvn,Pb1h(]kl,X6&aUn5EASmhp\
+                    gFv8@IZYTWV+w;YOT;n5hKMc%8H]j$vg}r0aS(-x0$XuPCs?R$4,2PDg?8\
+                    (,r]mBa{&Vx5^Lu{Jxz[H,&Ofl(FHrQqbv=Jvn?F7Zkr]GJ2M0z$rP=h]q\
+                    lbu&HI-NPPJl3f22Hwf(+9RmDDb{&XW&HB$xQPL2H3<OFoAA1C-J0d8u)Q\
+                    Ofgs#@EV}K1^X4Gt=Hb1U<R;+9<8z=0eJ$$?&P318Lxa[-djEbi@Y_,jP<\
+                    ?Q!R{GQoLd!*{-XU}plxd;-MR2}SmA0}p0+0AWE4-yvKQ2-bsPmrhw?a])\
+                    KIv!*fn+}=22lgQH6AJ=LSC5-prTZjc9u{-8>n{Y#HreekRNLYO]J0QH]I\
+                    +eXNSobC)Wl2MFc;y9VQy$%Z8>2?dyPqO4][sA,yIB9H11n%C{_2o@fbDn\
+                    -?Bj_fTH?60FZ,}7Dwp^0Z5kshpjzcM?!}0]jY%y(ynD%n}D6ggj[RPBG>\
+                    4bHck4WoGI_pPvh)hS-Kej({KU=Yp!ys+h7X1a9ztE{My@&N^M,^IL}f=D\
+                    xu*xs<0_2K_g#t[[@]pB32r^2MF!%@*3<4Vr]6!{gJw,*%ZboxY-u@!h,%\
+                    RE6F1vo&VgUxdN$tRG8on&@1Fof*B=KkqZq}G^KHsLHr$Fw+0Q4=YAep8t\
+                    t6^uGP^PDJz7l57Lz2V&>IP)Nt-r!-HDA))1;+s{3s-%o<d<0%0n*88;ID\
+                    vbN[Li+vlU7X+-jNihC$!FVioRBBQjgsTGgyerXAuklwx9_QMw>[g0GhsN\
+                    qp[?3{KTYRhxcXZ6u7UTB9ACdb41fRQ=#JWv=N!+og<-(zSK>!LHF1KU4D\
+                    XdE7;870Io>B#hII->M![C[fnO%W;=8u3uSQ!qzHYk=^CZJpPh7Ha!hOgv\
+                    WP1*]MN9<VDh7iJiYg,hh;TlVLB]w+UB[0S<G05$7=Tf,4PO&Z=M6}<aB%\
+                    8}eDEj2z2^-$!k}AC-fA5nLjEZRjhBt-AN@^)ei{a28e>1(Zlb(a1[{di,\
+                    =8h-?-qki%iB(stPsI>l)*K74u>y!h}u56;P+FVW7%%X3uLjkCwHE6P]KV\
+                    =>+{1mhzaFIvzYWl-i0_l<*8V_)+^tdHbi*,S$rt}k]!8*{YqGrmi9!dzo\
+                    ULNEQ)K}T8hdkuZ6,=,qmcb9iY4(7UQk%Cr9EbZ<xi>VshtDDB(Q(Vlk#+\
+                    !dl*8;r<1v9dv^~"))}, {
+                 Directive(RGBColor(0, 0, 0.75), Thickness(1)), 
+                 LineBox(
+                  CompressedData(
+                    "1:c$,&}eN4=89LFnn-Tm&;1Ie>_I3q*0!m#uCh>44YLTiPVv9-uT7H8VT\
+                    $YUjIoq0H+Tk}w7v*X9P9!{b1usC%da+U6P-^[isDdG41-XFgE{,1[U,+2\
+                    ?IpU>]-=QGAna@tqo^WW-$s!W?P(^dkynDd41e!}XIp)Pv(iMPE3mKUo2?\
+                    %UAR7F(qky!S@%Nm!7YYA2u)ADG[oW$Rk,bMN]n(39BV(i;g-j}HY$_A8=\
+                    v-ufCa%z7g=X$fo>aaQ<#u;D2rdwC6TAuZkTG}J0sg1oWy!#>(vjQ1KqJ@\
+                    VqhY!]Cb1#?}kMd&Yq@!r7{E2q7XEim2(2uj{LTh;0W@jBBE*+TVMGS}uY\
+                    pCGy-zCH0!H{-X%p@=iWwjW)L?},_hrTr&obTWPyJijsS)}NRA#&^O7r9P\
+                    5,v@_m!$mPOqjpc2u-UFtcM=TFiW}%BK=!4vtV[<Ki)bk(2JOhw>PO57;+\
+                    QQR%UsQCuOWM}a;wj$,=g-u-t6zQP#p]sRa7Vq[V}dlU)4USY7UYxO%UwL\
+                    pC&67?=lB0ock,leh!m4v#-_A*x}vUkcS]N_vo1OLqJKQA6pw4q9N4ZFc#\
+                    SCV#{<N0HSd,],3L=Rw=Q^d+A<eU,}-zz87p%djV}h&BSQ#UTwFAa(ERB#\
+                    jEmS&Dh0yw%P=9&v1wmAp[fa3RBt*wsVATCVq8In1(r_TMm^!hc%$VQR7#\
+                    XJCc^raV_!T(j&CN^w?]d,H?JpUd}}#Ta{PENPgCB*e9dx{lnaRsKbg;m!\
+                    ^p7E)%M?n_CJF}#qgMt)&WBMN#^im><DRXAM+jMP!*Emr*ku(k;93XC+to\
+                    6M(BLnIjmn$@Fu,U*nAb3tf>gBtYtn_;Jiz-b?RHpm#M(bwTt&ziV1)J-?\
+                    2=A>(cDgm+U5N{t6t,P<rq2YQ}S7@&1Hx!Tj6B,-<]dVp-Db9Cw+E*4vcm\
+                    h}rjhg?r]8fWi7zBOYE8Xr96V{L=c<{31-CejxxCsX7c?j+4!EFrMl^63^\
+                    Flv-t#]XY1iR(&%rj-$1NRh^>8;-^ua^VN;d)%C2(,b,HiGPovBo^_l&zA\
+                    -IA[EXv;ho_+5j7#ePKOtaqR2gEfLt(uIi{3*@w2i71h=K~~~"))}}, 
                AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
                Axes -> True, PlotRange -> 
                 NCache({0 .. 5, -0.9999967038406539` .. 1.0}, {
@@ -212,206 +204,256 @@ Document({
                "50"}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData(GraphicsBox({
-              {Hue(0.26424536035309953`), Thickness(5.038753234516664`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O&JQLf3nG?>,{3ejWda;y;}6m+vH^<v(a0ilVwz>pv\
-                 8z5X[~~"))}, {Hue(0.8455678578154644`), 
-               Thickness(0.34507047720583994`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVTtHSJ88G}mA!>y+Kpe4kL($y7uXz>ueNu1,}4AR#UpzF3kw\
-                 iN"))}, {Hue(0.8859723560632181`), 
-               Thickness(5.698037112949637`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O%=}v7?DE;6GBLgsW2Y;y*N[Bme+>+CR+t$)GNS!ao\
-                 rU5K9~~"))}, {Hue(0.6487636776553044`), 
-               Thickness(3.756266438960285`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVabtFdbZp7xxGtExY5?PXYJ=NJLy?1{L=nZpe)PL88__#0>2\
-                 NO"))}, {Hue(0.9556089539802783`), 
-               Thickness(7.377598394031738`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O$7j4g<$v;Xk0nXEcm_r9XIL}IE+v-9H3?;B2Pz*gp\
-                 [T5tR~~"))}, {Hue(0.0666191884695292[932+/-140]`16), 
-               Thickness(3.5606596229910337`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O%}KqpTB%%}8H28e0S6cR#FZGNrP<**[,80sCRD+CT\
-                 ia54i~~"))}, {Hue(0.09188251493776112`), 
-               Thickness(3.8243723673611574`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVc[UX9Vo;6%szkNZ]h{!r[q0klp8soe{Vl2q%w6*#}wJ^=7b\
-                 Lx"))}, {Hue(0.22478319632996702`), 
-               Thickness(4.648940239061218`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1Oy!AhUcul<v*6?)$4m8=s)l_N[Ny9z&{6j,y6Wz;Xg\
-                 j,5rq~~"))}, {Hue(0.35436315883294145`), 
-               Thickness(8.47394777339731), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVaewD)hyxh#Qs$8tFDg?uk4Ku8b&@ZyKjFjch<YcZ<p)=A=?\
-                 sC"))}, {Hue(0.8472682232686772`), 
-               Thickness(0.11919814473057233`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVX--_=+zo{%}6F[r=NDx1^b*?eLFt5p0b]Kp<L!*z-xN}_i+\
-                 !Q"))}, {Hue(0.1285407012684694`), 
-               Thickness(1.7366693702819025`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVYy>d+;UU-v_027O,d7R7wy[n%A;d,J-0vA,;Mn@#!Gtu0aO\
-                 p^"))}, {Hue(0.6557669311811697`), 
-               Thickness(9.663386670538848`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVTqck{(@,9GkXWY_XTRslkNSUg&sar{nY+Y^M!&P5_jzZ{UZ\
-                 <o"))}, {Hue(0.042822616313980766`), 
-               Thickness(8.221489819192819`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVd2QO,]GA3JNt&6FFd)$H,uF8H+^<}%SHQy2;Qs=y*2g#4F?\
-                 Y,"))}, {Hue(0.6439827716647403`), 
-               Thickness(2.665460548062569`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O#N9$k8Xs<UcJo(UZJ9=}3(N2q]oT&_5GW(8[3O<v$\
-                 OB5Fr~~"))}, {Hue(0.29484505532082095`), 
-               Thickness(9.416871432284795`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVd?Fb4qxr_)cyvC?7![{Z}sHKE;zldx@Lc5k--+$Cs*tN35y\
-                 V1"))}, {Hue(0.11197285754350927`), 
-               Thickness(5.4816502389177355`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O%}fqo^9)wm*=e976=vs6RNHyq+Nh**{%)>ib[(?>,\
-                 cu5P<~~"))}, {Hue(0.13381521705527377`), 
-               Thickness(5.160792409616901`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVc{^-jyq#@$$l<x{_}SKm-f<a<=^*pJ+p7MTobf*,cr!V=*J\
-                 IH"))}, {Hue(0.4358307845185986`), 
-               Thickness(5.07276328402088), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVOeW@CAgsHjeXz84Qg(@&+Ii!*fLZ54%*i[w-i&1cyA8?{Rs\
-                 }1"))}, {Hue(0.9921194764300793`), 
-               Thickness(3.568874034845666`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1Ozb5ZgBV,;Xk;Qsi7^Swm-sI}5IvB<v*B]C0)N]!9N\
-                 [A5WD~~"))}, {Hue(0.5063272461831736`), 
-               Thickness(4.307961121069116`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O!0CprMDF*+2V)zOEA%>py3}xqzw};6En4}C1kn-9I\
-                 U35mo~~"))}, {Hue(0.4220015895980356`), 
-               Thickness(8.045525956437515`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O(uMx?;6hnm@wnQqn;E(LccEB9AxZ#y_x+Xgx(p(my\
-                 %H5vB~~"))}, {Hue(0.23372885592431847`), 
-               Thickness(1.4978247879125028`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVM#i6*D%KSw!K1Eh2,x_OYNB]{SuPpAK5pm9ey9{_Szl*_sI\
-                 ^#"))}, {Hue(0.9712389880497885`), 
-               Thickness(8.48123520962822), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVF_p4R=BO<wf#KHzG)LKzqH?R*f5SS{h}E]QFSxd#ZT=439t\
-                 ,G"))}, {Hue(0.32557913114460646`), 
-               Thickness(2.0031064946835473`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVc]nbBah}Q9sBqfu@cr#pW8EtabB2rpx%DgmcS}UhL,OD0Xq\
-                 )q"))}, {Hue(0.6721736890739977`), 
-               Thickness(0.8044208674137865`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1OzS9mPXbn;6Gp9JEW1t<UhvJhqUWJ+CSpMP_n0h=}3\
-                 *d637~~"))}, {Hue(0.4468189541267711`), 
-               Thickness(3.7231043733262483`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVPWXHyEL$Ol6}Jc8(ES1SN8VCULJctJh3<8yu*?$b=4jK>W2\
-                 -s"))}, {Hue(0.5627634802304411`), 
-               Thickness(0.37342509987574046`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O&hj$evo8%0DdY3n]2d=Raty@=Dk&&_C3+Tb3=g)ju\
-                 Pi5ta~~"))}, {Hue(0.8467870549429102`), 
-               Thickness(6.22914426381319), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O&U%&tH<a?>[_L4gNk[%s)CtW[^0H<Ue+t)53j$>OV\
-                 8L5+D~~"))}, {Hue(0.12146220617961478`), 
-               Thickness(1.4420541986517799`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVY!jBUMC{-oxQ,Cv=$GYC-xl<ms=kTY_{(gcwllP^@TkE3TY\
-                 4b"))}, {Hue(0.5803782877117978`), 
-               Thickness(9.464564693320831`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O!!;<Z{>F<3E8ZOZ;*_=RdGx&gN%n=0CtwL8F%M%}A\
-                 3F5>W~~"))}, {Hue(0.9297395426417093`), 
-               Thickness(1.1165024171049953`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O)KR!&5uP;6D!60im#F>^]^YzwYTO=sz_,IiLXl?ms\
-                 Kx5k&~~"))}, {Hue(0.10323948864067278`), 
-               Thickness(3.4182951439079643`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVNvNy4(t;+W&cOhSNOrXd-gR&XR@y7ys_W0N<=d[e6u}O,aT\
-                 a7"))}, {Hue(0.9476512764817812`), 
-               Thickness(2.6260528670906935`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVY$HZDz?IMw}#Tdluav)pV+V8BIaJr_SoJ#*e5Dv>0^5U1l}\
-                 t<"))}, {Hue(0.27843082211652226`), 
-               Thickness(9.228621557577657`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVM#l+EQr7AjlEXSx-duk2lhV#?)Hi8KWm>8@+UYc;)Fc_1-[\
-                 o*"))}, {Hue(0.7028708967129602`), 
-               Thickness(7.034622744270182`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1OyD^v&K?&?mv9Nq9!2B(Lb,D!hw6F+dt$sCKk97**_\
-                 sK5RU~~"))}, {Hue(0.9717070077761635`), 
-               Thickness(5.800633136265436`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVF_bgyXH]f3;P4tLUOoj-q^bchDeKK9J4>NJY>)F!!PUs1!W\
-                 Kn"))}, {Hue(0.43556500724851677`), 
-               Thickness(4.97585363058934), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O!N6+&1IAvOlNKjh3K<;XhS,z=k*G=08ZA{Tr^6+&?\
-                 Z$5)A~~"))}, {Hue(0.5092711321012142`), 
-               Thickness(7.632596005322048`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O&8}NL)2v+CP9eQW6K#wLgIl)f$uG>_7D6--qz!+du\
-                 e)5c>~~"))}, {Hue(0.5021705246698778`), 
-               Thickness(9.342701929684374`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVG+7!$LAgS$UY;acm2$^SN3_=mM{Kv=BfPwiHlq1;@j;3289\
-                 rJ"))}, {Hue(0.09020135547635466`), 
-               Thickness(9.9238129428383), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O%uLe;+dh>_3nM;{To7z&[7]kPVX#<Uc[]0o=d;-9P\
-                 W<4{H~~"))}, {Hue(0.34185064431115053`), 
-               Thickness(8.623774074288521`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1Oy(z99f?6<v;$ZQ6)@(+dshGaqcGWia!A?y3=8z?>,\
-                 wV5c]~~"))}, {Hue(0.15975421645297994`), 
-               Thickness(4.293136046044884`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVKGtmG7BkvX8%Z{,j_0LH[+>%=i7cyJ7(,K*6FhS&m(&P,8y\
-                 B;"))}, {Hue(0.3184920701986864`), 
-               Thickness(0.17978447755425786`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O#vhiz_ve**}{6rG0Ai=067Z<Eq%w)<627Uuz*-;y)\
-                 Gf5oZ~~"))}, {Hue(0.1201421449707123`), 
-               Thickness(9.608464793316134`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O(EKHnn82+CQv*RrP_*!9N1Nxe*(]>pugVN@iX7<v$\
-                 ,l5Wx~~"))}, {Hue(0.23894814704581724`), 
-               Thickness(2.124623814230776`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O&b5dG(U<?>]Up<PFUlxIchIH[ugZvOm*VjMoQe;6F\
-                 y{5(@~~"))}, {Hue(0.8580869678479488`), 
-               Thickness(4.8930618157659485`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVR_NCA?hvLE&GZ<wOqa1$L;;DO[d(6,q2I#bI{kK&yVc^8Hy\
-                 1z"))}, {Hue(0.17991284627788118`), 
-               Thickness(3.711179720234028`), 
-               LineBox(CompressedData(
-                 "1:c${NmkYQqBVfmn,8b7z{tbJHW-1#MuPwZ{PeD!C<KeP,nI=M08@f&*p_nQ\
-                 xH"))}, {Hue(0.7709853789262171`), 
-               Thickness(1.8725254596542484`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O#]Q76DV^-#^hYv7D9A;6HR<yWL*](?9Mc#mc${>^]\
-                 hv5kC~~"))}, {Hue(0.6234161685867158`), 
-               Thickness(1.5029846257753954`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1O!X-o[Ii=<3HIo(y{ql=Rd#%yIs%lf<Fd>(dXfO-9J\
-                 9X67]~~"))}, {Hue(0.6603708673802781`), 
-               Thickness(5.5359814408064985`), 
-               LineBox(CompressedData(
-                 "1:c$@(z0NDQm02]4Y1Ox-fqoQG==syiXA2,*_=0EjH?3}*{=08DUXvs-a?mr\
-                 X95X%~~"))}})), "Output", SectionGenerated -> True, 
+              {Hue(0.7209167180095943`), Thickness(1.1062518868580906`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVUdYhpCkAEt-a;*&8oqr5A0{,J-S;+@tl3?1Gb_rsaN&@28\
+                  $1W"))}, {Hue(0.6466600666189302`), 
+               Thickness(3.5127534481179543`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O%eGErm}g<v$z3C4(Nx>_6NE36[zsz(1OyAZ?{D(m\
+                  w$l4%q~~"))}, {Hue(0.46134775466092603`), 
+               Thickness(5.966328251274743`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVX3&;HDBuSQTv?THhvkL@9gzXU2][RerKO?c&%Ba_iK9q4?\
+                  Yjn"))}, {Hue(0.7099125127872611`), 
+               Thickness(5.397421496380659`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1Oz]3%KcV6ia$8qsh]+v>OV[E7fD4E?LXG0?y0K%=0\
+                  63q5V-~~"))}, {Hue(0.014734969613160231`), 
+               Thickness(8.982148175991512`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O(ne8_Xj]*FW5Y_;y[7+&,nbOW32[;6L&8i]u7T=s\
+                  zDn5h?~~"))}, {Hue(0.9328409835408615`), 
+               Thickness(2.7144539081568366`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVfhjCdV9S0P5V{6>oi]IU9y+3(_a><cii4UCSvQCZJX=?4v\
+                  i0c"))}, {Hue(0.5156053722186337`), 
+               Thickness(0.4306014151331228`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVNtO5^IW#;p[mSi2(w4%OZ&-l1mCWZeq?W!d@jAQ?Y=z#*c\
+                  %Q5"))}, {Hue(0.8362744516118681`), 
+               Thickness(4.506158443012181`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVY!fTn2mqaGkdd,d6S%{zO+w#mft%^=Yf51)MV[]r[y>%20\
+                  ag7"))}, {Hue(0.0321446953402561), 
+               Thickness(0.31009710959738923`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O(db6<&+>+&=*1GQNYo=s&>RsD=Hxy+5Wucbwvm>_\
+                  0$i6H5~~"))}, {Hue(0.1698735470357987`), 
+               Thickness(7.919980121673885`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVbRoUo3*v=jlGSHytH!X1N(bFDqkHtdc*#KNe,>4,)zvw{d\
+                  y0L"))}, {Hue(0.3596833057319754`), 
+               Thickness(9.775266141211105`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVX64T5c_)98T-XdtXefykL-J1K6dB*eb;,6;(vMOfA{PG54\
+                  ;d@"))}, {Hue(0.9731715215269087`), 
+               Thickness(3.250071126169054`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVfk=kvHHGc+wJ{&ba@M(+_zuQVmSZ9uDABwz7bJjdQa>D9}\
+                  jN$"))}, {Hue(0.5676765226296053`), 
+               Thickness(2.2241217413303884`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O$NL#ofrGvOky>oa[E3!9V0,Wp1k#<3EgL*CO3l?L\
+                  Ra=5r_~~"))}, {Hue(0.3723755025885218`), 
+               Thickness(5.970281023974429`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVX=5sH+OO79{U#iaQUr_FYVWV<][Yw;kCWy^57PRr1$m!15\
+                  6J9"))}, {Hue(0.5422072633620862`), 
+               Thickness(6.247397634162255`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVUhWDU1,bVgZ4kXJ6V_$4%>T#=f3zRam9YY{jY%,aX0M&6=\
+                  @Kh"))}, {Hue(0.793104377510158), 
+               Thickness(9.682347369824084`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVX@yT,kzPOseMkl)X,%)kL@S$E?+D9XSux>UxMed%@6GX?@\
+                  <n}"))}, {Hue(0.6040756304411792`), 
+               Thickness(5.793996449819537`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O#xzPcgz;%Rj7$<w=_R>OWbs%$DRc<v&uxvQpx5;6\
+                  E)J5?c~~"))}, {Hue(0.04646061344756902`), 
+               Thickness(2.987402759646587`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O#(vPTW+a<3Enb9YfIS+dtel=^g#u(?4Y2IC!(q;y\
+                  )_B5^(~~"))}, {Hue(0.7759280616915976`), 
+               Thickness(7.9483625380745515`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVcEdJc![L&g[u$=vQ=Hz-,FQOm,%-PykgJCxTvD%{v]?=<@\
+                  pXe"))}, {Hue(0.7201738735935852`), 
+               Thickness(0.33938507645288163`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVW]_H}JaoO*#6fmuG=]1AK1suV$b<_^Rj(J&%PMl+?)0QE=\
+                  Li9"))}, {Hue(0.25345992938991224`), 
+               Thickness(0.6624852520089175`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O!k9F}RPO*FUF#HszeZ<v)e*E?@T!>OYscvapWt?m\
+                  rEZ5vB~~"))}, {Hue(0.19065844463373494`), 
+               Thickness(6.373699868565501`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVPXFsvB6R7h5eeYN[bfDuk1xutmrP1d2W9$gG;5b}BgKX,k\
+                  fBp"))}, {Hue(0.3129733525928108`), 
+               Thickness(3.9353672148977106`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O$XDrsHQE&Oh!w_(7xW(m#jEZ,N4F=RXMHYIgV]xI\
+                  ZXp5v]~~"))}, {Hue(0.4544624656912809`), 
+               Thickness(3.675411204381498`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1Oy]nZ}{y{)IXx5lHl1j;y+duRiutE-#,4x!r5eU!a\
+                  o]T5o!~~"))}, {Hue(0.27594375448935027`), 
+               Thickness(1.5413615624820265`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1Ox(eDr=xH<v(;7nqKLW)IW5=v,OOm%Rivpea4=(&_\
+                  4r?5p@~~"))}, {Hue(0.12303859329608591`), 
+               Thickness(2.0657677557878196`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVTs$Sm)%fs&))x@GfT4J1N(cwre,q(+_$gV!TiOk_P#v;,+\
+                  *Ny"))}, {Hue(0.25461786753075577`), 
+               Thickness(4.3496903572957235`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVaa=XYoqkk8[<Tje=E2AKWne1EG!?ablrX)-<t4{Eidf>4%\
+                  ,ny"))}, {Hue(0.008544381837777504`), 
+               Thickness(1.8169224119770533`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1OzIY6QBhW+&?&*&Hv)hxj#6EUj7x]%0DG3=3a,j?m\
+                  z#H5Hk~~"))}, {Hue(0.6714630758226988`), 
+               Thickness(9.00325603889869), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVbQwB{y&=gnmuRZv3dp5clK{5+DROq}Ja,M*8,1S%?I,X_d\
+                  O3k"))}, {Hue(0.30968339752833973`), 
+               Thickness(9.386320122379026`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVcGFMCH7bEHv7,O0-Ii2JhqS7FZzm=_l*7evcI(@+E45OC]\
+                  gqq"))}, {Hue(0.8734444058378035`), 
+               Thickness(0.20709198172496612`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O)Jx^BtnevOfT}DV5o5l0N{pi;K*<T0f&^WW#f]<U\
+                  b*=5fT~~"))}, {Hue(0.35659562716151194`), 
+               Thickness(8.46698644663312), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVQHx2Ul73a*ghf1MP%C9NA@g+W%q7Xp0eK^ZgE-o@C$nY=t\
+                  U0Y"))}, {Hue(0.27268932093761955`), 
+               Thickness(7.207242411516946`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVNsZ*8hUQaMtivkKL)1_PwY+fvm<OYZrjVxQdHxvdua]<&5\
+                  sND"))}, {Hue(0.3245259767019194`), 
+               Thickness(3.1644584387662955`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVc]VES+Gpywf),i^7@OSAK7aQ+6c,yd1n8]W{qW,&SiT5?4\
+                  %A1"))}, {Hue(0.04663502838154088`), 
+               Thickness(3.0523928141050884`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVc,+Auh4vV%YL_d(A,t<uk4wYFlbrrdtkpwJZ)]lng{j(<,\
+                  oWx"))}, {Hue(0.2833071580801474`), 
+               Thickness(0.09855496394587271`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O(*v,@*ez;Xe#$tL4Q0(mw><d3&*c;6MI!&t?qy<v\
+                  &]W6W0~~"))}, {Hue(0.519568385343286), 
+               Thickness(5.958135693435864`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O$w)oM3Ev>puv5&)@;9zCWPVMB!<V%s<}njetYK>O\
+                  UZ@5uy~~"))}, {Hue(0.519850529388303), 
+               Thickness(5.499659223352733`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O!Ocd$rLd**{Gh*Nw+#?>}&ran&pO#Xt3;_2,4};6\
+                  Elv64C~~"))}, {Hue(0.5110678226180764`), 
+               Thickness(1.820399747912086`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVfnK%k40tcE&Fg=qojT9Z}&D)?MpiBci+B%muFT8(*k<{1b\
+                  GgO"))}, {Hue(0.9158282535613377`), 
+               Thickness(3.7515618597302947`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVd1#q#B*KYwEdyd{)T3wTlOv@91OXgkL^7e4;6pN*=i2[;B\
+                  O7G"))}, {Hue(0.009362150031427596`), 
+               Thickness(9.674254076392344`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1Ox]&}HL?]y+2UX+&DM{v_GTHk[cVV?>}WXXLj=B%R\
+                  da$5ib~~"))}, {Hue(0.1737487938671387`), 
+               Thickness(9.251796928936148`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVL8EGYnN8?)LvXNGDU3b3;QeoCA^e-4%lxnT;=r0=)FAv=a\
+                  deH"))}, {Hue(0.8232214725441985`), 
+               Thickness(0.7308376887679524`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O&f@cHYj};Xlh;7TgoT<v%Ev)lxUg)jy?8d;Bu;>p\
+                  wW05=;~~"))}, {Hue(0.32365176046813715`), 
+               Thickness(0.07966554301013451`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVG&95ea^P$f_;heR0r3K*X<h?vOb!%af<zk*xmK5nh)&(,;\
+                  QN}"))}, {Hue(0.1244283332180195`), 
+               Thickness(8.84634981977528), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O&o#(lyji=0BXH-B*EF);[;1%nj#K)IXZv9jjOz>O\
+                  UUs5LN~~"))}, {Hue(0.3286126899894748`), 
+               Thickness(8.258031784205258`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVM$WeJM%]CslCUYuh*2Tw%hmSx=1Lkd[v?D<14e[,#XC816\
+                  ]hl"))}, {Hue(0.8287049408024147`), 
+               Thickness(0.3831799241648126`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1O$?0UQ%jL;y-q*oc9)&*FQ^lYOCS><3E^K((WgN#X\
+                  lAH5nB~~"))}, {Hue(0.2818813883431629`), 
+               Thickness(5.873094264226087`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVKHl(bE,<?g8dN#ro^Nf*X=8-_6G0Peqt[RnfH=e&pmqp_*\
+                  D+>"))}, {Hue(0.10160792455927592`), 
+               Thickness(2.8961722650589183`), 
+               LineBox(
+                CompressedData(
+                  "1:c$@(z0NDQm02]4Y1Ox!y)2!}ywm$$jb-u6+Wj,kpj;EHr=}ALq$MS%q)I\
+                  S6<5Rd~~"))}, {Hue(0.2404225625654589`), 
+               Thickness(8.876497434040377`), 
+               LineBox(
+                CompressedData(
+                  "1:c${NmkYQqBVcC%o!mcRw)L!TRlc(R9U)o3AKYnQn*FAfay0T8Gr$_Ap3d\
+                  0ap"))}})), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 

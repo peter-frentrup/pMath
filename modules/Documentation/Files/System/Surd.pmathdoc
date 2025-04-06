@@ -59,8 +59,9 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Evaluate to arbitrary precision:", "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"Numericalize", "(", {{"Surd", "(", {"2", ",", "5"}, ")"}, 
-                ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"Numericalize", "(", {
+                {"Surd", "(", {"2", ",", "5"}, ")"}, ",", "30"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
               "1.14869835499703500679862694677792758944385088909779750551371[0\
@@ -80,73 +81,41 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {RGBColor(0.75, 0, 0), {
-                  LineBox({{-4.0, -1.5874010519681994`}, {
-                     -3.4285714285714284`, -1.5078948822583074`}, {
-                     -2.857142857142857`, -1.4189834119703837`}, {
-                     -2.2857142857142856`, -1.3172675120166988`}, {
-                     -2.0, -1.259921049894873`}, {
-                     -1.7142857142857142`, -1.1968169611771509`}, {
-                     -1.4285714285714284`, -1.126247880443606`}, {
-                     -1.1428571428571428`, -1.0455159171494204`}, {
-                     -1.0, -1.0}, {-0.8571428571428571`, 
-                     -0.9499142515929965`}, {-0.7142857142857142`, 
-                     -0.8939035350965675`}, {-0.5714285714285714`, 
-                     -0.8298265333662433`}, {-0.5, -0.7937005259840997`}, {
-                     -0.42857142857142855`, -0.7539474411291537`}, {
-                     -0.3571428571428571`, -0.7094917059851918`}, {
-                     -0.2857142857142857`, -0.6586337560083494`}, {
-                     -0.21428571428571427`, -0.5984084805885754`}, {
-                     -0.17857142857142855`, -0.563123940221803}, {
-                     -0.14285714285714285`, -0.5227579585747102`}, {
-                     -0.10714285714285714`, -0.47495712579649824`}, {
-                     -0.07142857142857142`, -0.4149132666831217`}, {
-                     -0.05357142857142857`, -0.37697372056457684`}, {
-                     -0.03571428571428571`, -0.32931687800417475`}, {
-                     -0.017857142857142856`, -0.2613789792873551`}, {
-                     0.0, 0.0}, {0.017857142857142856`, 0.2613789792873551`}, {
-                     0.03571428571428571`, 0.32931687800417475`}, {
-                     0.05357142857142857`, 0.37697372056457684`}, {
-                     0.07142857142857142`, 0.4149132666831217`}, {
-                     0.10714285714285714`, 0.47495712579649824`}, {
-                     0.14285714285714285`, 0.5227579585747102`}, {
-                     0.17857142857142855`, 0.563123940221803}, {
-                     0.21428571428571427`, 0.5984084805885754`}, {
-                     0.2857142857142857`, 0.6586337560083494`}, {
-                     0.3571428571428571`, 0.7094917059851918`}, {
-                     0.42857142857142855`, 0.7539474411291537`}, {
-                     0.5, 0.7937005259840997`}, {
-                     0.5714285714285714`, 0.8298265333662433`}, {
-                     0.7142857142857142`, 0.8939035350965675`}, {
-                     0.8571428571428571`, 0.9499142515929965`}, {1.0, 1.0}, {
-                     1.1428571428571428`, 1.0455159171494204`}, {
-                     1.4285714285714284`, 1.126247880443606`}, {
-                     1.7142857142857142`, 1.1968169611771509`}, {
-                     2.0, 1.259921049894873`}, {2.2857142857142856`, 
-                     1.3172675120166988`}, {2.857142857142857`, 
-                     1.4189834119703837`}, {3.4285714285714284`, 
-                     1.5078948822583074`}, {4.0, 1.5874010519681994`}})}}, {
-                 RGBColor(0, 0, 0.75), {
-                  LineBox(CompressedData(
-                    "1:c$,gCUr3X26dlL4EM+XoON4[!L,7IcL,iu+A}liNS}dVYg+&f0go6qq\
-                    f[*D=7)1oJhxu6UL89mn+z[B,FX4lbTQJR*OqZsaK[dalc;$Y44?hl<^Si\
-                    %$&OPu2qd+D6<<xq)JAO76Y3b;WBM}iaK}b#bWvH}DdFzv!89[*+XP?I0z\
-                    am3D#Wxp}mwpPCdib;da5j*k@ZZ#?*;mtoN)J!eHMu,B^u4<GPBcFy2pWE\
-                    0hT?@6H<z7u@sQ#FBb2_{bYMsS4?&fOdvNxbP;[ycZ?4}OmmB^mp<Pv7pK\
-                    @K30y6xQvT(o(!#^fey7GHb^Wq7?O2c0ey5_%4pNl0yjfZ>mi4mdH1um^,\
-                    cJWo_-eIBSz2v*Z!*M]axi>FVJCq%]l^qkTHuq-T{(Bz0UsC4cb>,jyq4o\
-                    gZja3u{YYl(DP^jTXxMOrwu+H#*6lzQNl}>vE-(dJZ2suaQroUYOCfI2B-\
-                    wHL(tT[Z2aY0aT_+JYR%m%CH(q9Fe4bMxN*LOs)#nku7ypF?yt)]8w>NO<\
-                    TX6jR_OJ1<u;0c{uPS9Ze;9EFgr>$qLXEa)VR(^(K,(f>evD@]]+CO8DeJ\
-                    }^K8GG$]Sm(poXXnW[PsV;bf7bakTC85IdNB@KeOdKo9JYR7^#kLm^$)9m\
-                    7{{#NSpCKbTYu,@#u+E9pIQCPIBEUQ>VHO?-51t<VVtu2#R]^S>^,b4E,G\
-                    -DFYEp?+U>rpUM_yl,oYnBV4Syk;%J^QqBegV%^yam%_]RqiqU2B&Cz,0e\
-                    ]gaCR{~~~"))}}}, AspectRatio -> 
+                {RGBColor(0.75, 0, 0), 
+                 LineBox(
+                  CompressedData(
+                    "1:c$_U#K[eKg5VaqRGNN3&lv_xe=EW,@f{OP;bnsY*p!QG*9,zt]3xW;>\
+                    8;bnJ3U*tlg9{3an7HBlTSy,=%Z9eJnc[9IN^P!*i<a@v+wbx*%)FU5Z=O\
+                    >XcB(t7tLz=]FLz&g,LDCgFJoQ#v981Z%JB7$n+@9>55oKb}9k?ameDOfZ\
+                    )*3N+8sZA,s#@%b${rnf&a9pw;VsW$$7)?ux4&N+S**=gyFXsJ{5Tw-oL?\
+                    ^;Ws!lR9@<yC{hH9+*kPvhF{]}<IlWg=TA-=ewn,q8e;jubq*SSkq=tl-6\
+                    {62@[S,s=o<eYTr+&0>&AbDQx?whg7IHw-0)exH]vf9vHEG&8s7qEt$vD)\
+                    #&?lPt50*z_%5*ibx@GvedG6)S<5FmV0=C^V)+D*j0E#@44n<]ah7b[3_X\
+                    iIo=F7#GL(FoH&N5?+oacMc}5jx8HB8V9R0#0Vtf-w+kQFR(0ts}e7vxH3\
+                    fIIBJ>riK;*Xg2LrD7[rTyV(e>{>tNJ$^Ol748FewdcNC,exv_kuT%i_#x\
+                    a-3Rw{9[Me$Sk?XTQTN4d-51-2}AoJmzfb-^R{lUz{=rH42cP6G9Fo7VYq\
+                    &i]zfJVZpYB,v6QlC4+a],aCx5%&<?jmqsC!BN$A31XojL~~"))}, {
+                 RGBColor(0, 0, 0.75), 
+                 LineBox(
+                  CompressedData(
+                    "1:c$_VhPe{{Y7{}w4Rt(BUc4=MGf*}Tz5,A]^Fr>ex9lW$txtfp^bqEg@\
+                    9U?4#n30yqq%O7vL#&+i9T5_FP!,yqt=!bs*xDawrm$?W=h=ICd3oN?^FG\
+                    h_,Mze8-E47NOtNZ1mzrNUkJ?ul9rHxSJl4=]>fN=$>%aM,e2i3wT1(!8s\
+                    [sxYt#=yrPID+*>$]TU6=>E3p{t4U+uK}P&Iw=Si!SG[!{H^43;&1i+(Td\
+                    Vz!Lj[FYu_X<4d$7Pc0x%Q)OQeKF#cnwGB-hb9^Iwg58#$9p6$J?l0rUBA\
+                    ;GHW?xf={gQ8<Lk}Yu8;^f+ljMnUcRcd-ZY0gL<crWV{OH5xsx&9%ILiyw\
+                    ==E4r^a>y5_J&)n?a3r-grA}yAE-L#NU}vW6dO;iFE8Bu$ywni*}<,7qUC\
+                    vl0pZ{B,}6h3b^j0Ud}AE_q)+r)WLV+>7Dcalwn==16n)]f?J38-JR^F<X\
+                    vo=MR{DunbeWmZ{UnV#iQ]A&VUzq,>{T9ZQtt?!Xnvg5_Yv3kF(C0E,n5i\
+                    EYW<kj,q8KT;gI%+p!Saj?H{pHc[?T2>Vt084_4I=&s1NyR9{S]{y4AtBQ\
+                    N}McIkX@N9TtDogeHvUkvGd;n(@2OXrV}>JOyVA6S!oIsB{aJ?bwUQGX$z\
+                    {zJR^51-VZ@T))ZSGW?csDE)^{q3mu8>8xfM]nI&pY?w@D*vOxZ*^SM}AY\
+                    T6FUyJ~"))}}, AspectRatio -> 
                 NCache(1/GoldenRatio, 0.6180339887498948`), Axes -> True, 
                PlotRange -> 
-                NCache({-4 .. 4, -1.5874010519681994` .. 1.5874010519681994`}, 
-                 {-4.0 .. 4.0, -1.5874010519681994` .. 
-                   1.5874010519681994`}))), "Output", 
+                NCache({-4 .. 4, -1.5874010519681994` .. 1.5874010519681991`}, 
+                 {-4.0 .. 4.0, -1.5874010519681994` .. 1.5874010519681991`}), 
+               PlotRangePadding :> {None, Scaled(0.04)})), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Evaluate numerically:", "ExampleText"), 
@@ -208,7 +177,8 @@ Document({
              TemplateBox({
                TemplateBox({MessageName -> HoldForm(Surd::"preal"), 
                  Message -> StringForm(
-                   "The parameter `1` should be real-valued.", 2.5 + I), 
+                   "The parameter `1` should be real-valued.", 
+                   2.5 + Section$$2763`I), 
                  Stack -> {
                    {"Head" -> Surd, "Location" -> 
                      Language`SourceLocation(
@@ -231,8 +201,9 @@ Document({
               "RowDefault"), ":", " ", InterpretationBox(
               StringBox("\"The parameter ", {"2.5", "+", "\[ImaginaryI]"}, 
                " should be real-valued.\""), 
-              StringForm("The parameter `1` should be real-valued.", 2.5 + I), 
-              Editable -> False)}), "Message", SectionGenerated -> True), 
+              StringForm("The parameter `1` should be real-valued.", 
+               2.5 + Section$$2763`I), Editable -> False)}), "Message", 
+           SectionGenerated -> True), 
           Section(BoxData(RadicalBox({"2.5", "+", "\[ImaginaryI]"}, "5", 
              SurdForm -> True)), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All), 
