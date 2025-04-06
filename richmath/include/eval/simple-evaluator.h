@@ -10,6 +10,8 @@ namespace richmath {
     public:
       static bool try_eval(FrontEndObject *scope, Expr *result, Expr call);
       
+      static Expr expand_compressed_data(Expr expr);
+      
       static void done();
   };
 }

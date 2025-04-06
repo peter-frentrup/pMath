@@ -273,7 +273,11 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
       String text = Application::interrupt_wait(
                       Call(Symbol(richmath_System_MakeBoxes), source_content),
                       Application::edit_interrupt_timeout
-                    ).to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
+                    ).to_string(
+                      PMATH_WRITE_OPTIONS_INPUTEXPR | 
+                      PMATH_WRITE_OPTIONS_FULLSTR | 
+                      PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM |
+                      PMATH_WRITE_OPTIONS_USECOMPRESSEDDATA);
       
       int len = text.length();
       const uint16_t *buf = text.buffer();

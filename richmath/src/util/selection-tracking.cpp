@@ -700,7 +700,8 @@ static bool begin_edit_section(
            PMATH_WRITE_OPTIONS_INPUTEXPR | 
            PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM | 
            PMATH_WRITE_OPTIONS_NOSPACES | 
-           PMATH_WRITE_OPTIONS_PREFERUNICODE);
+           PMATH_WRITE_OPTIONS_PREFERUNICODE |
+           PMATH_WRITE_OPTIONS_USECOMPRESSEDDATA);
   
   mask_box_chars(pt.output);
   edit->content()->insert(0, pt.output);

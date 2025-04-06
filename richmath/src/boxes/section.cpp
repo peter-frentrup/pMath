@@ -8,6 +8,7 @@
 #include <boxes/textsequence.h>
 #include <eval/application.h>
 #include <eval/eval-contexts.h>
+#include <eval/simple-evaluator.h>
 #include <graphics/context.h>
 #include <graphics/rectangle.h>
 #include <gui/document.h>
@@ -868,6 +869,8 @@ Expr EditSection::to_pmath_impl(BoxOutputFlags flags) {
   result = Application::interrupt_wait(
              result,
              Application::edit_interrupt_timeout);
+  
+  result = SimpleEvaluator::expand_compressed_data(PMATH_CPP_MOVE(result));
   
   if(original) {
     if(result == richmath_System_DollarFailed) 

@@ -1617,8 +1617,12 @@ String Document::copy_to_text(String mimetype) {
     flags |= BoxOutputFlags::Literal | BoxOutputFlags::ShortNumbers;
     
   Expr boxes = sel.to_pmath(flags);
-  if(mimetype.equals(Clipboard::BoxesText))
-    return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
+  if(mimetype.equals(Clipboard::BoxesText)) {
+    return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | 
+                           PMATH_WRITE_OPTIONS_FULLSTR | 
+                           PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM |
+                           PMATH_WRITE_OPTIONS_USECOMPRESSEDDATA);
+  }
     
   if( is_plain_text || mimetype.equals("InputText")) {
     Expr text = Application::interrupt_wait(

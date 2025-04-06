@@ -52,6 +52,7 @@
 #include <eval/eval-contexts.h>
 #include <eval/job.h>
 #include <eval/server.h>
+#include <eval/simple-evaluator.h>
 
 #include <util/autovaluereset.h>
 #include <util/concurrent-queue.h>
@@ -557,7 +558,9 @@ void Application::gui_print_section(Expr expr) {
            PMATH_CPP_MOVE(expr), 
            EvaluationContexts::resolve_context(dynamic_cast<StyledObject*>(Application::get_evaluation_object())),
            strings::DollarContext_namespace);
-
+  
+  expr = SimpleEvaluator::expand_compressed_data(PMATH_CPP_MOVE(expr));
+  
   if(!sect->try_load_from_object(expr, BoxInputFlags::Default)) {
     if(Document *doc = dynamic_cast<Document*>(sect->parent())) {
       sect = new ErrorSection(expr);
@@ -1055,7 +1058,7 @@ Document *Application::open_new_document(String full_filename) {
                           
       if( held_boxes.expr_length() == 1 &&
           held_boxes.item_equals(0, richmath_System_HoldComplete) &&
-          doc->try_load_from_object(held_boxes[1], BoxInputFlags::Default))
+          doc->try_load_from_object(SimpleEvaluator::expand_compressed_data(held_boxes[1]), BoxInputFlags::Default))
       {
         break;
       }
@@ -1712,7 +1715,8 @@ namespace {
         boxes.write_to_file(file, 
           PMATH_WRITE_OPTIONS_INPUTEXPR | 
           PMATH_WRITE_OPTIONS_FULLSTR | 
-          PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
+          PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM |
+          PMATH_WRITE_OPTIONS_USECOMPRESSEDDATA);
         
         file.close();
         doc->native()->full_filename(filename);

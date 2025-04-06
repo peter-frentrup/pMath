@@ -30,6 +30,8 @@ namespace richmath {
       static void done();
     
       static bool try_eval(Expr *result, Expr call);
+      
+      static pmath_t expand_compressed_data_raw(pmath_t obj);
         
     private:
       static bool eval_expr(Expr *result, Expr call);
@@ -58,6 +60,7 @@ Hashtable<Sym, bool(*)(Expr*,Expr)> SimpleEvaluator::Impl::Functions;
 
 extern pmath_symbol_t richmath_Language_SourceLocation;
 extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_CompressedData;
 extern pmath_symbol_t richmath_System_CurrentValue;
 extern pmath_symbol_t richmath_System_DocumentObject;
 extern pmath_symbol_t richmath_System_False;
@@ -98,6 +101,10 @@ bool SimpleEvaluator::try_eval(FrontEndObject *scope, Expr *result, Expr call) {
   return args.success;
 }
 
+Expr SimpleEvaluator::expand_compressed_data(Expr expr) {
+  return Expr{Impl::expand_compressed_data_raw(expr.release())};
+}
+
 void SimpleEvaluator::done() {
   Impl::done();
 }
@@ -121,6 +128,44 @@ bool SimpleEvaluator::Impl::try_eval(Expr *result, Expr call) {
   
   *result = PMATH_CPP_MOVE(call);
   return true;
+}
+
+pmath_t SimpleEvaluator::Impl::expand_compressed_data_raw(pmath_t obj) {
+  if(!pmath_is_expr(obj))
+    return obj;
+  
+  if(pmath_is_packed_array(obj))
+    return obj;
+  
+  pmath_t debug_metadata = pmath_get_debug_metadata(obj);
+  size_t len = pmath_expr_length(obj);
+  for(size_t i = 0; i <= len; ++i) {
+    pmath_t item = pmath_expr_extract_item(obj, i);
+    item = expand_compressed_data_raw(item);
+    obj = pmath_expr_set_item(obj, i, item);
+  }
+  
+  obj = pmath_try_set_debug_metadata(obj, debug_metadata);
+  
+  if(len == 1 && pmath_expr_item_equals(obj, 0, richmath_System_CompressedData)) {
+    pmath_string_t str = pmath_expr_get_item(obj, 1);
+    
+    if(pmath_is_string(str)) {
+      pmath_serialize_error_t err = PMATH_SERIALIZE_OK;
+      
+      pmath_t data = pmath_decompress_from_string_quiet(str, &err);
+      if(err == PMATH_SERIALIZE_OK) {
+        pmath_unref(obj);
+        return data;
+      }
+      
+      pmath_unref(data);
+    }
+    else
+      pmath_unref(str);
+  }
+  
+  return obj;
 }
 
 bool SimpleEvaluator::Impl::eval_expr(Expr *result, Expr call) {
