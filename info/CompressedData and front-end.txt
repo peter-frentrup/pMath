@@ -6,7 +6,7 @@ ToString / ToBoxes:
 - [DONE] need way to output packed arrays as CompressedData(...)
 
 MakeExpression:
-- need way to force-Uncompress CompressedData(...) during parsing even if it is wrapped in some Hold(...) or similar
+- [DONE] need way to force-Uncompress CompressedData(...) during parsing even if it is wrapped in some Hold(...) or similar
   (Mma Frontend does this, normal parser does not)
   MakeExpression(..., AutoExpandCompressedData -> True)
   e.g.:
