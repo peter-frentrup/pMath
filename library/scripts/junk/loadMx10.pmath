@@ -452,6 +452,21 @@ Function readExpr(~mx, ~constLookup, ~symbolLookup) {
 	
 	With(length:= mx.readInteger)
 	If(length < 0) {
+		If(length == -11) { % dispatch
+			With(dispatchArg = readExpr())
+
+			Return({pos, "Dispatch"(dispatchArg), {}, /\/})
+		}
+		If(length == -10) { % association
+			With(assocKeysValuesHeads = readExpr())
+
+			Return({pos, "Association"(assocKeysValuesHeads), {}, /\/})
+		}
+		If(length == -9) { % some kind of ValueList ? Appears twice in mainload.mx
+			With(valueList = readExpr())
+
+			Return({pos, "SpecialValueList"(valueList), {}, /\/})
+		}
 		%Message(readExpr::length, BaseForm(pos, 16), length)
 		%
 		% negative lengths seem to be special cases of empty lists ?
@@ -460,12 +475,13 @@ Function readExpr(~mx, ~constLookup, ~symbolLookup) {
 	}
 	
 	With(flags:= mx.readInteger)
-	With(unknown2:= mx.readInteger)
+	With(bloomBitsSigned:= mx.readInteger)
+	With(bloomBits:= If(bloomBitsSigned < 0, -(bloomBitsSigned+1) * 2 + 1, bloomBitsSigned * 2))
 	
 	With(head:= mx.readExprPart(constLookup, symbolLookup))
 	With(arguments:= Table(mx.readExprPart(constLookup, symbolLookup), length))
 	
-	Return({pos, head @@ arguments, expandExprFlags(flags), unknown2})
+	Return({pos, head @@ arguments, expandExprFlags(flags), bloomBits})
 }
 
 Function expandExprFlags(~flags) {
