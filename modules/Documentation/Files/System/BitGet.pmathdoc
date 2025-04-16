@@ -1,0 +1,68 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("BitGet", "ObjectName"), 
+      Section(BoxData(TemplateBox({"BitGet"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"BitGet"}, "ReferenceHyperlink"), "(", 
+           StyleBox("n", "Arg"), ", ", StyleBox("k", "Arg"), 
+           ") gives the bit ", StyleBox("k", "Arg"), 
+           " places from the right."}), "Notes"), 
+        Section(TextData({TemplateBox({"BitGet"}, "ReferenceHyperlink"), 
+           " automatically threads over lists."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Display a number in base 2:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"BaseForm", "(", {"12345", ",", "2"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("2^^11000000111001"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        Section(TextData({"Get the bit corresponding to ", 
+           BoxData({"2", SuperscriptBox("0")}), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"BitGet", "(", {"12345", ",", "0"}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), Section(BoxData("1"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        Section(TextData({"Get the bit corresponding to ", 
+           BoxData({"2", SuperscriptBox("13")}), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"BitGet", "(", {"12345", ",", "13"}, ")"}), 
+           "Input", SectionLabel -> "in [3]:"), 
+          Section(BoxData("1"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [3]:")}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(
+         "Negative numbers are intepreted as two\[HighNineQuote]s \
+         complement:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"BitGet", "(", {{"-", "42"}, ",", "k"}, ")"}, ",", {
+               "k", "\[Rule]", {"0", "..", "15"}}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"0", ",", "1", ",", "1", ",", "0", ",", "1", 
+              ",", "0", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", 
+              "1", ",", "1", ",", "1", ",", "1", ",", "1"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {{"BitGet", "(", {"41", ",", "k"}, ")"}, 
+              ",", {"k", "\[Rule]", {"0", "..", "15"}}}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"1", ",", "0", ",", "0", ",", "1", ",", "0", 
+              ",", "1", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", 
+              "0", ",", "0", ",", "0", ",", "0", ",", "0"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"BitSet"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"BitClear"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"BitLength"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"BaseForm"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
