@@ -58,6 +58,7 @@ namespace richmath {
       ContainerType            _appearance;
       ObservableValue<bool>    _active;
       CalloutTriangle          _callout_triangle;
+      RectangleF               _last_target_rect;
   };
 }
 

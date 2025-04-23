@@ -81,6 +81,8 @@ namespace richmath {
       float get_em() { return em; }
       const String &text() { return str; }
       
+      bool text_changed() {        return get_flag(TextChangedBit); }
+      
 #ifndef NDEBUG
       bool DEBUG_boxes_invalid() { return boxes_invalid(); }
 #endif
@@ -95,7 +97,6 @@ namespace richmath {
       
       bool boxes_invalid() {       return get_flag(BoxesInvalidBit); }
       void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
-      bool text_changed() {        return get_flag(TextChangedBit); }
       void text_changed(bool value);
       
       virtual void on_text_changed() {}

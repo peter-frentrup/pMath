@@ -85,7 +85,8 @@ Win32AttachedPopupWindow::Win32AttachedPopupWindow(Document *owner, const Select
     100,
     Impl::get_owner_hwnd_location(owner)),
   _active{false},
-  _best_size(1, 1)
+  _best_size(1, 1),
+  _last_target_rect(0,0,0,0)
 {
   Impl::init_window_class();
   set_window_class_name(Impl::class_name);
@@ -431,36 +432,36 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   bool has_target_rect = false;
   if(true /* content padding */) {
     if(auto seq = dynamic_cast<AbstractSequence*>(anchor.box)) {
-//      Array<RectangleF> rects;
-//      anchor.add_rectangles(rects, SelectionDisplayFlags::BigCenterBlob | SelectionDisplayFlags::TightWidths, {0.0f, 0.0f});
-//      for(const RectangleF &rect: rects) {
-//        if(has_target_rect) {
-//          target_rect = target_rect.union_hull(rect);
-//        }
-//        else {
-//          target_rect = rect;
-//          has_target_rect = true;
-//        }
-//      }
-      LineRangeMeasurement measurement = seq->measure_range(anchor.start, anchor.end);
+      if(seq->text_changed()) { // measure_range() just gives extents(). use cached rect ...
+        if(self._last_target_rect != RectangleF(0,0,0,0)) {
+          target_rect = self._last_target_rect;
+          has_target_rect = true;
+        }
+      }
       
-      target_rect = measurement.bounds;
-      float em = seq->get_em();
-      float min_accent  = 0.75 * em;
-      float min_descent = 0.25 * em;
-      if(measurement.first_line_ascent < min_accent)
-        target_rect.grow(Side::Top, min_accent - measurement.first_line_ascent);
-      
-      if(measurement.last_line_descent < min_descent)
-        target_rect.grow(Side::Bottom, min_descent - measurement.last_line_descent);
-      
-      has_target_rect = true;
+      if(!has_target_rect) {
+        LineRangeMeasurement measurement = seq->measure_range(anchor.start, anchor.end);
+        
+        target_rect = measurement.bounds;
+        float em = seq->get_em();
+        float min_accent  = 0.75 * em;
+        float min_descent = 0.25 * em;
+        if(measurement.first_line_ascent < min_accent)
+          target_rect.grow(Side::Top, min_accent - measurement.first_line_ascent);
+        
+        if(measurement.last_line_descent < min_descent)
+          target_rect.grow(Side::Bottom, min_descent - measurement.last_line_descent);
+        
+        has_target_rect = true;
+      }
     }
   }
   
   if(!has_target_rect) {
     target_rect = anchor.box->range_rect(anchor.start, anchor.end);
   }
+  
+  self._last_target_rect = target_rect;
   
   if(!anchor.box->visible_rect(target_rect))
     return false;
