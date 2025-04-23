@@ -2,6 +2,8 @@
 #define __PMATH_UTIL__COMPRESSION_H__
 
 #include <pmath-util/files/abstract-file.h>
+#include <pmath-util/serialize.h> // for pmath_serialize_error_t
+
 
 /**\addtogroup file_api
   @{
