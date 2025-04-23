@@ -124,6 +124,9 @@ namespace richmath {
       bool is_positive() const { return width > 0 && height > 0; }
       bool is_empty() const { return width == 0 || height == 0; }
       
+      friend bool operator==(const RectangleF &left, const RectangleF &right) { return left.x == right.x && left.y == right.y && left.width == right.width && left.height == right.height; }
+      friend bool operator!=(const RectangleF &left, const RectangleF &right) { return !(left==right); }
+      
       float left()   const { return x; }
       float right()  const { return x + width; }
       float top()    const { return y; }
