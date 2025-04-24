@@ -672,6 +672,10 @@
 {"RealBallBounds", {"ArgumentCount" -> 1}},
 {"SignBit", {"ArgumentCount" -> 1}}
 }},
+{"FE`",{
+{"AttachBoxes", {"ArgumentCount" -> 3}},
+{"BoxReference", {"ArgumentCount" -> 2}}
+}},
 {"System`Util`",{
 {"latexToBoxes", {"ArgumentCount" -> 1}}
 }},

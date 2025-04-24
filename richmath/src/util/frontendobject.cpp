@@ -216,6 +216,8 @@ FrontEndObject *FrontEndObject::find(FrontEndReference id) {
 }
 
 FrontEndObject *FrontEndObject::find_box_reference(Expr boxref) {
+  // FE`BoxReference(obj, {boxid})
+  // note: Mma also has FE`BoxReference(obj, {boxid, pos}), that we do not yet support
   if(!boxref.item_equals(0, richmath_FE_BoxReference))
     return nullptr;
   
