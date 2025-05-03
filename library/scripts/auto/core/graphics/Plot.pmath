@@ -65,16 +65,13 @@ Function getRangeList(~ys) {
 	Return(mima)
 }
 
-Function initData(~f, ~xmin .. ~xmax, ~numPoints, ~prec) {
+Function initDataXsYs(~f, ~xmin .. ~xmax, ~numPoints, ~prec) {
 	With(xs:= Array(Numericalize(SetPrecision(xmin .. xmax .. (xmax - xmin)/(numPoints - 1), prec), prec)))
-	% TODO: improve Map so that it does not unpack below:
-	Return(xs.Map({#, f(#)} &).Developer`ToPackedArray)
-	%Return(xs.Map({#, f(#)} &))
+	Return({xs, xs.Map(f)}.Developer`ToPackedArray)
 }
 
-Function calcCosines(~xys, ~xmin .. ~xmax) {
+Function calcCosinesXsYs(~xs, ~ys, ~xmin .. ~xmax) {
 	Local(ymin, ymax, cos2s)
-	With(xs:= xys[All, 1], ys:= xys[All, 2])
 	{ymin, ymax}:= getRangeList(ys);
 	With(ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin))  % Differences
 	With(ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin))  % Differences
@@ -91,10 +88,10 @@ Function cosMinFunction(~stepNumber, ~numPoints) {
 		With({n:= stepNumber}, Cos(180.0 Degree * Piecewise({{1, n < 10}, {1 - ((n - 10) / (20 - 10))^2, n < 20}}, 0))))
 }
 
-Function refineData(~f, ~xrange, ~xys, ~prec, ~stepNumber) {
-	With(cosines:= calcCosines(xys, xrange))
+Function refineDataXsYs(~f, ~xrange, {~xs, ~ys}, ~prec, ~stepNumber) {
+	With(cosines:= calcCosinesXsYs(xs, ys, xrange))
 	With(cosMax:= Cos(5.0 Degree))
-	With(cosMin:= cosMinFunction(stepNumber, Length(xys)))
+	With(cosMin:= cosMinFunction(stepNumber, Length(xs)))
 	
 	Local(is, newxs)
 	is:= Flatten @ Position(cosines, ~ ? (cosMin <= # <= cosMax &), 1..1, Heads -> False);
@@ -114,32 +111,32 @@ Function refineData(~f, ~xrange, ~xys, ~prec, ~stepNumber) {
 	% 	100.0 Length(is) / Length(cosines)));
 	is:= Union(is, is + 1);
 	
-	% TODO: avoid unpacking xys in Part below:
-	newxs:= Numericalize(SetPrecision(xys[is, 1] / 2 + xys[is + 1, 1] / 2, prec), prec)%.Developer`ToPackedArray;
+	newxs:= Numericalize(SetPrecision(xs[is] / 2 + xs[is + 1] / 2, prec), prec) %.Developer`ToPackedArray;
 	
-	% TODO: improve Map so that it does not unpack below:
-	%Return(newxs.Map({#, f(#)} &).Developer`ToPackedArray)
-	Return(newxs.Map({#, f(#)} &))
+	Return({newxs, newxs.Map(f)})
 }
 
 Function generateData(~f, ~xrange, ~numPoints, ~prec, ~maxrecurs) {
-	Local(xys, newxys, step)
-	xys:= initData(f, xrange, numPoints, prec)
+	Local(xs, ys, newxsys, is, step)
+	{xs, ys}:= initDataXsYs(f, xrange, numPoints, prec)
 	step:= 0
 	While(step < maxrecurs) {
 		step+= 1;
-		newxys:= refineData(f, xrange, xys, prec, step);
-		If(newxys === {}) {
+		newxsys:= refineDataXsYs(f, xrange, {xs, ys}, prec, step);
+		If(newxsys === {}) {
 			Break()
 		}
 
 		% TODO: improve SortBy so that it does not unpack below:
 		%xys:= SortBy(Join(xys, newxys), First).Developer`ToPackedArray;
 
-		% TODO: improve SortBy so that it does not unpack below:
-		xys:= Sort(Join(xys, newxys))%.Developer`ToPackedArray;
+		xs:= Join(xs, newxsys[1])
+		ys:= Join(ys, newxsys[2])
+		is:= Ordering(xs)
+		xs:= xs[is]
+		ys:= ys[is]
 	}
-	Return(Developer`ToPackedArray(xys))
+	Return(Developer`ToPackedArray(Thread({xs, ys})))
 }
 
 joinLists():= {}
