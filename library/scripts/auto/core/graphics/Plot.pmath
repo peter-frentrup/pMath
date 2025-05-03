@@ -21,20 +21,7 @@ Protect(Plot)
 Attributes(isNotHeldOption):= {HoldAll}
 isNotHeldOption(~x)::= !IsOption(Unevaluated(x))
 
-Function getPlotRange(~xys, ~xmin .. ~xmax) {
-	Local(ymin, ymax, ndxs, ndys, tans, is, mi, ma)
-	With(xs:= xys[All, 1], ys:= xys[All, 2], maxTan:= Tan(80.0 Degree))
-	
-	{ymin, ymax}:= getRangeList(ys);
-	ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin); /* Differences */
-	ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin); /* Differences */
-	tans:= ndys / ndxs;
-	
-	is:= Flatten @ Position(tans, ~t /? Abs(t) < maxTan, 1..1);
-	is:= Union(is, is + 1);
-	{mi, ma}:= ({Min(#), Max(#)} &)(ys[is]);
-	/*{mi, ma}:= (mi + ma)/2 + (ma - mi)/2 * {-1.02, 1.02};*/
-	
+Function makeNiceRange({~mi, ~ma}) {
 	If(mi - (ma - mi)/5 < 0 < mi) {
 		Return(0 .. ma)
 	} Else If(ma < 0 < ma + (ma - mi)/5) {
@@ -47,39 +34,42 @@ Function getPlotRange(~xys, ~xmin .. ~xmax) {
 	Return(-1 .. 1)
 }
 
+getPlotRangeYs(~xys, ~xrange)::= makeNiceRange(getRangeList(xys[All, 2]))
+
 Function getRangeList(~ys) {
-	With(nys:= ys.Cases(Except(Undefined)))
+	With(nys:= ys.Select(IsReal))
 	
 	If(nys === {}) {
 		Return({-1, 1})
 	} Else If(Length(nys) = 1) {
 		Return(First(nys) + {-1, 1})
 	}
+
+	With(dys:= Abs(nys.ListConvolve({1, -1})))
+	With(cut:= Quantile(dys, 0.7, {{0,0},{0,1}})) % Going down to 0.6 would give degenerate results in Plot(Sqrt(Sin(x)),x->-5..5)
+	With(is:= Flatten @ Position(dys, ~d /? d < cut, 1..1))
 	
-	% linear interpolation
-	With(mima:= Quantile(nys, {0.05, 0.95}, {{0,0},{0,1}}))
+	With(mima:= MinMax(If(is === {}, nys, {nys[is], nys[is + 1]})))
 
 	If(First(mima) = Last(mima)) {
-			Return(First(mima) + {-1, 1})
+		Return(First(mima) + {-1, 1})
 	}
 	Return(mima)
 }
+
+getRange(~ys)::= getRangeList(ys) |> {{~min, ~max} :> min .. max}
 
 Function initDataXsYs(~f, ~xmin .. ~xmax, ~numPoints, ~prec) {
 	With(xs:= Array(Numericalize(SetPrecision(xmin .. xmax .. (xmax - xmin)/(numPoints - 1), prec), prec)))
 	Return({xs, xs.Map(f)}.Developer`ToPackedArray)
 }
 
-Function calcCosinesXsYs(~xs, ~ys, ~xmin .. ~xmax) {
-	Local(ymin, ymax, cos2s)
-	{ymin, ymax}:= getRangeList(ys);
+Function calcCosinesXsYs(~xs, ~ys, ~xmin .. ~xmax, ~ymin .. ~ymax) {
 	With(ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin))  % Differences
 	With(ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin))  % Differences
 	With(tans:= ndys / ndxs)
 	With(tas:= Most(tans), tbs:= Rest(tans))
-	cos2s:= (1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2))
-	cos2s:= cos2s.Replace(Undefined -> 0, 1..1)
-	Return(cos2s)
+	Return((1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2)) |> Replace(Undefined -> 0, 1..1))
 }
 
 Function cosMinFunction(~stepNumber, ~numPoints) {
@@ -89,7 +79,7 @@ Function cosMinFunction(~stepNumber, ~numPoints) {
 }
 
 Function refineDataXsYs(~f, ~xrange, {~xs, ~ys}, ~prec, ~stepNumber) {
-	With(cosines:= calcCosinesXsYs(xs, ys, xrange))
+	With(cosines:= calcCosinesXsYs(xs, ys, xrange, getRange(ys)))
 	With(cosMax:= Cos(5.0 Degree))
 	With(cosMin:= cosMinFunction(stepNumber, Length(xs)))
 	
@@ -143,13 +133,15 @@ joinLists():= {}
 joinLists(~~~args)::= Join(args)
 
 automaticPlotRangePadding(Automatic)::= {None, Scaled(0.04)}
+automaticPlotRangePadding(All)::= {None, Scaled(0.04)}
 automaticPlotRangePadding({~xr, Automatic})::= {None, Scaled(0.04)}
+automaticPlotRangePadding({~xr, All})::= {None, Scaled(0.04)}
 %automaticPlotRangePadding(~pr: Range)::= None
 automaticPlotRangePadding(~)::= None
 
 normalizePlotRange(~xyDatas, ~xrange, ~r: Range)::= {xrange, r}
-normalizePlotRange(~xyDatas, ~xrange, Automatic)::= {xrange, getPlotRange(joinLists @@ xyDatas, xrange)}
-normalizePlotRange(~xyDatas, ~xrange, {~xr, Automatic})::= {xr, getPlotRange(joinLists @@ xyDatas, xrange)}
+normalizePlotRange(~xyDatas, ~xrange, Automatic)::= {xrange, getPlotRangeYs(joinLists @@ xyDatas, xrange)}
+normalizePlotRange(~xyDatas, ~xrange, {~xr, Automatic})::= {xr, getPlotRangeYs(joinLists @@ xyDatas, xrange)}
 normalizePlotRange(~xyDatas, ~xrange, ~r)::= r /* TODO: handle errors */
 
 Function tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot)) {
