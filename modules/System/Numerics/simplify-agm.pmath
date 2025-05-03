@@ -12,6 +12,18 @@ Begin("System`Numerics`AGM`Private`")
 % Otherwise, the result of AutoSimplifyArithmeticGeometricMean will be returned.
 %
 System`Private`AutoSimplifyArithmeticGeometricMean(~~~):= $Failed
+System`Private`AutoSimplifyArithmeticGeometricMean(ArithmeticGeometricMean, ~a, ~b)::= simplifyAGM(a, b)
+
+simplifyAGM(~~~):= $Failed
+simplifyAGM( 0,      ~b)::= 0  % https://fungrim.org/entry/08329d/
+simplifyAGM(~a,       0)::= 0  % https://fungrim.org/entry/8f176c/
+simplifyAGM(~a,      ~a)::= a  % https://fungrim.org/entry/b41bdd/
+simplifyAGM(~a, -1 * ~a)::= 0  % https://fungrim.org/entry/3e1398/
+
+simplifyAGM(~c * ~a, ~c * ~b) /? c =!= 1 ::= c ArithmeticGeometricMean(a, b)  % https://fungrim.org/entry/d60119/
+
+simplifyAGM(Conjugate(~a), Conjugate(~b))::= Conjugate(ArithmeticGeometricMean(a, b))  % https://fungrim.org/entry/c0dea0/
+
 
 End()
 

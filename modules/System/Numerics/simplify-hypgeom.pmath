@@ -7,7 +7,7 @@ Begin("System`Numerics`HypGeom`Private`")
 %
 % If direct (numerical) calculation of Hypergeometric2F1(a1, a2, b, x), etc. is not possible 
 % (because x is an expression or an exact number), 
-% System`Private`AutoSimplifyHypGeom(Hypergeometric2F1, {a1, a2}, {b} x) 
+% System`Private`AutoSimplifyHypGeom(Hypergeometric2F1, {a1, a2}, {b}, x) 
 % etc. get called.
 % If that returns $Failed, the original expression Hypergeometric2F1(...) etc. remains unevaluated. 
 % Otherwise, the result of AutoSimplifyHypGeom will be returned.

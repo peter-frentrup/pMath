@@ -12,8 +12,24 @@ Begin("System`Numerics`Bessel`Private`")
 % Otherwise, the result of AutoSimplifyBessel will be returned.
 %
 System`Private`AutoSimplifyBessel(~, ~, ~):= $Failed
+System`Private`AutoSimplifyBessel(~f, ~nu:Integer, ~z)::=  besselLikeOfInteger( f, nu, z)
+System`Private`AutoSimplifyBessel(~f, ~nu:Rational, ~z)::= besselLikeOfRational(f, nu, z)
+
+besselLikeOfInteger(~,~,~):= $Failed
+besselLikeOfInteger(BesselJ, ~n ? IsNegative, ~z)::= (-1)^n BesselJ(-n, z) % https://fungrim.org/entry/54bce2/
+besselLikeOfInteger(BesselI, ~n ? IsNegative, ~z)::=        BesselI(-n, z) % https://fungrim.org/entry/afbd22/
 
 
+% https://fungrim.org/topic/Specific_values_of_Bessel_functions/
+besselLikeOfRational(~,~,~):= $Failed
+besselLikeOfRational(BesselJ,  1/2, ~z)::=             Sqrt(2z/Pi) Sinc(z)   % https://fungrim.org/entry/121b21/  and  BesselJ(1/2, 0)=0
+besselLikeOfRational(BesselJ, -1/2, ~z) /? z != 0 ::=  Sqrt(2z/Pi) Cos(z)/z  % https://fungrim.org/entry/621a9b/
+besselLikeOfRational(BesselY,  1/2, ~z) /? z != 0 ::= -Sqrt(2z/Pi) Cos(z)/z  % https://fungrim.org/entry/4dfd41/
+besselLikeOfRational(BesselY, -1/2, ~z) /? z != 0 ::=  Sqrt(2z/Pi) Sinc(z)   % https://fungrim.org/entry/5679f2/
+besselLikeOfRational(BesselI,  1/2, ~z) /? z != 0 ::=  Sqrt(2z/Pi) Sinh(z)/z % https://fungrim.org/entry/a59981/
+besselLikeOfRational(BesselI, -1/2, ~z) /? z != 0 ::=  Sqrt(2z/Pi) Cosh(z)/z % https://fungrim.org/entry/5d9c43/
+besselLikeOfRational(BesselK,  1/2, ~z) /? z != 0 ::=  Sqrt(Pi z/2) Exp(-z)/z % https://fungrim.org/entry/d1f5c5/
+besselLikeOfRational(BesselK, -1/2, ~z) /? z != 0 ::=  Sqrt(Pi z/2) Exp(-z)/z % https://fungrim.org/entry/7ac286/
 
 End()
 
