@@ -174,6 +174,7 @@ extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_CreateDocument;
+extern pmath_symbol_t richmath_System_Delimiter;
 extern pmath_symbol_t richmath_System_Document;
 extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_FileNames;
@@ -1112,19 +1113,40 @@ bool SelectDocumentMenuImpl::set_selected_document_cmd(Expr cmd) {
 }
 
 Expr SelectDocumentMenuImpl::enum_windows_menu(Expr name) {
-  Gather g;
-  int i = 1;
+  enum {TagNormal, TagPalette};
+  Gather g_normal{Expr(TagNormal)};
+  Gather g_palettes{Expr(TagPalette)};
   for(auto win : CommonDocumentWindow::All) {
-    g.emit(
+    Gather::emit(
       Call(
         Symbol(richmath_System_MenuItem), 
         win->title(), 
         //List(name, i)
         Call(Symbol(richmath_FrontEnd_SetSelectedDocument),
-          win->content()->to_pmath_id())));
-    ++i;
+          win->content()->to_pmath_id())),
+      Expr(win->content()->get_style(WindowFrame) == WindowFrameNormal ? TagNormal : TagPalette));
   }
-  return g.end();
+  
+  // The ordering is important!
+  Expr palettes = g_palettes.end();
+  Expr other = g_normal.end();
+  
+  size_t num_pal = palettes.expr_length();
+  if(num_pal == 0)
+    return other;
+  
+  size_t num_other = other.expr_length();
+  if(num_other == 0)
+    return palettes;
+    
+  Expr result = MakeCall(Symbol(richmath_System_List), num_pal + 1 + num_other);
+  for(size_t i = 1; i <= num_pal; ++i)
+    result.set(i, palettes[i]);
+  result.set(num_pal + 1, Symbol(richmath_System_Delimiter));
+  for(size_t i = 1; i <= num_other; ++i)
+    result.set(num_pal + 1 + i, other[i]);
+  
+  return result;
 }
 
 MenuCommandStatus SelectDocumentMenuImpl::can_locate_window(Expr submenu_cmd, Expr item_cmd) {
