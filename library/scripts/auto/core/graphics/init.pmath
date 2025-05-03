@@ -52,6 +52,7 @@ AutoLoad(Hold(MakeGraphicsExpression, MakeGraphicsExpressionOptions),
 Options(ListLinePlot):= With(newdef:= {
 		AspectRatio -> 1/GoldenRatio,
 		Axes -> True,
+		DataRange -> Automatic,
 		Frame -> False,
 		PlotStyle -> Automatic,
 		WorkingPrecision -> MachinePrecision
