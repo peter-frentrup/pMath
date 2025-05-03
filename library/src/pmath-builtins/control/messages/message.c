@@ -31,6 +31,7 @@ extern pmath_symbol_t pmath_System_Off;
 extern pmath_symbol_t pmath_System_On;
 extern pmath_symbol_t pmath_System_Row;
 extern pmath_symbol_t pmath_System_SectionPrint;
+extern pmath_symbol_t pmath_System_Short;
 extern pmath_symbol_t pmath_System_StringForm;
 extern pmath_symbol_t pmath_Internal_DollarMessageFormatter;
 extern pmath_symbol_t pmath_Internal_CriticalMessageTag;
@@ -199,7 +200,14 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_StringForm));
   expr = pmath_expr_set_item(expr, 1, text);
   
+  // TODO: first wrap HoldForm(...) around message arguments?
+  
   head = pmath_evaluate(pmath_ref(pmath_System_DollarMessagePrePrint));
+  if(pmath_same(head, pmath_System_Automatic)) {
+    pmath_unref(head);
+    head = pmath_ref(pmath_System_Short);
+  }
+  
   if(!pmath_same(head, pmath_System_Automatic) && !pmath_same(head, pmath_System_DollarMessagePrePrint)) {
     size_t i;
     for(i = 2; i <= exprlen; ++i) {

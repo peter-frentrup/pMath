@@ -31,13 +31,13 @@ Function ConsoleMessageFormatter(~heldname, ~msg) {
 
 Function SourceHyperlinkMessageArgumentFormatter(~arg) {
 	If(Not($HyperlinksSupported)) {
-		Return(arg)
+		Return(Short(arg))
 	}
 	
 	With(src:= Developer`GetDebugMetadata(arg))
 	With(makeButton:= sourceLocationButtonBuilder(src))
 
-	Return(makeButton @ arg)
+	Return(makeButton @ Short(arg))
 }
 
 Function errorButton(~eid) {
