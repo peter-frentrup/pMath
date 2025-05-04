@@ -47,7 +47,7 @@ Function getPlotRangeList(~ys) {
 
 	With(dys:= Abs(nys.ListConvolve({1, -1})))
 	With(cut:= If(Length(dys) < 2, -Infinity, Quantile(dys, 0.7, {{0,0},{0,1}}))) % Going down to 0.6 would give degenerate results in Plot(Sqrt(Sin(x)),x->-5..5)
-	With(is:= Flatten @ Position(dys, ~d /? d < cut, 1..1))
+	With(is:= Flatten @ Position(dys, ~d /? d <= cut, 1..1)) % Note: "d < cut" will give bad results when all dys are almost the same like in Plot(x, x->-5..5).  Should we use something like "d <= 1.0001 cut"?
 
 	MinMax(If(is === {}, nys, {nys[is], nys[is + 1]}))
 }
