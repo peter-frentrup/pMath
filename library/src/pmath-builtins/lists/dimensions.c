@@ -192,7 +192,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
 ) {
   dims_data_t data;
   size_t dims, i;
-  pmath_t tmp, item;
+  pmath_t tmp;
   
   if(!pmath_is_expr(obj) || maxdepth == 0)
     return pmath_ref(_pmath_object_emptylist);
@@ -211,16 +211,17 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   dims = 1;
   tmp = pmath_expr_get_item(obj, 1);
   while(dims < maxdepth && pmath_is_expr(tmp)) {
-    item = pmath_expr_get_item(tmp, 0);
+    pmath_t item = pmath_expr_get_item(tmp, 0);
     
     if(!pmath_equals(item, data.head)) {
       pmath_unref(item);
       break;
     }
     
+    pmath_unref(item);
+    
     ++dims;
     if(dims < maxdepth) {
-      pmath_unref(item);
       item = pmath_expr_get_item(tmp, 1);
       pmath_unref(tmp);
       tmp = item;
@@ -240,7 +241,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
     if(i >= dims)
       break;
       
-    item = pmath_expr_get_item(tmp, 1);
+    pmath_t item = pmath_expr_get_item(tmp, 1);
     pmath_unref(tmp);
     tmp = item;
     

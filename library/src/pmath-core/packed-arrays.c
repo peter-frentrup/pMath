@@ -1852,7 +1852,7 @@ pmath_t pmath_to_packed_array(pmath_t obj, pmath_packed_type_t expected_type) {
     sizes[i] = pmath_integer_get_uiptr(n_expr);
     pmath_unref(n_expr);
     
-    if(total_size > SIZE_MAX / sizes[i]) {
+    if(sizes[i] == 0 || total_size > SIZE_MAX / sizes[i]) {
       pmath_mem_free(sizes);
       pmath_unref(dims_expr);
       return obj;
@@ -1893,6 +1893,7 @@ pmath_t pmath_to_packed_array(pmath_t obj, pmath_packed_type_t expected_type) {
   
   array = pmath_packed_array_new(blob, elem_type, dims, sizes, NULL, 0);
   
+  pmath_unref(obj);
   pmath_mem_free(sizes);
   return array;
 }
