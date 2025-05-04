@@ -72,6 +72,7 @@ namespace richmath {
       float width;
       float section_content_window_width;
       float sequence_unfilled_width;
+      float page_or_monitor_height;
       
       Point last_cursor_pos[2];
       

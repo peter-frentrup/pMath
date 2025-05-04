@@ -3469,7 +3469,8 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     
     context.width = _page_width;
     context.section_content_window_width = _window_width;
-    
+    context.page_or_monitor_height = native()->monitor_size().y; //page_rect.height;
+
     if(_page_width < HUGE_VAL)
       _extents.width = _page_width;
     else

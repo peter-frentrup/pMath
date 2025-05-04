@@ -43,6 +43,7 @@ Context::Context()
     width(HUGE_VAL),
     section_content_window_width(HUGE_VAL),
     sequence_unfilled_width(0),
+    page_or_monitor_height(HUGE_VAL),
     cursor_color(Color::Black),
     syntax(GeneralSyntaxInfo::std),
     multiplication_sign(0x00D7),

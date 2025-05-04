@@ -48,6 +48,7 @@ namespace {
       
       virtual Vector2F window_size() override { return Vector2F(0, 0); }
       virtual Vector2F page_size() override { return Vector2F(0, 0); }
+      virtual Vector2F monitor_size() override { return Vector2F(0, 0); }
       
       virtual bool is_scrollable() override { return false; }
       virtual bool autohide_vertical_scrollbar() override { return false; }

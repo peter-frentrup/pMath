@@ -244,6 +244,21 @@ Vector2F Win32Widget::window_size() {
   return Vector2F(rect.right, rect.bottom) / scale_factor();
 }
 
+Vector2F Win32Widget::monitor_size() {
+  MONITORINFO monitor_info;
+  memset(&monitor_info, 0, sizeof(monitor_info));
+  monitor_info.cbSize = sizeof(monitor_info);
+  
+  HMONITOR hmon = MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
+  if(GetMonitorInfo(hmon, &monitor_info)) {
+    return Vector2F(
+        monitor_info.rcMonitor.right - monitor_info.rcMonitor.left, 
+        monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top) / scale_factor();
+  }
+
+  return {500.0f, 500.0f};
+}
+
 Point Win32Widget::scroll_pos() {
   return Point(Vector2F(GetScrollPos(_hwnd, SB_HORZ), GetScrollPos(_hwnd, SB_VERT)) / scale_factor());
 }

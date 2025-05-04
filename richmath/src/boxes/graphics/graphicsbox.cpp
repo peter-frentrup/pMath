@@ -89,7 +89,7 @@ class GraphicsBox::Impl {
     float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
     
     static float calc_margin_width(float w, float lbl_w, double all_x, double other_x);
-    void calculate_size(float max_auto_width, const float *optional_expand_width = nullptr);
+    void calculate_size(Vector2F max_auto_size, const float *optional_expand_width = nullptr);
     
     void try_get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
     void calculate_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
@@ -227,7 +227,7 @@ bool GraphicsBox::expand(Context &context, const BoxSize &size) {
   if(seq && seq->length() == 1) {
     if(dynamic_cast<FillBox *>(seq->parent())) {
       BoxSize old_size = _extents;
-      Impl(*this).calculate_size(Infinity, &size.width);
+      Impl(*this).calculate_size(Vector2F(Infinity, Infinity), &size.width);
       
       if(old_size != _extents)
         cached_bitmap = nullptr;
@@ -267,7 +267,7 @@ void GraphicsBox::resize(Context &context) {
   margin_top    = 0;
   margin_bottom = 0;
   
-  Impl(*this).calculate_size(context.width);
+  Impl(*this).calculate_size({context.width, 0.5f * context.page_or_monitor_height});
   
   is_currently_resizing(false);
 }
@@ -824,7 +824,7 @@ float GraphicsBox::Impl::calc_margin_width(float w, float lbl_w, double all_x, d
   return w - (w - lbl_w) * all_x / other_x;
 }
 
-void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *optional_expand_width) {
+void GraphicsBox::Impl::calculate_size(Vector2F max_auto_size, const float *optional_expand_width) {
   GraphicsBounds bounds;
   bounds.x_range = self.ticks[AxisIndexX]->range;
   bounds.y_range = self.ticks[AxisIndexY]->range;
@@ -888,6 +888,7 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
   }
   
   bool check_max_auto_width = false;
+  float max_height = Infinity;
   
   if(w == SymbolicSize::Automatic && h == SymbolicSize::Automatic) {
     if(optional_expand_width) {
@@ -897,22 +898,24 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
       check_max_auto_width = true;
       enum SyntaxPosition pos = find_syntax_position(self.parent(), self.index());
       
+      max_height = max_auto_size.y;
+      
       switch(pos) {
         case Alone:       w = SymbolicSize::Medium; break;
-        case InsideList:  w = SymbolicSize::Small; break; 
-        case InsideOther: w = SymbolicSize::Tiny; break;
+        case InsideList:  w = SymbolicSize::Small;  max_height*= 0.5f; break; 
+        case InsideOther: w = SymbolicSize::Tiny;   max_height*= 0.25f; break;
       }
     }
   }
   
-  float expand_width = optional_expand_width ? *optional_expand_width : max_auto_width;
+  float expand_width = optional_expand_width ? *optional_expand_width : max_auto_size.x;
   
   if(!w.is_explicit_abs_positive()) {
     if(w != SymbolicSize::Automatic) {
       w = Length::Absolute(w.resolve(self.em, LengthConversionFactors::GraphicsSize, expand_width));
       if(w.is_explicit_abs_positive()) {
-        if(check_max_auto_width && isfinite(max_auto_width) && max_auto_width > 0 && w.explicit_abs_value() > max_auto_width)
-          w = Length(max_auto_width);
+        if(check_max_auto_width && isfinite(max_auto_size.x) && max_auto_size.x > 0 && w.explicit_abs_value() > max_auto_size.x)
+          w = Length::Absolute(max_auto_size.x);
       }
       else
         w = SymbolicSize::Automatic;
@@ -978,8 +981,15 @@ void GraphicsBox::Impl::calculate_size(float max_auto_width, const float *option
                                bounds.y_range.to - oy));
     }
     
-    h = Length(content_h + self.margin_top + self.margin_bottom);
+    if(check_max_auto_width) { // Original setting was ImageSize->{Automatic, Automatic}
+      if(content_h + self.margin_top + self.margin_bottom > max_height) {
+        content_h = max(0.0f, max_height - (self.margin_top + self.margin_bottom));
+        content_w = content_h / ratio;
+        w = Length::Absolute(content_w + self.margin_left + self.margin_right);
+      }
+    }
     
+    h = Length::Absolute(content_h + self.margin_top + self.margin_bottom);
   }
   
   self._extents.width = w.explicit_abs_value();

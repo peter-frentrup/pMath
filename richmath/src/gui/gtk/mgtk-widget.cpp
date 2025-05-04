@@ -253,6 +253,23 @@ Vector2F MathGtkWidget::window_size() {
   return Vector2F(rect.width, rect.height) / scale_factor();
 }
 
+Vector2F MathGtkWidget::monitor_size() {
+  GtkWidget *toplevel = gtk_widget_get_toplevel(_widget);
+  if(GTK_IS_WINDOW(toplevel)) {
+    GdkRectangle rect {};
+    GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(toplevel));
+    int monitor_num = gdk_screen_get_monitor_at_window(screen, gtk_widget_get_window(toplevel));
+    gdk_screen_get_monitor_geometry(screen, monitor_num, &rect);
+  
+    return Vector2F(rect.width, rect.height) / scale_factor();
+  }
+  else {
+    GdkScreen *screen = gdk_screen_get_default();
+
+    return Vector2F(gdk_screen_get_width(screen), gdk_screen_get_height(screen)) / scale_factor();
+  }
+}
+
 Point MathGtkWidget::scroll_pos() {
   if(!is_scrollable())
     return Point(0, 0);

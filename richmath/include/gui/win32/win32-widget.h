@@ -33,6 +33,7 @@ namespace richmath {
     public:
       virtual Vector2F window_size() override;
       virtual Vector2F page_size() override { return window_size(); }
+      virtual Vector2F monitor_size() override;
       
       virtual bool is_scrollable() override { return true; }
       virtual bool autohide_vertical_scrollbar() override { return _autohide_vertical_scrollbar; }

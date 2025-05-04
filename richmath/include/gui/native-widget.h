@@ -55,6 +55,7 @@ namespace richmath {
       
       virtual Vector2F window_size() = 0;
       virtual Vector2F page_size() = 0;
+      virtual Vector2F monitor_size() = 0;
       
       virtual bool is_scrollable() = 0;
       virtual bool autohide_vertical_scrollbar() = 0;
