@@ -1,6 +1,7 @@
 
 BeginPackage("System`Graphics`Plot`", {"Developer`"})
 
+System`ParametricPlot
 System`Plot
 
 
@@ -13,6 +14,9 @@ Attributes(Plot):= {HoldAll}
 p: Plot(~~~args)::= With({g:= Catch(tryPlot(p, args), $PlotFailed)}, g /? Head(g) === Graphics)
 
 Protect(Plot)
+
+p: ParametricPlot(~~~args)::= With({g:= Catch(tryParametricPlot(p, args), $PlotFailed)}, g /? Head(g) === Graphics)
+
 
 Attributes(isNotHeldOption):= {HoldAll}
 isNotHeldOption(~x)::= !IsOption(Unevaluated(x))
@@ -30,7 +34,23 @@ Function makeNiceRange({~mi, ~ma}) {
 	Return(-1 .. 1)
 }
 
-getPlotRangeYs(~xys, ~xrange)::= makeNiceRange(getRangeList(xys[All, 2]))
+getPlotRangeYs(~xys, ~xrange)::= makeNiceRange(getPlotRangeList(xys[All, 2]))
+
+Function getPlotRangeList(~ys) {
+	With(nys:= ys.Select(IsReal))
+	
+	If(nys === {}) {
+		Return({-1, 1})
+	} Else If(Length(nys) = 1) {
+		Return(First(nys) + {-1, 1})
+	}
+
+	With(dys:= Abs(nys.ListConvolve({1, -1})))
+	With(cut:= If(Length(dys) < 2, -Infinity, Quantile(dys, 0.7, {{0,0},{0,1}}))) % Going down to 0.6 would give degenerate results in Plot(Sqrt(Sin(x)),x->-5..5)
+	With(is:= Flatten @ Position(dys, ~d /? d < cut, 1..1))
+
+	MinMax(If(is === {}, nys, {nys[is], nys[is + 1]}))
+}
 
 Function getRangeList(~ys) {
 	With(nys:= ys.Select(IsReal))
@@ -41,11 +61,7 @@ Function getRangeList(~ys) {
 		Return(First(nys) + {-1, 1})
 	}
 
-	With(dys:= Abs(nys.ListConvolve({1, -1})))
-	With(cut:= Quantile(dys, 0.7, {{0,0},{0,1}})) % Going down to 0.6 would give degenerate results in Plot(Sqrt(Sin(x)),x->-5..5)
-	With(is:= Flatten @ Position(dys, ~d /? d < cut, 1..1))
-	
-	With(mima:= MinMax(If(is === {}, nys, {nys[is], nys[is + 1]})))
+	With(mima:= Quantile(nys, {0.05, 0.95}, {{0,0},{0,1}}))
 
 	If(First(mima) = Last(mima)) {
 		Return(First(mima) + {-1, 1})
@@ -57,15 +73,22 @@ getRange(~ys)::= getRangeList(ys) |> {{~min, ~max} :> min .. max}
 
 Function initDataXsYs(~f, ~xmin .. ~xmax, ~numPoints, ~prec) {
 	With(xs:= Array(Numericalize(SetPrecision(xmin .. xmax .. (xmax - xmin)/(numPoints - 1), prec), prec)))
-	Return({xs, xs.Map(f)}.Developer`ToPackedArray)
+	Return({xs, xs.Map(f).Developer`ToPackedArray})
 }
 
 Function calcCosinesXsYs(~xs, ~ys, ~xmin .. ~xmax, ~ymin .. ~ymax) {
 	With(ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin))  % Differences
 	With(ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin))  % Differences
-	With(tans:= ndys / ndxs)
-	With(tas:= Most(tans), tbs:= Rest(tans))
-	Return((1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2)) |> Replace(Undefined -> 0, 1..1))
+
+	With(vs:= Thread({ndxs, ndys}).Map(Normalize))
+
+	%Print("calcCosinesXsYs: ", {"ndxy" -> ndxs, "ndys" -> ndys, "vs" -> vs})
+
+	MapThread({Most(vs), Rest(vs)}, Dot)
+
+	%With(tans:= ndys / ndxs) % tans:= Arg(ndxs + ImaginaryI * ndys)
+	%With(tas:= Most(tans), tbs:= Rest(tans))
+	%Return((1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2)) |> Replace(Undefined -> 0, 1..1))
 }
 
 Function cosMinFunction(~stepNumber, ~numPoints) {
@@ -74,18 +97,24 @@ Function cosMinFunction(~stepNumber, ~numPoints) {
 		With({n:= stepNumber}, Cos(180.0 Degree * Piecewise({{1, n < 10}, {1 - ((n - 10) / (20 - 10))^2, n < 20}}, 0))))
 }
 
-Function refineDataXsYs(~f, ~xrange, {~xs, ~ys}, ~prec, ~stepNumber) {
-	With(cosines:= calcCosinesXsYs(xs, ys, xrange, getRange(ys)))
+Function refineData(~f, ~ts, {~xs, ~ys}, ~xrange, ~yrange, ~prec, ~stepNumber) {
+	With(cosines:= calcCosinesXsYs(xs, ys, xrange, yrange))
 	With(cosMax:= Cos(5.0 Degree))
-	With(cosMin:= cosMinFunction(stepNumber, Length(xs)))
+	With(cosMin:= cosMinFunction(stepNumber, Length(ts)))
 	
-	Local(is, newxs)
+	Local(is)
 	is:= Flatten @ Position(cosines, ~ ? (cosMin <= # <= cosMax &), 1..1, Heads -> False);
 	
 	If(Length(is) = 0) {
 		Return({})
 	}
 	
+	% Print("refineData: ", {
+	% 	"step" -> stepNumber,
+	% 	"range" -> {xrange, yrange},
+	% 	"angles" -> ArcCos(cosines)/Degree
+	% })
+
 	% Print(StringForm("step `1`: cos: `2`..`3`, actual: `4`..`5`, marks: `6` of `7` (`8`%)", 
 	% 	stepNumber, 
 	% 	cosMin, 
@@ -97,18 +126,19 @@ Function refineDataXsYs(~f, ~xrange, {~xs, ~ys}, ~prec, ~stepNumber) {
 	% 	100.0 Length(is) / Length(cosines)));
 	is:= Union(is, is + 1);
 	
-	newxs:= Numericalize(SetPrecision(xs[is] / 2 + xs[is + 1] / 2, prec), prec) %.Developer`ToPackedArray;
+	With(newts:= Numericalize(SetPrecision(ts[is] / 2 + ts[is + 1] / 2, prec), prec))
 	
-	Return({newxs, newxs.Map(f)})
+	Return({newts, newts.Map(f)})
 }
 
+% f: Real -> Real
 Function generateData(~f, ~xrange, ~numPoints, ~prec, ~maxrecurs) {
-	Local(xs, ys, newxsys, is, step)
+	Local(xs, ys, step)
 	{xs, ys}:= initDataXsYs(f, xrange, numPoints, prec)
 	step:= 0
 	While(step < maxrecurs) {
 		step+= 1;
-		newxsys:= refineDataXsYs(f, xrange, {xs, ys}, prec, step);
+		With(newxsys:= refineData(f, xs, {xs, ys}, xrange, getRange(ys), prec, step))
 		If(newxsys === {}) {
 			Break()
 		}
@@ -118,11 +148,36 @@ Function generateData(~f, ~xrange, ~numPoints, ~prec, ~maxrecurs) {
 
 		xs:= Join(xs, newxsys[1])
 		ys:= Join(ys, newxsys[2])
-		is:= Ordering(xs)
+		With(is:= Ordering(xs))
 		xs:= xs[is]
 		ys:= ys[is]
 	}
 	Return(Developer`ToPackedArray(Thread({xs, ys})))
+}
+
+% f: Real -> {Real, Real}
+Function generateDataParametric(~f, ~trange, ~numPoints, ~prec, ~maxrecurs) {
+	Local(ts, xys, is, step)
+	{ts, xys}:= initDataXsYs(f, trange, numPoints, prec)
+	step:= 0
+	While(step < maxrecurs) {
+		step+= 1;
+		With(xs:= xys[All, 1], ys:= xys[All, 2])
+		With(newtsps:= refineData(f, ts, {xs, ys}, getRange(xs), getRange(ys), prec, step))
+		If(newtsps === {}) {
+			Break()
+		}
+
+		%Print("generateDataParametric: ", {"step" -> step, "newtsps" -> newtsps})
+
+		ts := Join(ts,  newtsps[1])
+		xys:= Join(xys, newtsps[2])
+		With(is:= Ordering(ts))
+		ts := ts[ is]
+		xys:= xys[is]
+	}
+	
+	Return(Developer`ToPackedArray(xys))
 }
 
 joinLists():= {}
@@ -135,16 +190,36 @@ automaticPlotRangePadding({~xr, All})::= {None, Scaled(0.04)}
 %automaticPlotRangePadding(~pr: Range)::= None
 automaticPlotRangePadding(~)::= None
 
+autoPlotRangePaddingSelector(Plot):=           automaticPlotRangePadding
+autoPlotRangePaddingSelector(ParametricPlot):= automaticPlotRangePadding % TODO
+
 normalizePlotRange(~xyDatas, ~xrange, ~r: Range)::= {xrange, r}
 normalizePlotRange(~xyDatas, ~xrange, Automatic)::= {xrange, getPlotRangeYs(joinLists @@ xyDatas, xrange)}
 normalizePlotRange(~xyDatas, ~xrange, {~xr, Automatic})::= {xr, getPlotRangeYs(joinLists @@ xyDatas, xrange)}
 normalizePlotRange(~xyDatas, ~xrange, ~r)::= r /* TODO: handle errors */
 
-Function tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot)) {
+normalizeParametricPlotRange(~xyDatas, ~, ~r:Range)::= {r, r}
+normalizeParametricPlotRange(~xyDatas, ~, Automatic)::= normalizeParametricPlotRange(xyDatas, {Automatic, Automatic})
+Function normalizeParametricPlotRange(~xyDatas, ~, {~r1, ~r2}) {
+	With(xyJoined:= joinLists @@ xyDatas)
+	{normalizeSingleAxisPlotRange(xyJoined[All, 1], r1),
+	 normalizeSingleAxisPlotRange(xyJoined[All, 2], r2)}
+}
+
+normalizeSingleAxisPlotRange(~xs, Automatic)::= makeNiceRange(getRangeList(xs))
+normalizeSingleAxisPlotRange(~xs, ~r)::= r
+
+
+plotRangeNormalizer(Plot):=           normalizePlotRange
+plotRangeNormalizer(ParametricPlot):= normalizeParametricPlotRange
+
+dataGenerator(Plot):=           generateData
+dataGenerator(ParametricPlot):= generateDataParametric
+
+Function tryPlotFunctions(~plotter, ~fs, ~xrange, ~optionRules) {
 	Local(allRules, plotPoints, workingPrecision, maxRecursion, plotRange, xyDatas, gRules)
 	
-	allRules:= Flatten({opts})
-	allRules:= allRules |> Join(Options(Plot) |> FilterRules(Except(allRules)))
+	allRules:= optionRules |> Join(Options(plotter) |> FilterRules(Except(optionRules)))
 	
 	plotPoints:= PlotPoints.Replace(allRules)
 	If(plotPoints === Automatic) {
@@ -161,19 +236,21 @@ Function tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot)) {
 	
 	workingPrecision:= WorkingPrecision.Replace(allRules)
 	If(Try(SetPrecision(1, workingPrecision), $Failed, SetPrecision::invprec) === $Failed) {
-		Message(Plot::invprec, workingPrecision)
+		Message(plotter::invprec, workingPrecision)
 		Return($PlotFailed)
 	}
 	
-	xyDatas:= fs.Map(Function(generateData(#, xrange, plotPoints, workingPrecision, maxRecursion)))
+	xyDatas:= With(gen:= dataGenerator(plotter)) {
+		fs |> Map(Function(gen(#, xrange, plotPoints, workingPrecision, maxRecursion)))
+	}
 	
 	plotRange:= Lookup(allRules, PlotRange)
 	If(Lookup(allRules, PlotRangePadding) === Automatic) {
 		allRules:= allRules |> 
 			FilterRules(Except(PlotRangePadding)) |> 
-			Join({PlotRangePadding -> automaticPlotRangePadding(plotRange)})
+			Join({PlotRangePadding -> autoPlotRangePaddingSelector(plotter)(plotRange)})
 	}
-	plotRange:= normalizePlotRange(xyDatas, xrange, plotRange)
+	plotRange:= plotRangeNormalizer(plotter)(xyDatas, xrange, plotRange)
 	allRules:= allRules |> FilterRules(Except(PlotRange)) |> Join({PlotRange -> plotRange})
 	gRules:= allRules |> FilterRules(Options(ListLinePlot)) |> Complement(Options(ListLinePlot))
 	
@@ -187,52 +264,79 @@ makeHoldForm(~x)::=
 		HoldForm(x).SetDebugMetadataAt(debugMetadata))
 
 Attributes(checkRange):= {HoldAll}
-checkRange(spec: (~x:Symbol -> ~range))::= checkRangeRest(makeHoldForm(x), range, makeHoldForm(spec))
-checkRange(~range)::= checkRangeRest(None, range, makeHoldForm(range))
-Function checkRangeRest(~holdformx, ~xmin..~xmax, ~) {
+checkRange(~plotter, spec: (~x:Symbol -> ~range))::= checkRangeRest(plotter, makeHoldForm(x), range, makeHoldForm(spec))
+checkRange(~plotter, ~range)::= checkRangeRest(plotter, None, range, makeHoldForm(range))
+Function checkRangeRest(~plotter, ~holdformx, ~xmin..~xmax, ~) {
 	With(evalxmin:= xmin, evalxmax:= xmax)
 	If((evalxmin < evalxmax) =!= True) {
 		If(holdformx === None) {
-			Message(Plot::plld1, HoldForm(spec));
+			Message(plotter::plld1, HoldForm(spec));
 		} Else {
-			Message(Plot::plld, holdformx, HoldForm(spec));
+			Message(plotter::plld, holdformx, HoldForm(spec));
 		}
 		Throw($PlotFailed);
 	}
 	Return(evalxmin .. evalxmax);
 }
-checkRangeRest(~, ~, ~heldspec)::= (Message(Plot::pllim, heldspec); Throw($PlotFailed))
+checkRangeRest(~plotter, ~, ~, ~heldspec)::= (Message(plotter::pllim, heldspec); Throw($PlotFailed))
 
-
-/* Attributes(makeFunction):= {HoldAll}
-makeFunction(~fx, ~x:Symbol -> ~)::= With({x:= x}, Function(x, fx))
-makeFunction(~, ~)::= (Undefined &) */
 
 makeReal(~y) ::= If(IsNumber(y) && IsReal(y), y, Undefined, Undefined)
+makePoint(~)::= {Undefined, Undefined}
+makePoint({~x, ~y})::= {makeReal(x), makeReal(y)}
 
-Attributes(makeFunctionList):= {HoldAll}
-makeFunctionList(~fx, ~xspec)::= makeFunctionList({fx}, xspec)
-makeFunctionList({~~~fxs}, ~xspec)::= List @@ Hold(fxs).Map(
+Attributes(makeRealFunctionList):= {HoldAll}
+makeRealFunctionList(~fx, ~xspec)::= makeRealFunctionList({fx}, xspec)
+makeRealFunctionList({~~~fxs}, ~xspec)::= List @@ Hold(fxs).Map(
 	Function(f, With({f:= f}, Function(makeReal(f(#)) ))))
-makeFunctionList({~~~fxs}, ~x:Symbol -> ~)::= 
+makeRealFunctionList({~~~fxs}, ~x:Symbol -> ~)::= 
 	List @@ Hold(fxs).Map(
 		Function(, 
 			With({x::= x}, Function(x, makeReal(#))), 
 			{HoldAllComplete}))
 
+Attributes(makePointFunctionList):= {HoldAll}
+Attributes(makePointFunctionList2):= {HoldAll}
+makePointFunctionList({},               ~tspec)::= makePointFunctionList2(Hold(), tspec)
+makePointFunctionList({~f:List, ~~~fs}, ~tspec)::= makePointFunctionList2(Hold(f, fs), tspec)
+makePointFunctionList(~f,               ~tspec)::= makePointFunctionList2(Hold(f), tspec)
+makePointFunctionList2(~heldBodies, ~tspec)::= List @@ heldBodies.Map(
+	Function(f, With({f:= f}, Function(makePoint(f(#)) ))))
+makePointFunctionList2(~heldBodies, ~t:Symbol -> ~)::= 
+	List @@ heldBodies.Map(
+		Function(, 
+			With({t::= t}, Function(t, makePoint(#))), 
+			{HoldAllComplete}))
+
 
 Attributes(tryPlot):= {HoldAll}
 tryPlot(~orig, ~fx, ~xspec, opts: OptionsPattern(Plot))::= 
-	tryPlotFunction(
-		makeFunctionList(fx, xspec), 
-		checkRange(xspec), 
-		opts)
+	tryPlotFunctions(
+		Plot,
+		makeRealFunctionList(fx, xspec), 
+		checkRange(Plot, xspec), 
+		Flatten({opts}))
 	
 tryPlot(~)::=  (IsValidArgumentCount(Plot, 0, 2, 2); $Failed)
 tryPlot(~, ~)::= (IsValidArgumentCount(Plot, 1, 2, 2); $Failed)
 tryPlot(~orig, PatternSequence(~, ~, ~~~, ~err ? isNotHeldOption, ~~~))::=
 	(Message(Plot::nonopt, makeHoldForm(err), 2, makeHoldForm(orig)); $Failed)
+
+
+Attributes(tryParametricPlot):= {HoldAll}
+tryParametricPlot(~orig, ~fx, ~tspec, opts: OptionsPattern(ParametricPlot))::=
+	tryPlotFunctions(
+		ParametricPlot,
+		makePointFunctionList(fx, tspec), 
+		checkRange(ParametricPlot, tspec), 
+		Flatten({opts}))
 	
+tryParametricPlot(~)::=  (IsValidArgumentCount(ParametricPlot, 0, 2, 2); $Failed)
+tryParametricPlot(~, ~)::= (IsValidArgumentCount(ParametricPlot, 1, 2, 2); $Failed)
+tryParametricPlot(~orig, PatternSequence(~, ~, ~~~, ~err ? isNotHeldOption, ~~~))::=
+	(Message(ParametricPlot::nonopt, makeHoldForm(err), 2, makeHoldForm(orig)); $Failed)
+
+
 End()
 
 EndPackage()

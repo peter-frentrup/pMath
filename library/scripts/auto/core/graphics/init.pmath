@@ -8,6 +8,7 @@ System`Graphics`MakeGraphicsExpression
 System`Graphics`MakeGraphicsExpressionOptions
 
 System`ListLinePlot
+System`ParametricPlot
 System`Plot
 
 Begin("System`Graphics`Private`")
@@ -59,7 +60,19 @@ Options(ListLinePlot):= With(newdef:= {
 	}) {
 		Options(Graphics) |> FilterRules(Except(newdef)) |> Join(newdef) |> Sort
 	}
-	
+
+Options(ParametricPlot):= With(newdef:= {
+		AspectRatio -> Automatic,
+		Axes -> True,
+		Frame -> False,
+		MaxRecursion -> Automatic,
+		PlotPoints -> Automatic,
+		PlotStyle -> Automatic,
+		WorkingPrecision -> MachinePrecision
+	}) {
+		Options(Graphics) |> FilterRules(Except(newdef)) |> Join(newdef) |> Sort
+	}
+
 Options(Plot):= With(newdef:= {
 		AspectRatio -> 1/GoldenRatio,
 		Axes -> True,
@@ -76,7 +89,7 @@ Get(ToFileName(DirectoryName($Input), "directives.pmath"));
 
 AutoLoad(Hold(ListLinePlot),
 	ToFileName(DirectoryName($Input), "ListLinePlot.pmath"))
-AutoLoad(Hold(Plot),
+AutoLoad(Hold(ParametricPlot, Plot),
 	ToFileName(DirectoryName($Input), "Plot.pmath"))
 
 

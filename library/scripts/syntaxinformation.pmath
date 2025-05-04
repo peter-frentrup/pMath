@@ -426,6 +426,8 @@
 {"ParallelMapIndexed", {"ArgumentCount" -> 2..3}},
 {"ParallelScan", {"ArgumentCount" -> 2..3}},
 {"ParallelTry", {"ArgumentCount" -> 2..3}},
+{"ParametricPlot", {"ArgumentCount" -> 2, "LocalVariables" -> {"Table", 2..2}}},
+{"ParentDirectory", {"ArgumentCount" -> 0..1}},
 {"ParenthesizeBoxes", {"ArgumentCount" -> 1..}},
 {"Part", {"ArgumentCount" -> 2..}},
 {"Partition", {"ArgumentCount" -> 2..5}},
