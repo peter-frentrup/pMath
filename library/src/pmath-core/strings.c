@@ -2082,7 +2082,12 @@ static uint16_t unicode_subscript(uint16_t ch) {
     case 'u': return 0x1D64; // U+1D64 LATIN SUBSCRIPT SMALL LETTER U
     case 'v': return 0x1D65; // U+1D65 LATIN SUBSCRIPT SMALL LETTER V
     case 'x': return 0x2093; // U+2093 LATIN SUBSCRIPT SMALL LETTER X
-    
+
+    // TODO: probably will be in future Unicode (> 17) (see Additional draft repertoire for provisionally assigned code points for Unicode (post 17.0) and possibly ISO/IEC 10646 7th edition, 2026-11-26)
+    // case 'w': return 0x209D; // U+209D LATIN SUBSCRIPT SMALL LETTER W
+    // case 'y': return 0x209E; // U+209E LATIN SUBSCRIPT SMALL LETTER Y
+    // case 'z': return 0x209F; // U+209D LATIN SUBSCRIPT SMALL LETTER Z
+
     case 0x03B2: return 0x1D66; // U+1D66 GREEK SUBSCRIPT SMALL LETTER BETA
     case 0x03B3: return 0x1D67; // U+1D67 GREEK SUBSCRIPT SMALL LETTER GAMMA
     case 0x03C1: return 0x1D68; // U+1D68 GREEK SUBSCRIPT SMALL LETTER RHO
