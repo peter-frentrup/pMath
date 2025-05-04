@@ -1644,8 +1644,8 @@
 		<Unit filename="src/pmath-core/objects.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-core/packed-arrays-define-pack_and_free_to.inc" />
 		<Unit filename="src/pmath-core/packed-arrays-define-pack_from_to.inc" />
+		<Unit filename="src/pmath-core/packed-arrays-define-pack_to.inc" />
 		<Unit filename="src/pmath-core/packed-arrays-errdef-pack_from_to.inc" />
 		<Unit filename="src/pmath-core/packed-arrays.c">
 			<Option compilerVar="CC" />

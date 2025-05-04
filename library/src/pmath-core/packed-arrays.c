@@ -1746,19 +1746,19 @@ static size_t packable_dimensions(pmath_t expr) {
 
 /* Template Function
  *
- *   NAME_pack_and_free_element_to_A(expr, location)
+ *   NAME_pack_element_to_A(expr, location)
  */
 
-#define NAME_pack_and_free_element_to(TO_TYPE)  NAME_pack_and_free_element_to2(TO_TYPE)
-#define NAME_pack_and_free_element_to2(TO_TYPE)      pack_and_free_element_to_ ## TO_TYPE
+#define NAME_pack_element_to(TO_TYPE)  NAME_pack_element_to2(TO_TYPE)
+#define NAME_pack_element_to2(TO_TYPE)      pack_element_to_ ## TO_TYPE
 
-static void NAME_pack_and_free_element_to(int32_t)(pmath_t expr, int32_t *location) {
+static void NAME_pack_element_to(int32_t)(pmath_t expr, int32_t *location) {
   assert(pmath_is_int32(expr));
   
   *location = PMATH_AS_INT32(expr);
 }
 
-static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location) {
+static void NAME_pack_element_to(double)(pmath_t expr, double *location) {
   if(pmath_is_double(expr)) {
     *location = PMATH_AS_DOUBLE(expr);
     return;
@@ -1766,19 +1766,16 @@ static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location
   
   if(pmath_same(expr, pmath_System_Undefined)) {
     *location = NAN;
-    pmath_unref(expr);
     return;
   }
   
   if(pmath_equals(expr, _pmath_object_pos_infinity)) {
     *location = HUGE_VAL;
-    pmath_unref(expr);
     return;
   }
   
   if(pmath_equals(expr, _pmath_object_neg_infinity)) {
     *location = -HUGE_VAL;
-    pmath_unref(expr);
     return;
   }
   
@@ -1790,18 +1787,18 @@ static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location
 
 /* Template Function
  *
- *   pack_and_free_to_A(expr, location_ptr)
+ *   pack_to_A(expr, location_ptr)
  */
 
-#define NAME_pack_and_free_to(TO_TYPE)  NAME_pack_and_free_to2(TO_TYPE)
-#define NAME_pack_and_free_to2(TO_TYPE)  pack_and_free_to_ ## TO_TYPE
+#define NAME_pack_to(TO_TYPE)  NAME_pack_to2(TO_TYPE)
+#define NAME_pack_to2(TO_TYPE)  pack_to_ ## TO_TYPE
 
 #define TO_TYPE   int32_t
-#  include "packed-arrays-define-pack_and_free_to.inc"
+#  include "packed-arrays-define-pack_to.inc"
 #undef TO_TYPE
 
 #define TO_TYPE   double
-#  include "packed-arrays-define-pack_and_free_to.inc"
+#  include "packed-arrays-define-pack_to.inc"
 #undef TO_TYPE
 
 
@@ -1872,16 +1869,24 @@ pmath_t pmath_to_packed_array(pmath_t obj, pmath_packed_type_t expected_type) {
     return obj;
   }
   
+  pmath_bool_t was_rectangular = FALSE;
   _blob = (void *)PMATH_AS_PTR(blob);
   data = _blob->data;
   switch(elem_type) {
     case PMATH_PACKED_DOUBLE:
-      NAME_pack_and_free_to(double)(obj, (double **)&data);
+      was_rectangular = NAME_pack_to(double)(obj, dims, (double **)&data);
       break;
       
     case PMATH_PACKED_INT32:
-      NAME_pack_and_free_to(int32_t)(obj, (int32_t **)&data);
+      was_rectangular = NAME_pack_to(int32_t)(obj, dims, (int32_t **)&data);
       break;
+  }
+
+  if(!was_rectangular) {
+    pmath_debug_print_object("[Cannot pack non-rectangular ", obj, "]\n");
+    pmath_unref(blob);
+    pmath_mem_free(sizes);
+    return obj;
   }
   
   assert(data == (uint8_t *)_blob->data + _blob->data_size);
@@ -1897,17 +1902,24 @@ void *_pmath_packed_array_repack_to(pmath_packed_array_t array, void *buffer) {
 
   assert(pmath_is_packed_array(array));
   
+  size_t dims = pmath_packed_array_get_dimensions(array);
+
+  pmath_bool_t was_rectangular = FALSE;
   switch(pmath_packed_array_get_element_type(array)) {
     case PMATH_PACKED_DOUBLE:
-      NAME_pack_and_free_to(double)(pmath_ref(array), (double **)&buffer);
-      return buffer;
+      was_rectangular = NAME_pack_to(double)(array, dims, (double **)&buffer);
+      break;
       
     case PMATH_PACKED_INT32:
-      NAME_pack_and_free_to(int32_t)(pmath_ref(array), (int32_t **)&buffer);
-      return buffer;
+      was_rectangular = NAME_pack_to(int32_t)(array, dims, (int32_t **)&buffer);
+      break;
+    
+    default:
+      assert(0 && "bad element type");
+      break;
   }
   
-  assert(0 && "bad element type");
+  assert(was_rectangular);
   
   return buffer;
 }
