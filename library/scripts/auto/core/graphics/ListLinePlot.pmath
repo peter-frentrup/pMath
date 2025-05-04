@@ -23,8 +23,6 @@ Begin("System`Graphics`ListLinePlot`Private`")
 
 ListLinePlot(~~~args)::= With({g:= Catch(tryListLinePlot(args), $Failed)}, g /? Head(g) === Graphics)
 
-ListLinePlot::lpn:= "`1` is neither a list of numbers nor a list of pairs of numbers."
-
 $defaultListLinePlotStyle:= {
 	RGBColor(0.75,0,0),
 	RGBColor(0,0,0.75),

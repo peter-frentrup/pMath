@@ -12,10 +12,6 @@ $PlotFailed
 Attributes(Plot):= {HoldAll}
 p: Plot(~~~args)::= With({g:= Catch(tryPlot(p, args), $PlotFailed)}, g /? Head(g) === Graphics)
 
-Plot::plld:= "Endpoints for `1` in `2` must have distinct machine-precision numerical values."
-Plot::plld1:= "Endpoints in `1` must have distinct machine-precision numerical values."
-Plot::pllim:= "Range specification `1` is not of the form x -> xmin..xmax  or  xmin..xmax."
-
 Protect(Plot)
 
 Attributes(isNotHeldOption):= {HoldAll}
