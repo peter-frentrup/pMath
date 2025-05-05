@@ -86,7 +86,7 @@ Function calcCosinesXsYs(~xs, ~ys, ~xmin .. ~xmax, ~ymin .. ~ymax) {
 
 	%Print("calcCosinesXsYs: ", {"ndxy" -> ndxs, "ndys" -> ndys, "vs" -> vs})
 
-	MapThread({Most(vs), Rest(vs)}, Dot)
+	MapThread({Most(vs), Rest(vs)}, Dot) |> Replace(Undefined -> 0.0, 1..1) |> ReplacePart({1 -> 0.0, -1 -> 0.0})
 
 	%With(tans:= ndys / ndxs) % tans:= Arg(ndxs + ImaginaryI * ndys)
 	%With(tas:= Most(tans), tbs:= Rest(tans))
@@ -105,17 +105,31 @@ Function refineData(~f, ~ts, {~xs, ~ys}, ~xrange, ~yrange, ~prec, ~stepNumber) {
 	With(cosMin:= cosMinFunction(stepNumber, Length(ts)))
 	
 	Local(is)
-	is:= Flatten @ Position(cosines, ~ ? (cosMin <= # <= cosMax &), 1..1, Heads -> False);
+	is:= Flatten @ Position(cosines, ~ ? (cosMin <= # <= cosMax &), 1..1, Heads -> False)
+
+	% % Only useful if wo skip the replacements in calcCosinesXsYs(...):
+	% If(stepNumber <= 17 && Length(ts) <= 3500) { % If(cosMin < 0)
+	% 	%With(isUndef:= Flatten @ Position(cosines, Undefined, 1..1))
+	% 	is:= Union(is, {1, Length(ts) - 2}, isUndef)
+
+	% 	% TODO: refine at Undefined values only next to non-Undefined values
+	% 	%With(isUndefP1 := isUndef + 1)
+	% 	%With(bothUndef:= Intersection(isUndef, isUndef + 1))
+	% 	%With(isUndefBorder:= Union(Complement(isUndef, bothUndef), Complement(isUndefP1, bothUndef) - 1))
+	% 	%is:= Union(is, {1, Length(ts) - 2}, isUndefBorder)
+	% }
 	
-	If(Length(is) = 0) {
-		Return({})
-	}
+	is:= Union(is, is + 1)
 	
 	% Print("refineData: ", {
 	% 	"step" -> stepNumber,
 	% 	"range" -> {xrange, yrange},
 	% 	"angles" -> ArcCos(cosines)/Degree
 	% })
+
+	If(Length(is) = 0) {
+		Return({})
+	}
 
 	% Print(StringForm("step `1`: cos: `2`..`3`, actual: `4`..`5`, marks: `6` of `7` (`8`%)", 
 	% 	stepNumber, 
@@ -124,10 +138,9 @@ Function refineData(~f, ~ts, {~xs, ~ys}, ~xrange, ~yrange, ~prec, ~stepNumber) {
 	% 	Min(cosines),
 	% 	Max(cosines),
 	% 	Length(is), 
-	% 	Length(cosines), 
-	% 	100.0 Length(is) / Length(cosines)));
-	is:= Union(is, is + 1);
-	
+	% 	Length(ts), 
+	% 	100.0 Length(is) / Length(ts)));
+
 	With(newts:= Numericalize(SetPrecision(ts[is] / 2 + ts[is + 1] / 2, prec), prec))
 	
 	Return({newts, newts.Map(f)})
