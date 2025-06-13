@@ -1018,6 +1018,9 @@ GtkMenu *MenuItemBuilder::create_popup_for(GtkMenuItem *menu_item) {
     gtk_menu_shell_append(GTK_MENU_SHELL(popup_menu), sub_item);
   }
   
+  gtk_menu_shell_append(GTK_MENU_SHELL(popup_menu), gtk_separator_menu_item_new());
+  gtk_menu_shell_append(GTK_MENU_SHELL(popup_menu), gtk_menu_item_new_with_label("Cancel"));
+  
   gtk_widget_show_all(GTK_WIDGET(popup_menu));
   
   return popup_menu;
