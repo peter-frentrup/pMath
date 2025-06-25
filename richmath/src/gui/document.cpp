@@ -688,8 +688,10 @@ void Document::key_up(SpecialKeyEvent &event) {
 }
 
 void Document::key_press(uint32_t unicode) {
-  if(ignores_next_key_press())
+  if(ignores_next_key_press()) {
+    ignores_next_key_press(false); // During fast typing, multiple key_press() arrive before the corresponding key_up().
     return;
+  }
   
   native()->hide_tooltip();
   
