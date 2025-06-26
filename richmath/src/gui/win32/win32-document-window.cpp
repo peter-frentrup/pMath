@@ -184,6 +184,8 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
       }
     }
     
+    void adjust_scrollbars(SIZE area_size);
+    
     virtual void set_cursor(CursorType type) override {
       if(auto_size && document()->count() == 0)
         return;
@@ -206,31 +208,44 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
       }
       _overlay.update();
       
+      int old_bh = best_height;
+      int old_bw = best_width;
+      
+      best_height = (int)ceilf(document()->extents().height() * scale_factor());
+      best_width  = (int)ceilf(document()->unfilled_width     * scale_factor());
+      
+      if(best_height < 1)
+        best_height = 1;
+        
+      if(best_width < 1)
+        best_width = 1;
+      
       if(auto_size) {
-        int old_bh = best_height;
-        int old_bw = best_width;
+        // including scrollbars:
+        //RECT outer, inner;
+        //GetWindowRect(_hwnd, &outer);
+        //GetClientRect(_hwnd, &inner);
+        //
+        //best_width +=  outer.right  - outer.left - inner.right  + inner.left;
+        //best_height += outer.bottom - outer.top  - inner.bottom + inner.top;
         
-        best_height = (int)ceilf(document()->extents().height() * scale_factor());
-        best_width  = (int)ceilf(document()->unfilled_width     * scale_factor());
+        // ignoring scrollbars:
+        DWORD style    = GetWindowLongW(_hwnd, GWL_STYLE);
+        DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
+        RECT neg_margins = { 0, 0, 0, 0 };
+        Win32HighDpi::adjust_window_rect(&neg_margins, style, FALSE, ex_style, dpi());
         
-        if(best_height < 1)
-          best_height = 1;
-          
-        if(best_width < 1)
-          best_width = 1;
-          
-        RECT outer, inner;
-        GetWindowRect(_hwnd, &outer);
-        GetClientRect(_hwnd, &inner);
-        
-        best_width +=  outer.right  - outer.left - inner.right  + inner.left;
-        best_height += outer.bottom - outer.top  - inner.bottom + inner.top;
+        best_width  -= neg_margins.left + neg_margins.right;
+        best_height -= neg_margins.bottom + neg_margins.top;
         
         if(old_bw != best_width || old_bh != best_height)
           parent()->rearrange();
       }
-      else
-        best_width = best_height = 1;
+      else if(old_bw != best_width || old_bh != best_height) {
+        RECT outer;
+        GetWindowRect(_hwnd, &outer);
+        adjust_scrollbars({ outer.right - outer.left, outer.bottom - outer.top });
+      }
     }
     
     virtual void on_changed_dark_mode() override {
@@ -832,6 +847,8 @@ void Win32DocumentWindow::rearrange() {
   new_ys[5] = new_ys[6] - _bottom_glass_area->height();
   new_ys[4] = new_ys[5] - _bottom_area->height();
   
+  int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
+  
   int work_height = new_ys[4] - new_ys[3];
   if(_working_area->auto_size) {
     if( work_height            != _working_area->best_height ||
@@ -860,17 +877,35 @@ void Win32DocumentWindow::rearrange() {
       int newh = oldh - work_height + h;
       int neww = oldw - (rect.right - rect.left)  + w;
       
+      bool need_v_scroll = false;
+      bool need_h_scroll = false;
+      
       MONITORINFO monitor_info;
       memset(&monitor_info, 0, sizeof(monitor_info));
       monitor_info.cbSize = sizeof(monitor_info);
       HMONITOR hmon = MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
       if(GetMonitorInfo(hmon, &monitor_info)) {
-        if(newh > monitor_info.rcWork.bottom - monitor_info.rcWork.top)
-          newh = monitor_info.rcWork.bottom - monitor_info.rcWork.top;
+        if(newh > monitor_info.rcWork.bottom - monitor_info.rcWork.top) {
+          newh =  monitor_info.rcWork.bottom - monitor_info.rcWork.top;
           
-        if(neww > monitor_info.rcWork.right - monitor_info.rcWork.left)
+          need_v_scroll = true;
+          neww += Win32HighDpi::get_system_metrics_for_dpi(SM_CXVSCROLL, dpi);
+        }
+          
+        if(neww > monitor_info.rcWork.right - monitor_info.rcWork.left) {
           neww = monitor_info.rcWork.right - monitor_info.rcWork.left;
+          
+          need_h_scroll = true;
+          newh += Win32HighDpi::get_system_metrics_for_dpi(SM_CYHSCROLL, dpi);
+          if(newh > monitor_info.rcWork.bottom - monitor_info.rcWork.top) {
+            newh =  monitor_info.rcWork.bottom - monitor_info.rcWork.top;
+            need_v_scroll = true;
+          }
+        }
       }
+      
+      ShowScrollBar(_working_area->hwnd(), SB_VERT, need_v_scroll);
+      ShowScrollBar(_working_area->hwnd(), SB_HORZ, need_h_scroll);
       
       if(newh != oldh || neww != oldw) {
         bool align_right;
@@ -893,7 +928,7 @@ void Win32DocumentWindow::rearrange() {
           neww, newh,
           flags);
           
-        //rect.right +=  neww - oldw;
+        rect.right +=  neww - oldw;
         rect.bottom += newh - oldh;
         
         for(int i = 4; i <= PARTCOUNT; ++i)
@@ -982,6 +1017,8 @@ void Win32DocumentWindow::rearrange() {
     max_client_width = -1;
   }
   
+  _working_area->adjust_scrollbars({ rect.right - rect.left, work_height });
+  
   if(has_themed_frame()) {
     _top_glass_area->invalidate();
     _top_area->invalidate();
@@ -990,6 +1027,7 @@ void Win32DocumentWindow::rearrange() {
   }
   
   _menubar->resized();
+#undef PARTCOUNT
 }
 
 void Win32DocumentWindow::invalidate_options() {
@@ -1593,3 +1631,27 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
 }
 
 //} ... class Win32DocumentWindow
+
+//{ class Win32WorkingArea ...
+
+void Win32WorkingArea::adjust_scrollbars(SIZE area_size) {
+  SCROLLINFO si = { sizeof(SCROLLINFO) };
+  si.fMask = SIF_PAGE | SIF_RANGE;
+  si.nMin = 0;
+  si.nMax = best_height;
+  si.nPage = area_size.cy; // TODO: only use client size
+  if(!autohide_vertical_scrollbar())
+    si.nMax += (area_size.cy * 4) / 5;
+    
+  if(si.nPage >= si.nMax)
+    si.nPage = si.nMax + 1;
+  SetScrollInfo(_hwnd, SB_VERT, &si, TRUE);
+  
+  si.nMax = best_width;
+  si.nPage = area_size.cx; // TODO: only use client size
+  if(si.nPage >= si.nMax)
+    si.nPage = si.nMax + 1;
+  SetScrollInfo(_hwnd, SB_HORZ, &si, TRUE);
+}
+
+//} ... class Win32WorkingArea

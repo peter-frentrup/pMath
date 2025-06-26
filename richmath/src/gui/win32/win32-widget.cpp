@@ -302,9 +302,7 @@ RectangleF Win32Widget::map_document_rect_to_native(const RectangleF &doc_rect) 
 }
 
 bool Win32Widget::scroll_to(Point pos) {
-  SCROLLINFO si;
-  
-  si.cbSize = sizeof(si);
+  SCROLLINFO si = { sizeof(SCROLLINFO) };
   si.fMask  = SIF_ALL;
   
   int oldx, newx, oldy, newy;
@@ -729,12 +727,9 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
   
   canvas.scale(1 / scale_factor(), 1 / scale_factor());
   
-  Vector2F win_size = window_size();
-  
   if(scrolling && mouse_down_event.middle) {
-    SCROLLINFO si;
+    SCROLLINFO si = { sizeof(SCROLLINFO) };
     
-    si.cbSize = sizeof(si);
     si.fMask = SIF_PAGE | SIF_RANGE;
     
     GetScrollInfo(_hwnd, SB_VERT, &si);
@@ -745,48 +740,6 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
     
     canvas.new_path();
     ControlPainter::std->paint_scroll_indicator(canvas, mouse_down_event.position, horz, vert);
-  }
-  
-  if(is_scrollable()) {
-    RECT outer;
-    GetClientRect(_hwnd, &outer);
-    
-    int w_page = round(scale_factor() * win_size.x);
-    int h_page = round(scale_factor() * win_size.y);
-    
-    int w_max = round(scale_factor() * document()->extents().width);
-    int h_max;
-    
-    if(autohide_vertical_scrollbar())
-      h_max = round(document()->extents().height()                      * scale_factor());
-    else
-      h_max = round((document()->extents().height() + win_size.y * 0.8) * scale_factor());
-      
-    if(outer.bottom - outer.top  >= h_max)
-      h_page = h_max + 1;
-      
-    if(outer.right  - outer.left >= w_max)
-      w_page = w_max + 1;
-    
-    if(h_page < 0) h_page = 0;
-    if(w_page < 0) w_page = 0;
-      
-    SCROLLINFO si;
-    
-    si.cbSize = sizeof(si);
-    si.fMask = SIF_PAGE | SIF_RANGE;
-    si.nMin = 0;
-    
-    si.nMax = h_max;
-    si.nPage = h_page;
-    
-    SetScrollInfo(_hwnd, SB_VERT, &si, TRUE);
-    
-    si.nMax = w_max;
-    si.nPage = w_page;
-    
-    SetScrollInfo(_hwnd, SB_HORZ, &si, TRUE);
-    ShowScrollBar(_hwnd, SB_HORZ, (int)si.nPage < si.nMax);
   }
 }
 
@@ -928,9 +881,8 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
 }
 
 void Win32Widget::on_hscroll(WORD kind, WORD thumbPos) {
-  SCROLLINFO si;
+  SCROLLINFO si = { sizeof(SCROLLINFO) };
   
-  si.cbSize = sizeof(si);
   si.fMask  = SIF_ALL;
   GetScrollInfo(_hwnd, SB_HORZ, &si);
   
@@ -990,9 +942,8 @@ void Win32Widget::on_hscroll(WORD kind, WORD thumbPos) {
 }
 
 void Win32Widget::on_vscroll(WORD kind, WORD thumbPos) {
-  SCROLLINFO si;
+  SCROLLINFO si = { sizeof(SCROLLINFO) };
   
-  si.cbSize = sizeof(si);
   si.fMask  = SIF_ALL;
   GetScrollInfo(_hwnd, SB_VERT, &si);
   
@@ -1066,9 +1017,8 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
   
   if(may_start_scrolling && is_scrollable()) {
     if(event.middle || event.left) {
-      SCROLLINFO si;
+      SCROLLINFO si = { sizeof(SCROLLINFO) };
       
-      si.cbSize = sizeof(si);
       si.fMask = SIF_PAGE | SIF_RANGE;
       
       bool vert = false;
@@ -1184,8 +1134,7 @@ void Win32Widget::on_mousewheel(UINT message, WPARAM wParam, LPARAM lParam) {
     return;
   
   
-  SCROLLINFO si;
-  si.cbSize = sizeof(si);
+  SCROLLINFO si = { sizeof(SCROLLINFO) };
   si.fMask  = SIF_ALL;
   GetScrollInfo(_hwnd, vertical ? SB_VERT : SB_HORZ, &si);
   float max_scroll = si.nPage / scale_factor();

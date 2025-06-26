@@ -219,6 +219,10 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
       target_rect_int.top    = (int)target_rect.top();
       target_rect_int.bottom = (int)target_rect.bottom();
       
+      bool need_v_scroll = false;
+      bool need_h_scroll = false;
+      Vector2F scrollbars_size = { 0.0f, 0.0f };
+      
       if(HMONITOR hmon = MonitorFromRect(&target_rect_int, MONITOR_DEFAULTTONEAREST)) {
         MONITORINFO monitor_info;
         memset(&monitor_info, 0, sizeof(monitor_info));
@@ -230,6 +234,20 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
             Point(monitor_info.rcWork.right, monitor_info.rcWork.bottom));
           
           popup_rect = CommonTooltips::popup_placement(target_rect, _best_size, cpk, monitor_rect);
+          
+          if(popup_rect.height + 1 <= _best_size.y) {
+            need_v_scroll = true;
+            scrollbars_size.x = Win32HighDpi::get_system_metrics_for_dpi(SM_CXVSCROLL, dpi());
+          }
+          
+          if(popup_rect.width + 1 <= _best_size.x) {
+            need_h_scroll = true;
+            scrollbars_size.y = Win32HighDpi::get_system_metrics_for_dpi(SM_CYHSCROLL, dpi());
+          }
+          
+          if(need_v_scroll || need_h_scroll) {
+            popup_rect = CommonTooltips::popup_placement(target_rect, _best_size + scrollbars_size, cpk, monitor_rect);
+          }
         }
         else
           popup_rect = CommonTooltips::popup_placement(target_rect, _best_size, cpk);
@@ -255,6 +273,31 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
         (int)round(popup_rect.x), (int)round(popup_rect.y),
         width, height,
         flags);
+        
+      ShowScrollBar(_hwnd, SB_VERT, need_v_scroll);
+      ShowScrollBar(_hwnd, SB_HORZ, need_h_scroll);
+      
+      if(need_v_scroll) {
+        SCROLLINFO si = { sizeof(SCROLLINFO) };
+        
+        si.fMask = SIF_PAGE | SIF_RANGE;
+        si.nMin = 0;
+        si.nMax = (int)_best_size.y;
+        si.nPage = (int)popup_rect.height;
+        
+        SetScrollInfo(_hwnd, SB_VERT, &si, TRUE);
+      }
+      
+      if(need_h_scroll) {
+        SCROLLINFO si = { sizeof(SCROLLINFO) };
+        
+        si.fMask = SIF_PAGE | SIF_RANGE;
+        si.nMin = 0;
+        si.nMax = (int)_best_size.x;
+        si.nPage = (int)popup_rect.width;
+        
+        SetScrollInfo(_hwnd, SB_HORZ, &si, TRUE);
+      }
     }
     else {
       if(IsWindowVisible(_hwnd)) {
@@ -293,13 +336,26 @@ void Win32AttachedPopupWindow::paint_canvas(Canvas &canvas, bool resize_only) {
   
   if(_best_size.x < 1) _best_size.x = 1;
   if(_best_size.y < 1) _best_size.y = 1;
-    
+  
+  // includes scrollbars:
   RECT outer, inner;
   GetWindowRect(_hwnd, &outer);
   GetClientRect(_hwnd, &inner);
   
   _best_size.x += outer.right  - outer.left - inner.right  + inner.left;
   _best_size.y += outer.bottom - outer.top  - inner.bottom + inner.top;
+  
+  // subtract scrollbars size:
+  DWORD style = GetWindowLongW(_hwnd, GWL_STYLE);
+  if(style & (WS_VSCROLL | WS_HSCROLL)) {
+    int _dpi = dpi();
+    
+    if(style & WS_VSCROLL)
+      _best_size.x -= Win32HighDpi::get_system_metrics_for_dpi(SM_CXVSCROLL, _dpi);
+    
+    if(style & WS_HSCROLL)
+      _best_size.y -= Win32HighDpi::get_system_metrics_for_dpi(SM_CYHSCROLL, _dpi);
+  }
   
   if(old_best_size != _best_size) {
     invalidate_source_location();

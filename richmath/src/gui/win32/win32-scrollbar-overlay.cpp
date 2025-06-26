@@ -136,8 +136,7 @@ void Win32ScrollBarOverlay::Impl::update_regions() {
 }
 
 float Win32ScrollBarOverlay::Impl::get_range() {
-  SCROLLINFO si;
-  si.cbSize = sizeof(si);
+  SCROLLINFO si = { sizeof(SCROLLINFO) };
   si.fMask  = SIF_RANGE | SIF_PAGE;
   GetScrollInfo(scrollbar_owner(), SB_VERT, &si);
   
