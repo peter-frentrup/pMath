@@ -137,8 +137,6 @@ bool AutoCompletion::Private::cmd_CompleteSelection(Expr) {
   AutoCompletion &ac = doc->private_auto_completion(AutoCompletion::AccessToken{});
   ac.stop();
   return ac.priv->start(CompletionStyle::SuggestionsPopup, LogicalDirection::Forward);
-  
-  return false;
 }
 
 MenuCommandStatus AutoCompletion::Private::test_CompleteSelection(Expr) {
@@ -550,18 +548,26 @@ String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
 
 bool AutoCompletion::Private::start(CompletionStyle style, LogicalDirection direction) {
   if(String cur_text = try_start(style == CompletionStyle::SuggestionsPopup)) {
-    if(style == CompletionStyle::SuggestionsPopup && attach_popup()) {
-      //current_index = 0; // continue_completion() will increase the index to 1
-      //if(continue_completion(direction))
-      //  return set_current_completion_text(current_index);
-      current_index = 1;
-      return true;
+    if(style == CompletionStyle::SuggestionsPopup) {
+      if(current_boxes_list.get().expr_length() == 1) {
+        if(set_current_completion_text(1)) {
+          pub->stop();
+          return true;
+        }
+      }
+      
+      if(attach_popup()) {
+        //current_index = 0; // continue_completion() will increase the index to 1
+        //if(continue_completion(direction))
+        //  return set_current_completion_text(current_index);
+        current_index = 1;
+        return true;
+      }
     }
-    else {
-      add_completion_if_needed(cur_text, direction);
-      if(continue_completion(direction))
-        return set_current_completion_text();
-    }
+    
+    add_completion_if_needed(cur_text, direction);
+    if(continue_completion(direction))
+      return set_current_completion_text();
   }
   return false;
 }
