@@ -121,13 +121,12 @@ Function makePropertyGridStyleValue(~parts, ~name) {
 }
 
 $DefaultDisplayFunction(~tag:String)::= Function(
-    FrameBox(
-        {tag, "(", 
-            %TemplateSlotSequence(1, ","),
-            TemplateSlotSequence(##1, Function(FrameBox(#1).StyleBox("TemplateBoxErrorDisplayArgumentStyle")), ","),
-            %{##1}.Map(Function(FrameBox(#1).StyleBox("TemplateBoxErrorDisplayArgumentStyle"))).Riffle(","), 
-            ")"}
-    ).StyleBox("TemplateBoxErrorDisplayStyle")
+    FrameBox(StyleBox(
+        {tag, "(",
+            TemplateSlotSequence(##1, Function(FrameBox(StyleBox(#1, "TemplateBoxErrorDisplayArgumentStyle"), BaseStyle -> "TemplateBoxErrorDisplayArgumentStyle")), ","),
+            ")"},
+        "TemplateBoxErrorDisplayStyle"),
+    BaseStyle -> "TemplateBoxErrorDisplayStyle")
 )
 
 $DefaultDisplayFunctionTooltip(~tag:String)::= 
