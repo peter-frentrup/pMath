@@ -168,11 +168,11 @@ ObjectWithLimbo::~ObjectWithLimbo() {
 }
 
 void ObjectWithLimbo::safe_destroy() {
-  fprintf(stderr, "[safe_destroy %p %d next=%p, limbo=%p]\n", 
-    this, 
-    AutoMemorySuspension::are_deletions_suspended(),
-    next_in_limbo(),
-    TheCache.object_limbo);
+  // fprintf(stderr, "[safe_destroy %p %d next=%p, limbo=%p]\n", 
+  //   this, 
+  //   AutoMemorySuspension::are_deletions_suspended(),
+  //   next_in_limbo(),
+  //   TheCache.object_limbo);
   if(AutoMemorySuspension::are_deletions_suspended()) {
     if(next_in_limbo() != nullptr) {
       fprintf(stderr, "[warning: duplicate safe_destroy() for %p]\n", this);

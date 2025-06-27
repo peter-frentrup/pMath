@@ -2896,15 +2896,15 @@ void Stylesheet::update_box_registry(StyledObject *obj) {
       StyleImpl::of(*s.data.ptr()).raw_remove(InternalRegisteredBoxReference);
     }
     
-    if(old_box_id) {
-      pmath_debug_print("[update_box_registry: unregistered box #%d = %p for old BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
-      pmath_debug_print_object(" -> ", old_box_id.get(), "]\n");
-    }
+    // if(old_box_id) {
+    //   pmath_debug_print("[update_box_registry: unregistered box #%d = %p for old BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+    //   pmath_debug_print_object(" -> ", old_box_id.get(), "]\n");
+    // }
     
-    if(new_box_id) {
-      pmath_debug_print("[update_box_registry: box #%d = %p registered for BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
-      pmath_debug_print_object(" -> ", new_box_id.get(), "]\n");
-    }
+    // if(new_box_id) {
+    //   pmath_debug_print("[update_box_registry: box #%d = %p registered for BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+    //   pmath_debug_print_object(" -> ", new_box_id.get(), "]\n");
+    // }
   }
 }
 
