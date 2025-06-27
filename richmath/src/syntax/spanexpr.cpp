@@ -811,7 +811,7 @@ void SequenceSpan::init(SpanExpr *span) {
   }
   
   if(!prev_was_operand)
-    _items.add(new SpanExpr(span->start(), span->sequence()));
+    _items.add(new SpanExpr(span->end() + 1, span->sequence()));
     
   _is_sequence = true;
 }
