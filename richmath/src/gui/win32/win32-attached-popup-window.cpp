@@ -273,31 +273,17 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
         (int)round(popup_rect.x), (int)round(popup_rect.y),
         width, height,
         flags);
-        
-      ShowScrollBar(_hwnd, SB_VERT, need_v_scroll);
-      ShowScrollBar(_hwnd, SB_HORZ, need_h_scroll);
       
-      if(need_v_scroll) {
-        SCROLLINFO si = { sizeof(SCROLLINFO) };
-        
-        si.fMask = SIF_PAGE | SIF_RANGE;
-        si.nMin = 0;
-        si.nMax = (int)_best_size.y;
-        si.nPage = (int)popup_rect.height;
-        
-        SetScrollInfo(_hwnd, SB_VERT, &si, TRUE);
-      }
+      SCROLLINFO si = { sizeof(SCROLLINFO) };
+      si.fMask = SIF_PAGE | SIF_RANGE;
+      si.nMin = 0;
+      si.nMax = (int)_best_size.y;
+      si.nPage = need_v_scroll ? (int)popup_rect.height : si.nMax + 1;
+      SetScrollInfo(_hwnd, SB_VERT, &si, TRUE);
       
-      if(need_h_scroll) {
-        SCROLLINFO si = { sizeof(SCROLLINFO) };
-        
-        si.fMask = SIF_PAGE | SIF_RANGE;
-        si.nMin = 0;
-        si.nMax = (int)_best_size.x;
-        si.nPage = (int)popup_rect.width;
-        
-        SetScrollInfo(_hwnd, SB_HORZ, &si, TRUE);
-      }
+      si.nMax = (int)_best_size.x;
+      si.nPage = need_h_scroll ? (int)popup_rect.width : si.nMax + 1;
+      SetScrollInfo(_hwnd, SB_HORZ, &si, TRUE);
     }
     else {
       if(IsWindowVisible(_hwnd)) {
