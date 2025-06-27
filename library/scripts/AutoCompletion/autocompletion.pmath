@@ -2,6 +2,7 @@
 BeginPackage("AutoCompletion`")
 
 AutoCompletion`AutoCompleteName
+AutoCompletion`AutoCompleteNameNoNamespace
 AutoCompletion`AutoCompleteNamespaceGet
 AutoCompletion`AutoCompleteOther
 AutoCompletion`AutoCompleteFullFilename
@@ -18,6 +19,16 @@ Function AutoCompleteName(~fullnames:List, ~part:String) {
 	Return(Join(
 		byPrefix.makeShortNameList(part).Sort()[All,2],
 		nsByPrefix, 
+		byCamelCase.Complement(byPrefix).makeShortNameList(part).Sort()[All,2]))
+}
+
+Function AutoCompleteNameNoNamespace(~fullnames:List, ~part:String) {
+	With(np:= namespacePattern(part))
+	With(byPrefix:= fullnames.selectByPrefix(np, part))
+	With(byCamelCase:= fullnames.selectByCamelCase(np, part))
+	
+	Return(Join(
+		byPrefix.makeShortNameList(part).Sort()[All,2],
 		byCamelCase.Complement(byPrefix).makeShortNameList(part).Sort()[All,2]))
 }
 

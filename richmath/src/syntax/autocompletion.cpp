@@ -32,6 +32,7 @@ extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_MakeBoxes;
 extern pmath_symbol_t richmath_System_MakeExpression;
 extern pmath_symbol_t richmath_System_Map;
+extern pmath_symbol_t richmath_System_Options;
 extern pmath_symbol_t richmath_System_PureArgument;
 extern pmath_symbol_t richmath_System_StringBox;
 extern pmath_symbol_t richmath_System_Try;
@@ -501,7 +502,8 @@ String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
   
   VolatileSelection tok_range{document->selection_now().end_only()};
   String text;
-  if(SpanExpr *span = SpanExpr::find(seq, document->selection_end(), true)) {
+  SpanExpr *span = SpanExpr::find(seq, document->selection_end(), true);
+  if(span) {
     pmath_token_t tok = span->as_token();
   
     if(tok == PMATH_TOK_NAME) {
@@ -513,20 +515,91 @@ String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
         text = "";
       }
     }
-
-    delete span;
   }
   else if(allow_empty) {
     text = "";
   }
   
-  // TODO: Grab context: active symbol definitions, current values, options names for current call...
-  //       ... similar to ScopeColorizer, but backwards ...
-  
-  if(!text || !tok_range)
+  if(!text || !tok_range) {
+    if(span) delete span;
     return {};
+  }
   
-  current_filter_function = Symbol(richmath_FE_AutoCompleteName);
+  Expr new_filter_function{};
+  
+  // Grab context: active symbol definitions, current values, options names for current call...
+  //       ... similar to ScopeColorizer, but backwards ...
+  if(span) {
+    new_filter_function = [&span, &tok_range](){
+      for(span = span->expand(true); span; span = span->expand(true)) {
+        if(FunctionCallSpan::is_call(span)) {
+          //if(FunctionCallSpan::is_list(span))
+          //  continue;
+          
+          FunctionCallSpan func(span);
+          
+          int num_args_before = func.function_argument_count();
+          for(; num_args_before > 0; --num_args_before) {
+            if(SpanExpr *arg = func.function_argument(num_args_before)) {
+              if(arg->sequence() == tok_range.box && arg->end() + 1 < tok_range.start) {
+                break;
+              }
+            }
+          }
+          
+          if(SpanExpr *head_name = span_as_name(func.function_head())) {
+            String name = head_name->as_text();
+            SyntaxInformation info(name);
+            
+            pmath_debug_print("[auto complete at arg %d", num_args_before + 1);
+            pmath_debug_print_object(" of call to ", name.get(), "]\n");
+            
+            if(num_args_before <= info.maxargs) {
+              Expr options = Application::interrupt_wait_cached(
+                               Call(Symbol(richmath_System_Options), name));
+              
+              size_t num_opt = options.expr_length();
+              Expr option_names = MakeCall(Symbol(richmath_System_List), num_opt);
+              size_t num_names = 0;
+              for(size_t i = 1; i <= num_opt; ++i) {
+                Expr rule = options[i];
+                if(rule.is_rule()) {
+                  Expr lhs = rule[1];
+                  // TODO: if entered 'text' is empty, also allow string options ...
+                  if(lhs.is_symbol()) {
+                    option_names.set(++num_names, String(pmath_symbol_name(lhs.get())));
+                  }
+                }
+              }
+              
+              if(num_names > 0) {
+                if(num_names < num_opt)
+                  option_names = Expr(pmath_expr_get_item_range(option_names.get(), 1, num_names));
+                
+                return Call(Symbol(richmath_System_Function), 
+                         Call(Symbol(richmath_FE_AutoCompleteName), 
+                           option_names, 
+                           Call(Symbol(richmath_System_PureArgument), Expr(1))));
+              }
+            }
+            
+            // TODO: allow lists inside function arguments ...
+            break;
+          }
+        }
+        else if(!FunctionCallSpan::is_sequence(span))
+          break;
+      };
+      return Expr();
+    }();
+  }
+  
+  if(span) delete span;
+  
+  if(!new_filter_function)
+    new_filter_function = Symbol(richmath_FE_AutoCompleteName);
+  
+  current_filter_function = new_filter_function;
   Expr suggestions = Application::interrupt_wait_cached(
                        Call(current_filter_function, text),
                        Application::button_timeout);

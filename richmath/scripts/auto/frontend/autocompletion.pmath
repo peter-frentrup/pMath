@@ -2,7 +2,8 @@ Begin("FE`Private`")
 
 <<AutoCompletion`
 
-FE`AutoCompleteName(~part:String)::= AutoCompletion`AutoCompleteName(Names(), part)
+FE`AutoCompleteName(~part:String)::=              AutoCompletion`AutoCompleteName(Names(), part)
+FE`AutoCompleteName(~names:List, ~part:String)::= AutoCompletion`AutoCompleteNameNoNamespace(names, part)
 
 FE`AutoCompleteFile(~part:String)::= AutoCompletion`AutoCompleteFullFilename(part)
 
