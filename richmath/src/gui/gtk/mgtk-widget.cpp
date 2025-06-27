@@ -1201,10 +1201,12 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   
   SpecialKeyEvent ske;
   ske.key = keyval_to_special_key(event->keyval);
-  ske.ctrl  = 0 != (event->state & GDK_CONTROL_MASK);
-  ske.alt   = 0 != (event->state & GDK_MOD1_MASK);
-  ske.shift = 0 != (event->state & GDK_SHIFT_MASK);
+  
+  document()->ignores_next_key_press(false);
   if(ske.key != SpecialKey::Unknown) {
+    ske.ctrl  = 0 != (event->state & GDK_CONTROL_MASK);
+    ske.alt   = 0 != (event->state & GDK_MOD1_MASK);
+    ske.shift = 0 != (event->state & GDK_SHIFT_MASK);
     document()->key_down(ske);
   }
   

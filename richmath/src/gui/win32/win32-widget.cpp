@@ -1148,7 +1148,8 @@ void Win32Widget::on_mousewheel(UINT message, WPARAM wParam, LPARAM lParam) {
 void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift) {
   SpecialKeyEvent event;
   event.key = win32_virtual_to_special_key(virtkey);
-  
+
+  document()->ignores_next_key_press(false);
   if(event.key != SpecialKey::Unknown) {
     event.ctrl  = ctrl;
     event.alt   = alt;
