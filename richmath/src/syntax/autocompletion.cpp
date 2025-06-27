@@ -27,6 +27,7 @@ extern pmath_symbol_t richmath_FE_Private_ParseStringContent;
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Function;
 extern pmath_symbol_t richmath_System_HoldComplete;
+extern pmath_symbol_t richmath_System_Join;
 extern pmath_symbol_t richmath_System_Keys;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_MakeBoxes;
@@ -510,10 +511,8 @@ String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
       text      = span->as_text();
       tok_range = span->range();
     }
-    else if(allow_empty) {
-      if(tok != PMATH_TOK_DIGIT) {
-        text = "";
-      }
+    else if(allow_empty && tok != PMATH_TOK_DIGIT && tok != PMATH_TOK_STRING) {
+      text = "";
     }
   }
   else if(allow_empty) {
@@ -559,27 +558,37 @@ String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
                                Call(Symbol(richmath_System_Options), name));
               
               size_t num_opt = options.expr_length();
-              Expr option_names = MakeCall(Symbol(richmath_System_List), num_opt);
-              size_t num_names = 0;
+              Expr sym_opts    = MakeCall(Symbol(richmath_System_List), num_opt);
+              Expr string_opts = MakeCall(Symbol(richmath_System_List), num_opt);
+              size_t num_sym_opts    = 0;
+              size_t num_string_opts = 0;
               for(size_t i = 1; i <= num_opt; ++i) {
                 Expr rule = options[i];
                 if(rule.is_rule()) {
                   Expr lhs = rule[1];
-                  // TODO: if entered 'text' is empty, also allow string options ...
                   if(lhs.is_symbol()) {
-                    option_names.set(++num_names, String(pmath_symbol_name(lhs.get())));
+                    sym_opts.set(++num_sym_opts, String(pmath_symbol_name(lhs.get())));
+                  }
+                  else if(lhs.is_string()) {
+                    // TODO: only necessary if text="", otherwise we know that we don't start with a '"'
+                    string_opts.set(++num_string_opts, lhs.to_string(PMATH_WRITE_OPTIONS_FULLSTR));
                   }
                 }
               }
               
-              if(num_names > 0) {
-                if(num_names < num_opt)
-                  option_names = Expr(pmath_expr_get_item_range(option_names.get(), 1, num_names));
+              if(num_sym_opts > 0 || num_string_opts > 0) {
+                if(num_sym_opts    < num_opt) sym_opts    = Expr(pmath_expr_get_item_range(sym_opts.get(),    1, num_sym_opts));
+                if(num_string_opts < num_opt) string_opts = Expr(pmath_expr_get_item_range(string_opts.get(), 1, num_string_opts));
                 
-                return Call(Symbol(richmath_System_Function), 
-                         Call(Symbol(richmath_FE_AutoCompleteName), 
-                           option_names, 
-                           Call(Symbol(richmath_System_PureArgument), Expr(1))));
+                Expr arg = Call(Symbol(richmath_System_PureArgument), Expr(1));
+                Expr body = Call(Symbol(richmath_FE_AutoCompleteName), sym_opts, arg);
+                if(num_string_opts > 0) {
+                  body = Call(Symbol(richmath_System_Join), 
+                           PMATH_CPP_MOVE(body),
+                           Call(Symbol(richmath_FE_AutoCompleteOther), string_opts, arg));
+                }
+                
+                return Call(Symbol(richmath_System_Function), PMATH_CPP_MOVE(body));
               }
             }
             

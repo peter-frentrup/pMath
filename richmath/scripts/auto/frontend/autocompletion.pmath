@@ -47,7 +47,7 @@ Function FE`AttachAutoCompletionPopup(~loc) {
                                         DocumentClose(EvaluationDocument())
                                     }}),
                                 #,
-                                suggestions[#],
+                                StyleBox(suggestions[#], ShowStringCharacters -> True),
                                 ButtonFrame -> "ListViewItem",
                                 FrameMargins -> Small,
                                 Alignment -> Left,
