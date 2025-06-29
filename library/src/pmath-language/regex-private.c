@@ -245,7 +245,7 @@ static pmath_string_t get_capture_by_rhs( // PMATH_NULL if no capture was found
   }
   
   return pmath_string_part(
-           subject,
+           pmath_ref(subject),
            c->ovector[capture_num],
            c->ovector[capture_num + 1] - c->ovector[capture_num]);
 }
