@@ -5,7 +5,7 @@
 
 //#if defined(PMATH_X86) || defined(PMATH_AMD64) 
 //  #undef pmath_atomic_loop_nop
-//  #define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
+//  #define pmath_atomic_loop_nop()  __asm volatile("rep; nop"::)
 //#endif
 
 
@@ -228,7 +228,7 @@ pmath_bool_t pmath_atomic_have_cas2(void){
 #elif defined(PMATH_AMD64)
   uintptr_t ecx;
   
-  __asm __volatile(
+  __asm volatile(
     "pushq %%rbx     \n\t"
     "pushq %%rdx     \n\t"
     "cpuid           \n\t"
@@ -241,7 +241,7 @@ pmath_bool_t pmath_atomic_have_cas2(void){
 #elif defined(PMATH_X86)
   uintptr_t edx;
   
-  __asm __volatile(
+  __asm volatile(
     "pushl %%ebx     \n\t"
     "pushl %%ecx     \n\t"
     "cpuid           \n\t"

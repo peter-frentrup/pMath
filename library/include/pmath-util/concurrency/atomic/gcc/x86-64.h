@@ -10,7 +10,7 @@
 
 PMATH_FORCE_INLINE
 void pmath_atomic_barrier(void){
-  __asm __volatile("mfence":::"memory");
+  __asm volatile("mfence":::"memory");
 }
 
 
@@ -72,7 +72,7 @@ PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta) {
   intptr_t result;
 
-  __asm __volatile(
+  __asm volatile(
     "lock; xaddq %0,%1"
     : "=r"(result), "=m"(atom->_data)
     : "0"(delta),   "m" (atom->_data)
@@ -85,7 +85,7 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta) {
 PMATH_FORCE_INLINE
 void pmath_atomic_or_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
   uint8_t result;
-  __asm __volatile(
+  __asm volatile(
     "lock; orb %0,%1"
     : "=r"(result), "=m"(atom->_data)
     : "0"(mask),   "m" (atom->_data)
@@ -96,7 +96,7 @@ void pmath_atomic_or_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
 PMATH_FORCE_INLINE
 void pmath_atomic_or_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
   uint16_t result;
-  __asm __volatile(
+  __asm volatile(
     "lock; orw %0,%1"
     : "=r"(result), "=m"(atom->_data)
     : "0"(mask),   "m" (atom->_data)
@@ -107,7 +107,7 @@ void pmath_atomic_or_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
 PMATH_FORCE_INLINE
 void pmath_atomic_or_uint32(pmath_atomic_uint32_t *atom, uint32_t mask) {
   uint32_t result;
-  __asm __volatile(
+  __asm volatile(
     "lock; orl %0,%1"
     : "=r"(result), "=m"(atom->_data)
     : "0"(mask),   "m" (atom->_data)
@@ -119,7 +119,7 @@ void pmath_atomic_or_uint32(pmath_atomic_uint32_t *atom, uint32_t mask) {
 PMATH_FORCE_INLINE
 void pmath_atomic_and_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
   uint8_t result;
-  __asm __volatile(
+  __asm volatile(
     "lock; andb %0,%1"
     : "=r"(result), "=m"(atom->_data)
     : "0"(mask),   "m" (atom->_data)
@@ -130,7 +130,7 @@ void pmath_atomic_and_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
 PMATH_FORCE_INLINE
 void pmath_atomic_and_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
   uint16_t result;
-  __asm __volatile(
+  __asm volatile(
     "lock; andw %0,%1"
     : "=r"(result), "=m"(atom->_data)
     : "0"(mask),   "m" (atom->_data)
@@ -141,7 +141,7 @@ void pmath_atomic_and_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
 PMATH_FORCE_INLINE
 void pmath_atomic_and_uint32(pmath_atomic_uint32_t *atom, uint32_t mask) {
   uint32_t result;
-  __asm __volatile(
+  __asm volatile(
     "lock; andl %0,%1"
     : "=r"(result), "=m"(atom->_data)
     : "0"(mask),   "m" (atom->_data)
@@ -155,7 +155,7 @@ uint8_t pmath_atomic_fetch_set_uint8(pmath_atomic_uint8_t *atom, uint8_t new_val
   uint8_t result;
 
 /* I read somewhere that xchg does not need a lock prefix. is that true? */
-  __asm __volatile(
+  __asm volatile(
     "lock; xchgb %0,%1"
     : "=r"(result),   "=m"(atom->_data)
     : "0"(new_value), "m" (atom->_data)
@@ -171,7 +171,7 @@ uint16_t pmath_atomic_fetch_set_uint16(pmath_atomic_uint16_t *atom, uint16_t new
   uint16_t result;
 
 /* I read somewhere that xchg does not need a lock prefix. is that true? */
-  __asm __volatile(
+  __asm volatile(
     "lock; xchgw %0,%1"
     : "=r"(result),   "=m"(atom->_data)
     : "0"(new_value), "m" (atom->_data)
@@ -187,7 +187,7 @@ uint32_t pmath_atomic_fetch_set_uint32(pmath_atomic_uint32_t *atom, uint32_t new
   uint32_t result;
 
 /* I read somewhere that xchg does not need a lock prefix. is that true? */
-  __asm __volatile(
+  __asm volatile(
     "lock; xchgl %0,%1"
     : "=r"(result),   "=m"(atom->_data)
     : "0"(new_value), "m" (atom->_data)
@@ -203,7 +203,7 @@ intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t new_value) {
   intptr_t result;
 
 /* I read somewhere that xchg does not need a lock prefix. is that true? */
-  __asm __volatile(
+  __asm volatile(
     "lock; xchgq %0,%1"
     : "=r"(result),   "=m"(atom->_data)
     : "0"(new_value), "m" (atom->_data)
@@ -218,7 +218,7 @@ PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_compare_and_set(pmath_atomic_t *atom, intptr_t old_value, intptr_t new_value){
   intptr_t result;
 
-  __asm __volatile(
+  __asm volatile(
     "lock; cmpxchgq %2,%1"
     : "=a"(result), "=m"(atom->_data)
     : "q"(new_value), "0"(old_value)
@@ -233,7 +233,7 @@ PMATH_FORCE_INLINE
 pmath_bool_t pmath_atomic_compare_and_set(pmath_atomic_t *atom, intptr_t old_value, intptr_t new_value){
   char result;
 
-  __asm __volatile(
+  __asm volatile(
     "lock; cmpxchgq %2,%1 \n\t"
     "sete %0"
     : "=a"(result), "=m"(atom->_data)
@@ -268,7 +268,7 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
   #if defined(__pic__) || defined(__PIC__)
     uintptr_t rbx_value;
     
-    __asm __volatile(
+    __asm volatile(
       "movq %%rbx, %3       \n\t" // rbx_value = %rbx
       "movq %5, %%rbx       \n\t" // %rbx = new_value_fst
       "lock; cmpxchg16b %4  \n\t"
@@ -290,7 +290,7 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
     );
   #else
   // we can use %%ebx in non-PIC code
-    __asm __volatile(
+    __asm volatile(
       "lock; cmpxchg16b %3 \n\t"
       "sete %%cl \n\t"
       
@@ -315,7 +315,7 @@ PMATH_FORCE_INLINE
 pmath_bool_t pmath_atomic_have_cas2(void){
   uintptr_t ecx;
   
-  __asm __volatile(
+  __asm volatile(
     "pushq %%rbx     \n\t"
     "pushq %%rdx     \n\t"
     "cpuid           \n\t"
@@ -329,7 +329,7 @@ pmath_bool_t pmath_atomic_have_cas2(void){
  
 
 //#undef pmath_atomic_loop_nop
-//#define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
+//#define pmath_atomic_loop_nop()  __asm volatile("rep; nop"::)
 
 
 PMATH_FORCE_INLINE
