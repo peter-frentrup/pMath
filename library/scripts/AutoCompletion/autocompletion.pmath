@@ -37,11 +37,12 @@ Function AutoCompleteNamespaceGet(~part:String) {
 }
 
 Function AutoCompleteOther(~list:List, ~part:String) {
-	Return(
-		list.StringCases(
-			StartOfString ++ part ++ ~~~, 
-			1, IgnoreCase -> True
-		).Apply(Join).Sort)
+	With(byPrefix:= list |> StringCases(StartOfString ++ part ++ ~~~, 1, IgnoreCase -> True) |> Apply(Join))
+	With(byCamelCase:= list |> StringCases(StartOfString ++ makeCamelCaseOtherPattern(part) ++ ~~~, 1) |> Apply(Join))
+
+	Return(Join(
+		byPrefix |> Sort, 
+		byCamelCase |> Complement(byPrefix) |> Sort))
 }
 
 Function AutoCompleteFullFilename(~part:String) {
@@ -71,7 +72,7 @@ Function selectByPrefix(~list, ~np, ~part) {
 
 Function selectByCamelCase(~list, ~np, ~part) {
 	Return(list.StringCases(
-		np ++ makeCamelCasePattern(part) ++ Except("`")*** ++ EndOfString,
+		np ++ makeCamelCaseNamePattern(part) ++ Except("`")*** ++ EndOfString,
 		1).Apply(Join))
 }
 
@@ -95,17 +96,23 @@ Function allNamespacesFromPath() {
 	
 % stringLength(~str:String)::= str.StringPosition(EndOfString)[1,-1]
 
-Function makeCamelCasePattern(~str:String) {
+Function makeCamelCaseNamePattern(~str:String) {
 	With(interWordPattern:= Shortest(Except("`")***))
 	Return(str.StringReplace({
-		(StartOfString|RegularExpression("(?<=`)")) ++ c: RegularExpression("[a-zA-Z]") :> RegularExpression("(?i:^" ++ c ++ ")") | RegularExpression("(?i:[^a-z`]" ++ c ++ ")") | upperCaseChar(c),
-		c: RegularExpression("[a-zA-Z]") :> c | (interWordPattern ++ (RegularExpression("(?i:[^a-z`]" ++ c ++ ")")) | upperCaseChar(c)),
+		(StartOfString|RegularExpression("(?<=`)")) ++ c: RegularExpression("[a-zA-Z]") :> With(rc:= escapeRegex(c)) { RegularExpression("(?i:^" ++ rc ++ ")") | RegularExpression("(?i:[^a-z`]" ++ rc ++ ")") | upperCaseChar(c) },
+		c: RegularExpression("[a-zA-Z]") :>  With(rc:= escapeRegex(c)) { c | (interWordPattern ++ (RegularExpression("(?i:[^a-z`]" ++ rc ++ ")") | upperCaseChar(c))) },
 		c: RegularExpression("[^a-zA-Z]") :> interWordPattern ++ c}))
 }
+
+makeCamelCaseOtherPattern(~str:String)::= str |> StringReplace({
+	RegularExpression("(?<=[a-zA-Z])(.)") :> "$1" | (Longest(Except(upperCaseChar("$1"))***) ++ upperCaseChar("$1")),
+	~c :> charOrUpper(c)})
 
 Function escapeRegex(~str:String) {
 	Return(str.StringReplace(c: Characters("\[RawBackslash]^$.[|()?*+{") :> "\[RawBackslash]" ++ c))
 }
+
+charOrUpper(~c:String)::= With(u:=upperCaseChar(c)){ If(u===c, c, c|u) }
 
 upperCaseChar("a"):= "A"
 upperCaseChar("b"):= "B"

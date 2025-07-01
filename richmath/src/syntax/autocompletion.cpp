@@ -553,7 +553,8 @@ String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
             pmath_debug_print("[auto complete at arg %d", num_args_before + 1);
             pmath_debug_print_object(" of call to ", name.get(), "]\n");
             
-            if(num_args_before <= info.maxargs) {
+            // TODO: >= info.minargs, but then maybe not an option unless also >= info.maxargs
+            if(num_args_before >= info.maxargs) {
               Expr options = Application::interrupt_wait_cached(
                                Call(Symbol(richmath_System_Options), name));
               
