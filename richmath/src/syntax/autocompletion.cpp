@@ -72,6 +72,7 @@ class AutoCompletion::Private {
     
     String try_start(bool allow_empty);
     String try_start_alias();
+    String try_start_inputfield();
     String try_start_filename();
     String try_start_symbol(bool allow_empty);
     bool start(CompletionStyle style, LogicalDirection direction);
@@ -82,6 +83,8 @@ class AutoCompletion::Private {
     void remove_popup();
     
     void add_completion_if_needed(const Expr &input, LogicalDirection direction);
+    
+    static Expr search_semantic_completion(SpanExpr *&span, VolatileLocation pos);
     
   private:
     AutoCompletion *pub;
@@ -269,6 +272,9 @@ String AutoCompletion::Private::try_start(bool allow_empty) {
   res = try_start_alias();
   if(res) return res;
   
+  res = try_start_inputfield();
+  if(res) return res;
+  
   res = try_start_filename();
   if(res) return res;
   
@@ -386,17 +392,10 @@ String AutoCompletion::Private::try_start_alias() {
   return alias;
 }
 
-String AutoCompletion::Private::try_start_filename() {
+String AutoCompletion::Private::try_start_inputfield() {
   auto seq = dynamic_cast<MathSequence*>(document->selection_box());
   if(!seq)
     return {};
-    
-  String str;
-  Expr expr;
-  ArrayView<const uint16_t> buf = buffer_view(seq->text());
-  
-  int sel_pos = document->selection_start();
-  int sel_end = document->selection_end();
   
   if(InputFieldBox *inp = dynamic_cast<InputFieldBox *>(seq->parent())) {
     if(inp->input_type() == InputFieldType::String) {
@@ -407,6 +406,9 @@ String AutoCompletion::Private::try_start_filename() {
       if(string_end < 1)
         return {};
       
+      int sel_pos = document->selection_start();
+      
+      ArrayView<const uint16_t> buf = buffer_view(seq->text());
       ArrayView<const uint16_t> until_sel = buf.take(sel_pos);
       
       if(!has_only_valid_path_characters(until_sel))
@@ -420,11 +422,11 @@ String AutoCompletion::Private::try_start_filename() {
 //        return {};
       
       //string_end = sel_end; // seq->length();
-      str = seq->text().part(0, string_end);
+      String str = seq->text().part(0, string_end);
       current_filter_function = Symbol(richmath_FE_AutoCompleteFile);
-      expr = Application::interrupt_wait_cached(
-               Call(current_filter_function, str),
-               Application::button_timeout);
+      Expr expr = Application::interrupt_wait_cached(
+                    Call(current_filter_function, str),
+                    Application::button_timeout);
                
       if(!expr.item_equals(0, richmath_System_List) || expr.expr_length() == 0)
         return {};
@@ -437,11 +439,23 @@ String AutoCompletion::Private::try_start_filename() {
     }
   }
   
+  return {};
+}
+
+String AutoCompletion::Private::try_start_filename() {
+  auto seq = dynamic_cast<MathSequence*>(document->selection_box());
+  if(!seq)
+    return {};
+    
+  int sel_pos = document->selection_start();
+  int sel_end = document->selection_end();
+  
   int string_end;
   int string_start = seq->find_string_start(sel_pos, &string_end);
   if(string_start < 0)
     return {};
     
+  ArrayView<const uint16_t> buf = buffer_view(seq->text());
   ArrayView<const uint16_t> until_sel = buf.take(sel_pos).drop(string_start);
   ArrayView<const uint16_t> after_sel = buf.take(string_end).drop(sel_pos);
   
@@ -481,10 +495,10 @@ String AutoCompletion::Private::try_start_filename() {
                   Call(Symbol(richmath_System_PureArgument), Number(1)))),
               Symbol(richmath_FE_Private_MakeEscapedStringContent)));
   
-  str = seq->raw_substring(string_start, string_end - string_start);
+  String str = seq->raw_substring(string_start, string_end - string_start);
   
   current_filter_function = acfun;
-  expr = Application::interrupt_wait_cached(Call(acfun, str), Application::button_timeout);
+  Expr expr = Application::interrupt_wait_cached(Call(acfun, str), Application::button_timeout);
   
   if(!expr.item_equals(0, richmath_System_List) || expr.expr_length() == 0)
     return {};
@@ -528,81 +542,8 @@ String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
   
   // Grab context: active symbol definitions, current values, options names for current call...
   //       ... similar to ScopeColorizer, but backwards ...
-  if(span) {
-    new_filter_function = [&span, &tok_range](){
-      for(span = span->expand(true); span; span = span->expand(true)) {
-        if(FunctionCallSpan::is_call(span)) {
-          //if(FunctionCallSpan::is_list(span))
-          //  continue;
-          
-          FunctionCallSpan func(span);
-          
-          int num_args_before = func.function_argument_count();
-          for(; num_args_before > 0; --num_args_before) {
-            if(SpanExpr *arg = func.function_argument(num_args_before)) {
-              if(arg->sequence() == tok_range.box && arg->end() + 1 < tok_range.start) {
-                break;
-              }
-            }
-          }
-          
-          if(SpanExpr *head_name = span_as_name(func.function_head())) {
-            String name = head_name->as_text();
-            SyntaxInformation info(name);
-            
-            pmath_debug_print("[auto complete at arg %d", num_args_before + 1);
-            pmath_debug_print_object(" of call to ", name.get(), "]\n");
-            
-            // TODO: >= info.minargs, but then maybe not an option unless also >= info.maxargs
-            if(num_args_before >= info.maxargs) {
-              Expr options = Application::interrupt_wait_cached(
-                               Call(Symbol(richmath_System_Options), name));
-              
-              size_t num_opt = options.expr_length();
-              Expr sym_opts    = MakeCall(Symbol(richmath_System_List), num_opt);
-              Expr string_opts = MakeCall(Symbol(richmath_System_List), num_opt);
-              size_t num_sym_opts    = 0;
-              size_t num_string_opts = 0;
-              for(size_t i = 1; i <= num_opt; ++i) {
-                Expr rule = options[i];
-                if(rule.is_rule()) {
-                  Expr lhs = rule[1];
-                  if(lhs.is_symbol()) {
-                    sym_opts.set(++num_sym_opts, String(pmath_symbol_name(lhs.get())));
-                  }
-                  else if(lhs.is_string()) {
-                    // TODO: only necessary if text="", otherwise we know that we don't start with a '"'
-                    string_opts.set(++num_string_opts, lhs.to_string(PMATH_WRITE_OPTIONS_FULLSTR));
-                  }
-                }
-              }
-              
-              if(num_sym_opts > 0 || num_string_opts > 0) {
-                if(num_sym_opts    < num_opt) sym_opts    = Expr(pmath_expr_get_item_range(sym_opts.get(),    1, num_sym_opts));
-                if(num_string_opts < num_opt) string_opts = Expr(pmath_expr_get_item_range(string_opts.get(), 1, num_string_opts));
-                
-                Expr arg = Call(Symbol(richmath_System_PureArgument), Expr(1));
-                Expr body = Call(Symbol(richmath_FE_AutoCompleteName), sym_opts, arg);
-                if(num_string_opts > 0) {
-                  body = Call(Symbol(richmath_System_Join), 
-                           PMATH_CPP_MOVE(body),
-                           Call(Symbol(richmath_FE_AutoCompleteOther), string_opts, arg));
-                }
-                
-                return Call(Symbol(richmath_System_Function), PMATH_CPP_MOVE(body));
-              }
-            }
-            
-            // TODO: allow lists inside function arguments ...
-            break;
-          }
-        }
-        else if(!FunctionCallSpan::is_sequence(span))
-          break;
-      };
-      return Expr();
-    }();
-  }
+  if(span)
+    new_filter_function = search_semantic_completion(span, tok_range.start_only());
   
   if(span) delete span;
   
@@ -759,6 +700,81 @@ bool AutoCompletion::Private::has_filename_sep(ArrayView<const uint16_t> buf) {
   }
   
   return false;
+}
+
+/* static */
+Expr AutoCompletion::Private::search_semantic_completion(SpanExpr *&span, VolatileLocation pos) {
+  for(span = span->expand(true); span; span = span->expand(true)) {
+    if(FunctionCallSpan::is_call(span)) {
+      //if(FunctionCallSpan::is_list(span))
+      //  continue;
+      
+      FunctionCallSpan func(span);
+      
+      int num_args_before = func.function_argument_count();
+      for(; num_args_before > 0; --num_args_before) {
+        if(SpanExpr *arg = func.function_argument(num_args_before)) {
+          if(arg->sequence() == pos.box && arg->end() + 1 < pos.index) {
+            break;
+          }
+        }
+      }
+      
+      if(SpanExpr *head_name = span_as_name(func.function_head())) {
+        String name = head_name->as_text();
+        SyntaxInformation info(name);
+        
+        pmath_debug_print("[auto complete at arg %d", num_args_before + 1);
+        pmath_debug_print_object(" of call to ", name.get(), "]\n");
+        
+        // TODO: >= info.minargs, but then maybe not an option unless also >= info.maxargs
+        if(num_args_before >= info.maxargs) {
+          Expr options = Application::interrupt_wait_cached(
+                           Call(Symbol(richmath_System_Options), name));
+          
+          size_t num_opt = options.expr_length();
+          Expr sym_opts    = MakeCall(Symbol(richmath_System_List), num_opt);
+          Expr string_opts = MakeCall(Symbol(richmath_System_List), num_opt);
+          size_t num_sym_opts    = 0;
+          size_t num_string_opts = 0;
+          for(size_t i = 1; i <= num_opt; ++i) {
+            Expr rule = options[i];
+            if(rule.is_rule()) {
+              Expr lhs = rule[1];
+              if(lhs.is_symbol()) {
+                sym_opts.set(++num_sym_opts, String(pmath_symbol_name(lhs.get())));
+              }
+              else if(lhs.is_string()) {
+                // TODO: only necessary if text="", otherwise we know that we don't start with a '"'
+                string_opts.set(++num_string_opts, lhs.to_string(PMATH_WRITE_OPTIONS_FULLSTR));
+              }
+            }
+          }
+          
+          if(num_sym_opts > 0 || num_string_opts > 0) {
+            if(num_sym_opts    < num_opt) sym_opts    = Expr(pmath_expr_get_item_range(sym_opts.get(),    1, num_sym_opts));
+            if(num_string_opts < num_opt) string_opts = Expr(pmath_expr_get_item_range(string_opts.get(), 1, num_string_opts));
+            
+            Expr arg = Call(Symbol(richmath_System_PureArgument), Expr(1));
+            Expr body = Call(Symbol(richmath_FE_AutoCompleteName), sym_opts, arg);
+            if(num_string_opts > 0) {
+              body = Call(Symbol(richmath_System_Join), 
+                       PMATH_CPP_MOVE(body),
+                       Call(Symbol(richmath_FE_AutoCompleteOther), string_opts, arg));
+            }
+            
+            return Call(Symbol(richmath_System_Function), PMATH_CPP_MOVE(body));
+          }
+        }
+        
+        // TODO: allow lists inside function arguments ...
+        break;
+      }
+    }
+    else if(!FunctionCallSpan::is_sequence(span))
+      break;
+  };
+  return Expr();
 }
 
 //} ... class AutoCompletion::Private

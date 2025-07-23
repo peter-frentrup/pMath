@@ -48,6 +48,7 @@ Function FE`AttachAutoCompletionPopup(~loc) {
                                     }}),
                                 #,
                                 StyleBox(suggestions[#], ShowStringCharacters -> True),
+                                BaseStyle -> None,
                                 ButtonFrame -> "ListViewItem",
                                 FrameMargins -> Small,
                                 Alignment -> Left,
