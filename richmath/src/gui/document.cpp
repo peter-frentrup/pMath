@@ -3910,7 +3910,7 @@ void Document::Impl::add_containing_call_hook() {
   
   bool look_before = sel.length() == 0 && sel.start > 0 && !pmath_char_is_right((uint16_t)seq->char_at(sel.start - 1));
   
-  SpanExpr *span = SpanExpr::find(seq, sel.start, look_before);
+  SpanExpr *span = SpanExpr::find(seq, sel.start, look_before ? LogicalDirection::Backward : LogicalDirection::Forward);
   while(span && span->end() + 1 < sel.end)
     span = span->expand(true);
   

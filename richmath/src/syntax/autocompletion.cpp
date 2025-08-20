@@ -517,7 +517,7 @@ String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
   
   VolatileSelection tok_range{document->selection_now().end_only()};
   String text;
-  SpanExpr *span = SpanExpr::find(seq, document->selection_end(), true);
+  SpanExpr *span = SpanExpr::find(seq, document->selection_end(), LogicalDirection::Backward);
   if(span) {
     pmath_token_t tok = span->as_token();
   

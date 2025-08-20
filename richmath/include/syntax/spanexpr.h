@@ -88,7 +88,7 @@ namespace richmath {
           
           \see expand()
        */
-      static SpanExpr *find(MathSequence *sequence, int pos, bool before = true);
+      static SpanExpr *find(MathSequence *sequence, int pos, LogicalDirection dir = LogicalDirection::Backward);
       
       /** Allocate the span contaning this span
           \param self_destruction Whether the current sequence() can be left.

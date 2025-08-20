@@ -144,16 +144,16 @@ SpanExpr::~SpanExpr() {
     }
 }
 
-SpanExpr *SpanExpr::find(MathSequence *sequence, int pos, bool before) {
+SpanExpr *SpanExpr::find(MathSequence *sequence, int pos, LogicalDirection dir) {
   RICHMATH_ASSERT(sequence != nullptr);
   
   sequence->ensure_spans_valid();
   
   if(pos == sequence->length())
-    before = true;
+    dir = LogicalDirection::Backward;
     
   int start = pos;
-  if(pos > 0 && before) {
+  if(pos > 0 && dir == LogicalDirection::Backward) {
     --start;
     while(start > 0 && !sequence->span_array().is_token_end(start-1))
       --start;
