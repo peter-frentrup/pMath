@@ -50,9 +50,14 @@ namespace richmath {
 }
 
 namespace {
-  enum CompletionStyle : uint8_t {
+  enum class CompletionStyle : uint8_t {
     InlineCycle,
     SuggestionsPopup,
+  };
+  
+  enum class CompletionLocation {
+    Symbol,
+    InsideString,
   };
 }
 
@@ -73,7 +78,7 @@ class AutoCompletion::Private {
     String try_start(bool allow_empty);
     String try_start_alias();
     String try_start_inputfield();
-    String try_start_filename();
+    String try_start_string();
     String try_start_symbol(bool allow_empty);
     bool start(CompletionStyle style, LogicalDirection direction);
     
@@ -84,7 +89,7 @@ class AutoCompletion::Private {
     
     void add_completion_if_needed(const Expr &input, LogicalDirection direction);
     
-    static Expr search_semantic_completion(SpanExpr *&span, VolatileLocation pos);
+    static Expr search_semantic_completion(SpanExpr *&span, VolatileLocation pos, CompletionLocation kind);
     
   private:
     AutoCompletion *pub;
@@ -275,7 +280,7 @@ String AutoCompletion::Private::try_start(bool allow_empty) {
   res = try_start_inputfield();
   if(res) return res;
   
-  res = try_start_filename();
+  res = try_start_string();
   if(res) return res;
   
   return try_start_symbol(allow_empty);
@@ -442,7 +447,7 @@ String AutoCompletion::Private::try_start_inputfield() {
   return {};
 }
 
-String AutoCompletion::Private::try_start_filename() {
+String AutoCompletion::Private::try_start_string() {
   auto seq = dynamic_cast<MathSequence*>(document->selection_box());
   if(!seq)
     return {};
@@ -476,38 +481,52 @@ String AutoCompletion::Private::try_start_filename() {
       return {};
   }
   
-  if(!has_only_valid_path_characters(until_sel.drop(1)))
-    return {};
-  
-  if(!has_filename_sep(until_sel))
-    return {};
-  
   if(after_sel.length() > 0 && after_sel[after_sel.length() - 1] == '"') {
     string_end--;
   }
   ++string_start;
-
-  Expr acfun = Symbol(richmath_FE_AutoCompleteFile);
-  acfun = Call(Symbol(richmath_System_Function), 
-            Call(Symbol(richmath_System_Map), 
-              Call(PMATH_CPP_MOVE(acfun), 
-                Call(Symbol(richmath_FE_Private_ParseStringContent), 
-                  Call(Symbol(richmath_System_PureArgument), Number(1)))),
-              Symbol(richmath_FE_Private_MakeEscapedStringContent)));
   
-  String str = seq->raw_substring(string_start, string_end - string_start);
+  Expr new_filter_function{};
   
-  current_filter_function = acfun;
-  Expr expr = Application::interrupt_wait_cached(Call(acfun, str), Application::button_timeout);
+  SpanExpr *span = SpanExpr::find(seq, string_start - 1, LogicalDirection::Forward);
+  if(span)
+    new_filter_function = search_semantic_completion(span, VolatileLocation(seq, string_start), CompletionLocation::InsideString);
   
-  if(!expr.item_equals(0, richmath_System_List) || expr.expr_length() == 0)
+  if(span) delete span;
+  
+  if(!new_filter_function && has_filename_sep(until_sel) && has_only_valid_path_characters(until_sel.drop(1))) {
+    // until_sel[0] is the opening quote, ignored in check above
+    
+    new_filter_function = Symbol(richmath_FE_AutoCompleteFile);
+    
+    new_filter_function = Call(Symbol(richmath_System_Function), 
+                            Call(Symbol(richmath_System_Map), 
+                              Call(PMATH_CPP_MOVE(new_filter_function), 
+                                Call(Symbol(richmath_FE_Private_ParseStringContent), 
+                                  Call(Symbol(richmath_System_PureArgument), Number(1)))),
+                              Symbol(richmath_FE_Private_MakeEscapedStringContent)));
+  }
+  
+  if(!new_filter_function)
     return {};
+  
+  String text = seq->raw_substring(string_start, string_end - string_start);
+  
+  current_filter_function = new_filter_function;
+  Expr suggestions = Application::interrupt_wait_cached(
+                       Call(current_filter_function, text),
+                       Application::button_timeout);
+  
+  if(!suggestions.item_equals(0, richmath_System_List) || suggestions.expr_length() == 0) {
+    current_boxes_list = Expr();
+    return {};
+  }
+  current_boxes_list = suggestions;
   
   document->move_to(seq, string_end, false);
   pub->range = SelectionReference(seq->id(), string_start, string_end);
-  current_boxes_list = expr;
   
-  return str;
+  return text;
 }
 
 String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
@@ -543,7 +562,7 @@ String AutoCompletion::Private::try_start_symbol(bool allow_empty) {
   // Grab context: active symbol definitions, current values, options names for current call...
   //       ... similar to ScopeColorizer, but backwards ...
   if(span)
-    new_filter_function = search_semantic_completion(span, tok_range.start_only());
+    new_filter_function = search_semantic_completion(span, tok_range.start_only(), CompletionLocation::Symbol);
   
   if(span) delete span;
   
@@ -703,7 +722,7 @@ bool AutoCompletion::Private::has_filename_sep(ArrayView<const uint16_t> buf) {
 }
 
 /* static */
-Expr AutoCompletion::Private::search_semantic_completion(SpanExpr *&span, VolatileLocation pos) {
+Expr AutoCompletion::Private::search_semantic_completion(SpanExpr *&span, VolatileLocation pos, CompletionLocation kind) {
   for(span = span->expand(true); span; span = span->expand(true)) {
     if(FunctionCallSpan::is_call(span)) {
       //if(FunctionCallSpan::is_list(span))
@@ -742,11 +761,20 @@ Expr AutoCompletion::Private::search_semantic_completion(SpanExpr *&span, Volati
             if(rule.is_rule()) {
               Expr lhs = rule[1];
               if(lhs.is_symbol()) {
-                sym_opts.set(++num_sym_opts, String(pmath_symbol_name(lhs.get())));
+                if(kind != CompletionLocation::InsideString)
+                  sym_opts.set(++num_sym_opts, String(pmath_symbol_name(lhs.get())));
               }
               else if(lhs.is_string()) {
-                // TODO: only necessary if text="", otherwise we know that we don't start with a '"'
-                string_opts.set(++num_string_opts, lhs.to_string(PMATH_WRITE_OPTIONS_FULLSTR));
+                String str = lhs.to_string(PMATH_WRITE_OPTIONS_FULLSTR);
+                
+                if(kind == CompletionLocation::InsideString) {
+                  // Effectively str := FE`Private`MakeEscapedStringContent(str)
+                  int len = str.length();
+                  if(len >= 2 && str[0] == '"' && str[len - 1] == '"')
+                    str = str.part(1, len - 2);
+                }
+                
+                string_opts.set(++num_string_opts, str);
               }
             }
           }
@@ -756,12 +784,17 @@ Expr AutoCompletion::Private::search_semantic_completion(SpanExpr *&span, Volati
             if(num_string_opts < num_opt) string_opts = Expr(pmath_expr_get_item_range(string_opts.get(), 1, num_string_opts));
             
             Expr arg = Call(Symbol(richmath_System_PureArgument), Expr(1));
-            Expr body = Call(Symbol(richmath_FE_AutoCompleteName), sym_opts, arg);
-            if(num_string_opts > 0) {
-              body = Call(Symbol(richmath_System_Join), 
-                       PMATH_CPP_MOVE(body),
-                       Call(Symbol(richmath_FE_AutoCompleteOther), string_opts, arg));
-            }
+            Expr body_syms, body_strings;
+            if(num_sym_opts > 0) 
+              body_syms = Call(Symbol(richmath_FE_AutoCompleteName), sym_opts, arg);
+            if(num_string_opts > 0) 
+              body_strings =  Call(Symbol(richmath_FE_AutoCompleteOther), string_opts, arg);
+            
+            Expr body;
+            if(body_syms && body_strings)
+              body = Call(Symbol(richmath_System_Join), PMATH_CPP_MOVE(body_syms), PMATH_CPP_MOVE(body_strings));
+            else
+              body = body_syms ? body_syms : body_strings;
             
             return Call(Symbol(richmath_System_Function), PMATH_CPP_MOVE(body));
           }
