@@ -9,9 +9,12 @@ AutoCompletion`AutoCompleteFullFilename
 
 Begin("AutoCompletion`Private`")
 
+joinLists():= {}
+joinLists(~~ls)::= Join(ls)
+
 Function AutoCompleteName(~fullnames:List, ~part:String) {
 	With(np:= namespacePattern(part))
-	With(namespaces:= Union(fullnames.StringCases(~~~ns ++ "`" :> ns, 1).Apply(Join), allNamespacesFromPath()))
+	With(namespaces:= Union(fullnames.StringCases(~~~ns ++ "`" :> ns, 1).Apply(joinLists), allNamespacesFromPath()))
 	With(byPrefix:= fullnames.selectByPrefix(np, part))
 	With(byCamelCase:= fullnames.selectByCamelCase(np, part))
 	With(nsByPrefix:= namespaces.selectByPrefix(StartOfString, part).Map(# ++ "`" &))
@@ -37,8 +40,8 @@ Function AutoCompleteNamespaceGet(~part:String) {
 }
 
 Function AutoCompleteOther(~list:List, ~part:String) {
-	With(byPrefix:= list |> StringCases(StartOfString ++ part ++ ~~~, 1, IgnoreCase -> True) |> Apply(Join))
-	With(byCamelCase:= list |> StringCases(StartOfString ++ makeCamelCaseOtherPattern(part) ++ ~~~, 1) |> Apply(Join))
+	With(byPrefix:= list |> StringCases(StartOfString ++ part ++ ~~~, 1, IgnoreCase -> True) |> Apply(joinLists))
+	With(byCamelCase:= list |> StringCases(StartOfString ++ makeCamelCaseOtherPattern(part) ++ ~~~, 1) |> Apply(joinLists))
 
 	Return(Join(
 		byPrefix |> Sort, 
@@ -67,13 +70,13 @@ Function selectByPrefix(~list, ~np, ~part) {
 	Return(list.StringCases(
 		np ++ part ++ Except("`")*** ++ EndOfString, 
 		1, 
-		IgnoreCase -> True).Apply(Join))
+		IgnoreCase -> True).Apply(joinLists))
 }
 
 Function selectByCamelCase(~list, ~np, ~part) {
 	Return(list.StringCases(
 		np ++ makeCamelCaseNamePattern(part) ++ Except("`")*** ++ EndOfString,
-		1).Apply(Join))
+		1).Apply(joinLists))
 }
 
 Function allNamespacesFromPath() {
@@ -83,14 +86,14 @@ Function allNamespacesFromPath() {
 			.StringCases(
 				$PathnameSeparator ++ (s: ("A".."Z" ++ Except($PathnameSeparator)**)) ++ ".pmath" :> s,
 				1)
-			.Apply(Join),
+			.Apply(joinLists),
 		$Path
 			.FileNames(WordCharacter***)
 			.FileNames("init.pmath")
 			.StringCases(
 				$PathnameSeparator ++ (s: ("A".."Z" ++ Except($PathnameSeparator)**)) ++ $PathnameSeparator ++ "init.pmath" :> s,
 				1)
-			.Apply(Join)
+			.Apply(joinLists)
 		))
 }
 	
