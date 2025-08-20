@@ -57,6 +57,7 @@ namespace {
   
   enum class CompletionLocation {
     Symbol,
+    FullStringOnly,
     InsideString,
   };
 }
@@ -481,16 +482,18 @@ String AutoCompletion::Private::try_start_string() {
       return {};
   }
   
-  if(after_sel.length() > 0 && after_sel[after_sel.length() - 1] == '"') {
-    string_end--;
-  }
-  ++string_start;
   
   Expr new_filter_function{};
   
+  bool skip_quotes = false;
   SpanExpr *span = SpanExpr::find(seq, string_start - 1, LogicalDirection::Forward);
-  if(span)
-    new_filter_function = search_semantic_completion(span, VolatileLocation(seq, string_start), CompletionLocation::InsideString);
+  if(span) {
+    skip_quotes = true;
+    new_filter_function = search_semantic_completion(
+                            span,
+                            VolatileLocation(seq, string_start), 
+                            skip_quotes ? CompletionLocation::InsideString : CompletionLocation::FullStringOnly);
+  }
   
   if(span) delete span;
   
@@ -505,10 +508,19 @@ String AutoCompletion::Private::try_start_string() {
                                 Call(Symbol(richmath_FE_Private_ParseStringContent), 
                                   Call(Symbol(richmath_System_PureArgument), Number(1)))),
                               Symbol(richmath_FE_Private_MakeEscapedStringContent)));
+  
+    skip_quotes = true; // TODO: skip not only the quotes but also the whole directory prefix ...
   }
   
   if(!new_filter_function)
     return {};
+  
+  if(skip_quotes) {
+    if(after_sel.length() > 0 && after_sel[after_sel.length() - 1] == '"') {
+      string_end--;
+    }
+    ++string_start;
+  }
   
   String text = seq->raw_substring(string_start, string_end - string_start);
   
@@ -519,12 +531,22 @@ String AutoCompletion::Private::try_start_string() {
   
   if(!suggestions.item_equals(0, richmath_System_List) || suggestions.expr_length() == 0) {
     current_boxes_list = Expr();
-    return {};
+    if(sel_pos < string_end) {
+      text = seq->raw_substring(string_start, sel_pos - string_start);
+      suggestions = Application::interrupt_wait_cached(
+                           Call(current_filter_function, text),
+                           Application::button_timeout);
+      
+      if(!suggestions.item_equals(0, richmath_System_List) || suggestions.expr_length() == 0)
+        return {};
+    }
+    else 
+      return {};
   }
   current_boxes_list = suggestions;
   
-  document->move_to(seq, string_end, false);
-  pub->range = SelectionReference(seq->id(), string_start, string_end);
+  //document->move_to(seq, string_end, false); // TODO: that is bad for skip_quotes == true  or if the closing quote is still missing
+  pub->range = SelectionReference(seq->id(), string_start, /*string_end*/sel_pos);
   
   return text;
 }
@@ -761,7 +783,7 @@ Expr AutoCompletion::Private::search_semantic_completion(SpanExpr *&span, Volati
             if(rule.is_rule()) {
               Expr lhs = rule[1];
               if(lhs.is_symbol()) {
-                if(kind != CompletionLocation::InsideString)
+                if(kind == CompletionLocation::Symbol)
                   sym_opts.set(++num_sym_opts, String(pmath_symbol_name(lhs.get())));
               }
               else if(lhs.is_string()) {
