@@ -1186,8 +1186,14 @@ int MathSequence::find_string_start(int pos_inside_string, int *next_after_strin
           return start;
         }
       }
-      else
+      else {
         ++i;
+        if(i == pos_inside_string) {
+          if(next_after_string)
+            *next_after_string = i;
+          return start;
+        }
+      }
     }
     else
       ++i;
