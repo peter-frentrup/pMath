@@ -486,7 +486,7 @@ String AutoCompletion::Private::try_start_string() {
   Expr new_filter_function{};
   
   bool skip_quotes = false;
-  SpanExpr *span = SpanExpr::find(seq, string_start - 1, LogicalDirection::Forward);
+  SpanExpr *span = SpanExpr::find(seq, string_start, LogicalDirection::Forward);
   if(span) {
     skip_quotes = true;
     new_filter_function = search_semantic_completion(
