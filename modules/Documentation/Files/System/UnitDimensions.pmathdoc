@@ -7,7 +7,7 @@ Document({
        "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section(
-         "Physical dimentsions are: \"AmountUnit\", \"ElectricCurrentUnit\", \
+         "Physical dimensions are: \"AmountUnit\", \"ElectricCurrentUnit\", \
          \"LengthUnit\", \"LuminousIntensityUnit\", \"MassUnit\", \
          \"TemperatureUnit\", \"TimeUnit\".", "Notes"), 
         Section(
@@ -64,7 +64,8 @@ Document({
             Section(BoxData({"UnitDimensions", "(", 
                TemplateBox({"3", {StringBox("\"m\""), "/", {
                    StringBox("\"s\""), SuperscriptBox("2")}}, 
-                 "Meters"*1/"Seconds"^2, FractionBox(StringBox("\"Meters\""), {
+                 "Meters"*1/("Seconds"^2), 
+                 FractionBox(StringBox("\"Meters\""), {
                    StringBox("\"Seconds\""), SuperscriptBox("2")})}, 
                 "Quantity"), ")"}), "Input", SectionLabel -> "in [2]:"), 
             Section(
