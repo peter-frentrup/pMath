@@ -215,9 +215,15 @@ static int on_add_job(void *data) {
         pmath_atomic_unlock(&print_pos_lock);
         
         if(session->current_job->start()) {
+          EvaluationPosition new_print_pos = session->current_job->position();
+        
+          if(session->current_job->keep_previous_output()) {
+            new_print_pos.skip_generated_output_sections();
+          }
+          
           pmath_atomic_lock(&print_pos_lock);
           {
-            print_pos = session->current_job->position();
+            print_pos = new_print_pos;
           }
           pmath_atomic_unlock(&print_pos_lock);
           
@@ -1382,7 +1388,7 @@ static void cnt_end(Expr data) {
     job->end();
     job->dequeued();
     
-    {
+    if(!job->keep_previous_output()) {
       EvaluationPosition pos;
       pmath_atomic_lock(&print_pos_lock);
       {
@@ -1393,22 +1399,19 @@ static void cnt_end(Expr data) {
       Document *doc = FrontEndObject::find_cast<Document>(pos.document_id);
       Section *sect = FrontEndObject::find_cast<Section>( pos.section_id);
       
-      if(doc) {
-        if(sect && sect->parent() == doc) {
-          int index = sect->index() + 1;
-          
-          while(index < doc->count()) {
-            Section *s = doc->section(index);
-            if(!s || !s->get_style(SectionGenerated))
-              break;
-              
-            doc->remove(index, index + 1);
-            if(doc->selection_box() == doc
-                && doc->selection_start() > index) {
-              doc->select(doc,
-                          doc->selection_start() - 1,
-                          doc->selection_end()  - 1);
-            }
+      if(doc && sect && sect->parent() == doc) {
+        int index = sect->index() + 1;
+        
+        while(index < doc->count()) {
+          Section *s = doc->section(index);
+          if(!s || !s->get_style(SectionGenerated))
+            break;
+            
+          doc->remove(index, index + 1);
+          if(doc->selection_box() == doc && doc->selection_start() > index) {
+            doc->select(doc,
+                        doc->selection_start() - 1,
+                        doc->selection_end()  - 1);
           }
         }
       }
@@ -1440,9 +1443,15 @@ static void cnt_end(Expr data) {
       pmath_atomic_unlock(&print_pos_lock);
       
       if(session->current_job->start()) {
+        EvaluationPosition new_print_pos = session->current_job->position();
+        
+        if(session->current_job->keep_previous_output()) {
+          new_print_pos.skip_generated_output_sections();
+        }
+        
         pmath_atomic_lock(&print_pos_lock);
         {
-          print_pos = session->current_job->position();
+          print_pos = new_print_pos;
         }
         pmath_atomic_unlock(&print_pos_lock);
         

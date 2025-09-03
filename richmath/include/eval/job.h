@@ -25,6 +25,9 @@ namespace richmath {
         swap(left.object_id,   right.object_id);
       }
       
+      EvaluationPosition after_generated_output_sections() const { EvaluationPosition p = *this; p.skip_generated_output_sections(); return p; }
+      void skip_generated_output_sections();
+       
     public:
       FrontEndReference document_id;
       FrontEndReference section_id;
@@ -46,10 +49,12 @@ namespace richmath {
       void adjust_output_style(Section *sect);
       
       const EvaluationPosition &position() { return _position; }
+      virtual bool keep_previous_output() = 0;
     
     protected:
       void apply_default_graphics_options(Section *sect);
       void apply_generated_section_styles(Section *sect);
+      virtual bool should_move_document_selection() = 0;
       
     public:
       Expr default_graphics_options;
@@ -69,8 +74,11 @@ namespace richmath {
       virtual void returned_boxes(Expr expr) override;
       virtual void end() override;
       virtual void dequeued() override;
+      
+      virtual bool keep_previous_output() override { return false; }
     
     protected:
+      virtual bool should_move_document_selection() override { return true; }
       void set_context();
   };
   
@@ -93,6 +101,11 @@ namespace richmath {
       virtual void end() override;
       virtual void returned(Expr expr) override;
       
+      virtual bool keep_previous_output() override { return true; }
+    
+    protected:
+      virtual bool should_move_document_selection() override { return false; }
+      
     protected:
       Expr _info;
   };
@@ -104,6 +117,11 @@ namespace richmath {
       virtual bool start() override;
       virtual void returned_boxes(Expr expr) override;
       virtual void end() override;
+      
+      virtual bool keep_previous_output() override { return true; }
+      
+    protected:
+      virtual bool should_move_document_selection() override { return false; }
       
     public:
       bool have_result;

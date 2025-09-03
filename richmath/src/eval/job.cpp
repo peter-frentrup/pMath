@@ -49,6 +49,23 @@ EvaluationPosition::EvaluationPosition(FrontEndObject *obj)
   }
 }
 
+void EvaluationPosition::skip_generated_output_sections() {
+  Document *doc = FrontEndObject::find_cast<Document>(document_id);
+  Section *sect = FrontEndObject::find_cast<Section>( section_id);
+  
+  if(doc && sect && sect->parent() == doc) {
+    int i = sect->index() + 1;
+    while(i < doc->count()) {
+      Section *s = doc->section(i);
+      if(!s || !s->get_style(SectionGenerated))
+        break;
+      ++i;
+      
+      section_id = object_id = s->id();
+    }
+  }
+}
+
 //} ... class EvaluationPosition
 
 //{ class Job ...
@@ -139,7 +156,7 @@ void InputJob::enqueued() {
   if(auto section = dynamic_cast<Section*>(Box::find(_position.section_id))) {
     section->evaluating++;
     if(section->evaluating == 1) {
-      if(doc) {
+      if(doc && should_move_document_selection()) {
         doc->move_to(doc, section->index() + 1);
       }
       
@@ -162,17 +179,19 @@ bool InputJob::start() {
     return false;
   }
   
-  int i = section->index() + 1;
-  while(i < doc->count()) {
-    Section *s = doc->section(i);
-    if(!s || !s->get_style(SectionGenerated))
-      break;
-      
-    ++i;
-    //doc->remove(i, i + 1);
+  if(should_move_document_selection()) {
+    int i = section->index() + 1;
+    while(i < doc->count()) {
+      Section *s = doc->section(i);
+      if(!s || !s->get_style(SectionGenerated))
+        break;
+        
+      ++i;
+      //doc->remove(i, i + 1);
+    }
+    
+    doc->move_to(doc, i);
   }
-  
-  doc->move_to(doc, i);
   
   set_context();
   {
