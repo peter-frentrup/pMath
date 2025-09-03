@@ -167,7 +167,7 @@ expr:(~o:JavaObject @ (~m:Symbol)(~~~args)) ::= Block {
 
 expr:(~o:JavaObject @ (e1: ~(~~~))(~e2)) ::= Block {
 	With(di1:= Developer`GetDebugMetadata(e1))
-	With(call1:= HoldComplete(o @ e1).Developer`SetDebugMetadataAt(di, 1).ReleaseHold)
+	With(call1:= HoldComplete(o @ e1).Developer`SetDebugMetadataAt(di1, 1).ReleaseHold) % TODO: also consider debug metadata of o
 	With(di:= Developer`GetDebugMetadata(expr))
 	
 	HoldComplete(call1 @ e2).Developer`SetDebugMetadataAt(di, 1).ReleaseHold
