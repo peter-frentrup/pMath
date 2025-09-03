@@ -667,8 +667,9 @@ Document({
                    DynamicBox(ToBoxes(StringForm("`1` (`2`)", 
                       CurrentValue({TemplateSlot, 3}), 
                       Dynamic(UnitKind(CurrentValue({TemplateSlot, 3}))(
-                        "Description"), SynchronousUpdating -> False)))))}}, 
-                "QuantityPanel")), InterpretationFunction -> 
+                        "Description"), CachedValue -> "\[Ellipsis]", 
+                       SynchronousUpdating -> False)))))}}, "QuantityPanel")), 
+             InterpretationFunction -> 
               Function({"System`Quantity", "(", {
                  #1, ",", TemplateSlotSequence(##4, ",")}, ")"})}), 
           Section(StyleData("UnitKindObject"), 
