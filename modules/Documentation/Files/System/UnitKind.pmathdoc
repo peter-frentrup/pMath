@@ -1,0 +1,115 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("UnitKind", "ObjectName"), 
+      Section(BoxData(TemplateBox({"UnitKind"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"UnitKind"}, "ReferenceHyperlink"), 
+           "(", StyleBox("q", "Arg"), ") returns a ", 
+           TemplateBox({"UnitKindObject"}, "ReferenceHyperlink"), "."}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"UnitKind"}, "ReferenceHyperlink"), 
+           "(", StyleBox("q", "Arg"), ")(\"", StyleBox("prop", "Arg"), 
+           "\") gives properties of the returned ", 
+           TemplateBox({"UnitKindObject"}, "ReferenceHyperlink"), ":"}), 
+         "Notes"), 
+        Section(
+         TextData({
+           GridBox({{"\"Name\"", "programmatic name such as \"Length\"."}, {
+              "\"CanonicalUnit\"", "canonical unit expression of that kind."}, 
+             {"\"UnitDimensions\"", {
+               TemplateBox({"UnitDimensions"}, "ReferenceHyperlink"), 
+               " of the corresponding units."}}, {
+              "\"Description\"", "English natual language description."}, {
+              {"\"LocalizedDescription\", ", StyleBox("lang", "Arg")}, 
+              "natual language description in the given language"}})}), 
+         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Meters are units of length:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"UnitKind", "(", StringBox("\"Meters\""), ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(TemplateBox({StringBox("\"Length\"")}, 
+             "UnitKindObject")), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Unit kind of a ", 
+             TemplateBox({"Quantity"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"UnitKind", "(", 
+               TemplateBox({"9.81", {StringBox("\"m\""), "/", {
+                   StringBox("\"s\""), SuperscriptBox("2")}}, 
+                 "Meters"*1/("Seconds"^2), 
+                 FractionBox(StringBox("\"Meters\""), {
+                   StringBox("\"Seconds\""), SuperscriptBox("2")})}, 
+                "Quantity"), ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({StringBox("\"Acceleration\"")}, 
+               "UnitKindObject")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section("Get a canonical unit:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {"UnitKind", "(", 
+              TemplateBox({"5", {StringBox("\"kg\""), " ", {
+                  StringBox("\"m\""), "/", {StringBox("\"s\""), 
+                   SuperscriptBox("2")}}}, "Kilograms"*"Meters"*
+                 1/("Seconds"^2), FractionBox({StringBox("\"Kilograms\""), 
+                  " ", StringBox("\"Meters\"")}, {
+                  StringBox("\"Seconds\""), SuperscriptBox("2")})}, 
+               "Quantity"), ")"}, "(", StringBox("\"CanonicalUnit\""), ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(StringBox("\"Newtons\"")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({TemplateBox({"UnitDimensions"}, "ReferenceHyperlink"), 
+             "(", StyleBox("q", "Arg"), ") actually gives ", 
+             TemplateBox({"UnitKind"}, "ReferenceHyperlink"), "(", 
+             StyleBox("q", "Arg"), ")(", StringBox("\"UnitDimensions\""), 
+             "):"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"UnitKind", "(", {"Quantity", "(", {
+                  "5", ",", StringBox("\"Volts\"")}, ")"}, ")"}, "(", 
+               StringBox("\"UnitDimensions\""), ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {{StringBox("\"ElectricCurrentUnit\""), "\[Rule]", {
+                  "-", "1"}}, ",", {StringBox("\"LengthUnit\""), "\[Rule]", 
+                 "2"}, ",", {StringBox("\"MassUnit\""), "\[Rule]", "1"}, ",", {
+                 StringBox("\"TimeUnit\""), "\[Rule]", {"-", "3"}}}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Natural language description:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {TemplateBox({StringBox("\"Acceleration\"")}, 
+                  "UnitKindObject"), "(", {
+                  StringBox("\"LocalizedDescription\""), ",", "lang"}, ")"}, 
+                ",", {"lang", "\[Rule]", {
+                  "{", {StringBox("\"English\""), ",", 
+                   StringBox("\"German\"")}, "}"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {StringBox("\"acceleration\""), ",", 
+                StringBox("\"Beschleunigung\"")}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UnitDimensions"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"UnitKindObject"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
