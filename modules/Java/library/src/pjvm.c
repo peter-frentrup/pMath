@@ -652,7 +652,9 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaIsRunning(pmath_expr_t expr) {
 }
 
 static char *prepare_initial_classpath();
-static void set_security_manager(JNIEnv *env);
+static void init_system_properties(JNIEnv *env);
+static pmath_bool_t try_set_security_manager(JNIEnv *env, jclass system);
+static void set_binding_dll_property(JNIEnv *env, jclass system);
 
 PMATH_PRIVATE pmath_t pj_eval_Java_JavaStartVM(pmath_expr_t expr) {
   pmath_messages_t msg;
@@ -769,9 +771,22 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaStartVM(pmath_expr_t expr) {
             if(err != JVMTI_ERROR_NONE) {
               pmath_debug_print("[cannot possess can_signal_thread: err = %d]\n", (int)err);
             }
+            
+            //jvmtiPhase phase;
+            //err = (*jvmti)->GetPhase(jvmti, &phase);
+            //if(err != JVMTI_ERROR_NONE) phase = 0;
+            //
+            //pmath_debug_print("[jvmti phase %d]\n", (unsigned)phase);
+            
+            memset(&cap, 0, sizeof(cap));
+            err = (*jvmti)->GetPotentialCapabilities(jvmti, &cap);
+            if(err == JVMTI_ERROR_NONE) {
+              pmath_debug_print("[can potentially poccess can_retransform_classes:   %d]\n", cap.can_retransform_classes);
+              pmath_debug_print("[can potentially poccess can_retransform_any_class: %d]\n", cap.can_retransform_any_class );
+            }
           }
           
-          set_security_manager(env);
+          init_system_properties(env);
         }
       }
     }
@@ -853,65 +868,79 @@ static char *prepare_initial_classpath(void) {
   return classpath;
 }
 
-static void set_security_manager(JNIEnv *env) {
+static void init_system_properties(JNIEnv *env) {
   if(env && JNI_OK == (*env)->EnsureLocalCapacity(env, 4)) {
     jclass system = (*env)->FindClass(env, "java/lang/System");
     
     if(system) {
-      jmethodID mid = (*env)->GetStaticMethodID(env, system, "setSecurityManager", "(Ljava/lang/SecurityManager;)V");
-      
-      if(mid) {
-        jobject sm_class = (*env)->FindClass(env, "pmath/util/NoExitSecurityManager");
-        
-        if(sm_class) {
-          jmethodID ctor = (*env)->GetMethodID(env, sm_class, "<init>", "()V");
-          
-          if(ctor) {
-            jobject sm = (*env)->NewObject(env, sm_class, ctor);
-            
-            if(sm) {
-              (*env)->CallStaticVoidMethod(env, system, mid, sm);
-              jthrowable jex = (*env)->ExceptionOccurred(env);
-              if(jex) {
-                // SecurityManager is deprecated since Java 17 and later removed in Java 24 (JEP 486).
-                // So java.lang.System.setSecurityManager() throws UnsupportedOperationException (same with -Djava.security.manager=disallow in earlier versions)
-                clear_exception(env);
-                (*env)->DeleteLocalRef(env, jex);
-                
-                // TODO: Intercept or rewrite java.lang.Runtime.exit(...) and java.lang.Runtime.halt(...) via jvmti instead.
-                pmath_debug_print("[SecurityManager not supported. Skipping NoExitSecurityManager]\n");
-              }
-              
-              (*env)->DeleteLocalRef(env, sm);
-            }
-          }
-          
-          (*env)->DeleteLocalRef(env, sm_class);
-        }
+      if(!try_set_security_manager(env, system)) {
+        // TODO: Intercept or rewrite java.lang.Runtime.exit(...) and java.lang.Runtime.halt(...) via jvmti instead.
+        pmath_debug_print("[SecurityManager not supported. Skipping NoExitSecurityManager]\n");
       }
       
-      mid = (*env)->GetStaticMethodID(env, system, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
-      if(mid) {
-        jvalue args[2];
-        args[0].l = (*env)->NewStringUTF(env, "pmath.binding.dll");
-        
-        if(args[0].l) {
-          args[1].l = pj_string_to_java(env, pmath_ref(pjvm_dll_filename));
-          
-          if(args[1].l) {
-            jobject result = (*env)->CallStaticObjectMethodA(env, system, mid, args);
-            clear_exception(env); // should not fail
-            
-            if(result)
-              (*env)->DeleteLocalRef(env, result);
-            (*env)->DeleteLocalRef(env, args[1].l);
-          }
-          
-          (*env)->DeleteLocalRef(env, args[0].l);
-        }
-      }
+      set_binding_dll_property(env, system);
       
       (*env)->DeleteLocalRef(env, system);
+    }
+  }
+}
+
+static pmath_bool_t try_set_security_manager(JNIEnv *env, jclass system) {
+  pmath_bool_t success = FALSE;
+  
+  jmethodID mid = (*env)->GetStaticMethodID(env, system, "setSecurityManager", "(Ljava/lang/SecurityManager;)V");
+      
+  if(mid) {
+    jobject sm_class = (*env)->FindClass(env, "pmath/util/NoExitSecurityManager");
+    
+    if(sm_class) {
+      jmethodID ctor = (*env)->GetMethodID(env, sm_class, "<init>", "()V");
+      
+      if(ctor) {
+        jobject sm = (*env)->NewObject(env, sm_class, ctor);
+        
+        if(sm) {
+          (*env)->CallStaticVoidMethod(env, system, mid, sm);
+          jthrowable jex = (*env)->ExceptionOccurred(env);
+          if(jex) {
+            // SecurityManager is deprecated since Java 17 and later removed in Java 24 (JEP 486).
+            // So java.lang.System.setSecurityManager() throws UnsupportedOperationException (same with -Djava.security.manager=disallow in earlier versions)
+            clear_exception(env);
+            (*env)->DeleteLocalRef(env, jex);
+          }
+          else
+            success = TRUE;
+          
+          (*env)->DeleteLocalRef(env, sm);
+        }
+      }
+      
+      (*env)->DeleteLocalRef(env, sm_class);
+    }
+  }
+  
+  return success;
+}
+
+static void set_binding_dll_property(JNIEnv *env, jclass system) {
+  jmethodID mid = (*env)->GetStaticMethodID(env, system, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+  if(mid) {
+    jvalue args[2];
+    args[0].l = (*env)->NewStringUTF(env, "pmath.binding.dll");
+    
+    if(args[0].l) {
+      args[1].l = pj_string_to_java(env, pmath_ref(pjvm_dll_filename));
+      
+      if(args[1].l) {
+        jobject result = (*env)->CallStaticObjectMethodA(env, system, mid, args);
+        clear_exception(env); // should not fail
+        
+        if(result)
+          (*env)->DeleteLocalRef(env, result);
+        (*env)->DeleteLocalRef(env, args[1].l);
+      }
+      
+      (*env)->DeleteLocalRef(env, args[0].l);
     }
   }
 }
