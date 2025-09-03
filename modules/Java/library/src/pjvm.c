@@ -709,11 +709,11 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaStartVM(pmath_expr_t expr) {
 #endif
             
             opt[nOptions++].optionString = "-Xrs";
+            //opt[nOptions++].optionString = "-Djava.security.manager=disallow";
             
             classpath = prepare_initial_classpath();
             if(classpath) {
-              opt[nOptions].optionString = classpath;
-              ++nOptions;
+              opt[nOptions++].optionString = classpath;
             }
             
             
@@ -871,6 +871,16 @@ static void set_security_manager(JNIEnv *env) {
             
             if(sm) {
               (*env)->CallStaticVoidMethod(env, system, mid, sm);
+              jthrowable jex = (*env)->ExceptionOccurred(env);
+              if(jex) {
+                // SecurityManager is deprecated since Java 17 and later removed in Java 24 (JEP 486).
+                // So java.lang.System.setSecurityManager() throws UnsupportedOperationException (same with -Djava.security.manager=disallow in earlier versions)
+                clear_exception(env);
+                (*env)->DeleteLocalRef(env, jex);
+                
+                // TODO: Intercept or rewrite java.lang.Runtime.exit(...) and java.lang.Runtime.halt(...) via jvmti instead.
+                pmath_debug_print("[SecurityManager not supported. Skipping NoExitSecurityManager]\n");
+              }
               
               (*env)->DeleteLocalRef(env, sm);
             }
@@ -890,6 +900,7 @@ static void set_security_manager(JNIEnv *env) {
           
           if(args[1].l) {
             jobject result = (*env)->CallStaticObjectMethodA(env, system, mid, args);
+            clear_exception(env); // should not fail
             
             if(result)
               (*env)->DeleteLocalRef(env, result);
