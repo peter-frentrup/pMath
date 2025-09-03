@@ -2701,6 +2701,7 @@ static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes) {
     if(!parse(&box)) {
       pmath_unref(box);
       pmath_unref(boxes);
+      pmath_unref(result);
       return pmath_ref(pmath_System_DollarFailed);
     }
     
