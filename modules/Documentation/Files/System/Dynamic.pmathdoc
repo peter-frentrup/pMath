@@ -150,7 +150,28 @@ Document({
                     HoldPattern($Context`post) :> 0}}})), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, 1), SectionGroup({Section("Options", "ExampleSection"), 
-        SectionGroup({Section("Deinitialization", "ExampleSubsection"), 
+        SectionGroup({Section("CachedValue", "ExampleSubsection"), 
+          Section(
+           TextData({TemplateBox({"CachedValue"}, "ReferenceHyperlink"), 
+             " \[Rule] \"", StyleBox("boxes", "Arg"), 
+             "\" specifies the initial display to use before the first \
+             evaluation finishes in case of ", 
+             TemplateBox({"SSynchronousUpdating"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Button", "(", {StringBox("\"Restart\""), ",", {
+                 "Print", "(", {"Dynamic", "(", {
+                   {{"Pause", "(", "5", ")"}, ";", {"RandomReal", "(", ")"}}, 
+                   ",", {"SynchronousUpdating", "\[Rule]", "False"}, ",", {
+                    "CachedValue", "\[Rule]", StringBox("\"Loading...\"")}}, 
+                  ")"}, ")"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(StringBox("\"Restart\""), 
+               ButtonFunction -> 
+                Function(Print(Dynamic(Pause(5); RandomReal(), 
+                   SynchronousUpdating -> False, 
+                   CachedValue -> "Loading..."))))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         1), SectionGroup({Section("Deinitialization", "ExampleSubsection"), 
           Section(TextData({"Perform some cleanup operation when the ", 
              TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
              " box gets destructed:"}), "ExampleText"), 
