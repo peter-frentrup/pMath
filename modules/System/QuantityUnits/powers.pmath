@@ -5,7 +5,7 @@ Begin("System`QuantityUnits`Private`")
 
 QuantityPower(~~~):= $Failed
 Function QuantityPower(HoldPattern(Quantity(~mag, ~unit)), y: (~:Integer | ~:Rational | ~:Real)) {
-    With(newUnit:= unit^y |> ReplaceRepeated((~a^~b)^~c :> a^(b c)))
+    With(newUnit:= unit^y |> ReplaceRepeated({(~a^~b)^~c :> a^(b c), (~a * ~b)^~c :> a^c * b^c}))
     
     newValidQuanitity(mag^y, newUnit)
 }
