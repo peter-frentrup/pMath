@@ -18,17 +18,18 @@ Function MakeQuantityBoxes(~mag, ~unit) {
 Function FormatQuantityUnitShort(~unit) {
     With({num, den}:= NumeratorDenominator(unit) |> 
         Replace(~s:String :> With({abbrev:= $AllUnits[s, "UnitShortName"]}, abbrev /? abbrev =!= None), 0..))
+    With(hnum:= Replace(num, ~b^~e :> HoldForm(b^HoldForm(e)), 0..))
     If(den === 1) {
-        HoldForm(num)
-    } Else If(num === 1 || Head(den) === Times) {
+        HoldForm(hnum)
+    } Else If(hnum === 1 || Head(den) === Times) {
         With(dinv:= 1/den |> Replace( ~b^~e :> HoldForm(b^HoldForm(e)), 0..), 1/den)
-        If(num === 1) {
+        If(hnum === 1) {
             dinv
         } Else {
-            HoldForm(num dinv)
+            HoldForm(hnum dinv)
         }
     } Else {
-        HorizontalForm(num/den)
+        HorizontalForm(hnum/den)
     }
 }
 
