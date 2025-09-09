@@ -7,7 +7,6 @@ ParseUnit
 DecomposeUnitFactors
 RecombineUnitFactors
 FormatQuantity
-UnitKind
 
 ConsolidateValidQuantityUnits
 
@@ -152,6 +151,8 @@ RecombineUnitFactors(~list)::= list |> Replace({Rule -> Power, List -> Times}, H
 
 AutoLoad(Hold(ConsolidateValidQuantityUnits),
 	ToFileName({DirectoryName($Input)}, "simplify.pmath"))
+AutoLoad(Hold(UnitConvert),
+	ToFileName({DirectoryName($Input)}, "convert.pmath"))
 AutoLoad(Hold(FormatQuantity, MakeQuantityBoxes),
 	ToFileName({DirectoryName($Input)}, "formatting.pmath"))
 AutoLoad(Hold(UnitKind, UnitKindObject),

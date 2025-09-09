@@ -1,0 +1,77 @@
+BeginPackage("System`QuantityUnits`")
+
+Begin("System`QuantityUnits`Private`")
+
+UnitConvert(~x)::= unitConvertImpl(x, "SIBase")
+UnitConvert(~, ~, ~rest)::= $Failed /? IsValidArgumentCount(UnitConvert, 2 + Length @ {rest}, 1, 2)
+
+UnitConvert(~x, "SIBase")::= unitConvertImpl(x, "SIBase")
+Function UnitConvert(~x, target: Quantity) {
+    If(IsValidQuantity(target)) {
+        unitConvertImpl(x, QuantityUnit(target))
+    } Else {
+        $Failed
+    }
+}
+Function UnitConvert(~x, ~targetunit) {
+    With(targetUnitFactors:= ParseUnit(targetunit))
+
+	If(targetUnitFactors === $Failed) {
+		Message(Quantity::unkunit, targetunit)
+		Return($Failed)
+	} Else {
+        unitConvertImpl(x, RecombineUnitFactors(targetUnitFactors))
+    }
+}
+
+unitConvertImpl(~x, ~targetunit)::= x
+Function unitConvertImpl(~u: String, ~targetunit) {
+    With(uf:= ParseUnit(u))
+    If(uf === $Failed) {
+        Message(Quantity::unkunit, u)
+        Return($Failed)
+    }
+    Return(unitConvertImpl(newValidQuanitity(1, RecombineUnitFactors(uf)), targetunit))
+    Return(unitConvertImpl(Quantity(1, u), targetunit))
+}
+Function unitConvertImpl(~us: List, ~targetunit) {
+    If(IsPackedArray(us)) {
+        Return(us)
+    }
+    % TODO: speed up special cases: lists of rules
+    us.Map(Function(unitConvertImpl(#, targetunit)))
+}
+
+unitConvertImpl((h: Rule|RuleDelayed)(~lhs, ~rhs), ~targetunit)::= h(lhs, unitConvertImpl(rhs, targetunit))
+unitConvertImpl(HoldPattern(q: Quantity(~mag, ~unit) /? IsValidQuantity(Unevaluated(q))), ~targetunit)::= unitConvertValidQuantity(q, mag, unit, targetunit)
+
+Function unitConvertValidQuantity(~q, ~mag, ~unit, "SIBase") {
+    With(fund:= unit |> Replace(~s:String :> $AllUnits[s, "FundamentalUnitValue"], 0..))
+
+    If(fund === unit) {
+        Return(q)
+    }
+    
+    With(factor:= fund.Replace(~:String -> 1, 0..))
+
+    newValidQuanitity(mag * factor, fund / factor)
+}
+
+unitConvertValidQuantity(~q, ~mag, ~unit, ~unit)::= q
+Function unitConvertValidQuantity(~q, ~mag, ~unit, ~targetunit) {
+    With(fundGiven  := unit       |> Replace(~s:String :> $AllUnits[s, "FundamentalUnitValue"], 0..))
+    With(fundTarget := targetunit |> Replace(~s:String :> $AllUnits[s, "FundamentalUnitValue"], 0..))
+
+    With(ratio:= fundGiven / fundTarget)
+
+    If(ratio.IsReal =!= True) {
+        Message(Quantity::compat, unit, targetunit)
+        Return($Failed)
+    }
+    
+    newValidQuanitity(mag * ratio, targetunit)
+}
+
+End()
+
+EndPackage()

@@ -974,6 +974,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( Unequal,                            DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( Unevaluated,                        HOLDALLCOMPLETE )
 PMATH_DECLARE_SYSTEM_SYMBOL( Unidentical,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Union,                              ASSOCIATIVE | ONEIDENTITY | SYMMETRIC )
+PMATH_DECLARE_SYSTEM_SYMBOL( UnitConvert,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( UnitDimensions,                     LISTABLE )
 PMATH_DECLARE_SYSTEM_SYMBOL( UnitKind,                           0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( UnitKindObject,                     0 )
