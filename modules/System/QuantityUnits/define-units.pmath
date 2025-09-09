@@ -245,6 +245,26 @@ addDerivedUnit("AtomicMassUnit", 1.660539066[60+/-50]*^-27 "Kilograms", "u")
 addSIPrefixes("AtomicMassUnit", "atomicMassUnit")
 
 
+addDerivedUnit("Inches", 2.54`` "Centimeters", "in")
+addDerivedUnit("Feet", 12 "Inches", "ft")
+addDerivedUnit("Yards", 3 "Feet", "yd")
+addDerivedUnit("Miles", 5280 "Feet", "mi")
+
+% Special case: "ft" is formally both, "FemtometricTons" and a "Feet".  Nobody means femto tons, so remove that shorthand.
+ud:= unitData("FemtometricTons")
+ud["UnitShortName"]:= None
+unitData("FemtometricTons") := ud
+
+addDerivedUnit("Gallons", 231 "Inches"^3, "gal")
+
+addDerivedUnit("Calories", 4.1868`` "Joules", "cal") % International Table calorie, 4.1868 J
+addSIPrefixes("Calories", "calories")
+addDerivedUnit("ThermochemicalCalories", 4.184`` "Joules", None) % Thermochemical calorie, 4.184 J
+
+addDerivedUnit("Pounds", (0.45359237``) "Kilograms", "lb")
+addDerivedUnit("Ounces", "Pounds" / 16, "oz")
+
+
 $AllUnits:= DownRules(unitData) |> Map({HoldPattern(Literal(HoldPattern)(~(~s)) :> ~v) :> (s->v)})
 
 End()
