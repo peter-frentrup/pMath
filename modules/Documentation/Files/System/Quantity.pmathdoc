@@ -151,5 +151,6 @@ Document({
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
          TemplateBox({"IsKnownUnit"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UnitKind"}, 
-          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"UnitConvert"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

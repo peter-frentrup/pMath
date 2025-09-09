@@ -78,7 +78,8 @@ Document({
       Section(TextData({TemplateBox({"IsKnownUnit"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UnitKind"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-         TemplateBox({"QuantityUnit"}, "ReferenceHyperlink"), 
-         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Quantity"}, 
-          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+         TemplateBox({"UnitConvert"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"QuantityUnit"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Quantity"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

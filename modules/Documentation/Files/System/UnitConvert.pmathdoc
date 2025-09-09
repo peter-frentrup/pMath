@@ -1,0 +1,244 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("UnitConvert", "ObjectName"), 
+      Section(BoxData(TemplateBox({"UnitConvert"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"The ", StyleBox("targetunit", "Arg"), 
+           " can be a canonical unit or a ", 
+           TemplateBox({"Quantity"}, "ReferenceHyperlink"), " expression."}), 
+         "Notes"), 
+        Section(TextData({"The ", StyleBox("targetunit", "Arg"), 
+           " specification can also be \"SIBase\""}), "Notes"), 
+        Section(TextData({TemplateBox({"UnitConvert"}, "ReferenceHyperlink"), 
+           " accepts lists and lists of rules  threads over lists o"}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Convert from miles to kilometers:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"UnitConvert", "(", {
+              {"Quantity", "(", {"5.4", ",", StringBox("\"Miles\"")}, ")"}, 
+              ",", StringBox("\"Kilometers\"")}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(TemplateBox({"8.690457600000002`", StringBox("\"km\""), 
+              "Kilometers", StringBox("\"Kilometers\"")}, "Quantity")), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Convert a quantity to the appropriate SI base units:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"UnitConvert", "(", 
+               TemplateBox({"4.5", StringBox("\"lb\""), "Pounds", 
+                 StringBox("\"Pounds\"")}, "Quantity"), ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({"2.0411656650000003`", StringBox("\"kg\""), 
+                "Kilograms", StringBox("\"Kilograms\"")}, "Quantity")), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData({"UnitConvert", "(", 
+               TemplateBox({"3", StringBox("\"Pa\""), "Pascals", 
+                 StringBox("\"Pascals\"")}, "Quantity"), ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData(TemplateBox({
+                "3", {StringBox("\"kg\""), " ", {
+                  StringBox("\"m\""), SuperscriptBox({"-", "1"})}, " ", {
+                  StringBox("\"s\""), SuperscriptBox({"-", "2"})}}, 
+                "Kilograms"*1/"Meters"*1/"Seconds"^2, 
+                FractionBox(StringBox("\"Kilograms\""), {
+                  StringBox("\"Meters\""), " ", {
+                   StringBox("\"Seconds\""), SuperscriptBox("2")}})}, 
+               "Quantity")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"UnitConvert"}, "ReferenceHyperlink"), 
+           " operates on lists of ", TemplateBox({"Quantity"}, 
+            "ReferenceHyperlink"), " objects:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"UnitConvert", "(", {
+              {"{", {TemplateBox({"3", StringBox("\"ft\""), "Feet", 
+                  StringBox("\"Feet\"")}, "Quantity"), ",", 
+                TemplateBox({"5", StringBox("\"m\""), "Meters", 
+                  StringBox("\"Meters\"")}, "Quantity")}, "}"}, ",", 
+              StringBox("\"Inches\"")}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {TemplateBox({"36", StringBox("\"in\""), "Inches", 
+                StringBox("\"Inches\"")}, "Quantity"), ",", 
+              TemplateBox({FractionBox("25000", "127"), StringBox("\"in\""), 
+                "Inches", StringBox("\"Inches\"")}, "Quantity")}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Lists of rules are recognized:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"UnitConvert", "(", {
+                "{", {{StringBox("\"Height\""), "\[Rule]", {
+                   TemplateBox({"5", StringBox("\"ft\""), "Feet", 
+                     StringBox("\"Feet\"")}, "Quantity"), "+", 
+                   TemplateBox({"3", StringBox("\"in\""), "Inches", 
+                     StringBox("\"Inches\"")}, "Quantity")}}, ",", {
+                  StringBox("\"Weight\""), "\[Rule]", 
+                  TemplateBox({"150", StringBox("\"lb\""), "Pounds", 
+                    StringBox("\"Pounds\"")}, "Quantity")}}, "}"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {{StringBox("\"Height\""), "\[Rule]", 
+                 TemplateBox({FractionBox("8001", "5000"), StringBox("\"m\""), 
+                   "Meters", StringBox("\"Meters\"")}, "Quantity")}, ",", {
+                 StringBox("\"Weight\""), "\[Rule]", 
+                 TemplateBox({FractionBox("136077711", "2000000"), 
+                   StringBox("\"kg\""), "Kilograms", 
+                   StringBox("\"Kilograms\"")}, "Quantity")}}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, 1), SectionGroup({
+        Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({TemplateBox({"UnitConvert"}, "ReferenceHyperlink"), 
+           " gives ", TemplateBox({"$Failed"}, "ReferenceHyperlink"), 
+           " for incompatible specifications:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"UnitConvert", "(", {
+              TemplateBox({"6", StringBox("\"ft\""), "Feet", 
+                StringBox("\"Feet\"")}, "Quantity"), ",", 
+              StringBox("\"Kilograms\"")}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             TemplateBox({
+               TemplateBox({MessageName -> HoldForm(Quantity::"compat"), 
+                 Message -> StringForm("`1` and `2` are incompatible units.", 
+                   Short("Feet"), Button(Short("Kilograms"), 
+                    InputForm(SetSelectedDocument(Automatic, 
+                      Language`SourceLocation(
+                       FrontEndObject(5249494369828917646, 2720), 14 .. 25))), 
+                    BaseStyle -> "Hyperlink")), 
+                 Stack -> {
+                   {"Head" -> UnitConvert, 
+                    "Location" -> Language`SourceLocation(
+                      FrontEndObject(5249494369828917646, 2720), 0 .. 26)}, {
+                    "Head" -> 
+                     System`QuantityUnits`Private`unitConvertValidQuantity, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\QuantityUnits\\convert.pmath", {
+                        46, 106} .. {46, 156})}, {
+                    "Head" -> EvaluationSequence, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libr\
+                      ary\\scripts\\auto\\core\\format\\extended-syntax.pmath"\
+                      , {117, 14} .. {117, 20})}, {
+                    "Head" -> EvaluationSequence, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\QuantityUnits\\convert.pmath", {
+                        67, 31} .. {70, 0})}, {"Head" -> Message, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\QuantityUnits\\convert.pmath", {
+                        68, 8} .. {68, 51})}, {"Head" -> SectionPrint}}}, 
+                "MessageMenuButton"), {"Quantity", "::", 
+                StringBox("\"compat\"")}}, "RowDefault"), ":", " ", 
+             InterpretationBox(StringBox("\"", StringBox("\"Feet\""), " and ", 
+               ButtonBox(StringBox("\"Kilograms\""), BaseStyle -> "Hyperlink", 
+                ButtonFunction -> 
+                 Function(InputForm(SetSelectedDocument(Automatic, 
+                    Language`SourceLocation(
+                     FrontEndObject(5249494369828917646, 2720), 14 .. 25))))), 
+               " are incompatible units.\""), 
+              StringForm("`1` and `2` are incompatible units.", Short("Feet"), 
+               Button(Short("Kilograms"), 
+                InputForm(SetSelectedDocument(Automatic, 
+                  Language`SourceLocation(FrontEndObject(5249494369828917646, 
+                    2720), 14 .. 25))), BaseStyle -> "Hyperlink")), 
+              Editable -> False)}), "Message", SectionGenerated -> True), 
+          Section(BoxData("$Failed"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"UnitConvert", "(", {
+              {"{", {TemplateBox({"5", StringBox("\"lb\""), "Pounds", 
+                  StringBox("\"Pounds\"")}, "Quantity"), ",", 
+                TemplateBox({"6", StringBox("\"in\""), "Inches", 
+                  StringBox("\"Inches\"")}, "Quantity")}, "}"}, ",", 
+              StringBox("\"Centimeters\"")}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData({
+             TemplateBox({
+               TemplateBox({MessageName -> HoldForm(Quantity::"compat"), 
+                 Message -> StringForm("`1` and `2` are incompatible units.", 
+                   Short("Pounds"), Button(Short("Centimeters"), 
+                    InputForm(SetSelectedDocument(Automatic, 
+                      Language`SourceLocation(
+                       FrontEndObject(5249494369828917646, 2775), 18 .. 31))), 
+                    BaseStyle -> "Hyperlink")), 
+                 Stack -> {
+                   {"Head" -> UnitConvert, 
+                    "Location" -> Language`SourceLocation(
+                      FrontEndObject(5249494369828917646, 2775), 0 .. 32)}, {
+                    "Head" -> System`QuantityUnits`Private`unitConvertImpl, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\QuantityUnits\\convert.pmath", {
+                        23, 8} .. {23, 67})}, {
+                    "Head" -> Map, "Location" -> 
+                     Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\QuantityUnits\\convert.pmath", {
+                        42, 4} .. {42, 52})}, {
+                    "Head" -> 
+                     System`QuantityUnits`Private`unitConvertValidQuantity, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\QuantityUnits\\convert.pmath", {
+                        46, 106} .. {46, 156})}, {
+                    "Head" -> EvaluationSequence, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libr\
+                      ary\\scripts\\auto\\core\\format\\extended-syntax.pmath"\
+                      , {117, 14} .. {117, 20})}, {
+                    "Head" -> EvaluationSequence, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\QuantityUnits\\convert.pmath", {
+                        67, 31} .. {70, 0})}, {"Head" -> Message, 
+                    "Location" -> Language`SourceLocation(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modu\
+                      les\\System\\QuantityUnits\\convert.pmath", {
+                        68, 8} .. {68, 51})}, {"Head" -> SectionPrint}}}, 
+                "MessageMenuButton"), {"Quantity", "::", 
+                StringBox("\"compat\"")}}, "RowDefault"), ":", " ", 
+             InterpretationBox(StringBox("\"", StringBox("\"Pounds\""), 
+               " and ", ButtonBox(StringBox("\"Centimeters\""), 
+                BaseStyle -> "Hyperlink", ButtonFunction -> 
+                 Function(InputForm(SetSelectedDocument(Automatic, 
+                    Language`SourceLocation(
+                     FrontEndObject(5249494369828917646, 2775), 18 .. 31))))), 
+               " are incompatible units.\""), 
+              StringForm("`1` and `2` are incompatible units.", 
+               Short("Pounds"), Button(Short("Centimeters"), 
+                InputForm(SetSelectedDocument(Automatic, 
+                  Language`SourceLocation(FrontEndObject(5249494369828917646, 
+                    2775), 18 .. 31))), BaseStyle -> "Hyperlink")), 
+              Editable -> False)}), "Message", SectionGenerated -> True), 
+          Section(
+           BoxData({
+             "{", {"$Failed", ",", 
+              TemplateBox({FractionBox("381", "25"), StringBox("\"cm\""), 
+                "Centimeters", StringBox("\"Centimeters\"")}, "Quantity")}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UnitDimensions"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

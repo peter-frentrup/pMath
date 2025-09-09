@@ -111,5 +111,7 @@ Document({
       Section(TextData({TemplateBox({"Quantity"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UnitDimensions"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-         TemplateBox({"UnitKindObject"}, "ReferenceHyperlink")}), "SeeAlso")}, 
-     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+         TemplateBox({"UnitKindObject"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"UnitConvert"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
