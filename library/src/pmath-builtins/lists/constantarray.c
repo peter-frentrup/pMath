@@ -121,10 +121,10 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
           pmath_expr_new_extended(
             pmath_ref(pmath_System_List), 1,
             c),
-          PMATH_PACKED_INT32);
+          0);
   }
   else
-    c = pmath_to_packed_array(c, PMATH_PACKED_INT32);
+    c = pmath_to_packed_array(c, 0);
 
   if(pmath_is_packed_array(c)) {
     size_t dimensions;
