@@ -3179,6 +3179,9 @@ void MathSequence::Impl::EnlargeSpace::run() {
         iter_start.current_char() == PMATH_CHAR_INVISIBLECOMMA ||
         iter_start.current_char() == PMATH_CHAR_INVISIBLEPLUS)
     {
+      last_was_factor = false;
+      last_was_left   = false;
+      last_was_space  = true;
       continue;
     }
     
