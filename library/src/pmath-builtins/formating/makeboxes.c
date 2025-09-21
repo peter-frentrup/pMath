@@ -119,6 +119,7 @@ extern pmath_symbol_t pmath_System_Increment;
 extern pmath_symbol_t pmath_System_Inequation;
 extern pmath_symbol_t pmath_System_Infinity;
 extern pmath_symbol_t pmath_System_InputForm;
+extern pmath_symbol_t pmath_System_Integer;
 extern pmath_symbol_t pmath_System_Interpretation;
 extern pmath_symbol_t pmath_System_InterpretationBox;
 extern pmath_symbol_t pmath_System_Invisible;
@@ -196,6 +197,7 @@ extern pmath_symbol_t pmath_System_PrecedesTilde;
 extern pmath_symbol_t pmath_System_PureArgument;
 extern pmath_symbol_t pmath_System_RadicalBox;
 extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_Real;
 extern pmath_symbol_t pmath_System_Repeated;
 extern pmath_symbol_t pmath_System_ReverseElement;
 extern pmath_symbol_t pmath_System_RGBColor;
@@ -251,6 +253,7 @@ extern pmath_symbol_t pmath_System_Tiny;
 extern pmath_symbol_t pmath_System_TooltipBox;
 extern pmath_symbol_t pmath_System_TransformationBox;
 extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Undefined;
 extern pmath_symbol_t pmath_System_Underoverscript;
 extern pmath_symbol_t pmath_System_UnderoverscriptBox;
 extern pmath_symbol_t pmath_System_Underscript;
@@ -3647,11 +3650,47 @@ static pmath_t packed_array_to_boxes(pmath_thread_t thread, pmath_packed_array_t
   assert(pmath_is_packed_array(packed_array));
   
   if(thread->packed_array_form == PACKED_ARRAY_FORM_SUMMARY) {
-    // TODO: that is a bit old-fashioned. Use nice summary boxes instead, possibly with attached Interpretation
-    pmath_t obj = _pmath_packed_array_form(packed_array);
-    pmath_unref(packed_array);
-    
-    return expr_to_boxes(thread, obj);
+    if(thread->boxform < BOXFORM_OUTPUT) {
+      pmath_t type;
+      switch(pmath_packed_array_get_element_type(packed_array)) {
+        case PMATH_PACKED_DOUBLE: type = pmath_ref(pmath_System_Real); break;
+        case PMATH_PACKED_INT32:  type = pmath_ref(pmath_System_Integer); break;
+        default:                  type = pmath_ref(pmath_System_Undefined); break;
+      }
+      
+      pmath_t dims = _pmath_dimensions(packed_array, SIZE_MAX);
+      if(pmath_is_expr_of_len(dims, pmath_System_List, 1)) {
+        pmath_t dim1 = pmath_expr_get_item(dims, 1);
+        pmath_unref(dims);
+        dims = dim1;
+      }
+      else {
+        const uint16_t ch = PMATH_CHAR_TIMES;
+        pmath_string_t sep = pmath_string_insert_ucs2(PMATH_NULL, 0, &ch, 1);
+        dims = pmath_expr_new_extended(pmath_ref(pmath_System_Row), 2, dims, sep);
+      }
+      
+      pmath_string_t data = pmath_compress_to_string(pmath_ref(packed_array));
+      if(!pmath_is_null(data)) {
+        data = pmath_expr_new_extended(pmath_ref(pmath_System_CompressedData), 1, data);
+      }
+      
+      type = object_to_boxes(thread, type);
+      dims = object_to_boxes(thread, dims);
+      return pmath_expr_new_extended(pmath_ref(pmath_System_TemplateBox), 2,
+               pmath_expr_new_extended(pmath_ref(pmath_System_List), 3,
+                 type,
+                 dims,
+                 data),
+               PMATH_C_STRING("PackedArray"));
+    }
+    else {
+      // TODO: that is a bit old-fashioned. Use nice summary boxes instead, possibly with attached Interpretation
+      pmath_t obj = _pmath_packed_array_form(packed_array);
+      pmath_unref(packed_array);
+      
+      return expr_to_boxes(thread, obj);
+    }
   }
   
   if(thread->packed_array_form == PACKED_ARRAY_FORM_COMPRESSED) {

@@ -13,11 +13,16 @@ Document({
             "ReferenceHyperlink2"), " displays packed arrays as PackedArray(", 
            StyleBox("type", "Arg"), ", \[LeftGuillemet]\[NonBreakingSpace]", 
            StyleBox("dims", "Arg"), 
-           "\[NonBreakingSpace]\[RightGuillemet])."}), "Notes"), 
-        Section(TextData({"The output of ", 
+           "\[NonBreakingSpace]\[RightGuillemet]) in ", 
+           TemplateBox({"OutputForm"}, "ReferenceHyperlink"), 
+           " and as a summary box is ", TemplateBox({"StandardForm"}, 
+            "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"The summary box output of ", 
            TemplateBox({"Developer`", "PackedArrayForm"}, 
             "ReferenceHyperlink2"), "(", StyleBox("expr", "Arg"), 
-           ") typically cannot be used as input again."}), "Notes"), 
+           ") can typically be used as input again in an interactive document, \
+           but not the textual ", TemplateBox({"OutputForm"}, 
+            "ReferenceHyperlink"), " variant."}), "Notes"), 
         Section(TextData({TemplateBox({"Developer`", "PackedArrayForm"}, 
             "ReferenceHyperlink2"), "(", StyleBox("expr", "Arg"), ", ", 
            StyleBox("format", "Arg"), 
@@ -38,10 +43,11 @@ Document({
           Section(BoxData({"Developer`PackedArrayForm", "(", {
               "Array", "(", "20", ")"}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData({StringBox("\"PackedArray\""), "(", {
-              "Integer", ",", {"\[LeftGuillemet]", "\[NonBreakingSpace]", 
-               TemplateBox({",", ",", "20"}, "RowWithSeparators"), 
-               "\[NonBreakingSpace]", "\[RightGuillemet]"}}, ")"}), "Output", 
+          Section(
+           BoxData(TemplateBox({"Integer", "20", 
+              CompressedData(
+                "1:c$^Kx#[R-q3;-[=LNB2,8G!vKM7mSPTk>lnB5f^p_709t&MvNQ?p6;^FK-,\
+                zFxmkh")}, "PackedArray")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         Section("Normally, the indivudual elements are shown:", 
          "ExampleText"), SectionGroup({

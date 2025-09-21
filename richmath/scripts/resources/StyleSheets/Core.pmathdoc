@@ -536,8 +536,19 @@ Document({
                     Except(File | BinaryFormat)), 
                    Replace(DirectoryName(Lookup(FE`Private`opts, File, "")), {
                      "" -> Nothing, ~FE`Private`dir :> 
-                      Directory -> FE`Private`dir}))))))})}, All), 
-        SectionGroup({Section("Formatting", "Subsubsection"), 
+                      Directory -> FE`Private`dir}))))))}), 
+          Section(StyleData("PackedArray"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> 
+              Function(DynamicBox(System`BoxForm`MakeSimpleSummaryBox(
+                 Style("PackedArray", ShowStringCharacters -> False, 
+                  ShowAutoStyles -> False), {
+                  "Type" -> 
+                   Dynamic(RawBoxes(CurrentValue({TemplateSlot, 1}))), 
+                  "Elements" -> 
+                   Dynamic(RawBoxes(CurrentValue({TemplateSlot, 2})))}))), 
+             InterpretationFunction -> Function(InterpretationBox(, #3))})}, 
+         All), SectionGroup({Section("Formatting", "Subsubsection"), 
           Section(StyleData("ConditionalExpression"), 
            TemplateBoxOptions -> {
              DisplayFunction -> 
