@@ -17,6 +17,8 @@
 #include <eval/binding.h>
 #include <eval/application.h>
 
+#include <util/autovaluereset.h>
+
 #include <graphics/context.h>
 #include <graphics/glyph-iterator.h>
 #include <graphics/ot-font-reshaper.h>
@@ -188,8 +190,9 @@ namespace richmath {
           void stretch_outermost_span(GlyphHeights &core_heights, GlyphHeights &heights);
           void stretch_span(                  MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights);
           void stretch_span_start(            MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights);
-          void try_stretch_division_span_rest(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights);
-          void stretch_span_rest(             MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights);
+          void stretch_span_start_simple(     MathSequence *span_seq, int span_end, GlyphHeights &core_heights, GlyphHeights &heights);
+          void try_stretch_division_span_rest(MathSequence *span_seq, int span_end, GlyphHeights &core_heights, GlyphHeights &heights);
+          void stretch_span_rest(             MathSequence *span_seq, int span_end, GlyphHeights &core_heights, GlyphHeights &heights);
           void stretch_nonspan_box(Box *box, GlyphHeights &core_heights, GlyphHeights &heights);
           void size_nonspan_token(MathSequence *span_seq, GlyphHeights &heights);
           
@@ -197,6 +200,7 @@ namespace richmath {
           Context            &context;
           GlyphIterator       iter;
           InlineSpanPainting  isp;
+          MathSequence       *outermost;
       };
       //}
       
@@ -2689,7 +2693,8 @@ void MathSequence::Impl::GlyphGenerator::append_empty_glyphs(MathSequence &seq, 
 MathSequence::Impl::VerticalStretcher::VerticalStretcher(Context &context, MathSequence &seq)
   : context{context},
     iter{seq},
-    isp{&seq}
+    isp{&seq},
+    outermost{iter.outermost_sequence()}
 {
 }
 
@@ -2697,7 +2702,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_all(GlyphHeights &core_heigh
   while(iter.has_more_glyphs())
     stretch_outermost_span(core_heights, heights);
   
-  isp.switch_to_sequence(context, iter.outermost_sequence(), DisplayStage::Layout);
+  isp.switch_to_sequence(context, outermost, DisplayStage::Layout);
 }
 
 /// Stretch the current character at 'iter' to cover @arg inner_core_heights as much as possible (depending on @arg full).
@@ -2796,40 +2801,66 @@ void MathSequence::Impl::VerticalStretcher::stretch_outermost_span(GlyphHeights 
   ARRAY_ASSERT(iter.has_more_glyphs());
 
   // For single tokens wrappend in TagBox(...) etc., move up the TagBox/... to support constructs like TagBox(")",None,SyntaxForm->"(")
-  MathSequence *outermost = iter.outermost_sequence();
   MathSequence *cur_seq   = iter.current_sequence();
-  if(cur_seq != outermost && iter.text_index() == 0) {
+  if(cur_seq != outermost) {
     VolatileSelection sel(cur_seq, 0);
     sel.expand_to_parent();
     while(sel) {
       if(auto outer = dynamic_cast<MathSequence*>(sel.box)) {
-        if(outer == outermost || outer->length() > 1) { // outer contains more than sel
+        if(outer == outermost) {
           stretch_span(outer, outer->span_array()[sel.start], core_heights, heights);
           return;
         }
       }
-      if(sel.box == outermost)
+      if(sel.box == outermost) // should not happen
         break;
       sel.expand_to_parent();
     }
   }
-
   stretch_span(iter.current_sequence(), iter.text_span_array()[iter.text_index()], core_heights, heights);
 }
 
 void MathSequence::Impl::VerticalStretcher::stretch_span(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights) {
   if(span) {
     stretch_span_start(span_seq, span, core_heights, heights);
-    try_stretch_division_span_rest(span_seq, span, core_heights, heights);
-    stretch_span_rest(span_seq, span, core_heights, heights);
+    try_stretch_division_span_rest(span_seq, span.end(), core_heights, heights);
+    stretch_span_rest(span_seq, span.end(), core_heights, heights);
     return;
+  }
+  
+  if(iter.current_sequence() != span_seq) {
+    int i = iter.index_in_sequence(span_seq, -1);
+    if(i >= 0 && span_seq->char_at(i) == PMATH_CHAR_BOX) {
+      int boxi = span_seq->get_box(i);
+      if(boxi >= 0) {
+        auto box = span_seq->item(boxi);
+        if(auto inner = box->as_inline_span()) {
+          AutoValueReset<MathSequence*> auto_outermost(outermost);
+          outermost = inner;
+          int len = inner->length();
+          if(len > 0) {
+            i = 0;
+            do {
+              stretch_span(inner, inner->span_array()[i], core_heights, heights);
+
+              int nexti = iter.index_in_sequence(inner, i);
+              if(nexti <= i) { // should not happen unless `iter` left `inner`
+                break; 
+              }
+              i = nexti;
+            } while(i < len);
+          }
+          return;
+        }
+      }
+    }
   }
   
   if(auto box = iter.current_box()) {
     stretch_nonspan_box(box, core_heights, heights);
     return;
   }
-  
+
   if(iter.is_operand_start() && iter.text_buffer_length() > 1) {
     uint16_t ch = iter.current_char();
     if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) { 
@@ -2854,6 +2885,10 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
     return;
   }
   
+  stretch_span_start_simple(span_seq, span.end(), core_heights, heights);
+}
+
+void MathSequence::Impl::VerticalStretcher::stretch_span_start_simple(MathSequence *span_seq, int span_end, GlyphHeights &core_heights, GlyphHeights &heights) {
   MathSequence *cur_seq = iter.current_sequence();
   if(cur_seq != span_seq && span_seq->is_parent_of(cur_seq)) {
     if(iter.text_index() == 0) {
@@ -2872,8 +2907,6 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
   }
 
   uint16_t ch = iter.current_char();
-  
-  int span_end = span.end();
   
   if(ch == '"') {
     iter.skip_forward_to_glyph_after_current_text_pos(span_end + 1);
@@ -2907,7 +2940,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
     
     // Old code also did not *measure* stretched parentheses to adjust core_heights,heights.
     // But it recognized SubsuperscriptBox then only later in stretch_nonspan_box and then adjusted core_heights,heights accordingly
-    // We disregard such a SuperscriptNox now only if it is after the end of the span.
+    // We disregard such a SuperscriptBox now only if it is after the end of the span.
 
     bool full_stretch = true;
     if(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
@@ -2949,10 +2982,10 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
     if(core_heights.descent < inner_core_heights.descent) core_heights.descent = inner_core_heights.descent;
   }
   else
-    stretch_span(span_seq, span.next(), core_heights, heights);
+    stretch_span(span_seq, Span(nullptr), core_heights, heights);
 }
 
-void MathSequence::Impl::VerticalStretcher::try_stretch_division_span_rest(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights) {
+void MathSequence::Impl::VerticalStretcher::try_stretch_division_span_rest(MathSequence *span_seq, int span_end, GlyphHeights &core_heights, GlyphHeights &heights) {
   if(!iter.has_more_glyphs())
     return;
   
@@ -2965,7 +2998,6 @@ void MathSequence::Impl::VerticalStretcher::try_stretch_division_span_rest(MathS
   
   auto division_iter = iter;
   
-  int span_end = span.end();
   iter.move_next_token();
   while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end)
     stretch_outermost_span(core_heights, heights);
@@ -2973,18 +3005,19 @@ void MathSequence::Impl::VerticalStretcher::try_stretch_division_span_rest(MathS
   stretch_char_at(division_iter, {core_heights.ascent  - 0.1f * span_seq->em, core_heights.descent  - 0.1f * span_seq->em}, true, {span_seq, span_end + 1}, core_heights, heights);
 }
 
-void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights) {
-  int span_end = span.end();
-  while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
+void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span_seq, int span_end, GlyphHeights &core_heights, GlyphHeights &heights) {
+  int i = iter.index_in_sequence(span_seq, span_end + 1);
+  while(i <= span_end) {
     if(iter.is_left_bracket()) {
-      // NOTE: old code checked if there was a span starting here instead of looking for operand start
-      if(!iter.is_operand_start())
+      // Note cannot use iter.is_operand_start(), because that will disregard e.g. TagBox(")", None, SyntaxForm->"(")
+      if(!span_seq->span_array().is_operand_start(i)) // !iter.is_operand_start()
         break; // opening parenthesis in function call "f(..." or "x.f(..."
     }
     stretch_outermost_span(core_heights, heights);
+    i = iter.index_in_sequence(span_seq, span_end + 1);
   }
   
-  if(iter.index_in_sequence(span_seq, span_end + 1) < span_end) {
+  if(i < span_end) {
     auto call_paren_start = iter;
     
     GlyphHeights inner_core_heights {};

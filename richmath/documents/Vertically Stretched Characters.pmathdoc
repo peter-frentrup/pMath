@@ -1,0 +1,110 @@
+/* pMath Document */
+
+Document({SectionGroup({Section("Vertically Stretched Characters", "Title"), 
+    Section(
+     "Function call parentheses should be stretched according to surrounded \
+     arguments, no matter if TemplateBox/StyleBox/... inline constructs are \
+     being used or not.", "Text"), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {"ConstantArray", "(", {"0.0", ",", {"{", {"10", ",", "20"}, "}"}}, 
+          ")"}, "|>", "Developer`PackedArrayForm"}), "Input", 
+       SectionLabel -> "in [3]:"), 
+      Section(
+       BoxData(TemplateBox({
+          "Real", TemplateBox({"\[Times]", "\[Times]", "10", "20"}, 
+           "RowWithSeparators"), 
+          CompressedData("1:c${NmkYQpG(O?(_qhJ(_f>AIE$N&IeV*p_~")}, 
+         "PackedArray")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [3]:")}, All), 
+    Section(
+     BoxData({StyleBox(StringBox("\"ff\""), FontColor -> RGBColor(1, 0, 0)), 
+       "(", PanelBox("\[Placeholder]"), ")"}), "Input"), 
+    SectionGroup({
+      Section(
+       BoxData({{"TemplateBox", "(", {{"{", "}"}, ",", StringBox("\"\""), ",", 
+           {"DisplayFunction", "\[Rule]", {
+             "Function", "(", {
+              "{", {{StringBox("\"ff\""), ".", "StyleBox", "(", {
+                 "ShowAutoStyles", "\[Rule]", "True"}, ")"}, ",", 
+               StringBox("\"(\""), ",", {"PanelBox", "(", StringBox("\"x\""), 
+                ")"}, ",", StringBox("\")\"")}, "}"}, ")"}}}, ")"}, "|>", 
+         "RawBoxes"}), "Input", SectionLabel -> "in [3]:"), 
+      Section(BoxData(TemplateBox({}, "", 
+         DisplayFunction -> Function({StyleBox("ff", ShowAutoStyles -> True), 
+            "(", PanelBox("x"), ")"}))), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [3]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({{"TemplateBox", "(", {{"{", "}"}, ",", StringBox("\"\""), ",", 
+           {"DisplayFunction", "\[Rule]", {
+             "Function", "(", {
+              "{", {{StringBox("\"\\\"gg\\\"\""), ".", "StyleBox", "(", {
+                 "FontColor", "\[Rule]", {"RGBColor", "(", {
+                   "1", ",", "0", ",", "0"}, ")"}}, ")"}, ",", 
+               StringBox("\"(\""), ",", {"PanelBox", "(", StringBox("\"x\""), 
+                ")"}, ",", StringBox("\")\"")}, "}"}, ")"}}}, ")"}, "|>", 
+         "RawBoxes"}), "Input", SectionLabel -> "in [7]:"), 
+      Section(BoxData(TemplateBox({}, "", 
+         DisplayFunction -> 
+          Function({StyleBox("\"gg\"", FontColor -> RGBColor(1, 0, 0)), "(", 
+            PanelBox("x"), ")"}))), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [7]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({{"TemplateBox", "(", {{"{", "}"}, ",", StringBox("\"\""), ",", 
+           {"DisplayFunction", "\[Rule]", {
+             "Function", "(", {
+              "{", {StringBox("\"ff\""), ",", StringBox("\"(\""), ",", {
+                "PanelBox", "(", StringBox("\"x\""), ")"}, ",", 
+               StringBox("\")\"")}, "}"}, ")"}}}, ")"}, "|>", "RawBoxes"}), 
+       "Input", SectionLabel -> "in [1]:"), 
+      Section(BoxData(TemplateBox({}, "", 
+         DisplayFunction -> Function({"ff", "(", PanelBox("x"), ")"}))), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+    Section(BoxData(/\/({"f", "(", PanelBox("\[Placeholder]"), ")"}, " ")), 
+     "Input"), SectionGroup({
+      Section(BoxData({"RawBoxes", "(", {
+          "{", {{StringBox("\"\\\"gg\\\"\""), ".", "StyleBox", "(", {
+             "FontColor", "\[Rule]", {"RGBColor", "(", {
+               "1", ",", "0", ",", "0"}, ")"}}, ")"}, ",", StringBox("\"(\""), 
+           ",", {"PanelBox", "(", StringBox("\"x\""), ")"}, ",", 
+           StringBox("\")\"")}, "}"}, ")"}), "Input", 
+       SectionLabel -> "in [2]:"), 
+      Section(
+       BoxData({StyleBox(StringBox("\"gg\""), FontColor -> RGBColor(1, 0, 0)), 
+         "(", PanelBox("x"), ")"}), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [2]:")}, All), 
+    SectionGroup({Section("Normal \"Output\":", "Text"), 
+      Section(
+       BoxData({StyleBox(StringBox("\"gg\""), FontColor -> RGBColor(1, 0, 0)), 
+         "(", PanelBox("x"), ")"}), "Output")}, All), 
+    SectionGroup({Section("\"Output\" but with ShowAutoStyles->True:", 
+       "Text"), 
+      Section(
+       BoxData({StyleBox(StringBox("\"gg\""), FontColor -> RGBColor(1, 0, 0)), 
+         "(", PanelBox("x"), ")"}), "Output", ShowAutoStyles -> True)}, All), 
+    SectionGroup({Section("\"Output\" but with ShowStringCharacters->True:", 
+       "Text"), 
+      Section(
+       BoxData({StyleBox(StringBox("\"gg\""), FontColor -> RGBColor(1, 0, 0)), 
+         "(", PanelBox("x"), ")"}), "Output", ShowStringCharacters -> True)}, 
+     All), SectionGroup({
+      Section(BoxData({{"ConstantArray", "(", {"0.0", ",", "6"}, ")"}, "|>", 
+         "Developer`PackedArrayForm"}), "Input", SectionLabel -> "in [2]:"), 
+      Section(
+       BoxData(TemplateBox({
+          "Real", "6", CompressedData("1:c${NmkYQrtVIUCz010RSF8~~~")}, 
+         "PackedArray")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [2]:")}, All), 
+    Section(TextData({FrameBox("\[AliasIndicator]left)\[AliasIndicator]"), 
+       " displays similar to ", 
+       StyleBox({"L", SuperscriptBox("A"), 
+         StyleBox({"T", SubscriptBox("E")}, ScriptSizeMultipliers -> {1}), 
+         "X"}, AutoSpacing -> False, ShowAutoStyles -> False), " ", 
+       FrameBox("\\left)"), ":"}), "Text"), 
+    Section(BoxData({"a", "+", {TagBox(")", None, SyntaxForm -> "("), 
+        GridBox({{"a"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}}), ")"}}), "Input")}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
