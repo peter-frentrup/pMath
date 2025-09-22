@@ -308,6 +308,10 @@ void Canvas::rel_line_to(double x, double y) {
   cairo_rel_line_to(_cr, x, y);
 }
 
+void Canvas::curve_to(double x1, double y1, double x2, double y2, double x3, double y3) {
+  cairo_curve_to(_cr, x1, y1, x2, y2, x3, y3);
+}
+
 void Canvas::arc(
   double x, double y,
   double radius,

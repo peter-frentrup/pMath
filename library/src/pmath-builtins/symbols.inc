@@ -126,6 +126,8 @@ PMATH_DECLARE_SYSTEM_SYMBOL( BesselI,                            DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( BesselJ,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( BesselK,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( BesselY,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
+PMATH_DECLARE_SYSTEM_SYMBOL( BezierCurve,                        0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( BezierCurveBox,                     0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( BinaryFormat,                       0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( BinaryRead,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( BinaryReadList,                     0 )

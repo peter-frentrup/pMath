@@ -2,6 +2,7 @@
 
 #include <boxes/graphics/graphicsdirective.h>
 #include <boxes/graphics/graphicsdrawingcontext.h>
+#include <boxes/graphics/beziercurvebox.h>
 #include <boxes/graphics/circleordiskbox.h>
 #include <boxes/graphics/linebox.h>
 #include <boxes/graphics/pointbox.h>
@@ -22,6 +23,7 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_BezierCurveBox;
 extern pmath_symbol_t richmath_System_CircleBox;
 extern pmath_symbol_t richmath_System_DiskBox;
 extern pmath_symbol_t richmath_System_LineBox;
@@ -106,6 +108,11 @@ GraphicsElement::~GraphicsElement() {
 
 GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
   Expr head = expr[0];
+  
+  if(head == richmath_System_BezierCurveBox) {
+    if(auto ge = BezierCurveBox::try_create(expr, opts))
+      return ge;
+  }
   
   if(head == richmath_System_CircleBox || head == richmath_System_DiskBox) {
     if(auto ge = CircleOrDiskBox::try_create(expr, opts))

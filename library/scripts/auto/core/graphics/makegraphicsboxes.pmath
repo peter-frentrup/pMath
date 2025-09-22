@@ -9,11 +9,12 @@ Begin("System`Graphics`Private`")
 
 MakeGraphicsBoxes(~x)            ::= HoldComplete(x);
 
-MakeGraphicsBoxes(~multi: List)   ::= HoldComplete @@ List @ HoldComplete(multi).Map(MakeGraphicsBoxes, 2).ReleaseHold.Replace(HoldComplete(~~~x) :> x, 1)
-MakeGraphicsBoxes(Circle(~~~args))::= HoldComplete(CircleBox(args))
-MakeGraphicsBoxes(Disk(~~~args))  ::= HoldComplete(DiskBox(args))
-MakeGraphicsBoxes(Line(~~~args))  ::= HoldComplete(LineBox(args))
-MakeGraphicsBoxes(Point(~~~args) )::= HoldComplete(PointBox(args))
+MakeGraphicsBoxes(~multi: List)        ::= HoldComplete @@ List @ HoldComplete(multi).Map(MakeGraphicsBoxes, 2).ReleaseHold.Replace(HoldComplete(~~~x) :> x, 1)
+MakeGraphicsBoxes(BezierCurve(~~~args))::= HoldComplete(BezierCurveBox(args))
+MakeGraphicsBoxes(Circle(~~~args))     ::= HoldComplete(CircleBox(args))
+MakeGraphicsBoxes(Disk(~~~args))       ::= HoldComplete(DiskBox(args))
+MakeGraphicsBoxes(Line(~~~args))       ::= HoldComplete(LineBox(args))
+MakeGraphicsBoxes(Point(~~~args) )     ::= HoldComplete(PointBox(args))
 
 
 Attributes(isNumericCachableOption):= {HoldAllComplete}

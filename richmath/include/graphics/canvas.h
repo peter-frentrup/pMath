@@ -109,6 +109,8 @@ namespace richmath {
       void line_to(double x, double y);
       void rel_line_to(Vector2F delta) { rel_line_to(delta.x, delta.y); }
       void rel_line_to(double dx, double dy);
+      void curve_to(Point pt1, Point pt2, Point pt3) { curve_to(pt1.x, pt1.y, pt2.x, pt2.y, pt3.x, pt3.y); }
+      void curve_to(double x1, double y1, double x2, double y2, double x3, double y3);
       
       void arc(Point center, double radius, double angle1, double angle2, bool negative) {
         arc(center.x, center.y, radius, angle1, angle2, negative);
