@@ -44,6 +44,10 @@ Attributes(MakeGraphicsExpressionOptions):= {HoldAllComplete, Protected}
 
 Attributes(Plot):= {HoldAll, Protected}
 
+Unprotect(BezierCurve, BezierCurveBox)
+Options(BezierCurve):= Options(BezierCurveBox):= {SplineClosed -> False}
+Protect(BezierCurve, BezierCurveBox)
+
 AutoLoad(Hold(MakeGraphicsBoxes, MakeGraphicsBoxesOptions), 
 	ToFileName(DirectoryName($Input), "makegraphicsboxes.pmath"))
 

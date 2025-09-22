@@ -39,6 +39,7 @@ extern pmath_symbol_t richmath_System_AxesOrigin;
 extern pmath_symbol_t richmath_System_Background;
 extern pmath_symbol_t richmath_System_BaselinePosition;
 extern pmath_symbol_t richmath_System_BaseStyle;
+extern pmath_symbol_t richmath_System_BezierCurveBoxOptions;
 extern pmath_symbol_t richmath_System_Bold;
 extern pmath_symbol_t richmath_System_BorderRadius;
 extern pmath_symbol_t richmath_System_Bottom;
@@ -170,6 +171,7 @@ extern pmath_symbol_t richmath_System_ShowSectionBracket;
 extern pmath_symbol_t richmath_System_ShowStringCharacters;
 extern pmath_symbol_t richmath_System_SingleLetterItalics;
 extern pmath_symbol_t richmath_System_SliderBoxOptions;
+extern pmath_symbol_t richmath_System_SplineClosed;
 extern pmath_symbol_t richmath_System_StripOnInput;
 extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
@@ -2629,6 +2631,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   if(with_inherited)
     impl.emit_definition(BaseStyleName);
     
+  impl.emit_definition(BezierCurveBoxOptions);
   impl.emit_definition(BorderRadius);
   impl.emit_definition(BoxID);
   impl.emit_definition(BoxRotation);
@@ -2752,6 +2755,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ShowStringCharacters);
   impl.emit_definition(SingleLetterItalics);
   impl.emit_definition(SliderBoxOptions);
+  impl.emit_definition(SplineClosed);
   impl.emit_definition(StripOnInput);
   impl.emit_definition(StringStyle);
   impl.emit_definition(StyleDefinitions);
@@ -3305,6 +3309,7 @@ void StyleInformation::add_style() {
     _name_to_key.default_value = StyleOptionName{ -1};
     _key_to_type.default_value = StyleType::None;
     
+    add_ruleset_head(BezierCurveBoxOptions,         Symbol( richmath_System_BezierCurveBoxOptions));
     add_ruleset_head(ButtonBoxOptions,              Symbol( richmath_System_ButtonBoxOptions));
     add_ruleset_head(CharacterNameStyle,            strings::CharacterNameStyle);
     add_ruleset_head(CommentStyle,                  strings::CommentStyle);
@@ -3462,12 +3467,15 @@ void StyleInformation::add_style() {
     add(StyleType::AutoBool,        ShowSectionBracket,               Symbol( richmath_System_ShowSectionBracket));
     add(StyleType::Bool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));
     add(StyleType::Bool,            SingleLetterItalics,              Symbol( richmath_System_SingleLetterItalics));
+    add(StyleType::Bool,            SplineClosed,                     Symbol( richmath_System_SplineClosed));
     add(StyleType::Bool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));
     add(StyleType::Bool,            SurdForm,                         Symbol( richmath_System_SurdForm));
     add(StyleType::AutoBool,        SynchronousUpdating,              Symbol( richmath_System_SynchronousUpdating));
     add(StyleType::Bool,            Visible,                          Symbol( richmath_System_Visible));
     add(StyleType::Bool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
     
+    add(StyleType::Bool,            BezierCurveBoxDefaultSplineClosed, List(Symbol(richmath_System_BezierCurveBoxOptions), Symbol(richmath_System_SplineClosed)));
+   
     add(StyleType::AutoBool,        ButtonBoxDefaultContentPadding,   List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ContentPadding)));
     add(StyleType::AutoBool,        ButtonBoxDefaultEnabled,          List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
     

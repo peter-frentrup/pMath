@@ -17,25 +17,26 @@ namespace richmath {
   
   enum class DefaultStyleOptionOffsets {
     None = 0,
-    ButtonBox            = 0x00100000,
-    DynamicBox           = 0x00200000,
-    DynamicLocalBox      = 0x00300000,
-    FillBox              = 0x00400000,
-    FractionBox          = 0x00500000,
-    FrameBox             = 0x00600000,
-    GraphicsBox          = 0x00700000,
-    GridBox              = 0x00800000,
-    InputFieldBox        = 0x00900000,
-    OverscriptBox        = 0x00A00000,
-    PaneBox              = 0x00B00000,
-    PanelBox             = 0x00C00000,
-    PaneSelectorBox      = 0x00D00000,
-    ProgressIndicatorBox = 0x00E00000,
-    SetterBox            = 0x00F00000,
-    SliderBox            = 0x01000000,
-    TemplateBox          = 0x01100000,
-    UnderoverscriptBox   = 0x01200000,
-    UnderscriptBox       = 0x01300000,
+    BezierSplineBox      = 0x00100000,
+    ButtonBox            = 0x00200000,
+    DynamicBox           = 0x00300000,
+    DynamicLocalBox      = 0x00400000,
+    FillBox              = 0x00500000,
+    FractionBox          = 0x00600000,
+    FrameBox             = 0x00700000,
+    GraphicsBox          = 0x00800000,
+    GridBox              = 0x00900000,
+    InputFieldBox        = 0x00A00000,
+    OverscriptBox        = 0x00B00000,
+    PaneBox              = 0x00C00000,
+    PanelBox             = 0x00D00000,
+    PaneSelectorBox      = 0x00E00000,
+    ProgressIndicatorBox = 0x00F00000,
+    SetterBox            = 0x01000000,
+    SliderBox            = 0x01100000,
+    TemplateBox          = 0x01200000,
+    UnderoverscriptBox   = 0x01300000,
+    UnderscriptBox       = 0x01400000
   };
   
   enum ClosingActionValues {
@@ -162,6 +163,7 @@ namespace richmath {
     ShowSectionBracket, // AutoBoolXXX
     ShowStringCharacters,
     SingleLetterItalics,
+    SplineClosed, // bool
     StripOnInput,
     SurdForm,
     SynchronousUpdating, // AutoBoolXXX
@@ -175,6 +177,8 @@ namespace richmath {
     ButtonSource, // ButtonSourceXXX
     WindowFrame, // WindowFrameType
     
+    BezierCurveBoxDefaultSplineClosed = SplineClosed + (int)DefaultStyleOptionOffsets::BezierSplineBox,
+
     ButtonBoxDefaultContentPadding = ContentPadding + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultEnabled        = Enabled        + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFrame    = ButtonFrame    + (int)DefaultStyleOptionOffsets::ButtonBox,
@@ -421,6 +425,7 @@ namespace richmath {
     InputAliases,           // StyleType::AnyFlatList
     InputAutoReplacements,  // StyleType::AnyFlatList
     
+    BezierCurveBoxOptions,
     ButtonBoxOptions,
     DynamicBoxOptions,
     DynamicLocalBoxOptions,

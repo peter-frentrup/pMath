@@ -16,13 +16,20 @@ namespace richmath {
       virtual void find_extends(GraphicsBounds &bounds) override;
       virtual void paint(GraphicsDrawingContext &gc) override;
       
+      virtual Style own_style() override { return style; }
+      
+      virtual Expr update_cause() final override;
+      virtual void update_cause(Expr cause) final override;
+      
     protected:
       Expr         _points_expr;
       DoubleMatrix _points;
+      Style        style;
       
     protected:
       BezierCurveBox();
       
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::BezierSplineBox; }
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
   };
 }

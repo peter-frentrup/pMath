@@ -35,6 +35,7 @@ Options(CreateDocument):= Options(Document):= {
     AutoSpacing -> Inherited,
     Background -> Inherited,
     BaseStyle -> None,
+    BezierCurveBoxOptions -> Inherited,
     BoxID -> None,
     ButtonBoxOptions -> Inherited,
     ButtonFrame -> Inherited,
@@ -260,6 +261,7 @@ Options(Style):= Options(StyleBox):= {
     Background -> None,
     %BaselinePosition -> Automatic, % TODO: handle for in-line spans or remove from StyleBox
     BaseStyle -> None,
+    BezierCurveBoxOptions -> Inherited,
     %BorderRadius -> 0,
     BoxID -> None,
     ButtonBoxOptions -> Inherited,
@@ -336,6 +338,8 @@ Options(Section):= {
     Background -> Automatic,
     BaselinePosition -> Automatic, % TODO: hide behind FrameBoxOptions, etc ?
     BaseStyle -> None,
+    BezierCurveBoxOptions -> {
+        SplineClosed -> False},
     BorderRadius -> 0,
     BoxID -> None,
     ButtonBoxOptions -> {
