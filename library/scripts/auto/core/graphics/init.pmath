@@ -45,7 +45,7 @@ Attributes(MakeGraphicsExpressionOptions):= {HoldAllComplete, Protected}
 Attributes(Plot):= {HoldAll, Protected}
 
 Unprotect(BezierCurve, BezierCurveBox)
-Options(BezierCurve):= Options(BezierCurveBox):= {SplineClosed -> False}
+Options(BezierCurve):= Options(BezierCurveBox):= {SplineClosed -> False, SplineDegree -> 3}
 Protect(BezierCurve, BezierCurveBox)
 
 AutoLoad(Hold(MakeGraphicsBoxes, MakeGraphicsBoxesOptions), 

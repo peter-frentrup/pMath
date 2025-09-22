@@ -7,6 +7,7 @@
 
 namespace richmath {
   class BezierCurveBox: public GraphicsElement {
+      class Impl;
     public:
       static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;
       static BezierCurveBox *try_create(Expr expr, BoxInputFlags opts);

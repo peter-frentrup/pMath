@@ -164,6 +164,7 @@ namespace richmath {
     ShowStringCharacters,
     SingleLetterItalics,
     SplineClosed, // bool
+    SplineDegree, // positive integer
     StripOnInput,
     SurdForm,
     SynchronousUpdating, // AutoBoolXXX
@@ -178,6 +179,7 @@ namespace richmath {
     WindowFrame, // WindowFrameType
     
     BezierCurveBoxDefaultSplineClosed = SplineClosed + (int)DefaultStyleOptionOffsets::BezierSplineBox,
+    BezierCurveBoxDefaultSplineDegree = SplineDegree + (int)DefaultStyleOptionOffsets::BezierSplineBox,
 
     ButtonBoxDefaultContentPadding = ContentPadding + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultEnabled        = Enabled        + (int)DefaultStyleOptionOffsets::ButtonBox,

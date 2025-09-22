@@ -339,7 +339,8 @@ Options(Section):= {
     BaselinePosition -> Automatic, % TODO: hide behind FrameBoxOptions, etc ?
     BaseStyle -> None,
     BezierCurveBoxOptions -> {
-        SplineClosed -> False},
+        SplineClosed -> False,
+        SplineDegree -> 3},
     BorderRadius -> 0,
     BoxID -> None,
     ButtonBoxOptions -> {

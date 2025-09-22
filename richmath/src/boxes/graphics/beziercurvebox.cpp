@@ -10,6 +10,13 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_BezierCurveBox;
 extern pmath_symbol_t richmath_System_List;
 
+namespace richmath {
+  class BezierCurveBox::Impl {
+    public:
+      static void add_segment_to(Canvas &canvas, size_t degree, const DoubleMatrix &control_points, size_t index, DoublePoint pt);
+  };
+}
+
 //{ class BezierCurveBox ...
 
 BezierCurveBox::BezierCurveBox()
@@ -59,6 +66,7 @@ BezierCurveBox *BezierCurveBox::try_create(Expr expr, BoxInputFlags opts) {
 }
 
 void BezierCurveBox::find_extends(GraphicsBounds &bounds) {
+  // TODO: use tight bound instead of control points
   for(size_t i = 0; i < _points.rows(); ++i) 
     bounds.add_point(_points.get(i, 0), _points.get(i, 1));
 }
@@ -68,57 +76,41 @@ void BezierCurveBox::paint(GraphicsDrawingContext &gc) {
   if(num_points == 0)
     return;
   
-  gc.canvas().move_to(_points.get(0, 0), _points.get(0, 1));
-  
   bool closed = !!get_own_style(SplineClosed);
   
-  //size_t degree = 3;
+  int degree_option = get_own_style(SplineDegree, 3);
+  if(degree_option <= 0)
+    return;
+  
+  Canvas &canvas = gc.canvas();
+  canvas.move_to(_points.get(0, 0), _points.get(0, 1));
+  
+  size_t degree = (size_t)degree_option;
   // TODO: check SplineDegree option
   size_t i = 0;
-  if(num_points > 3) { // && degree == 3
-    for(i = 0; i < num_points - 3; i+= 3) {
-      gc.canvas().curve_to(
-        _points.get(i+1, 0), _points.get(i+1, 1), 
-        _points.get(i+2, 0), _points.get(i+2, 1), 
-        _points.get(i+3, 0), _points.get(i+3, 1));
+  if(num_points > degree) {
+    for(i = 0; i < num_points - degree; i+= degree) {
+      Impl::add_segment_to(
+        canvas, degree, _points, i+1, 
+        DoublePoint{_points.get(i + degree, 0), _points.get(i + degree, 1)});
     }
   }
+  // Now have  num_points     - degree <= i < num_points
+  // Hence     num_points - i - degree <= 0 < num_points - i
+  // Hence     0 < num_points - i <= degree
   
   if(closed) {
-    if(i + 2 < num_points) {
-      gc.canvas().curve_to(
-        _points.get(i+1, 0), _points.get(i+1, 1), 
-        _points.get(i+2, 0), _points.get(i+2, 1),
-        _points.get(0,   0), _points.get(0,   1));
-    }
-    else if(i + 1 < num_points) {
-      // Note that this is different from a quadratic Bézier curve with control point (cx,cy).
-      double cx = _points.get(i+1, 0);
-      double cy = _points.get(i+1, 1);
-      gc.canvas().curve_to(cx, cy, cx, cy, _points.get(0, 0), _points.get(0, 1));
-    }
-    else 
-      gc.canvas().line_to(_points.get(0, 0), _points.get(0, 1));
-    
-    gc.canvas().close_path();
+    Impl::add_segment_to(canvas, num_points - i, _points, i+1, DoublePoint{_points.get(0, 0), _points.get(0, 1)});
+    canvas.close_path();
   }
   else {
-    if(i + 2 < num_points) {
-      // Note that this is different from a quadratic Bézier curve with control point (cx,cy).
-      double cx = _points.get(i+1, 0);
-      double cy = _points.get(i+1, 1);
-      gc.canvas().curve_to(cx, cy, cx, cy, _points.get(i+2, 0), _points.get(i+2, 1));
-    }
-    else if(i + 1 < num_points)
-      gc.canvas().line_to(_points.get(i+1, 0), _points.get(i+1, 1));
-    else
-      gc.canvas().rel_move_to(0, 0);
+    Impl::add_segment_to(canvas, num_points - i - 1, _points, i+1, DoublePoint{_points.get(num_points - 1, 0), _points.get(num_points - 1, 1)});
   }
   
-  auto mat = gc.canvas().get_matrix();
-  gc.canvas().set_matrix(gc.initial_matrix());
-  gc.canvas().stroke();
-  gc.canvas().set_matrix(mat);
+  auto mat = canvas.get_matrix();
+  canvas.set_matrix(gc.initial_matrix());
+  canvas.stroke();
+  canvas.set_matrix(mat);
 }
 
 Expr BezierCurveBox::to_pmath_impl(BoxOutputFlags flags) { 
@@ -146,3 +138,35 @@ void BezierCurveBox::update_cause(Expr cause) {
 }
 
 //} ... class BezierCurveBox
+
+//{ class BezierCurveBox::Impl ...
+
+void BezierCurveBox::Impl::add_segment_to(Canvas &canvas, size_t degree, const DoubleMatrix &control_points, size_t index, DoublePoint pt) {
+  switch(degree) {
+    case 0: return;
+    case 1: canvas.line_to(pt.x, pt.y); return;
+    case 2: {
+      DoublePoint c { control_points.get(index, 0), control_points.get(index, 1) };
+      
+      DoublePoint p0;
+      canvas.current_pos(&p0.x, &p0.y);
+      
+      DoublePoint c1 = { c.x - (c.x - p0.x) / 3.0,
+                         c.y - (c.y - p0.y) / 3.0};
+      DoublePoint c2 = { pt.x - (pt.x - c.x) * (2/3.0),
+                         pt.y - (pt.y - c.y) * (2/3.0)};
+      
+      canvas.curve_to(c1.x, c1.y, c2.x, c2.y, pt.x, pt.y);
+    } return;
+    case 3: 
+      canvas.curve_to(
+        control_points.get(index,     0), control_points.get(index,     1),
+        control_points.get(index + 1, 0), control_points.get(index + 1, 1),
+        pt.x, pt.y);
+      return;
+    
+    default: canvas.move_to(pt.x, pt.y); return; // TODO: use De Casteljau algorithm for higher orders
+  }
+}
+
+//} ... class BezierCurveBox::Impl

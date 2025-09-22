@@ -172,6 +172,7 @@ extern pmath_symbol_t richmath_System_ShowStringCharacters;
 extern pmath_symbol_t richmath_System_SingleLetterItalics;
 extern pmath_symbol_t richmath_System_SliderBoxOptions;
 extern pmath_symbol_t richmath_System_SplineClosed;
+extern pmath_symbol_t richmath_System_SplineDegree;
 extern pmath_symbol_t richmath_System_StripOnInput;
 extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
@@ -2756,6 +2757,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(SingleLetterItalics);
   impl.emit_definition(SliderBoxOptions);
   impl.emit_definition(SplineClosed);
+  impl.emit_definition(SplineDegree);
   impl.emit_definition(StripOnInput);
   impl.emit_definition(StringStyle);
   impl.emit_definition(StyleDefinitions);
@@ -3468,6 +3470,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));
     add(StyleType::Bool,            SingleLetterItalics,              Symbol( richmath_System_SingleLetterItalics));
     add(StyleType::Bool,            SplineClosed,                     Symbol( richmath_System_SplineClosed));
+    add(StyleType::Integer,         SplineDegree,                     Symbol( richmath_System_SplineDegree));
     add(StyleType::Bool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));
     add(StyleType::Bool,            SurdForm,                         Symbol( richmath_System_SurdForm));
     add(StyleType::AutoBool,        SynchronousUpdating,              Symbol( richmath_System_SynchronousUpdating));
@@ -3475,6 +3478,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
     
     add(StyleType::Bool,            BezierCurveBoxDefaultSplineClosed, List(Symbol(richmath_System_BezierCurveBoxOptions), Symbol(richmath_System_SplineClosed)));
+    add(StyleType::Integer,         BezierCurveBoxDefaultSplineDegree, List(Symbol(richmath_System_BezierCurveBoxOptions), Symbol(richmath_System_SplineDegree)));
    
     add(StyleType::AutoBool,        ButtonBoxDefaultContentPadding,   List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ContentPadding)));
     add(StyleType::AutoBool,        ButtonBoxDefaultEnabled,          List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
