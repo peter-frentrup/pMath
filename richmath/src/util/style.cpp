@@ -3895,7 +3895,7 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
 }
 
 bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
-  auto styled_obj = dynamic_cast<ActiveStyledObject*>(obj);
+  auto styled_obj = dynamic_cast<StyledObject*>(obj);
   if(!styled_obj)
     return false;
   
@@ -3909,20 +3909,24 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   if(!styled_obj->is_option_supported(key))
     return false;
   
-  if(!styled_obj->style) {
+  Style *style_dest = styled_obj->edit_own_style();
+  if(!style_dest || !*style_dest) {
     if(rhs == richmath_System_Inherited)
       return true;
   }
+
+  if(!style_dest)
+    return false;
   
   bool any_change = false;
   if(StyleInformation::get_type(key) == StyleType::AnyFlatList) {
     // Reset the style so that calling CurrentValue(...):= {..., Inherited, ...} multiple times
     // will not repeatedly fill in the previous value.
     if(rhs != richmath_System_Inherited) {
-      any_change = styled_obj->style.set_pmath(key, Symbol(richmath_System_Inherited)) || any_change;
+      any_change = style_dest->set_pmath(key, Symbol(richmath_System_Inherited)) || any_change;
     }
   }
-  any_change = styled_obj->style.set_pmath(key, PMATH_CPP_MOVE(rhs)) || any_change;
+  any_change = style_dest->set_pmath(key, PMATH_CPP_MOVE(rhs)) || any_change;
   
   if(any_change)
     styled_obj->on_style_changed(StyleData::modifies_size(key));

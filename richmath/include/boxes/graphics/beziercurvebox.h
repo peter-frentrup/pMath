@@ -18,9 +18,9 @@ namespace richmath {
       virtual void paint(GraphicsDrawingContext &gc) override;
       
       virtual Style own_style() override { return style; }
+      virtual Style *edit_own_style() final override { return &style; }
       
-      virtual Expr update_cause() final override;
-      virtual void update_cause(Expr cause) final override;
+      virtual Expr allowed_options() override;
       
     protected:
       Expr         _points_expr;

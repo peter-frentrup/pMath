@@ -13,11 +13,19 @@ namespace richmath {
     public:
       virtual StyledObject *style_parent() = 0;
       virtual Style own_style() { return nullptr; }
+
+      virtual Style *edit_own_style() { return nullptr; }
       
       virtual SharedPtr<Stylesheet> stylesheet();
       
       virtual bool changes_children_style() { return false; }
       
+      virtual Expr update_cause() final override;
+      virtual void update_cause(Expr cause) final override;
+      
+      virtual Expr allowed_options() { return Expr(); }
+      virtual bool is_option_supported(StyleOptionName key);
+
       bool enabled();
       
       Color  get_style(ColorStyleOptionName  n, Color  result = Color::None);
@@ -65,12 +73,7 @@ namespace richmath {
       
     public:
       virtual Style own_style() final override { return style; };
-      
-      virtual Expr update_cause() final override;
-      virtual void update_cause(Expr cause) final override;
-      
-      virtual Expr allowed_options() = 0;
-      virtual bool is_option_supported(StyleOptionName key);
+      virtual Style *edit_own_style() final override { return &style; }
   };
   
   class FrontEndSession : public ActiveStyledObject {

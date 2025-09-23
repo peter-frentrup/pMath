@@ -77,16 +77,18 @@ Expr richmath_eval_FrontEnd_SetOptions(Expr expr) {
     return Symbol(richmath_System_DollarFailed);
   
   auto ref = FrontEndReference::from_pmath(expr[1]);
-  auto obj = FrontEndObject::find_cast<ActiveStyledObject>(ref);
+  auto obj = FrontEndObject::find_cast<StyledObject>(ref);
   
   if(obj) {
-    Expr options = Expr(pmath_expr_get_item_range(expr.get(), 2, SIZE_MAX));
-    options.set(0, Symbol(richmath_System_List));
+    if(Style *style_pos = obj->edit_own_style()) {
+      Expr options = Expr(pmath_expr_get_item_range(expr.get(), 2, SIZE_MAX));
+      options.set(0, Symbol(richmath_System_List));
+        
+      style_pos->add_pmath(options, false);
+      obj->on_style_changed(true); // TODO: check if only non-layout options were affected
       
-    obj->style.add_pmath(options, false);
-    obj->on_style_changed(true); // TODO: check if only non-layout options were affected
-    
-    return options;
+      return options;
+    }
   }
   
   return Symbol(richmath_System_DollarFailed);

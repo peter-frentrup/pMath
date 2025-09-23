@@ -85,6 +85,33 @@ SharedPtr<Stylesheet> StyledObject::stylesheet() {
   return Stylesheet::Default;
 }
 
+Expr StyledObject::update_cause() {
+  if(!own_style())
+    return Expr();
+  
+  return get_own_style(InternalUpdateCause);
+}
+
+void StyledObject::update_cause(Expr cause) {
+  Style *style_pos = edit_own_style();
+  if(!style_pos)
+    return;
+  
+  if(!*style_pos && !cause)
+    return;
+  
+  style_pos->set(InternalUpdateCause, PMATH_CPP_MOVE(cause));
+}
+
+bool StyledObject::is_option_supported(StyleOptionName key) {
+  Expr name = StyleData::get_name(key);
+  if(name.item_equals(0, richmath_System_List)) { // {opt, subopts...}
+    return allowed_options().lookup(name[1], Expr{PMATH_UNDEFINED}) != PMATH_UNDEFINED;
+  }
+  else
+    return allowed_options().lookup(PMATH_CPP_MOVE(name), Expr{PMATH_UNDEFINED}) != PMATH_UNDEFINED;
+}
+
 bool StyledObject::enabled() {
   StyledObject *tmp = this;
   while(tmp) {
@@ -216,33 +243,6 @@ void StyledObject::reset_style() {
 }
 
 //} ... class StyledObject
-
-//{ class ActiveStyledObject ...
-
-Expr ActiveStyledObject::update_cause() {
-  if(!style)
-    return Expr();
-  
-  return get_own_style(InternalUpdateCause);
-}
-
-void ActiveStyledObject::update_cause(Expr cause) {
-  if(!style && !cause)
-    return;
-  
-  style.set(InternalUpdateCause, PMATH_CPP_MOVE(cause));
-}
-
-bool ActiveStyledObject::is_option_supported(StyleOptionName key) {
-  Expr name = StyleData::get_name(key);
-  if(name.item_equals(0, richmath_System_List)) { // {opt, subopts...}
-    return allowed_options().lookup(name[1], Expr{PMATH_UNDEFINED}) != PMATH_UNDEFINED;
-  }
-  else
-    return allowed_options().lookup(PMATH_CPP_MOVE(name), Expr{PMATH_UNDEFINED}) != PMATH_UNDEFINED;
-}
-
-//} ... class ActiveStyledObject
 
 //{ class FrontEndSession ...
 

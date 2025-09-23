@@ -89,7 +89,7 @@ static MenuCommandStatus can_similar_section_below(Expr cmd);
 static MenuCommandStatus can_subsession_evaluate_sections(Expr cmd);
 static MenuCommandStatus can_toggle_character_code(Expr cmd);
 
-static bool has_style(ActiveStyledObject *box, StyleOptionName name, Expr rhs);
+static bool has_style(StyledObject *box, StyleOptionName name, Expr rhs);
 //} ... menu command availability checkers
 
 //{ menu commands ...
@@ -792,13 +792,9 @@ static MenuCommandStatus can_section_split(Expr cmd) {
   return MenuCommandStatus(doc->split_section(false));
 }
 
-static bool has_style(ActiveStyledObject *obj, StyleOptionName name, Expr rhs) {
-  if(rhs == richmath_System_Inherited) {
-    if(!obj->style)
-      return true;
-    
-    return obj->style.get_pmath(name) == rhs;
-  }
+static bool has_style(StyledObject *obj, StyleOptionName name, Expr rhs) {
+  if(rhs == richmath_System_Inherited) 
+    return obj->own_style().get_pmath(name) == rhs;
 
   return obj->get_pmath_style(name) == rhs;
 }
@@ -817,7 +813,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
   }
   
   Document *doc = Menus::current_document();
-  ActiveStyledObject *obj;
+  StyledObject *obj;
   if(Menus::current_scope == MenuCommandScope::FrontEndSession)
     obj = Application::front_end_session;
   else if(doc)
@@ -826,6 +822,10 @@ static MenuCommandStatus can_set_style(Expr cmd) {
     return MenuCommandStatus(false);
   
   if(!obj)
+    return MenuCommandStatus(false);
+  
+  Style *style_pos = obj->edit_own_style();
+  if(!style_pos)
     return MenuCommandStatus(false);
   
   if(status.enabled) {

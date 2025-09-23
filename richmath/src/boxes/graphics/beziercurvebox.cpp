@@ -3,6 +3,7 @@
 #include <boxes/graphics/graphicsdrawingcontext.h>
 #include <graphics/canvas.h>
 #include <util/double-point.h>
+#include <eval/application.h>
 
 #include <math.h>
 
@@ -11,6 +12,7 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_BezierCurveBox;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Options;
 
 namespace richmath {
   class BezierCurveBox::Impl {
@@ -66,6 +68,11 @@ BezierCurveBox *BezierCurveBox::try_create(Expr expr, BoxInputFlags opts) {
   }
   
   return box;
+}
+
+Expr BezierCurveBox::allowed_options() {
+  return Application::interrupt_wait_cached(
+           Call(Symbol(richmath_System_Options), Symbol(richmath_System_BezierCurveBox)));
 }
 
 void BezierCurveBox::find_extends(GraphicsBounds &bounds) {
@@ -167,20 +174,6 @@ Expr BezierCurveBox::to_pmath_impl(BoxOutputFlags flags) {
   Expr expr = g.end();
   expr.set(0, Symbol(richmath_System_BezierCurveBox));
   return expr;
-}
-
-Expr BezierCurveBox::update_cause() {
-  if(!style)
-    return Expr();
-  
-  return get_own_style(InternalUpdateCause);
-}
-
-void BezierCurveBox::update_cause(Expr cause) {
-  if(!style && !cause)
-    return;
-  
-  style.set(InternalUpdateCause, PMATH_CPP_MOVE(cause));
 }
 
 //} ... class BezierCurveBox
