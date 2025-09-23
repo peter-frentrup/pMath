@@ -1,0 +1,399 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("BezierCurve", "ObjectName"), 
+      Section(BoxData(TemplateBox({"BezierCurve"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"BezierCurve"}, "ReferenceHyperlink"), 
+           " by default represents a composite cubic B\[EAcute]zier curve."}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"SplineDegree"}, "ReferenceHyperlink"), 
+           " \[Rule] ", StyleBox("d", "Arg"), 
+           " specifies that the underlying polynomial basis should have \
+           maximal degree ", StyleBox("d", "Arg"), ", for ", 
+           StyleBox("d = 1, 2, or 3.", "Arg")}), "Notes"), 
+        Section(TextData({"Curve thickness can be specified with ", 
+           TemplateBox({"Thickness"}, "ReferenceHyperlink"), " or with ", 
+           TemplateBox({"Thick"}, "ReferenceHyperlink"), " or", 
+           TemplateBox({"Thin"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"Curve dashing can be specified with ", 
+           TemplateBox({"Dashing"}, "ReferenceHyperlink"), " as well as ", 
+           TemplateBox({"Dashed"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Dotted"}, "ReferenceHyperlink"), ", etc."}), 
+         "Notes"), 
+        Section(TextData({"Curve coloring can be specified with ", 
+           TemplateBox({"Hue"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"GrayLevel"}, "ReferenceHyperlink"), ", or ", 
+           TemplateBox({"RGBColor"}, "ReferenceHyperlink"), "."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A B\[EAcute]zier curve and its control points:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({
+             {"With", "(", {"pts", "\[Assign]", {
+                "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                  "{", {"1", ",", "1"}, "}"}, ",", {
+                  "{", {"2", ",", {"-", "1"}}, "}"}, ",", {
+                  "{", {"3", ",", "0"}, "}"}}, "}"}}, ")"}, {
+              "{", {
+               "\n", {
+                {"Graphics", "(", {
+                  "{", {{"BezierCurve", "(", "pts", ")"}, ",", "Green", ",", {
+                    "Line", "(", "pts", ")"}, ",", "Red", ",", {
+                    "Point", "(", "pts", ")"}}, "}"}, ")"}, "\n"}}, "}"}}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({
+              BezierCurveBox({{0, 0}, {1, 1}, {2, -1}, {3, 0}}), 
+              RGBColor(0, 1, 0), LineBox({{0, 0}, {1, 1}, {2, -1}, {3, 0}}), 
+              RGBColor(1, 0, 0), 
+              PointBox({{0, 0}, {1, 1}, {2, -1}, {3, 0}})})), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("A composite B\[EAcute]zier curve and its control points:", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               {"With", "(", {"pts", "\[Assign]", {
+                  "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"1", ",", "1"}, "}"}, ",", {
+                    "{", {"2", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"3", ",", "0"}, "}"}, ",", {
+                    "{", {"5", ",", "2"}, "}"}, ",", {
+                    "{", {"6", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"7", ",", "3"}, "}"}}, "}"}}, ")"}, {
+                "{", {
+                 "\n", {
+                  {"Graphics", "(", {
+                    "{", {{"BezierCurve", "(", "pts", ")"}, ",", "Green", ",", 
+                     {"Line", "(", "pts", ")"}, ",", "Red", ",", {
+                      "Point", "(", "pts", ")"}}, "}"}, ")"}, "\n"}}, "}"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                BezierCurveBox({{0, 0}, {1, 1}, {2, -1}, {3, 0}, {5, 2}, {
+                   6, -1}, {7, 3}}), RGBColor(0, 1, 0), 
+                LineBox({{0, 0}, {1, 1}, {2, -1}, {3, 0}, {5, 2}, {6, -1}, {
+                   7, 3}}), RGBColor(1, 0, 0), 
+                PointBox({{0, 0}, {1, 1}, {2, -1}, {3, 0}, {5, 2}, {6, -1}, {
+                   7, 3}})})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Linear, quadratic and cubic Bezier curves:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"Graphics", "(", {"BezierCurve", "(", {
+                 "Table", "(", {
+                  {"{", {{"5", "i"}, ",", {
+                     "d", " ", {{"(", {"-", "1"}, ")"}, "^", "i"}}}, "}"}, 
+                  ",", {"i", "\[Rule]", {"1", "..", {"d", "+", "1"}}}}, ")"}, 
+                ")"}, ")"}, ",", {"d", "\[Rule]", {"1", "..", "3"}}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {GraphicsBox({BezierCurveBox({{5, -1}, {10, 1}})}), 
+              ",", GraphicsBox({
+                BezierCurveBox({{5, -2}, {10, 2}, {15, -2}})}), ",", 
+              GraphicsBox({
+                BezierCurveBox({{5, -3}, {10, 3}, {15, -3}, {20, 3}})})}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("SplineClosed", "ExampleSubsection"), 
+          Section("By default, a B\[EAcute]zier curve is open:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "BezierCurve", "(", {
+                 {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"1", ",", "1"}, "}"}, ",", {
+                    "{", {"2", ",", "0"}, "}"}}, "}"}, ",", {
+                  "SplineClosed", "\[Rule]", "False"}}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                BezierCurveBox({{0, 0}, {1, 1}, {2, 0}}, 
+                 SplineClosed -> False)})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section(
+           "A closed B\[EAcute]zier curve effectively adds the first control \
+           point at the end:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "BezierCurve", "(", {
+                 {"{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"1", ",", "1"}, "}"}, ",", {
+                    "{", {"2", ",", "0"}, "}"}}, "}"}, ",", {
+                  "SplineClosed", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                BezierCurveBox({{0, 0}, {1, 1}, {2, 0}}, 
+                 SplineClosed -> True)})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, 1), 
+        SectionGroup({Section("SplineDegree", "ExampleSubsection"), 
+          Section(
+           "By default, a composite cubic B\[EAcute]zier curve is generated \
+           (with  possibly lower degree for the last segment):", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               {"With", "(", {"pts", "\[Assign]", {
+                  "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"1", ",", "1"}, "}"}, ",", {
+                    "{", {"2", ",", "0"}, "}"}, ",", {
+                    "{", {"3", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"4", ",", "1"}, "}"}, ",", {
+                    "{", {"5", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"6", ",", "0"}, "}"}}, "}"}}, ")"}, {
+                "{", {
+                 "\n", {
+                  {"Graphics", "(", {
+                    "{", {{"BezierCurve", "(", {
+                       "pts", ",", {"SplineDegree", "\[Rule]", "3"}}, ")"}, 
+                     ",", "Green", ",", "Dashed", ",", {
+                      "Line", "(", "pts", ")"}, ",", "Red", ",", {
+                      "Point", "(", "pts", ")"}}, "}"}, ")"}, "\n"}}, "}"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                BezierCurveBox({{0, 0}, {1, 1}, {2, 0}, {3, -1}, {4, 1}, {
+                   5, -1}, {6, 0}}, SplineDegree -> 3), RGBColor(0, 1, 0), 
+                Dashing({Small, Small}), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, -1}, {4, 1}, {5, -1}, {
+                   6, 0}}), RGBColor(1, 0, 0), 
+                PointBox({{0, 0}, {1, 1}, {2, 0}, {3, -1}, {4, 1}, {5, -1}, {
+                   6, 0}})})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          Section("Generate a compisite quadratic B\[EAcute]zier curve:", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               {"With", "(", {"pts", "\[Assign]", {
+                  "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"1", ",", "1"}, "}"}, ",", {
+                    "{", {"2", ",", "0"}, "}"}, ",", {
+                    "{", {"3", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"4", ",", "1"}, "}"}, ",", {
+                    "{", {"5", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"6", ",", "0"}, "}"}}, "}"}}, ")"}, {
+                "{", {
+                 "\n", {
+                  {"Graphics", "(", {
+                    "{", {{"BezierCurve", "(", {
+                       "pts", ",", {"SplineDegree", "\[Rule]", "2"}}, ")"}, 
+                     ",", "Green", ",", "Dashed", ",", {
+                      "Line", "(", "pts", ")"}, ",", "Red", ",", {
+                      "Point", "(", "pts", ")"}}, "}"}, ")"}, "\n"}}, "}"}}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                BezierCurveBox({{0, 0}, {1, 1}, {2, 0}, {3, -1}, {4, 1}, {
+                   5, -1}, {6, 0}}, SplineDegree -> 2), RGBColor(0, 1, 0), 
+                Dashing({Small, Small}), 
+                LineBox({{0, 0}, {1, 1}, {2, 0}, {3, -1}, {4, 1}, {5, -1}, {
+                   6, 0}}), RGBColor(1, 0, 0), 
+                PointBox({{0, 0}, {1, 1}, {2, 0}, {3, -1}, {4, 1}, {5, -1}, {
+                   6, 0}})})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, 1)}, 1), 
+      SectionGroup({Section("Applications", "ExampleSection"), 
+        Section(
+         "Define the outline of a glyph with composite quadratic \
+         B\[EAcute]zier curves:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Graphics", "(", {
+              "{", {
+               {"BezierCurve", "(", {
+                 {"{", {{"{", {"2", ",", "3"}, "}"}, ",", {
+                    "{", {"0.8125", ",", "0.625"}, "}"}, ",", {
+                    "{", {"0.8125", ",", "0.625"}, "}"}, ",", {
+                    "{", {"0.6875", ",", "0.375"}, "}"}, ",", {
+                    "{", {"0.375", ",", "0.25"}, "}"}, ",", {
+                    "{", {"0.375", ",", "0.25"}, "}"}, ",", {
+                    "{", {"1.125", ",", "0.25"}, "}"}, ",", {
+                    "{", {"0.8125", ",", "0.375"}, "}"}, ",", {
+                    "{", {"0.9375", ",", "0.625"}, "}"}, ",", {
+                    "{", {"0.9375", ",", "0.625"}, "}"}, ",", {
+                    "{", {"1.3125", ",", "1.375"}, "}"}, ",", {
+                    "{", {"1.3125", ",", "1.375"}, "}"}, ",", {
+                    "{", {"2.4375", ",", "1.375"}, "}"}, ",", {
+                    "{", {"2.4375", ",", "1.375"}, "}"}, ",", {
+                    "{", {"2.8125", ",", "0.625"}, "}"}, ",", {
+                    "{", {"2.9375", ",", "0.375"}, "}"}, ",", {
+                    "{", {"2.625", ",", "0.25"}, "}"}, ",", {
+                    "{", {"2.625", ",", "0.25"}, "}"}, ",", {
+                    "{", {"3.625", ",", "0.25"}, "}"}, ",", {
+                    "{", {"3.3125", ",", "0.375"}, "}"}, ",", {
+                    "{", {"3.1875", ",", "0.625"}, "}"}, ",", {
+                    "{", {"3.1875", ",", "0.625"}, "}"}}, "}"}, ",", {
+                  "SplineDegree", "\[Rule]", "2"}, ",", {
+                  "SplineClosed", "\[Rule]", "True"}}, ")"}, ",", {
+                "\n", {"BezierCurve", "(", {
+                  {"{", {{"{", {"1.875", ",", "2.5"}, "}"}, ",", {
+                     "{", {"1.375", ",", "1.5"}, "}"}, ",", {
+                     "{", {"1.375", ",", "1.5"}, "}"}, ",", {
+                     "{", {"2.375", ",", "1.5"}, "}"}, ",", {
+                     "{", {"2.375", ",", "1.5"}, "}"}, ",", {
+                     "{", {"1.875", ",", "2.5"}, "}"}}, "}"}, ",", {
+                   "SplineDegree", "\[Rule]", "2"}, ",", {
+                   "SplineClosed", "\[Rule]", "True"}}, ")"}}}, "}"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({
+              BezierCurveBox({{2, 3}, {0.8125, 0.625}, {0.8125, 0.625}, {
+                 0.6875, 0.375}, {0.375, 0.25}, {0.375, 0.25}, {1.125, 0.25}, {
+                 0.8125, 0.375}, {0.9375, 0.625}, {0.9375, 0.625}, {
+                 1.3125, 1.375}, {1.3125, 1.375}, {2.4375, 1.375}, {
+                 2.4375, 1.375}, {2.8125, 0.625}, {2.9375, 0.375}, {
+                 2.625, 0.25}, {2.625, 0.25}, {3.625, 0.25}, {3.3125, 0.375}, {
+                 3.1875, 0.625}, {3.1875, 0.625}}, SplineClosed -> True, 
+               SplineDegree -> 2), BezierCurveBox({
+                {1.875, 2.5}, {1.375, 1.5}, {1.375, 1.5}, {2.375, 1.5}, {
+                 2.375, 1.5}, {1.875, 2.5}}, SplineClosed -> True, 
+               SplineDegree -> 2)})), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         TextData({"A B\[EAcute]zier curve with degree 1 is equivalent to ", 
+           TemplateBox({"Line"}, "ReferenceHyperlink"), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {"With", "(", {"pts", "\[Assign]", {
+                "{", {{"{", {"0", ",", {"-", "1"}}, "}"}, ",", {
+                  "{", {"2", ",", "1"}, "}"}, ",", {
+                  "{", {"4", ",", {"-", "1"}}, "}"}, ",", {
+                  "{", {"6", ",", "1"}, "}"}}, "}"}}, ")"}, {
+              "{", {
+               "\n", {
+                {"{", {
+                  {"Graphics", "(", {"BezierCurve", "(", {
+                     "pts", ",", {"SplineDegree", "\[Rule]", "1"}}, ")"}, 
+                   ")"}, ",", {"Graphics", "(", {"Line", "(", "pts", ")"}, 
+                   ")"}}, "}"}, "\n"}}, "}"}}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              GraphicsBox({BezierCurveBox({{0, -1}, {2, 1}, {4, -1}, {6, 1}}, 
+                 SplineDegree -> 1)}), ",", 
+              GraphicsBox({LineBox({{0, -1}, {2, 1}, {4, -1}, {6, 1}})})}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({Section(BoxData(""), "ExampleDelimiter"), 
+          Section(
+           "A composite B\[EAcute]zier curve may not be smooth at the point \
+           where two segments meet:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"With", "(", {"pts", "\[Assign]", {
+                  "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"1", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"3", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"3", ",", "0"}, "}"}, ",", {
+                    "{", {"4", ",", "1"}, "}"}, ",", {
+                    "{", {"5", ",", "1"}, "}"}, ",", {
+                    "{", {"6", ",", "0"}, "}"}}, "}"}}, ")"}, {
+                "{", {
+                 "\n", {
+                  {"Graphics", "(", {
+                    "{", {{"BezierCurve", "(", "pts", ")"}, ",", "Green", ",", 
+                     "Dashed", ",", {"Line", "(", "pts", ")"}, ",", "Red", 
+                     ",", {"Point", "(", "pts", ")"}}, "}"}, ")"}, "\n"}}, 
+                "}"}}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                BezierCurveBox({{0, 0}, {1, -1}, {3, -1}, {3, 0}, {4, 1}, {
+                   5, 1}, {6, 0}}), RGBColor(0, 1, 0), 
+                Dashing({Small, Small}), 
+                LineBox({{0, 0}, {1, -1}, {3, -1}, {3, 0}, {4, 1}, {5, 1}, {
+                   6, 0}}), RGBColor(1, 0, 0), 
+                PointBox({{0, 0}, {1, -1}, {3, -1}, {3, 0}, {4, 1}, {5, 1}, {
+                   6, 0}})})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          Section(
+           "By making its adjacent points collinear, you get a smooth \
+           composite B\[EAcute]zier curve:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"With", "(", {"pts", "\[Assign]", {
+                  "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"1", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"3", ",", {"-", "1"}}, "}"}, ",", {
+                    "{", {"3", ",", "0"}, "}"}, ",", {
+                    "{", {"3", ",", "1"}, "}"}, ",", {
+                    "{", {"5", ",", "1"}, "}"}, ",", {
+                    "{", {"6", ",", "0"}, "}"}}, "}"}}, ")"}, {
+                "{", {
+                 "\n", {
+                  {"Graphics", "(", {
+                    "{", {{"BezierCurve", "(", "pts", ")"}, ",", "Green", ",", 
+                     "Dashed", ",", {"Line", "(", "pts", ")"}, ",", "Red", 
+                     ",", {"Point", "(", "pts", ")"}}, "}"}, ")"}, "\n"}}, 
+                "}"}}), "Input", SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                BezierCurveBox({{0, 0}, {1, -1}, {3, -1}, {3, 0}, {3, 1}, {
+                   5, 1}, {6, 0}}), RGBColor(0, 1, 0), 
+                Dashing({Small, Small}), 
+                LineBox({{0, 0}, {1, -1}, {3, -1}, {3, 0}, {3, 1}, {5, 1}, {
+                   6, 0}}), RGBColor(1, 0, 0), 
+                PointBox({{0, 0}, {1, -1}, {3, -1}, {3, 0}, {3, 1}, {5, 1}, {
+                   6, 0}})})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section("A cubic B\[EAcute]zier curve can have a cusp:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({
+             {"With", "(", {"pts", "\[Assign]", {
+                "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                  "{", {"1", ",", "1"}, "}"}, ",", {
+                  "{", {"0", ",", "1"}, "}"}, ",", {
+                  "{", {"1", ",", "0"}, "}"}}, "}"}}, ")"}, {
+              "{", {
+               "\n", {
+                {"Graphics", "(", {
+                  "{", {{"BezierCurve", "(", "pts", ")"}, ",", "Green", ",", 
+                   "Dashed", ",", {"Line", "(", "pts", ")"}, ",", "Red", ",", {
+                    "Point", "(", "pts", ")"}}, "}"}, ")"}, "\n"}}, "}"}}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({
+              BezierCurveBox({{0, 0}, {1, 1}, {0, 1}, {1, 0}}), 
+              RGBColor(0, 1, 0), Dashing({Small, Small}), 
+              LineBox({{0, 0}, {1, 1}, {0, 1}, {1, 0}}), RGBColor(1, 0, 0), 
+              PointBox({{0, 0}, {1, 1}, {0, 1}, {1, 0}})})), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+        Section("A random composite B\[EAcute]zier curve:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Graphics", "(", {
+              "BezierCurve", "(", {"RandomReal", "(", {
+                "1", ",", {"{", {"16", ",", "2"}, "}"}}, ")"}, ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({
+              BezierCurveBox(
+               CompressedData(
+                 "1:c$@(T0r>s,02]4YAOs49;+Bgi-9L!I*dDsm&_DX7z[G!W*gs,(J&]yu>^]\
+                 UC9HSTv&p&9)e@>jt#Xq9rlfI))<v*AxoUse_=RYTm2A1E=>_7G!B@Rf6>_7g\
+                 )@-OLi?mrX[_hBn+%0Kpr8U6;d=RZL<wcy8o<v+QU8$@(a<v()AQwbR{?LV}h\
+                 3d@Ju$UkrZUJWi#v_C}$=h>De#XpSmv%6gO=}2W>n^,2n>_6Ej!m$s#=Rc*c4\
+                 (%Ju?mx_8@zTtM);]ndpTaS+-9M%6+a9;V=0DPj5@KwD-ai;@;J!sm&Ogw,Yw\
+                 _9quRnVxOl@xB?mt#@X[+;l*gr9oMinGL<v)UUgqH~~"))})), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Line"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Thickness"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Dashing"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
