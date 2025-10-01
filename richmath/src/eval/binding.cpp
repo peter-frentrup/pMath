@@ -824,8 +824,8 @@ static MenuCommandStatus can_set_style(Expr cmd) {
   if(!obj)
     return MenuCommandStatus(false);
   
-  Style *style_pos = obj->edit_own_style();
-  if(!style_pos)
+  Style *style_dest = obj->edit_own_style();
+  if(!style_dest)
     return MenuCommandStatus(false);
   
   if(status.enabled) {

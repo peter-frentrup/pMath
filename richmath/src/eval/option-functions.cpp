@@ -80,11 +80,11 @@ Expr richmath_eval_FrontEnd_SetOptions(Expr expr) {
   auto obj = FrontEndObject::find_cast<StyledObject>(ref);
   
   if(obj) {
-    if(Style *style_pos = obj->edit_own_style()) {
+    if(Style *style_dest = obj->edit_own_style()) {
       Expr options = Expr(pmath_expr_get_item_range(expr.get(), 2, SIZE_MAX));
       options.set(0, Symbol(richmath_System_List));
         
-      style_pos->add_pmath(options, false);
+      style_dest->add_pmath(options, false);
       obj->on_style_changed(true); // TODO: check if only non-layout options were affected
       
       return options;

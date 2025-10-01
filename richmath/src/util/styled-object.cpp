@@ -93,14 +93,14 @@ Expr StyledObject::update_cause() {
 }
 
 void StyledObject::update_cause(Expr cause) {
-  Style *style_pos = edit_own_style();
-  if(!style_pos)
+  Style *style_dest = edit_own_style();
+  if(!style_dest)
     return;
   
-  if(!*style_pos && !cause)
+  if(!*style_dest && !cause)
     return;
   
-  style_pos->set(InternalUpdateCause, PMATH_CPP_MOVE(cause));
+  style_dest->set(InternalUpdateCause, PMATH_CPP_MOVE(cause));
 }
 
 bool StyledObject::is_option_supported(StyleOptionName key) {
