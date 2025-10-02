@@ -43,7 +43,7 @@ Function FE`AttachAutoCompletionPopup(~loc) {
                                 Dynamic(CurrentValue({"AttachmentSourceBox", "AutoCompletionSuggestionIndex"}),
                                     {Automatic,
                                     Function {
-                                        DocumentWrite(CurrentValue("AttachmentSource"), suggestions[#2]),
+                                        DocumentWrite(CurrentValue("AttachmentSource"), suggestions[#2])
                                         DocumentClose(EvaluationDocument())
                                     }}),
                                 #,
