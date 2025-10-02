@@ -80,6 +80,7 @@ extern pmath_symbol_t pmath_System_DivideBy;
 extern pmath_symbol_t pmath_System_Divide;
 extern pmath_symbol_t pmath_System_Element;
 extern pmath_symbol_t pmath_System_Equal;
+extern pmath_symbol_t pmath_System_ErrorBox;
 extern pmath_symbol_t pmath_System_EvaluationSequence;
 extern pmath_symbol_t pmath_System_Factorial;
 extern pmath_symbol_t pmath_System_Factorial2;
@@ -1957,11 +1958,24 @@ static pmath_t make_expression_from_stringbox(pmath_expr_t box) {
     
     string = pmath_string_insert_ucs2(string, INT_MAX, &left_box_char, 1);
     
-    pmath_write(
-      part,
-      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR,
-      _pmath_write_to_string,
-      &string);
+    if(pmath_is_expr_of_len(part, pmath_System_ErrorBox, 1)) {
+      pmath_t error_content = pmath_expr_get_item(part, 1);
+      if(pmath_is_string(error_content)) {
+        pmath_unref(part);
+        part = PMATH_UNDEFINED;
+        string = pmath_string_concat(string, error_content);
+      }
+      else { // TODO ...
+        pmath_unref(error_content);
+      }
+    }
+    if(!pmath_same(part, PMATH_UNDEFINED)) {
+      pmath_write(
+        part,
+        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR,
+        _pmath_write_to_string,
+        &string);
+    }
       
     pmath_unref(part);
     string = pmath_string_insert_ucs2(string, INT_MAX, &right_box_char, 1);

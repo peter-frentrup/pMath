@@ -323,6 +323,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( Equal,                              DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( Erf,                                DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( Erfc,                               DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( Erfi,                               DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
+PMATH_DECLARE_SYSTEM_SYMBOL( ErrorBox,                           0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( EulerGamma,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Evaluate,                           0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( EvaluationBox,                      0 )

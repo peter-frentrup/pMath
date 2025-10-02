@@ -18,6 +18,8 @@
 #include <limits.h>
 #include <string.h>
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_ErrorBox;
 extern pmath_symbol_t pmath_System_HoldComplete;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_MakeExpression;
@@ -160,6 +162,10 @@ static void emit_span(pmath_span_t *span, struct group_t *group);
 
 static int ungrouped_string_length(pmath_t box);
 static void ungroup(struct ungroup_t *g, pmath_t box);
+
+static pmath_t quiet_parse(pmath_t str);
+static void quiet_syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical);
+static void syntax_error(      pmath_string_t code, int pos, void *flag, pmath_bool_t critical);
 
 
 //{ spans ...
@@ -2996,9 +3002,15 @@ static void ungroup(struct ungroup_t *g, pmath_t box) { // box will be freed
         box_in_str = pmath_string_part(pmath_ref(box), i, l);
         
         if(g->make_box) {
+          pmath_t inner_box = quiet_parse(box_in_str);
+          if(pmath_same(inner_box, PMATH_UNDEFINED)) {
+            pmath_unref(inner_box);
+            inner_box = pmath_string_part(pmath_ref(box), i, l);
+            inner_box = pmath_expr_new_extended(pmath_ref(pmath_System_ErrorBox), 1, inner_box);
+          }
           g->make_box(
             g->pos,
-            pmath_parse_string(box_in_str),
+            inner_box,
             g->data);
         }
         
@@ -3209,10 +3221,6 @@ static void ungroup(struct ungroup_t *g, pmath_t box) { // box will be freed
 
 //} ... ungroup spans
 
-static pmath_t quiet_parse(pmath_t str);
-static void quiet_syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical);
-static void syntax_error(      pmath_string_t code, int pos, void *flag, pmath_bool_t critical);
-
 PMATH_API
 pmath_t pmath_string_expand_boxes(
   pmath_string_t  s
@@ -3265,6 +3273,10 @@ HAVE_STH_TO_EXPAND:
                 pmath_emit(box, PMATH_NULL); box = PMATH_NULL;
                 
                 start = ++i;
+              }
+              else {
+                start = pre_start;
+                ++i;
               }
               
               break;
@@ -3464,7 +3476,7 @@ static pmath_t quiet_parse(pmath_t str) {
   message_name = pmath_expr_new_extended(
                    pmath_ref(pmath_System_MessageName), 2,
                    pmath_ref(pmath_System_MakeExpression),
-                   PMATH_C_STRING("inv"));
+                   PMATH_NULL);
                    
   // Off(MakeExpression::inv)
   on_off = pmath_thread_local_save(

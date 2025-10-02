@@ -12,6 +12,7 @@ namespace richmath { namespace strings {
 }}
 
 extern pmath_symbol_t richmath_System_StyleBox;
+extern pmath_symbol_t richmath_System_ErrorBox;
 
 //{ class ErrorBox ...
 ErrorBox::ErrorBox(const Expr object)
@@ -24,7 +25,7 @@ ErrorBox::~ErrorBox() {
 }
 
 bool ErrorBox::try_load_from_object(Expr expr, BoxInputFlags options) {
-  if(_object != expr)
+  if(_object != expr && !expr.item_equals(0, richmath_System_ErrorBox))
     return false;
   
   _object = expr;

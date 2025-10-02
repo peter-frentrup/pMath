@@ -289,6 +289,7 @@ Equal::usage:= "\({StyleBox(\"lhs\", \"Arg\"), \" = \", StyleBox(\"rhs\", \"Arg\
 Erf::usage:= "Erf(\(\"z\".StyleBox(\"Arg\")\)) gives the error function \({\"erf\", \"(\", StyleBox(\"z\", \"Arg\"), \")\"}\)."
 Erfc::usage:= "Erfc(\(\"z\".StyleBox(\"Arg\")\)) gives the complementary error function \({\"erfc\", \"(\", \"z\".StyleBox(\"Arg\"), \")\"}\)."
 Erfi::usage:= "Erfi(\(\"z\".StyleBox(\"Arg\")\)) gives the imaginary error function \({\"-\", {\"i\", \" \", {\"erf\", \"(\", {\"i\", \" \", \"z\".StyleBox(\"Arg\")}, \")\"}}}\)."
+ErrorBox::usage:= "ErrorBox(\(\"boxes\".StyleBox(\"Arg\")\)) is a low-level construct that represents boxes which cannot be interpreted as input or output"
 EulerGamma::usage:= "EulerGamma is \(\"Euler\[HighNineQuote]s\"\) constant \(\"\\[Gamma]\"\) with numerical value \[TildeTilde] 0.577216."
 Evaluatable::usage:= "Evaluatable is an option for Section which specifies whether a section can be used as input to be evaluated by \(StyleBox(\"pMath\", \"TI\")\)."
 Evaluate::usage:= "Evaluate(\(StyleBox(\"expr\", \"Arg\")\)) causes \(StyleBox(\"expr\", \"Arg\")\) to evaluate even if it occurs as the argument of a function whose attributes specify that it should be held unevaluated."
