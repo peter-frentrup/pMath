@@ -74,7 +74,10 @@ ImplementJavaClass::usage:= "ImplementJavaClass(\(StyleBox(\"class\", \"Arg\")\)
 
 
 Local(path) {
+	% TODO: also check JAVA_HOME environment variable (if it exists)
 	If($SystemID === "Windows") {
+		% TODO: also investigate Registry keys  HKLM\SOFTWARE\JavaSoft\JDK\[CurrentVersion]\JavaHome  and  HKLM\Software\JavaSoft\Java Runtime Environment\*
+		% TODO: also check .jar file associations in the registry
 		path:= Environment("ProgramFiles").StringSplit($PathListSeparator)
 		
 		path:= path.FileNames("Java")

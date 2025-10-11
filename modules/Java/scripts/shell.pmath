@@ -106,7 +106,9 @@ Function RunJavaSection(~boxes) {
             %Echo(snippetEvent @ toString())
             With(val:= snippetEvent @ value())
             If(val.IsString() && val =!= "") {
-                SectionPrint(Section(BoxData(ToBoxes(val)), "JavaOutput", SectionGenerated->True))
+                % Note that `val` is already quoted by means of jdk.shell.execution.DirectExecutionControl.valueString()
+                % For strings with embedded pMath boxes in \(...\) (\uFFF9....\uFFFB) we unescape embedded backslashes and quotes
+                SectionPrint(Section(BoxData(ToBoxes(unescapeInNestedBoxes(val))), "JavaOutput", SectionGenerated->True))
             } Else {
                 Switch(snippetEvent @ status() @ toString()) {
                     Case("REJECTED") {
@@ -178,6 +180,33 @@ Function EvaluateJavaBox(~boxes) {
     }
     
     result
+}
+
+Function unescapeInNestedBoxes(~s:String) {
+    Local(nesting:= 0, prev:= "")
+    s.StringReplace(~ch :> Try {
+        Switch(ch){
+            Case("\(") { ++nesting; ch }
+            Case("\)") { --nesting; ch }
+            Case("\\") {
+                If(nesting > 0) {
+                    If(prev==="\\") { prev:= ""; ch } Else { "" }
+                } Else {
+                    ch
+                }
+            }
+            Case("\"") { ch }
+            Case(~) {
+                If(nesting > 0) {
+                    If(prev==="\\") { prev ++ ch } Else { ch }
+                } Else {
+                    ch
+                }
+            }
+        }
+    } Finally {
+        prev:=ch
+    })
 }
 
 End()
