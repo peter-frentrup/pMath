@@ -15,6 +15,7 @@ static uint64_t nan_as_int = ((uint64_t)1 << 63) - 1;
 
 
 extern pmath_symbol_t pjsym_Java_JavaClass;
+extern pmath_symbol_t pjsym_Java_JavaNull;
 extern pmath_symbol_t pjsym_Java_JavaObject;
 
 extern pmath_symbol_t pjsym_Java_Type_Array;
@@ -755,7 +756,7 @@ static jobject make_object_array_from_elements(JNIEnv *env, jclass element_type,
   
   for(i = 0; i < len; ++i) {
     pmath_t item = pmath_expr_get_item(list, i + 1);
-    if(!pmath_is_null(item)) {
+    if(!pmath_is_null(item) && !pmath_same(item, pjsym_Java_JavaNull)) {
       jobject val = pj_value_to_java_object(env, item, element_type);
       if(!val) {
         (*env)->DeleteLocalRef(env, arr);
@@ -991,7 +992,7 @@ static jobject make_object_from_expr(JNIEnv *env, jclass type, pmath_expr_t expr
           size_t i = 0;
           for(;;) {
             jobject elem = pj_value_to_java_object(env, item, java_lang_Object);
-            if(elem || pmath_is_null(item)) {
+            if(elem || pmath_is_null(item) || pmath_same(item, pjsym_Java_JavaNull)) {
               (*env)->SetObjectArrayElement(env, head_and_args, (jsize)i, elem);
               (*env)->DeleteLocalRef(env, elem);
               item = PMATH_NULL;
@@ -1120,7 +1121,7 @@ jobject pj_value_to_java_object(JNIEnv *env, pmath_t obj, jclass type) { // obj 
   if(pmath_is_double(obj))
     return make_object_from_double(env, type, PMATH_AS_DOUBLE(obj));
     
-  if(pmath_is_null(obj))
+  if(pmath_is_null(obj) || pmath_same(obj, pjsym_Java_JavaNull))
     return NULL;
   
   if(pmath_is_integer(obj))
@@ -1186,7 +1187,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
     jclass dst_class = pj_class_to_java(env, pmath_ref(type));
     
     if(dst_class) {
-      if(pmath_is_null(obj)) {
+      if(pmath_is_null(obj) || pmath_same(obj, pjsym_Java_JavaNull)) {
         value->l = NULL;
         success = TRUE;
       }
@@ -1404,7 +1405,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
   }
   
   if(!value->l)
-    return PMATH_NULL;
+    return pmath_ref(pjsym_Java_JavaNull);
     
   if((*env)->EnsureLocalCapacity(env, 2) == 0) {
     jclass  clazz = (*env)->GetObjectClass(env, value->l);

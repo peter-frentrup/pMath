@@ -15,6 +15,7 @@ extern pmath_symbol_t pjsym_Java_JavaClass;
 extern pmath_symbol_t pjsym_Java_JavaField;
 extern pmath_symbol_t pjsym_Java_JavaObject;
 extern pmath_symbol_t pjsym_Java_JavaNew;
+extern pmath_symbol_t pjsym_Java_JavaNull;
 
 extern pmath_symbol_t pjsym_System_DollarFailed;
 extern pmath_symbol_t pjsym_System_Abort;
@@ -393,7 +394,7 @@ pmath_t wrap_exception_result(pmath_symbol_t head, pmath_t exception) {
   }
   
   pmath_unref(exception);
-  return pmath_ref(pjsym_System_DollarFailed);
+  return pmath_ref(pjsym_Java_JavaNull);
 }
 
 PMATH_PRIVATE pmath_t pj_eval_Java_IsJavaObject(pmath_expr_t expr) {
@@ -438,28 +439,33 @@ PMATH_PRIVATE pmath_t pj_eval_Java_InstanceOf(pmath_expr_t expr) {
   pjvm_ensure_started();
   env = pjvm_get_env();
   if(env && (*env)->EnsureLocalCapacity(env, 2) == 0) {
-    jobject obj = pj_object_to_java(env, pmath_expr_get_item(expr, 1));
-    
-    if(obj) {
-      jclass clazz = pj_class_to_java(env, pmath_expr_get_item(expr, 2));
-      
-      if(clazz) {
+    jclass clazz = pj_class_to_java(env, pmath_expr_get_item(expr, 2));
+    if(clazz) {
+      jobject obj = pj_object_to_java(env, pmath_expr_get_item(expr, 1));
+      if(obj) {
         pmath_unref(result);
         if((*env)->IsInstanceOf(env, obj, clazz))
           result = pmath_ref(pjsym_System_True);
         else
           result = pmath_ref(pjsym_System_False);
           
-        (*env)->DeleteLocalRef(env, clazz);
+        (*env)->DeleteLocalRef(env, obj);
       }
       else {
-        pmath_message(pjsym_Java_Java, "nocls", 1, pmath_expr_get_item(expr, 2));
+        pmath_t item = pmath_expr_get_item(expr, 1);
+        if(pmath_same(item, pjsym_Java_JavaNull)) {
+          pmath_unref(item);
+          pmath_unref(result);
+          result = pmath_ref(pjsym_System_False);
+        }
+        else
+          pmath_message(pjsym_Java_Java, "noobj", 1, item);
       }
       
-      (*env)->DeleteLocalRef(env, obj);
+      (*env)->DeleteLocalRef(env, clazz);
     }
     else {
-      pmath_message(pjsym_Java_Java, "noobj", 1, pmath_expr_get_item(expr, 1));
+      pmath_message(pjsym_Java_Java, "nocls", 1, pmath_expr_get_item(expr, 2));
     }
   }
   
@@ -518,7 +524,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaClassAsObject(pmath_expr_t expr) {
     return expr;
   }
   
-  result = pmath_ref(pjsym_System_DollarFailed);
+  result = pmath_ref(pjsym_Java_JavaNull);
   pjvm_ensure_started();
   env = pjvm_get_env();
   if(env && (*env)->EnsureLocalCapacity(env, 2) == 0) {

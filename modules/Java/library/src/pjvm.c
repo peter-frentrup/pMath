@@ -725,6 +725,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaStartVM(pmath_expr_t expr) {
             
             err = _JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args);
             if(err != JNI_OK) {
+              pmath_message(PMATH_NULL, "novm", 0);
               pmath_debug_print("JNI_CreateJavaVM failed with %d\n", (int)err);
             }
             
@@ -787,6 +788,9 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaStartVM(pmath_expr_t expr) {
           }
           
           init_system_properties(env);
+        }
+        else {
+          pmath_message(PMATH_NULL, "nolib", 0);
         }
       }
     }

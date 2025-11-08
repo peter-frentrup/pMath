@@ -8,6 +8,7 @@ Java`JavaException
 Java`JavaField
 Java`JavaKillVM
 Java`JavaNew
+Java`JavaNull
 Java`JavaObject
 Java`JavaStartVM
 Java`$JavaVMLibraryName
@@ -41,6 +42,7 @@ Java::nofld:= "No field `1` defined in class `2`."
 Java::nometh:= "No method `1` defined in class `2`."
 Java::noobj:= "`1` is not a Java object."
 Java::nobcl:= "`1` is neither a Java object nor a Java class."
+Java::null:= "Attempting to access a field or method `1` on the Java null value."
 
 JavaNew::argx:= "Incorrect number or type of arguments to constructor for class `1`. The arguments, shown here in a list, were `2`."
 JavaNew::argx0:= "There is no constructor for class `1` that takes zero arguments."
@@ -48,6 +50,8 @@ JavaNew::fail:= "Error calling constructor for class `1`."
 
 JavaNew::ex:= JavaCall::ex:= "Exception crossing pMath-to-Java boundary: `1`"
 
+JavaStartVM::nolib:= "Unable to load Java Virtual Machine from."
+JavaStartVM::novm:= "Unable to start Java Virtual Machine."
 
 AddToClassPath::usage:= "AddToClassPath(\"\(StyleBox(\"location\", \"Arg\")\)\(SubscriptBox(\"1\")\)\", \"\(StyleBox(\"location\", \"Arg\")\)\(SubscriptBox(\"2\")\)\", \[Ellipsis]) adds the specified directories or jar/zip files to the java class path. All locations should be full paths."
 ClassName::usage:= "ClassName(\(StyleBox(\"obj\", BaseStyle -> \"Arg\")\)) gives the class name of a Java object \(StyleBox(\"obj\", BaseStyle -> \"Arg\")\)."
@@ -61,6 +65,7 @@ JavaException::usage:= "JavaException(\(StyleBox(\"ex\", BaseStyle -> \"Arg\")\)
 JavaField::usage:= "JavaField(\(StyleBox(\"obj\", BaseStyle -> \"Arg\")\), \(StyleBox(\"field\", BaseStyle -> \"Arg\")\)) or \(StyleBox(\"obj\", BaseStyle -> \"Arg\")\) @ \(StyleBox(\"field\", BaseStyle -> \"Arg\")\) represents a member field of a Java object.\nJavaField(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\"), \(StyleBox(\"field\", BaseStyle -> \"Arg\")\)) or JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\") @ \(StyleBox(\"field\", BaseStyle -> \"Arg\")\) represents a static member field of a Java class."
 JavaIsRunning::usage:= "IsJavaRunning() gives True if the Java Virtual Machine is running and False otherwise."
 JavaNew::usage:= "JavaNew(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\", \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) or JavaNew(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\"), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) creates a new Java object."
+JavaNull::usage:= "JavaNull represents the Java null value."
 JavaObject::usage:= "JavaObject(\[Ellipsis]) represents a java object."
 JavaStartVM::usage:= "JavaStartVM() starts the Java Virtual Machine if it is not already started. Note that the JVM is started automatically when needed."
 GetClass::usage:= "GetClass(\(StyleBox(\"obj\", \"Arg\")\)) gives the JavaClass representing the object's Java class."
@@ -76,17 +81,21 @@ ImplementJavaClass::usage:= "ImplementJavaClass(\(StyleBox(\"class\", \"Arg\")\)
 Local(path) {
 	% TODO: also check JAVA_HOME environment variable (if it exists)
 	If($SystemID === "Windows") {
-		% TODO: also investigate Registry keys  HKLM\SOFTWARE\JavaSoft\JDK\[CurrentVersion]\JavaHome  and  HKLM\Software\JavaSoft\Java Runtime Environment\*
+		% TODO: also investigate Registry keys  HKLM\SOFTWARE\JavaSoft\JDK\[CurrentVersion]\JavaHome  
+		%                                  and  HKLM\SOFTWARE\JavaSoft\Java Development Kit\*
+		%                                  and  HKLM\Software\JavaSoft\Java Runtime Environment\*
 		% TODO: also check .jar file associations in the registry
 		path:= Environment("ProgramFiles").StringSplit($PathListSeparator)
 		
 		path:= path.FileNames("Java")
 		path:= Join(path.FileNames("jre*").Reverse, path.FileNames("jdk*").FileNames("jre").Reverse)
 		path:= path.FileNames("bin")
+		% TODO: consider/filter OS_ARCH="x86_64" etc. in 'release' file next to 'bin' folder
+
 		path:= Join(Environment("PATH").StringSplit($PathListSeparator), path)
 		path:= path.FileNames({"server","client"})
 		path:= path.FileNames("jvm.dll")
-		
+
 		Unprotect($JavaInstalledVMs)
 		$JavaInstalledVMs:= path
 		Protect($JavaInstalledVMs)
@@ -177,6 +186,41 @@ expr:(~o:JavaObject @ (e1: ~(~~~))(~e2)) ::= Block {
 }
 
 Attributes(JavaObject):= {DeepHoldAll, Protected, ReadProtected}
+
+
+expr:(JavaNull @ (~f:String))::= Block {
+	With(di:= Developer`GetDebugMetadata(expr))
+	Message(Java::null, HoldForm(f).Developer`SetDebugMetadataAt(di))
+	JavaNull
+}
+
+expr:(JavaNull @ (~f:Symbol))::= Block {
+	With(di:= Developer`GetDebugMetadata(expr))
+	Message(Java::null, HoldForm(f).Developer`SetDebugMetadataAt(di))
+	JavaNull
+}
+
+expr:(JavaNull @ (~m:String)(~~~args)) ::= Block {
+	With(di:= Developer`GetDebugMetadata(expr))
+	Message(Java::null, HoldForm(m).Developer`SetDebugMetadataAt(di))
+	JavaNull
+}
+
+expr:(JavaNull @ (~m:Symbol)(~~~args)) ::= Block {
+	With(di:= Developer`GetDebugMetadata(expr))
+	With(str:= SymbolName(m))
+	With(di:= Developer`GetDebugMetadata(expr))
+	Message(Java::null, HoldForm(str).Developer`SetDebugMetadataAt(di))
+	JavaNull
+}
+
+expr:(JavaNull @ (e1: ~(~~~))(~e2)) ::= Block {
+	With(di1:= Developer`GetDebugMetadata(e1))
+	HoldComplete(JavaNull @ e1).Developer`SetDebugMetadataAt(di1, 1).ReleaseHold % should generate Java::null message
+	JavaNull
+}
+Attributes(JavaNull):= {DeepHoldAll, Protected, ReadProtected}
+
 
 AutoLoad(Hold(Constructors, Methods, Fields), 
 	ToFileName({ParentDirectory($Input), "scripts"}, "reflection.pmath"))
