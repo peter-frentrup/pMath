@@ -951,7 +951,7 @@ HBITMAP MenuBitmaps::get_checkmark_bitmap(bool radio, bool enabled) {
     HBITMAP hbmp_old = (HBITMAP)SelectObject(hdc, checkmark_bmps[index]);
     
     // see also StaticMenuOverride::on_ctlcolorstatic()
-    Color bg = Win32ControlPainter::win32_painter.win32_button_face_color(Win32Menu::use_dark_mode);
+    Color bg = Win32ControlPainter::win32_painter.win32_menu_popup_color(Win32Menu::use_dark_mode);
     if(fake_dark)
       SetBkColor(hdc, bg.to_bgr24() ^ 0x00FFFFFF); // will be inverted later again
     else
@@ -1309,7 +1309,7 @@ LRESULT StaticMenuOverride::on_keydown(HWND hwnd, HMENU menu, WPARAM wParam, LPA
 }
 
 LRESULT StaticMenuOverride::on_ctlcolorstatic(HWND hwnd, HDC hdc, HWND control) {
-  Color col = Win32ControlPainter::win32_painter.win32_button_face_color(Win32Menu::use_dark_mode);
+  Color col = Win32ControlPainter::win32_painter.win32_menu_popup_color(Win32Menu::use_dark_mode);
   SetBkColor(hdc, col.to_bgr24());
   SetTextColor(hdc, Win32Menu::use_dark_mode ? RGB(255,255,255) : RGB(0,0,0));
   

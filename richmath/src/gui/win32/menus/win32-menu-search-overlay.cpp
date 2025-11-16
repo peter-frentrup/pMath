@@ -202,11 +202,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   
   SetBkMode(hdc, TRANSPARENT);
   
-  HBRUSH brush = (HBRUSH)SelectObject(hdc, GetStockObject(NULL_BRUSH));
-  (void)SelectObject(hdc, brush);
-  
-  FillRect(hdc, &rect, brush);
-  //Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
+  Win32ControlPainter::win32_painter.draw_menu_popup(hdc, &rect, Win32Menu::use_dark_mode);
   
   HFONT oldfont = nullptr;
   

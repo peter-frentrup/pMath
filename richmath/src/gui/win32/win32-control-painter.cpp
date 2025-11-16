@@ -89,6 +89,8 @@ namespace richmath {
 static class Win32ControlPainterCache {
   public:
     Win32ControlPainterCache() {
+      has_dark_menu_color  = 0;
+      has_light_menu_color = 0;
     }
     
     ~Win32ControlPainterCache() {
@@ -174,6 +176,19 @@ static class Win32ControlPainterCache {
       return get_theme_for_dpi(toolbar_go_theme_for_dpi, L"Go::TOOLBAR", dpi);
     }
     
+    bool has_menu_color(bool dark) { return dark ? has_dark_menu_color : has_light_menu_color; }
+    COLORREF menu_color(bool dark) { return dark ? dark_menu_color_value : light_menu_color_value; }
+    void cache_menu_color(bool dark, COLORREF val) { 
+      if(dark) {
+        dark_menu_color_value = val;
+        has_dark_menu_color = 1; 
+      } 
+      else {
+        light_menu_color_value = val;
+        has_light_menu_color = 1; 
+      }
+    }
+    
     void clear() {
       close_themes(     addressband_theme_for_dpi);
       close_themes(dark_addressband_theme_for_dpi);
@@ -200,6 +215,9 @@ static class Win32ControlPainterCache {
       close_themes(     toolbar_theme_for_dpi);
       close_themes(dark_toolbar_theme_for_dpi);
       close_themes(toolbar_go_theme_for_dpi);
+      
+      has_dark_menu_color  = 0;
+      has_light_menu_color = 0;
     }
   
   private:
@@ -234,7 +252,7 @@ static class Win32ControlPainterCache {
       
       return nullptr;
     }
-  
+    
   private:
     Hashtable<int, HANDLE> addressband_theme_for_dpi;
     Hashtable<int, HANDLE> addressband_combobox_theme_for_dpi;
@@ -261,6 +279,11 @@ static class Win32ControlPainterCache {
     Hashtable<int, HANDLE> dark_navigation_theme_for_dpi;
     Hashtable<int, HANDLE> dark_tooltip_theme_for_dpi;
     Hashtable<int, HANDLE> dark_toolbar_theme_for_dpi;
+    
+    COLORREF light_menu_color_value;
+    COLORREF dark_menu_color_value;
+    unsigned has_light_menu_color : 1;
+    unsigned has_dark_menu_color : 1;
 } w32cp_cache;
 
 //{ class Win32ControlPainter ...
@@ -2278,6 +2301,30 @@ Color Win32ControlPainter::win32_button_face_color(bool dark) {
   return Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
 }
 
+Color Win32ControlPainter::win32_menu_popup_color(bool dark) {
+  if(w32cp_cache.has_menu_color(dark))
+    return Color::from_bgr24(w32cp_cache.menu_color(dark));
+  
+  RECT rect = {0, 0, 5, 5};
+  HBITMAP bmp = CreateBitmap(rect.right, rect.bottom, 1, 32, nullptr);
+  if(bmp) {
+    HDC memDC          = CreateCompatibleDC(NULL);
+    HBITMAP hOldBitmap = (HBITMAP)SelectObject(memDC, bmp);
+    
+    draw_menu_popup(memDC, &rect, dark);
+    COLORREF col = GetPixel(memDC, rect.right / 2, rect.bottom / 2);
+    
+    SelectObject(memDC, hOldBitmap);
+    DeleteDC(memDC);
+    DeleteObject(bmp);
+    
+    w32cp_cache.cache_menu_color(dark, col);
+    return Color::from_bgr24(col);
+  }
+  
+  return win32_button_face_color(dark);
+}
+
 float Win32ControlPainter::scrollbar_width() {
   return GetSystemMetrics(SM_CXHTHUMB) * 3 / 4.f;
 }
@@ -2560,6 +2607,48 @@ void Win32ControlPainter::paint_scrollbar_part(
   }
   else {
     cairo_surface_mark_dirty(cairo_get_target(canvas.cairo()));
+  }
+}
+
+void Win32ControlPainter::draw_menu_popup(HDC dc, RECT *rect, bool dark_mode) {
+  if( Win32Themes::OpenThemeData  &&
+      Win32Themes::CloseThemeData &&
+      Win32Themes::DrawThemeBackground)
+  {
+    bool need_invert = false;
+    
+    HANDLE theme = nullptr;
+    if(dark_mode) {
+      theme = Win32Themes::OpenThemeData(nullptr, L"DarkMode::MENU");
+      if(!theme)
+        need_invert = true;
+    }
+    
+    if(!theme)
+      theme = Win32Themes::OpenThemeData(nullptr, L"MENU");
+    
+    if(!theme)
+      goto FALLBACK;
+      
+    Win32Themes::DrawThemeBackground(
+      theme,
+      dc,
+      9, // MENU_POPUPBACKGROUND
+      0,
+      rect,
+      nullptr);
+      
+    Win32Themes::CloseThemeData(theme);
+    if(!need_invert)
+      return;
+  }
+  else {
+  FALLBACK: 
+    FillRect(dc, rect, GetSysColorBrush(COLOR_MENU));
+  }
+  
+  if(dark_mode) {
+    BitBlt(dc, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top, nullptr, 0, 0, DSTINVERT);
   }
 }
 

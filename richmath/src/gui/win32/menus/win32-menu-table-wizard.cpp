@@ -3,6 +3,7 @@
 #include <gui/win32/menus/win32-menu.h>
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/api/win32-version.h>
+#include <gui/win32/win32-control-painter.h>
 
 #include <gui/document.h>
 #include <gui/edit-helper.h>
@@ -215,10 +216,7 @@ void Win32MenuTableWizard::on_paint(HDC hdc) {
   
   SetBkMode(hdc, TRANSPARENT);
   
-  HBRUSH brush = (HBRUSH)SelectObject(hdc, GetStockObject(NULL_BRUSH));
-  (void)SelectObject(hdc, brush);
-  
-  FillRect(hdc, &dims.rect, brush);
+  Win32ControlPainter::win32_painter.draw_menu_popup(hdc, &dims.rect, Win32Menu::use_dark_mode);
   
   //SetBkMode(hdc, OPAQUE);
   

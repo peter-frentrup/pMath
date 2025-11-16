@@ -70,6 +70,7 @@ namespace richmath {
       
       virtual Color selection_color(ControlContext &context) override;
       Color win32_button_face_color(bool dark);
+      Color win32_menu_popup_color(bool dark);
       
       virtual float scrollbar_width() override;
       
@@ -82,6 +83,7 @@ namespace richmath {
         RectangleF          rect) override;
     
     public: // win32 specific
+      void draw_menu_popup(HDC dc, RECT *rect, bool dark_mode);
       void draw_menubar(HDC dc, RECT *rect, bool dark_mode = false);
       void draw_menubar_itembg(HDC dc, RECT *rect, ControlState state, bool dark_mode = false);
       
