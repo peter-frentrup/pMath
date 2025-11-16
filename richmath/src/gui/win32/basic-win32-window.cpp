@@ -2006,8 +2006,9 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
           if(_themed_frame) {
             if(use_custom_system_buttons()) {
-              if(Impl(*this).nc_hit_test_system_buttons(point_from_lparam(lParam)))
-                return HTOBJECT;
+              int btn = Impl(*this).nc_hit_test_system_buttons(point_from_lparam(lParam));
+              if(btn)
+                return btn;
             }
             return Impl(*this).nc_hit_test_no_system_buttons(point_from_lparam(lParam));
           }
@@ -2108,8 +2109,10 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           _hit_test_mouse_down = Impl(*this).nc_hit_test_system_buttons(pt, wParam);
           
           if(_hit_test_extra_button >= 0 || use_custom_system_buttons()) {
-            if(_hit_test_extra_button >= 0 || hit_test_is_system_button(_hit_test_mouse_down))
+            if(_hit_test_extra_button >= 0 || hit_test_is_system_button(_hit_test_mouse_down)) {
               invalidate_caption();
+              return 0;
+            }
           }
         } break;
         
