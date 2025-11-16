@@ -5,6 +5,7 @@
 #include <gui/common-tooltips.h>
 #include <gui/documents.h>
 #include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-document-window.h>
 
@@ -610,8 +611,20 @@ void Win32AttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, Co
       
       POINT triangle_points[3] = { discretize(tri_points[0]), discretize(tri_points[1]), discretize(tri_points[2]) };
       
+      int frameradius = 0;
+      if(Win32Version::is_windows_11_or_newer()) {
+        // Since we inset the client rect by 2px, we can at most have radius 3 without touching the client rect
+        frameradius = 3; 
+      }
+      
       HRGN triangle_rgn = CreatePolygonRgn(triangle_points, 3, WINDING);
-      HRGN rgn = CreateRectRgnIndirect(&rect);
+      HRGN rgn = nullptr;
+      if(frameradius > 0) {
+        rgn = CreateRoundRectRgn(rect.left, rect.top, rect.right + 1, rect.bottom + 1, 2 * frameradius, 2 * frameradius);
+      }
+      else {
+        rgn = CreateRectRgnIndirect(&rect);
+      }
       CombineRgn(rgn, rgn, triangle_rgn, RGN_OR);
       DeleteObject(triangle_rgn);
       
