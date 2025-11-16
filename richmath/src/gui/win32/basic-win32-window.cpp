@@ -1452,6 +1452,10 @@ void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallp
           default:
           case Win32Themes::DWMWCP_DONOTROUND: frameradius = 1; break;
         }
+        
+        if(_blur_behind_window && Win32Themes::DwmSetWindowAttribute) {
+          Win32Themes::DwmSetWindowAttribute(_blur_behind_window->hwnd(), Win32Themes::DWMWA_WINDOW_CORNER_PREFERENCE, &corner_pref, sizeof(corner_pref));
+        }
       }
     }
     else if(style_ex & WS_EX_TOOLWINDOW) {
@@ -2571,7 +2575,15 @@ void BasicWin32Window::Impl::on_entersizemove() {
   self.last_moving_cy = sizing_initial_rect.top  + (sizing_initial_rect.bottom - sizing_initial_rect.top ) / 2;
 
   find_all_snappers();
-  Win32BlurBehindWindow::suppress_slow_acrylic_blur = true;
+  if(Win32Version::is_windows_11_or_newer()) {
+    // Windows 11 does not support blur behind on inactive windows and gives solid black instead
+    // and it treats our _blur_behind_window as inactive.
+    // Also, Acrylic windows are not particularly slow to drag on Windows 11, unlike Windows 10
+    Win32BlurBehindWindow::suppress_slow_acrylic_blur = false;
+  }
+  else {
+    Win32BlurBehindWindow::suppress_slow_acrylic_blur = true;
+  }
   if(self._blur_behind_window)
     self._blur_behind_window->colorize(self._active, self._use_dark_mode);
   
@@ -3304,13 +3316,14 @@ bool Win32BlurBehindWindow::enable_blur(COLORREF abgr) {
   
   accent_policy.accent_state = Win32Themes::AccentState::EnableBlurBehind;
   if(!suppress_slow_acrylic_blur) {
-    // Note that Acrylic Blur Behind is very slow (window would lag when moving) 
+    // Note that on Windows 10, Acrylic Blur Behind is very slow (window would lag when moving) 
     // because it uses a much larger blur radius.
+    // On Windows 11 it does not seem to be so bad.
     if(Win32Version::is_windows_10_1803_or_newer()) {
       accent_policy.accent_state = Win32Themes::AccentState::EnableAcrylicBlurBehind;
     }
     
-    // TODO: enable "Mica" on Windows 11
+    // TODO: enable "Mica" on Windows 11 ?
   }
   
   Win32Themes::WINCOMPATTRDATA data = {};
@@ -3330,6 +3343,16 @@ RECT Win32BlurBehindWindow::blur_bounds(RECT window_rect, const Win32Themes::MAR
   window_rect.right-=  margins.cxRightWidth;
   window_rect.top+=    1;//margins.cyTopHeight;
   window_rect.bottom-= margins.cyBottomHeight;
+  
+  if(Win32Version::is_windows_11_or_newer()) {
+    // Reduce by 1 px, otherwise we see a 1 px wide gap inside DWM painted frame of the ower window
+    // That did not happen on Windows 10.
+    window_rect.left   -= 1;
+    window_rect.right  += 1;
+    window_rect.top    -= 1;
+    window_rect.bottom += 1;
+  }
+  
   return window_rect;
 }
 
