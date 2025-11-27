@@ -1221,6 +1221,8 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     // Based on numlockx.c and
     // bugzilla.novell.com/show_bug.cgi?id=394949
     // (Bug 394949 - Simulated Caps lock key press via XTestFakeKeyEvent does not toggle the LED indicator)
+    //
+    // Does not appear to work on Xwayland
     
     Display *display = XOpenDisplay(nullptr);
     

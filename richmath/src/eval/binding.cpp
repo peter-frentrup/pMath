@@ -112,6 +112,7 @@ static bool expand_selection_cmd(Expr cmd);
 static bool find_evaluating_section(Expr cmd);
 static bool find_matching_fence_cmd(Expr cmd);
 static bool graphics_original_size_cmd(Expr cmd);
+static bool insert_alias_delimiter_cmd(Expr cmd);
 static bool insert_column_cmd(Expr cmd);
 static bool insert_fraction_cmd(Expr cmd);
 static bool insert_inline_section_cmd(Expr cmd);
@@ -261,6 +262,7 @@ bool richmath::init_bindings() {
   Menus::register_command(strings::DuplicatePreviousInput,      duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
   Menus::register_command(String("DuplicatePreviousOutput"),    duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
   Menus::register_command(String("SimilarSectionBelow"),        similar_section_below_cmd,           can_similar_section_below);
+  Menus::register_command(String("InsertAliasDelimiter"),       insert_alias_delimiter_cmd,          can_document_write);
   Menus::register_command(String("InsertColumn"),               insert_column_cmd,                   can_document_write);
   Menus::register_command(String("InsertFraction"),             insert_fraction_cmd,                 can_document_write);
   Menus::register_command(String("InsertInlineSection"),        insert_inline_section_cmd,           can_insert_inline_section_cmd);
@@ -1386,6 +1388,15 @@ static bool graphics_original_size_cmd(Expr cmd) {
     return false;
     
   doc->graphics_original_size();
+  return true;
+}
+
+static bool insert_alias_delimiter_cmd(Expr cmd) {
+  Document *doc = Menus::current_document();
+  if(!doc)
+    return false;
+    
+  doc->key_press(PMATH_CHAR_ALIASDELIMITER);
   return true;
 }
 

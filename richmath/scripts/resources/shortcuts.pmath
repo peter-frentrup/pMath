@@ -77,8 +77,11 @@ FE`Private`shortcuts:= {
 
 	MenuItem(KeyEvent("0", {KeyControl}),               ScopedCommand(Magnification->Inherited, Document)),
 	
+	%MenuItem(KeyEvent("1", {KeyControl}),               DocumentApply(Automatic, "\[AliasDelimiter]")),
+	MenuItem(KeyEvent("1", {KeyControl}),               "InsertAliasDelimiter"),
+	
 	MenuItem(KeyEvent("X", {KeyAlt}),                   "ToggleCharacterCode"),
-
+	
 	MenuItem(KeyEvent("Enter", {KeyShift}),             "EvaluateSections"),
 	MenuItem(KeyEvent("NumpadEnter", {}),               "EvaluateSections"),
 	%MenuItem(KeyEvent("NumpadEnter", {KeyShift}),       "EvaluateSections"), % EvaluateNextSection

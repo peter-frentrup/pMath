@@ -67,6 +67,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 		MenuItem("&Underscript",                          "InsertUnderscript"),
 		MenuItem("Opposite Positio&n",                    "InsertOpposite"),
 		Delimiter,
+		MenuItem("Alias &Delimiter",                      "InsertAliasDelimiter"),
 		MenuItem("Inline Section (Te&xt/Math)",           "InsertInlineSection"),
 		MenuItem("Fra&me",                                DocumentApply(Automatic, FrameBox("\[SelectionPlaceholder]"))),
 		MenuItem("&Color ...",                            FrontEnd`KernelExecute(With({FE`Private`c:= FE`ColorDialog()}, If(FE`Private`c =!= System`$Canceled, DocumentApply(Automatic, ToBoxes(FE`Private`c)))))),
