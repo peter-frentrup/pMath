@@ -1551,22 +1551,20 @@ bool MathSequence::stretch_horizontal(Context &context, float width) {
   if(glyphs.length() != 1 || str[0] == PMATH_CHAR_BOX)
     return false;
     
-  if(context.math_shaper->horizontal_stretch_char(
+  bool did_stretch = context.math_shaper->horizontal_stretch_char(
         context,
         width,
         SmallerOrLarger::Larger,
         str[0],
-        &glyphs[0]))
-  {
-    _extents.width = glyphs[0].right;
-    _extents.ascent  = _extents.descent = -1e9;
-    context.math_shaper->vertical_glyph_size(
-      context, str[0], glyphs[0], &_extents.ascent, &_extents.descent);
-    lines[0].ascent  = _extents.ascent;
-    lines[0].descent = _extents.descent;
-    return true;
-  }
-  return false;
+        &glyphs[0]);
+        
+  _extents.width = glyphs[0].right;
+  _extents.ascent  = _extents.descent = -1e9;
+  context.math_shaper->vertical_glyph_size(
+    context, str[0], glyphs[0], &_extents.ascent, &_extents.descent);
+  lines[0].ascent  = _extents.ascent;
+  lines[0].descent = _extents.descent;
+  return did_stretch;
 }
 
 float MathSequence::first_glyph_width() {
