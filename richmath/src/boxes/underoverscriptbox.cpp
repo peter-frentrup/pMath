@@ -217,7 +217,7 @@ void UnderoverscriptBox::resize(Context &context) {
   }
   
   if(_overscript) {
-   if(_base->extents().ascent > flac_min) {
+   if(_base->extents().ascent > flac_min && _base->glyph_array().length() == 1 && _base->glyph_array()[0].index != IgnoreGlyph) {
      int old_flac_feature_value = context.fontfeatures.feature_value(FontFeatureSet::TAG_flac);
      context.fontfeatures.set_feature(FontFeatureSet::TAG_flac, 1);
      
