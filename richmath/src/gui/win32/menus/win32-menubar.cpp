@@ -1093,15 +1093,24 @@ bool Win32Menubar::Impl::try_draw_pin_icon(HDC hdc, const RECT &rect, COLORREF c
         Win32Themes::symbol_font_name());
       HFONT old_font = (HFONT)SelectObject(hdc, font);
       
-      static const wchar_t PinSymbol[] = L"\xE718";
-      static const wchar_t PinnedSymbol[] = L"\xE840";
-      static const wchar_t UnpinSymbol[] = L"\xE77A";
+      // Pin icons
+      //           Segoe Fluent Icons     Segoe MDL2 Assets      Segoe UI Symbol 
+      //             (Windows 11)           (Windows 10)             (older)
+      //
+      // U+E718      sw pointing            left pointing           (missing)
+      // U+E840      sw pointing            sw pointing             (missing)
+      // U+E77A    sw pointing, crossed    sw pointing w/ x         (missing)
+      
+      static const wchar_t PinSymbol_single[]   = L"\xE718";
+      static const wchar_t PinSymbol_question[] = L"\xE718?";
+      static const wchar_t PinnedSymbol[]       = L"\xE840";
+      static const wchar_t UnpinSymbol[]        = L"\xE77A";
       
       const wchar_t *symbol;
       switch(state) {
         case ControlState::Pressed:        symbol = PinnedSymbol; break;
         case ControlState::PressedHovered: symbol = UnpinSymbol; break;
-        default:             symbol = PinSymbol; break;
+        default:                           symbol = Win32Version::is_windows_11_or_newer() ? PinSymbol_question : PinSymbol_single; break;
       }
       
       Win32Themes::DrawThemeTextEx(
