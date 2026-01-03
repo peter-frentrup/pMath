@@ -20,6 +20,7 @@ namespace richmath {
     PushButton,
     DefaultPushButton,
     PaletteButton,
+    DropDownButton,
     InputField,
     AddressBandInputField,
     AddressBandBackground,

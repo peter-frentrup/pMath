@@ -112,7 +112,7 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
     expanded.ascent  -= dummy.ascent;
     expanded.descent -= dummy.descent;
     expanded.width   -= dummy.width;
-    margins.left   = expanded.width / 2;
+    margins.left   = expanded.width / 2; // todo: consider container_padding
     margins.right  = expanded.width / 2;
     margins.top    = expanded.ascent;
     margins.bottom = expanded.ascent;
@@ -185,6 +185,9 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
     }
   }
   
+  _extents.width   = context.canvas().pixel_round_dx(_extents.width);
+  _extents.descent = context.canvas().pixel_round_dy(_extents.height()) - _extents.ascent;
+  
   auto old_size = _extents;
   
   ControlPainter::std->calc_container_size(
@@ -227,7 +230,7 @@ void ContainerWidgetBox::paint(Context &context) {
   Point pos = context.canvas().current_pos();
   
   RectangleF rect = _extents.to_rectangle(pos);
-  //rect.pixel_align(context.canvas(), false); // The animation creation functions round outward, others round to nearest. THat could cause pixel jumping
+  rect.pixel_align(context.canvas(), false); // The animation creation functions round outward, others round to nearest. THat could cause pixel jumping
   ControlState state = calc_state(context);
   
   if(animation && !animation->is_compatible(context.canvas(), rect.width, rect.height)) 

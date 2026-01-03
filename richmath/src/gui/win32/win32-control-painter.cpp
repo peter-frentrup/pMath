@@ -123,6 +123,12 @@ static class Win32ControlPainterCache {
       else
         return get_theme_for_dpi(button_theme_for_dpi, L"BUTTON", dpi);
     }
+    HANDLE combobox_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(dark_combobox_theme_for_dpi, L"DarkMode_CFD::Combobox;Combobox", dpi);
+      else
+        return get_theme_for_dpi(combobox_theme_for_dpi, L"CFD::Combobox;Combobox", dpi);
+    }
     HANDLE edit_theme(int dpi, bool dark) {
       if(dark)
         return get_theme_for_dpi(dark_edit_theme_for_dpi, L"DarkMode_CFD::EDIT;Explorer::EDIT;EDIT", dpi);
@@ -198,6 +204,8 @@ static class Win32ControlPainterCache {
       close_themes(dark_addressband_edit_theme_for_dpi);
       close_themes(     button_theme_for_dpi);
       close_themes(dark_button_theme_for_dpi);
+      close_themes(     combobox_theme_for_dpi);
+      close_themes(dark_combobox_theme_for_dpi);
       close_themes(     edit_theme_for_dpi);
       close_themes(dark_edit_theme_for_dpi);
       close_themes(     explorer_listview_theme_for_dpi);
@@ -258,6 +266,7 @@ static class Win32ControlPainterCache {
     Hashtable<int, HANDLE> addressband_combobox_theme_for_dpi;
     Hashtable<int, HANDLE> addressband_edit_theme_for_dpi;
     Hashtable<int, HANDLE> button_theme_for_dpi;
+    Hashtable<int, HANDLE> combobox_theme_for_dpi;
     Hashtable<int, HANDLE> edit_theme_for_dpi;
     Hashtable<int, HANDLE> explorer_listview_theme_for_dpi;
     Hashtable<int, HANDLE> explorer_treeview_theme_for_dpi;
@@ -272,6 +281,7 @@ static class Win32ControlPainterCache {
     Hashtable<int, HANDLE> dark_addressband_theme_for_dpi;
     Hashtable<int, HANDLE> dark_addressband_combobox_theme_for_dpi;
     Hashtable<int, HANDLE> dark_addressband_edit_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_combobox_theme_for_dpi;
     Hashtable<int, HANDLE> dark_button_theme_for_dpi;
     Hashtable<int, HANDLE> dark_edit_theme_for_dpi;
     Hashtable<int, HANDLE> dark_explorer_listview_theme_for_dpi;
@@ -320,34 +330,37 @@ void Win32ControlPainter::calc_container_size(
   int theme_part, theme_state;
   HANDLE theme = get_control_theme(control, type, ControlState::Normal, &theme_part, &theme_state);
   
+  int dpi = control.dpi();
+  float dpi_scale = dpi / 72.0;
+  
   switch(type) {
     case ContainerType::InputField: {
-        extents->width +=   4.5;
-        extents->ascent +=  3;
-        extents->descent += 2.25;
+        extents->width +=   roundf(4.5f * dpi_scale) / dpi_scale; // = 6px @ 96 dpi
+        extents->ascent +=  roundf(3    * dpi_scale) / dpi_scale;
+        extents->descent += roundf(2.25 * dpi_scale) / dpi_scale;
         round_extents(canvas, extents);
       } return;
       
     case ContainerType::AddressBandInputField: {
         if(theme) {
-          extents->width +=   1.5;
-          extents->ascent +=  0.75;
-          extents->descent += 0.75;
+          extents->width +=   roundf(1.5  * dpi_scale) / dpi_scale;
+          extents->ascent +=  roundf(0.75 * dpi_scale) / dpi_scale;
+          extents->descent += roundf(0.75 * dpi_scale) / dpi_scale;
           round_extents(canvas, extents);
           return;
         }
         
-        extents->width +=   3.0;
-        extents->ascent +=  2.25;
-        extents->descent += 1.5;
+        extents->width +=   roundf(3.0  * dpi_scale) / dpi_scale;
+        extents->ascent +=  roundf(2.25 * dpi_scale) / dpi_scale;
+        extents->descent += roundf(1.5  * dpi_scale) / dpi_scale;
         round_extents(canvas, extents);
       } return;
     
     case ContainerType::AddressBandBackground: 
       if(!theme) {
-        extents->width +=   1.5;
-        extents->ascent +=  0.75;
-        extents->descent += 0.75;
+        extents->width +=   roundf(1.5  * dpi_scale) / dpi_scale;
+        extents->ascent +=  roundf(0.75 * dpi_scale) / dpi_scale;
+        extents->descent += roundf(0.75 * dpi_scale) / dpi_scale;
         round_extents(canvas, extents);
         return;
       }
@@ -362,25 +375,25 @@ void Win32ControlPainter::calc_container_size(
     case ContainerType::Panel:
     case ContainerType::PopupPanel:
       if(theme && Win32Themes::GetThemeMargins) {
-        extents->width +=   9.0;
-        extents->ascent +=  4.5;
-        extents->descent += 4.5;
+        extents->width +=   roundf(9.0 * dpi_scale) / dpi_scale;
+        extents->ascent +=  roundf(4.5 * dpi_scale) / dpi_scale;
+        extents->descent += roundf(4.5 * dpi_scale) / dpi_scale;
       }
       break;
     
     case ContainerType::TabPanelCenter: 
       if(theme && Win32Themes::GetThemeMargins) {
-        extents->width +=   6.0;
-        extents->ascent +=  3.0;
-        extents->descent += 3.0;
+        extents->width +=   roundf(6.0 * dpi_scale) / dpi_scale;
+        extents->ascent +=  roundf(3.0 * dpi_scale) / dpi_scale;
+        extents->descent += roundf(3.0 * dpi_scale) / dpi_scale;
       }
       break;
     
     case ContainerType::TabBodyBackground: 
       if(theme && Win32Themes::GetThemeMargins) {
-        extents->width +=   9.0;
-        extents->ascent +=  3.0;
-        extents->descent += 4.5;
+        extents->width +=   roundf(9.0 * dpi_scale) / dpi_scale;
+        extents->ascent +=  roundf(3.0 * dpi_scale) / dpi_scale;
+        extents->descent += roundf(4.5 * dpi_scale) / dpi_scale;
       }
       break;
       
@@ -398,9 +411,9 @@ void Win32ControlPainter::calc_container_size(
       
     case ContainerType::ProgressIndicatorBar: {
         if(!theme || theme_part != 5) {
-          extents->width -=   4.5;
-          extents->ascent -=  2.25;
-          extents->descent -= 2.25;
+          extents->width -=   roundf(4.5  * dpi_scale) / dpi_scale;
+          extents->ascent -=  roundf(2.25 * dpi_scale) / dpi_scale;
+          extents->descent -= roundf(2.25 * dpi_scale) / dpi_scale;
         }
         round_extents(canvas, extents);
       } return;
@@ -488,11 +501,10 @@ void Win32ControlPainter::calc_container_size(
           /* For the Navigation parts, TS_TRUE on 144 DPI monitor gives 45x45 and on
              96 PDI monitor gives 30, so here the TS_TRUE size is not in terms of the primary monitor DPI (unlike ContainerType::PushButton?)
            */
-          int dpi = control.dpi();
           double scale = 72.0 / dpi;
           extents->width   = std::max(size.cx * scale, (double)extents->width);
           float axis = canvas.get_font_size() * 0.4;
-          extents->ascent  = std::max(axis + size.cy * scale * 0.5, (double)extents->ascent);
+          extents->ascent  = std::max( axis + size.cy * scale * 0.5, (double)extents->ascent);
           extents->descent = std::max(-axis + size.cy * scale * 0.5, (double)extents->descent);
           return;
         }
@@ -526,25 +538,25 @@ void Win32ControlPainter::calc_container_size(
           mar.cyBottomHeight > 0 || 
           mar.cyTopHeight > 0))
     {
-      extents->width +=   0.75f * (mar.cxLeftWidth + mar.cxRightWidth);
-      extents->ascent +=  0.75f * mar.cyTopHeight;
-      extents->descent += 0.75f * mar.cyBottomHeight;
+      extents->width +=   (mar.cxLeftWidth + mar.cxRightWidth) * 72.0 / dpi;
+      extents->ascent +=  mar.cyTopHeight    * 72.0 / dpi;
+      extents->descent += mar.cyBottomHeight * 72.0 / dpi;
       
       Win32Themes::GetThemePartSize(
         theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size);
         
-      if(extents->width < 0.75 * size.cx)
-        extents->width = 0.75 * size.cx;
+      if(extents->width < size.cx * 72.0 / dpi)
+        extents->width  = size.cx * 72.0 / dpi;
         
-      if(extents->height() < 0.75 * size.cy) {
-        float extra = 0.75 * size.cy - extents->height();
+      if(extents->height() < size.cy * 72.0 / dpi) {
+        float extra = size.cy * 72.0 / dpi - extents->height();
         extents->ascent  += 0.5f * extra;
         extents->descent += 0.5f * extra;
       }
       
       if(type == ContainerType::TabBodyBackground) {
         if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, theme_part, theme_state, 3601, nullptr, &mar))) {
-          extents->ascent-= 0.75f * mar.cyTopHeight;
+          extents->ascent-= mar.cyTopHeight * 72.0 / dpi;
         }
       }
       
@@ -1425,7 +1437,8 @@ void Win32ControlPainter::draw_container(
         
       case ContainerType::DefaultPushButton:
       case ContainerType::GenericButton:
-      case ContainerType::PushButton: {
+      case ContainerType::PushButton:
+      case ContainerType::DropDownButton: {
           if(type == ContainerType::DefaultPushButton) {
             FrameRect(dc, &irect, (HBRUSH)GetStockObject(BLACK_BRUSH));
             
@@ -2796,7 +2809,11 @@ HANDLE Win32ControlPainter::get_control_theme(
     case ContainerType::PaletteButton: 
       theme = w32cp_cache.toolbar_theme(control.dpi(), control.is_using_dark_mode());
       break;
-      
+    
+    case ContainerType::DropDownButton:
+      theme = w32cp_cache.combobox_theme(control.dpi(), control.is_using_dark_mode());
+      break;
+    
     case ContainerType::InputField: 
       theme = w32cp_cache.edit_theme(control.dpi(), control.is_using_dark_mode());
       break;
@@ -2943,6 +2960,19 @@ HANDLE Win32ControlPainter::get_control_theme(
             }
             else
               *theme_state = 1;
+        }
+      } break;
+    
+    case ContainerType::DropDownButton: {
+        *theme_part = 5;//CP_READONLY
+        
+        switch(state) {
+          case ControlState::Disabled:        *theme_state = 4; break;
+          case ControlState::Pressed:
+          case ControlState::PressedHovered:  *theme_state = 3; break;
+          case ControlState::Hovered:
+          case ControlState::Hot:             *theme_state = 2; break;
+          case ControlState::Normal:          *theme_state = 1; break;
         }
       } break;
       

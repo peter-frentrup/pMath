@@ -38,6 +38,7 @@ class MathGtkStyleContextCache {
     
     GtkStyleProvider *current_theme() {  return init_once(_current_theme,  [variant=_theme_variant]() { return make_current_theme_provider(variant); }); }
     
+    GtkStyleContext *combobox_context() {                return init_context_once(_combobox_context,                make_combobox_context); }
     GtkStyleContext *checkbox_context() {                return init_context_once(_checkbox_context,                make_checkbox_context); }
     GtkStyleContext *default_push_button_context() {     return init_context_once(_default_push_button_context,     make_default_push_button_context); }
     GtkStyleContext *expander_arrow_context() {          return init_context_once(_expander_arrow_context,          make_expander_arrow_context); }
@@ -104,6 +105,7 @@ class MathGtkStyleContextCache {
   private:
     static GtkStyleProvider *make_current_theme_provider(const char *variant);
     
+    static GtkStyleContext *make_combobox_context();
     static GtkStyleContext *make_checkbox_context();
     static GtkStyleContext *make_default_push_button_context();
     static GtkStyleContext *make_expander_arrow_context();
@@ -157,6 +159,7 @@ class MathGtkStyleContextCache {
     
     GtkStyleProvider *_current_theme;
     
+    GtkStyleContext *_combobox_context;
     GtkStyleContext *_checkbox_context;
     GtkStyleContext *_default_push_button_context;
     GtkStyleContext *_expander_arrow_context;
@@ -880,6 +883,7 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext &contro
       
     case ContainerType::PushButton:                  return painter_cache_for(control).push_button_context();
     case ContainerType::DefaultPushButton:           return painter_cache_for(control).default_push_button_context();
+    case ContainerType::DropDownButton:              return painter_cache_for(control).combobox_context();
       
     case ContainerType::NavigationBack:
     case ContainerType::NavigationForward:
@@ -1147,6 +1151,7 @@ MathGtkStyleContextCache::MathGtkStyleContextCache(const char *theme_variant) {
   _theme_variant = theme_variant;
   _current_theme = nullptr;
   
+  _combobox_context                       = nullptr;
   _checkbox_context                       = nullptr;
   _default_push_button_context            = nullptr;
   _expander_arrow_context                 = nullptr;
@@ -1204,6 +1209,7 @@ MathGtkStyleContextCache::~MathGtkStyleContextCache() {
 void MathGtkStyleContextCache::clear() {
   unref_and_null(_current_theme);
   
+  unref_and_null(_combobox_context);
   unref_and_null(_checkbox_context);
   unref_and_null(_default_push_button_context);
   unref_and_null(_expander_arrow_context);
@@ -1698,6 +1704,28 @@ GtkStyleProvider *MathGtkStyleContextCache::make_current_theme_provider(const ch
   g_free(theme_name);
   
   return GTK_STYLE_PROVIDER(g_object_ref(provider));
+}
+
+GtkStyleContext *MathGtkStyleContextCache::make_combobox_context() {
+  GtkWidgetPath *path = gtk_widget_path_new();
+  gtk_widget_path_append_type(path, GTK_TYPE_COMBO_BOX);
+  gtk_widget_path_iter_set_object_name(path, -1, "combobox");
+
+  GtkStyleContext *box_context = make_context_from_path_and_free(path);
+  
+  path = gtk_widget_path_copy(gtk_style_context_get_path(box_context));
+  gtk_widget_path_append_type(path, GTK_TYPE_BOX);
+  gtk_widget_path_iter_set_object_name(path, -1, "box");
+  //gtk_widget_path_iter_add_class(path, -1, "linked"); // but no siblings
+
+  GtkStyleContext *button_context = make_context_from_path_and_free(path);
+  
+  path = gtk_widget_path_copy(gtk_style_context_get_path(button_context));
+  gtk_widget_path_append_type(path, GTK_TYPE_BUTTON);
+  gtk_widget_path_iter_set_object_name(path, -1, "button");
+  gtk_widget_path_iter_add_class(path, -1, "combo"); // but no siblings
+  
+  return make_context_from_path_and_free(path, button_context);
 }
 
 GtkStyleContext *MathGtkStyleContextCache::make_checkbox_context() {

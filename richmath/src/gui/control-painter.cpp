@@ -138,6 +138,12 @@ void ControlPainter::calc_container_size(
         extents->ascent +=  2.25; // = 1.5(2px) + padding.top
         extents->descent += 2.25; // = 1.5(2px) + padding.bottom
       } break;
+    
+    case ContainerType::DropDownButton: {
+        extents->width +=   13.5;  // = 1.5(2px) + padding.left + padding.right + 1.5(2px)
+        extents->ascent +=   2.25; // = 1.5(2px) + padding.top
+        extents->descent +=  2.25; // = 1.5(2px) + padding.bottom
+      } break;
       
     case ContainerType::DefaultPushButton: {
         extents->width +=   6.0; // = 2.25(3px) + padding.left + padding.right + 2.25(3px)
@@ -331,6 +337,8 @@ Margins<float> ControlPainter::container_padding(ControlContext &control, Contai
     case ContainerType::ListViewItem:
     case ContainerType::ListViewItemSelected:            return Margins<float>(0.75f, 0.75f);
     
+    case ContainerType::DropDownButton:                  return Margins<float>(0.75f, 9.75f, 0.75f, 0.75f);
+    
     case ContainerType::DefaultPushButton:               return Margins<float>(0.75f, 0.75f);
     case ContainerType::AddressBandGoButton:             return Margins<float>(0.75f, 0.0f);
     case ContainerType::InputField:                      return Margins<float>(1.5f, 1.5f);
@@ -441,6 +449,7 @@ void ControlPainter::draw_container(
     case ContainerType::GenericButton:
     case ContainerType::PushButton:
     case ContainerType::PaletteButton:
+    case ContainerType::DropDownButton:
       ControlPainterImpl::paint_frame(canvas, rect, state == ControlState::PressedHovered, state != ControlState::Disabled, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor);
       break;
     

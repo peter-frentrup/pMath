@@ -3995,6 +3995,7 @@ ButtonFrameStyleConverter::ButtonFrameStyleConverter() : EnumStyleConverter() {
   add(ContainerType::PushButton,           String("DialogBox"));
   add(ContainerType::DefaultPushButton,    String("Defaulted"));
   add(ContainerType::PaletteButton,        strings::Palette);
+  add(ContainerType::DropDownButton,       String("DropDownButton"));
   add(ContainerType::AddressBandGoButton,  String("AddressBandGo"));
   add(ContainerType::ListViewItemSelected, String("ListViewItemSelected"));
   add(ContainerType::ListViewItem,         String("ListViewItem"));
