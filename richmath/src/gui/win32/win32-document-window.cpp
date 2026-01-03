@@ -1304,18 +1304,19 @@ void Win32DocumentWindow::on_theme_changed() {
 }
 
 ArrayView<const Win32CaptionButton> Win32DocumentWindow::extra_caption_buttons() {
-  //                                         Segoe Mdl2 Assets (Win 10)    Segoe UI Symbol (older)
-  //	U+E0C2 (bold horizontal dots)                    no                           yes
-  //	U+E10C (horizontal dots)                        yes                           yes
-  //	U+E712 ("More" horizontal dots)                 yes                            no
+  //                                         Segoe Fluent Icons   Segoe Mdl2 Assets    Segoe UI Symbol
+  //                                            (Windows 11)        (Windows 10)          (older)
+  //	U+E0C2 (bold horizontal dots)                 no                   no                 yes
+  //	U+E10C (horizontal dots)                     yes                  yes                 yes
+  //	U+E712 ("More" horizontal dots)              yes                  yes                  no
   //
-  //  U+1F50D LEFT-POINTING MAGNIFYING GLASS           no                           yes
-  //	U+E1A3 (left-point. magn. glass)                yes                           yes
-  //	U+E712 ("Search" magnifying glass)              yes                            no
+  //  U+1F50D LEFT-POINTING MAGNIFYING GLASS        no                   no                 yes
+  //	U+E1A3 (left-point. magn. glass)             yes                  yes                 yes
+  //	U+E71E ("Search" magnifying glass)           yes                  yes                  no
   //
-  //  U+E700 "GlobalNavigationButton"                 yes                            no
+  //  U+E700 "GlobalNavigationButton"              yes                  yes                  no
   //
-  //  U+E105 (save, floppy disk)                      yes                           yes
+  //  U+E105 (save, floppy disk)                   yes                  yes                 yes
   if(can_toggle_menubar()) {
     static const Win32CaptionButton btns[] = {
       {4, Win32CaptionButton::None},
