@@ -121,9 +121,11 @@ NativeWidget::NativeWidget(Document *doc)
 }
 
 NativeWidget::~NativeWidget() {
-  if(_document)
+  if(_document) {
     _document->_native = dummy;
-  delete _document;
+    _document->safe_destroy();
+    _document = nullptr;
+  }
 }
 
 void NativeWidget::scale_by(float ds) {
