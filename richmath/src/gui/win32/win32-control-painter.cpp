@@ -567,7 +567,12 @@ void Win32ControlPainter::calc_container_radii(
   
   switch(type) {
     case ContainerType::TooltipWindow: {
-        if(!theme || Win32Version::is_windows_8_or_newer()) {
+        if(!theme) {
+          *radii = BoxRadius(0);
+          return;
+        }
+        
+        if(Win32Version::is_windows_8_or_newer() && !Win32Version::is_windows_11_or_newer()) {
           *radii = BoxRadius(0);
           return;
         }
