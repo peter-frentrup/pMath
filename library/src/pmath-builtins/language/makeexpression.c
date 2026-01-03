@@ -1067,6 +1067,7 @@ static pmath_t handle_call_expr(pmath_expr_t expr) {
       if(pmath_same(auto_uncompress, pmath_System_True)) {
         pmath_serialize_error_t err = PMATH_SERIALIZE_OK;
         pmath_t data = pmath_decompress_from_string_quiet(str, &err);
+        str = PMATH_NULL;
         if(err == PMATH_SERIALIZE_OK) {
           pmath_unref(expr);
           return data;
@@ -1074,8 +1075,7 @@ static pmath_t handle_call_expr(pmath_expr_t expr) {
         pmath_unref(data);
       }
     }
-    else
-      pmath_unref(str);
+    pmath_unref(str);
   }
   
   return expr;
