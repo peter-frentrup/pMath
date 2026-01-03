@@ -65,10 +65,10 @@ POINT richmath::discretize(const Point &p) {
 
 RECT richmath::discretize(const RectangleF &rect) {
   return { 
-    (int)round_directed(rect.left(),  +1, false), 
-    (int)round_directed(rect.top(),   +1, false), 
-    (int)round_directed(rect.right(), -1, false), 
-    (int)round_directed(rect.bottom(),-1, false) }; 
+    (int)round_directed(rect.left(),   0 /* +1 */, false), 
+    (int)round_directed(rect.top(),    0 /* +1 */, false), 
+    (int)round_directed(rect.right(),  0 /* -1 */, false), 
+    (int)round_directed(rect.bottom(), 0 /* -1 */, false) }; 
 }
 
 const wchar_t Win32AttachedPopupWindow::Impl::class_name[] = L"RichmathWin32Popup";
@@ -332,11 +332,23 @@ void Win32AttachedPopupWindow::paint_canvas(Canvas &canvas, bool resize_only) {
   _best_size.x += outer.right  - outer.left - inner.right  + inner.left;
   _best_size.y += outer.bottom - outer.top  - inner.bottom + inner.top;
   
+  int _dpi = dpi();
+  
+  Length w = document()->get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
+  Length h = document()->get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
+  
+  // TODO: convert scaled and symbolic sizes relative to monitor width/height
+  if(w != SymbolicSize::Automatic || h != SymbolicSize::Automatic) {
+    if(w.is_explicit_abs())
+      _best_size.x = std::max(1.0f, w.explicit_abs_value() * _dpi / 72);
+    
+    if(h.is_explicit_abs())
+      _best_size.y = std::max(1.0f, h.explicit_abs_value() * _dpi / 72);
+  }
+  
   // subtract scrollbars size:
   DWORD style = GetWindowLongW(_hwnd, GWL_STYLE);
   if(style & (WS_VSCROLL | WS_HSCROLL)) {
-    int _dpi = dpi();
-    
     if(style & WS_VSCROLL)
       _best_size.x -= Win32HighDpi::get_system_metrics_for_dpi(SM_CXVSCROLL, _dpi);
     
@@ -475,7 +487,12 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   bool has_target_rect = false;
   if(true /* content padding */) {
     if(auto seq = dynamic_cast<AbstractSequence*>(anchor.box)) {
-      if(seq->text_changed()) { // measure_range() just gives extents(). use cached rect ...
+      if(Box *box = anchor.contained_box()) {
+        box->range_rect(0, box->length());
+        has_target_rect = true;
+      }
+      
+      if(!has_target_rect && seq->text_changed()) { // measure_range() just gives extents(). use cached rect ...
         if(self._last_target_rect != RectangleF(0,0,0,0)) {
           target_rect = self._last_target_rect;
           has_target_rect = true;
@@ -503,6 +520,9 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   if(!has_target_rect) {
     target_rect = anchor.box->range_rect(anchor.start, anchor.end);
   }
+  
+  if(self._last_target_rect.size() != target_rect.size())
+    self._size_observable.notify_all();
   
   self._last_target_rect = target_rect;
   

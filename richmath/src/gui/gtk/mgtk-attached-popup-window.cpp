@@ -35,8 +35,11 @@ namespace richmath {
     public:
       MathGtkPopupContentArea(MathGtkAttachedPopupWindow *parent, Document *owner, const SelectionReference &anchor);
       
-      int best_width() { return _best_width; }
+      int best_width() {  return _best_width; }
       int best_height() { return _best_height; }
+      
+      bool best_width_includes_border() {  return _best_width_includes_border; }
+      bool best_height_includes_border() { return _best_height_includes_border; }
       
       MathGtkWidget *owner_widget();
       
@@ -52,6 +55,11 @@ namespace richmath {
       virtual bool is_focused_widget() override;
       virtual bool is_using_dark_mode() override { return _parent->is_using_dark_mode(); }
       virtual int dpi() override { return _parent->dpi(); }
+      virtual bool try_get_attachment_source_size(Vector2F *size) override { 
+        if(size)
+          *size = _parent->get_attachment_source_size();
+        return true;
+      }
       
     protected:
       ~MathGtkPopupContentArea();
@@ -65,6 +73,8 @@ namespace richmath {
       MathGtkAttachedPopupWindow *_parent;
       int                         _best_width;
       int                         _best_height;
+      bool                        _best_width_includes_border : 1;
+      bool                        _best_height_includes_border : 1;
   };
 }
 
@@ -296,8 +306,15 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
         }
       }
       
-      size.x+= border_extra_x;
-      size.y+= border_extra_y;
+      if(_content_area->best_width_includes_border())
+        size.x = std::max(size.x, 1.0f + border_extra_x);
+      else
+        size.x+= border_extra_x;
+      
+      if(_content_area->best_height_includes_border())
+        size.y = std::max(size.y, 1.0f + border_extra_y);
+      else
+        size.y+= border_extra_y;
       
       Impl(*this).adjust_target_rect(wft, cpk, size, target_rect);
       
@@ -613,7 +630,12 @@ bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &t
   bool has_target_rect = false;
   if(true /* content padding */) {
     if(auto seq = dynamic_cast<AbstractSequence*>(anchor.box)) {
-      if(seq->text_changed()) { // measure_range() just gives extents(). use cached rect ...
+      if(Box *box = anchor.contained_box()) {
+        box->range_rect(0, box->length());
+        has_target_rect = true;
+      }
+      
+      if(!has_target_rect && seq->text_changed()) { // measure_range() just gives extents(). use cached rect ...
         if(self._last_target_rect != RectangleF(0,0,0,0)) {
           target_rect = self._last_target_rect;
           has_target_rect = true;
@@ -641,6 +663,9 @@ bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &t
   if(!has_target_rect) {
     target_rect = anchor.box->range_rect(anchor.start, anchor.end);
   }
+  
+  if(self._last_target_rect.size() != target_rect.size())
+    self._size_observable.notify_all();
   
   self._last_target_rect = target_rect;
 
@@ -775,7 +800,9 @@ MathGtkPopupContentArea::MathGtkPopupContentArea(MathGtkAttachedPopupWindow *par
   : base(new Document()),
     _parent(parent),
     _best_width{1},
-    _best_height{1}
+    _best_height{1},
+    _best_width_includes_border{false},
+    _best_height_includes_border{false}
 {
   owner_document(owner);
   source_range(anchor);
@@ -844,6 +871,27 @@ void MathGtkPopupContentArea::paint_canvas(Canvas &canvas, bool resize_only) {
   
   _best_height = (int)round(document()->extents().height() * scale_factor());
   _best_width  = (int)round(document()->unfilled_width     * scale_factor());
+  
+  int _dpi = dpi();
+  
+  Length w = document()->get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
+  Length h = document()->get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
+  
+  _best_width_includes_border  = false;
+  _best_height_includes_border = false;
+  
+  // TODO: convert scaled and symbolic sizes relative to monitor width/height
+  if(w != SymbolicSize::Automatic || h != SymbolicSize::Automatic) {
+    if(w.is_explicit_abs()) {
+      _best_width = (int)std::max(1.0f, w.explicit_abs_value() * _dpi / 72);
+      _best_width_includes_border = true;
+    }
+    
+    if(h.is_explicit_abs()) {
+      _best_height = (int)std::max(1.0f, h.explicit_abs_value() * _dpi / 72);
+      _best_width_includes_border = true;
+    }
+  }
   
   if(_best_height < 1)
     _best_height = 1;

@@ -50,7 +50,7 @@ Document({
                       "{", {StringBox("\"MouseClickOutsidePopup\""), ",", 
                        StringBox("\"SelectionExit\"")}, "}"}}}, ")"}}, "\n", {
                   "SetSelectedDocument", "(", "popup", ")"}}, "\n"}}, "}"}}}, 
-           ")"}), "Input", SectionLabel -> "in [1]:"), 
+           ")"}), "Input", SectionLabel -> "in [8]:"), 
         Section(BoxData(ButtonBox(StringBox("\"Greetings ...\""), 
            ButtonFunction -> 
             Function(Local({$Context`popup, $Context`name:= ""}, 
@@ -67,14 +67,16 @@ Document({
                  WindowFrame -> "ThinFrameCallout", 
                  RemovalConditions -> {"MouseClickOutsidePopup", 
                    "SelectionExit"}); SetSelectedDocument($Context`popup))))), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [8]:")}, 
        All)}, All), SectionGroup({Section("Declarative interface", "Section"), 
       Section(
        BoxData(/\/({{{"Options", "(", "SimplePopup", ")"}, "\[Assign]", {
             "{", {{StringBox("\"ClosingAction\""), "\[Rule]", 
               StringBox("\"Delete\"")}, ",", {"RemovalConditions", "\[Rule]", 
               "None"}, ",", {"WindowFrame", "\[Rule]", 
-              StringBox("\"Single\"")}}, "}"}}, ";"}, "\n", {
+              StringBox("\"Single\"")}, ",", {
+              "ImageSize", "\[Rule]", "Automatic"}, ",", {
+              "ButtonFrame", "\[Rule]", "Automatic"}}, "}"}}, ";"}, "\n", {
           {"MakeBoxes", "(", {"SimplePopup", "(", {
              {"~", "lbl"}, ",", {"~", "contents"}, ",", {
               "opts", ":", {"OptionsPattern", "(", ")"}}}, ")"}, ")"}, 
@@ -87,11 +89,11 @@ Document({
         Section(BoxData({"SimplePopup", "(", {
             StringBox("\"Click me!\""), ",", StringBox("\"Hello\""), ",", {
              "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
-         SectionLabel -> "in [4]:"), 
+         SectionLabel -> "in [11]:"), 
         Section(
          BoxData(TemplateBox({StringBox("\"Click me!\""), 
             StringBox("\"Hello\""), WindowFrame -> None}, "SimplePopup")), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [11]:")}, 
        All), SectionGroup({
         Section(BoxData({"SimplePopup", "(", {
             {"Magnification", "\[Rule]", {
@@ -419,6 +421,36 @@ Document({
          "Output", SectionGenerated -> True, SectionLabel -> "out [12]:")}, 
        All), SectionGroup({
         Section(BoxData({"SimplePopup", "(", {
+            StringBox("\"Some long dropdown text\""), ",", 
+            StringBox("\"Drop down some words of caution\""), ",", {
+             "ImageSize", "\[Rule]", {"Dynamic", "(", {
+               "{", {{"CurrentValue", "(", 
+                 StringBox("\"AttachmentSourceWidth\""), ")"}, ",", "50"}, 
+               "}"}, ")"}}, ",", {"ButtonFrame", "\[Rule]", 
+             StringBox("\"DropDownButton\"")}}, ")"}), "Input", 
+         SectionLabel -> "in [4]:"), 
+        Section(BoxData(TemplateBox({StringBox("\"Some long dropdown text\""), 
+            StringBox("\"Drop down some words of caution\""), 
+            ImageSize -> Dynamic({CurrentValue("AttachmentSourceWidth"), 50}), 
+            ButtonFrame -> "DropDownButton"}, "SimplePopup")), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"Filler", "(", {
+            "SimplePopup", "(", {StringBox("\"Drop-down\""), ",", 
+             StringBox("\"Drop down some words of caution\""), ",", {
+              "ImageSize", "\[Rule]", {"Dynamic", "(", {
+                "{", {{"CurrentValue", "(", 
+                  StringBox("\"AttachmentSourceWidth\""), ")"}, ",", "90"}, 
+                "}"}, ")"}}}, ")"}, ")"}), "Input", 
+         SectionLabel -> "in [17]:"), 
+        Section(
+         BoxData(FillBox(TemplateBox({StringBox("\"Drop-down\""), 
+             StringBox("\"Drop down some words of caution\""), 
+             ImageSize -> Dynamic({CurrentValue("AttachmentSourceWidth"), 
+                90})}, "SimplePopup"), StripOnInput -> False)), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [17]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"SimplePopup", "(", {
             StringBox("\"Panelled popup\""), ",", {
              "Panel", "(", {StringBox("\"Tada\""), ",", {
                "Appearance", "\[Rule]", StringBox("\"Popup\"")}}, ")"}, ",", {
@@ -495,7 +527,15 @@ Document({
                          Dynamic(
                           Lookup({Inherited -> "ThinFrame", ~FE`Private`x :> 
                              FE`Private`x}, CurrentValue({
-                             TemplateSlot, Key(WindowFrame)})))))})))))}), 
+                             TemplateSlot, Key(WindowFrame)}))), 
+                        ImageSize -> 
+                         Dynamic(
+                          Lookup({Inherited -> Automatic, ~FE`Private`x :> 
+                             FE`Private`x}, CurrentValue({
+                             TemplateSlot, Key(ImageSize)})))))})), 
+                 ButtonFrame -> 
+                  Dynamic(CurrentValue({
+                     TemplateSlot, Key(ButtonFrame)})))))}), 
           Section(StyleData("SectionsPopup"), 
            TemplateBoxOptions -> {
              DisplayFunction -> Function(DynamicLocalBox({FE`Private`popup}, 

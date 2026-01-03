@@ -10,6 +10,7 @@ Options(FE`AttachBoxes):= Options(FrontEnd`AttachBoxes):= {
     "ClosingAction" -> "Delete",
     DocumentEventActions -> Inherited,
     FontColor -> Inherited,
+    ImageSize -> Automatic,
     RemovalConditions -> None,
     WindowFrame -> None
 };

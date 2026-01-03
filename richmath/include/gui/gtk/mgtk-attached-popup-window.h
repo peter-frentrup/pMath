@@ -34,6 +34,8 @@ namespace richmath {
       virtual bool is_using_dark_mode() override;
       virtual int dpi() override;
       
+      Vector2F get_attachment_source_size() { _size_observable.register_observer(); return _last_target_rect.size(); }
+      
     protected:
       virtual ~MathGtkAttachedPopupWindow();
       virtual void after_construction() override;
@@ -57,6 +59,7 @@ namespace richmath {
       MathGtkPopupContentArea *_content_area;
       ContainerType            _appearance;
       ObservableValue<bool>    _active;
+      Observable               _size_observable;
       CalloutTriangle          _callout_triangle;
       RectangleF               _last_target_rect;
   };

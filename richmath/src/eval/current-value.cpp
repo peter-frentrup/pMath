@@ -17,6 +17,9 @@ namespace richmath {
   namespace strings {
     extern String AttachmentSource;
     extern String AttachmentSourceBox;
+    extern String AttachmentSourceHeight;
+    extern String AttachmentSourceSize;
+    extern String AttachmentSourceWidth;
     extern String ControlsFontFamily;
     extern String ControlsFontSize;
     extern String ControlsFontSlant;
@@ -46,6 +49,9 @@ namespace richmath {
       static Expr            get_AttachmentSource(FrontEndObject *obj, Expr item);
       static bool            put_AttachmentSource(FrontEndObject *obj, Expr item, Expr rhs);
       static FrontEndObject *get_AttachmentSourceBox(FrontEndObject *obj, Expr item);
+      static Expr            get_AttachmentSourceSize(FrontEndObject *obj, Expr item);
+      static Expr            get_AttachmentSourceWidth(FrontEndObject *obj, Expr item);
+      static Expr            get_AttachmentSourceHeight(FrontEndObject *obj, Expr item);
       static Expr            get_AvailableMathFonts(FrontEndObject *obj, Expr item);
       static Expr            get_ControlFont_data(FrontEndObject *obj, Expr item);
       static Expr            get_CurrentValueProviders(FrontEndObject *obj, Expr item);
@@ -99,6 +105,9 @@ void CurrentValue::init() {
   register_provider(strings::AttachmentSource,               Impl::get_AttachmentSource,
                                                              Impl::put_AttachmentSource);
   register_provider(strings::AttachmentSourceBox,            Impl::get_AttachmentSourceBox);
+  register_provider(strings::AttachmentSourceSize,           Impl::get_AttachmentSourceSize);
+  register_provider(strings::AttachmentSourceWidth,          Impl::get_AttachmentSourceWidth);
+  register_provider(strings::AttachmentSourceHeight,         Impl::get_AttachmentSourceHeight);
   register_provider(String("AvailableMathFonts"),            Impl::get_AvailableMathFonts);
   register_provider(strings::ControlsFontFamily,             Impl::get_ControlFont_data);
   register_provider(strings::ControlsFontSlant,              Impl::get_ControlFont_data);
@@ -318,6 +327,45 @@ FrontEndObject *CurrentValueImpl::get_AttachmentSourceBox(FrontEndObject *obj, E
     return nullptr;
   
   return doc->native()->source_box();
+}
+
+Expr CurrentValueImpl::get_AttachmentSourceSize(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(richmath_System_DollarFailed);
+  
+  Vector2F size;
+  if(!doc->native()->try_get_attachment_source_size(&size))
+    return Symbol(richmath_System_DollarFailed);
+  
+  return List(Expr(size.x), Expr(size.y));
+}
+
+Expr CurrentValueImpl::get_AttachmentSourceWidth(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(richmath_System_DollarFailed);
+  
+  Vector2F size;
+  if(!doc->native()->try_get_attachment_source_size(&size))
+    return Symbol(richmath_System_DollarFailed);
+  
+  return Expr(size.x);
+}
+
+Expr CurrentValueImpl::get_AttachmentSourceHeight(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(richmath_System_DollarFailed);
+  
+  Vector2F size;
+  if(!doc->native()->try_get_attachment_source_size(&size))
+    return Symbol(richmath_System_DollarFailed);
+  
+  return Expr(size.y);
 }
 
 Expr CurrentValueImpl::get_AvailableMathFonts(FrontEndObject *obj, Expr item) {

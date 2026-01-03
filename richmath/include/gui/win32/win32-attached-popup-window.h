@@ -25,7 +25,8 @@ namespace richmath {
       virtual bool is_focused_widget() override;
       virtual bool is_using_dark_mode() override;
       virtual int dpi() override;
-      
+      virtual bool try_get_attachment_source_size(Vector2F *size) override { _size_observable.register_observer(); if(size) *size = _last_target_rect.size(); return true; }
+
     protected:
       virtual ~Win32AttachedPopupWindow();
       virtual void after_construction() override;
@@ -39,6 +40,7 @@ namespace richmath {
     
     private:
       ObservableValue<bool> _active; // alternatively, we could inherit from BasicWin32Window
+      Observable _size_observable;
       Vector2F   _best_size;
       RectangleF _last_target_rect;
   };

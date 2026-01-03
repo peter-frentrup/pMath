@@ -130,6 +130,8 @@ namespace richmath {
       Box *source_box();
       bool source_box(Box *box);
       
+      virtual bool try_get_attachment_source_size(Vector2F *size) { return false; }
+      
       Document *owner_document();
       Document *stylesheet_document();
       bool stylesheet_document(Document *doc);
