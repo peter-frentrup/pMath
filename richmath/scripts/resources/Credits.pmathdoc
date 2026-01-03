@@ -3,7 +3,7 @@
 Document({
   SectionGroup({Section("Credits", "Title"), 
     SectionGroup({Section("pMath", "Subsubsection"), 
-      Section(TextData({"Copyright \[Copyright] 2005-2025, Peter Frentrup (", 
+      Section(TextData({"Copyright \[Copyright] 2005-2026, Peter Frentrup (", 
          TemplateBox({{"peter_frentrup@gmx.de"}, 
            "mailto:peter_frentrup@gmx.de"}, "HyperlinkURL"), 
          ")\nAll rights reserved. "}), "Text"), 
