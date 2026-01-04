@@ -595,6 +595,9 @@ int main(int argc, char **argv) {
   os_init();
   
 #ifdef RICHMATH_USE_GTK_GUI
+# if GTK_CHECK_VERSION(3,10,0)
+  gdk_set_allowed_backends("x11,*"); // Prefer X11 over Wayland, order can be overridden with GDK_BACKEND
+# endif
   gtk_init(&argc, &argv);
 #endif
   
