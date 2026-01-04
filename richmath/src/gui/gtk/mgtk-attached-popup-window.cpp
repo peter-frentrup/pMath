@@ -8,6 +8,14 @@
 
 #include <cmath>
 
+//#ifdef GDK_WINDOWING_X11
+//#  include <gdk/gdkx.h>
+//#  undef None // defined by X11/X.h
+//#endif
+#ifdef GDK_WINDOWING_WAYLAND
+#  include <gdk/gdkwayland.h>
+#endif
+
 
 namespace richmath {
   namespace strings {
@@ -110,7 +118,8 @@ MathGtkAttachedPopupWindow::MathGtkAttachedPopupWindow(Document *owner, const Se
   _appearance{ContainerType::None},
   _active{false},
   _callout_triangle{0.0f, 0.0f, 0.0f, 0.0f},
-  _last_target_rect(0,0,0,0)
+  _last_target_rect(0,0,0,0),
+  _last_move_pos{0,0}
 {
 }
 
@@ -121,8 +130,12 @@ MathGtkAttachedPopupWindow::~MathGtkAttachedPopupWindow() {
 }
 
 void MathGtkAttachedPopupWindow::after_construction() {
-  if(!_widget)
-    _widget = gtk_window_new(GTK_WINDOW_TOPLEVEL); // GTK_WINDOW_TOPLEVEL to support keyboard focus
+  if(!_widget) {
+    // Would use GTK_WINDOW_TOPLEVEL to support keyboard focus, but that will ignore 
+    // gtk_window_move() on GTK3 (WSL: Xming and gWSL)
+    //_widget = gtk_window_new(GTK_WINDOW_TOPLEVEL); // GTK_WINDOW_TOPLEVEL to support keyboard focus
+    _widget = gtk_window_new(GTK_WINDOW_POPUP);
+  }
   
   /*  With GTK_WINDOW_TOPLEVEL, GTK3 (on WSL with Xming) will temporarily add window decorations
       whenever the window is shown.
@@ -131,8 +144,8 @@ void MathGtkAttachedPopupWindow::after_construction() {
       TODO: maybe we should use GdkWindow directly? See also GtkPopover
    */
   
-  //gtk_window_set_type_hint(GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_COMBO);
-  gtk_window_set_type_hint(GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
+  gtk_window_set_type_hint(GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_COMBO);
+  //gtk_window_set_type_hint(GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
   gtk_window_set_decorated(GTK_WINDOW(_widget), false);
   gtk_window_set_focus_on_map(GTK_WINDOW(_widget), false); // might be ignored by window manager
 //  gtk_window_set_accept_focus(GTK_WINDOW(_widget), false);
@@ -154,7 +167,8 @@ void MathGtkAttachedPopupWindow::after_construction() {
 //#endif
 
   if(MathGtkWidget *owner_wid = _content_area->owner_widget()) {
-    GtkWindow *owner_win = GTK_WINDOW(gtk_widget_get_ancestor(owner_wid->widget(), GTK_TYPE_WINDOW));
+    //GtkWindow *owner_win = GTK_WINDOW(gtk_widget_get_ancestor(owner_wid->widget(), GTK_TYPE_WINDOW));
+    GtkWindow *owner_win = GTK_WINDOW(gtk_widget_get_toplevel(owner_wid->widget()));
     gtk_window_set_transient_for(GTK_WINDOW(_widget), owner_win);
     //gtk_window_set_attached_to(GTK_WINDOW(_widget), owner_wid->widget());
   }
@@ -320,7 +334,20 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
       
       RectangleF popup_rect;
       
-      GtkWidget *owner_win = gtk_widget_get_ancestor(owner_wid->widget(), GTK_TYPE_WINDOW);
+      bool is_wayland = false;
+#     if GTK_MAJOR_VERSION >= 3
+      {
+        GdkDisplay *display = gdk_display_get_default();
+#      ifdef GDK_WINDOWING_WAYLAND
+        if(GDK_IS_WAYLAND_DISPLAY(display)) {
+          is_wayland = true;
+        }
+#      endif
+      }
+#     endif
+      
+      //GtkWidget *owner_win = gtk_widget_get_ancestor(owner_wid->widget(), GTK_TYPE_WINDOW);
+      GtkWindow *owner_win = GTK_WINDOW(gtk_widget_get_toplevel(owner_wid->widget()));
       {
         GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(owner_win));
         int monitor = gdk_screen_get_monitor_at_point(screen, target_rect.x + target_rect.width/2, target_rect.y + target_rect.height/2);
@@ -335,8 +362,11 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
         
         RectangleF monitor_rect(monitor_rect_int.x, monitor_rect_int.y, monitor_rect_int.width, monitor_rect_int.height);
         
-        popup_rect = CommonTooltips::popup_placement(target_rect, size, cpk, monitor_rect);
-        
+        if(is_wayland) // Walyand does not tell the true window location anyways
+          popup_rect = CommonTooltips::popup_placement(target_rect, size, cpk);
+        else
+          popup_rect = CommonTooltips::popup_placement(target_rect, size, cpk, monitor_rect);
+          
         if(popup_rect.height < size.y) {
           gtk_widget_show(_vscrollbar);
           size.x+= gtk_widget_get_allocated_width(_vscrollbar);
@@ -369,7 +399,9 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
       }
       
       GtkAllocation old_rect;
-      gtk_widget_get_allocation(_widget, &old_rect);
+      gtk_widget_get_allocation(_widget, &old_rect); // gives x,y = 0,0
+      old_rect.x = _last_move_pos.x;
+      old_rect.y = _last_move_pos.y;
       
 //      gtk_window_get_size(GTK_WINDOW(_widget), &old_rect.width, &old_rect.height);
 //      gtk_window_get_position(GTK_WINDOW(_widget), &old_rect.x, &old_rect.y);
@@ -377,20 +409,33 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
       int width  = std::max(1, (int)round(popup_rect.width));
       int height = std::max(1, (int)round(popup_rect.height));
       
+      bool resized = false;
       if(old_rect.width != width || old_rect.height != height) {
         gtk_widget_set_size_request(_widget, width, height);
         gtk_window_resize(GTK_WINDOW(_widget), 1, 1);
+        resized = true;
       }
       
       GdkPoint pos = {(int)round(popup_rect.x), (int)round(popup_rect.y)};
       
+      bool moved = false;
       //gtk_window_set_gravity(GTK_WINDOW(_widget), GDK_GRAVITY_NORTH_WEST);
-      if(old_rect.x != pos.x || old_rect.y != pos.y)
+      if(old_rect.x != pos.x || old_rect.y != pos.y) {
+        //pmath_debug_print("[popup_rect @ %d, %d from %d, %d]\n", pos.x, pos.y, old_rect.x, old_rect.y);
+        
+        if(is_wayland) {
+          gtk_widget_hide(_widget); // hide and show as workaround for Wayland/Gtk bug of not moving the window (intentional mis-feature?)
+        }
+        _last_move_pos = pos;
+        
         gtk_window_move(GTK_WINDOW(_widget), pos.x, pos.y);
+        
+        moved = true;
+      }
       
       gtk_widget_show(_widget);
       
-      if(old_rect.x != pos.x || old_rect.y != pos.y || old_rect.width != width || old_rect.height != height || !was_visible)
+      if(moved || resized || !was_visible)
         content()->invalidate_popup_window_positions();
     }
     else {
@@ -687,9 +732,13 @@ bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &t
 //  if(!gtk_widget_translate_coordinates(owner_wid->widget(), owner_win, x, y, &x, &y))
 //    return false;
   
+  // Gives constant location (27,71) on GTK 3 with Wayland backend, due to Waylands stupid
+  // "a client app must not know its wondow position" philosophy.
+  // Works when starting with GDK_BACKEND=x11
   int root_x = 0;
   int root_y = 0;
   gdk_window_get_origin(gtk_widget_get_window(owner_wid->widget()), &root_x, &root_y);
+  //pmath_debug_print("[gdk_window_get_origin = %d, %d]\n", root_x, root_y);
   
   target_rect.x += root_x;
   target_rect.y += root_y;
@@ -770,6 +819,7 @@ void MathGtkAttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, 
       }
 #    else
       {
+        // correct offests for GTK_WINDOW_TOPLEVEL, but wrong for GTK_WINDOW_POPUP on gWSL (but correct for Xming)
         GdkPoint triangle_points[3] = { discretize(tri_points[0]), discretize(tri_points[1]), discretize(tri_points[2]) };
         GdkRegion *reg = gdk_region_polygon(triangle_points, 3, GDK_WINDING_RULE);
         

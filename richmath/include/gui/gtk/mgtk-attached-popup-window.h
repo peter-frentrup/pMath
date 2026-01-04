@@ -62,6 +62,7 @@ namespace richmath {
       Observable               _size_observable;
       CalloutTriangle          _callout_triangle;
       RectangleF               _last_target_rect;
+      GdkPoint                 _last_move_pos;
   };
 }
 
