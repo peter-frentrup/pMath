@@ -142,7 +142,7 @@ namespace richmath {
       virtual void on_mousemove(MouseEvent &event);
       virtual void on_mousewheel(UINT message, WPARAM wParam, LPARAM lParam);
       virtual void on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift);
-      virtual void on_popupmenu(VolatileSelection src, POINT screen_pt, const RECT *opt_exclude);
+      virtual void on_popupmenu(VolatileSelection src, POINT screen_pt, DeviceKind device, const RECT *opt_exclude);
       virtual void do_set_selected_document() {}
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;

@@ -1,10 +1,13 @@
 #include <gui/win32/menus/win32-automenuhook.h>
 
 #include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-touch.h>
 #include <gui/win32/api/win32-version.h>
 #include <gui/win32/menus/win32-menu.h>
 
 #include <gui/menus.h>
+
+#include <boxes/box.h> // for DeviceKind
 
 
 using namespace pmath;
@@ -23,7 +26,7 @@ namespace richmath {
       
     public:
       bool handle_mouse_movement(UINT message, WPARAM wParam, POINT pt);
-      void handle_popup(HMENU menu, DWORD subitems_cmd_id, DWORD cmd_id, POINT pt);
+      void handle_popup(HMENU menu, DWORD subitems_cmd_id, DWORD cmd_id, POINT pt, DeviceKind device);
       bool handle_key_down(DWORD keycode);
       
     private:
@@ -38,7 +41,7 @@ namespace richmath {
     public:
       static HMENU create_popup_for(Expr list_cmd, Expr cmd);
       static void append(HMENU menu, SpecialCommandID id, String text, UINT flags = MF_ENABLED);
-      static SpecialCommandID show_popup_for(HWND owner, POINT pt, Expr list_cmd, Expr cmd);
+      static SpecialCommandID show_popup_for(HWND owner, POINT pt, DeviceKind device, Expr list_cmd, Expr cmd);
   };
 }
 
@@ -140,7 +143,7 @@ bool Win32AutoMenuHook::handle(MSG &msg) {
         int item = find_hilite_menuitem_cmd(&menu, &subitems_cmd_id, &cmd_id);
         
         if(menu && item >= 0) {
-          Impl(*this).handle_popup(menu, subitems_cmd_id, cmd_id, dword_to_point(msg.lParam));
+          Impl(*this).handle_popup(menu, subitems_cmd_id, cmd_id, dword_to_point(msg.lParam), Win32Touch::get_mouse_message_source());
           return true;
         }
       } break;
@@ -246,13 +249,13 @@ bool Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam,
   return handled;
 }
 
-void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DWORD cmd_id, POINT pt) {
+void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DWORD cmd_id, POINT pt, DeviceKind device) {
   Expr subitems_cmd = Win32Menu::id_to_command(subitems_cmd_id);
   Expr cmd          = Win32Menu::id_to_command(cmd_id);
   
   auto old_mouse_notifications = self._mouse_notifications;
   self._mouse_notifications = nullptr;
-  auto id = Win32MenuItemPopupMenu::show_popup_for(self._owner, pt, subitems_cmd, cmd);
+  auto id = Win32MenuItemPopupMenu::show_popup_for(self._owner, pt, device, subitems_cmd, cmd);
   self._mouse_notifications = old_mouse_notifications;
   
   switch(id) {
@@ -362,7 +365,7 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
           }
           pt.y = menu_item_rect.top + (menu_item_rect.bottom - menu_item_rect.top)/2;
         }
-        handle_popup(menu, subitems_cmd_id, cmd_id, pt);
+        handle_popup(menu, subitems_cmd_id, cmd_id, pt, DeviceKind::Unknown);
         return true;
       }
     } break;
@@ -437,16 +440,22 @@ void Win32MenuItemPopupMenu::append(HMENU menu, SpecialCommandID id, String text
   }
 }
 
-SpecialCommandID Win32MenuItemPopupMenu::show_popup_for(HWND owner, POINT pt, Expr list_cmd, Expr cmd) {
+SpecialCommandID Win32MenuItemPopupMenu::show_popup_for(HWND owner, POINT pt, DeviceKind device, Expr list_cmd, Expr cmd) {
   HMENU popup = create_popup_for(PMATH_CPP_MOVE(list_cmd), PMATH_CPP_MOVE(cmd));
   if(!popup)
     return SpecialCommandID::None;
   
   UINT flags = TPM_RECURSE | TPM_RETURNCMD;
-  if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
-    flags |= TPM_LEFTALIGN;
-  else
-    flags |= TPM_RIGHTALIGN;
+  if(device == DeviceKind::Pen || device == DeviceKind::Touch) {
+    if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
+      flags |= TPM_LEFTALIGN;
+    else
+      flags |= TPM_RIGHTALIGN;
+  }
+  
+  if(device == DeviceKind::Touch) {
+    flags |= TPM_BOTTOMALIGN;
+  }
   
   MenuExitInfo exit_info;
   DWORD id;

@@ -18,6 +18,7 @@ namespace richmath {
   class SyntaxState;
   
   enum class DeviceKind : char {
+    Unknown, // e.g. programmatic or keyboard
     Mouse,
     Pen,
     Touch

@@ -73,7 +73,7 @@ bool Win32MenuItemOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area are
   int menu_gutter_width = 16;
   if(area != All) {
     int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
-    menu_gutter_width = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUSIZE, dpi);
+    menu_gutter_width = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUCHECK, dpi);
   }
   
   switch(area) {

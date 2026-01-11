@@ -85,10 +85,13 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     next_item(0),
     hot_item(0),
     dpi(96),
+    last_device_kind(DeviceKind::Unknown),
+    last_cursor_pos{0,0},
     focused(false),
-    menu_animation(false),
+    reopening(false),
     _ignore_pressed_alt_key(false),
-    _use_dark_mode(false)
+    _use_dark_mode(false),
+    _has_last_cursor_pos(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -333,10 +336,13 @@ void Win32Menubar::use_dark_mode(bool dark_mode) {
   InvalidateRect(_hwnd, nullptr, FALSE);
 }
 
-void Win32Menubar::show_menu(int item) {
+void Win32Menubar::show_menu(int item, DeviceKind device) {
   if(item <= 0 || !_menu.is_valid())
     return;
-    
+
+  last_device_kind = device;
+  Win32Menu::use_large_items = device == DeviceKind::Touch;
+                
   next_item = 0;
   
   HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
@@ -383,17 +389,29 @@ void Win32Menubar::show_menu(int item) {
       pt.y = tpm.rcExclude.bottom;
       UINT align;
       DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
-      if(ex_style & WS_EX_LAYOUTRTL) {
-        pt.x = tpm.rcExclude.right;
-        align = TPM_RIGHTALIGN;
+      if(device == DeviceKind::Pen || device == DeviceKind::Touch) {
+        if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
+          pt.x = tpm.rcExclude.left;
+          align = TPM_LEFTALIGN;
+        }
+        else {
+          pt.x = tpm.rcExclude.right;
+          align = TPM_RIGHTALIGN;
+        }
       }
-      else {
-        pt.x = tpm.rcExclude.left;
-        align = TPM_LEFTALIGN;
+      else { // mouse or keyboard
+        if(ex_style & WS_EX_LAYOUTRTL) {
+          pt.x = tpm.rcExclude.right;
+          align = TPM_RIGHTALIGN;
+        }
+        else {
+          pt.x = tpm.rcExclude.left;
+          align = TPM_LEFTALIGN;
+        }
       }
 
       UINT flags = TPM_RETURNCMD | align;
-      if(!menu_animation)
+      if(reopening)
         flags |= TPM_NOANIMATION;
       
       Win32Menu::use_dark_mode = _use_dark_mode;
@@ -490,7 +508,7 @@ void Win32Menubar::show_sysmenu() {
     }
     
     UINT flags = TPM_RETURNCMD | align;
-    if(!menu_animation)
+    if(reopening)
       flags |= TPM_NOANIMATION;
     
     Win32Menu::use_dark_mode = _use_dark_mode;
@@ -709,8 +727,9 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                   *result = TBDDRET_DEFAULT;
                   return true;
                 }
-                Win32Menu::use_large_items = Win32Touch::get_mouse_message_source() == DeviceKind::Touch; // Does this work in TBN_DROPDOWN?
-                show_menu(tb->iItem);
+                
+                // Does get_mouse_message_source() work in TBN_DROPDOWN?
+                show_menu(tb->iItem, reopening ? last_device_kind : Win32Touch::get_mouse_message_source());
                 
                 *result = TBDDRET_DEFAULT;//TBDDRET_TREATPRESSED;
               } return true;
@@ -730,10 +749,16 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                     hi->idNew)
                 {
                   if(hi->idNew <= _num_items + 1) {
-                    if(current_item)
-                      next_item = hi->idNew;
-                    
-                    WIN32report(EndMenu());
+                    POINT mouse;
+                    if(_has_last_cursor_pos && GetCursorPos(&mouse) && mouse.x == last_cursor_pos.x && mouse.y == last_cursor_pos.y) {
+                      // Mouse did not move since click. Ignore to not interfere with WM_MY_SHOWMENUITEM
+                    }
+                    else {
+                      if(current_item)
+                        next_item = hi->idNew;
+                      
+                      WIN32report(EndMenu());
+                    }
                     *result = 0;
                     return true;
                   }
@@ -746,6 +771,8 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               
             case NM_CLICK: {
                 POINT pt = ((NMMOUSE *)lParam)->pt;
+                last_cursor_pos = {0,0};
+                _has_last_cursor_pos = !!GetCursorPos(&last_cursor_pos);
                 
                 if(current_popup == nullptr) {
                   int index = SendMessageW(_hwnd, TB_HITTEST, 0, (LPARAM)&pt);
@@ -943,7 +970,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         
         POINT pt = {(rect.left + rect.right) / 2, (rect.bottom + rect.top) / 2};
         
-        menu_animation = false;
+        reopening = true;
         
         SendMessageW(
           _hwnd,
@@ -956,7 +983,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
           MK_LBUTTON,
           point_to_dword(pt));
           
-        menu_animation = true;
+        reopening = false;
       } break;
       
     case WM_INITMENUPOPUP: {
@@ -990,8 +1017,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
             int id = 0;
             if(SendMessageW(_hwnd, TB_MAPACCELERATOR, wParam, (LPARAM)&id)) {
               set_focus(0);
-              Win32Menu::use_large_items = false;
-              show_menu(id);
+              show_menu(id, DeviceKind::Unknown);
               return true;
             }
           }
@@ -1011,8 +1037,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
             case VK_MENU:
               set_focus(0);
               if(was_visible) {
-                Win32Menu::use_large_items = false;
-                show_menu(1);
+                show_menu(1, DeviceKind::Unknown);
               }
               return true;
               
@@ -1020,8 +1045,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               if(!(GetKeyState(VK_SHIFT) & ~1)) {
                 set_focus(0);
                 if(was_visible) {
-                  Win32Menu::use_large_items = false;
-                  show_menu(1);
+                  show_menu(1, DeviceKind::Unknown);
                 }
                 return true;
               }

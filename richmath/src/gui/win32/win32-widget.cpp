@@ -390,7 +390,7 @@ void Win32Widget::show_popup_menu(const VolatileSelection &src) {
     ClientToScreen(_hwnd, &pt);
   }
   
-  on_popupmenu(src, pt, has_rect ? &exclude_rect : nullptr);
+  on_popupmenu(src, pt, DeviceKind::Unknown, has_rect ? &exclude_rect : nullptr);
 }
 
 double Win32Widget::message_time() {
@@ -1169,7 +1169,7 @@ void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift) {
   }
 }
 
-void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt, const RECT *opt_exclude) {
+void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt, DeviceKind device, const RECT *opt_exclude) {
   UINT flags = TPM_RETURNCMD | TPM_VERTICAL;
   TPMPARAMS params = {};
   
@@ -1178,10 +1178,25 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt, const REC
     params.rcExclude = *opt_exclude;
   }
   
-  if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
-    flags |= TPM_LEFTALIGN;
-  else
-    flags |= TPM_RIGHTALIGN;
+  // https://learn.microsoft.com/en-us/windows/win32/uxguide/inter-pen#handedness
+  // If displayed using the mouse, display context-menu to the bottom right if possible.
+  // If displayed using a pen, use handedness to not be covered by users hand.
+  //
+  // Windows 11 Editor: main menu placement  (for right-handed user)
+  //  Mouse ->   below, to the right
+  //  Touch ->   above, to the right
+  //  Pen   ->   below, to the left
+  
+  if(device == DeviceKind::Pen) {
+    if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
+      flags |= TPM_LEFTALIGN;
+    else
+      flags |= TPM_RIGHTALIGN;
+  }
+  
+  if(device == DeviceKind::Touch) {
+    flags |= TPM_BOTTOMALIGN;
+  }
   
   if(!src.box)
     src = VolatileSelection(document(), 0);
@@ -1280,7 +1295,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             POINT pt;
             pt.x = (int16_t)( lParam & 0xFFFF);
             pt.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
-            on_popupmenu(document()->selection_now(), pt, nullptr);
+            on_popupmenu(document()->selection_now(), pt, DeviceKind::Mouse, nullptr);
           }
         } return 0;
         
@@ -1365,7 +1380,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             if(auto src = document()->mouse_selection(event.position, &dummy)) {
               ClientToScreen(_hwnd, &pt);
               Win32Menu::use_large_items = event.device == DeviceKind::Touch;
-              on_popupmenu(src, pt, nullptr);
+              on_popupmenu(src, pt, event.device, nullptr);
             }
           }
         } return 0;

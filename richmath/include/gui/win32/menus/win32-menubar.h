@@ -11,6 +11,8 @@
 #include <util/base.h>
 #include <util/sharedptr.h>
 
+#include <boxes/box.h> // for DeviceKind
+
 
 namespace richmath {
   class Win32DocumentWindow;
@@ -49,7 +51,7 @@ namespace richmath {
       
       void kill_focus();
       void set_focus(int item);
-      void show_menu(int item); // 1-based
+      void show_menu(int item, DeviceKind device); // item is 1-based
       void show_sysmenu();
       
     private:
@@ -81,10 +83,14 @@ namespace richmath {
       
       int dpi;
       
+      DeviceKind last_device_kind;
+      POINT last_cursor_pos;
+      
       bool focused : 1;
-      bool menu_animation : 1;
+      bool reopening : 1;
       bool _ignore_pressed_alt_key : 1;
       bool _use_dark_mode : 1;
+      bool _has_last_cursor_pos;
   };
 }
 

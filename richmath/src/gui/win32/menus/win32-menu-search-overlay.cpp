@@ -410,7 +410,7 @@ bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
     if(WIN32report(GetMenuItemInfoW(menu, i, TRUE, &mii))) {
       if(mii.hSubMenu && MenuSearch::contains_search_menu_list(mii.hSubMenu)) {
         win->menubar()->set_focus(i);
-        win->menubar()->show_menu(i + 1);
+        win->menubar()->show_menu(i + 1, Win32Menu::use_large_items ? DeviceKind::Touch : DeviceKind::Unknown);
         return true;
       }
     }
@@ -504,7 +504,7 @@ bool Win32MenuSearchOverlay::Impl::open_menu_hierarchy(Expr item_cmd) {
   Win32Menu::menu_selector = &opener;
   
   win->menubar()->set_focus(opener.path[1].index);
-  win->menubar()->show_menu(opener.path[1].index + 1);
+  win->menubar()->show_menu(opener.path[1].index + 1, Win32Menu::use_large_items ? DeviceKind::Touch : DeviceKind::Unknown);
   
   return true;
 }
