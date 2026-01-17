@@ -19,6 +19,7 @@ namespace richmath {
     void swap_x_base();
     
     void get_triangle_points(Point out_points[3], const RectangleF &base, Side side) const;
+    RectangleF get_basement(const RectangleF &base, Side side, float depth) const;
   };
 }
 

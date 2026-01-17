@@ -97,4 +97,16 @@ void CalloutTriangle::get_triangle_points(Point out_points[3], const RectangleF 
   }
 }
 
+RectangleF CalloutTriangle::get_basement(const RectangleF &base, Side side, float depth) const {
+  switch(side) {
+    case Side::Left:   return RectangleF(base.left(),          x_base_from, depth, x_base_to - x_base_from);
+    case Side::Right:  return RectangleF(base.right() - depth, x_base_from, depth, x_base_to - x_base_from);
+    
+    case Side::Top:    return RectangleF(x_base_from, base.top(),            x_base_to - x_base_from, depth);
+    case Side::Bottom: return RectangleF(x_base_from, base.bottom() - depth, x_base_to - x_base_from, depth);
+  }
+  
+  return RectangleF();
+}
+
 //} ... class CalloutTriangle

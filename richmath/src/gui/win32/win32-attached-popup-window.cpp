@@ -641,6 +641,12 @@ void Win32AttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, Co
       HRGN rgn = nullptr;
       if(frameradius > 0) {
         rgn = CreateRoundRectRgn(rect.left, rect.top, rect.right + 1, rect.bottom + 1, 2 * frameradius, 2 * frameradius);
+
+        RECT base_rect = discretize(tri.get_basement(main_rect, side, frameradius));      
+        if(HRGN base_rgn = CreateRectRgnIndirect(&base_rect)) {
+          CombineRgn(rgn, rgn, base_rgn, RGN_OR);
+          DeleteObject(base_rgn);
+        }
       }
       else {
         rgn = CreateRectRgnIndirect(&rect);
