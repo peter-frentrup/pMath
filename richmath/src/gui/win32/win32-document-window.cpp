@@ -985,6 +985,7 @@ void Win32DocumentWindow::rearrange() {
     
     RECT oldrect;
     GetWindowRect(widgets[j], &oldrect);
+    MapWindowPoints(nullptr, _hwnd, (LPPOINT)&oldrect, 2);
     
     if( oldrect.left   != rect.left                ||
         oldrect.top    != new_ys[j]                ||
@@ -1498,21 +1499,28 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         on_setting_changed();
         } break;
       
-      case WM_MOVE: {
-          top_glass(   )->invalidate_popup_window_positions();
-          top(         )->invalidate_popup_window_positions();
-          document(    )->invalidate_popup_window_positions();
-          bottom(      )->invalidate_popup_window_positions();
-          bottom_glass()->invalidate_popup_window_positions();
-        } break;
-      
-      case WM_SIZE: {
+      case WM_WINDOWPOSCHANGED: {
+        WINDOWPOS *wp = (WINDOWPOS*)lParam;
+        
+        bool sized = (wp->flags & SWP_NOSIZE) == 0;
+        bool moved = (wp->flags & SWP_NOMOVE) == 0;
+        
+        if(sized) {
           _top_glass_area->resize();
           _top_area->resize();
           _bottom_area->resize();
           _bottom_glass_area->resize();
           rearrange();
-        } break;
+        }
+        
+        if(moved || sized) {
+          top_glass(   )->invalidate_popup_window_positions();
+          top(         )->invalidate_popup_window_positions();
+          document(    )->invalidate_popup_window_positions();
+          bottom(      )->invalidate_popup_window_positions();
+          bottom_glass()->invalidate_popup_window_positions();
+        }
+      } break;
         
       case WM_MOUSEHWHEEL:
       case WM_MOUSEWHEEL: {
