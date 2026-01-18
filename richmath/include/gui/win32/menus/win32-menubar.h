@@ -90,7 +90,8 @@ namespace richmath {
       bool reopening : 1;
       bool _ignore_pressed_alt_key : 1;
       bool _use_dark_mode : 1;
-      bool _has_last_cursor_pos;
+      bool _has_last_cursor_pos : 1;
+      bool _ignore_duplicate_click: 1;
   };
 }
 

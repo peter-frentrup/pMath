@@ -91,7 +91,8 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     reopening(false),
     _ignore_pressed_alt_key(false),
     _use_dark_mode(false),
-    _has_last_cursor_pos(false)
+    _has_last_cursor_pos(false),
+    _ignore_duplicate_click(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -724,9 +725,20 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                 NMTOOLBARW *tb = (NMTOOLBARW *)lParam;
                 
                 if(tb->iItem == current_item && current_popup != nullptr) {
+                  _ignore_duplicate_click = true;
+                  _has_last_cursor_pos = !!GetCursorPos(&last_cursor_pos);
                   *result = TBDDRET_DEFAULT;
                   return true;
                 }
+                
+                POINT mouse;
+                if(_ignore_duplicate_click && _has_last_cursor_pos && GetCursorPos(&mouse) && mouse.x == last_cursor_pos.x && mouse.y == last_cursor_pos.y) {
+                  _ignore_duplicate_click = false;
+                  *result = TBDDRET_DEFAULT;
+                  return true;
+                }
+                
+                _ignore_duplicate_click = false;
                 
                 // Does get_mouse_message_source() work in TBN_DROPDOWN?
                 show_menu(tb->iItem, reopening ? last_device_kind : Win32Touch::get_mouse_message_source());
