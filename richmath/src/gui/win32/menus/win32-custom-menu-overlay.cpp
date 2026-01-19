@@ -1,5 +1,7 @@
 #include <gui/win32/menus/win32-custom-menu-overlay.h>
 
+#include <gui/win32/api/win32-themes.h>
+
 
 namespace richmath {
   class Win32CustomMenuOverlay::Impl {
@@ -118,12 +120,33 @@ LRESULT Win32CustomMenuOverlay::on_wndproc(UINT message, WPARAM wParam, LPARAM l
     case WM_PAINT: {
         PAINTSTRUCT paintStruct;
         HDC hdc = BeginPaint(control, &paintStruct);
+        
         SetLayout(hdc, 0);
         HBRUSH brush = (HBRUSH)SendMessageW(GetParent(control), WM_CTLCOLORSTATIC, (WPARAM)hdc, (LPARAM)control);
         if(brush)
           SelectObject(hdc, brush);
         
-        on_paint(hdc);
+        if(Win32Themes::BeginBufferedPaint && Win32Themes::EndBufferedPaint) {
+          Win32Themes::BP_PAINTPARAMS params = { sizeof(params), 0 };
+          HDC hdcBuffer = nullptr;
+          RECT rect;
+          GetClientRect(control, &rect);
+          HANDLE hbp = Win32Themes::BeginBufferedPaint(
+            hdc, &rect, Win32Themes::BPBF_COMPATIBLEBITMAP, &params, &hdcBuffer);
+          
+          if(hbp) {
+            if(brush)
+              SelectObject(hdcBuffer, brush);
+            
+            on_paint(hdcBuffer);
+            
+            Win32Themes::EndBufferedPaint(hbp, TRUE);
+          }
+          else
+            on_paint(hdc);
+        }
+        else
+          on_paint(hdc);
         
         EndPaint(control, &paintStruct);
       } return 0;
