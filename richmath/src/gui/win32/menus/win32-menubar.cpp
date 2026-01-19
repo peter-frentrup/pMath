@@ -92,7 +92,8 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     _ignore_pressed_alt_key(false),
     _use_dark_mode(false),
     _has_last_cursor_pos(false),
-    _ignore_duplicate_click(false)
+    _ignore_duplicate_click(false),
+    _ignore_mouse_hover(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -748,6 +749,11 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               
             case TBN_HOTITEMCHANGE: {
                 NMTBHOTITEM *hi = (NMTBHOTITEM *)lParam;
+                
+                if(_ignore_mouse_hover) {
+                  *result = 0;
+                  return true;
+                }
                 
                 if(hi->dwFlags & HICF_LEAVING) 
                   hot_item = 0;

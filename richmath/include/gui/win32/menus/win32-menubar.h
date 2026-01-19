@@ -54,6 +54,9 @@ namespace richmath {
       void show_menu(int item, DeviceKind device); // item is 1-based
       void show_sysmenu();
       
+      bool ignore_mouse_hover() {    return _ignore_mouse_hover; }
+      void ignore_mouse_hover(bool value) { _ignore_mouse_hover = value; }
+      
     private:
       void on_dpi_changed(int new_dpi);
       void reload_image_list();
@@ -92,6 +95,7 @@ namespace richmath {
       bool _use_dark_mode : 1;
       bool _has_last_cursor_pos : 1;
       bool _ignore_duplicate_click: 1;
+      bool _ignore_mouse_hover : 1;
   };
 }
 

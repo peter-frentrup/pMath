@@ -503,9 +503,11 @@ bool Win32MenuSearchOverlay::Impl::open_menu_hierarchy(Expr item_cmd) {
   
   Win32Menu::menu_selector = &opener;
   
+  win->menubar()->ignore_mouse_hover(true);
   win->menubar()->set_focus(opener.path[1].index);
   win->menubar()->show_menu(opener.path[1].index + 1, Win32Menu::use_large_items ? DeviceKind::Touch : DeviceKind::Unknown);
   
+  win->menubar()->ignore_mouse_hover(false);
   return true;
 }
 
