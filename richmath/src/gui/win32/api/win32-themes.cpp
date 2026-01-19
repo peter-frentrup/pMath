@@ -314,6 +314,17 @@ bool Win32Themes::current_theme_is_aero() {
   return len == namelen || filebuf[len - namelen - 1] == '\\';
 }
 
+HANDLE Win32Themes::open_theme_data_for_dpi(HWND hwnd, LPCWSTR name, UINT dpi) {
+  if(OpenThemeDataForDpi)
+    return OpenThemeDataForDpi(hwnd, name, dpi);
+  
+  
+  if(OpenThemeData)
+    return OpenThemeData(hwnd, name);
+  
+  return nullptr;
+}
+
 DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active) {
   RICHMATH_ASSERT(params);
   

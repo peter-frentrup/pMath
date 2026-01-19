@@ -393,6 +393,8 @@ namespace richmath {
       static bool is_app_themed() { return IsAppThemed && IsAppThemed(); }
       static bool current_theme_is_aero();
       
+      static HANDLE open_theme_data_for_dpi(HWND hwnd, LPCWSTR name, UINT dpi);
+      
       static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
       
       static bool try_read_win10_colorization(ColorizationInfo *info);

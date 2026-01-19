@@ -60,6 +60,7 @@ namespace {
 
 Win32MenuTableWizard::Win32MenuTableWizard(HMENU menu)
 : menu{menu},
+  gutter_width(0),
   shown_selected{false}
 {
 }
@@ -75,7 +76,14 @@ int Win32MenuTableWizard::preferred_height() {
 }
 
 bool Win32MenuTableWizard::calc_rect(RECT &rect, HWND hwnd, HMENU menu) {
-  return Win32MenuItemOverlay::calc_rect(rect, hwnd, menu, Win32MenuItemOverlay::All);
+  if(Win32MenuItemOverlay::calc_rect(rect, hwnd, menu, Win32MenuItemOverlay::All)) {
+    RECT content_area;
+    if(Win32MenuItemOverlay::calc_rect(content_area, hwnd, menu, Win32MenuItemOverlay::OnlyContentArea)) {
+      gutter_width = content_area.left - rect.left;
+    }
+    return true;
+  }
+  return false;
 }
 
 bool Win32MenuTableWizard::consumes_navigation_key(DWORD keycode, HMENU menu, int sel_item) {
@@ -363,10 +371,10 @@ void Win32MenuTableWizard::Impl::layout(TableWizardDims *dims) {
   GetClientRect(self.control, &dims->rect);
   
   dims->dpi = Win32HighDpi::get_dpi_for_window(self.control);
-  int cx    = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUSIZE, dims->dpi);
-  int cy    = Win32HighDpi::get_system_metrics_for_dpi(SM_CYMENUSIZE, dims->dpi);
+  int cx    = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUCHECK, dims->dpi);
+  int cy    = Win32HighDpi::get_system_metrics_for_dpi(SM_CYMENUCHECK, dims->dpi);
   
-  dims->table_pos.x = cx + cx/2;
+  dims->table_pos.x = self.gutter_width >= 0 ? self.gutter_width : cx + cx/2;
   dims->table_pos.y = cy;
   dims->cell_size.cy = (dims->rect.bottom - dims->table_pos.y) / MaxRows;
   dims->cell_size.cx = (dims->rect.right  - dims->table_pos.x) / MaxColumns;
