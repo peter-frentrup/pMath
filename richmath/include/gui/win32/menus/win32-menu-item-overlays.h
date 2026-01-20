@@ -22,6 +22,8 @@ namespace richmath {
         int popup_left;
         int glyph_left;
         int glyph_right;
+        int gutter_left;
+        int gutter_right;
         int content_left;
         int content_right;
         int popup_right;

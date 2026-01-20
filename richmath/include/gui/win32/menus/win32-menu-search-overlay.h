@@ -33,6 +33,9 @@ namespace richmath {
     
     private:
       HMENU menu;
+      int glyph_x;
+      int glyph_width;
+      int content_x;
       bool hide_caret: 1;
       bool over_cancel_button: 1;
       bool pressing_cancel_button: 1;

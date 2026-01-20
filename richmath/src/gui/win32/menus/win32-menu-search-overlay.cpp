@@ -69,6 +69,9 @@ const uint16_t MenuLevelSeparatorChar = 0x25B8; // PMATH_CHAR_RULE
 
 Win32MenuSearchOverlay::Win32MenuSearchOverlay(HMENU menu)
 : menu{menu}, 
+  glyph_x{0},
+  glyph_width{0},
+  content_x{0},
   hide_caret{false},
   over_cancel_button{false},
   pressing_cancel_button{false}
@@ -87,6 +90,14 @@ bool Win32MenuSearchOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu) {
 //  int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
 //  int cx = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUCHECK, dpi);
 //  pmath_debug_print("[SM_CXMENUCHECK = %d @ %d dpi]\n", cx, dpi);
+  
+  Win32MenuItemOverlay::Layout layout;
+  if(Win32MenuItemOverlay::calc_layout(layout, hwnd, menu)) {
+    rect = layout.rect_for(Win32MenuItemOverlay::All);
+    glyph_x = layout.glyph_left - rect.left;
+    glyph_width = layout.glyph_right - layout.glyph_left;
+    content_x = layout.gutter_right - rect.left;
+  }
   
   if(!Win32MenuItemOverlay::calc_rect(rect, hwnd, menu, Win32MenuItemOverlay::All))
     return false;
@@ -207,30 +218,32 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   HFONT oldfont = nullptr;
   
   int dpi = Win32HighDpi::get_dpi_for_window(control);
-  int cx  = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUSIZE, dpi);
   int cy  = Win32HighDpi::get_system_metrics_for_dpi(SM_CYMENUSIZE, dpi);
   
-  RECT icon_rect = rect;
-  icon_rect.right = icon_rect.left + cx;
-  {
-    LOGFONTW lf = {};
-    wcscpy_s(lf.lfFaceName, sizeof(lf.lfFaceName)/sizeof(wchar_t), Win32Themes::symbol_font_name());
-    
-    lf.lfHeight = cy * 0.75; //(icon_rect.bottom - icon_rect.top) * 2 / 3;
-    if(HFONT font = CreateFontIndirectW(&lf)) {
-      oldfont = (HFONT)SelectObject(hdc, font);
+  if(glyph_width > 0) {
+    RECT icon_rect = rect;
+    icon_rect.left += glyph_x;
+    icon_rect.right = icon_rect.left + glyph_width;
+    {
+      LOGFONTW lf = {};
+      wcscpy_s(lf.lfFaceName, sizeof(lf.lfFaceName)/sizeof(wchar_t), Win32Themes::symbol_font_name());
       
-      // U+E11A: "Search" in Segoe UI Symbol, Segoe Mdl2 Assets, and Segoe Fluent Icons
-      DrawTextW(hdc, L"\xE11A", -1, &icon_rect, DT_CENTER | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
+      lf.lfHeight = cy * 0.75; //glyph_width * 0.75; //(icon_rect.bottom - icon_rect.top) * 2 / 3;
+      if(HFONT font = CreateFontIndirectW(&lf)) {
+        oldfont = (HFONT)SelectObject(hdc, font);
+        
+        // U+E11A: "Search" in Segoe UI Symbol, Segoe Mdl2 Assets, and Segoe Fluent Icons
+        DrawTextW(hdc, L"\xE11A", -1, &icon_rect, DT_CENTER | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
+      }
+    }
+    
+    if(oldfont) {
+      DeleteObject(SelectObject(hdc, oldfont));
+      oldfont = nullptr;
     }
   }
   
-  if(oldfont) {
-    DeleteObject(SelectObject(hdc, oldfont));
-    oldfont = nullptr;
-  }
-  
-  rect.left = icon_rect.right;
+  rect.left += content_x;
   
   class MenuControlContext : public ControlContext {
     public:
@@ -269,7 +282,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   rect.left+= 1;
   String str = text();
   if(str.length() > 0) {
-    icon_rect = rect;
+    RECT icon_rect = rect;
     icon_rect.left = icon_rect.right - (rect.bottom - rect.top);
     {
       LOGFONTW lf = {};

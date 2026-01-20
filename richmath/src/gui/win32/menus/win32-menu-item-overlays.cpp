@@ -213,7 +213,9 @@ bool Win32MenuItemOverlay::calc_layout(Layout &layout, HWND hwnd, HMENU menu) {
   layout.popup_left = layout.rect.left + popup_margins.cxLeftWidth;
   layout.glyph_left = layout.popup_left + glyph_margins.cxLeftWidth;
   layout.glyph_right = layout.glyph_left + glyph_size.cx;
-  layout.content_left = layout.glyph_right + glyph_margins.cxRightWidth + gutter_size.cx + content_margins.cxLeftWidth;
+  layout.gutter_left = layout.glyph_right + glyph_margins.cxRightWidth;
+  layout.gutter_right = layout.gutter_left + gutter_size.cx;
+  layout.content_left = layout.gutter_right + content_margins.cxLeftWidth;
   
   layout.popup_right = layout.rect.right - popup_margins.cxRightWidth;
   layout.content_right = layout.popup_right - content_margins.cxRightWidth;
