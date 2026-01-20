@@ -76,11 +76,10 @@ int Win32MenuTableWizard::preferred_height() {
 }
 
 bool Win32MenuTableWizard::calc_rect(RECT &rect, HWND hwnd, HMENU menu) {
-  if(Win32MenuItemOverlay::calc_rect(rect, hwnd, menu, Win32MenuItemOverlay::All)) {
-    RECT content_area;
-    if(Win32MenuItemOverlay::calc_rect(content_area, hwnd, menu, Win32MenuItemOverlay::OnlyContentArea)) {
-      gutter_width = content_area.left - rect.left;
-    }
+  Win32MenuItemOverlay::Layout layout;
+  if(Win32MenuItemOverlay::calc_layout(layout, hwnd, menu)) {
+    rect = layout.rect_for(Win32MenuItemOverlay::All);
+    gutter_width = layout.content_left - rect.left;
     return true;
   }
   return false;

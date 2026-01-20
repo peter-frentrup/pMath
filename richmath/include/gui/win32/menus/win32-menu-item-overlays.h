@@ -17,6 +17,17 @@ namespace richmath {
         OnlyGutter,
         OnlyContentArea,
       };
+      struct Layout {
+        RECT rect;
+        int popup_left;
+        int glyph_left;
+        int glyph_right;
+        int content_left;
+        int content_right;
+        int popup_right;
+        
+        RECT rect_for(Area area) const;
+      };
     public:
       Win32MenuItemOverlay();
       virtual ~Win32MenuItemOverlay();
@@ -34,6 +45,7 @@ namespace richmath {
       virtual bool handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu);
       virtual void on_mouse_leave();
       
+      bool calc_layout(Layout &layout, HWND hwnd, HMENU menu);
       bool calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area);
       
     protected:
