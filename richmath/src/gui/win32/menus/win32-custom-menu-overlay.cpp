@@ -126,11 +126,12 @@ LRESULT Win32CustomMenuOverlay::on_wndproc(UINT message, WPARAM wParam, LPARAM l
         if(brush)
           SelectObject(hdc, brush);
         
-        if(Win32Themes::BeginBufferedPaint && Win32Themes::EndBufferedPaint) {
+        RECT rect;
+        GetClientRect(control, &rect);
+        
+        if(rect.right > 0 && rect.bottom > 0 && Win32Themes::BeginBufferedPaint && Win32Themes::EndBufferedPaint) {
           Win32Themes::BP_PAINTPARAMS params = { sizeof(params), 0 };
           HDC hdcBuffer = nullptr;
-          RECT rect;
-          GetClientRect(control, &rect);
           HANDLE hbp = Win32Themes::BeginBufferedPaint(
             hdc, &rect, Win32Themes::BPBF_COMPATIBLEBITMAP, &params, &hdcBuffer);
           
