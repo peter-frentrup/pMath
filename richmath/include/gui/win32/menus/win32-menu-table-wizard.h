@@ -31,6 +31,7 @@ namespace richmath {
     
     private:
       HMENU menu;
+      SIZE size;
       int gutter_width;
       bool shown_selected : 1;
   };

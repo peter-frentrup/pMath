@@ -32,7 +32,7 @@ Win32CustomMenuOverlay::~Win32CustomMenuOverlay() {
 }
 
 void Win32CustomMenuOverlay::update_rect(HWND hwnd, HMENU menu) {
-  RECT rect;
+  RECT rect = {0,0,0,0};
   bool valid_rect = calc_rect(rect, hwnd, menu);
   
   if(!control) {
@@ -61,6 +61,9 @@ void Win32CustomMenuOverlay::update_rect(HWND hwnd, HMENU menu) {
       rect.right - rect.left,
       rect.bottom - rect.top,
       TRUE);
+  }
+  else {
+    InvalidateRect(control, nullptr, FALSE);
   }
 }
 
@@ -126,7 +129,7 @@ LRESULT Win32CustomMenuOverlay::on_wndproc(UINT message, WPARAM wParam, LPARAM l
         if(brush)
           SelectObject(hdc, brush);
         
-        RECT rect;
+        RECT rect = {0,0,0,0};
         GetClientRect(control, &rect);
         
         if(rect.right > 0 && rect.bottom > 0 && Win32Themes::BeginBufferedPaint && Win32Themes::EndBufferedPaint) {

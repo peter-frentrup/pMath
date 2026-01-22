@@ -60,7 +60,8 @@ namespace {
 
 Win32MenuTableWizard::Win32MenuTableWizard(HMENU menu)
 : menu{menu},
-  gutter_width(0),
+  size{0,0},
+  gutter_width{0},
   shown_selected{false}
 {
 }
@@ -79,6 +80,8 @@ bool Win32MenuTableWizard::calc_rect(RECT &rect, HWND hwnd, HMENU menu) {
   Win32MenuItemOverlay::Layout layout;
   if(Win32MenuItemOverlay::calc_layout(layout, hwnd, menu)) {
     rect = layout.rect_for(Win32MenuItemOverlay::All);
+    size.cx = rect.right - rect.left;
+    size.cy = rect.bottom - rect.top;
     gutter_width = layout.content_left - rect.left;
     return true;
   }
@@ -367,7 +370,10 @@ String Win32MenuTableWizard::Impl::description() {
 }
 
 void Win32MenuTableWizard::Impl::layout(TableWizardDims *dims) {
-  GetClientRect(self.control, &dims->rect);
+  dims->rect.left = 0;
+  dims->rect.top = 0;
+  dims->rect.right = self.size.cx;
+  dims->rect.bottom = self.size.cy;
   
   dims->dpi = Win32HighDpi::get_dpi_for_window(self.control);
   int cx    = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUCHECK, dims->dpi);
