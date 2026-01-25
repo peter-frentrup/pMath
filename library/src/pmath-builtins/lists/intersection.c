@@ -4,13 +4,15 @@
 #include <pmath-util/messages.h>
 
 
+static pmath_bool_t sorted_contains(pmath_expr_t list, pmath_t item);
+
+
 PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr) {
   /* Intersection(list1, list2, ...)
    */
-  pmath_expr_t list, other_list;
-  pmath_t current, item;
-  size_t i, j, k, exprlen;
-  int cmp;
+  pmath_expr_t list;
+  pmath_t item;
+  size_t i, j, exprlen;
   
   exprlen = pmath_expr_length(expr);
   if(exprlen < 1) {
@@ -45,7 +47,7 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr) {
       return expr;
     }
     
-    current = pmath_expr_get_item(list, 0);
+    pmath_t current = pmath_expr_get_item(list, 0);
     pmath_unref(list);
     
     if(!pmath_equals(current, item)) {
@@ -74,55 +76,80 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr) {
     expr = pmath_expr_set_item(expr, i, list);
   }
   
-  // mark all items from first list that are not in all others ...
-  // list:= expr[1]
   list = pmath_expr_get_item(expr, 1);
   expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
-  for(i = pmath_expr_length(list); i > 0; --i) {
-    item = pmath_expr_get_item(list, i);
+  
+  // put shortest list first
+  size_t list_len = pmath_expr_length(list);
+  for(j = 2; j <= exprlen; ++j) {
+    pmath_t other_list = pmath_expr_get_item(expr, j);
+    size_t other_len = pmath_expr_length(other_list);
     
-    for(j = 2; j <= exprlen; ++j) {
-      other_list = pmath_expr_get_item(expr, j);
-      
-      cmp = 1;
-      for(k = pmath_expr_length(other_list); k > 0; --k) {
-        current = pmath_expr_get_item(other_list, k);
-        
-        cmp = pmath_compare(item, current);
-        
-        pmath_unref(current);
-        if(cmp <= 0)
-          break;
-      }
-      
-      pmath_unref(other_list);
-      
-      if(cmp != 0)
-        list = pmath_expr_set_item(list, i, PMATH_UNDEFINED);
+    if(other_len < list_len) {
+      expr = pmath_expr_set_item(expr, j, list);
+      list = other_list;
+      list_len = other_len; 
     }
-    
-    pmath_unref(item);
+    else
+      pmath_unref(other_list);
   }
   
+  size_t outlen = 0;
+  i = 1;
+  item = pmath_expr_get_item(list, i);
+  while(i <= list_len) {
+    pmath_bool_t include = TRUE;
+    for(j = 2; include && j <= exprlen; ++j) {
+      pmath_t other_list = pmath_expr_get_item(expr, j);
+      
+      include = sorted_contains(other_list, item);
+      pmath_unref(other_list);
+    }
+    
+    if(include) {
+      list = pmath_expr_set_item(list, ++outlen, pmath_ref(item));
+    }
+    
+    // find next item that is different
+    while(++i <= list_len) {
+      pmath_t prev_item = pmath_expr_get_item(list, i);
+      if(pmath_equals(prev_item, item)) {
+        pmath_unref(prev_item);
+      }
+      else {
+        pmath_unref(item);
+        item = prev_item;
+        break;
+      }
+    }
+  }
+  
+  pmath_unref(item);
   pmath_unref(expr);
   
-  // delete duplicates in first list ...
-  i = 1;
-  exprlen = pmath_expr_length(list);
-  while(i < exprlen) {
-    item = pmath_expr_get_item(list, i);
+  // TODO: maybe use new expression instead of expr-part if much shorter than original length ?
+  return pmath_expr_get_item_range(list, 1, outlen);
+}
+
+
+static pmath_bool_t sorted_contains(pmath_expr_t list, pmath_t item) {
+  size_t min = 1;
+  size_t max = pmath_expr_length(list);
+  
+  while(min <= max) {
+    size_t mid = min + (max - min + 1) / 2;
     
-    for(j = i + 1; j <= exprlen; ++j) {
-      if(pmath_expr_item_equals(list, j, item)) {
-        list = pmath_expr_set_item(list, j, PMATH_UNDEFINED);
-      }
-      else
-        break;
-    }
+    pmath_t other = pmath_expr_get_item(list, mid);
+    int cmp = pmath_compare(other, item);
+    pmath_unref(other);
     
-    pmath_unref(item);
-    i = j;
+    if(cmp < 0)
+      min = mid + 1;
+    else if(cmp > 0)
+      max = mid - 1;
+    else
+      return TRUE;
   }
   
-  return pmath_expr_remove_all(list, PMATH_UNDEFINED);
+  return FALSE;
 }
