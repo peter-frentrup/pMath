@@ -86,7 +86,7 @@ Function calcCosinesXsYs(~xs, ~ys, ~xmin .. ~xmax, ~ymin .. ~ymax) {
 
 	%Print("calcCosinesXsYs: ", {"ndxy" -> ndxs, "ndys" -> ndys, "vs" -> vs})
 
-	MapThread({Most(vs), Rest(vs)}, Dot) |> Replace(Undefined -> 0.0, 1..1) |> ReplacePart({1 -> 0.0, -1 -> 0.0})
+	MapThread({Most(vs), Rest(vs)}, Dot) |> ReplacePart({1 -> 0.0, -1 -> 0.0})
 
 	%With(tans:= ndys / ndxs) % tans:= Arg(ndxs + ImaginaryI * ndys)
 	%With(tas:= Most(tans), tbs:= Rest(tans))
@@ -107,17 +107,16 @@ Function refineData(~f, ~ts, {~xs, ~ys}, ~xrange, ~yrange, ~prec, ~stepNumber) {
 	Local(is)
 	is:= Flatten @ Position(cosines, ~ ? (cosMin <= # <= cosMax &), 1..1, Heads -> False)
 
-	% % Only useful if wo skip the replacements in calcCosinesXsYs(...):
-	% If(stepNumber <= 17 && Length(ts) <= 3500) { % If(cosMin < 0)
-	% 	%With(isUndef:= Flatten @ Position(cosines, Undefined, 1..1))
-	% 	is:= Union(is, {1, Length(ts) - 2}, isUndef)
+	If(stepNumber <= 17 && Length(ts) <= 3500) {
+		With(isUndef:= Flatten @ Position(cosines, Undefined, 1..1))
+		%is:= Union(is, {1, Length(ts) - 2}, isUndef)
 
-	% 	% TODO: refine at Undefined values only next to non-Undefined values
-	% 	%With(isUndefP1 := isUndef + 1)
-	% 	%With(bothUndef:= Intersection(isUndef, isUndef + 1))
-	% 	%With(isUndefBorder:= Union(Complement(isUndef, bothUndef), Complement(isUndefP1, bothUndef) - 1))
-	% 	%is:= Union(is, {1, Length(ts) - 2}, isUndefBorder)
-	% }
+		If(Length(ts) < 50) {
+			is:= Union(is, isUndef);
+		} Else {
+			is:= Union(is, Complement(isUndef, isUndef + 1), Complement(isUndef, isUndef - 1))
+		}
+	}
 	
 	is:= Union(is, is + 1)
 	
