@@ -29,7 +29,8 @@ snapRange(~start .. ~end) /? start < end ::=
 			)
 		)
 
-isSmallInt(~s:String)::= s.StringMatch((".0`" | ".0") ++ EndOfString)
+isSmallInt({"-", ~s:String})::= s.StringCount((".0`" | ".0") ++ EndOfString) > 0
+isSmallInt(      ~s:String) ::= s.StringCount((".0`" | ".0") ++ EndOfString) > 0
 isSmallInt(~)::= False
 allLabelsAreSmallInt(~ticks)::= And @@ ticks.Map(isSmallInt(#[2]) &)
 
