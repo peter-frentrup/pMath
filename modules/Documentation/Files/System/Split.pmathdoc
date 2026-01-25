@@ -1,0 +1,128 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Split", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Split"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({
+           "The default function used to test whether elements are identical \
+           is ", TemplateBox({"Identical"}, "ReferenceHyperlink"), "."}), 
+         "Notes"), 
+        Section(TextData({"The function ", StyleBox("test", "Arg"), 
+           " is applied to consecutive elements."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        SectionGroup({
+          Section(
+           BoxData({"Split", "(", {
+              "{", {"a", ",", "a", ",", "a", ",", "b", ",", "b", ",", "a", 
+               ",", "a", ",", "c"}, "}"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {{"{", {"a", ",", "a", ",", "a"}, "}"}, ",", {
+               "{", {"b", ",", "b"}, "}"}, ",", {"{", {"a", ",", "a"}, "}"}, 
+              ",", {"{", "c", "}"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Split into monotonically increasing sequences:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Split", "(", {
+                {"{", {"1", ",", "2", ",", "3", ",", "5", ",", "4", ",", "6", 
+                  ",", "7", ",", "0", ",", "2", ",", "3"}, "}"}, ",", "Less"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {{"{", {"1", ",", "2", ",", "3", ",", "5"}, "}"}, 
+                ",", {"{", {"4", ",", "6", ",", "7"}, "}"}, ",", {
+                 "{", {"0", ",", "2", ",", "3"}, "}"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({"The ", StyleBox("test", "Arg"), 
+           " is applied to consecutive elements:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Split", "(", {
+              {"{", {"1", ",", "2", ",", "3", ",", "5", ",", "4", ",", "6", 
+                ",", "7"}, "}"}, ",", {"Function", "(", {
+                {"Echo", "(", {"{", {{"#", "1"}, ",", {"#", "2"}}, "}"}, ")"}, 
+                ";", {{"#", "1"}, "<", {"#", "2"}}}, ")"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"1", ",", "2"}, "}"}), "Echo", 
+           SectionGenerated -> True), 
+          Section(BoxData({"{", {"2", ",", "3"}, "}"}), "Echo", 
+           SectionGenerated -> True), 
+          Section(BoxData({"{", {"3", ",", "5"}, "}"}), "Echo", 
+           SectionGenerated -> True), 
+          Section(BoxData({"{", {"5", ",", "4"}, "}"}), "Echo", 
+           SectionGenerated -> True), 
+          Section(BoxData({"{", {"4", ",", "6"}, "}"}), "Echo", 
+           SectionGenerated -> True), 
+          Section(BoxData({"{", {"6", ",", "7"}, "}"}), "Echo", 
+           SectionGenerated -> True), 
+          Section(
+           BoxData({"{", {{"{", {"1", ",", "2", ",", "3", ",", "5"}, "}"}, 
+              ",", {"{", {"4", ",", "6", ",", "7"}, "}"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+       All), SectionGroup({Section("Applications", "ExampleSection"), 
+        Section(
+         "Group equivalence classes according to a normalizing function:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({
+             "Block", {
+              "{", {"\n", {{{"With", "(", {"f", "\[Assign]", "Floor"}, ")"}, 
+                 "\n", {"With", "(", {"x", "\[Assign]", {
+                    "RandomReal", "(", {"5", ",", "20"}, ")"}}, ")"}, "\n", {
+                  {"x", "|>", {"SortBy", "(", "f", ")"}}, "|>", {
+                   "Split", "(", {"Function", "(", {
+                     {"f", "(", {"#", "1"}, ")"}, "===", {
+                      "f", "(", {"#", "2"}, ")"}}, ")"}, ")"}}}, "\n"}}, 
+              "}"}}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {{"{", {"0.1318084544191911`", ",", "0.497857711671269", 
+                ",", "0.951148175592153"}, "}"}, ",", {
+               "{", {"1.5551860504700437`", ",", "1.9492757846593356`"}, "}"}, 
+              ",", {"{", {"2.3866240993203176`", ",", "2.9626320721191695`", 
+                ",", "2.9981648028279677`"}, "}"}, ",", {
+               "{", {"3.0310165920142595`", ",", "3.159019749809637`", ",", 
+                "3.3590629915114962`", ",", "3.4471135158602726`", ",", 
+                "3.4563840882854056`", ",", "3.572397375657986`", ",", 
+                "3.7906545826156806`", ",", "3.7971727864984577`", ",", 
+                "3.8357928574103712`"}, "}"}, ",", {
+               "{", {"4.149035726843966`", ",", "4.3204255710571555`", ",", 
+                "4.492670628912279`"}, "}"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Flatten"}, "ReferenceHyperlink"), 
+           " acts as an inverse of ", TemplateBox({"Split"}, 
+            "ReferenceHyperlink"), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Split", "(", {
+              "{", {"a", ",", "a", ",", "a", ",", "b", ",", "b", ",", "a", 
+               ",", "a", ",", "c", ",", "c", ",", "c"}, "}"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {{"{", {"a", ",", "a", ",", "a"}, "}"}, ",", {
+               "{", {"b", ",", "b"}, "}"}, ",", {"{", {"a", ",", "a"}, "}"}, 
+              ",", {"{", {"c", ",", "c", ",", "c"}, "}"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"Flatten", "(", {"$History", "(", {"-", "1"}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"a", ",", "a", ",", "a", ",", "b", ",", "b", 
+              ",", "a", ",", "a", ",", "c", ",", "c", ",", "c"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Partition"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"StringSplit"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Union"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Flatten"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
