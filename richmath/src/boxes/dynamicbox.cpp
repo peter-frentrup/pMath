@@ -171,7 +171,7 @@ void DynamicBox::resize_default_baseline(Context &context) {
   }
 }
 
-void DynamicBox::before_paint_inline(Context &context) {
+void DynamicBox::after_paint_inline(Context &context) {
   if(must_resize()) {
     //context.canvas().save();
     //base::resize(context);
@@ -193,7 +193,7 @@ void DynamicBox::before_paint_inline(Context &context) {
       dynamic_finished(Expr(), result);
   }
   
-  base::before_paint_inline(context);
+  base::after_paint_inline(context);
 }
 
 void DynamicBox::paint_content(Context &context) {

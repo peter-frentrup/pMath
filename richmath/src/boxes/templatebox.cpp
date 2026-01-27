@@ -364,9 +364,9 @@ void TemplateBox::resize_default_baseline(Context &context) {
   }
 }
 
-void TemplateBox::before_paint_inline(Context &context) {
+void TemplateBox::after_paint_inline(Context &context) {
   Impl(*this).ensure_content_loaded();
-  base::before_paint_inline(context);
+  base::after_paint_inline(context);
 }
 
 void TemplateBox::paint_content(Context &context) {
@@ -657,9 +657,9 @@ void TemplateBoxSlot::resize_default_baseline(Context &context) {
   }
 }
 
-void TemplateBoxSlot::before_paint_inline(Context &context) {
+void TemplateBoxSlot::after_paint_inline(Context &context) {
   Impl(*this).ensure_content_loaded();
-  base::before_paint_inline(context);
+  base::after_paint_inline(context);
 }
 
 void TemplateBoxSlot::paint_content(Context &context) {

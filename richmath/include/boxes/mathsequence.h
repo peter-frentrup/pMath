@@ -38,6 +38,7 @@ namespace richmath {
       virtual void resize(Context &context) override;
       virtual void colorize_scope(SyntaxState &state) override;
       virtual void before_paint_inline(Context &context) override;
+      virtual void after_paint_inline(Context &context) override;
       virtual void paint(Context &context) override;
       
       virtual void selection_path(Canvas &canvas,   int start, int end) override;

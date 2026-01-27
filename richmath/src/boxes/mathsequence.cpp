@@ -556,6 +556,13 @@ void MathSequence::before_paint_inline(Context &context) {
   }
 }
 
+void MathSequence::after_paint_inline(Context &context) {
+  for(auto box : boxes) {
+    if(box->as_inline_span())
+      box->after_paint_inline(context);
+  }
+}
+
 void MathSequence::paint(Context &context) {
   Point p0 = context.canvas().current_pos();
   
@@ -610,6 +617,8 @@ void MathSequence::paint(Context &context) {
   Impl(*this).paint(context);
   
   Impl::PaintHookHandler(context, p0, context.post_paint_hooks, false).run(*this);
+  
+  after_paint_inline(context);
   
   context.canvas().set_color(default_color);
 }

@@ -40,7 +40,7 @@ namespace richmath {
         int              *index,        // [in/out], -1 if called from parent
         bool              called_from_child) override;
       
-      virtual void before_paint_inline(Context &context) override;
+      virtual void after_paint_inline(Context &context) override;
       virtual void paint_content(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
@@ -112,7 +112,7 @@ namespace richmath {
       
       virtual float fill_weight() override;
       virtual void invalidate() override;
-      virtual void before_paint_inline(Context &context) override;
+      virtual void after_paint_inline(Context &context) override;
       virtual void paint_content(Context &context) override;
       
       virtual void on_exit() override;

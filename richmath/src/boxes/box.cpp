@@ -297,6 +297,11 @@ void Box::before_paint_inline(Context &context) {
     item(i)->before_paint_inline(context);
 }
 
+void Box::after_paint_inline(Context &context) {
+  for(int i = 0; i < count(); ++i)
+    item(i)->after_paint_inline(context);
+}
+
 VolatileSelection Box::get_highlight_child(const VolatileSelection &src) {
   if(auto par = parent())
     return par->get_highlight_child(src);

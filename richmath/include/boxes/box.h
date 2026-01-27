@@ -255,6 +255,7 @@ namespace richmath {
       virtual void resize(Context &context) = 0;
       virtual void colorize_scope(SyntaxState &state);
       virtual void before_paint_inline(Context &context);
+      virtual void after_paint_inline(Context &context);
       virtual void paint(Context &context) = 0;
       virtual void begin_paint_inline_span(Context &context, BasicHeterogeneousStack &context_stack, DisplayStage stage) {}
       virtual void end_paint_inline_span(Context &context, BasicHeterogeneousStack &context_stack, DisplayStage stage) {}
