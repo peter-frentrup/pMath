@@ -68,6 +68,8 @@ class BasicWin32Window::Impl {
     
     void paint_themed(HDC hdc);
     
+    DWORD dwm_corner_preference();
+    
     void find_all_snappers();
     HDWP move_all_snappers(HDWP hdwp, const RECT &new_bounds);
     void snap_rect_or_pt(RECT *windowrect, POINT *pt); // pt may be nullptr, rect must not
@@ -218,10 +220,11 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
     void hide();
     void show();
     void show(const RECT &owner_rect);
-    void show_if_owner_visible_on_screen();
+    void show_if_themed_owner_visible_on_screen();
     
     void colorize(bool active, bool dark_mode);
     
+    void set_dwm_corner_preference(DWORD corner_pref);
     static RECT blur_bounds(RECT window_rect, const Win32Themes::MARGINS &margins);
   
   public:
@@ -904,7 +907,7 @@ void BasicWin32Window::on_theme_changed() {
       
       _blur_behind_window->colorize(_active, _use_dark_mode);
       
-      if(is_window_visible_on_screen(_hwnd))
+      if(is_window_visible_on_screen(_hwnd) && _themed_frame)
         _blur_behind_window->show();
       else
         _blur_behind_window->hide();
@@ -1431,20 +1434,8 @@ void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallp
       buttonradius = 1;
       frameradius  = 1;
       
-      if(Win32Version::is_windows_11_or_newer() && Win32Themes::DwmGetWindowAttribute) {
-        DWORD corner_pref = Win32Themes::DWMWCP_DEFAULT;
-        
-        if(!HRbool(Win32Themes::DwmGetWindowAttribute(_hwnd, Win32Themes::DWMWA_WINDOW_CORNER_PREFERENCE, &corner_pref, sizeof(corner_pref))))
-          corner_pref = Win32Themes::DWMWCP_DEFAULT;
-        
-        if(corner_pref == Win32Themes::DWMWCP_DEFAULT) {
-          if(style_ex & WS_EX_TOOLWINDOW) {
-            corner_pref = Win32Themes::DWMWCP_ROUNDSMALL;
-          }
-          else {
-            corner_pref = Win32Themes::DWMWCP_ROUND;
-          }
-        }
+      if(Win32Version::is_windows_11_or_newer()) {
+        DWORD corner_pref = Impl(*this).dwm_corner_preference();
         
         switch(corner_pref) {
           case Win32Themes::DWMWCP_ROUND:      frameradius = 8; break;
@@ -1453,9 +1444,8 @@ void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallp
           case Win32Themes::DWMWCP_DONOTROUND: frameradius = 1; break;
         }
         
-        if(_blur_behind_window && Win32Themes::DwmSetWindowAttribute) {
-          Win32Themes::DwmSetWindowAttribute(_blur_behind_window->hwnd(), Win32Themes::DWMWA_WINDOW_CORNER_PREFERENCE, &corner_pref, sizeof(corner_pref));
-        }
+        if(_blur_behind_window)
+          _blur_behind_window->set_dwm_corner_preference(corner_pref);
       }
     }
     else if(style_ex & WS_EX_TOOLWINDOW) {
@@ -1923,7 +1913,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_SHOWWINDOW: {
           bool will_be_visible = !!wParam;
           if(_blur_behind_window) {
-            if(will_be_visible && Win32Themes::use_win10_transparency()) 
+            if(will_be_visible && Win32Themes::use_win10_transparency() && _themed_frame)
               _blur_behind_window->show();
             else 
               _blur_behind_window->hide();
@@ -2145,7 +2135,7 @@ void BasicWin32Window::virtual_desktop_changed() {
   pmath_debug_print("[virtual_desktop_changed, cloaked=%s]\n", is_window_cloaked(_hwnd) ? "yes" : "no");
   
   if(_blur_behind_window) {
-    _blur_behind_window->show_if_owner_visible_on_screen();
+    _blur_behind_window->show_if_themed_owner_visible_on_screen();
   }
 }
 
@@ -2459,7 +2449,7 @@ void BasicWin32Window::Impl::on_windowposchanging(WINDOWPOS *pos) {
 
 void BasicWin32Window::Impl::on_windowposchanged(WINDOWPOS *pos) {
   if(self._blur_behind_window) {
-    if(is_window_visible_on_screen(self._hwnd) && Win32Themes::use_win10_transparency()) 
+    if(is_window_visible_on_screen(self._hwnd) && Win32Themes::use_win10_transparency() && self._themed_frame) 
       self._blur_behind_window->show(RECT {pos->x, pos->y, pos->x + pos->cx, pos->y + pos->cy});
     else 
       self._blur_behind_window->hide();
@@ -2739,6 +2729,28 @@ void BasicWin32Window::Impl::paint_themed(HDC hdc) {
   }
   else {
   }
+}
+
+DWORD BasicWin32Window::Impl::dwm_corner_preference() {
+  DWORD corner_pref = Win32Themes::DWMWCP_DEFAULT;
+  
+  if(Win32Version::is_windows_11_or_newer() && Win32Themes::DwmGetWindowAttribute) {
+    if(!HRbool(Win32Themes::DwmGetWindowAttribute(self._hwnd, Win32Themes::DWMWA_WINDOW_CORNER_PREFERENCE, &corner_pref, sizeof(corner_pref))))
+      corner_pref = Win32Themes::DWMWCP_DEFAULT;
+    
+    if(corner_pref == Win32Themes::DWMWCP_DEFAULT) {
+      DWORD style_ex = GetWindowLong(self._hwnd, GWL_EXSTYLE);
+      
+      if(style_ex & WS_EX_TOOLWINDOW) {
+        corner_pref = Win32Themes::DWMWCP_ROUNDSMALL;
+      }
+      else {
+        corner_pref = Win32Themes::DWMWCP_ROUND;
+      }
+    }
+  }
+  
+  return corner_pref;
 }
 
 void BasicWin32Window::Impl::paint_themed_system_buttons(HDC hdc_bitmap) {
@@ -3341,6 +3353,12 @@ bool Win32BlurBehindWindow::enable_blur(COLORREF abgr) {
   return true;
 }
 
+void Win32BlurBehindWindow::set_dwm_corner_preference(DWORD corner_pref) {
+  if(Win32Version::is_windows_11_or_newer() && Win32Themes::DwmSetWindowAttribute) {
+    Win32Themes::DwmSetWindowAttribute(_hwnd, Win32Themes::DWMWA_WINDOW_CORNER_PREFERENCE, &corner_pref, sizeof(corner_pref));
+  }
+}
+
 RECT Win32BlurBehindWindow::blur_bounds(RECT window_rect, const Win32Themes::MARGINS &margins) {
   window_rect.left+=   margins.cxLeftWidth;
   window_rect.right-=  margins.cxRightWidth;
@@ -3401,8 +3419,8 @@ void Win32BlurBehindWindow::show(const RECT &owner_rect) {
     SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
-void Win32BlurBehindWindow::show_if_owner_visible_on_screen() {
-  if(is_window_visible_on_screen(_owner->hwnd())) {
+void Win32BlurBehindWindow::show_if_themed_owner_visible_on_screen() {
+  if(is_window_visible_on_screen(_owner->hwnd()) && _owner->has_themed_frame()) {
     if(!is_window_visible_on_screen(_hwnd))
       show();
   }
@@ -3639,7 +3657,7 @@ STDMETHODIMP StaticResources::ViewVirtualDesktopChanged(IApplicationView *pView)
   pmath_debug_print("[ViewVirtualDesktopChanged %p]\n", pView);
   //pmath_debug_print("[ViewVirtualDesktopChanged %p, cloaked=%s]\n", pView, is_window_cloaked(_hwnd) ? "yes" : "no");
   //
-  //if(_blur_behind_window) _blur_behind_window->show_if_owner_visible_on_screen();
+  //if(_blur_behind_window) _blur_behind_window->show_if_themed_owner_visible_on_screen();
   for(CommonDocumentWindow *win : CommonDocumentWindow::All) {
     if(auto platform_win = dynamic_cast<BasicWin32Window*>(win)) {
       platform_win->virtual_desktop_changed();
