@@ -215,7 +215,27 @@ Document({
              GridBox({{ButtonBox(StringBox("\"long\"")), 
                 PaneBox(ButtonBox(StringBox("\"short\"")))}, {
                 "1000000000", "1000000000"}}), "Grid")), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"Column", "(", {
+              "{", {
+               {"\n", {"Pane", "(", {"Slider", "(", {
+                   {"Dynamic", "(", "s", ")"}, ",", {"24", "..", "72"}}, ")"}, 
+                 ")"}}, ",", {
+                "\n", {"Slider", "(", {{"Dynamic", "(", "s", ")"}, ",", {
+                   "24", "..", "72"}}, ")"}}, ",", {
+                "\n", {"Style", "(", {StringBox("\"Some text to resize\""), 
+                  ",", {"FontSize", "\[Rule]", {"Dynamic", "(", "s", ")"}}}, 
+                 ")"}}}, "}"}, ")"}), "Input", SectionLabel -> "in [4]:"), 
+          Section(
+           BoxData(
+            TagBox(
+             GridBox({{PaneBox(SliderBox(Dynamic($Context`s), 24 .. 72))}, {
+                SliderBox(Dynamic($Context`s), 24 .. 72)}, {
+                StyleBox(StringBox("\"Some text to resize\""), 
+                 FontSize -> Dynamic($Context`s), StripOnInput -> False)}}), 
+             "Column")), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [4]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
