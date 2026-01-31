@@ -7,8 +7,8 @@ Document({
        "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section(TextData({TemplateBox({"MemoryUsage"}, "ReferenceHyperlink"), 
-           "() gives the memory clamed by the pMath memory allocator from the \
-           operating system. Due to caching"}), "Notes")}, All), 
+           "() gives the memory claimed by the pMath memory allocator from the \
+           operating system."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
