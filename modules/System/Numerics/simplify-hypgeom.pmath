@@ -14,6 +14,24 @@ Begin("System`Numerics`HypGeom`Private`")
 %
 System`Private`AutoSimplifyHypGeom(~, ~, ~, ~):= $Failed
 
+System`Private`AutoSimplifyHypGeom(Hypergeometric0F1, {}, {~}, 0):= 1
+
+System`Private`AutoSimplifyHypGeom(Hypergeometric0F1Regularized, {}, {~a}, 0):= 1/Gamma(a)
+
+System`Private`AutoSimplifyHypGeom(Hypergeometric1F1, {0}, {~}, ~):= 1
+System`Private`AutoSimplifyHypGeom(Hypergeometric1F1, {~}, {~}, 0):= 1
+System`Private`AutoSimplifyHypGeom(Hypergeometric1F1, {~a}, {~a}, ~z) /? (!IsInteger(a) || a > 0):= Exp(z)
+
+System`Private`AutoSimplifyHypGeom(Hypergeometric1F1Regularized, {0}, {~b}, ~):= 1/Gamma(b)
+System`Private`AutoSimplifyHypGeom(Hypergeometric1F1Regularized, {~}, {~b}, 0):= 1/Gamma(b)
+
+System`Private`AutoSimplifyHypGeom(Hypergeometric2F1, {0, ~}, {~}, ~):= 1
+System`Private`AutoSimplifyHypGeom(Hypergeometric2F1, {~, 0}, {~}, ~):= 1
+System`Private`AutoSimplifyHypGeom(Hypergeometric2F1, {~, ~}, {~}, 0):= 1
+
+System`Private`AutoSimplifyHypGeom(Hypergeometric2F1Regularized, {0, ~}, {~c}, ~):= 1/Gamma(c)
+System`Private`AutoSimplifyHypGeom(Hypergeometric2F1Regularized, {~, 0}, {~c}, ~):= 1/Gamma(c)
+System`Private`AutoSimplifyHypGeom(Hypergeometric2F1Regularized, {~, ~}, {~c}, 0):= 1/Gamma(c)
 
 
 End()
