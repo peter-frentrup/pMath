@@ -77,8 +77,10 @@ Document({
              SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section(
-       TextData({TemplateBox({"FrontEndTokenExecute"}, "ReferenceHyperlink"), 
+      Section(TextData({TemplateBox({"MenuItem"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Menu"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"FrontEndTokenExecute"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"FE`CallFrontEnd"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
          TemplateBox({"FrontEnd`KernelExecute"}, "ReferenceHyperlink")}), 
