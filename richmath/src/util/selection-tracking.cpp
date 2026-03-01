@@ -363,157 +363,192 @@ namespace {
           return;
         }
         
-        SpanExpr *se = new SpanExpr(0, seq->span_array()[0], seq);
-        if(se->end() + 1 != len) {
-          if(expr.is_expr() && expr[0] == PMATH_NULL) {
-            for(size_t i = 1; ;++i) {
-              Expr item = expr[i];
-              SelectionReference item_source = SelectionReference::from_debug_metadata_of(item);
-              if(source_location.index <= item_source.end && item_source.id == source_location.id) {
-                visit_span(se, item_source, item);
-                delete se;
-                return;
-              }
-              
-              int pos = se->end() + 1;
-              if(pos < len) {
-                delete se;
-                se = new SpanExpr(pos, seq->span_array()[pos], seq);
-              }
-              else
-                break;
-            }
-          }
+        seq->ensure_spans_valid();
+        Span first_span = seq->span_array()[0];
+        if(first_span && first_span.end() + 1 < len) {
+          track_composite_span(seq, first_span, 0, len, source, PMATH_CPP_MOVE(expr));
         }
-        visit_span(se, source, PMATH_CPP_MOVE(expr));
-        delete se;
+        else {
+          track_span(seq, first_span, 0, source, PMATH_CPP_MOVE(expr));
+        }
       }
       
-      void visit_span(SpanExpr *se, const SelectionReference &source, Expr expr) {
+      void track_span(MathSequence *seq, Span span, int pos, const SelectionReference &source, Expr expr) {
         if(source_location.index <= source.start) {
-          destination.set(se->sequence(), se->start(), se->start());
-          return;
-        }
-        else if(source_location.index >= source.end) {
-          destination.set(se->sequence(), se->end() + 1, se->end() + 1);
+          destination.set(seq, pos, pos);
           return;
         }
         
-        size_t expr_len = expr.expr_length();
-        int count = se->count();
-        
-        if(expr_len > 0 && (size_t)count == expr_len && (expr[0] == PMATH_NULL || expr.item_equals(0, richmath_System_List))) {
-          for(int i = 0; i < count; ++i) {
-            Expr item = expr[(size_t)i + 1];
-            SelectionReference item_source = SelectionReference::from_debug_metadata_of(item);
-            
-            if(source_location.index <= item_source.end && item_source.id == source_location.id) {
-              visit_span(se->item(i), item_source, item);
-              return;
-            }
-          }
-          
-          destination.set(se->sequence(), se->end() + 1, se->end() + 1);
+        int next = next_token_after(seq, span, pos);
+        if(source_location.index >= source.end) {
+          destination.set(seq, next, next);
           return;
         }
         
-        if(count == 0 && expr.item_equals(0, richmath_System_StringBox)) {
-          if(expr_len == 1) {
+        if(!span) {
+          track_token(seq, pos, next, source, PMATH_CPP_MOVE(expr));
+          return;
+        }
+        
+        if(expr[0] == PMATH_NULL || expr.item_equals(0, richmath_System_List)) {
+          track_composite_span(seq, span.next(), pos, next, source, PMATH_CPP_MOVE(expr));
+          return;
+        }
+        
+        destination.set(seq, pos, next);
+      }
+      
+      void track_token(MathSequence *seq, int pos, int next, const SelectionReference &source, Expr expr) {
+        if(expr.item_equals(0, richmath_System_StringBox)) {
+          if(expr.expr_length() == 1) {
             auto str = expr[1];
             if(auto str_src = SelectionReference::from_debug_metadata_of(str)) {
-              visit_span(se, str_src, PMATH_CPP_MOVE(str));
+              track_token(seq, pos, next, str_src, PMATH_CPP_MOVE(str));
               return;
             }
           }
           
-          const uint16_t *se_buf = se->sequence()->text().buffer();
-          int o_pos     = se->start();
-          int o_pos_max = se->end();
-          for(size_t i = 1; i <= expr_len; ++i) {
-            auto sub = expr[i];
-            auto sub_src = SelectionReference::from_debug_metadata_of(sub);
-            
-            int o_next_box = o_pos;
-            while(o_next_box <= o_pos_max && se_buf[o_next_box] != PMATH_CHAR_BOX)
-              ++o_next_box;
-            
-            int o_next_sub;
+          track_stringbox_token(seq, pos, next, source, PMATH_CPP_MOVE(expr));
+          return;
+        }
+        
+        if(expr.is_string()) {
+          String tok = seq->text().part(pos, next - pos);
+          if(tok == expr) {
+            track_simple_token(seq, pos, next, source);
+            return;
+          }
+        }
+        
+        destination.set(seq, pos, next);
+      }
+      
+      void track_stringbox_token(MathSequence *seq, int pos, int next, const SelectionReference &source, Expr expr) {
+        size_t expr_len = expr.expr_length();
+        
+        const uint16_t *se_buf = seq->text().buffer();
+        int o_pos     = pos;
+        for(size_t i = 1; i <= expr_len; ++i) {
+          auto sub = expr[i];
+          auto sub_src = SelectionReference::from_debug_metadata_of(sub);
+          
+          int o_next_box = o_pos;
+          while(o_next_box < next && se_buf[o_next_box] != PMATH_CHAR_BOX)
+            ++o_next_box;
+          
+          int o_next_sub;
+          if(sub.is_string()) {
+            o_next_sub = o_next_box;
+          }
+          else {
+            o_next_sub = (o_next_box < next) ? o_next_box + 1 : o_next_box;
+          }
+          
+          if(sub_src.id == source_location.id && sub_src.start <= source_location.index && source_location.index <= sub_src.end) {
             if(sub.is_string()) {
-              o_next_sub = o_next_box;
+              if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
+                if(0 <= sub_src.start && sub_src.start <= sub_src.end && sub_src.end <= source_seq->length()) {
+                  const uint16_t *buf = source_seq->text().buffer();
+                  if(sub_src.length() >= 2 && buf[sub_src.start] == '"' && buf[sub_src.end - 1] == '"') {
+                    int in_pos = sub_src.start + 1;
+                    while(o_pos < o_next_sub && in_pos < source_location.index) {
+                      int in_next = next_char_pos(buf, in_pos, sub_src.end);
+                      if(source_location.index < in_next) {
+                        destination.set(seq, o_pos, o_pos + 1);
+                        return;
+                      }
+                      in_pos = in_next;
+                      ++o_pos;
+                      if(o_pos + 1 < o_next_sub && is_utf16_high(se_buf[o_pos-1]) && is_utf16_low(se_buf[o_pos]))
+                        ++o_pos;
+                    }
+                    destination.set(seq, o_pos, o_pos);
+                    return;
+                  }
+                }
+              }
             }
             else {
-              o_next_sub = o_next_box <= o_pos_max ? o_next_box + 1 : o_next_box;
+              destination.set(seq, o_pos, o_next_sub);
+              return;
             }
-            
-            if(sub_src.id == source_location.id && sub_src.start <= source_location.index && source_location.index <= sub_src.end) {
-              if(sub.is_string()) {
-                if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
-                  if(0 <= sub_src.start && sub_src.start <= sub_src.end && sub_src.end <= source_seq->length()) {
-                    const uint16_t *buf = source_seq->text().buffer();
-                    if(sub_src.length() >= 2 && buf[sub_src.start] == '"' && buf[sub_src.end - 1] == '"') {
-                      int in_pos = sub_src.start + 1;
-                      while(o_pos < o_next_sub && in_pos < source_location.index) {
-                        int in_next = next_char_pos(buf, in_pos, sub_src.end);
-                        if(source_location.index < in_next) {
-                          destination.set(se->sequence(), o_pos, o_pos + 1);
-                          return;
-                        }
-                        in_pos = in_next;
-                        ++o_pos;
-                        if(o_pos + 1 < o_next_sub && is_utf16_high(se_buf[o_pos-1]) && is_utf16_low(se_buf[o_pos]))
-                          ++o_pos;
-                      }
-                      destination.set(se->sequence(), o_pos, o_pos);
-                      return;
-                    }
-                  }
-                }
-              }
-              else {
-                destination.set(se->sequence(), o_pos, o_next_sub);
-                return;
-              }
-              break;
-            }
-            
-            o_pos = o_next_sub;
+            break;
           }
+          
+          o_pos = o_next_sub;
         }
         
-        if(count == 0 && expr.is_string()) {
-          if(se->as_text() == expr) {
-            const uint16_t *se_buf = se->sequence()->text().buffer();
+        destination.set(seq, pos, next);
+      }
+      
+      void track_simple_token(MathSequence *seq, int pos, int next, const SelectionReference &source) {
+        const uint16_t *seq_buf = seq->text().buffer();
             
-            if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
-              if(0 <= source.start && source.start <= source.end && source.end <= source_seq->length()) {
-                const uint16_t *buf = source_seq->text().buffer();
+        if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
+          if(0 <= source.start && source.start <= source.end && source.end <= source_seq->length()) {
+            const uint16_t *buf = source_seq->text().buffer();
+            
+            if(source.end - source.start >= 2 && buf[source.start] == '"' && buf[source.end-1] == '"') {
+              int in_pos = source.start + 1;
+              int o_pos = pos;
+              while(o_pos < next && in_pos < source_location.index) {
+                int in_next = next_char_pos(buf, in_pos, source.end);
                 
-                if(source.end - source.start >= 2 && buf[source.start] == '"' && buf[source.end-1] == '"') {
-                  int in_pos = source.start + 1;
-                  int o_pos = se->start();
-                  int o_pos_max = se->end();
-                  while(o_pos <= o_pos_max && in_pos < source_location.index) {
-                    int in_next = next_char_pos(buf, in_pos, source.end);
-                    
-                    if(source_location.index < in_next) {
-                      destination.set(se->sequence(), o_pos, o_pos + 1);
-                      return;
-                    }
-                    in_pos = in_next;
-                    ++o_pos;
-                    if(o_pos < o_pos_max && is_utf16_high(se_buf[o_pos-1]) && is_utf16_low(se_buf[o_pos]))
-                      ++o_pos;
-                  }
-                  
-                  destination.set(se->sequence(), o_pos, o_pos);
+                if(source_location.index < in_next) {
+                  destination.set(seq, o_pos, o_pos + 1);
                   return;
                 }
+                in_pos = in_next;
+                ++o_pos;
+                if(o_pos + 1 < next && is_utf16_high(seq_buf[o_pos - 1]) && is_utf16_low(seq_buf[o_pos]))
+                  ++o_pos;
               }
+              
+              destination.set(seq, o_pos, o_pos);
+              return;
             }
           }
         }
         
-        destination.set(se->sequence(), se->start(), se->end() + 1);
+        destination.set(seq, pos, next);
+      }
+      
+      void track_composite_span(MathSequence *seq, Span first_sub, int pos, int next, const SelectionReference &source, Expr expr) {
+        size_t expr_len = expr.expr_length();
+        for(size_t i = 1; i <= expr_len; ++i) {
+          Expr item = expr[i];
+          SelectionReference item_source = SelectionReference::from_debug_metadata_of(item);
+          
+          if(source_location.index <= item_source.end && item_source.id == source_location.id) {
+            int item_pos = pos;
+            Span item_span = first_sub;
+            size_t remaining;
+            for(remaining = i - 1; remaining > 0; --remaining) {
+              item_pos = next_token_after(seq, item_span, item_pos);
+              if(item_pos >= next)
+                break;
+                
+              item_span = seq->span_array()[item_pos];
+            }
+            
+            if(remaining == 0 && item_pos < next) {
+              track_span(seq, item_span, item_pos, item_source, PMATH_CPP_MOVE(item));
+              return;
+            }
+            break;
+          }
+        }
+        
+        destination.set(seq, pos, next);
+      }
+      
+      static int next_token_after(MathSequence *seq, Span span, int pos) {
+        if(span) {
+          return span.end() + 1;
+        }
+        else {
+          return seq->span_array().next_token(pos);
+        }
       }
       
       static int next_char_pos(const uint16_t *buf, int pos, int end) {
