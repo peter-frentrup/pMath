@@ -278,6 +278,13 @@ Function OpenDocumentationForSelection(~tok:String, ~src) {
                         "PopupWindowSection", 
                         SectionMargins -> 4)
                 },
+                InterceptKeyEvents -> True,
+                DocumentEventActions -> {
+                    "EscapeKeyDown" -> Function {
+                        DocumentClose(EvaluationDocument())
+                        Break()
+                    }
+                },
                 WindowFrame -> "ThinFrameCallout",
                 RemovalConditions -> {"MouseClickOutsidePopup", "SelectionExit"}))
         }
