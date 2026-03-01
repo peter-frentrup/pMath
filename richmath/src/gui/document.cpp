@@ -3716,7 +3716,10 @@ bool Document::is_input_stealing_popup(Document *popup_window) {
   if(!popup_window)
     return false;
   
-    return auto_completion.has_popup(popup_window->id());
+  if(popup_window->get_own_style(InterceptKeyEvents, false))
+    return true;
+  
+  return auto_completion.has_popup(popup_window->id());
 }
 
 Document *Document::find_next_attached_popup_window_for(Box *anchor_box, Document *prev, LogicalDirection dir) {
@@ -4574,6 +4577,33 @@ bool Document::Impl::needs_sub_suberscript_parentheses(MathSequence *seq, int st
 
 //{ key events
 void Document::Impl::preview_key_down(SpecialKeyEvent &event) {
+  bool found = false;
+  self.context.for_each_selection([&](const VolatileSelection &sel) {
+    if(!found) {
+      if(!self.is_parent_of(sel.box))
+        return;
+      
+      for(Box *box = sel.box; box; box = box->parent()) {
+        if(box->probably_has_attached_popup()) {
+          FrontEndReference anchor_id = box->id();
+          for(const BoxAttchmentPopup &attachment : self._attached_popup_windows) {
+            if(attachment.anchor.id == anchor_id) {
+              if(Document *popup = attachment.popup_document()) {
+                if(popup->get_own_style(InterceptKeyEvents, false)) {
+                  if(EventHandlers::execute_key_down_handler(popup, DocumentEventActions, event) == EventHandlerResult::StopPropagation) {
+                    event.key = SpecialKey::Unknown;
+                    found = true;
+                    return;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+  
   if(self.auto_completion.is_active() && self.auto_completion.has_popup()) {
     switch(event.key) {
       case SpecialKey::Return:

@@ -11,6 +11,7 @@ Options(FE`AttachBoxes):= Options(FrontEnd`AttachBoxes):= {
     DocumentEventActions -> Inherited,
     FontColor -> Inherited,
     ImageSize -> Automatic,
+    InterceptKeyEvents -> False,
     RemovalConditions -> None,
     WindowFrame -> None
 };

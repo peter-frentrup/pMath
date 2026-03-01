@@ -431,6 +431,7 @@ InputFieldBoxOptions::usage:= "\({\"InputFieldBoxOptions \[Rule] {\", StyleBox(\
 InputForm::usage:= "InputForm(\(StyleBox(\"expr\", \"Arg\")\)) displays as \(StyleBox(\"expr\", \"Arg\")\) in a form that is valid input for \(StyleBox(\"pMath\", \"Arg\")\)."
 Integer::usage:= "Integer is the head used for integers."
 IntegerPart::usage:= "IntegerPart(\(StyleBox(\"x\", \"Arg\")\)) gives the integer part of \(StyleBox(\"x\", \"Arg\")\)."
+InterceptKeyEvents::usage:= "InterceptKeyEvents is an option for low-level attached boxes that allows to alter keyboard event handling."
 Interpretation::usage:= "Interpretation(\(StyleBox(\"e\", \"Arg\")\), \(StyleBox(\"expr\", \"Arg\")\)) represents an object that displays as \(StyleBox(\"e\", \"Arg\")\), but is interpreted as \(StyleBox(\"expr\", \"Arg\")\) when used as input."
 InterpretationBox::usage:= "InterpretationBox(\(StyleBox(\"box\", \"Arg\")\), \(StyleBox(\"expr\", \"Arg\")\)) is a low-level box construct that displays as \(StyleBox(\"box\", \"Arg\")\) but is interpreted on input as \(StyleBox(\"expr\", \"Arg\")\)."
 InterpretationFunction::usage:= "InterpretationFunction is an option for TemplateBox which specifies how the box is to be intepreted on input."

@@ -136,6 +136,7 @@ namespace richmath {
     Enabled, // AutoBoolXXX
     Evaluatable,
     ImageSizeAction, // ImageSizeActionXXX
+    InterceptKeyEvents, // bool
     InternalDefinesEvaluationContext, // bool
     InternalHasModifiedWindowOption,
     InternalHasPendingDynamic,

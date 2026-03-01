@@ -108,6 +108,7 @@ extern pmath_symbol_t richmath_System_Initialization;
 extern pmath_symbol_t richmath_System_InputAliases;
 extern pmath_symbol_t richmath_System_InputAutoReplacements;
 extern pmath_symbol_t richmath_System_InputFieldBoxOptions;
+extern pmath_symbol_t richmath_System_InterceptKeyEvents;
 extern pmath_symbol_t richmath_System_InterpretationFunction;
 extern pmath_symbol_t richmath_System_Italic;
 extern pmath_symbol_t richmath_System_JoinForm;
@@ -2503,6 +2504,7 @@ bool StyleData::modifies_size(StyleOptionName style_name) {
     case Enabled:
     case Evaluatable:
     case ImageSizeAction:
+    case InterceptKeyEvents:
     case InternalHasModifiedWindowOption:
     case InternalHasPendingDynamic:
     case InternalHasNewBaseStyle:
@@ -2704,6 +2706,7 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(InputAliases);
   impl.emit_definition(InputAutoReplacements);
   impl.emit_definition(InputFieldBoxOptions);
+  impl.emit_definition(InterceptKeyEvents);
   impl.emit_definition(InterpretationFunction);
   impl.emit_definition(JoinForm);
   impl.emit_definition(KeywordSymbolStyle);
@@ -3452,6 +3455,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            Editable,                         Symbol( richmath_System_Editable));
     add(StyleType::AutoBool,        Enabled,                          Symbol( richmath_System_Enabled));
     add(StyleType::Bool,            Evaluatable,                      Symbol( richmath_System_Evaluatable));
+    add(StyleType::Bool,            InterceptKeyEvents,               Symbol( richmath_System_InterceptKeyEvents));
     add(StyleType::AutoBool,        LimitsPositioning,                Symbol( richmath_System_LimitsPositioning));
     add(StyleType::Bool,            LineBreakWithin,                  Symbol( richmath_System_LineBreakWithin));
     add(StyleType::Bool,            Placeholder,                      Symbol( richmath_System_Placeholder));
