@@ -58,6 +58,8 @@ namespace richmath {
       virtual void remove(int start, int end); // not including end
       virtual Box *remove(int *index) override;
       
+      bool is_section_scrolling_horizontally(int i) { return _scrollx != 0 && 0 == get_content_scroll_correction_x(i); }
+      
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual Expr to_pmath_impl(BoxOutputFlags flags, int start, int end) override;

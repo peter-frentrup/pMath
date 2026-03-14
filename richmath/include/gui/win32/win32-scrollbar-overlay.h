@@ -12,11 +12,13 @@
 namespace richmath {
   enum class IndicatorLane: uint8_t {
     Middle,
-    All
+    All,
+    Left,
   };
   
   struct Indicator {
     float     position;
+    float     length;
     unsigned  color: 24;
     unsigned  lane: 8;
   };
@@ -31,7 +33,8 @@ namespace richmath {
       void set_scale(float _scale);
       void update();
       void clear();
-      void add(float position, Color color, IndicatorLane lane);
+      void add(float position, Color color, IndicatorLane lane) { add(position, 0.0f, color, lane); }
+      void add(float position, float length, Color color, IndicatorLane lane);
       
       void handle_scrollbar_owner_callback(UINT message, WPARAM wParam, LPARAM lParam);
       

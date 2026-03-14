@@ -2,6 +2,15 @@
 
 #include <gui/win32/api/win32-version.h>
 
+#ifdef max
+#  undef max
+#endif
+#ifdef min
+#  undef min
+#endif
+
+#include <algorithm>
+
 using namespace richmath;
 
 namespace richmath {
@@ -74,9 +83,9 @@ void Win32ScrollBarOverlay::clear() {
   indicators.length(0);
 }
 
-void Win32ScrollBarOverlay::add(float position, Color color, IndicatorLane lane) {
+void Win32ScrollBarOverlay::add(float position, float length, Color color, IndicatorLane lane) {
   if(color)
-    indicators.add(Indicator{position, (unsigned)color.to_rgb24(), (unsigned)lane});
+    indicators.add(Indicator{position, length, (unsigned)color.to_rgb24(), (unsigned)lane});
 }
 
 void Win32ScrollBarOverlay::handle_scrollbar_owner_callback(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -152,8 +161,11 @@ HRGN Win32ScrollBarOverlay::Impl::get_indicator_region(const Indicator &indicato
   
   if(w <= 0 || h <= 0)
     return nullptr;
-    
-  if(indicator.position < 0 || indicator.position > range)
+  
+  if(indicator.length < 0)  
+    return nullptr;
+  
+  if(indicator.position + indicator.length < 0 || indicator.position > range)
     return nullptr;
   
   int x, dx, dy;
@@ -162,6 +174,11 @@ HRGN Win32ScrollBarOverlay::Impl::get_indicator_region(const Indicator &indicato
       dx = w;
       dy = w / 8;
       x = rect.left;
+      break;
+    case IndicatorLane::Left:
+      x = 0;
+      dx = w / 8;
+      dy = w / 8;
       break;
     case IndicatorLane::Middle:
     default:
@@ -174,9 +191,18 @@ HRGN Win32ScrollBarOverlay::Impl::get_indicator_region(const Indicator &indicato
   if(dx < 1) dx = 1;
   if(dy < 1) dy = 1;
   
-  int y = (int)(-dy / 2 + h * indicator.position / range);
-  
-  return CreateRectRgn(x, y, x + dx, y + dy);
+  if(indicator.length > 0) {
+    int y1 = (int)(h * std::max(0.0f, indicator.position / range));
+    int y2 = (int)(h * std::min(1.0f, (indicator.position + indicator.length) / range));
+    if(y2 <= y1) y2 = y1 + 1;
+    
+    return CreateRectRgn(x, y1, x + dx, y2);
+  }
+  else {
+    int y = (int)(-dy / 2 + h * indicator.position / range);
+    
+    return CreateRectRgn(x, y, x + dx, y + dy);
+  }
 }
 
 void Win32ScrollBarOverlay::Impl::on_paint(WPARAM wParam, LPARAM lParam) {

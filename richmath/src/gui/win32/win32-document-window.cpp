@@ -138,6 +138,7 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
       : base(doc, style_ex, style, x, y, width, height, parent),
         _overlay(&parent->hwnd(), &hwnd()),
         auto_size(false),
+        show_horizontal_scroll_indicators(false),
         best_width(1),
         best_height(1)
     {
@@ -154,7 +155,8 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
     Win32ScrollBarOverlay _overlay;
     
   public:
-    bool auto_size;
+    bool auto_size : 1;
+    bool show_horizontal_scroll_indicators : 1;
     
     int best_width;
     int best_height;
@@ -171,6 +173,9 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
     
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       _overlay.handle_scrollbar_owner_callback(message, wParam, lParam);
+      switch(message) {
+        case WM_HSCROLL: on_hscroll(wParam, lParam); break;
+      }
       return base::callback(message, wParam, lParam);
     }
     
@@ -196,17 +201,6 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
     virtual void paint_canvas(Canvas &canvas, bool resize_only) override {
       _overlay.clear();
       base::paint_canvas(canvas, resize_only);
-      
-      _overlay.set_scale(scale_factor());
-      if(auto sel = document()->selection_now()) {
-        add_overlay(canvas, sel, Color::from_rgb24(0x000080), IndicatorLane::All);
-      }
-      for(auto ref : document()->current_word_references()) {
-        if(auto sel = ref.get_all()) {
-         add_overlay(canvas, sel, Color::from_rgb24(0xFF8000), IndicatorLane::Middle);
-        }
-      }
-      _overlay.update();
       
       int old_bh = best_height;
       int old_bw = best_width;
@@ -245,6 +239,49 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
         RECT outer;
         GetWindowRect(_hwnd, &outer);
         adjust_scrollbars({ outer.right - outer.left, outer.bottom - outer.top });
+      }
+      
+      _overlay.set_scale(scale_factor());
+      if(show_horizontal_scroll_indicators) {
+        Document *doc = document();
+        for(int i = 0; i < doc->length(); ++i) {
+          if(doc->is_section_scrolling_horizontally(i)) {
+            Section *sect = doc->section(i);
+            if(sect->visible()) {
+              float y1 = sect->y_offset;
+              float y2 = y1 + sect->extents().height();
+              _overlay.add(y1, y2 - y1, Color::from_rgb24(0xBCBC00), IndicatorLane::Left);
+            }
+          }
+        }
+      }
+      
+      if(auto sel = document()->selection_now()) {
+        add_overlay(canvas, sel, Color::from_rgb24(0x000080), IndicatorLane::All);
+      }
+      for(auto ref : document()->current_word_references()) {
+        if(auto sel = ref.get_all()) {
+         add_overlay(canvas, sel, Color::from_rgb24(0xFF8000), IndicatorLane::Middle);
+        }
+      }
+      _overlay.update();
+    }
+    
+    void on_hscroll(WPARAM wParam, LPARAM lParam) {
+      switch(LOWORD(wParam)) {
+        case SB_ENDSCROLL:
+          if(show_horizontal_scroll_indicators) {
+            show_horizontal_scroll_indicators = false;
+            invalidate();
+          }
+          break;
+        
+        case SB_THUMBTRACK: 
+          if(!show_horizontal_scroll_indicators) {
+            show_horizontal_scroll_indicators = true;
+            invalidate();
+          }
+          break;
       }
     }
     
