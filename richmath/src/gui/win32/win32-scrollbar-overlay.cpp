@@ -58,7 +58,7 @@ void Win32ScrollBarOverlay::after_construction() {
   
   // only supported for child windows on Windows 8 or later:
   if(GetWindowLong(_hwnd, GWL_EXSTYLE) & WS_EX_LAYERED)
-    SetLayeredWindowAttributes(_hwnd, CLR_NONE, 0xFF, LWA_ALPHA);
+    SetLayeredWindowAttributes(_hwnd, CLR_NONE, 0xFF * 60 / 100, LWA_ALPHA);
 }
 
 void Win32ScrollBarOverlay::set_scale(float _scale) {
@@ -194,16 +194,16 @@ void Win32ScrollBarOverlay::Impl::on_paint(HDC dc, bool from_wmpaint) {
   float range = get_range();
   if(range <= 0)
     return;
-    
+  
+  HBRUSH brush = (HBRUSH)GetStockObject(DC_BRUSH);
   for(auto indicator : self.indicators) {
     if(auto rgn = get_indicator_region(indicator, rect, range)) {
       unsigned color = (  (indicator.color & 0xFF0000) >> 16)
                        |  (indicator.color & 0x00FF00)
                        | ((indicator.color & 0x0000FF) << 16);
-      HBRUSH brush = CreateSolidBrush(color);
+      SetDCBrushColor(dc, color);
       FillRgn(dc, rgn, brush);
       DeleteObject(rgn);
-      DeleteObject(brush);
     }
   }
 }
