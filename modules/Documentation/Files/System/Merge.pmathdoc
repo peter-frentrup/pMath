@@ -10,7 +10,7 @@ Document({
            " can operate on arbitrily nested lists of rules."}), "Notes"), 
         Section(TextData({TemplateBox({"Merge"}, "ReferenceHyperlink"), 
            " compares left-hand sides by structural identity. It does not \
-           perform pattern mtching or canonicalization."}), "Notes")}, All), 
+           perform pattern matching or canonicalization."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
