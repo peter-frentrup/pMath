@@ -7,6 +7,7 @@ System`Graphics`MakeGraphicsBoxesOptions
 System`Graphics`MakeGraphicsExpression
 System`Graphics`MakeGraphicsExpressionOptions
 
+System`CombineGraphics
 System`ListLinePlot
 System`ParametricPlot
 System`Plot
@@ -91,6 +92,8 @@ Options(Plot):= With(newdef:= {
 	
 Get(ToFileName(DirectoryName($Input), "directives.pmath"));
 
+AutoLoad(Hold(CombineGraphics),
+	ToFileName(DirectoryName($Input), "CombineGraphics.pmath"))
 AutoLoad(Hold(ListLinePlot),
 	ToFileName(DirectoryName($Input), "ListLinePlot.pmath"))
 AutoLoad(Hold(ParametricPlot, Plot),

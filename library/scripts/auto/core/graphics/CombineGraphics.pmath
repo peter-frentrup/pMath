@@ -1,0 +1,35 @@
+BeginPackage("System`Graphics`CombineGraphics`")
+
+System`CombineGraphics
+
+Begin("System`Graphics`CombineGraphics`Private`")
+
+Options(CombineGraphics):= Options(Graphics)
+
+asList(~l:List)::= l
+asList(~~~x)::= {x}
+
+CombineGraphics(gs: {~~~:Graphics}, opts: OptionsPattern())::= 
+    With({result:= tryCombineGraphics(gs, asList(opts))}, result /? result =!= $Failed)
+
+CombineGraphics(Longest(~~~gs:Graphics), opts: OptionsPattern())::=
+    With({result:= tryCombineGraphics({gs}, asList(opts))}, result /? result =!= $Failed)
+
+tryCombineGraphics(~~~)::= $Failed
+Function tryCombineGraphics(~gs, ~opts) {
+    With(contents:= gs |> Map(extractContents))
+    With(gsOpts:=   gs |> Map(extractOptions))
+    With(newOpts:= Merge(Prepend(gsOpts, opts), First))
+    Graphics(contents, newOpts)
+}
+
+extractContents(~):= {}
+extractContents(Graphics(~c, ~))::= c
+
+extractOptions(~):= {}
+extractOptions(Graphics(~, opts: OptionsPattern()))::= asList(opts)
+
+
+End()
+
+EndPackage()
