@@ -131,9 +131,12 @@ void Job::apply_generated_section_styles(Section *sect) {
     }
     
     if(sect->style.get(BaseStyleName, &base_style_name)) {
-      Expr base_style;
-      if(default_section_styles.try_lookup(base_style_name, base_style)) {
-        sect->style.add_pmath(base_style); 
+      Expr default_style_expr;
+      if(default_section_styles.try_lookup(base_style_name, default_style_expr)) {
+        Style default_style;
+        default_style.add_pmath(PMATH_CPP_MOVE(default_style_expr));
+        default_style.merge(sect->style);
+        sect->style = default_style;
       }
     }
   }
