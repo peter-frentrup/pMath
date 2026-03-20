@@ -170,7 +170,7 @@ Document({
                 PointBox({{0, 0}, {1, 1}, {2, 0}, {3, -1}, {4, 1}, {5, -1}, {
                    6, 0}})})), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All), 
-          Section("Generate a compisite quadratic B\[EAcute]zier curve:", 
+          Section("Generate a composite quadratic B\[EAcute]zier curve:", 
            "ExampleText"), SectionGroup({
             Section(
              BoxData({
