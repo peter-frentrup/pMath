@@ -2016,10 +2016,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               calcsize_params->rgrc[0].right-= margins.cxRightWidth;
               calcsize_params->rgrc[0].bottom-= margins.cyBottomHeight;
             }
-            SetRectEmpty(&calcsize_params->rgrc[1]);
-            SetRectEmpty(&calcsize_params->rgrc[2]);
-
-            return WVR_VALIDRECTS | WVR_REDRAW;
+            return 0;
           }
         } break;
 
