@@ -157,6 +157,22 @@ void PaneBox::resize_default_baseline(Context &context) {
   
   _extents.width = w.explicit_abs_value();
   
+  if(content()->extents().width < _extents.width && mat.xx != 0 && mat.yy != 0 && mat.xy == 0 && mat.yx == 0) {
+    context.canvas().save();
+    context.canvas().transform(mat);
+    BoxSize scaled_size = _extents;
+    scaled_size.ascent  /= mat.yy;
+    scaled_size.descent /= mat.yy;
+    scaled_size.width   /= mat.xx;
+    if(content()->expand(context, scaled_size)) {
+      scaled_size       = content()->extents();
+      _extents.ascent   = scaled_size.ascent  * mat.yy;
+      _extents.descent  = scaled_size.descent * mat.yy;
+      _extents.width    = w.explicit_abs_value();
+    }
+    context.canvas().restore();
+  }
+  
   float max_cx = _extents.width - content()->extents().width;
   if(max_cx > 0) {
     cx = alignment.interpolate_left_to_right(0, max_cx);
