@@ -179,7 +179,7 @@ float PaneBox::allowed_content_width(const Context &context) {
       
     if(w.is_explicit_abs_positive()) {
       if(mat.xx > 0)
-        return w.explicit_abs_value() / mat.xx;
+        return w.explicit_abs_value() / mat.xx + (mat.xx > 1 ? 0.75f : 0.0f);
         
       return w.explicit_abs_value();
     }
@@ -233,27 +233,28 @@ double PaneBox::Impl::shrink_scale(Length w, Length h, bool line_break_within) {
 }
 
 double PaneBox::Impl::grow_scale(Length w, Length h, bool line_break_within) {
+  float abs_tol = 0.75f;
   double result = 1;
-  if( w.is_explicit_abs() && w.explicit_abs_value() > self._content->extents().width && 
-      h.is_explicit_abs() && h.explicit_abs_value() > self._content->extents().height()
+  if( w.is_explicit_abs() && w.explicit_abs_value() > self._content->extents().width    + abs_tol && 
+      h.is_explicit_abs() && h.explicit_abs_value() > self._content->extents().height() + abs_tol
   ) {
     double scale = std::min(
-                     w.explicit_abs_value() / (double)self._content->extents().width, 
-                     h.explicit_abs_value() / (double)self._content->extents().height());
+                     (w.explicit_abs_value() - abs_tol) / (double)self._content->extents().width, 
+                     (h.explicit_abs_value() - abs_tol) / (double)self._content->extents().height());
     if(0 < scale && scale < Infinity) 
       result = scale;
   }
   else if(h == SymbolicSize::Automatic && 
-      w.is_explicit_abs() && w.explicit_abs_value() > self._content->extents().width
+      w.is_explicit_abs() && w.explicit_abs_value() > self._content->extents().width + abs_tol
   ) {
-    double scale = w.explicit_abs_value() / (double)self._content->extents().width;
+    double scale = (w.explicit_abs_value() - abs_tol) / (double)self._content->extents().width;
     if(0 < scale && scale < Infinity)
       result = scale;
   }
   else if(w == SymbolicSize::Automatic && 
-      h.is_explicit_abs() && h.explicit_abs_value() > self._content->extents().height()
+      h.is_explicit_abs() && h.explicit_abs_value() > self._content->extents().height() + abs_tol
   ) {
-    double scale = h.explicit_abs_value() / (double)self._content->extents().height();
+    double scale = (h.explicit_abs_value() - abs_tol) / (double)self._content->extents().height();
     if(0 < scale && scale < Infinity)
       result = scale;
   }
