@@ -232,6 +232,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
       if(HFONT font = CreateFontIndirectW(&lf)) {
         oldfont = (HFONT)SelectObject(hdc, font);
         
+        SetTextColor(hdc, Win32Menu::use_dark_mode ? RGB(255, 255, 255) : RGB(0,0,0));
         // U+E11A: "Search" in Segoe UI Symbol, Segoe Mdl2 Assets, and Segoe Fluent Icons
         DrawTextW(hdc, L"\xE11A", -1, &icon_rect, DT_CENTER | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
       }

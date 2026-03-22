@@ -236,7 +236,6 @@ void Win32MenuTableWizard::on_paint(HDC hdc) {
   COLORREF text_color;
   COLORREF window_color;
   
-  // TODO: respect Win32Menu::use_dark_mode
   text_color     = GetSysColor(COLOR_WINDOWTEXT);
   window_color   = GetSysColor(COLOR_WINDOW);
   sel_color      = GetSysColor(COLOR_HOTLIGHT);
@@ -273,6 +272,7 @@ void Win32MenuTableWizard::on_paint(HDC hdc) {
   title_rect.left   = dims.table_pos.x;
   title_rect.bottom = dims.table_pos.y;
   
+  SetTextColor(hdc, text_color);
   DrawTextW(hdc, str.buffer_wchar(), str.length(), &title_rect, DT_LEFT | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
   
   HBRUSH dc_brush = (HBRUSH)GetStockObject(DC_BRUSH);
