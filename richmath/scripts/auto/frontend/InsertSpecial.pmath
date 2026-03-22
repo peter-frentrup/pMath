@@ -155,6 +155,8 @@ makeAliasBoxes(~s)::= s |> StringReplace(" " -> "\(StyleBox(\"\[U+2423]\", FontC
 
 makeBoxesVisible(~box)::= box
 makeBoxesVisible(ButtonBox(~~~b))::= ButtonBox(b, ButtonFrame -> Automatic)
+makeBoxesVisible(FillBox(~b, ~~~))::= makeFillBoxVisible(b)
+makeBoxesVisible(GraphicsBox({}))::= GraphicsBox({Dashing({Small,Small}), GrayLevel(0.85), LineBox({{0,0}, {1,0}, {1,1}, {0,1}, {0,0}})}, ImageSize->{75, 75})
 makeBoxesVisible(~s:Section)::= makeSectionVisible(s)
 Function makeBoxesVisible(~s:String) {
     With(chars:= ToCharacterCode(s))
@@ -166,6 +168,17 @@ Function makeBoxesVisible(~s:String) {
         s
     }
 }
+
+makeFillBoxVisible("")::= StyleBox({"\[LeftBracketingBar]", FillBox("\[LeftRightArrow]"), "\[RightBracketingBar]"}, FontColor -> LightGray)
+makeFillBoxVisible(~b)::= FillBox({
+    StyleBox({"\[LeftBracketingBar]", FillBox("\[LeftArrow]")}, FontColor -> LightGray),
+    b,
+    StyleBox({FillBox("\[Rule]"), "\[RightBracketingBar]"}, FontColor -> LightGray)
+    })
+makeFillBoxVisible(b: {"\[InvisibleSpace]", ~~~})::= FillBox({
+    b,
+    StyleBox({FillBox(b, FillBoxWeight -> 1), FillBox("\[Rule]", FillBoxWeight -> 2), "\[RightBracketingBar]"}, FontColor -> LightGray)
+    })
 
 makeSectionVisible(~s)::= s
 makeSectionVisible(Section("", ~stylename, ~~~opts))::= StyleBox(TextData(stylename), stylename, opts)
