@@ -43,6 +43,7 @@ namespace richmath {
       Observable _size_observable;
       Vector2F   _best_size;
       RectangleF _last_target_rect;
+      bool       _use_dark_mode : 1;
   };
 }
 

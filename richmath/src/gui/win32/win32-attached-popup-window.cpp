@@ -41,9 +41,6 @@ namespace richmath {
       
       void on_windowposchanged(const WINDOWPOS &wp);
 
-      static const wchar_t class_name[];
-    
-    public:
       void on_after_nccalcsize(WPARAM wParam, LPARAM lParam, LRESULT &res);
       int triangle_tip_size(int window_width, int window_height);
       int triangle_tip_size(const RECT       &rect) { return triangle_tip_size(rect.right - rect.left, rect.bottom - rect.top); }
@@ -51,7 +48,11 @@ namespace richmath {
       void update_window_shape(WindowFrameType wft, ControlPlacementKind cpk, const RectangleF &window_rect, const RectangleF &target_rect);
       
       bool on_ncpaint(HRGN clipRgn);
+      void use_dark_mode(bool dark_mode);
       
+    public:
+      static const wchar_t class_name[];
+    
     private:
       Win32AttachedPopupWindow &self;
   };
@@ -87,7 +88,8 @@ Win32AttachedPopupWindow::Win32AttachedPopupWindow(Document *owner, const Select
     Impl::get_owner_hwnd_location(owner)),
   _active{false},
   _best_size(1, 1),
-  _last_target_rect(0,0,0,0)
+  _last_target_rect(0,0,0,0),
+  _use_dark_mode(false)
 {
   Impl::init_window_class();
   set_window_class_name(Impl::class_name);
@@ -314,6 +316,20 @@ void Win32AttachedPopupWindow::paint_background(Canvas &canvas) {
 }
 
 void Win32AttachedPopupWindow::paint_canvas(Canvas &canvas, bool resize_only) {
+  bool new_dark_mode = is_using_dark_mode();
+  if(new_dark_mode != _use_dark_mode)
+    Impl(*this).use_dark_mode(new_dark_mode);
+  
+  Color fg = Color::None;
+  
+  Color bg = document()->get_style(Background, Color::None);
+  if(!bg) {
+    fg = is_using_dark_mode() ? Color::White : Color::Black;
+  }
+  
+  if(fg)
+    document()->style.set(FontColor, fg);
+  
   base::paint_canvas(canvas, resize_only);
   
   auto old_best_size = _best_size;
@@ -717,6 +733,21 @@ bool Win32AttachedPopupWindow::Impl::on_ncpaint(HRGN clipRgn) {
     } break;
   }
   return success;
+}
+
+void Win32AttachedPopupWindow::Impl::use_dark_mode(bool dark_mode) {
+  if(dark_mode == self._use_dark_mode) 
+    return;
+  
+  self._use_dark_mode = dark_mode;
+  if(Win32Themes::SetWindowTheme) {
+    if(dark_mode)
+      Win32Themes::SetWindowTheme(self.hwnd(), L"DarkMode_Explorer", nullptr);
+    else
+      Win32Themes::SetWindowTheme(self.hwnd(), L"Explorer", nullptr);
+  }
+  
+  Win32Themes::try_set_dark_mode_frame(self.hwnd(), dark_mode);
 }
 
 //} ... class Win32AttachedPopupWindow::Impl
