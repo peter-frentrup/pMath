@@ -880,7 +880,13 @@ bool OTMathShaper::horizontal_stretch_char(
 //             result);
 //  }
 
+  if(result->horizontal_stretch) {
+    // already streched, undo that first to get the base glyph.
+    decode_token(context, 1, &ch, result);
+  }
+  
   uint16_t glyph = result->index;
+  
   Array<MathGlyphVariantRecord> *var = impl->get_horz_variants(ch, glyph);
   if(var) {
     cairo_text_extents_t cte;

@@ -27,6 +27,8 @@ namespace richmath {
       bool base_style_name_is_default();
       String default_base_style_name();
       
+      static int need_fill_weigth;
+      
     private:
       UnderoverscriptBox &self;
   };
@@ -169,6 +171,16 @@ int UnderoverscriptBox::count() {
   return 1 + (_underscript ? 1 : 0) + (_overscript ? 1 : 0);
 }
 
+float UnderoverscriptBox::fill_weight() {
+  // Hack to make MathSequence::expand() stretch the base only when explicitly asked for
+  // during UnderoverscriptBox::expand().
+  // Otherwise, an embedded FillBox in the base would be necessary.
+  if(Impl::need_fill_weigth)
+    return 1.0f;
+  else
+    return 0.0f;
+}
+
 int UnderoverscriptBox::child_script_level(int index, const int *opt_ambient_script_level) {
   if(index <= 0)
     return Box::child_script_level(index, opt_ambient_script_level);
@@ -180,6 +192,38 @@ int UnderoverscriptBox::child_script_level(int index, const int *opt_ambient_scr
     ambient_script_level = 1;
   
   return ambient_script_level + 1;
+}
+
+bool UnderoverscriptBox::expand(Context &context, const BoxSize &size) {
+  BoxSize base_size = _base->extents();
+  
+  base_size.width = size.width;
+  
+  Impl::need_fill_weigth++;
+  bool expanded = _base->expand(context, base_size);
+  Impl::need_fill_weigth--;
+  
+  if(!expanded)
+    return false;
+  
+  // TODO: re-stretch underscript / overscript
+  float min_stretch_width = _base->extents().width;
+  min_stretch_width -= _base->first_glyph_width() / 3;
+  min_stretch_width -= _base->last_glyph_width() / 3;
+  
+  if(_underscript) {
+    underscript_is_stretched(
+      _underscript->stretch_horizontal(context, min_stretch_width));
+  }
+  
+  if(_overscript) {
+    overscript_is_stretched(
+      _overscript->stretch_horizontal(context, min_stretch_width));
+  }
+  
+  after_items_resize(context);
+  
+  return true;
 }
 
 void UnderoverscriptBox::resize(Context &context) {
@@ -256,7 +300,18 @@ void UnderoverscriptBox::resize(Context &context) {
       }
     }
     
-    _base->stretch_horizontal(context, w + 0.6f * em);
+    if(!_base->stretch_horizontal(context, w + 0.6f * em)) {
+      // Try expand() to allow e.g. an embedded FillBox.
+      // Note that stretch_horizontal() stretches at least to the given size, 
+      // while expand() does not exceed it.
+      
+      BoxSize base_size = _base->extents();
+      base_size.width = w + 0.6f * em;
+      
+      Impl::need_fill_weigth++;
+      _base->expand(context, base_size);
+      Impl::need_fill_weigth--;
+    }
   }
   
   context.script_level = old_script_level;
@@ -577,6 +632,8 @@ void UnderoverscriptBox::child_transformation(
 //} ... class UnderoverscriptBox
 
 //{ class UnderoverscriptBox::Impl ...
+
+int UnderoverscriptBox::Impl::need_fill_weigth = 0;
 
 inline UnderoverscriptBox::Impl::Impl(UnderoverscriptBox &self)
 : self{self}
