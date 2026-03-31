@@ -3,12 +3,9 @@ BeginPackage("Java`")
 
 Java`EvaluateJavaBox
 Java`RunJavaSection
-Java`$Shell
+Java`$JavaShell
 
 Begin("Java`Shell`Private`")
-
-
-Java`$Shell:= /\/
 
 
 Java::box:= "Cannot convert `1` to Java code.";
@@ -80,12 +77,51 @@ javaStringCodeFromBoxes(~box)::=
     "\\uFFF9" ++ ToString(InputForm(box)).StringReplace({"\\" :> "\\\\", "\"" :> "\\\""}) ++ "\\uFFFB"
 
 
-Function needShell() {
-    If($Shell === /\/) {
-        With(engine:= JavaNew("jdk.jshell.execution.LocalExecutionControlProvider"))
-        $Shell:= JavaClass("jdk.jshell.JShell") @ builder() @ executionEngine(engine, /\/) @ build()
+$JavaShell::= getJavaShell()
+Protect($JavaShell)
+
+$FallbackShell:= JavaNull
+Function getJavaShell() {
+    With(ctx:= CurrentValue("ResolvedEvaluationContext"))
+    If(IsString(ctx)) {
+        % Note that (ctx)`Private`SavedContextInfo is only defined and filled when *switching* contexts away from ctx
+        % So it might not yet be defined: checking for Names(ctx ++ "Private`SavedContextInfo") =!= {} might fail
+        With(saved:= ToExpression(ctx ++ "Private`SavedContextInfo"))
+        
+        If(IsJavaObject(saved("JavaShell"))) {
+            Return(saved("JavaShell"))
+        }
+
+        Return(JavaNull)
     }
-    $Shell
+    
+    Return($FallbackShell)
+}
+
+Function newJavaShell() {
+    With(engine:= JavaNew("jdk.jshell.execution.LocalExecutionControlProvider"))
+    Return(JavaClass("jdk.jshell.JShell") @ builder() @ executionEngine(engine, /\/) @ build())
+}
+
+Function needJavaShell() {
+    With(ctx:= CurrentValue("ResolvedEvaluationContext"))
+    If(IsString(ctx)) {
+        % Note that (ctx)`Private`SavedContextInfo is only defined and filled when *switching* contexts away from ctx
+        % So it might not yet be defined: checking for Names(ctx ++ "Private`SavedContextInfo") =!= {} might fail
+        With(saved:= ToExpression(ctx ++ "Private`SavedContextInfo"))
+
+        If(!IsJavaObject(saved("JavaShell"))) {
+            With(shell:= newJavaShell())
+            saved("JavaShell"):= shell
+            saved("Deinitialization"):= Flatten(Hold(shell @ close(), saved("Deinitialization")))
+        }
+        Return(saved("JavaShell"))
+    }
+
+    If(!IsJavaObject($FallbackShell)) {
+        $FallbackShell:= newJavaShell()
+    }
+    $FallbackShell
 }
 
 
@@ -100,8 +136,8 @@ Function RunJavaSection(~boxes) {
     CurrentValue(EvaluationBox(), SectionLabel):= Inherited
     With(code:= javaCodeFromBoxes(boxes))
     If(code.IsString) {
-        needShell()
-        Do(snippetEvent -> $Shell @ eval(code) @ toArray()) {
+        With(jshell:= needJavaShell())
+        Do(snippetEvent -> jshell @ eval(code) @ toArray()) {
             debugSnippetEvent:= snippetEvent
             %Echo(snippetEvent @ toString())
             With(val:= snippetEvent @ value())
@@ -113,13 +149,13 @@ Function RunJavaSection(~boxes) {
                 Switch(snippetEvent @ status() @ toString()) {
                     Case("REJECTED") {
                         Local(diag)
-                        Do(diag-> $Shell @ diagnostics(snippetEvent @ snippet()) @ toArray()) {
+                        Do(diag-> jshell @ diagnostics(snippetEvent @ snippet()) @ toArray()) {
                             Message(Java::diag, diag @ getMessage(/\/))
                         }
                     }
                     Case(~) {
-                        With(ex:=snippetEvent@exception())
-                        If(ex =!= /\/) {
+                        With(ex:= snippetEvent@exception())
+                        If(ex =!= JavaNull) {
                             If(InstanceOf(ex, JavaClass("jdk.jshell.EvalException"))) {
                                 Message(Java::ex, ex @ getExceptionClassName() ++ ": " ++ ex @ getMessage())
                             } Else {
@@ -140,8 +176,8 @@ Function EvaluateJavaBox(~boxes) {
     
     With(code:= javaCodeFromBoxes(boxes))
     If(code.IsString) {
-        needShell()
-        Do(snippetEvent -> $Shell @ eval(code) @ toArray()) {
+        With(jshell:= needJavaShell())
+        Do(snippetEvent -> jshell @ eval(code) @ toArray()) {
             result:= $Failed
             debugSnippetEvent:= snippetEvent
             %Echo(snippetEvent @ toString())
@@ -149,7 +185,7 @@ Function EvaluateJavaBox(~boxes) {
                 Case("VALID") {
                     With(snip:= snippetEvent @ snippet())
                     If(snip.InstanceOf("jdk.jshell.ExpressionSnippet") || snip.InstanceOf("jdk.jshell.PersistentSnippet")) {
-                        $Shell @ eval(
+                        jshell @ eval(
                             "new pmath.Context(null,null).run(\"" ++ ToString(
                                 HoldForm(LongForm(result))
                             ) ++ ":= `1`\",new Object[]{" ++ (
@@ -161,13 +197,13 @@ Function EvaluateJavaBox(~boxes) {
                 }
                 Case("REJECTED") {
                     Local(diag)
-                    Do(diag-> $Shell @ diagnostics(snippetEvent @ snippet()) @ toArray()) {
+                    Do(diag-> jshell @ diagnostics(snippetEvent @ snippet()) @ toArray()) {
                         Message(Java::diag, diag @ getMessage(/\/))
                     }
                 }
                 Case(~) {
                     With(ex:=snippetEvent@exception())
-                    If(ex =!= /\/) {
+                    If(ex =!= JavaNull) {
                         If(InstanceOf(ex, JavaClass("jdk.jshell.EvalException"))) {
                             Message(Java::ex, ex @ getExceptionClassName() ++ ": " ++ ex @ getMessage())
                         } Else {

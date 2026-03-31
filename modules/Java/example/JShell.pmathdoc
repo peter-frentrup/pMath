@@ -526,14 +526,27 @@ Document({
          SectionGenerated -> True)}, All)}, All), 
     SectionGroup({Section("Known issues", "Section"), 
       Section("Not yet working correctly:", "Text"), 
+      Section(BoxData({"With", "(", {{"{", {"i", "\[Assign]", "123"}, "}"}, 
+          ",", TemplateBox({{{"System", ".", "out"}, ".", "println", "(", 
+             TemplateBox({"i"}, "MathInJava"), ")"}}, "InlineJavaInput")}, 
+         ")"}), "Input", SectionLabel -> "in [5]:"), 
       SectionGroup({
-        Section(BoxData({"With", "(", {{"{", {"i", "\[Assign]", "123"}, "}"}, 
-            ",", TemplateBox({{{"System", ".", "out"}, ".", "println", "(", 
-               TemplateBox({"i"}, "MathInJava"), ")"}}, "InlineJavaInput")}, 
-           ")"}), "Input", SectionLabel -> "in [20]:"), 
-        Section(BoxData(TemplateBox({StringBox("\"Global`i\"")}, 
-           "RowDefault")), "Print", SectionGenerated -> True)}, All)}, All)}, 
-   All)}, StyleDefinitions :> 
+        Section(
+         BoxData({"Hold", "(", 
+           TemplateBox({{{"System", ".", "out"}, ".", "println", "(", 
+              TemplateBox({"i"}, "MathInJava"), ")"}}, "InlineJavaInput"), 
+           ")"}), "Input", SectionLabel -> "in [6]:"), 
+        Section(
+         BoxData({"Hold", "(", {{"Get", "(", StringBox("\"Java`\""), ")"}, 
+            ";", {"EvaluateJavaBox", "(", {
+              "{", {{"{", {StringBox("\"System\""), ",", StringBox("\".\""), 
+                 ",", StringBox("\"out\"")}, "}"}, ",", StringBox("\".\""), 
+               ",", StringBox("\"println\""), ",", StringBox("\"(\""), ",", {
+                "TagBox", "(", {StringBox("\"i\""), ",", 
+                 StringBox("\"MathInJava\"")}, ")"}, ",", StringBox("\")\"")}, 
+              "}"}, ")"}}, ")"}), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [6]:")}, All)}, All)}, All)}, 
+ StyleDefinitions :> 
   Document({
     SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
       Section(StyleData("Document"), 

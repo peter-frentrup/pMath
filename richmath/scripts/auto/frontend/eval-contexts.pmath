@@ -36,6 +36,7 @@ Function SwitchEvaluationContextImpl(~oldctx, ~oldsave, ~newctx, ~newsave) {
 }
 
 Function CreateEvaluationContext(~ctx, ~save) {
+    save("Deinitialization"):= Hold()
     save("$History"):= {}
     save("$Line"):= 0
     save("$MessageCount"):= {}
@@ -94,8 +95,12 @@ Function DeleteEvaluationContext(~ctx:String) {
 }
 
 Function DeleteEvaluationContextImpl(~ctx, ~save) {
-    ClearAll(save)
-    Names(ctx ++ ~~~).Scan(Function(SetAttributes(#, Temporary)))
+    Try{
+        ReleaseHold(save("Deinitialization"))
+    } Finally {
+        ClearAll(save)
+        Names(ctx ++ ~~~).Scan(Function(SetAttributes(#, Temporary)))
+    }
 }
 
 End()
