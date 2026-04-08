@@ -2745,6 +2745,17 @@ DWORD BasicWin32Window::Impl::dwm_corner_preference() {
         corner_pref = Win32Themes::DWMWCP_ROUND;
       }
     }
+    
+    WINDOWPLACEMENT wpl = { sizeof(WINDOWPLACEMENT) };
+    RECT rect;
+    if(GetWindowPlacement(self._hwnd, &wpl) && GetWindowRect(self._hwnd, &rect)) {
+      bool is_docked = (wpl.rcNormalPosition.bottom - wpl.rcNormalPosition.top) != (rect.bottom - rect.top)
+                    || (wpl.rcNormalPosition.right - wpl.rcNormalPosition.left) != (rect.right - rect.left);
+      
+      if(is_docked) {
+        corner_pref = Win32Themes::DWMWCP_DONOTROUND;
+      }
+    }
   }
   
   return corner_pref;
