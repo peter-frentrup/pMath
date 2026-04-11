@@ -981,11 +981,12 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
   *minimize = tbi.rgrect[2];
   *maximize = tbi.rgrect[3];
   *close    = tbi.rgrect[5];
-  
-  if(IsRectEmpty(close)) {
+  if(IsRectEmpty(close) || (IsZoomed(hwnd) && Win32Version::is_windows_10_or_newer())) {
     /* Workaround for Windows 10 bug (probably since build 1809): 
         Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
         but works fine for only one monitor.
+        On Windows 11: The problem occurs also with only one monitor, only with maximized windows.
+        However, the button bounds are then not empty on other monitors, but cover the whole screen.
      */
     //pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
     
@@ -1063,10 +1064,12 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
   for(int i = 2; i <= 5; ++i)
     UnionRect(rect, rect, &tbi.rgrect[i]);
   
-  if(rect->left == 0 && rect->right == 0 && rect->top == 0 && rect->bottom == 0) {
+  if(IsRectEmpty(rect) || (IsZoomed(hwnd) && Win32Version::is_windows_10_or_newer())) {
     /* Workaround for Windows 10 bug (probably since build 1809): 
         Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
         but works fine for only one monitor.
+        On Windows 11: The problem occurs also with only one monitor, only with maximized windows.
+        However, the button bounds are then not empty on other monitors, but cover the whole screen.
      */
     //pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
     
