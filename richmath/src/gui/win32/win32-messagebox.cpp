@@ -30,6 +30,7 @@ namespace {
   class TaskDialogConfig: public TASKDIALOGCONFIG {
     public:
       bool dark_mode;
+      bool snap_to_default_button;
       
     public:
       TaskDialogConfig();
@@ -37,15 +38,20 @@ namespace {
     
     protected:
       HRESULT callback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+      LRESULT subclass_callback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass);
+
       void on_created(HWND hwnd);
       void on_dialog_created(HWND hwnd);
       void on_hyperlink_clicked(HWND hwnd, const wchar_t *url);
+
+      void on_windowposchanged(HWND hwnd, WINDOWPOS *wp);
     
     private:
       Expr hyperlink_actions;
       
     private:
       static HRESULT CALLBACK static_callback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, LONG_PTR lpRefData);
+      static LRESULT CALLBACK static_subclass_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
   };
 }
 
@@ -341,11 +347,17 @@ Expr richmath::win32_ask_interrupt(Expr stack) {
 
 TaskDialogConfig::TaskDialogConfig()
 : TASKDIALOGCONFIG{0},
-  dark_mode{false}
+  dark_mode{false},
+  snap_to_default_button{false}
 {
   cbSize = sizeof(TASKDIALOGCONFIG);
   pfCallback = static_callback;
   lpCallbackData = (LONG_PTR)this;
+
+  BOOL snapToDefButton;
+  if(SystemParametersInfo(SPI_GETSNAPTODEFBUTTON, 0, &snapToDefButton, FALSE)) {
+    snap_to_default_button = !!snapToDefButton;
+  }
 }
 
 String TaskDialogConfig::register_hyperlink_action(Expr action) {
@@ -367,7 +379,21 @@ HRESULT TaskDialogConfig::callback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
   return S_OK;
 }
 
+LRESULT TaskDialogConfig::subclass_callback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass) {
+  switch(uMsg) {
+    case WM_NCDESTROY:
+      RemoveWindowSubclass(hwnd, static_subclass_proc, uIdSubclass);
+      break;
+    
+    case WM_WINDOWPOSCHANGED: on_windowposchanged(hwnd, (WINDOWPOS*)lParam); break;
+  }
+
+  return DefSubclassProc(hwnd, uMsg, wParam, lParam);
+}
+
 void TaskDialogConfig::on_created(HWND hwnd) {
+  SetWindowSubclass(hwnd, static_subclass_proc, 1, (DWORD_PTR)this);
+
   Win32Themes::try_set_dark_mode_frame(hwnd, dark_mode);
   
   // does not work (there is only one (light) TaskDialog theme in Windows 10, 1903):
@@ -417,9 +443,55 @@ void TaskDialogConfig::on_hyperlink_clicked(HWND hwnd, const wchar_t *url) {
   }
 }
 
+void TaskDialogConfig::on_windowposchanged(HWND hwnd, WINDOWPOS *wp) {
+  if(wp->flags & SWP_SHOWWINDOW) {
+    if(snap_to_default_button) {
+      snap_to_default_button = false;
+      
+      // Caution: the control ID is *not* set, so we cannot easily ask for the button with control ID = nDefaultButton.
+      // So we take the Button with style BS_DEFPUSHBUTTON.
+      struct SearchDefaultButton {
+        HWND default_button;
+        static BOOL CALLBACK visit_callback(HWND hwndChild, LPARAM lParam) {
+          return ((SearchDefaultButton*)lParam)->visit(hwndChild);
+        }
+        private:
+          BOOL CALLBACK visit(HWND hwndChild) {
+            wchar_t class_name[10];
+            if(GetClassNameW(hwndChild, class_name, ARRAYSIZE(class_name)) > 0) {
+              if(0 == wcscmp(class_name, L"Button")) {
+                DWORD style = GetWindowLong(hwndChild, GWL_STYLE);
+                if(style & BS_DEFPUSHBUTTON) {
+                  default_button = hwndChild;
+                  return FALSE;
+                }
+              }
+            }
+            return TRUE;
+          }
+      } search;
+      search.default_button = nullptr;
+      EnumChildWindows(hwnd, SearchDefaultButton::visit_callback, (LPARAM)&search);
+      
+      if(search.default_button) {
+        RECT rect;
+        if(GetWindowRect(search.default_button, &rect)) {
+          SetCursorPos(
+            rect.left + (rect.right - rect.left) / 2,
+            rect.top + (rect.bottom - rect.top) / 2);
+        }
+      }
+    }
+  }
+}
+
 HRESULT CALLBACK TaskDialogConfig::static_callback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, LONG_PTR lpRefData) {
   TaskDialogConfig *config = (TaskDialogConfig*)lpRefData;
   return config->callback(hwnd, msg, wParam, lParam);
+}
+
+LRESULT CALLBACK TaskDialogConfig::static_subclass_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData) {
+  return ((TaskDialogConfig*)dwRefData)->subclass_callback(hwnd, uMsg, wParam, lParam, uIdSubclass);
 }
 
 //} ... class TaskDialogConfig
