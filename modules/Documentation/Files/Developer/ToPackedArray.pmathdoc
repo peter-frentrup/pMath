@@ -46,12 +46,11 @@ Document({
            SectionLabel -> "in [4]:"), 
           Section(
            BoxData({"{", {{"{", {"1", ",", "2", ",", "3", ",", "4"}, "}"}, 
-              ",", {StringBox("\"PackedArray\""), "(", {
-                "Integer", ",", {"\[LeftGuillemet]", "\[NonBreakingSpace]", 
-                 TemplateBox({",", ",", "4"}, "RowWithSeparators"), 
-                 "\[NonBreakingSpace]", "\[RightGuillemet]"}}, ")"}}, "}"}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
-         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+              ",", TemplateBox({"Integer", "4", 
+                CompressedData("1:c${NmkYQosU[RumU;<)hAZ7t#00X)JHv~~~")}, 
+               "PackedArray")}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [4]:")}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Arrays of mixed element types are left unpacked:", 
          "ExampleText"), SectionGroup({
           Section(
