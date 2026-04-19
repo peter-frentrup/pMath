@@ -134,7 +134,7 @@ Document({
         Section("Properties & Relations", "ExampleSection"), 
         Section(
          TextData({TemplateBox({"ConditionalExpression"}, 
-            "ReferenceHyperlink"), " propagates over comarisons:"}), 
+            "ReferenceHyperlink"), " propagates over comparisons:"}), 
          "ExampleText"), SectionGroup({
           Section(BoxData({"0", "<", {"ConditionalExpression", "(", {
                SqrtBox("x"), ",", {"x", ">", "0"}}, ")"}, "<", "1"}), "Input", 
