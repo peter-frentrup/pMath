@@ -304,6 +304,7 @@ static pmath_t make_expression_from_underscriptbox(pmath_expr_t box);
 static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box);
 
 static pmath_t make_parenthesis(pmath_expr_t boxes); // (x)
+static pmath_t make_optional_comma_arguments(pmath_expr_t expr); // treats \[RawNewline] as commas  and  collapses subsequent commas
 static pmath_t make_comma_sequence(pmath_expr_t expr); // a,b,c ...
 static pmath_t make_evaluation_sequence(pmath_expr_t boxes); // a; b; c\[RawNewline]d ...
 static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes);
@@ -2569,6 +2570,104 @@ static pmath_t make_parenthesis(pmath_expr_t boxes) {
            pmath_ref(pmath_System_MakeExpression), 1, box);
 }
 
+static pmath_t make_optional_comma_arguments(pmath_expr_t expr) {
+  if(!pmath_is_expr_of(expr, pmath_System_List)) {
+    if(!parse(&expr)) {
+      pmath_unref(expr);
+      return pmath_ref(pmath_System_DollarFailed);
+    }
+    return HOLDCOMPLETE(expr);
+  }
+  
+  uint16_t firstchar = unichar_at(expr, 1);
+  uint16_t secondchar = unichar_at(expr, 2);
+  
+  if(firstchar == ','  || firstchar == PMATH_CHAR_INVISIBLECOMMA  || firstchar == '\n'
+  || secondchar == ',' || secondchar == PMATH_CHAR_INVISIBLECOMMA || secondchar == '\n') {
+    size_t i;
+    size_t exprlen = pmath_expr_length(expr);
+    
+    pmath_t prev = PMATH_UNDEFINED;
+    pmath_bool_t prev_is_evalseq = FALSE;
+    pmath_bool_t next_is_evalseq = FALSE;
+    
+    pmath_gather_begin(PMATH_NULL);
+    
+    for(i = 1; i <= exprlen; ++i) {
+      uint16_t ch = unichar_at(expr, i);
+      
+      if(ch == ';') {
+        next_is_evalseq = TRUE;
+      }
+      else if(ch == ','  || ch == PMATH_CHAR_INVISIBLECOMMA  || ch == '\n') {
+        next_is_evalseq = FALSE;
+      }
+      else {
+        pmath_t arg = make_optional_comma_arguments(pmath_expr_get_item(expr, i));
+        
+        if(!pmath_is_expr_of(arg, pmath_System_HoldComplete)) {
+          pmath_unref(pmath_gather_end());
+          pmath_unref(expr);
+          pmath_unref(arg);
+          return pmath_ref(pmath_System_DollarFailed);
+        }
+        
+        size_t num_args = pmath_expr_length(arg);
+        
+        if(next_is_evalseq) {
+          size_t prev_len;
+          if(prev_is_evalseq) {
+            prev_len = pmath_expr_length(prev);
+            prev = pmath_expr_resize(prev, prev_len + num_args);
+          }
+          else if(pmath_same(prev, PMATH_UNDEFINED)) {
+            prev_len = 0;
+            prev = pmath_expr_new(pmath_ref(pmath_System_EvaluationSequence), num_args);
+          }
+          else {
+            pmath_t old = prev;
+            prev_len = 1;
+            prev = pmath_expr_new(pmath_ref(pmath_System_EvaluationSequence), 1 + num_args);
+            prev = pmath_expr_set_item(prev, 1, old);
+          }
+          
+          for(size_t k = 1; k <= num_args; ++k) {
+            prev = pmath_expr_set_item(prev, prev_len + k, pmath_expr_get_item(arg, k));
+          }
+          
+          prev_is_evalseq = TRUE;
+        }
+        else {
+          for(size_t k = 1; k <= num_args; ++k) {
+            if(!pmath_same(prev, PMATH_UNDEFINED))
+              pmath_emit(prev, PMATH_NULL);
+            
+            prev = pmath_expr_get_item(arg, k);
+          }
+          prev_is_evalseq = FALSE;
+        }
+        
+        pmath_unref(arg);
+        next_is_evalseq = FALSE;
+      }
+    }
+    
+    if(!pmath_same(prev, PMATH_UNDEFINED))
+      pmath_emit(prev, PMATH_NULL);
+    
+    pmath_unref(expr);
+    return pmath_expr_set_item(
+             pmath_gather_end(), 0,
+             pmath_ref(pmath_System_HoldComplete));
+  }
+
+  if(!parse(&expr)) {
+    pmath_unref(expr);
+    return pmath_ref(pmath_System_DollarFailed);
+  }
+  return HOLDCOMPLETE(expr);
+}
+
 // a,b,c ...
 static pmath_t make_comma_sequence(pmath_expr_t expr) {
   pmath_t prev = PMATH_NULL;
@@ -2859,7 +2958,8 @@ static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t sym) {
     return pmath_ref(pmath_System_DollarFailed);
   }
   
-  args = _pmath_makeexpression_with_debugmetadata(pmath_expr_get_item(boxes, 2));
+  //args = _pmath_makeexpression_with_debugmetadata(pmath_expr_get_item(boxes, 2));
+  args = make_optional_comma_arguments(pmath_expr_get_item(boxes, 2));
   
   if(pmath_is_expr(args)) {
     args = pmath_expr_set_item(args, 0, pmath_ref(sym));
