@@ -11,122 +11,122 @@ Begin("FE`Private`")
 
 FE`Private`mainmenu:= Menu("pMath", {
 	Menu("&File", {
-		MenuItem("&New",                                  "New"),
-		MenuItem("&Open...",                              "Open"),
-		MenuItem("&Save",                                 "Save"),
-		MenuItem("Save &As...",                           "SaveAs"),
-		Delimiter,
-		Menu("recent documents",                          "MenuListRecentDocuments"),
-		Delimiter,
+		MenuItem("&New",                                  "New")
+		MenuItem("&Open...",                              "Open")
+		MenuItem("&Save",                                 "Save")
+		MenuItem("Save &As...",                           "SaveAs")
+		Delimiter
+		Menu("recent documents",                          "MenuListRecentDocuments")
+		Delimiter
 		MenuItem("&Close",                                "Close")
-		}),
+		})
 	Menu("&Edit", {
-		MenuItem("Cu&t",                                  "Cut"),
-		MenuItem("&Copy",                                 "Copy"),
-		MenuItem("&Paste",                                "Paste"),
+		MenuItem("Cu&t",                                  "Cut")
+		MenuItem("&Copy",                                 "Copy")
+		MenuItem("&Paste",                                "Paste")
 		Menu("Cop&y As", {
-			MenuItem("Plain &Text",                       FE`CopySpecial("PlainText")),
-			MenuItem("&Input Text",                       FE`CopySpecial("InputText")),
-			MenuItem("Boxes &Expression",                 FE`CopySpecial("BoxesText")),
-			Delimiter,
-			MenuItem("&Bitmap",                           FE`CopySpecial("Bitmap")),
+			MenuItem("Plain &Text",                       FE`CopySpecial("PlainText"))
+			MenuItem("&Input Text",                       FE`CopySpecial("InputText"))
+			MenuItem("Boxes &Expression",                 FE`CopySpecial("BoxesText"))
+			Delimiter
+			MenuItem("&Bitmap",                           FE`CopySpecial("Bitmap"))
 			MenuItem("&SVG",                              FE`CopySpecial("image/svg+xml"))
-			}),
-		Delimiter,
-		MenuItem("Complete Se&lection",                   "CompleteSelection"),
-		MenuItem("E&xpand Selection",                     "ExpandSelection"),
-		MenuItem("Select &All",                           "SelectAll"),
-		MenuItem("Find Matching &Bracket",                "FindMatchingFence"),
-		Delimiter,
-		MenuItem("&Edit Boxes",                           "EditBoxes"),
-		MenuItem("Reset &Graphics Size",                  "GraphicsOriginalSize"),
-		MenuItem("Di&vide Section",                       "SectionSplit"),
-		MenuItem("&Merge Sections",                       "SectionMerge"),
-		Delimiter,
-		MenuItem("&Open/Close Group",                     "OpenCloseGroup"),
+			})
+		Delimiter
+		MenuItem("Complete Se&lection",                   "CompleteSelection")
+		MenuItem("E&xpand Selection",                     "ExpandSelection")
+		MenuItem("Select &All",                           "SelectAll")
+		MenuItem("Find Matching &Bracket",                "FindMatchingFence")
+		Delimiter
+		MenuItem("&Edit Boxes",                           "EditBoxes")
+		MenuItem("Reset &Graphics Size",                  "GraphicsOriginalSize")
+		MenuItem("Di&vide Section",                       "SectionSplit")
+		MenuItem("&Merge Sections",                       "SectionMerge")
+		Delimiter
+		MenuItem("&Open/Close Group",                     "OpenCloseGroup")
 		MenuItem("Toggle C&haracter Code",                "ToggleCharacterCode")
-		}),
+		})
 	Menu("&Insert", {
-		MenuItem("&Input from Above",                     "DuplicatePreviousInput"),
-		MenuItem("&Output from Above",                    "DuplicatePreviousOutput"),
-		MenuItem("Section with Same St&yle",              "SimilarSectionBelow"),
-		Delimiter,
-		MenuItem("&Fraction",                             "InsertFraction"),
-		MenuItem("&Radical",                              "InsertRadical"),
-		MenuItem("&Surd",                                 DocumentApply(Automatic, BoxData(SqrtBox("\[SelectionPlaceholder]", SurdForm->True)))),
+		MenuItem("&Input from Above",                     "DuplicatePreviousInput")
+		MenuItem("&Output from Above",                    "DuplicatePreviousOutput")
+		MenuItem("Section with Same St&yle",              "SimilarSectionBelow")
+		Delimiter
+		MenuItem("&Fraction",                             "InsertFraction")
+		MenuItem("&Radical",                              "InsertRadical")
+		MenuItem("&Surd",                                 DocumentApply(Automatic, BoxData(SqrtBox("\[SelectionPlaceholder]", SurdForm->True))))
 		Menu("&Table/Matrix", {
-			MenuItem("New Table",                         "InsertTable"),
-			Delimiter,
-			MenuItem("Add &Column",                       "InsertColumn"),
+			MenuItem("New Table",                         "InsertTable")
+			Delimiter
+			MenuItem("Add &Column",                       "InsertColumn")
 			MenuItem("Add &Row",                          "InsertRow")
-			}),
-		Delimiter,
-		MenuItem("Su&bscript",                            "InsertSubscript"),
-		MenuItem("Su&perscript",                          "InsertSuperscript"),
-		MenuItem("O&verscript",                           "InsertOverscript"),
-		MenuItem("&Underscript",                          "InsertUnderscript"),
-		MenuItem("Opposite Positio&n",                    "InsertOpposite"),
-		Delimiter,
-		MenuItem("Alias &Delimiter",                      "InsertAliasDelimiter"),
-		MenuItem("Inline Section (Te&xt/Math)",           "InsertInlineSection"),
-		MenuItem("Fra&me",                                DocumentApply(Automatic, FrameBox("\[SelectionPlaceholder]"))),
-		MenuItem("&Color ...",                            FrontEnd`KernelExecute(With({FE`Private`c:= FE`ColorDialog()}, If(FE`Private`c =!= System`$Canceled, DocumentApply(Automatic, ToBoxes(FE`Private`c)))))),
-		MenuItem("&Highlighting",                         DocumentApply(Automatic, TemplateBox({"\[SelectionPlaceholder]"}, "Highlighted"))),
+			})
+		Delimiter
+		MenuItem("Su&bscript",                            "InsertSubscript")
+		MenuItem("Su&perscript",                          "InsertSuperscript")
+		MenuItem("O&verscript",                           "InsertOverscript")
+		MenuItem("&Underscript",                          "InsertUnderscript")
+		MenuItem("Opposite Positio&n",                    "InsertOpposite")
+		Delimiter
+		MenuItem("Alias &Delimiter",                      "InsertAliasDelimiter")
+		MenuItem("Inline Section (Te&xt/Math)",           "InsertInlineSection")
+		MenuItem("Fra&me",                                DocumentApply(Automatic, FrameBox("\[SelectionPlaceholder]")))
+		MenuItem("&Color ...",                            FrontEnd`KernelExecute(With({FE`Private`c:= FE`ColorDialog()}, If(FE`Private`c =!= System`$Canceled, DocumentApply(Automatic, ToBoxes(FE`Private`c))))))
+		MenuItem("&Highlighting",                         DocumentApply(Automatic, TemplateBox({"\[SelectionPlaceholder]"}, "Highlighted")))
 		MenuItem("Specia&l ...",                          FrontEnd`KernelExecute(FE`InsertSpecial()))
-		}),
+		})
 	Menu("Fo&rmat", {
 		Menu("&Style", {
-			MenuItem("&Find Style Definition", FrontEnd`FindStyleDefinition()),
-			Delimiter,
+			MenuItem("&Find Style Definition", FrontEnd`FindStyleDefinition())
+			Delimiter
 			Menu("Styles", "MenuListStyles")
-			}),
+			})
 		Menu("St&ylesheet", {
-			MenuItem("Default",               FE`ScopedCommand(StyleDefinitions->"Default.pmathdoc",        Document)),
+			MenuItem("Default",               FE`ScopedCommand(StyleDefinitions->"Default.pmathdoc",        Document))
 			MenuItem("InvertedColors",        FE`ScopedCommand(StyleDefinitions->"InvertedColors.pmathdoc", Document))
-			}),
-		MenuItem("Edit Sty&lesheet ...",       "EditStyleDefinitions"),
+			})
+		MenuItem("Edit Sty&lesheet ...",       "EditStyleDefinitions")
 		Menu("Math &Font",
 			$MathShapers.Join({
-				"Mathematica 10 Mono",
-				"Mathematica 10 Serif",
-				"Mathematica 10 Sans",
-				"Mathematica Mono",
+				"Mathematica 10 Mono"
+				"Mathematica 10 Serif"
+				"Mathematica 10 Sans"
+				"Mathematica Mono"
 				"Mathematica Serif"
 			}).Map(MenuItem(#, FE`ScopedCommand(MathFontFamily -> #, "FrontEndSession")) &))
-		}),
+		})
 	Menu("E&valuation", {
-		MenuItem("&Evaluate Sections",                    "EvaluateSections"),
-		MenuItem("Evaluate in &Place",                    "EvaluateInPlace"),
-		MenuItem("E&valuate in Subsession",               "SubsessionEvaluateSections"),
-		Delimiter,
-		MenuItem("Enter &Subsession",                     "EvaluatorSubsession"),
-		MenuItem("&Interrupt Evaluation ...",             "EvaluatorInterrupt"),
-		MenuItem("&Abort Evaluation",                     "EvaluatorAbort"),
-		MenuItem("&Remove from Evaluation Queue",         "RemoveFromEvaluationQueue"),
-		MenuItem("&Find Currently Evaluating Section",    "FindEvaluatingSection"),
-		Delimiter,
+		MenuItem("&Evaluate Sections",                    "EvaluateSections")
+		MenuItem("Evaluate in &Place",                    "EvaluateInPlace")
+		MenuItem("E&valuate in Subsession",               "SubsessionEvaluateSections")
+		Delimiter
+		MenuItem("Enter &Subsession",                     "EvaluatorSubsession")
+		MenuItem("&Interrupt Evaluation ...",             "EvaluatorInterrupt")
+		MenuItem("&Abort Evaluation",                     "EvaluatorAbort")
+		MenuItem("&Remove from Evaluation Queue",         "RemoveFromEvaluationQueue")
+		MenuItem("&Find Currently Evaluating Section",    "FindEvaluatingSection")
+		Delimiter
 		MenuItem("&Convert Dynamic to Literal",           "DynamicToLiteral")
-		}),
+		})
 	Menu("&Palettes", {
 		Menu("Installed Palettes", "MenuListPalettesMenu")
-		}),
+		})
 	Menu("&Window", {
-		MenuItem("&Menu bar",            "ShowHideMenu"),
+		MenuItem("&Menu bar",            "ShowHideMenu")
 		Menu("Ma&gnification", {
-			MenuItem("&50%",             FE`ScopedCommand(Magnification->0.5, Document)),
-			MenuItem("&75%",             FE`ScopedCommand(Magnification->0.75, Document)),
-			MenuItem("&100%",            FE`ScopedCommand(Magnification->Inherited, Document)),
-			MenuItem("1&25%",            FE`ScopedCommand(Magnification->1.25, Document)),
-			MenuItem("15&0%",            FE`ScopedCommand(Magnification->1.5, Document)),
-			MenuItem("200&%",            FE`ScopedCommand(Magnification->2, Document)),
+			MenuItem("&50%",             FE`ScopedCommand(Magnification->0.5, Document))
+			MenuItem("&75%",             FE`ScopedCommand(Magnification->0.75, Document))
+			MenuItem("&100%",            FE`ScopedCommand(Magnification->Inherited, Document))
+			MenuItem("1&25%",            FE`ScopedCommand(Magnification->1.25, Document))
+			MenuItem("15&0%",            FE`ScopedCommand(Magnification->1.5, Document))
+			MenuItem("200&%",            FE`ScopedCommand(Magnification->2, Document))
 			MenuItem("&300%",            FE`ScopedCommand(Magnification->3, Document))
-			}),
-		Delimiter,
+			})
+		Delimiter
 		Menu("Opened Windows", "MenuListWindows")
-		}),
+		})
 	Menu("&Help", {
-		Menu("Search", "MenuListSearchCommands"),
-		MenuItem("&Find Selected Function", "OpenSelectionHelp"),
+		Menu("Search", "MenuListSearchCommands")
+		MenuItem("&Find Selected Function", "OpenSelectionHelp")
 		With({file:= ToFileName({$FrontEndDirectory, "resources"}, "Credits.pmathdoc")},
 			MenuItem("&About", FrontEnd`DocumentOpen(file, False))
 		)

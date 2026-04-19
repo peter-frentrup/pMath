@@ -14,85 +14,85 @@ Begin("FE`Private`")
 
 
 FE`Private`shortcuts:= {
-	MenuItem(KeyEvent("N", {KeyControl}),               "New"),
-	MenuItem(KeyEvent("O", {KeyControl}),               "Open"),
-	MenuItem(KeyEvent("S", {KeyControl}),               "Save"),
-	MenuItem(KeyEvent("S", {KeyControl, KeyShift}),     "SaveAs"),
+	MenuItem(KeyEvent("N", {KeyControl}),               "New")
+	MenuItem(KeyEvent("O", {KeyControl}),               "Open")
+	MenuItem(KeyEvent("S", {KeyControl}),               "Save")
+	MenuItem(KeyEvent("S", {KeyControl, KeyShift}),     "SaveAs")
    
-	MenuItem(KeyEvent("X", {KeyControl}),               "Cut"),
-	MenuItem(KeyEvent("C", {KeyControl}),               "Copy"),
-	MenuItem(KeyEvent("V", {KeyControl}),               "Paste"),
-	MenuItem(KeyEvent("D", {KeyControl, KeyShift}),     "SectionSplit"),
-	MenuItem(KeyEvent("M", {KeyControl, KeyShift}),     "SectionMerge"),
-	MenuItem(KeyEvent("E", {KeyControl, KeyShift}),     "EditBoxes"),
-	MenuItem(KeyEvent(".", {KeyControl}),               "ExpandSelection"),
-	MenuItem(KeyEvent("NumpadDecimal", {KeyControl}),   "ExpandSelection"),
-	MenuItem(KeyEvent("A", {KeyControl}),               "SelectAll"),
-	MenuItem(KeyEvent("B", {KeyControl, KeyShift}),     "FindMatchingFence"),
-	MenuItem(KeyEvent("'", {KeyControl}),               "OpenCloseGroup"),
+	MenuItem(KeyEvent("X", {KeyControl}),               "Cut")
+	MenuItem(KeyEvent("C", {KeyControl}),               "Copy")
+	MenuItem(KeyEvent("V", {KeyControl}),               "Paste")
+	MenuItem(KeyEvent("D", {KeyControl, KeyShift}),     "SectionSplit")
+	MenuItem(KeyEvent("M", {KeyControl, KeyShift}),     "SectionMerge")
+	MenuItem(KeyEvent("E", {KeyControl, KeyShift}),     "EditBoxes")
+	MenuItem(KeyEvent(".", {KeyControl}),               "ExpandSelection")
+	MenuItem(KeyEvent("NumpadDecimal", {KeyControl}),   "ExpandSelection")
+	MenuItem(KeyEvent("A", {KeyControl}),               "SelectAll")
+	MenuItem(KeyEvent("B", {KeyControl, KeyShift}),     "FindMatchingFence")
+	MenuItem(KeyEvent("'", {KeyControl}),               "OpenCloseGroup")
 	
-	MenuItem(KeyEvent(" ", {KeyControl}),               "CompleteSelection"),
-	MenuItem(KeyEvent("L", {KeyControl}),               "DuplicatePreviousInput"),
-	MenuItem(KeyEvent("L", {KeyControl, KeyShift}),     "DuplicatePreviousOutput"),
-	MenuItem(KeyEvent("Enter", {KeyAlt}),               "SimilarSectionBelow"),
-	MenuItem(KeyEvent("I", {KeyControl}),               FrontEnd`KernelExecute(FE`InsertSpecial())),
-	MenuItem(KeyEvent("9", {KeyControl}),               "InsertInlineSection"),
-	MenuItem(KeyEvent("Numpad9", {KeyControl}),         "InsertInlineSection"),
-	MenuItem(KeyEvent("/", {KeyControl}),               "InsertFraction"),
-	MenuItem(KeyEvent("Numpad/", {KeyControl}),         "InsertFraction"),
-	MenuItem(KeyEvent("2", {KeyControl}),               "InsertRadical"),
-	MenuItem(KeyEvent("Numpad2", {KeyControl}),         "InsertRadical"),
-	MenuItem(KeyEvent("@", {KeyControl}),               "InsertRadical"),
-	MenuItem(KeyEvent("2", {KeyControl, KeyShift}),      DocumentApply(Automatic, BoxData(SqrtBox("\[SelectionPlaceholder]", SurdForm->True)))),
-	MenuItem(KeyEvent("Numpad2", {KeyControl, KeyShift}),DocumentApply(Automatic, BoxData(SqrtBox("\[SelectionPlaceholder]", SurdForm->True)))),
-	MenuItem(KeyEvent("@", {KeyControl, KeyShift}),      DocumentApply(Automatic, BoxData(SqrtBox("\[SelectionPlaceholder]", SurdForm->True)))),
-	MenuItem(KeyEvent("4", {KeyControl}),               "InsertUnderscript"),
-	MenuItem(KeyEvent("Numpad4", {KeyControl}),         "InsertUnderscript"),
-	MenuItem(KeyEvent("+", {KeyControl}),               "InsertUnderscript"),
-	MenuItem(KeyEvent("Numpad+", {KeyControl}),         "InsertUnderscript"),
-	MenuItem(KeyEvent("5", {KeyControl}),               "InsertOpposite"),
-	MenuItem(KeyEvent("Numpad5", {KeyControl}),         "InsertOpposite"),
-	MenuItem(KeyEvent("%", {KeyControl}),               "InsertOpposite"),
-	MenuItem(KeyEvent("6", {KeyControl}),               "InsertSuperscript"),
-	MenuItem(KeyEvent("Numpad6", {KeyControl}),         "InsertSuperscript"),
-	MenuItem(KeyEvent("^", {KeyControl}),               "InsertSuperscript"),
-	MenuItem(KeyEvent("7", {KeyControl}),               "InsertOverscript"),
-	MenuItem(KeyEvent("Numpad7", {KeyControl}),         "InsertOverscript"),
-	MenuItem(KeyEvent("&", {KeyControl}),               "InsertOverscript"),
-	MenuItem(KeyEvent("-", {KeyControl}),               "InsertSubscript"),
-	MenuItem(KeyEvent("Numpad-", {KeyControl}),         "InsertSubscript"),
-	MenuItem(KeyEvent("_", {KeyControl}),               "InsertSubscript"),
-	MenuItem(KeyEvent(",", {KeyControl}),               "InsertColumn"),
-	MenuItem(KeyEvent("Enter", {KeyControl}),           "InsertRow"),
+	MenuItem(KeyEvent(" ", {KeyControl}),               "CompleteSelection")
+	MenuItem(KeyEvent("L", {KeyControl}),               "DuplicatePreviousInput")
+	MenuItem(KeyEvent("L", {KeyControl, KeyShift}),     "DuplicatePreviousOutput")
+	MenuItem(KeyEvent("Enter", {KeyAlt}),               "SimilarSectionBelow")
+	MenuItem(KeyEvent("I", {KeyControl}),               FrontEnd`KernelExecute(FE`InsertSpecial()))
+	MenuItem(KeyEvent("9", {KeyControl}),               "InsertInlineSection")
+	MenuItem(KeyEvent("Numpad9", {KeyControl}),         "InsertInlineSection")
+	MenuItem(KeyEvent("/", {KeyControl}),               "InsertFraction")
+	MenuItem(KeyEvent("Numpad/", {KeyControl}),         "InsertFraction")
+	MenuItem(KeyEvent("2", {KeyControl}),               "InsertRadical")
+	MenuItem(KeyEvent("Numpad2", {KeyControl}),         "InsertRadical")
+	MenuItem(KeyEvent("@", {KeyControl}),               "InsertRadical")
+	MenuItem(KeyEvent("2", {KeyControl, KeyShift}),      DocumentApply(Automatic, BoxData(SqrtBox("\[SelectionPlaceholder]", SurdForm->True))))
+	MenuItem(KeyEvent("Numpad2", {KeyControl, KeyShift}),DocumentApply(Automatic, BoxData(SqrtBox("\[SelectionPlaceholder]", SurdForm->True))))
+	MenuItem(KeyEvent("@", {KeyControl, KeyShift}),      DocumentApply(Automatic, BoxData(SqrtBox("\[SelectionPlaceholder]", SurdForm->True))))
+	MenuItem(KeyEvent("4", {KeyControl}),               "InsertUnderscript")
+	MenuItem(KeyEvent("Numpad4", {KeyControl}),         "InsertUnderscript")
+	MenuItem(KeyEvent("+", {KeyControl}),               "InsertUnderscript")
+	MenuItem(KeyEvent("Numpad+", {KeyControl}),         "InsertUnderscript")
+	MenuItem(KeyEvent("5", {KeyControl}),               "InsertOpposite")
+	MenuItem(KeyEvent("Numpad5", {KeyControl}),         "InsertOpposite")
+	MenuItem(KeyEvent("%", {KeyControl}),               "InsertOpposite")
+	MenuItem(KeyEvent("6", {KeyControl}),               "InsertSuperscript")
+	MenuItem(KeyEvent("Numpad6", {KeyControl}),         "InsertSuperscript")
+	MenuItem(KeyEvent("^", {KeyControl}),               "InsertSuperscript")
+	MenuItem(KeyEvent("7", {KeyControl}),               "InsertOverscript")
+	MenuItem(KeyEvent("Numpad7", {KeyControl}),         "InsertOverscript")
+	MenuItem(KeyEvent("&", {KeyControl}),               "InsertOverscript")
+	MenuItem(KeyEvent("-", {KeyControl}),               "InsertSubscript")
+	MenuItem(KeyEvent("Numpad-", {KeyControl}),         "InsertSubscript")
+	MenuItem(KeyEvent("_", {KeyControl}),               "InsertSubscript")
+	MenuItem(KeyEvent(",", {KeyControl}),               "InsertColumn")
+	MenuItem(KeyEvent("Enter", {KeyControl}),           "InsertRow")
 	
-	MenuItem(KeyEvent("1", {KeyAlt}),                   "SelectStyle1"),
-	MenuItem(KeyEvent("2", {KeyAlt}),                   "SelectStyle2"),
-	MenuItem(KeyEvent("3", {KeyAlt}),                   "SelectStyle3"),
-	MenuItem(KeyEvent("4", {KeyAlt}),                   "SelectStyle4"),
-	MenuItem(KeyEvent("5", {KeyAlt}),                   "SelectStyle5"),
-	MenuItem(KeyEvent("6", {KeyAlt}),                   "SelectStyle6"),
-	MenuItem(KeyEvent("7", {KeyAlt}),                   "SelectStyle7"),
-	MenuItem(KeyEvent("8", {KeyAlt}),                   "SelectStyle8"),
-	MenuItem(KeyEvent("9", {KeyAlt}),                   "SelectStyle9"),
+	MenuItem(KeyEvent("1", {KeyAlt}),                   "SelectStyle1")
+	MenuItem(KeyEvent("2", {KeyAlt}),                   "SelectStyle2")
+	MenuItem(KeyEvent("3", {KeyAlt}),                   "SelectStyle3")
+	MenuItem(KeyEvent("4", {KeyAlt}),                   "SelectStyle4")
+	MenuItem(KeyEvent("5", {KeyAlt}),                   "SelectStyle5")
+	MenuItem(KeyEvent("6", {KeyAlt}),                   "SelectStyle6")
+	MenuItem(KeyEvent("7", {KeyAlt}),                   "SelectStyle7")
+	MenuItem(KeyEvent("8", {KeyAlt}),                   "SelectStyle8")
+	MenuItem(KeyEvent("9", {KeyAlt}),                   "SelectStyle9")
 
-	MenuItem(KeyEvent("0", {KeyControl}),               ScopedCommand(Magnification->Inherited, Document)),
+	MenuItem(KeyEvent("0", {KeyControl}),               ScopedCommand(Magnification->Inherited, Document))
 	
-	%MenuItem(KeyEvent("1", {KeyControl}),               DocumentApply(Automatic, "\[AliasDelimiter]")),
-	MenuItem(KeyEvent("1", {KeyControl}),               "InsertAliasDelimiter"),
+	%MenuItem(KeyEvent("1", {KeyControl}),               DocumentApply(Automatic, "\[AliasDelimiter]"))
+	MenuItem(KeyEvent("1", {KeyControl}),               "InsertAliasDelimiter")
 	
-	MenuItem(KeyEvent("X", {KeyAlt}),                   "ToggleCharacterCode"),
+	MenuItem(KeyEvent("X", {KeyAlt}),                   "ToggleCharacterCode")
 	
-	MenuItem(KeyEvent("Enter", {KeyShift}),             "EvaluateSections"),
-	MenuItem(KeyEvent("NumpadEnter", {}),               "EvaluateSections"),
+	MenuItem(KeyEvent("Enter", {KeyShift}),             "EvaluateSections")
+	MenuItem(KeyEvent("NumpadEnter", {}),               "EvaluateSections")
 	%MenuItem(KeyEvent("NumpadEnter", {KeyShift}),       "EvaluateSections"), % EvaluateNextSection
-	MenuItem(KeyEvent("Enter", {KeyControl, KeyShift}), "EvaluateInPlace"),
-	MenuItem(KeyEvent("F7", {}),                        "SubsessionEvaluateSections"),
-	MenuItem(KeyEvent("Esc", {KeyShift}),               "EvaluatorAbort"),
-	MenuItem(KeyEvent("Pause", {KeyControl}),           "EvaluatorInterrupt"),
-	%MenuItem(KeyEvent("Esc", {KeyAlt}),                 "RemoveFromEvaluationQueue"),
+	MenuItem(KeyEvent("Enter", {KeyControl, KeyShift}), "EvaluateInPlace")
+	MenuItem(KeyEvent("F7", {}),                        "SubsessionEvaluateSections")
+	MenuItem(KeyEvent("Esc", {KeyShift}),               "EvaluatorAbort")
+	MenuItem(KeyEvent("Pause", {KeyControl}),           "EvaluatorInterrupt")
+	%MenuItem(KeyEvent("Esc", {KeyAlt}),                 "RemoveFromEvaluationQueue")
 
-	MenuItem(KeyEvent("F1", {KeyControl}),              "SearchMenuItems"),
-	MenuItem(KeyEvent("?", {KeyAlt}),                   "SearchMenuItems"),
+	MenuItem(KeyEvent("F1", {KeyControl}),              "SearchMenuItems")
+	MenuItem(KeyEvent("?", {KeyAlt}),                   "SearchMenuItems")
 	MenuItem(KeyEvent("F1", {}),                        "OpenSelectionHelp")
 	}
 
