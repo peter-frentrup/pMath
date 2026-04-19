@@ -1191,7 +1191,7 @@ static pmath_t call_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr
         PMATH_C_STRING(","),
         PMATH_PREC_SEQ + 1,
         PMATH_PREC_SEQ + 1,
-        TRUE),
+        FALSE),
       PMATH_NULL);
   }
   else
@@ -1393,7 +1393,7 @@ static pmath_t list_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr
                              PMATH_C_STRING(","),
                              PMATH_PREC_SEQ + 1,
                              PMATH_PREC_SEQ + 1,
-                             TRUE),
+                             FALSE),
                            "}");
 }
 
