@@ -10,25 +10,25 @@ System`PlotStyle
 Begin("System`Graphics`ListLinePlot`Private`")
 
 /* Options(ListLinePlot):= {
-	AspectRatio -> 1/GoldenRatio, 
-	Axes -> True, 
-	AxesOrigin -> Automatic,
-	DataRange -> Automatic,
-	Frame -> False,
-	FrameTicks -> Automatic,
-	ImageSize -> Automatic,
-	PlotRange -> Automatic,
-	PlotStyle -> Automatic,
+	AspectRatio -> 1/GoldenRatio
+	Axes -> True
+	AxesOrigin -> Automatic
+	DataRange -> Automatic
+	Frame -> False
+	FrameTicks -> Automatic
+	ImageSize -> Automatic
+	PlotRange -> Automatic
+	PlotStyle -> Automatic
 	Ticks -> Automatic}*/
 
 ListLinePlot(~~~args)::= With({g:= Catch(tryListLinePlot(args), $Failed)}, g /? Head(g) === Graphics)
 
 $defaultListLinePlotStyle:= {
-	RGBColor(0.75,0,0),
-	RGBColor(0,0,0.75),
-	RGBColor(0.67,0.67,0),
-	RGBColor(0,0.67,0),
-	RGBColor(0.5,0,0.5),
+	RGBColor(0.75,0,0)
+	RGBColor(0,0,0.75)
+	RGBColor(0.67,0.67,0)
+	RGBColor(0,0.67,0)
+	RGBColor(0.5,0,0.5)
 	RGBColor(0,0.5,0.5)}
 
 Function getPlotStyle(~i, ~plotStyle) {

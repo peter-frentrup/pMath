@@ -12,64 +12,64 @@ Begin("System`QuantityUnits`Private`")
 % 5cm back when we calculate 4cm + 1cm.
 
 unitData("Meters"):= {
-	"FundamentalUnitValue" -> "Meters",
-	"UnitDimensions" -> "LengthUnit",
+	"FundamentalUnitValue" -> "Meters"
+	"UnitDimensions" -> "LengthUnit"
 	"UnitShortName" -> "m" }
 unitData("Amperes"):= {
-	"FundamentalUnitValue" -> "Amperes",
-	"UnitDimensions" -> "ElectricCurrentUnit",
+	"FundamentalUnitValue" -> "Amperes"
+	"UnitDimensions" -> "ElectricCurrentUnit"
 	"UnitShortName" -> "A" }
 unitData("Kelvins"):= {
-	"FundamentalUnitValue" -> "Kelvins",
-	"UnitDimensions" -> "TemperatureUnit",
+	"FundamentalUnitValue" -> "Kelvins"
+	"UnitDimensions" -> "TemperatureUnit"
 	"UnitShortName" -> "K" }
 unitData("Moles"):= {
-	"FundamentalUnitValue" -> "Moles",
-	"UnitDimensions" -> "AmountUnit",
+	"FundamentalUnitValue" -> "Moles"
+	"UnitDimensions" -> "AmountUnit"
 	"UnitShortName" -> "mol" }
 unitData("Candelas"):= {
-	"FundamentalUnitValue" -> "Candelas",
-	"UnitDimensions" -> "LuminousIntensityUnit",
+	"FundamentalUnitValue" -> "Candelas"
+	"UnitDimensions" -> "LuminousIntensityUnit"
 	"UnitShortName" -> "cd" }
 unitData("Seconds"):= {
-	"FundamentalUnitValue" -> "Seconds",
-	"UnitDimensions" -> "TimeUnit",
+	"FundamentalUnitValue" -> "Seconds"
+	"UnitDimensions" -> "TimeUnit"
 	"UnitShortName" -> "s" }
 unitData("Minutes"):= {
-	"FundamentalUnitValue" -> 60 * "Seconds",
-	"UnitDimensions" -> "TimeUnit",
+	"FundamentalUnitValue" -> 60 * "Seconds"
+	"UnitDimensions" -> "TimeUnit"
 	"UnitShortName" -> "min" }
 unitData("Hours"):= {
-	"FundamentalUnitValue" -> 60 * 60 * "Seconds",
-	"UnitDimensions" -> "TimeUnit",
+	"FundamentalUnitValue" -> 60 * 60 * "Seconds"
+	"UnitDimensions" -> "TimeUnit"
 	"UnitShortName" -> "h" }
 unitData("Days"):= {
-	"FundamentalUnitValue" -> 24 * 60 * 60 * "Seconds",
-	"UnitDimensions" -> "TimeUnit",
+	"FundamentalUnitValue" -> 24 * 60 * 60 * "Seconds"
+	"UnitDimensions" -> "TimeUnit"
 	"UnitShortName" -> "d" }
 unitData("Weeks"):= {
-	"FundamentalUnitValue" -> 7 * 24 * 60 * 60 * "Seconds",
-	"UnitDimensions" -> "TimeUnit",
+	"FundamentalUnitValue" -> 7 * 24 * 60 * 60 * "Seconds"
+	"UnitDimensions" -> "TimeUnit"
 	"UnitShortName" -> None }
 unitData("Kilograms"):= {
-	"FundamentalUnitValue" -> "Kilograms",
-	"UnitDimensions" -> "MassUnit",
+	"FundamentalUnitValue" -> "Kilograms"
+	"UnitDimensions" -> "MassUnit"
 	"UnitShortName" -> "kg" }
 unitData("Grams"):= {
-	"FundamentalUnitValue" -> "Kilograms" / 1000,
-	"UnitDimensions" -> "MassUnit",
+	"FundamentalUnitValue" -> "Kilograms" / 1000
+	"UnitDimensions" -> "MassUnit"
 	"UnitShortName" -> "g" }
 unitData("Radians"):= {
 	"FundamentalUnitValue" -> "Radians", % actually Meters/Meters
-	"UnitDimensions" -> "AngleUnit",
+	"UnitDimensions" -> "AngleUnit"
 	"UnitShortName" -> "rad" }
 unitData("Bits"):= {
-	"FundamentalUnitValue" -> "Bits",
-	"UnitDimensions" -> "InformationUnit",
+	"FundamentalUnitValue" -> "Bits"
+	"UnitDimensions" -> "InformationUnit"
 	"UnitShortName" -> "b" }
 unitData("Bytes"):= {
-	"FundamentalUnitValue" -> 8 "Bits",
-	"UnitDimensions" -> "InformationUnit",
+	"FundamentalUnitValue" -> 8 "Bits"
+	"UnitDimensions" -> "InformationUnit"
 	"UnitShortName" -> "B" }
 
 Function addSIPrefixes(~name, ~namebase) {
@@ -122,8 +122,8 @@ Function addBinarySILikePrefixes(~name, ~namebase) {
 
 Function addDerivedUnit(~name, ~product, ~shortname) {
 	unitData(name):= {
-		"FundamentalUnitValue" -> product |> Replace({~u:String :> unitData(u)["FundamentalUnitValue"]}),
-		"UnitDimensions" -> product |> Replace({~u:String :> unitData(u)["UnitDimensions"]}) |> Replace(~n?IsReal * ~x :> x),
+		"FundamentalUnitValue" -> product |> Replace({~u:String :> unitData(u)["FundamentalUnitValue"]})
+		"UnitDimensions" -> product |> Replace({~u:String :> unitData(u)["UnitDimensions"]}) |> Replace(~n?IsReal * ~x :> x)
 		"UnitShortName" -> shortname }
 }
 

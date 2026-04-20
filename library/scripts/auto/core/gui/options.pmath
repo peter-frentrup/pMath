@@ -1,592 +1,592 @@
 Begin("System`Private`")
 
 Options(Button):= {
-    Alignment -> Automatic,
-    BaselinePosition -> Automatic,
-    BaseStyle -> "Button", 
-    BoxID -> None,
-    %ButtonData :> Automatic,
-    ButtonFrame -> Automatic,
-    %ButtonSource -> Automatic,
-    ContentPadding -> True,
-    Enabled -> Automatic,
-    FrameMargins -> Automatic,
-    ImageSize -> Automatic,
+    Alignment -> Automatic
+    BaselinePosition -> Automatic
+    BaseStyle -> "Button"
+    BoxID -> None
+    %ButtonData :> Automatic
+    ButtonFrame -> Automatic
+    %ButtonSource -> Automatic
+    ContentPadding -> True
+    Enabled -> Automatic
+    FrameMargins -> Automatic
+    ImageSize -> Automatic
     Method -> "Preemptive"}
 
 Options(ButtonBox):= {
-    Alignment -> Automatic,
-    BaselinePosition -> Automatic,
-    BaseStyle -> "Button", 
-    BoxID -> None,
-    ButtonData :> Automatic,
-    ButtonFrame -> Automatic,
-    ButtonFunction -> (/\/ &),
-    ButtonSource -> Automatic,
-    ContentPadding -> True,
-    Enabled -> Automatic,
-    FrameMargins -> Automatic,
-    ImageSize -> Automatic,
+    Alignment -> Automatic
+    BaselinePosition -> Automatic
+    BaseStyle -> "Button"
+    BoxID -> None
+    ButtonData :> Automatic
+    ButtonFrame -> Automatic
+    ButtonFunction -> (/\/ &)
+    ButtonSource -> Automatic
+    ContentPadding -> True
+    Enabled -> Automatic
+    FrameMargins -> Automatic
+    ImageSize -> Automatic
     Method -> "Preemptive"}
 
 Options(CreateDocument):= Options(Document):= {
-    Antialiasing -> Inherited,
-    AutoNumberFormating -> Inherited,
-    AutoSpacing -> Inherited,
-    Background -> Inherited,
-    BaseStyle -> None,
-    BezierCurveBoxOptions -> Inherited,
-    BoxID -> None,
-    ButtonBoxOptions -> Inherited,
-    ButtonFrame -> Inherited,
-    ButtonFunction -> Inherited,
-    "ClosingAction" -> Inherited,
-    "CharacterNameStyle" -> Inherited,
-    "CommentStyle" -> Inherited,
-    "ContainingCallHighlightStyle" -> Inherited,
-    ContextMenu -> Inherited,
-    DefaultDuplicateSectionStyle -> Inherited,
-    DefaultNewSectionStyle -> Inherited,
-    DefaultReturnCreatedSectionStyle -> Inherited,
-    DockedSections -> Inherited,
-    DocumentEventActions -> Inherited,
-    Editable -> Inherited,
-    Enabled -> Automatic,
-    EvaluationContext -> "Global`",
-    "ExcessOrMissingArgumentStyle" -> Inherited,
-    FillBoxOptions -> Inherited,
-    FontColor -> Inherited,
-    FontFamily -> Inherited,
-    FontFeatures -> Inherited,
-    FontSize -> Inherited,
-    FontSlant -> Inherited,
-    FontWeight -> Inherited,
-    FractionBoxOptions -> Inherited,
-    FrameBoxOptions -> Inherited,
-    "FunctionLocalVariableStyle" -> Inherited,
-    "FunctionNameStyle" -> Inherited,
-    GeneratedSectionStyles -> Inherited,
-    GraphicsBoxOptions -> Inherited,
-    GridBoxColumnSpacing -> Inherited,
-    GridBoxOptions -> Inherited,
-    GridBoxRowSpacing -> Inherited,
-    "ImplicitOperatorStyle" -> Inherited,
-    "InlineAutoCompletionStyle" -> Inherited,
-    "InlineSectionEditingStyle" -> Inherited,
-    InputAliases -> Inherited,
-    InputAutoReplacements -> Inherited,
-    InputFieldBoxOptions -> Inherited,
-    "KeywordSymbolStyle" -> Inherited,
-    LineBreakWithin -> Inherited,
-    "LocalScopeConflictStyle" -> Inherited,
-    "LocalVariableStyle" -> Inherited,
-    "MatchingBracketHighlightStyle" -> Inherited,
-    Magnification -> Inherited,
-    MathFontFamily -> Inherited,
-    "OccurenceHighlightStyle" -> Inherited,
-    PaneBoxOptions -> Inherited,
-    PanelBoxOptions -> Inherited,
-    PaneSelectorBoxOptions -> Inherited,
-    "PatternVariableStyle" -> Inherited,
-    PrintPrecision -> Inherited,
-    %RemovalConditions -> None,   % only valid for AttchedBoxes
-    ReturnCreatesNewSection -> Inherited,
-    Saveable -> True,
-    ScriptSizeMultipliers -> Inherited,
-    SectionEditDuplicate -> Inherited,
-    SectionEditDuplicateMakesCopy -> Inherited,
-    "SectionInsertionPointColor" -> Inherited,
-    Selectable -> Inherited,
-    SetterBoxOptions -> Inherited,
-    ShowAutoStyles -> Inherited,
-    ShowSectionBracket -> Inherited,
-    ShowStringCharacters -> Inherited,
-    SingleLetterItalics -> Inherited,
-    SliderBoxOptions -> Inherited,
-    "StringStyle" -> Inherited,
-    StyleDefinitions -> Inherited,
-    "SymbolShadowingStyle" -> Inherited,
-    "SyntaxErrorStyle" -> Inherited,
-    TemplateBoxOptions -> Inherited,
-    TextShadow -> Inherited,
-    "UndefinedSymbolStyle" -> Inherited,
-    "UnknownOptionStyle" -> Inherited,
-    Visible -> True,
-    WindowFrame -> Inherited,
+    Antialiasing -> Inherited
+    AutoNumberFormating -> Inherited
+    AutoSpacing -> Inherited
+    Background -> Inherited
+    BaseStyle -> None
+    BezierCurveBoxOptions -> Inherited
+    BoxID -> None
+    ButtonBoxOptions -> Inherited
+    ButtonFrame -> Inherited
+    ButtonFunction -> Inherited
+    "ClosingAction" -> Inherited
+    "CharacterNameStyle" -> Inherited
+    "CommentStyle" -> Inherited
+    "ContainingCallHighlightStyle" -> Inherited
+    ContextMenu -> Inherited
+    DefaultDuplicateSectionStyle -> Inherited
+    DefaultNewSectionStyle -> Inherited
+    DefaultReturnCreatedSectionStyle -> Inherited
+    DockedSections -> Inherited
+    DocumentEventActions -> Inherited
+    Editable -> Inherited
+    Enabled -> Automatic
+    EvaluationContext -> "Global`"
+    "ExcessOrMissingArgumentStyle" -> Inherited
+    FillBoxOptions -> Inherited
+    FontColor -> Inherited
+    FontFamily -> Inherited
+    FontFeatures -> Inherited
+    FontSize -> Inherited
+    FontSlant -> Inherited
+    FontWeight -> Inherited
+    FractionBoxOptions -> Inherited
+    FrameBoxOptions -> Inherited
+    "FunctionLocalVariableStyle" -> Inherited
+    "FunctionNameStyle" -> Inherited
+    GeneratedSectionStyles -> Inherited
+    GraphicsBoxOptions -> Inherited
+    GridBoxColumnSpacing -> Inherited
+    GridBoxOptions -> Inherited
+    GridBoxRowSpacing -> Inherited
+    "ImplicitOperatorStyle" -> Inherited
+    "InlineAutoCompletionStyle" -> Inherited
+    "InlineSectionEditingStyle" -> Inherited
+    InputAliases -> Inherited
+    InputAutoReplacements -> Inherited
+    InputFieldBoxOptions -> Inherited
+    "KeywordSymbolStyle" -> Inherited
+    LineBreakWithin -> Inherited
+    "LocalScopeConflictStyle" -> Inherited
+    "LocalVariableStyle" -> Inherited
+    "MatchingBracketHighlightStyle" -> Inherited
+    Magnification -> Inherited
+    MathFontFamily -> Inherited
+    "OccurenceHighlightStyle" -> Inherited
+    PaneBoxOptions -> Inherited
+    PanelBoxOptions -> Inherited
+    PaneSelectorBoxOptions -> Inherited
+    "PatternVariableStyle" -> Inherited
+    PrintPrecision -> Inherited
+    %RemovalConditions -> None   % only valid for AttchedBoxes
+    ReturnCreatesNewSection -> Inherited
+    Saveable -> True
+    ScriptSizeMultipliers -> Inherited
+    SectionEditDuplicate -> Inherited
+    SectionEditDuplicateMakesCopy -> Inherited
+    "SectionInsertionPointColor" -> Inherited
+    Selectable -> Inherited
+    SetterBoxOptions -> Inherited
+    ShowAutoStyles -> Inherited
+    ShowSectionBracket -> Inherited
+    ShowStringCharacters -> Inherited
+    SingleLetterItalics -> Inherited
+    SliderBoxOptions -> Inherited
+    "StringStyle" -> Inherited
+    StyleDefinitions -> Inherited
+    "SymbolShadowingStyle" -> Inherited
+    "SyntaxErrorStyle" -> Inherited
+    TemplateBoxOptions -> Inherited
+    TextShadow -> Inherited
+    "UndefinedSymbolStyle" -> Inherited
+    "UnknownOptionStyle" -> Inherited
+    Visible -> True
+    WindowFrame -> Inherited
     WindowTitle -> Inherited
     }
 
 Options(Checkbox):= Options(CheckboxBox):= {
-    BaseStyle -> "Checkbox", 
-    BoxID -> None,
+    BaseStyle -> "Checkbox"
+    BoxID -> None
     Enabled -> Automatic }
 
 Options(Dynamic):= Options(DynamicBox):= {
-    %BaselinePosition -> Automatic,
-    BoxID -> None,
-    CachedValue -> /\/,
-    Deinitialization -> None,
-    Initialization -> None,
-    SynchronousUpdating -> True,
-    Selectable -> Automatic,
+    %BaselinePosition -> Automatic
+    BoxID -> None
+    CachedValue -> /\/
+    Deinitialization -> None
+    Initialization -> None
+    SynchronousUpdating -> True
+    Selectable -> Automatic
     TrackedSymbols -> Automatic }
 
 Options(DynamicLocal):= Options(DynamicLocalBox):= {
-    %BaselinePosition -> Automatic,
-    BoxID -> None,
-    Deinitialization -> None,
-    Initialization -> None,
-    DynamicLocalValues -> Automatic,
+    %BaselinePosition -> Automatic
+    BoxID -> None
+    Deinitialization -> None
+    Initialization -> None
+    DynamicLocalValues -> Automatic
     UnsavedVariables -> {}}
 
 Options(FillBox):= Options(Filler):= {
-    BoxID -> None,
-    FillBoxWeight -> 1,
+    BoxID -> None
+    FillBoxWeight -> 1
     StripOnInput -> True}
 
 Options(FractionBox):= {
-    BaseStyle -> None,
-    BoxID -> None,
+    BaseStyle -> None
+    BoxID -> None
     AllowScriptLevelChange -> True}
 
 Options(Framed):= Options(FrameBox):= { 
-    Background -> None,
-    BaselinePosition -> Automatic,
-    BaseStyle -> "Framed", 
-    BorderRadius -> 0,
-    BoxID -> None,
-    ContentPadding -> True,
-    FrameMargins -> Automatic,
-    FrameStyle -> Automatic,
+    Background -> None
+    BaselinePosition -> Automatic
+    BaseStyle -> "Framed"
+    BorderRadius -> 0
+    BoxID -> None
+    ContentPadding -> True
+    FrameMargins -> Automatic
+    FrameStyle -> Automatic
     StripOnInput -> False}
 
 Options(Graphics):= Options(GraphicsBox):= {
-    AspectRatio -> Automatic,
-    Axes -> False,
-    AxesOrigin -> Automatic,
-    Background -> None,
-    BaselinePosition -> Automatic,
-    BaseStyle -> "Graphics", 
-    BoxID -> None,
-    Frame -> False,
-    FrameTicks -> Automatic,
-    ImageSize -> Automatic,
-    PlotRange -> Automatic,
-    PlotRangePadding -> Automatic,
+    AspectRatio -> Automatic
+    Axes -> False
+    AxesOrigin -> Automatic
+    Background -> None
+    BaselinePosition -> Automatic
+    BaseStyle -> "Graphics"
+    BoxID -> None
+    Frame -> False
+    FrameTicks -> Automatic
+    ImageSize -> Automatic
+    PlotRange -> Automatic
+    PlotRangePadding -> Automatic
     Ticks -> Automatic}
 
 Options(Grid):= {
-    AllowScriptLevelChange -> True,
-    BaselinePosition -> Automatic,
-    BoxID -> None,
-    ColumnSpacing -> Inherited,
+    AllowScriptLevelChange -> True
+    BaselinePosition -> Automatic
+    BoxID -> None
+    ColumnSpacing -> Inherited
     RowSpacing -> Inherited}
 
 Options(GridBox):= {
-    AllowScriptLevelChange -> True,
-    BaselinePosition -> Automatic,
-    BoxID -> None,
-    GridBoxColumnSpacing -> Inherited,
+    AllowScriptLevelChange -> True
+    BaselinePosition -> Automatic
+    BoxID -> None
+    GridBoxColumnSpacing -> Inherited
     GridBoxRowSpacing -> Inherited}
 
 Options(InputField):= Options(InputFieldBox):= {
-    Appearance -> Automatic,
-    BaselinePosition -> Automatic,
-    BaseStyle -> "InputField",
-    BoxID -> None,
-    ContentPadding -> True,
-    ContinuousAction -> False,
-    Enabled -> Automatic,
-    FrameMargins -> Automatic,
-    ImageSize -> Automatic,
+    Appearance -> Automatic
+    BaselinePosition -> Automatic
+    BaseStyle -> "InputField"
+    BoxID -> None
+    ContentPadding -> True
+    ContinuousAction -> False
+    Enabled -> Automatic
+    FrameMargins -> Automatic
+    ImageSize -> Automatic
     LineBreakWithin -> False}
           
 Options(InterpretationBox):= Options(Interpretation):= {
-    %BaselinePosition -> Automatic,
-    BoxID -> None,
-    AutoDelete -> False,
-    Editable -> False,
+    %BaselinePosition -> Automatic
+    BoxID -> None
+    AutoDelete -> False
+    Editable -> False
     SyntaxForm -> Automatic }
 
 Options(Opener):= Options(OpenerBox):= {
-    BoxID -> None,
+    BoxID -> None
     Enabled -> Automatic }
 
 Options(Pane):= Options(PaneBox):= {
-    Alignment -> Automatic,
-    BaselinePosition -> Automatic, 
-    BaseStyle -> "Pane",
-    BoxID -> None,
-    ImageSize -> Automatic,
-    ImageSizeAction -> "ShrinkToFit",
+    Alignment -> Automatic
+    BaselinePosition -> Automatic
+    BaseStyle -> "Pane"
+    BoxID -> None
+    ImageSize -> Automatic
+    ImageSizeAction -> "ShrinkToFit"
     LineBreakWithin -> True}
 
 Options(Panel):= Options(PanelBox):= {
-    Alignment -> Automatic,
-    Appearance -> Automatic,
-    BaselinePosition -> Automatic, 
-    BaseStyle -> "Panel",
-    BoxID -> None,
-    ContentPadding -> True,
-    Enabled -> Inherited,
-    FrameMargins -> Automatic,
+    Alignment -> Automatic
+    Appearance -> Automatic
+    BaselinePosition -> Automatic
+    BaseStyle -> "Panel"
+    BoxID -> None
+    ContentPadding -> True
+    Enabled -> Inherited
+    FrameMargins -> Automatic
     ImageSize -> Automatic}
 
 Options(PaneSelector):= Options(PaneSelectorBox):= { 
-    Alignment -> Automatic,
-    BaselinePosition -> Automatic, 
-    BaseStyle -> "PaneSelector",
-    BoxID -> None,
-    Enabled -> Automatic,
+    Alignment -> Automatic
+    BaselinePosition -> Automatic
+    BaseStyle -> "PaneSelector"
+    BoxID -> None
+    Enabled -> Automatic
     ImageSize -> All }
 
 Options(ProgressIndicator):= Options(ProgressIndicatorBox):= {
-    BaseStyle -> "ProgressIndicator", 
-    BoxID -> None,
+    BaseStyle -> "ProgressIndicator"
+    BoxID -> None
     ImageSize -> Automatic }
 
 Options(RadioButton):= Options(RadioButtonBox):= { 
-    BaseStyle -> "RadioButton",
-    BoxID -> None,
+    BaseStyle -> "RadioButton"
+    BoxID -> None
     Enabled -> Automatic }
 Options(RadioButtonBar):= {
-    BoxID -> None,
+    BoxID -> None
     Enabled -> Automatic }
 
 Options(Style):= Options(StyleBox):= {
-    Antialiasing -> Inherited,
-    AutoDelete -> False,
-    AutoNumberFormating -> Inherited,
-    AutoSpacing -> Inherited,
-    Background -> None,
-    %BaselinePosition -> Automatic, % TODO: handle for in-line spans or remove from StyleBox
-    BaseStyle -> None,
-    BezierCurveBoxOptions -> Inherited,
-    %BorderRadius -> 0,
-    BoxID -> None,
-    ButtonBoxOptions -> Inherited,
-    "CharacterNameStyle" -> Inherited,
-    "CommentStyle" -> Inherited,
-    "ContainingCallHighlightStyle" -> Inherited,
-    ContextMenu -> Inherited,
-    DynamicBoxOptions -> Inherited,
-    DynamicLocalBoxOptions -> Inherited,
-    Editable -> Inherited,
-    Enabled -> Automatic,
-    "ExcessOrMissingArgumentStyle" -> Inherited,
-    FillBoxOptions -> Inherited,
-    FractionBoxOptions -> Inherited,
-    FrameBoxOptions -> Inherited,
-    FontColor -> Inherited,
-    FontFamily -> Inherited,
-    FontFeatures -> Inherited,
-    FontSize -> Inherited,
-    FontSlant -> Inherited,
-    FontWeight -> Inherited,
-    "FunctionLocalVariableStyle" -> Inherited,
-    "FunctionNameStyle" -> Inherited,
-    GraphicsBoxOptions -> Inherited,
-    GridBoxColumnSpacing -> Inherited, % TODO: remove
-    GridBoxOptions -> Inherited,
-    GridBoxRowSpacing -> Inherited,    % TODO: remove
-    "ImplicitOperatorStyle" -> Inherited,
-    "InlineAutoCompletionStyle" -> Inherited,
-    InputAliases -> Inherited,
-    InputAutoReplacements -> Inherited,
-    InputFieldBoxOptions -> Inherited,
-    "KeywordSymbolStyle" -> Inherited,
-    LineBreakWithin -> Inherited,
-    "LocalScopeConflictStyle" -> Inherited,
-    "LocalVariableStyle" -> Inherited,
-    "MatchingBracketHighlightStyle" -> Inherited,
-    MathFontFamily -> Inherited,
-    "OccurenceHighlightStyle" -> Inherited,
-    OverscriptBoxOptions -> Inherited,
-    PaneBoxOptions -> Inherited,
-    PanelBoxOptions -> Inherited,
-    PaneSelectorBoxOptions -> Inherited,
-    "PatternVariableStyle" -> Inherited,
-    Placeholder -> Inherited,
-    PrintPrecision -> Inherited,
-    ProgressIndicatorBoxOptions -> Inherited,
-    ScriptLevel -> Inherited,
-    ScriptSizeMultipliers -> Inherited,
-    Selectable -> Inherited,
-    SetterBoxOptions -> Inherited,
-    ShowAutoStyles -> Inherited,
-    ShowContents -> Inherited,
-    ShowStringCharacters -> Inherited,
-    SingleLetterItalics -> Inherited,
-    SliderBoxOptions -> Inherited,
-    "StringStyle" -> Inherited,
-    StripOnInput -> True,
-    "SymbolShadowingStyle" -> Inherited,
-    "SyntaxErrorStyle" -> Inherited,
-    TemplateBoxOptions -> Inherited,
-    TextShadow -> Inherited, % TODO: does not work any more
-    "UndefinedSymbolStyle" -> Inherited,
-    UnderoverscriptBoxOptions -> Inherited,
-    UnderscriptBoxOptions -> Inherited,
+    Antialiasing -> Inherited
+    AutoDelete -> False
+    AutoNumberFormating -> Inherited
+    AutoSpacing -> Inherited
+    Background -> None
+    %BaselinePosition -> Automatic  % TODO: handle for in-line spans or remove from StyleBox
+    BaseStyle -> None
+    BezierCurveBoxOptions -> Inherited
+    %BorderRadius -> 0
+    BoxID -> None
+    ButtonBoxOptions -> Inherited
+    "CharacterNameStyle" -> Inherited
+    "CommentStyle" -> Inherited
+    "ContainingCallHighlightStyle" -> Inherited
+    ContextMenu -> Inherited
+    DynamicBoxOptions -> Inherited
+    DynamicLocalBoxOptions -> Inherited
+    Editable -> Inherited
+    Enabled -> Automatic
+    "ExcessOrMissingArgumentStyle" -> Inherited
+    FillBoxOptions -> Inherited
+    FractionBoxOptions -> Inherited
+    FrameBoxOptions -> Inherited
+    FontColor -> Inherited
+    FontFamily -> Inherited
+    FontFeatures -> Inherited
+    FontSize -> Inherited
+    FontSlant -> Inherited
+    FontWeight -> Inherited
+    "FunctionLocalVariableStyle" -> Inherited
+    "FunctionNameStyle" -> Inherited
+    GraphicsBoxOptions -> Inherited
+    GridBoxColumnSpacing -> Inherited  % TODO: remove
+    GridBoxOptions -> Inherited
+    GridBoxRowSpacing -> Inherited     % TODO: remove
+    "ImplicitOperatorStyle" -> Inherited
+    "InlineAutoCompletionStyle" -> Inherited
+    InputAliases -> Inherited
+    InputAutoReplacements -> Inherited
+    InputFieldBoxOptions -> Inherited
+    "KeywordSymbolStyle" -> Inherited
+    LineBreakWithin -> Inherited
+    "LocalScopeConflictStyle" -> Inherited
+    "LocalVariableStyle" -> Inherited
+    "MatchingBracketHighlightStyle" -> Inherited
+    MathFontFamily -> Inherited
+    "OccurenceHighlightStyle" -> Inherited
+    OverscriptBoxOptions -> Inherited
+    PaneBoxOptions -> Inherited
+    PanelBoxOptions -> Inherited
+    PaneSelectorBoxOptions -> Inherited
+    "PatternVariableStyle" -> Inherited
+    Placeholder -> Inherited
+    PrintPrecision -> Inherited
+    ProgressIndicatorBoxOptions -> Inherited
+    ScriptLevel -> Inherited
+    ScriptSizeMultipliers -> Inherited
+    Selectable -> Inherited
+    SetterBoxOptions -> Inherited
+    ShowAutoStyles -> Inherited
+    ShowContents -> Inherited
+    ShowStringCharacters -> Inherited
+    SingleLetterItalics -> Inherited
+    SliderBoxOptions -> Inherited
+    "StringStyle" -> Inherited
+    StripOnInput -> True
+    "SymbolShadowingStyle" -> Inherited
+    "SyntaxErrorStyle" -> Inherited
+    TemplateBoxOptions -> Inherited
+    TextShadow -> Inherited  % TODO: does not work any more
+    "UndefinedSymbolStyle" -> Inherited
+    UnderoverscriptBoxOptions -> Inherited
+    UnderscriptBoxOptions -> Inherited
     "UnknownOptionStyle" -> Inherited}
 
 Options(Section):= {
-    Antialiasing -> Automatic,
-    AspectRatio -> Automatic, % only valid for StyleData-sections
-    AutoDelete -> False,      % only valid for StyleData-sections
-    AutoNumberFormating -> Inherited,
-    AutoSpacing -> Inherited,
-    Background -> Automatic,
-    BaselinePosition -> Automatic, % TODO: hide behind FrameBoxOptions, etc ?
-    BaseStyle -> None,
+    Antialiasing -> Automatic
+    AspectRatio -> Automatic  % only valid for StyleData-sections
+    AutoDelete -> False       % only valid for StyleData-sections
+    AutoNumberFormating -> Inherited
+    AutoSpacing -> Inherited
+    Background -> Automatic
+    BaselinePosition -> Automatic  % TODO: hide behind FrameBoxOptions, etc ?
+    BaseStyle -> None
     BezierCurveBoxOptions -> {
-        SplineClosed -> False,
-        SplineDegree -> 3},
-    BorderRadius -> 0,
-    BoxID -> None,
+        SplineClosed -> False
+        SplineDegree -> 3}
+    BorderRadius -> 0
+    BoxID -> None
     ButtonBoxOptions -> {
-        Alignment -> Automatic,
-        BaselinePosition -> Automatic,
-        ButtonData :> Automatic,
-        ButtonFrame -> Automatic, 
-        ButtonFunction -> (/\/ &),
-        ButtonSource -> Automatic,
-        ContentPadding -> True,
-        Enabled -> Automatic,
-        FrameMargins -> Automatic,
-        ImageSize -> Automatic,
-        Method -> "Preemptive"},
-    "ClosingAction" -> Inherited, % only valid for StyleData-sections
-    "CharacterNameStyle" -> { FontColor -> Inherited },
-    "CommentStyle" -> { FontColor -> Inherited },
-    "ContainingCallHighlightStyle" -> { Background -> Inherited, Opacity -> Inherited },
-    ContextMenu -> Inherited,
-    DefaultDuplicateSectionStyle -> Inherited,
-    DefaultNewSectionStyle -> Inherited,
-    DefaultReturnCreatedSectionStyle -> Inherited,
-    DockedSections -> Inherited,
-    DocumentEventActions -> Inherited,
-    "DrawEdges" -> Inherited, % only valid for StyleData-sections
+        Alignment -> Automatic
+        BaselinePosition -> Automatic
+        ButtonData :> Automatic
+        ButtonFrame -> Automatic
+        ButtonFunction -> (/\/ &)
+        ButtonSource -> Automatic
+        ContentPadding -> True
+        Enabled -> Automatic
+        FrameMargins -> Automatic
+        ImageSize -> Automatic
+        Method -> "Preemptive"}
+    "ClosingAction" -> Inherited  % only valid for StyleData-sections
+    "CharacterNameStyle" -> { FontColor -> Inherited }
+    "CommentStyle" -> { FontColor -> Inherited }
+    "ContainingCallHighlightStyle" -> { Background -> Inherited, Opacity -> Inherited }
+    ContextMenu -> Inherited
+    DefaultDuplicateSectionStyle -> Inherited
+    DefaultNewSectionStyle -> Inherited
+    DefaultReturnCreatedSectionStyle -> Inherited
+    DockedSections -> Inherited
+    DocumentEventActions -> Inherited
+    "DrawEdges" -> Inherited  % only valid for StyleData-sections
     DynamicBoxOptions -> {
-        CachedValue -> /\/,
-        Deinitialization -> None,
-        Initialization -> None,
-        SynchronousUpdating -> True,
-        Selectable -> Automatic,
-        TrackedSymbols -> Automatic },
+        CachedValue -> /\/
+        Deinitialization -> None
+        Initialization -> None
+        SynchronousUpdating -> True
+        Selectable -> Automatic
+        TrackedSymbols -> Automatic }
     DynamicLocalBoxOptions -> {
-        Deinitialization -> None,
-        Initialization -> None,
-        DynamicLocalValues -> Automatic,
-        UnsavedVariables -> {} },
-    "EdgeColor"     -> Inherited, % only valid for StyleData-sections
-    "EdgeThickness" -> Inherited, % only valid for StyleData-sections
-    Editable -> True,
-    Evaluatable -> False,
-    EvaluationContext -> "Global`",
-    "ExcessOrMissingArgumentStyle" -> { FontColor -> Inherited },
+        Deinitialization -> None
+        Initialization -> None
+        DynamicLocalValues -> Automatic
+        UnsavedVariables -> {} }
+    "EdgeColor"     -> Inherited  % only valid for StyleData-sections
+    "EdgeThickness" -> Inherited  % only valid for StyleData-sections
+    Editable -> True
+    Evaluatable -> False
+    EvaluationContext -> "Global`"
+    "ExcessOrMissingArgumentStyle" -> { FontColor -> Inherited }
     FillBoxOptions -> {
-        FillBoxWeight -> 1,
-        StripOnInput -> True},
+        FillBoxWeight -> 1
+        StripOnInput -> True}
     FractionBoxOptions -> {
-        AllowScriptLevelChange -> True},
+        AllowScriptLevelChange -> True}
     FrameBoxOptions -> {
-        Background -> None,
-        BaselinePosition -> Automatic,
-        BorderRadius -> 0,
-        ContentPadding -> True,
-        FrameMargins -> Automatic,
-        FrameStyle -> Automatic,
-        StripOnInput -> False},
-    FontColor -> GrayLevel(0),
-    FontFamily -> "Times",
-    FontFeatures -> Inherited, % FontFeatures -> {"ssty" -> Automatic}
-    FontSize -> 10,
-    FontSlant -> Plain,
-    FontWeight -> Plain,
-    "FunctionLocalVariableStyle" -> { FontColor -> Inherited },
-    "FunctionNameStyle" -> { FontColor -> Inherited },
-    GeneratedSectionStyles -> Inherited,
+        Background -> None
+        BaselinePosition -> Automatic
+        BorderRadius -> 0
+        ContentPadding -> True
+        FrameMargins -> Automatic
+        FrameStyle -> Automatic
+        StripOnInput -> False}
+    FontColor -> GrayLevel(0)
+    FontFamily -> "Times"
+    FontFeatures -> Inherited  % FontFeatures -> {"ssty" -> Automatic}
+    FontSize -> 10
+    FontSlant -> Plain
+    FontWeight -> Plain
+    "FunctionLocalVariableStyle" -> { FontColor -> Inherited }
+    "FunctionNameStyle" -> { FontColor -> Inherited }
+    GeneratedSectionStyles -> Inherited
     GraphicsBoxOptions -> {
-        AspectRatio -> Inherited,
-        Axes -> Inherited,
-        AxesOrigin -> Inherited,
-        Background -> Inherited,
-        BaselinePosition -> Inherited,
-        Frame -> Inherited,
-        FrameTicks -> Inherited,
-        ImageSize -> Inherited,
-        PlotRange -> Inherited,
-        PlotRangePadding -> Inherited},
-    GridBoxColumnSpacing -> 0.5,
+        AspectRatio -> Inherited
+        Axes -> Inherited
+        AxesOrigin -> Inherited
+        Background -> Inherited
+        BaselinePosition -> Inherited
+        Frame -> Inherited
+        FrameTicks -> Inherited
+        ImageSize -> Inherited
+        PlotRange -> Inherited
+        PlotRangePadding -> Inherited}
+    GridBoxColumnSpacing -> 0.5
     GridBoxOptions -> {
-        AllowScriptLevelChange -> True},
-    GridBoxRowSpacing -> 0.5,
-    "ImplicitOperatorStyle" -> { FontColor -> Inherited },
-    "InlineAutoCompletionStyle" -> { Background -> Inherited, Opacity -> Inherited },
-    "InlineSectionEditingStyle" -> { Background -> Inherited, Opacity -> Inherited },
-    InputAliases -> Inherited,
-    InputAutoReplacements -> Inherited,
+        AllowScriptLevelChange -> True}
+    GridBoxRowSpacing -> 0.5
+    "ImplicitOperatorStyle" -> { FontColor -> Inherited }
+    "InlineAutoCompletionStyle" -> { Background -> Inherited, Opacity -> Inherited }
+    "InlineSectionEditingStyle" -> { Background -> Inherited, Opacity -> Inherited }
+    InputAliases -> Inherited
+    InputAutoReplacements -> Inherited
     InputFieldBoxOptions -> {
-        Appearance -> Automatic,
-        BaselinePosition -> Automatic,
-        ContentPadding -> True,
-        ContinuousAction -> False,
-        Enabled -> Automatic,
-        FrameMargins -> Automatic,
-        ImageSize -> Automatic,
-        LineBreakWithin -> False},
-    "KeywordSymbolStyle" -> { FontColor -> Inherited },
-    LanguageCategory -> Inherited,
-    LineBreakWithin -> True,
-    "LocalScopeConflictStyle" -> { FontColor -> Inherited },
-    "LocalVariableStyle" -> { FontColor -> Inherited },
-    Magnification -> Automatic,  % only valid for StyleData-sections
-    "MatchingBracketHighlightStyle" -> { Background -> Inherited, Opacity -> Inherited },
-    MathFontFamily -> Inherited,
-    MenuCommandKey -> None,
-    MenuSortingValue -> Inherited,
-    "OccurenceHighlightStyle" -> { Background -> Inherited, Opacity -> Inherited },
-    OverscriptBoxOptions -> { LimitsPositioning -> Inherited },
+        Appearance -> Automatic
+        BaselinePosition -> Automatic
+        ContentPadding -> True
+        ContinuousAction -> False
+        Enabled -> Automatic
+        FrameMargins -> Automatic
+        ImageSize -> Automatic
+        LineBreakWithin -> False}
+    "KeywordSymbolStyle" -> { FontColor -> Inherited }
+    LanguageCategory -> Inherited
+    LineBreakWithin -> True
+    "LocalScopeConflictStyle" -> { FontColor -> Inherited }
+    "LocalVariableStyle" -> { FontColor -> Inherited }
+    Magnification -> Automatic   % only valid for StyleData-sections
+    "MatchingBracketHighlightStyle" -> { Background -> Inherited, Opacity -> Inherited }
+    MathFontFamily -> Inherited
+    MenuCommandKey -> None
+    MenuSortingValue -> Inherited
+    "OccurenceHighlightStyle" -> { Background -> Inherited, Opacity -> Inherited }
+    OverscriptBoxOptions -> { LimitsPositioning -> Inherited }
     PaneBoxOptions -> {
-        Alignment -> Automatic,
-        BaselinePosition -> Automatic,
-        ImageSize -> Automatic,
-        ImageSizeAction -> "ShrinkToFit"},
+        Alignment -> Automatic
+        BaselinePosition -> Automatic
+        ImageSize -> Automatic
+        ImageSizeAction -> "ShrinkToFit"}
     PanelBoxOptions -> {
-        Alignment -> Automatic,
-        Appearance -> Automatic,
-        BaselinePosition -> Automatic,
-        ContentPadding -> True,
-        Enabled -> Automatic,
-        FrameMargins -> Automatic,
-        ImageSize -> Automatic},
+        Alignment -> Automatic
+        Appearance -> Automatic
+        BaselinePosition -> Automatic
+        ContentPadding -> True
+        Enabled -> Automatic
+        FrameMargins -> Automatic
+        ImageSize -> Automatic}
     PaneSelectorBoxOptions -> {
-        Alignment -> Automatic,
-        BaselinePosition -> Automatic,
-        Enabled -> Automatic,
-        ImageSize -> Automatic},
-    "PatternVariableStyle" -> { FontColor -> Inherited },
-    Placeholder -> Automatic,    % only valid for StyleData-sections
-    PrintPrecision -> Inherited, % 6
+        Alignment -> Automatic
+        BaselinePosition -> Automatic
+        Enabled -> Automatic
+        ImageSize -> Automatic}
+    "PatternVariableStyle" -> { FontColor -> Inherited }
+    Placeholder -> Automatic     % only valid for StyleData-sections
+    PrintPrecision -> Inherited  % 6
     ProgressIndicatorBoxOptions -> {
-        ImageSize -> Automatic },
-    RemovalConditions -> None,   % only valid for StyleData-sections
-    ReturnCreatesNewSection -> Inherited,
-    Saveable -> Inherited,       % only valid for StyleData-sections
-    ScriptLevel -> Inherited,
-    ScriptSizeMultipliers -> Automatic,
-    SectionDingbat -> None,
-    SectionEditDuplicate -> Inherited,
-    SectionEditDuplicateMakesCopy -> Inherited,
-    SectionEvaluationFunction -> Identity,
-    SectionFrame -> False,
-    SectionFrameColor -> GrayLevel(0),
-    SectionFrameLabelMargins -> 3,
-    SectionFrameMargins -> 8,
-    SectionGenerated -> False,
-    SectionGroupPrecedence -> 0,
-    "SectionInsertionPointColor" -> Inherited,
-    SectionMargins -> {{60, 30}, {4, 4}},
-    SectionLabel -> None,
-    SectionLabelAutoDelete -> True,
-    Selectable -> Inherited,
+        ImageSize -> Automatic }
+    RemovalConditions -> None    % only valid for StyleData-sections
+    ReturnCreatesNewSection -> Inherited
+    Saveable -> Inherited        % only valid for StyleData-sections
+    ScriptLevel -> Inherited
+    ScriptSizeMultipliers -> Automatic
+    SectionDingbat -> None
+    SectionEditDuplicate -> Inherited
+    SectionEditDuplicateMakesCopy -> Inherited
+    SectionEvaluationFunction -> Identity
+    SectionFrame -> False
+    SectionFrameColor -> GrayLevel(0)
+    SectionFrameLabelMargins -> 3
+    SectionFrameMargins -> 8
+    SectionGenerated -> False
+    SectionGroupPrecedence -> 0
+    "SectionInsertionPointColor" -> Inherited
+    SectionMargins -> {{60, 30}, {4, 4}}
+    SectionLabel -> None
+    SectionLabelAutoDelete -> True
+    Selectable -> Inherited
     SetterBoxOptions -> {
-        Alignment -> Automatic,
-        BaselinePosition -> Automatic,
-        ButtonFrame -> Automatic,
-        ContentPadding -> True,
-        Enabled -> Automatic,
-        FrameMargins -> Automatic,
-        ImageSize -> Automatic},
-    ShowAutoStyles -> True,
-    ShowContents -> True,
-    ShowSectionBracket -> True,
-    ShowStringCharacters -> True,
-    SingleLetterItalics -> True,
+        Alignment -> Automatic
+        BaselinePosition -> Automatic
+        ButtonFrame -> Automatic
+        ContentPadding -> True
+        Enabled -> Automatic
+        FrameMargins -> Automatic
+        ImageSize -> Automatic}
+    ShowAutoStyles -> True
+    ShowContents -> True
+    ShowSectionBracket -> True
+    ShowStringCharacters -> True
+    SingleLetterItalics -> True
     SliderBoxOptions -> {
-        Appearance -> Automatic,
-        ContinuousAction -> True,
-        Enabled -> Automatic,
-        ImageSize -> Automatic},
-    "StringStyle" -> { FontColor -> Inherited },
-    StyleDefinitions -> None,
-    "SymbolShadowingStyle" -> { FontColor -> Inherited },
-    "SyntaxErrorStyle" -> { FontColor -> Inherited },
+        Appearance -> Automatic
+        ContinuousAction -> True
+        Enabled -> Automatic
+        ImageSize -> Automatic}
+    "StringStyle" -> { FontColor -> Inherited }
+    StyleDefinitions -> None
+    "SymbolShadowingStyle" -> { FontColor -> Inherited }
+    "SyntaxErrorStyle" -> { FontColor -> Inherited }
     TemplateBoxOptions -> {
-        DisplayFunction -> None, 
-        Editable -> Automatic, 
-        InterpretationFunction -> Automatic,
-        Selectable -> Automatic,
-        SyntaxForm -> None,
-        Tooltip -> Automatic},
-    TextShadow -> None,
-    "UndefinedSymbolStyle" -> { FontColor -> Inherited },
-    UnderoverscriptBoxOptions -> { LimitsPositioning -> Inherited },
-    UnderscriptBoxOptions -> {     LimitsPositioning -> Inherited },
-    "UnknownOptionStyle" -> { FontColor -> Inherited },
-    Visible -> True,             % only valid for StyleData-sections
-    WholeSectionGroupOpener -> False,
-    WindowFrame -> Inherited,    % only valid for StyleData-sections
+        DisplayFunction -> None
+        Editable -> Automatic
+        InterpretationFunction -> Automatic
+        Selectable -> Automatic
+        SyntaxForm -> None
+        Tooltip -> Automatic}
+    TextShadow -> None
+    "UndefinedSymbolStyle" -> { FontColor -> Inherited }
+    UnderoverscriptBoxOptions -> { LimitsPositioning -> Inherited }
+    UnderscriptBoxOptions -> {     LimitsPositioning -> Inherited }
+    "UnknownOptionStyle" -> { FontColor -> Inherited }
+    Visible -> True              % only valid for StyleData-sections
+    WholeSectionGroupOpener -> False
+    WindowFrame -> Inherited     % only valid for StyleData-sections
     WindowTitle -> Inherited}    % only valid for StyleData-sections
 
 Options(Setter):= Options(SetterBox):= Options(SetterBar):= { 
-    Alignment -> Automatic,
-    BaselinePosition -> Automatic,
-    BaseStyle -> "Setter", 
-    BoxID -> None,
-    ButtonFrame -> Automatic,
-    ContentPadding -> True,
-    Enabled -> Automatic,
-    FrameMargins -> Automatic,
+    Alignment -> Automatic
+    BaselinePosition -> Automatic
+    BaseStyle -> "Setter"
+    BoxID -> None
+    ButtonFrame -> Automatic
+    ContentPadding -> True
+    Enabled -> Automatic
+    FrameMargins -> Automatic
     ImageSize -> Automatic }
 
 Options(Slider):= Options(SliderBox):= {
-    Appearance -> Automatic,
-    BaseStyle -> "Slider", 
-    BoxID -> None,
-    ContinuousAction -> True,
-    Enabled -> Automatic,
+    Appearance -> Automatic
+    BaseStyle -> "Slider"
+    BoxID -> None
+    ContinuousAction -> True
+    Enabled -> Automatic
     ImageSize -> Automatic }
 
 Options(StyleData):= {
     StyleDefinitions -> Automatic }
 
 Options(TabView):= {
-    Alignment -> {Top, Left},
-    Enabled -> Automatic,
+    Alignment -> {Top, Left}
+    Enabled -> Automatic
     FrameMargins -> Automatic}
 
 Options(TagBox):= {
-    AutoDelete -> False,
-    BoxID -> None,
-    Editable -> Automatic,
-    Selectable -> Automatic,
+    AutoDelete -> False
+    BoxID -> None
+    Editable -> Automatic
+    Selectable -> Automatic
     SyntaxForm -> Automatic }
 
 Options(TemplateBox):= {
-    %BaselinePosition -> Automatic,
-    BoxID -> None,
-    DisplayFunction ->None,
-    Editable -> Automatic,
-    InterpretationFunction -> Automatic,
-    Selectable -> Automatic,
-    SyntaxForm -> Automatic,
+    %BaselinePosition -> Automatic
+    BoxID -> None
+    DisplayFunction ->None
+    Editable -> Automatic
+    InterpretationFunction -> Automatic
+    Selectable -> Automatic
+    SyntaxForm -> Automatic
     Tooltip -> None
 }
 
 Options(ToggleSwitch):= { 
-    BoxID -> None,
-    Enabled -> Automatic,
+    BoxID -> None
+    Enabled -> Automatic
     ImageSize -> Automatic}
 
 Options(Tooltip):= Options(TooltipBox):= { 
-    %BaselinePosition -> Automatic,
-    BoxID -> None,
+    %BaselinePosition -> Automatic
+    BoxID -> None
     StripOnInput -> True}
 
 Options(TransformationBox):= { 
-    %BaselinePosition -> Automatic,
-    BoxID -> None,
+    %BaselinePosition -> Automatic
+    BoxID -> None
     BoxTransformation -> {{1,0},{0,1}} }
 
 End()

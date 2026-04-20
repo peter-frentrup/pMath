@@ -71,13 +71,13 @@ Function tryGetUnitDimensions(HoldPattern(Quantity(~, ~unit) ? IsValidQuantity))
 		{ ~x:List :> x, ~r:Rule :> {r}, ~u:String :> {u -> 1}, ~ -> {} } |> 
 		Map({~r:Rule :> r, ~u :> (u -> 1)}) %|> Sort
 		%SortBy({
-		%		("TimeUnit" -> ~) :> 1, 
-		%		("LengthUnit" -> ~) :> 2, 
-		%		("MassUnit" -> ~) :> 3, 
-		%		("ElectricCurrentUnit" -> ~) :> 4, 
-		%		("TemperatureUnit" -> ~) :> 5, 
-		%		("AmountUnit" -> ~) :> 6, 
-		%		("LuminousIntensityUnit" -> ~) :> 7, 
+		%		("TimeUnit" -> ~) :> 1
+		%		("LengthUnit" -> ~) :> 2
+		%		("MassUnit" -> ~) :> 3
+		%		("ElectricCurrentUnit" -> ~) :> 4
+		%		("TemperatureUnit" -> ~) :> 5
+		%		("AmountUnit" -> ~) :> 6
+		%		("LuminousIntensityUnit" -> ~) :> 7
 		%		~r :> r})
 }
 tryGetUnitDimensions(~unit?IsNumeric)::= {}
