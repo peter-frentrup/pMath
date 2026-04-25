@@ -11,6 +11,8 @@ Document({
          InputAliases :> {
            "ref" -> TemplateBox({"\[SelectionPlaceholder]"}, 
              "ReferenceHyperlink"), 
+           "guideref" -> TemplateBox("\[SelectionPlaceholder]", 
+             "GuidePageReferenceHyperlink"), 
            "arg" -> StyleBox("\[SelectionPlaceholder]", "Arg"), 
            "key" -> TemplateBox({"\[SelectionPlaceholder]"}, "KeyEvent"), 
            "keyctrl" -> TemplateBox({"\[SelectionPlaceholder]"}, 
@@ -195,6 +197,33 @@ Document({
                   HoldComplete(~FE`Private`sym:Symbol) :> 
                    ToBoxes(Row({ToString(LongForm(FE`Private`sym)), "\n", 
                      FE`Private`sym::"usage"}))))}), 
+            Section(StyleData("GuidePageReferenceHyperlink"), 
+             TemplateBoxOptions :> {
+               DisplayFunction -> 
+                Function(StyleBox(StringBox("\"", 
+                   ButtonBox({#1, " (Guide Page)"}, 
+                    ButtonFunction -> 
+                     Function(
+                      With({
+                        FE`Private`file:= 
+                         Documentation`FindDocumentationGuidePage(
+                          CurrentValue({TemplateSlot, 1}))}, 
+                       If(IsString(FE`Private`file), 
+                        FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
+                          False))))), BaseStyle -> "Text", 
+                    ButtonFrame -> "Frameless"), "\""), 
+                  ShowStringCharacters -> False, 
+                  FontColor -> 
+                   Dynamic(
+                    With({
+                      FE`Private`file:= 
+                       Documentation`FindDocumentationGuidePage(
+                        CurrentValue({TemplateSlot, 1}))}, 
+                     If(FE`Private`file === None, RGBColor(0.8, 0, 0), 
+                      RGBColor(0, 0, 0.8)))), ShowAutoStyles -> False)), 
+               Tooltip -> DynamicBox(
+                 ToBoxes(StringForm("Open `1` guide page.", 
+                   CurrentValue({TemplateSlot, 1}))))}), 
             Section(StyleData("NamedCharacterHyperlink"), 
              TemplateBoxOptions -> {
                DisplayFunction -> 

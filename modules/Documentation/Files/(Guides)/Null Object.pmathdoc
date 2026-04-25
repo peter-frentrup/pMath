@@ -1,0 +1,46 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("/\\/ (Null Object)", "Title"), 
+    Section(TextData({"The token ", BoxData("/\\/"), " denotes the Null ", 
+       StyleBox("pMath", FontSlant -> Italic), 
+       " object. It is used for functions that have side effects but do not \
+       return any result."}), "Text"), 
+    SectionGroup({Section("Examples", "Section"), 
+      Section(TextData({TemplateBox({"Do"}, "ReferenceHyperlink"), 
+         " performs side effects but does not itself return anything \[Dash] \
+         it gives ", BoxData("/\\/"), 
+         ", which gets suppressed from output by default:"}), "Text"), 
+      SectionGroup({
+        Section(BoxData({"Do", "(", {{"Echo", "(", "i", ")"}, ",", {
+             "i", "\[Rule]", "3"}}, ")"}), "Input", 
+         SectionLabel -> "in [1]:"), Section(BoxData("1"), "Echo", 
+         SectionGenerated -> True), Section(BoxData("2"), "Echo", 
+         SectionGenerated -> True), Section(BoxData("3"), "Echo", 
+         SectionGenerated -> True)}, All), 
+      SectionGroup({
+        Section(
+         BoxData({
+           {"Do", "(", {{"Echo", "(", "i", ")"}, ",", {"i", "\[Rule]", "3"}}, 
+            ")"}, "//", "InputForm"}), "Input", SectionLabel -> "in [2]:"), 
+        Section(BoxData("1"), "Echo", SectionGenerated -> True), 
+        Section(BoxData("2"), "Echo", SectionGenerated -> True), 
+        Section(BoxData("3"), "Echo", SectionGenerated -> True), 
+        Section(BoxData(StyleBox("/\\/", AutoDelete -> True, 
+           AutoNumberFormating -> False, ShowStringCharacters -> True)), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+       All)}, All), SectionGroup({Section("See Also", "Section"), 
+      Section(
+       TextData({TemplateBox({"Syntax"}, "GuidePageReferenceHyperlink"), 
+         " \[Dash] ", StyleBox("pMath", FontSlant -> Italic), 
+         " syntax overview"}), "Notes"), 
+      Section(TextData({TemplateBox({"Do"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"While"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Print"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dash] Side-effect-only Functions "}), "Notes"), 
+      Section(TextData({TemplateBox({"InputForm"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"FullForm"}, 
+          "ReferenceHyperlink"), 
+         " \[Dash] Display the internal structure of objects"}), "Notes")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

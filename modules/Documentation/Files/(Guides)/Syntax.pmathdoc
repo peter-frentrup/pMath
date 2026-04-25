@@ -348,4 +348,13 @@ Document({
                     SubscriptBox("2")}, "\n", "\[Ellipsis]"}, "\n"}}, "}"}})}, 
             "introduce a constant in the middle of a block"}})}), 
        "DefinitionBox"), Section("Introduce local constants.", "Caption")}, 
+     All), SectionGroup({Section("See Also", "Section"), 
+      Section(TextData({TemplateBox({"ToExpression"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"MakeExpression"}, 
+          "ReferenceHyperlink"), " \[Dash] Parse ", 
+         StyleBox("pMath", FontSlant -> Italic), " syntax"}), "Notes"), 
+      Section(TextData({TemplateBox({"ToBoxes"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"InputForm"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dash] Produce ", 
+         StyleBox("pMath", FontSlant -> Italic), " syntax"}), "Notes")}, 
      All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
