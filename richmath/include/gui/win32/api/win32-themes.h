@@ -401,6 +401,7 @@ namespace richmath {
       static bool use_high_contrast();
       static bool use_win10_transparency();
       static void try_set_dark_mode_frame(HWND hwnd, bool dark_mode);
+      static void try_set_dark_mode_theme_recursive(HWND parent, bool dark_mode);
       
       static const wchar_t *symbol_font_name();
       

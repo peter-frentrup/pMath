@@ -451,6 +451,40 @@ void Win32Themes::try_set_dark_mode_frame(HWND hwnd, bool dark_mode) {
   }
 }
 
+void Win32Themes::try_set_dark_mode_theme_recursive(HWND parent, bool dark_mode) {
+  if(!SetWindowTheme)
+    return;
+  
+  if(dark_mode) {
+//    Win32Themes::SetWindowTheme(parent, L"DarkMode_DarkTheme", nullptr);
+    Win32Themes::SetWindowTheme(parent, L"DarkMode_Explorer", nullptr);
+    //Win32Themes::SetWindowTheme(parent, L"DarkMode", nullptr);
+  }
+  else {
+    Win32Themes::SetWindowTheme(parent, L"Explorer", nullptr);
+  }
+  
+  struct Data {
+    bool dark_mode;
+    
+    static int CALLBACK enum_proc(HWND wnd, LPARAM lParam) {
+      return ((Data*)lParam)->callback(wnd);
+    }
+    
+    int CALLBACK callback(HWND wnd) {
+      if(dark_mode) {
+//          Win32Themes::SetWindowTheme(wnd, L"DarkMode_DarkTheme", nullptr);
+        Win32Themes::SetWindowTheme(wnd, L"DarkMode_Explorer", nullptr);
+      }
+      else{
+        Win32Themes::SetWindowTheme(wnd, L"Explorer", nullptr);
+      }
+      return TRUE; 
+    }
+  } data { dark_mode };
+  EnumChildWindows(parent, Data::enum_proc, (LPARAM)&data);
+}
+
 const wchar_t *Win32Themes::symbol_font_name() {
   static const wchar_t *name = Win32Version::is_windows_11_or_newer()
     ? L"Segoe Fluent Icons" : Win32Version::is_windows_10_or_newer() 

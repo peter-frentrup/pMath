@@ -403,36 +403,8 @@ void TaskDialogConfig::on_dialog_created(HWND hwnd) {
   // Windows 11: "DarkMode_DarkTheme" is available at least in 25H2 (26200.8246)
   // But still ugly, because the buttons are stays light and the header is dark blue on dark gray
   // "DarkMode_Explorer" is slightly better on Windows 11 25H2, but still has dark header on dark background
-  if(Win32Themes::SetWindowTheme && false) {
-    if(dark_mode) {
-//      Win32Themes::SetWindowTheme(hwnd, L"DarkMode_DarkTheme", nullptr);
-      Win32Themes::SetWindowTheme(hwnd, L"DarkMode_Explorer", nullptr);
-      //Win32Themes::SetWindowTheme(hwnd, L"DarkMode", nullptr);
-    }
-    else {
-      Win32Themes::SetWindowTheme(hwnd, L"Explorer", nullptr);
-    }
-    pmath_debug_print("[enum for %p]\n", hwnd);
-    struct Data {
-      bool dark_mode;
-      
-      static int CALLBACK enum_proc(HWND wnd, LPARAM lParam) {
-        return ((Data*)lParam)->callback(wnd);
-      }
-      
-      int CALLBACK callback(HWND wnd) {
-        pmath_debug_print("[  child %p]\n", wnd);
-        if(dark_mode) {
-//          Win32Themes::SetWindowTheme(wnd, L"DarkMode_DarkTheme", nullptr);
-          Win32Themes::SetWindowTheme(wnd, L"DarkMode_Explorer", nullptr);
-        }
-        else{
-          Win32Themes::SetWindowTheme(wnd, L"Explorer", nullptr);
-        }
-        return TRUE; 
-      }
-    } data { dark_mode };
-    EnumChildWindows(hwnd, Data::enum_proc, (LPARAM)&data);
+  if(false) {
+    Win32Themes::try_set_dark_mode_theme_recursive(hwnd, dark_mode);
   }
 }
 
