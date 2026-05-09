@@ -1,0 +1,12 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "inline tests",
+            "type": "process",
+            "command": "${workspaceRoot}/library/test-runner/bin/windows/msvc-release-x64/test-runner.exe",
+            "args": ["${file}"],
+            "group": "test"
+        }
+    ]
+}

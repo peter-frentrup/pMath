@@ -14,6 +14,12 @@ IF not exist console\dependencies\windows\%2\ (
 MOVE /Y %1\libpmath.dll.def  %1\pmath.def
 
 MKDIR test\%1
+COPY /Y dependencies\windows\%2\*        test-runner\%1\*
+COPY /Y %1\*.dll                         test-runner\%1\*
+COPY /Y %1\*.pdb                         test-runner\%1\*
+COPY /Y scripts\maininit.5.txt           test-runner\%1\maininit.pmath
+
+MKDIR test\%1
 COPY /Y dependencies\windows\%2\*        test\%1\*
 COPY /Y %1\*.dll                         test\%1\*
 COPY /Y %1\*.pdb                         test\%1\*

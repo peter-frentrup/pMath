@@ -16,6 +16,8 @@
 /library/console/obj
 /library/test/bin
 /library/test/obj
+/library/test-runner/bin
+/library/test-runner/obj
 /library/doxygen/doc
 /library/doxygen/html
 /library/doxygen/latex

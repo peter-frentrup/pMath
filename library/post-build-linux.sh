@@ -10,6 +10,11 @@ function ln-copy {
 mkdir -p dependencies/linux/$2
 mkdir -p console/dependencies/linux/$2
 
+mkdir -p test-runner/$1
+cp -r dependencies/linux/$2/.           test-runner/$1/
+cp    scripts/maininit.5.txt            test-runner/$1/maininit.pmath
+cp    $1/libpmath.so.0.1                test-runner/$1/
+
 mkdir -p test/$1
 cp -r dependencies/linux/$2/.           test/$1/
 cp    scripts/maininit.5.txt            test/$1/maininit.pmath
