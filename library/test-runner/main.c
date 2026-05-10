@@ -30,9 +30,17 @@ typedef struct MappedFile {
   Str remaining;
 } MappedFile;
 
+struct CritSect; // Non-reentrant critical sections
+
 static void os_init(void);
+
 static pmath_bool_t MappedFile_open(MappedFile *f, const char *path);
 static void MappedFile_close(MappedFile *f);
+
+static void CritSect_init(struct CritSect *cs);
+static void CritSect_destroy(struct CritSect *cs);
+static void CritSect_enter(struct CritSect *cs);
+static void CritSect_exit(struct CritSect *cs);
 
 
 #define PMATH_SYSTEM_SYMBOL_X( sym )         X( pmath_System_ ## sym       , "System`" #sym )
@@ -71,6 +79,8 @@ static void MappedFile_close(MappedFile *f);
 #  define NOGDI
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
+
+//{ Memory mapped files ...
 
 static pmath_bool_t MappedFile_open(MappedFile *f, const char *path) {
   f->all       = S("");
@@ -130,6 +140,32 @@ static void MappedFile_close(MappedFile *f) {
   f->remaining = S("");
 }
 
+//} ... Memory mapped files
+
+//{ Critical Sections ...
+
+typedef struct CritSect {
+  CRITICAL_SECTION win32_cs;
+} CritSect;
+
+static void CritSect_init(struct CritSect *cs) {
+  InitializeCriticalSection(&cs->win32_cs);
+}
+
+static void CritSect_destroy(struct CritSect *cs) {
+  DeleteCriticalSection(&cs->win32_cs);
+}
+
+static void CritSect_enter(struct CritSect *cs) {
+  EnterCriticalSection(&cs->win32_cs);
+}
+
+static void CritSect_exit(struct CritSect *cs) {
+  LeaveCriticalSection(&cs->win32_cs);
+}
+
+//} ... Critical Sections
+
 static void os_init(void) {
   HMODULE kernel32;
   
@@ -152,8 +188,13 @@ static void os_init(void) {
 #elif defined(PMATH_OS_UNIX)
 //{ Unix like ...
 
+#  include <fcntl.h>
+#  include <unistd.h>
+#  include <pthread.h>
 #  include <sys/mman.h>
 #  include <sys/stat.h>
+
+//{ Memory mapped files ...
 
 static pmath_bool_t MappedFile_open(MappedFile *f, const char *path) {
   f->all       = S("");
@@ -189,11 +230,37 @@ static pmath_bool_t MappedFile_open(MappedFile *f, const char *path) {
 
 static void MappedFile_close(MappedFile *f) {
   if(f->all.len > 0) {
-    munmap(f->all.s, f->all.len);
+    munmap((void*)f->all.s, f->all.len);
   }
   f->all       = S("");
   f->remaining = S("");
 }
+
+//} ... Memory mapped files
+
+//{ Critical Sections ...
+
+typedef struct CritSect {
+  pthread_mutex_t mutex;
+} CritSect;
+
+static void CritSect_init(struct CritSect *cs) {
+  cs->mutex = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
+}
+
+static void CritSect_destroy(struct CritSect *cs) {
+  pthread_mutex_destroy(&cs->mutex);
+}
+
+static void CritSect_enter(struct CritSect *cs) {
+  pthread_mutex_lock(&cs->mutex);
+}
+
+static void CritSect_exit(struct CritSect *cs) {
+  pthread_mutex_unlock(&cs->mutex);
+}
+
+//} ... Critical Sections
 
 static void os_init(void) {
 
@@ -210,10 +277,12 @@ static MappedFile input_file = { 0 };
 static const char *input_file_path = NULL;
 static pmath_t input_file_name = PMATH_STATIC_NULL;
 
-// TODO: synchronize all accesses with a mutex:
-static StringBuffer output_content = { 0, 0, 0, 0 };
-static Str current_prompt_prefix; // = S("");
-static Str current_line_ending; // = S("\n");
+static struct {
+  CritSect      critical_section[1];
+  StringBuffer  content[1];
+  Str           current_prompt_prefix;
+  Str           current_line_ending;
+} output;
 
 
 #define PROMPT        S("pmath> ")
@@ -363,9 +432,37 @@ static void StringBuffer_append(StringBuffer *buf, Str str) {
   buf->len = new_len;
 }
 
+static void StringBuffer_free(StringBuffer *buf) {
+  if(buf->capacity) {
+    free(buf->s);
+  }
+  buf->len = 0;
+  buf->capacity = 0;
+  buf->err = TRUE;
+}
+
+// Only valid while buf is valid
+static Str StringBuffer_as_Str(const StringBuffer *buf) {
+  return (Str){ buf->s, buf->len };
+}
+
 static void Str_write(Str text) {
+  CritSect_enter(output.critical_section);
+  
   //fwrite(text.s, 1, text.len, stdout);
-  StringBuffer_append(&output_content, text);
+  StringBuffer_append(output.content, text);
+  
+  CritSect_exit(output.critical_section);
+}
+
+static void Str_write_prefixed_line(Str line) {
+  CritSect_enter(output.critical_section);
+  
+  StringBuffer_append(output.content, output.current_prompt_prefix);
+  StringBuffer_append(output.content, line);
+  StringBuffer_append(output.content, output.current_line_ending);
+
+  CritSect_exit(output.critical_section);
 }
 
 //} ... StringBuffer output
@@ -443,10 +540,12 @@ static void write_output_locked_callback(void *_context) {
 static void write_output(Str indent, pmath_t obj) {
   WriteOutputCtx context;
   
+  CritSect_enter(output.critical_section);
   context.object        = obj;
-  context.nl            = current_line_ending;
-  context.indent_prefix = current_prompt_prefix;
+  context.nl            = output.current_line_ending;
+  context.indent_prefix = output.current_prompt_prefix;
   context.indent_more   = indent;
+  CritSect_exit(output.critical_section);
   
   pmath_thread_call_locked(
     &print_lock,
@@ -560,7 +659,7 @@ static void run_next_prompt(InputCtx *_ctx) {
   Str before_prompt_ref = Str_before_ref(ctx->remaining, prompt_ref);
   Str after_prompt_ref  = Str_after_ref( ctx->remaining, prompt_ref);
   
-  Str prefix            = Str_find_last_line_ref(before_prompt_ref);
+  Str prompt_prefix     = Str_find_last_line_ref(before_prompt_ref);
   
   Str nl_ref            = Str_find_next_nl_ref(after_prompt_ref);
   Str after_line_ref    = Str_after_ref(ctx->remaining, nl_ref);
@@ -572,17 +671,19 @@ static void run_next_prompt(InputCtx *_ctx) {
   // TODO: use new output content instead?
   parse_data.start_line += count_line_breaks(skipped);
   
-  if(prompt_ref.len > 0 && is_valid_prompt_prefix(prefix)) {
-    current_line_ending   = nl_ref;
-    current_prompt_prefix = prefix;
+  if(prompt_ref.len > 0 && is_valid_prompt_prefix(prompt_prefix)) {
+    CritSect_enter(output.critical_section);
+    output.current_line_ending   = nl_ref;
+    output.current_prompt_prefix = prompt_prefix;
+    CritSect_exit(output.critical_section);
     
     parse_data.code = Str_to_pmath(Str_before_ref(after_prompt_ref, nl_ref));
     
     int extra_lines = 0;
     // collect continuation lines
-    while(Str_starts_with(             ctx->remaining, current_prompt_prefix) 
-    &&    Str_starts_with(Str_drop_ref(ctx->remaining, current_prompt_prefix.len), PROMPT_MORE)) {
-      after_prompt_ref =  Str_drop_ref(ctx->remaining, current_prompt_prefix.len + PROMPT_MORE.len);
+    while(Str_starts_with(             ctx->remaining, prompt_prefix) 
+    &&    Str_starts_with(Str_drop_ref(ctx->remaining, prompt_prefix.len), PROMPT_MORE)) {
+      after_prompt_ref =  Str_drop_ref(ctx->remaining, prompt_prefix.len + PROMPT_MORE.len);
       nl_ref           = Str_find_next_nl_ref(after_prompt_ref);
       after_line_ref   = Str_after_ref(ctx->remaining, nl_ref);
       
@@ -596,8 +697,8 @@ static void run_next_prompt(InputCtx *_ctx) {
     
     int skipped_lines = 0;
     // skip old output lines
-    while(Str_starts_with(ctx->remaining, current_prompt_prefix)) {
-      Str after_prefix = Str_drop_ref(ctx->remaining, current_prompt_prefix.len);
+    while(Str_starts_with(ctx->remaining, prompt_prefix)) {
+      Str after_prefix = Str_drop_ref(ctx->remaining, prompt_prefix.len);
       if(after_prefix.len < 1 || (after_prefix.s[0] != ' ' && after_prefix.s[0] != '\t'))
         break;
       
@@ -787,9 +888,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
       write_output(indent, item);
       
       pmath_unref(item);
-      Str_write(current_prompt_prefix);
-      Str_write(S(" "));
-      Str_write(current_line_ending);
+      Str_write_prefixed_line(S(" "));
     }
     
     pmath_unref(sections);
@@ -820,9 +919,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     pmath_unref(row);
   }
   
-  Str_write(current_prompt_prefix);
-  Str_write(S(" "));
-  Str_write(current_line_ending);
+  Str_write_prefixed_line(S(" "));
   return expr;
 }
 
@@ -862,14 +959,18 @@ int main(int argc, const char **argv) {
   #endif
   signal(SIGTERM, signal_term);
   
+  CritSect_init(output.critical_section);
+  
   if(!pmath_init() || !init_pmath_bindings()) {
     fprintf(stderr, "Cannot initialize pMath.\n");
+    CritSect_destroy(output.critical_section);
     return 1;
   }
   
   if(!handle_options(argc, argv)) {
     done_pmath_bindings();
     pmath_done();
+    CritSect_destroy(output.critical_section);
     return 1;
   }
   
@@ -888,13 +989,13 @@ int main(int argc, const char **argv) {
   PMATH_RUN_ARGS("$Input:=`1`", "(o)", pmath_ref(input_file_name));
   
 #ifdef PMATH_OS_WIN32
-  current_line_ending = S("\r\n");
+  output.current_line_ending = S("\r\n");
 #else
-  current_line_ending = S("\n");
+  output.current_line_ending = S("\n");
 #endif
-  current_prompt_prefix = S("");
+  output.current_prompt_prefix = S("");
   
-  StringBuffer_ensure_capacity(&output_content, input_file.all.len + 1000);
+  StringBuffer_ensure_capacity(output.content, input_file.all.len + 1000);
   
   if(!quitting) {
     run_all_input();
@@ -906,6 +1007,10 @@ int main(int argc, const char **argv) {
   pmath_done();
   
   { // Check memory usage
+    CritSect_enter(output.critical_section);
+    Str nl = output.current_line_ending;
+    CritSect_exit(output.critical_section);
+    
     size_t current, max;
     pmath_mem_usage(&current, &max);
     if(show_mem_stats || current != 0) {
@@ -913,25 +1018,23 @@ int main(int argc, const char **argv) {
       if(current != 0) {
         snprintf(line, sizeof(line), "Memory: %"PRIuPTR" (should be 0)", current);
         fprintf(stderr, "\n%s\n", line);
-        Str_write(current_line_ending);
-        Str_write(current_prompt_prefix);
-        Str_write((Str){line, strlen(line)});
-        Str_write(current_line_ending);
+        Str_write(nl);
+        Str_write_prefixed_line((Str){line, strlen(line)});
       }
       
       snprintf(line, sizeof(line), "Maximum memory usage: %"PRIuPTR"", max);
       fprintf(stderr, "%s\n", line);
       if(current != 0) {
-        Str_write(current_prompt_prefix);
-        Str_write((Str){line, strlen(line)});
-        Str_write(current_line_ending);
+        Str_write_prefixed_line((Str){line, strlen(line)});
       }
     }
   }
   
   if(input_file_path) {
-    pmath_bool_t different = output_content.len != input_file.all.len 
-      || 0 != memcmp(output_content.s, input_file.all.s, output_content.len);
+    CritSect_enter(output.critical_section);
+    
+    Str all_output = StringBuffer_as_Str(output.content);
+    pmath_bool_t different = !Str_eq(all_output, input_file.all);
     
     MappedFile_close(&input_file);
     
@@ -940,7 +1043,7 @@ int main(int argc, const char **argv) {
       
       FILE *f = fopen(input_file_path, "wb");
       if(f) {
-        fwrite(output_content.s, 1, output_content.len, f);
+        fwrite(all_output.s, 1, all_output.len, f);
         fclose(f);
       }
       else {
@@ -952,7 +1055,12 @@ int main(int argc, const char **argv) {
     else {
       fprintf(stderr, "No changes.\n");
     }
+    
+    CritSect_exit(output.critical_section);
   }
+  
+  StringBuffer_free(output.content);
+  CritSect_destroy(output.critical_section);
   
   // Self test:
   // pmath> 1+1
