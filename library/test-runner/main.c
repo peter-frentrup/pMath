@@ -44,6 +44,8 @@ static void MappedFile_close(MappedFile *f);
   PMATH_SYSTEM_SYMBOL_X( HoldComplete    ) \
   PMATH_SYSTEM_SYMBOL_X( List            ) \
   PMATH_SYSTEM_SYMBOL_X( MakeExpression  ) \
+  PMATH_SYSTEM_SYMBOL_X( OpenAppend      ) \
+  PMATH_SYSTEM_SYMBOL_X( OpenWrite       ) \
   PMATH_SYSTEM_SYMBOL_X( Range           ) \
   PMATH_SYSTEM_SYMBOL_X( RawBoxes        ) \
   PMATH_SYSTEM_SYMBOL_X( Return          ) \
@@ -824,6 +826,13 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   return expr;
 }
 
+static pmath_t builtin_trap(pmath_expr_t expr) {
+  write_output(S(" TRAP ON "), expr);
+  pmath_unref(expr);
+  pmath_abort_please();
+  return PMATH_NULL;
+}
+
 static pmath_bool_t init_pmath_bindings() {
 #define X( SYM, NAME )  SYM = pmath_symbol_get(PMATH_C_STRING( NAME ), FALSE);
   PMATH_SYMBOLS_X
@@ -831,6 +840,8 @@ static pmath_bool_t init_pmath_bindings() {
   
 #define X( SYM, NAME )  !pmath_is_null( SYM ) &&
   return PMATH_SYMBOLS_X
+         pmath_register_code(pmath_System_OpenAppend,   builtin_trap, 0) &&
+         pmath_register_code(pmath_System_OpenWrite,    builtin_trap, 0) &&
          pmath_register_code(pmath_System_SectionPrint, builtin_sectionprint, 0);
 #undef X
 }
