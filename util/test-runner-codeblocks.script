@@ -1,0 +1,46 @@
+// Let Code::Blocks run test-runner on the current file and reload changes.
+//
+// To register,
+//  1) Go to Settings > Scripting...
+//  2) Add this file
+//  3) Set 'Register in menus' to: pMath/Run Inline Tests
+//  4) Go to Settings > Global variables
+//  5) Add a user defined variable 'pmath_test_runner' with e.g.
+//       Built-in fields:     base = '...\pmath\library\test-runner\bin\windows\msvc-release-x64'
+//       User-defined fields: exe  = 'test-runner.exe'
+//  6) When asked upon execution, TRUST this script so that it can execute the test-runner.
+//
+// You may want to assign a keyboard-shortcut such as F7 to the new 'pMath/Run Inline Tests' menu item.
+
+local editorManager = GetEditorManager()
+editorManager.SaveActive();
+
+local editor = editorManager.GetBuiltinActiveEditor();
+local filepath = editor.GetFilename();
+
+local test_runner = ReplaceMacros(_T("$(#pmath_test_runner)/$(#pmath_test_runner.exe)"));
+
+if(!IO.FileExists(test_runner)) {
+	local msg = _T("Cannot locate test-runner.\n\n") +
+		_T("Searching '$(#pmath_test_runner)/$(#pmath_test_runner.exe)'\n") +
+		_T("Expands to '") + test_runner + _T("'.\n\n") +
+		_T("Please define the global user variable 'pmath_test_runner' accordingly.")
+	LogError(msg);
+	ShowError(msg);
+	CallMenu(_T("Settings/Global variables..."));
+	return;
+}
+
+Log(_T("Execute pMath Test-Runner on '") + filepath + _T("' ..."))
+//local exitcode = IO.Execute(test_runner + _T(" \"") + filepath + _T("\""));
+//if(exitcode != 0) {
+//	LogWarning("Different!");
+//}
+local output = IO.ExecuteAndGetOutputAndError(test_runner + _T(" \"") + filepath + _T("\""), true);
+if(output.Find(_T("Different!")) >= 0) {
+	LogWarning(output);
+} else {
+	Log(output);
+}
+
+editor.Reload(true);
