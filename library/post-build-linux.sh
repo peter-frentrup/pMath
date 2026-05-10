@@ -39,6 +39,10 @@ pushd test/$1
 ln-copy-all
 popd
 
+pushd test-runner/$1
+ln-copy-all
+popd
+
 pushd console/$1
 ln-copy-all
 popd
