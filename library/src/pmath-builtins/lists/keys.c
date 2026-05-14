@@ -12,9 +12,15 @@ extern pmath_symbol_t pmath_System_List;
 static pmath_t get_keys(pmath_t list, pmath_t wrap_head);
 
 PMATH_PRIVATE pmath_t builtin_keys(pmath_expr_t expr) {
-  /*  Keys({rule1, rule2, ...})
-      Keys(rules, head)
-  */
+// Keys({rule1, rule2, ...})
+// Keys(rules, head)
+//
+// Examples:
+//  pmath> Keys({a->1, b->2})
+//         {a, b}
+//
+//  pmath> Keys({a->1, b->2, a->3}, h)
+//         {h(a), h(b), h(a)}
   size_t exprlen = pmath_expr_length(expr);
   pmath_t list;
   pmath_t wrap_head;

@@ -590,25 +590,44 @@ static int get_dimensions(
 }
 
 PMATH_PRIVATE pmath_t builtin_partition(pmath_expr_t expr) {
-  /* Partition(list, n)                   = Partition(list, n, n, {1, -1}, list)
-     Partition(list, n, d)                = Partition(list, n, d, {1, -1}, list)
-     Partition(list, n, d, {kL, kR})      = Partition(list, n, d, {kL, kR}, list)
-     Partition(list, n, d, {kL, kR}, pad)
-  
-     list . . . expression with Length(Dimensions(list)) == Length(n)
-     n  . . . . positive machine size integer or list of those. {x} is same as x
-     d  . . . . ditto, same dimensions as n
-     kL, kR . . machine size integer or lists of those, != 0
-     pad  . . . padding element(s)
-  
-     Partitions list into sublists of length n with offset d.
-     The first element of list should appear at position kL in the first sublist.
-     The last element of list should appear at or after position kR in the last
-     sublist.
-     If additional elements are needed, they are taken from pad cyclically.
-     If pad = {}, no padding is done, and so the sublists might have different
-     lengths.
-   */
+// Partition(list, n)                   = Partition(list, n, n, {1, -1}, list)
+// Partition(list, n, d)                = Partition(list, n, d, {1, -1}, list)
+// Partition(list, n, d, {kL, kR})      = Partition(list, n, d, {kL, kR}, list)
+// Partition(list, n, d, {kL, kR}, pad)
+// 
+// list . . . expression with Length(Dimensions(list)) == Length(n)
+// n  . . . . positive machine size integer or list of those. {x} is same as x
+// d  . . . . ditto, same dimensions as n
+// kL, kR . . machine size integer or lists of those, != 0
+// pad  . . . padding element(s)
+// 
+// Partitions list into sublists of length n with offset d.
+// The first element of list should appear at position kL in the first sublist.
+// The last element of list should appear at or after position kR in the last
+// sublist.
+// If additional elements are needed, they are taken from pad cyclically.
+// If pad = {}, no padding is done, and so the sublists might have different
+// lengths.
+//
+// Examples:
+//  pmath> Partition({1,2,3,4,5,6,7}, 3)
+//         {{1, 2, 3}, {4, 5, 6}}
+//  pmath> Partition({1,2,3,4,5,6,7,8,9}, 4, 2)
+//         {{1, 2, 3, 4}, {3, 4, 5, 6}, {5, 6, 7, 8}}
+//  pmath> Partition({1,2,3,4,5,6,7,8,9}, 4, 2, {2,3})
+//         {{9, 1, 2, 3}, {2, 3, 4, 5}, {4, 5, 6, 7}, {6, 7, 8, 9}}
+//
+// Padding: none when kR = -1:
+//  pmath> Partition({1,2,3,4,5,6,7}, 3, 3, {1,-1}, {x})
+//         {{1, 2, 3}, {4, 5, 6}}
+//  pmath> Partition({1,2,3,4,5,6,7}, 3, 3, {1,1})
+//         {{1, 2, 3}, {4, 5, 6}, {7, 1, 2}}
+//  pmath> Partition({1,2,3,4,5,6,7}, 3, 3, {1,1}, {})
+//         {{1, 2, 3}, {4, 5, 6}, {7}}
+//  pmath> Partition({1,2,3,4,5,6,7}, 3, 3, {1,1}, {x})
+//         {{1, 2, 3}, {4, 5, 6}, {7, x, x}}
+//  pmath> Partition({1,2,3,4,5,6,7}, 3, 3, 1, {x,y})
+//         {{1, 2, 3}, {4, 5, 6}, {7, y, x}}
   pmath_t list;
   pmath_t padding;
   pmath_t obj;

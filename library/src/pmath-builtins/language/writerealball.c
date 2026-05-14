@@ -32,6 +32,15 @@ static void write_latin1_to_string(void *pointer_to_pmath_string, const char *st
 
 PMATH_PRIVATE
 pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
+// pmath> Options(Internal`WriteRealBall)
+//        {Base -> 10, IntegerDigits -> Automatic, RadiusDigits -> Automatic}
+//
+// Example:
+// pmath> Internal`WriteRealBall(Numericalize(Pi,10))
+//        {String -> 3.141592653[468±234]`10, Sign -> , Base -> 10, 
+//         MidpointMantissaTruncated -> 3.141592653, MidpointMantissaRest -> 468, 
+//         MidpointMantissa -> 3.141592653468, RadiusDigits -> 234, RadiusMantissa -> 2.34, 
+//         RadiusExponentExtra -> -10, RadiusExponent -> -10, Precision -> 10, Exponent -> }
   pmath_string_t str;
   pmath_t options;
   pmath_mpfloat_t value;

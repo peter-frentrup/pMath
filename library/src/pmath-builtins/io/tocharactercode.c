@@ -171,9 +171,39 @@ static pmath_expr_t string_to_iconv_bytes(pmath_string_t str, iconv_t cd) {
 }
 
 PMATH_PRIVATE pmath_t builtin_tocharactercode(pmath_expr_t expr) {
-  /* ToCharacterCode(string)
-     ToCharacterCode(string, encoding)
-   */
+// ToCharacterCode(string)
+// ToCharacterCode(string, encoding)
+//  
+// Examples:
+//  pmath> ToCharacterCode("abc")
+//         {97, 98, 99}
+//  pmath> ToCharacterCode("XYZ")
+//         {88, 89, 90}
+//  
+//  pmath> ToCharacterCode("\[Alpha]\[Beta]")              |> BaseForm(16)
+//         {16^^3b1, 16^^3b2}
+//  pmath> ToCharacterCode("\[Alpha]\[Beta]", "UTF-8")     |> BaseForm(16)
+//         {16^^ce, 16^^b1, 16^^ce, 16^^b2}
+//  
+//  pmath> ToCharacterCode("\[Sum]")                       |> BaseForm(16)
+//         {16^^2211}
+//  pmath> ToCharacterCode("\[Sum]", "UTF-8")              |> BaseForm(16)
+//         {16^^e2, 16^^88, 16^^91}
+//  
+//  pmath> ToCharacterCode("\[U+1234]\[U+0000]\[U+FFFF]")  |> BaseForm(16)
+//         {16^^1234, 16^^0, 16^^ffff}
+//  
+//  pmath> ToCharacterCode("\[U+12345]", "Unicode")        |> BaseForm(16)
+//         {16^^12345}
+//  pmath> ToCharacterCode("\[U+12345]", "UTF-32")         |> BaseForm(16)
+//         {16^^12345}
+//  pmath> ToCharacterCode("\[U+12345]")                   |> BaseForm(16)
+//         {16^^d808, 16^^df45}
+//  pmath> ToCharacterCode("\[U+12345]", "UTF-16")         |> BaseForm(16)
+//         {16^^d808, 16^^df45}
+//  pmath> ToCharacterCode("\[U+12345]", "UTF-8")          |> BaseForm(16)
+//         {16^^f0, 16^^92, 16^^8d, 16^^85}
+
   pmath_t code;
   size_t exprlen;
   pmath_expr_t (*converter)(pmath_string_t, iconv_t) = string_to_utf16_codes;

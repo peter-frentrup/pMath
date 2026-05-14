@@ -193,18 +193,37 @@ static pmath_t array_range_double(double start, double delta, size_t len) {
 }
 
 PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
-  /* Array(f, n)
-     Array(f, {n1, n2, ...})
-     Array(f, {n1, n2, ...}, {s1, s2, ...})
-     Array(f, dims, origs, h)
-  
-     Array(s..e..d)
-     Array(s..e)
-     Array(e)
-  
-     messages:
-       General::range
-   */
+// Array(f, n)
+// Array(f, {n1, n2, ...})
+// Array(f, {n1, n2, ...}, {s1, s2, ...})
+// Array(f, dims, origs, h)
+//
+// Array(s..e..d)
+// Array(s..e)
+// Array(e)
+//
+// Messages:
+//   General::range
+//
+// Examples:
+//  pmath> Array(5)
+//         {1, 2, 3, 4, 5}
+//  pmath> Array(5)                        // Developer`PackedArrayForm
+//         PackedArray(Integer, <<5>>)
+//  pmath> Array(0.0 .. 5.0)
+//         {0.0, 1.0, 2.0, 3.0, 4.0, 5.0}
+//  pmath> Array(0.0 .. 5.0)               // Developer`PackedArrayForm
+//         PackedArray(Real, <<6>>)
+//
+//  pmath> Array(f, 4)
+//         {f(1), f(2), f(3), f(4)}
+//  pmath> Array(f, {2,3})
+//         {{f(1, 1), f(1, 2), f(1, 3)}, {f(2, 1), f(2, 2), f(2, 3)}}
+//  pmath> Array(f, {2,2}, {x,y})
+//         {{f(x, y), f(x, 1 + y)}, {f(1 + x, y), f(1 + x, 1 + y)}}
+//  pmath> Array(f, {2,3}, 1, h)
+//         h(h(f(1, 1), f(1, 2), f(1, 3)), h(f(2, 1), f(2, 2), f(2, 3)))
+//
   struct _array_data_t data;
   size_t exprlen;
   

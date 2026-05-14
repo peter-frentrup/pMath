@@ -35,6 +35,15 @@ static pmath_t precision_from_digits(double digits) {
 
 PMATH_PRIVATE
 pmath_t builtin_internal_parserealball(pmath_expr_t expr) {
+// pmath> Options(Internal`ParseRealBall)
+//        {MinPrecision -> MachinePrecision}
+//
+// Example:
+// pmath> Internal`ParseRealBall("1.234[56+/-78]`9")
+//        {Value -> 1.234[560+/-781], Base -> 10, 
+//         Midpoint -> {Mantissa -> 123456, Exponent -> -5, Value -> 1.23455999[978+/-187]}, 
+//         Radius -> {Mantissa -> 78, Exponent -> -5, Value -> 0.000779999999[395+/-910]}, 
+//         SignificantDigits -> 9.0}
   pmath_string_t str;
   pmath_t min_prec_obj;
   pmath_t options;

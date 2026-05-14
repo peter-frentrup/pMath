@@ -117,6 +117,30 @@ static pmath_t stringdrop(
 }
 
 PMATH_PRIVATE pmath_t builtin_stringdrop(pmath_expr_t expr) {
+// Examples:
+//  pmath> StringDrop("abcde", 2)
+//         cde
+//  pmath> StringDrop("\[Pi]x", 1)
+//         x
+//
+// Indices are UTF-16 based.
+//  pmath> StringDrop("𝒶𝒷𝒸", 1) // InputForm
+//         "\[U+DCB6]\[ScriptB]\[ScriptC]"
+//  pmath> StringDrop("𝒶𝒷𝒸", 2) // InputForm
+//         "\[ScriptB]\[ScriptC]"
+//  pmath> StringDrop("𝒶𝒷𝒸", 3) // InputForm
+//         "\[U+DCB7]\[ScriptC]"
+//  pmath> StringDrop("𝒶𝒷𝒸", 4) // InputForm
+//         "\[ScriptC]"
+//  pmath> StringDrop("𝒶𝒷𝒸", 5) // InputForm
+//         "\[U+DCB8]"
+//  pmath> StringDrop("𝒶𝒷𝒸", 6) // InputForm
+//         ""
+//  pmath> StringDrop("𝒶𝒷𝒸", 7) // InputForm
+//      StringDrop::drop: Cannot drop positions 1 through 7 in \[ScriptA]\[ScriptB]\[ScriptC]. [1]
+//   
+//         StringDrop("\[ScriptA]\[ScriptB]\[ScriptC]", 7)
+//
   pmath_t obj;
   struct _pmath_range_t range;
   

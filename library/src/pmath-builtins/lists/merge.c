@@ -46,9 +46,21 @@ static pmath_expr_t post_process_apply_rhs(struct merge_context_t *ctx, pmath_ex
 static void init_functions(struct merge_context_t *ctx, pmath_bool_t may_eval);
 
 PMATH_PRIVATE pmath_t builtin_merge(pmath_expr_t expr) {
-  /*  Merge({dict1, dict2, ...}, f)
-      Merge(rules, f)
-  */
+// Merge({dict1, dict2, ...}, f)
+// Merge(rules, f)
+// 
+// Examples:
+//  pmath> Merge({{a->1, b->2}, {a->33, c->44}}, First)
+//         {a -> 1, b -> 2, c -> 44}
+//  pmath> Merge({{a->1, b->2}, {a->33, c->44}}, Last)
+//         {a -> 33, b -> 2, c -> 44}
+//  pmath> Merge({{a->1, b->2}, {a->33, c->44}}, Identity)
+//         {a -> {1, 33}, b -> {2}, c -> {44}}
+//
+// Caution: The dictionaries to merge must be wrapped in List, the second argument is a function.
+//  pmath> Merge( {a->1, b->2}, {a->33, c->44} )
+//         {a -> {a -> 33, c -> 44}({1}), b -> {a -> 33, c -> 44}({2})}
+
   struct merge_context_t ctx;
   pmath_t rules;
   

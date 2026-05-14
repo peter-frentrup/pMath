@@ -136,8 +136,21 @@ static pmath_expr_t remove_duplicate_sequences(pmath_expr_t list) {
 }
 
 PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr) {
-  /* Union(list1, list2, ...)
-   */
+/// Union(list1, list2, ...)
+///
+/// Examples:
+/// pmath> Union({a,b}, {c,d,a})
+///        {a, b, c, d}
+/// pmath> Union({}, {1,3,2,3})
+///        {1, 2, 3}
+/// pmath> Union({})
+///        {}
+///
+/// pmath> Union(Array(5), Array(5)-3)
+///        {-2, -1, 0, 1, 2, 3, 4, 5}
+/// pmath> Union(Array(5), Array(5)-3) |> Developer`PackedArrayForm
+///        PackedArray(Integer, <<8>>)
+  
   pmath_expr_t list;
   size_t exprlen, joined_length;
   

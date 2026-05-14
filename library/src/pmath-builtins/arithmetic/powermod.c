@@ -33,8 +33,14 @@ static pmath_t powermod(pmath_expr_t expr, pmath_mpint_t base, pmath_mpint_t exp
 }
 
 PMATH_PRIVATE pmath_t builtin_powermod(pmath_expr_t expr) {
-/* PowerMod(base, exponent, mod) gives base^exponent modulu mod.
- */
+/// PowerMod(base, exponent, mod) gives base^exponent modulu mod.
+///
+/// pmath> PowerMod(2, 10, 3)
+///        1
+/// pmath> PowerMod(2, 10^9, 18)
+///        16
+/// pmath> PowerMod(2, {10,11,12,13,14}, 5)
+///        {4, 3, 1, 2, 4}
   pmath_mpint_t base, exponent, mod;
   
   if(pmath_expr_length(expr) != 3) {

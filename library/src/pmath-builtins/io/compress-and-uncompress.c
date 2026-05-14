@@ -21,9 +21,29 @@ PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr) {
 }
 
 PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
-/* Uncompress("data")
-   Uncompress("data", head)
- */
+/// Uncompress("data")
+/// Uncompress("data", head)
+///
+/// Examples:
+/// pmath> Uncompress @ Compress(-1337)
+///        -1337
+/// pmath> Uncompress @ Compress(-2^100+5) - (-2^100+5)
+///        0
+/// pmath> Uncompress @ Compress({1,2,3})
+///        {1, 2, 3}
+/// pmath> Uncompress @ Compress("Hello\[Pi]")
+///        Hello\[Pi]
+/// pmath> Uncompress @ Compress(1.5)
+///        1.5
+/// 
+/// pmath> Uncompress @ Compress(1.5`10)         |> FullForm
+///        16^^0.`8.5*^1
+/// pmath> 1.5`10                                |> FullForm
+///        16^^0.`8.5*^1
+/// pmath> Uncompress @ Compress(1.5[+/-0.5]`10) |> FullForm
+///        16^^1.[8+/-8]`8.5
+/// pmath> 1.5[+/-0.5]`10                        |> FullForm
+///        16^^1.[8+/-8]`8.5
   pmath_t obj;
   size_t exprlen = pmath_expr_length(expr);
   

@@ -2,8 +2,22 @@ BeginPackage("System`QuantityUnits`")
 
 Begin("System`QuantityUnits`Private`")
 
+% Prepare inline tests:
+% pmath> Quantity; Get($Input); $Namespace:= "System`QuantityUnits`Private`";
 
-% Returns $Failed insetad of Times @@ factorList if it cannot simplify the product. 
+% Basic Functionality:
+% pmath> Quantity(2, "m") / Quantity(5, "cm")
+%        40
+
+% pmath> QuantityProduct({Quantity(2, "m"), Quantity(2, "cm")})
+%        400 cm^2
+% pmath> QuantityProduct({Quantity(2, "m"), Quantity(2, "s")})
+%        4*(m s)
+%
+% Returns $Failed instead of Times @@ factorList if it cannot simplify the product. 
+%
+% pmath> QuantityProduct({Quantity(2, "m")})
+%        $Failed
 Function QuantityProduct(~factorList) {
     With({{{null, units}, magnitudes}, others}:= factorList |> 
         Scan({

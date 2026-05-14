@@ -7,8 +7,14 @@
 
 
 PMATH_PRIVATE pmath_t builtin_nestlist(pmath_expr_t expr) {
-  /* NestList(f, x, n)
-   */
+// NestList(f, x, n)
+//
+// Example:
+//  pmath> NestList(f, x, 3)
+//         {x, f(x), f(f(x)), f(f(f(x)))}
+//  pmath> NestList(f, x, 0)
+//         {x}
+//
   pmath_t obj, func;
   size_t n;
   

@@ -2,6 +2,8 @@ BeginPackage("System`QuantityUnits`")
 
 Begin("System`QuantityUnits`Private`")
 
+% Prepare inline tests:
+% pmath> Quantity; Get($Input); $Namespace:= "System`QuantityUnits`Private`";
 
 Function FormatQuantity(~mag, ~unit) {
     With(formattedUnit:= FormatQuantityUnitShort(unit))
@@ -15,6 +17,9 @@ Function MakeQuantityBoxes(~mag, ~unit) {
     %TemplateBox({MakeBoxes(mag), formattedUnit, StringForm("`1` (`2`)", unit, descr), MakeBoxes(unit)}, "Quantity")
 }
 
+% Examples:
+% pmath> FormatQuantityUnitShort("Meters" / "Seconds")
+%        m/s
 Function FormatQuantityUnitShort(~unit) {
     With({num, den}:= NumeratorDenominator(unit) |> 
         Replace(~s:String :> With({abbrev:= $AllUnits[s, "UnitShortName"]}, abbrev /? abbrev =!= None), 0..))

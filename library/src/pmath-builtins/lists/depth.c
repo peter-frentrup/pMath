@@ -33,6 +33,17 @@ PMATH_PRIVATE long _pmath_object_depth(pmath_t obj) {
 }
 
 PMATH_PRIVATE pmath_t builtin_depth(pmath_expr_t expr) {
+// Example:
+// pmath> Depth(123)
+//        1
+// pmath> Depth(f())
+//        2
+// pmath> Depth(f(1, g()))
+//        3
+// pmath> Depth({})
+//        2
+// pmath> Depth({{1, 2}, {3, 4}})
+//        3
   pmath_t obj;
   
   if(pmath_expr_length(expr) != 1) {

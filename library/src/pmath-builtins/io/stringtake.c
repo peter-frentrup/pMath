@@ -102,6 +102,30 @@ static pmath_t stringtake(
 }
 
 PMATH_PRIVATE pmath_t builtin_stringtake(pmath_expr_t expr) {
+// Examples:
+//  pmath> StringTake("abcde", 2)
+//         ab
+//  pmath> StringTake("\[Pi]x", 1)
+//         \[Pi]
+//
+// Indices are UTF-16 based.
+//  pmath> StringTake("𝒶𝒷𝒸", 1) // InputForm
+//         "\[U+D835]"
+//  pmath> StringTake("𝒶𝒷𝒸", 2) // InputForm
+//         "\[ScriptA]"
+//  pmath> StringTake("𝒶𝒷𝒸", 3) // InputForm
+//         "\[ScriptA]\[U+D835]"
+//  pmath> StringTake("𝒶𝒷𝒸", 4) // InputForm
+//         "\[ScriptA]\[ScriptB]"
+//  pmath> StringTake("𝒶𝒷𝒸", 5) // InputForm
+//         "\[ScriptA]\[ScriptB]\[U+D835]"
+//  pmath> StringTake("𝒶𝒷𝒸", 6) // InputForm
+//         "\[ScriptA]\[ScriptB]\[ScriptC]"
+//  pmath> StringTake("𝒶𝒷𝒸", 7) // InputForm
+//      StringTake::take: Cannot take positions 1 through 7 in \[ScriptA]\[ScriptB]\[ScriptC]. [1]
+//   
+//         StringTake("\[ScriptA]\[ScriptB]\[ScriptC]", 7)
+//
   pmath_t obj;
   struct _pmath_range_t range;
   

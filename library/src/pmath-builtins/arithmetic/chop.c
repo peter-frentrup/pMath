@@ -58,6 +58,22 @@ static pmath_t chop(
 
 PMATH_PRIVATE
 pmath_t builtin_chop(pmath_expr_t expr) {
+  // Tests:
+  // pmath> Chop(10.0^-9)
+  //        1.0*^-9
+  //
+  // pmath> Chop(10.0^-11)
+  //        0
+  //
+  // pmath> Chop(10^-11)
+  //        1/100000000000
+  //
+  // pmath> Chop({-1.0, 0.0, 0.000001, -1.0*^-17})
+  //        {-1.0, 0, 1.0*^-6, 0}
+  //
+  // pmath> Chop({-2, -2.0, 4, 4.0, -7, -7.0}, 3)
+  //        {-2, 0, 4, 4.0, -7, -7.0}
+  //
   pmath_t obj;
   pmath_number_t tolerance;
   size_t exprlen = pmath_expr_length(expr);

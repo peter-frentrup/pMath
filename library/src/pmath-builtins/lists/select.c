@@ -217,13 +217,19 @@ static pmath_t select_slow(
 }
 
 PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr) {
-  /* Select(list, crit, n)
-     Select(list, crit)    = Select(list, crit, Infinity)
-  
-     messages:
-       General::innf
-       General::nexprat
-   */
+// Select(list, crit, n)
+// Select(list, crit)    = Select(list, crit, Infinity)
+//
+// Messages:
+//   General::innf
+//   General::nexprat
+//
+// Packed arrays are preserved:
+//  pmath> Select(Developer`ToPackedArray({{1}, {2}, {3}, {4}, {5}, {6}}), IsEven(#[1]) &)
+//         {{2}, {4}, {6}}
+//  pmath> Select(Developer`ToPackedArray({{1}, {2}, {3}, {4}, {5}, {6}}), IsEven(#[1]) &) // Developer`PackedArrayForm
+//         PackedArray(Integer, <<3,1>>)
+//
   pmath_t list, crit;
   size_t exprlen, count;
   

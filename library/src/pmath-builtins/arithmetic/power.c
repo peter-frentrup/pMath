@@ -278,6 +278,21 @@ static pmath_rational_t factor_complex(pmath_expr_t *z) {
 
 /** calculate (base^(1/radix))^exponent assuming gcd(exponent, radix) == 1 and exponent > 0 */
 static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t exponent, pmath_bool_t *any_simplifications) {
+// Examples:
+// pmath> 27^(1/3)
+//        3
+// pmath> 4^(1/6)
+//        2^(1/3)
+// pmath> (4 * 27)^(1/6)
+//        2^(1/3) Sqrt(3)
+// pmath> (4 * 27)^(7/6)
+//        108 2^(1/3) Sqrt(3)
+// pmath> (5 * 5 * 3)^(1/3)
+//        3^(1/3) 5^(2/3)
+// pmath> (5 * 3)^(1/3)
+//        15^(1/3)
+// pmath> 5^(1/3) * 3^(1/3)
+//        15^(1/3)
   fmpz_factor_t factors;
   fmpz_t tmp;
   fmpz_t root;

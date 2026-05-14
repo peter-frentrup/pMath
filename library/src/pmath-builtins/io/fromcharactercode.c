@@ -209,9 +209,45 @@ static pmath_string_t try_from_packed_array(pmath_packed_array_t codes, pmath_t(
 }
 
 PMATH_PRIVATE pmath_t builtin_fromcharactercode(pmath_expr_t expr) {
-  /* ToCharacterCode(codes)
-     ToCharacterCode(codes, encoding)
-   */
+// ToCharacterCode(codes)
+// ToCharacterCode(codes, encoding)
+//
+// Examples:
+//  pmath> FromCharacterCode({97, 98, 99})           // InputForm
+//         "abc"
+//  pmath> FromCharacterCode({97, 98, 99}, "ASCII")  // InputForm
+//         "abc"
+//  pmath> FromCharacterCode({97, 98, 99}, "UTF-8")  // InputForm
+//         "abc"
+//  pmath> FromCharacterCode({97, 98, 99}, "UTF-16") // InputForm
+//         "abc"
+//  pmath> FromCharacterCode({97, 98, 99}, "UTF-32") // InputForm
+//         "abc"
+//
+//  pmath> FromCharacterCode({16^^3b1, 16^^3b2})                        // InputForm
+//         "\[Alpha]\[Beta]"
+//  pmath> FromCharacterCode({16^^ce, 16^^B1, 16^^ce, 16^^b2}, "UTF-8") // InputForm
+//         "\[Alpha]\[Beta]"
+//
+//  pmath> FromCharacterCode({16^^2211})                        // InputForm
+//         "\[Sum]"
+//  pmath> FromCharacterCode({16^^E2, 16^^88, 16^^91}, "UTF-8") // InputForm
+//         "\[Sum]"
+//
+//  pmath> FromCharacterCode({16^^1234, 0, 16^^ffff})  // InputForm
+//         "\[U+1234]\[U+0000]\[U+FFFF]"
+//
+//  pmath> FromCharacterCode({16^^12345}, "Unicode")                    // InputForm
+//         "\[U+12345]"
+//  pmath> FromCharacterCode({16^^12345}, "UTF-32")                     // InputForm
+//         "\[U+12345]"
+//  pmath> FromCharacterCode({16^^D808, 16^^DF45})                      // InputForm
+//         "\[U+12345]"
+//  pmath> FromCharacterCode({16^^D808, 16^^DF45}, "UTF-16")            // InputForm
+//         "\[U+12345]"
+//  pmath> FromCharacterCode({16^^F0, 16^^92, 16^^8D, 16^^85}, "UTF-8") // InputForm
+//         "\[U+12345]"
+//
   pmath_t codes;
   pmath_t tmp;
   pmath_bool_t give_list_of_strings;

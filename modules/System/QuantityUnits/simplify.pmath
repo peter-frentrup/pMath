@@ -4,8 +4,17 @@ ConsolidateValidQuantityUnits
 
 Begin("System`QuantityUnits`Private`")
 
+% Prepare inline tests:
+% pmath> Quantity; Get($Input); $Namespace:= "System`QuantityUnits`Private`";
 
-% unit may contain numeric factors
+
+
+% Unit may contain numeric factors.
+%
+% pmath> ConsolidateValidQuantityUnits(4, 2 "Meters")
+%        8 m
+% pmath> ConsolidateValidQuantityUnits(5000, "Centimeters", {"Meters", "Miles", "Seconds"})
+%        50 m
 Function ConsolidateValidQuantityUnits(~mag, ~unit, ?otherAllowedUnits:{}) {
     If(IsNumeric(unit)) {
         Return(mag * unit)
@@ -38,6 +47,9 @@ Function ConsolidateValidQuantityUnits(~mag, ~unit, ?otherAllowedUnits:{}) {
 
 
 % Reduces units that are just numeric factors of each other and gives all possible choises of such reductions.
+%
+% pmath> reducedUnitsCases("Centimeters", {"Meters", "Miles", "Seconds"})
+%        {Centimeters, 5/804672 Miles, 1/100 Meters}
 Function reducedUnitsCases(~unit, ~otherAllowedUnits) {
     With(unitGroups:= {unit, otherAllowedUnits} |> 
         Cases(~u:String :> ($AllUnits[u, "UnitDimensions"] -> u), 0..) |> 

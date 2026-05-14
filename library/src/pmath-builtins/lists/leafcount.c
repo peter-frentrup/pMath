@@ -36,6 +36,19 @@ static size_t leafcount(pmath_t obj) { // obj will be freed
 }
 
 PMATH_PRIVATE pmath_t builtin_leafcount(pmath_expr_t expr) {
+// Examples:
+//  pmath> LeafCount(123)
+//         1
+//  pmath> LeafCount(1+x)
+//         3
+//  pmath> LeafCount(1+x^2)
+//         5
+//  pmath> LeafCount(1-x)
+//         5
+//  pmath> FullForm(1+x^2)
+//         Plus(1, Power(x, 2))
+//  pmath> FullForm(1-x)
+//         Plus(1, Times(-1, x))
   pmath_t obj;
   
   if(pmath_expr_length(expr) != 1) {

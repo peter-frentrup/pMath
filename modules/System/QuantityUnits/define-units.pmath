@@ -210,11 +210,15 @@ addDerivedUnit("Ares", (10 "Meters")^2, "a")
 addSIPrefixes("Ares", "ares")
 
 % Special case: "Pa" is formally both, "Petaares" and a "Pascals".  Nobody means petaares, so remove that shorthand.
+% pmath> Quantity(1, "Pa") |> InputForm
+%        Quantity(1, "Pascals")
 ud:= unitData("Petaares")
 ud["UnitShortName"]:= None
 unitData("Petaares") := ud
 
 % Special case: "ha" is both, "Hectoares" and "Hectares", which are just different words for the same. We prefer "Hectares" instead of being pedantic.
+% pmath> Quantity(1, "ha") |> InputForm
+%        Quantity(1, "Hectares")
 ud:= unitData("Hectoares")
 ud["UnitShortName"]:= None
 unitData("Hectoares") := ud
@@ -251,6 +255,8 @@ addDerivedUnit("Yards", 3 "Feet", "yd")
 addDerivedUnit("Miles", 5280 "Feet", "mi")
 
 % Special case: "ft" is formally both, "FemtometricTons" and a "Feet".  Nobody means femto tons, so remove that shorthand.
+% pmath> Quantity(1, "ft") |> InputForm
+%        Quantity(1, "Feet")
 ud:= unitData("FemtometricTons")
 ud["UnitShortName"]:= None
 unitData("FemtometricTons") := ud

@@ -16,11 +16,44 @@ static void emit_file_name_components_windows(pmath_string_t s);
 static void emit_file_name_components_posix(pmath_string_t s);
 
 PMATH_PRIVATE pmath_t eval_System_FileNameSplit(pmath_expr_t expr) {
-  /* FileNameSplit(path)
-     
-     options:
-      OperatingSystem -> "Windows" | "Unix" | "Linux" | "MacOSX" | ...
-   */
+// FileNameSplit(path)
+// 
+// Options:
+//  OperatingSystem -> "Windows" | "Unix" | "Linux" | "MacOSX" | ...
+//
+// Examples:
+// 1) Windows:
+//  pmath> FileNameSplit("X:\\path\\to\\file.txt", OperatingSystem -> "Windows") // InputForm
+//         {"X:\\", "path", "to", "file.txt"}
+//  pmath> FileNameSplit("\\a\\b\\c", OperatingSystem -> "Windows") // InputForm
+//         {"", "a", "b", "c"}
+//  pmath> FileNameSplit("\\a\\b\\..\\c", OperatingSystem -> "Windows") // InputForm
+//         {"", "a", "b", "..", "c"}
+//  pmath> FileNameSplit("/a/b/c", OperatingSystem -> "Windows") // InputForm
+//         {"", "a", "b", "c"}
+//  pmath> FileNameSplit("/a\\b/c", OperatingSystem -> "Windows") // InputForm
+//         {"", "a", "b", "c"}
+//  pmath> FileNameSplit("a\\b\\c", OperatingSystem -> "Windows") // InputForm
+//         {"a", "b", "c"}
+//  pmath> FileNameSplit("a/b/c", OperatingSystem -> "Windows") // InputForm
+//         {"a", "b", "c"}
+//  pmath> FileNameSplit("a\\b/c", OperatingSystem -> "Windows") // InputForm
+//         {"a", "b", "c"}
+//  pmath> FileNameSplit("\\\\server\\share\\path\\to\\file.txt", OperatingSystem -> "Windows") // InputForm
+//         {"\\\\server\\share", "path", "to", "file.txt"}
+//
+// 2) Unix:
+//  pmath> FileNameSplit("/a/b/c", OperatingSystem -> "Unix") // InputForm
+//         {"/", "a", "b", "c"}
+//  pmath> FileNameSplit("/a/b/../c", OperatingSystem -> "Unix") // InputForm
+//         {"/", "a", "b", "..", "c"}
+//  pmath> FileNameSplit("/a\\b/c", OperatingSystem -> "Unix") // InputForm
+//         {"/", "a\\b", "c"}
+//  pmath> FileNameSplit("a/b/c", OperatingSystem -> "Unix") // InputForm
+//         {"a", "b", "c"}
+//  pmath> FileNameSplit("a\\b/c", OperatingSystem -> "Unix") // InputForm
+//         {"a\\b", "c"}
+//
   pmath_t path;
   pmath_t options;
   enum filesystem_flavour_t flavour;

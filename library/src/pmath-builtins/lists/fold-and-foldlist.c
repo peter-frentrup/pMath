@@ -9,8 +9,18 @@
 extern pmath_symbol_t pmath_System_List;
 
 PMATH_PRIVATE pmath_t builtin_fold(pmath_expr_t expr) {
-  /* Fold(list, f, x)      === FoldList(list, f, x)[-1]
-   */
+// Fold(list, f, x)      === FoldList(list, f, x)[-1]
+//
+// Examples:
+//  pmath> Fold({1,2,3}, f, x)
+//         f(f(f(x, 1), 2), 3)
+//
+//  pmath> Fold({}, f, x)
+//         x
+//
+//  pmath> Fold(g(1, 2), f, x)
+//         f(f(x, 1), 2)
+
   pmath_t f, x;
   pmath_expr_t list;
   size_t i;
@@ -46,8 +56,18 @@ PMATH_PRIVATE pmath_t builtin_fold(pmath_expr_t expr) {
 }
 
 PMATH_PRIVATE pmath_t builtin_foldlist(pmath_expr_t expr) {
-  /* FoldList(list, f, x)
-   */
+// FoldList(list, f, x)
+//
+// Examples:
+//  pmath> FoldList({1,2,3}, f, x)
+//         {x, f(x, 1), f(f(x, 1), 2), f(f(f(x, 1), 2), 3)}
+//
+//  pmath> FoldList({}, f, x)
+//         {x}
+//
+//  pmath> FoldList(g(1, 2), f, x)
+//         {x, f(x, 1), f(f(x, 1), 2)}
+
   pmath_t f, x;
   pmath_expr_t list, result;
   size_t i;

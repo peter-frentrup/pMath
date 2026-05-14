@@ -6,8 +6,14 @@
 
 
 PMATH_PRIVATE pmath_t builtin_nest(pmath_expr_t expr) {
-  /* Nest(f, x, n)
-   */
+// Nest(f, x, n)
+//
+// Example:
+//  pmath> Nest(f, x, 3)
+//         f(f(f(x)))
+//  pmath> Nest(f, x, 0)
+//         x
+//
   pmath_t obj, func;
   size_t n;
   

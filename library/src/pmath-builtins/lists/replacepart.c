@@ -616,19 +616,94 @@ static pmath_expr_t prepare_repl_rules(pmath_t rules) {
 }
 
 PMATH_PRIVATE pmath_t builtin_replacepart(pmath_expr_t expr) {
-  /* ReplacePart(list, i -> new)
-     ReplacePart(list, {i1 -> new1, i2 -> new2, ...})
-     ReplacePart(list, {i, j, ...} -> new)
-     ReplacePart(list, {{i1, j1, ...} -> new1, {i2, j2, ...} -> new2, ...})
-     ReplacePart(list, pattern -> new)
-     ReplacePart(list, {pattern1 -> new1, pattern2 -> new2, ...})
+/// ReplacePart(list, i -> new)
+/// ReplacePart(list, {i1 -> new1, i2 -> new2, ...})
+/// ReplacePart(list, {i, j, ...} -> new)
+/// ReplacePart(list, {{i1, j1, ...} -> new1, {i2, j2, ...} -> new2, ...})
+/// ReplacePart(list, pattern -> new)
+/// ReplacePart(list, {pattern1 -> new1, pattern2 -> new2, ...})
+///
+/// Options:
+///   Head -> False
+///
+/// messages:
+///   General::reps:=  "`1` is not a list of replacement rules."
+///
+/// Examples:
+/// 1) Basic
+///   pmath> ReplacePart({a, b, c, d, e}, 3 -> xxx)
+///          {a, b, xxx, d, e}
+///   pmath> ReplacePart({a, b, c, d, e}, {2 -> xx, 5 -> yy})
+///          {a, xx, c, d, yy}
+///   pmath> ReplacePart({a, b, c, d, e}, {2 -> xx, 2 -> yy})
+///          {a, xx, c, d, e}
+///   pmath> ReplacePart({a, b, c, d, e}, {3 -> u, ~ -> x})
+///          {x, x, u, x, x}
+///   pmath> ReplacePart({{a, b}, {c, d}}, {2, 1} -> xx)
+///          {{a, b}, {xx, d}}
+/// 
+/// 2) Patterns
+///   pmath> ReplacePart({{a, b}, {c, d}}, {~i, ~i} -> xx)
+///          {{xx, b}, {c, xx}}
+///   pmath> ReplacePart({{a, b}, {c, d}}, {~i, ~i} :> f(i))
+///          {{f(1), b}, {c, f(2)}}
+///   pmath> ReplacePart(a + b + c^n, {{3, 2} -> x + y, 2 -> b^100})
+///          a + b^100 + c^(x + y)
+///   pmath> ReplacePart(IdentityMatrix(5), {~, 1 | 5} -> x)
+///          {{x, 0, 0, 0, x}, {x, 1, 0, 0, x}, {x, 0, 1, 0, x}, {x, 0, 0, 1, x}, {x, 0, 0, 0, x}}
+///
+/// 3) Scope - Outside bounds: no-op
+///   pmath> ReplacePart({a, b, c, d}, 5 -> x)
+///          {a, b, c, d}
+///   Scope - Negative indices
+///   pmath> ReplacePart({a, b, c, d, e, f, g}, -3 -> xxx)
+///          {a, b, c, d, xxx, f, g}
+///   Scope - Negative, outside bounds: no-op
+///   pmath> ReplacePart({a, b, c, d, e, f, g}, -8 -> xxx)
+///          {a, b, c, d, e, f, g}
+/// 
+/// 4) Multiple replacements
+///   pmath> ReplacePart({a, b, c, d, e, f, g}, {{1}, {3}, {5}} -> xxx)
+///          {xxx, b, xxx, d, xxx, f, g}
+///   pmath> ReplacePart({a, b, c, d, e, f, g}, (1 | 3 | 5) -> xxx)
+///          {xxx, b, xxx, d, xxx, f, g}
+///   pmath> ReplacePart({a, b, c, d, e, f, g}, Except(1 | 3 | 5) -> xxx)
+///          {a, xxx, c, xxx, e, xxx, xxx}
+///   pmath> ReplacePart({a, b, c, d, e, f, g}, ~?IsEven -> xxx)
+///          {a, xxx, c, xxx, e, xxx, g}
+///   pmath> ReplacePart({{a, b, c}, {d, e}, {f}}, {1, ~} -> xx)
+///          {{xx, xx, xx}, {d, e}, {f}}
+///   pmath> ReplacePart({{a, b, c}, {d, e}, {f}}, {~, -1} -> xx)
+///          {{a, b, xx}, {d, xx}, {xx}}
+///   pmath> ReplacePart({{a, b, c}, {d, e}, {f}}, {~i, -1} :> xx(i))
+///          {{a, b, xx(1)}, {d, xx(2)}, {xx(3)}}
+///   pmath> ReplacePart({{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {~i, ~i} :> x)
+///          {{x, 0, 0}, {0, x, 0}, {0, 0, x}}
+///   pmath> ReplacePart({{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {~i, ~i} -> f(i))
+///          {{f(1), 0, 0}, {0, f(2), 0}, {0, 0, f(3)}}
+///   pmath> ReplacePart({{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {~~~, 2, ~~~} -> f(1,1,1))
+///          {{0, f(1, 1, 1), 0}, f(1, 1, 1), {0, f(1, 1, 1), 0}}
+///   pmath> ReplacePart({{a, b, c}, {d, e}, {f}}, ~~i -> s(i))
+///          {s(1), s(2), s(3)}
+///
+/// 5) Replace heads
+///   pmath> ReplacePart(f(x, y), 0 -> g)
+///          g(x, y)
+///   pmath> ReplacePart(f(x, y), 0 -> g, Heads -> False)
+///          f(x, y)
+///   pmath> ReplacePart(f(x, y), ~ -> g)
+///          f(g, g)
+///   pmath> ReplacePart(f(x, y), ~ -> g, Heads -> True)
+///          g(g, g)
+///   pmath> ReplacePart(f(g)(x, y), {0, 1} -> hh)
+///          f(hh)(x, y)
+///
+/// 6) Beware of reordering of Orderless functions
+///   pmath> ReplacePart(a x^2 + y^2 + c z^2, {~~~, 0} -> List)
+///          {{y, 2}, {a, {x, 2}}, {c, {z, 2}}}
+///   pmath> ReplacePart(ReplacePart(a + b + c, 1 -> x), 3 -> y)
+///          b + c + y
 
-     Options:
-       Head -> False
-
-     messages:
-       General::reps:=  "`1` is not a list of replacement rules."
-   */
   uint8_t heads_opt = OPT_HEADS_AUTOMATIC;
   pmath_expr_t rules, list;
   size_t i, len;

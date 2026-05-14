@@ -10,12 +10,62 @@ extern pmath_symbol_t pmath_System_Integer;
 extern pmath_symbol_t pmath_System_Real;
 
 PMATH_PRIVATE pmath_t builtin_developer_topackedarray(pmath_expr_t expr) {
-/* Developer`ToPackedArray(expr)
-   Developer`ToPackedArray(expr, type)
-   
-   TODO: allow conversion to more restrictive type (Real -> Integer) and
-         specifying tolerance setting for conversion
- */
+// Developer`ToPackedArray(expr)
+// Developer`ToPackedArray(expr, type)
+// 
+// TODO: Allow conversion to more restrictive type (Real -> Integer) and
+//       specifying tolerance setting for conversion
+//
+// 1) Integer
+//  pmath> intList:= {0, 8, 15, -42}
+//         {0, 8, 15, -42}
+//  pmath> packedIntList:= intList |> Developer`ToPackedArray
+//         {0, 8, 15, -42}
+//  
+//  pmath> intList === packedIntList
+//         True
+//  
+//  pmath> Developer`PackedArrayForm(intList)
+//         {0, 8, 15, -42}
+//  pmath> Developer`PackedArrayForm(packedIntList)
+//         PackedArray(Integer, <<4>>)
+//  
+// 2) Real
+//  pmath> realList:= {0.0, 8.0, 1.5, -4.2}
+//         {0.0, 8.0, 1.5, -4.2}
+//  pmath> packedRealList:= realList |> Developer`ToPackedArray
+//         {0.0, 8.0, 1.5, -4.2}
+//  
+//  pmath> Developer`PackedArrayForm(realList)
+//         {0.0, 8.0, 1.5, -4.2}
+//  pmath> Developer`PackedArrayForm(packedRealList)
+//         PackedArray(Real, <<4>>)
+//  
+//  pmath> realList === packedRealList
+//         True
+//  
+// 3) Mixed
+//  pmath> mixedList:= {0, 1.0, -4.0, 5.5}
+//         {0, 1.0, -4.0, 5.5}
+//  pmath> failPackMixedAsInteger:= mixedList |> Developer`ToPackedArray(Integer)
+//         {0, 1.0, -4.0, 5.5}
+//  pmath> packMixedAsReal:= mixedList |> Developer`ToPackedArray(Real)
+//         {0.0, 1.0, -4.0, 5.5}
+//  
+//  pmath> mixedList === failPackMixedAsInteger
+//         True
+//  
+//  pmath> Developer`PackedArrayForm(mixedList)
+//         {0, 1.0, -4.0, 5.5}
+//  pmath> Developer`PackedArrayForm(failPackMixedAsInteger)
+//         {0, 1.0, -4.0, 5.5}
+//  pmath> Developer`PackedArrayForm(packMixedAsReal)
+//         PackedArray(Real, <<4>>)
+//
+//  pmath> Hash(Numericalize(mixedList)) === Hash(packMixedAsReal)
+//         True
+//  pmath> Numericalize(mixedList) === packMixedAsReal
+//         True
   pmath_t list;
   pmath_packed_type_t expected_type = 0;
   
