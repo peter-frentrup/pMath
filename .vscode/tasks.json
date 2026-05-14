@@ -7,6 +7,18 @@
             "command": "${workspaceRoot}/library/test-runner/bin/windows/msvc-release-x64/test-runner.exe",
             "args": ["${file}"],
             "group": "test"
+        },
+        {
+            "label": "all inline tests",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-ExecutionPolicy", "Bypass",
+                "-NoProfile",
+                "-NoLogo",
+                "-NonInteractive",
+                "-File", "${workspaceRoot}/library/test-runner/run-all.ps1"],
+            "group": "test"
         }
     ]
 }
