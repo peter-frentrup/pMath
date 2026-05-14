@@ -39,8 +39,8 @@ Log(_T("Execute pMath Test-Runner on '") + filepath + _T("' ..."))
 local output = IO.ExecuteAndGetOutputAndError(test_runner + _T(" \"") + filepath + _T("\""), true);
 if(output.Find(_T("Different!")) >= 0) {
 	LogWarning(output);
+	editor.Reload(true);
 } else {
 	Log(output);
 }
 
-editor.Reload(true);
