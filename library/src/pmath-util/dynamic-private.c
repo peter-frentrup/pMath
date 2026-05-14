@@ -38,6 +38,7 @@ struct id2symbols_t {
 };
 
 extern pmath_symbol_t pmath_Internal_DynamicUpdated;
+extern pmath_symbol_t pmath_System_HoldComplete;
 
 static void id2symbols_destructor(void *p) {
   if(p) {
@@ -231,6 +232,37 @@ PMATH_PRIVATE void _pmath_dynamic_bind(pmath_symbol_t symbol, intptr_t id) {
   
   pmath_mem_free(idlist);
   pmath_mem_free(symlist);
+}
+
+PMATH_PRIVATE pmath_t _pmath_dynamic_get_tracked_symbols(intptr_t id) {
+  pmath_hashtable_t i2s_table;
+  pmath_hashtable_t s2i_table;
+  
+  pmath_t all = PMATH_NULL;
+  
+  lock_tables(&i2s_table, &s2i_table);
+  {
+    struct id2symbols_t *i2s_entry = pmath_ht_search(i2s_table, (void*)id);
+    if(i2s_entry) {
+      size_t i = 0;
+      for(struct symbol_list_t *syms = i2s_entry->symbols; syms; syms = syms->next) {
+        ++i;
+      }
+      
+      all = pmath_expr_new(pmath_ref(pmath_System_HoldComplete), i);
+      
+      i = 0;
+      for(struct symbol_list_t *syms = i2s_entry->symbols; syms; syms = syms->next) {
+        all = pmath_expr_set_item(all, ++i, pmath_ref(syms->symbol));
+      }
+    }
+  }
+  unlock_tables(i2s_table, s2i_table);
+  
+  if(pmath_is_null(all)) {
+    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
+  }
+  return all;
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_dynamic_remove(intptr_t id) {

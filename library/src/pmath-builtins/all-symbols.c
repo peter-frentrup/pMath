@@ -236,6 +236,7 @@ PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_getcurrentdynamicid(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_gettrackedsymbols(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(               pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_suppressdynamictrackingblock(pmath_expr_t expr);
@@ -889,6 +890,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_Internal_DynamicRemove,                builtin_internal_dynamicremove)
   BIND_DOWN(   pmath_Internal_GetCurrentDirectory,          builtin_internal_getcurrentdirectory)
   BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,          builtin_internal_getcurrentdynamicid)
+  BIND_DOWN(   pmath_Internal_GetTrackedSymbols,            builtin_internal_gettrackedsymbols)
   BIND_DOWN(   pmath_Internal_GetThreadID,                  builtin_getthreadid)
   BIND_DOWN(   pmath_Internal_MakeTrustedFunction,          builtin_internal_maketrustedfunction)
   BIND_DOWN(   pmath_Internal_NextToward,                   builtin_internal_nexttoward)

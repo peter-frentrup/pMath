@@ -18,8 +18,19 @@ extern pmath_symbol_t pmath_Internal_DynamicEvaluate;
 extern pmath_symbol_t pmath_System_TrackedSymbols;
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr) {
-  /* Internal`DynamicEvaluate(expr, id)
-   */
+// Internal`DynamicEvaluate(expr, id)
+// 
+// Examples:
+//  pmath> Internal`DynamicEvaluate(1 + x, 111)
+//         1 + x
+//  pmath> Internal`DynamicEvaluate(x * y, 222)
+//         x y
+//
+//  pmath> Unprotect(Internal`DynamicUpdated); Internal`DynamicUpdated(~~~ids)::= Print("Updated: ", {ids})
+//
+//  pmath> x:= 7;
+//      Updated: {222, 111}
+//   
   pmath_t id_obj, dyn_expr;
   pmath_thread_t thread = pmath_thread_get_current();
   
@@ -79,6 +90,50 @@ PMATH_PRIVATE pmath_t builtin_internal_getcurrentdynamicid(pmath_expr_t expr) {
   
   pmath_unref(expr);
   return pmath_integer_new_siptr(pmath_dynamic_get_current_tracker_id());
+}
+
+PMATH_PRIVATE pmath_t builtin_internal_gettrackedsymbols(pmath_expr_t expr) {
+// Internal`GetTrackedSymbols(id)
+// 
+// Example (cont'd):
+//  pmath> Internal`DynamicEvaluate(1 + x, 111)
+//         8
+//  pmath> Internal`DynamicEvaluate(x * y, 222)
+//         7 y
+//
+//  pmath> Internal`GetTrackedSymbols(111)
+//         HoldComplete(x, Plus)
+//  pmath> Internal`GetTrackedSymbols(222)
+//         HoldComplete(y, x, Times)
+//  
+//  pmath> y:= 2
+//      Updated: {222}
+//   
+//         2
+//  pmath> Internal`GetTrackedSymbols(111)
+//         HoldComplete(x, Plus)
+//  pmath> Internal`GetTrackedSymbols(222)
+//         HoldComplete()
+//
+//  pmath> Internal`DynamicEvaluate(x * y, 222)
+//         14
+//  pmath> Internal`GetTrackedSymbols(222)
+//         HoldComplete(y, x, Times)
+//
+  if(pmath_expr_length(expr) != 1) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  pmath_t id_obj = pmath_expr_get_item(expr, 1);
+  if(pmath_is_int32(id_obj)) {
+    pmath_unref(expr);
+    expr = _pmath_dynamic_get_tracked_symbols(PMATH_AS_INT32(id_obj));
+    return expr;
+  }
+  
+  pmath_unref(id_obj);
+  return expr;
 }
 
 /** Get the TrackedSymbols option value in a Dynamic(...).
@@ -180,8 +235,11 @@ static pmath_t replace_dynamic(
 }
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr) {
-  /* Internal`DynamicEvaluateMultiple(expr, id)
-   */
+// Internal`DynamicEvaluateMultiple(expr, id)
+//
+// Example:
+//  pmath> Internal`DynamicEvaluateMultiple({Dynamic(1+x), Dynamic(1+y)}, 333)
+//         {8, 3}
   pmath_t id_obj, dyn_expr;
   pmath_thread_t thread = pmath_thread_get_current();
   
@@ -208,8 +266,14 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr
 }
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(pmath_expr_t expr) {
-  /* Internal`DynamicRemove(id1, id2, ...)
-   */
+// Internal`DynamicRemove(id1, id2, ...)
+// 
+// Example (cont'd):
+//  pmath> Internal`DynamicRemove(111, 222)
+//  pmath> y:= 3
+//      Updated: {333}
+//   
+//         3
   size_t len = pmath_expr_length(expr);
   size_t i;
   

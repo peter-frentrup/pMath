@@ -28,9 +28,16 @@ PMATH_PRIVATE extern pmath_atomic_t _pmath_dynamic_trackers;
     set to the current time.
     
     \param symbol  Wont be freed.
-    \param id      An non-zerlo opaque dynamic object identifier.
+    \param id      An non-zero opaque dynamic object identifier.
  */
 PMATH_PRIVATE void _pmath_dynamic_bind(pmath_symbol_t symbol, intptr_t id);
+
+/** Get all symbols that bind to a given dynamic object id.
+    
+    \param id An non-zero opaque dynamic object identifier.
+    \return An expression of the form HoldComplete(sym1, sym2, ...)
+ */
+PMATH_PRIVATE pmath_t _pmath_dynamic_get_tracked_symbols(intptr_t id);
 
 /** Remove all symbol bindings of a dynamic object and reset/clear its first-evlauation time.
     
