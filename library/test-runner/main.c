@@ -285,8 +285,8 @@ static struct {
 } output;
 
 
-#define PROMPT        S("pmath> ")
-#define PROMPT_MORE   S("     > ")
+#define PROMPT        S("pmath>")
+#define PROMPT_MORE   S("     >")
 #define OUTPUT_INDENT S("       ")
 #define PRINT_INDENT  S("    ")
 #define ECHO_INDENT   S(" >> ")
