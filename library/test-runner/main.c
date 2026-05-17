@@ -285,11 +285,12 @@ static struct {
 } output;
 
 
-#define PROMPT        S("pmath>")
-#define PROMPT_MORE   S("     >")
-#define OUTPUT_INDENT S("       ")
-#define PRINT_INDENT  S("    ")
-#define ECHO_INDENT   S(" >> ")
+#define PROMPT         S("pmath>")
+#define PROMPT_MORE    S("     >")
+#define OUTPUT_INDENT  S("       ")
+#define PRINT_INDENT   S("    ")
+#define ECHO_INDENT    S(" >> ")
+#define MESSAGE_INDENT S(" ERR: ")
 
 
 //{ General string utility functions ...
@@ -852,6 +853,10 @@ static Str convert_style_to_indent(pmath_t style) {
     pmath_unref(style);
     return ECHO_INDENT;
   }
+  if(pmath_string_equals_latin1(style, "Message")) {
+    pmath_unref(style);
+    return MESSAGE_INDENT;
+  }
   
   pmath_unref(style);
   return PRINT_INDENT;
@@ -888,7 +893,6 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
       write_output(indent, item);
       
       pmath_unref(item);
-      Str_write_prefixed_line(S(" "));
     }
     
     pmath_unref(sections);
@@ -919,7 +923,6 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     pmath_unref(row);
   }
   
-  Str_write_prefixed_line(S(" "));
   return expr;
 }
 

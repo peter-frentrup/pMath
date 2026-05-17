@@ -122,8 +122,7 @@ PMATH_PRIVATE pmath_t builtin_stringtake(pmath_expr_t expr) {
 //  pmath> StringTake("𝒶𝒷𝒸", 6) // InputForm
 //         "\[ScriptA]\[ScriptB]\[ScriptC]"
 //  pmath> StringTake("𝒶𝒷𝒸", 7) // InputForm
-//      StringTake::take: Cannot take positions 1 through 7 in \[ScriptA]\[ScriptB]\[ScriptC]. [1]
-//   
+//   ERR: StringTake::take: Cannot take positions 1 through 7 in \[ScriptA]\[ScriptB]\[ScriptC]. [1]
 //         StringTake("\[ScriptA]\[ScriptB]\[ScriptC]", 7)
 //
   pmath_t obj;

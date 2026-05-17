@@ -30,7 +30,6 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr) {
 //
 //  pmath> x:= 7;
 //      Updated: {222, 111}
-//   
   pmath_t id_obj, dyn_expr;
   pmath_thread_t thread = pmath_thread_get_current();
   
@@ -108,7 +107,6 @@ PMATH_PRIVATE pmath_t builtin_internal_gettrackedsymbols(pmath_expr_t expr) {
 //  
 //  pmath> y:= 2
 //      Updated: {222}
-//   
 //         2
 //  pmath> Internal`GetTrackedSymbols(111)
 //         HoldComplete(x, Plus)
@@ -272,7 +270,6 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(pmath_expr_t expr) {
 //  pmath> Internal`DynamicRemove(111, 222)
 //  pmath> y:= 3
 //      Updated: {333}
-//   
 //         3
   size_t len = pmath_expr_length(expr);
   size_t i;
