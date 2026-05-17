@@ -298,7 +298,9 @@ static pmath_bool_t is_minus(pmath_t box);
 static pmath_bool_t is_inversion(pmath_t box);
 static pmath_t remove_paren(pmath_t box);
 static uint16_t first_char(pmath_t box);
-static uint16_t last_char (pmath_t box);
+static pmath_string_t last_token(pmath_t box);
+static pmath_bool_t is_simple_number(pmath_string_t s);
+static pmath_bool_t need_space_between_factors(pmath_t a, pmath_t b);
 static void emit_num_den(pmath_expr_t product);
 
 // For InputForm:
@@ -1091,31 +1093,46 @@ static uint16_t first_char(pmath_t box) {
   return 0;
 }
 
-static uint16_t last_char(pmath_t box) {
-  if(pmath_is_string(box)) {
-    int len = pmath_string_length(box);
-    if(len > 0)
-      return pmath_string_buffer(&box)[len - 1];
-      
-    return 0;
-  }
+static pmath_string_t last_token(pmath_t box) {
+  if(pmath_is_string(box))
+    return pmath_ref(box);
   
   if(pmath_is_expr(box) && pmath_expr_length(box) > 0) {
     pmath_t item = pmath_expr_get_item(box, 0);
     pmath_unref(item);
     
     if(pmath_same(item, pmath_System_List)) {
-      uint16_t result;
+      pmath_string_t result;
       
       item = pmath_expr_get_item(box, pmath_expr_length(box));
-      result = last_char(item);
+      result = last_token(item);
       pmath_unref(item);
       
       return result;
     }
   }
   
-  return 0;
+  return PMATH_NULL;
+}
+
+static pmath_bool_t is_simple_number(pmath_string_t s) {
+  int len = pmath_string_length(s);
+  const uint16_t *buf = pmath_string_buffer(&s);
+  
+  int i = 0;
+  while(i < len && pmath_char_is_digit(buf[i]))
+    ++i;
+  
+  if(i == 0)
+    return FALSE;
+  
+  if(i < len && buf[i] == '.')
+    ++i;
+    
+  while(i < len && pmath_char_is_digit(buf[i]))
+    ++i;
+  
+  return i == len;
 }
 
 #define NUM_TAG  PMATH_NULL
@@ -2001,7 +2018,49 @@ static pmath_t tagassign_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { //
   return call_to_boxes(thread, expr);
 }
 
+static pmath_bool_t need_space_between_factors(pmath_t a, pmath_t b) {
+  pmath_string_t a_end = last_token(a);
+  if(is_simple_number(a_end)) {
+    pmath_unref(a_end);
+    
+    uint16_t ch = first_char(b);
+    if(ch == '(' || ch == '[' || pmath_char_is_digit(ch))
+      return TRUE;
+    
+//    pmath_token_t tok = pmath_token_analyse(&ch, 1, NULL);
+//    switch(tok) {
+//      case PMATH_TOK_LEFTCALL: return TRUE;
+//      case PMATH_TOK_DIGIT:    return TRUE;
+//    }
+    
+    return FALSE;
+  }
+  else {
+    pmath_unref(a_end);
+    return TRUE;
+  }
+}
+
 static pmath_t times_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
+// Inserts spaces where necessary, but not between numbers and symbols
+//  pmath> MakeBoxes(3 x y)                            // InputForm
+//         {"3", "x", " ", "y"}
+//  pmath> MakeBoxes(x1 y)                             // InputForm
+//         {"x1", " ", "y"}
+//  pmath> MakeBoxes(3 4)                              // InputForm
+//         {"3", " ", "4"}
+//  pmath> MakeBoxes(2 * f |> BaseForm(16))            // InputForm
+//         {"16^^2", " ", "f"}
+//  pmath> MakeBoxes(x^2 y)                            // InputForm
+//         {{"x", SuperscriptBox("2")}, " ", "y"}
+//  pmath> MakeBoxes(x^2y // InputForm)                // InputForm
+//         StyleBox({{"x", "^", "2"}, "y"}, AutoDelete -> True, AutoNumberFormating -> False, 
+//           ShowStringCharacters -> True)
+//  pmath> MakeBoxes(x^n y)                            // InputForm
+//         {{"x", SuperscriptBox("n")}, " ", "y"}
+//  pmath> MakeBoxes(x^n y // InputForm)               // InputForm
+//         StyleBox({{"x", "^", "n"}, " ", "y"}, AutoDelete -> True, AutoNumberFormating -> False, 
+//           ShowStringCharacters -> True)
   size_t len = pmath_expr_length(expr);
   
   if(len >= 2) {
@@ -2027,11 +2086,9 @@ static pmath_t times_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // exp
     }
     
     if(pmath_expr_length(den) == 0) {
-      pmath_token_t last_tok;
       pmath_t factor;
       pmath_t prevfactor;
       pmath_bool_t div = FALSE;
-      uint16_t ch;
       size_t i;
       size_t numlen = pmath_expr_length(num);
       
@@ -2046,24 +2103,14 @@ static pmath_t times_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // exp
         minus      = pmath_expr_get_item(den, 1);
         prevfactor = pmath_expr_get_item(den, 2);
         pmath_unref(den);
-        
-        prevfactor = ensure_min_precedence(prevfactor, PMATH_PREC_MUL + 1, -1);
-        ch = last_char(prevfactor);
-        last_tok = pmath_token_analyse_output(&ch, 1, NULL);
       }
-      else {
-        prevfactor = ensure_min_precedence(prevfactor, PMATH_PREC_MUL + 1, -1);
-        ch = last_char(prevfactor);
-        last_tok = pmath_token_analyse_output(&ch, 1, NULL);
-      }
+      
+      prevfactor = ensure_min_precedence(prevfactor, PMATH_PREC_MUL + 1, -1);
       
       for(i = 2; i <= numlen; ++i) {
         factor = pmath_expr_get_item(num, i);
         factor = object_to_boxes(thread, factor);
-        factor = ensure_min_precedence(
-                   factor,
-                   PMATH_PREC_MUL + 1,
-                   (i == numlen) ? +1 : 0);
+        factor = ensure_min_precedence(factor, PMATH_PREC_MUL + 1, (i == numlen) ? +1 : 0);
                    
         if(is_inversion(factor)) {
           if(!div) {
@@ -2087,20 +2134,10 @@ static pmath_t times_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // exp
           if(div)
             pmath_emit(pmath_gather_end(), PMATH_NULL);
             
-          if(last_tok != PMATH_TOK_DIGIT) {
+          if(need_space_between_factors(prevfactor, factor)) {
             pmath_emit(PMATH_C_STRING(" "), PMATH_NULL);
           }
-          else {
-            ch = first_char(factor);
-            last_tok = pmath_token_analyse_output(&ch, 1, NULL);
-            
-            if(last_tok == PMATH_TOK_LEFTCALL)
-              pmath_emit(PMATH_C_STRING(" "), PMATH_NULL);
-          }
         }
-        
-        ch = last_char(factor);
-        last_tok = pmath_token_analyse_output(&ch, 1, NULL);
         
         prevfactor = factor;
       }
