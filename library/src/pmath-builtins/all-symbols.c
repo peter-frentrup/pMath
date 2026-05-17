@@ -627,7 +627,6 @@ static pmath_bool_t init_builtin_security_doormen(void) {
 
   CHECK( pmath_security_register_doorman(builtin_if,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_do,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_for,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_piecewise, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_while,     PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_which,     PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -1021,7 +1020,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Floor,                        builtin_round_functions)
   BIND_DOWN(   pmath_System_Fold,                         builtin_fold)
   BIND_DOWN(   pmath_System_FoldList,                     builtin_foldlist)
-  BIND_DOWN(   pmath_System_For,                          builtin_for)
   BIND_DOWN(   pmath_System_FormatRules,                  builtin_symbol_rules)
   BIND_DOWN(   pmath_System_FractionalPart,               builtin_fractionalpart)
   BIND_DOWN(   pmath_System_FromCharacterCode,            builtin_fromcharactercode)

@@ -132,51 +132,6 @@ Function decompLU(~M) {
 	}
 	Return({A, indx})
 }
-		
-/* decompLU(~M)::=
-	Local({A,n,indx, i,imax,j,k, big,dum,sum,temp},
-		A:= M;
-		n:= Length(M);
-		indx:= Array(n);
-		
-		For(i:= 1,i <= n,++i,
-			big:= 0;
-			For(j:= 1,j <= n,++j,
-				If((big = 0)===True,
-					big:= A[i,j]));
-			If(big = 0,
-				Message(decompLU::sing, M);
-				Return({A, indx}));
-			);
-		
-		For(j:= 1,j <= n,++j,
-			For(i:= 1,i < j,++i,
-				sum:= A[i,j];
-				For(k:= 1,k<i,++k,
-					sum-= A[i,k] * A[k,j]);
-				A[i,j]:= sum);
-			big:= 0;
-			For(i:= j,i <= n,++i,
-				sum:= A[i,j];
-				For(k:= 1,k<j,++k,
-					sum-= A[i,k]*A[k,j]);
-				A[i,j]:= sum;
-				
-				If((big = 0)===True,
-					big:= sum;
-					imax:= i);
-				);
-			If(j != imax,
-				{A[j], A[imax], indx[j], indx[imax]}:= {A[imax], A[j], indx[imax], indx[j]};
-				);
-			If(j != n,
-				dum:= 1/A[j,j];
-				For(i:= j+1,i <= n,++i,
-					A[i,j]*= dum);
-				);
-			);
-			{A, indx}
-		)*/
 
 splitLU(~M:List)::= {
 	Array(If(#1 > #2, M[#1,#2], If(#1 = #2, 1, 0))&, Dimensions(M)),
