@@ -5,6 +5,13 @@
 
 extern pmath_symbol_t pmath_System_List;
 
+// pmath> ExtendedGCD(30, 24, 33)
+//        {3, {-5, 5, 1}}
+// pmath> Dot({-5, 5, 1}, {30, 24, 33})
+//        3
+// pmath> GCD(30, 24, 33)
+//        3
+
 pmath_t builtin_extendedgcd(pmath_expr_t expr) {
   size_t exprlen = pmath_expr_length(expr);
   size_t i, j;
