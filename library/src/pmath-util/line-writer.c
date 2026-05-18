@@ -310,11 +310,62 @@ static void get_string_token_bounds(
   *next = (int)(tok - lw->buffer);
 }
 
+// Find the position nl in [1, 2, ..., line_length - 1 - depth] where a line break should be done.
+// Assumes that  lw->pos >= line_length - depth
 static int find_best_linebreak(
   struct linewriter_t *lw,
   pmath_bool_t        *is_inside_string,
   pmath_bool_t        *is_inside_token
 ) {
+// Some line breaking tests
+// ========================
+//  pmath> w:= 19;
+//  pmath> printSplit(~str:String)::= str |> StringSplit("\n") |> Scan({~s :> Print("|" ++ s ++ "|")})
+//
+//  pmath> printSplit(StringExpression @@ ConstantArray(".", w))
+//      |...................|
+//
+// Spaces at the end of a line are preserved:
+//  pmath> ToString(Array(20), InputForm, PageWidth->19) // printSplit
+//      |{1, 2, 3, 4, 5, |
+//      | 6, 7, 8, 9, 10, |
+//      | 11, 12, 13, 14, |
+//      | 15, 16, 17, 18, |
+//      | 19, 20}|
+//
+// Long strings are broken and (in InputForm only) "hyphenated" with a backslash:
+//  pmath> ToString("abcdefghiklmnopqrstuvwxyz", PageWidth->19) // printSplit
+//      |abcdefghiklmnopqr|
+//      |stuvwxyz|
+//  pmath> ToString("abcdefghiklmnopqrstuvwxyz", InputForm, PageWidth->w) // printSplit
+//      |"abcdefghiklmnopq\|
+//      |rstuvwxyz"|
+//
+// Long symbols are broken, but not in InputForm:
+//  pmath> ToString(abcdefghiklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ, PageWidth->w) // printSplit
+//      |abcdefghiklmnopqr|
+//      | stuvwxyzABCDEFGH|
+//      | IKLMNOPQRSTUVWXYZ|
+//  pmath> ToString(abcdefghiklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ, InputForm, PageWidth->w) // printSplit
+//      |abcdefghiklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ|
+//
+//  pmath> ToString(abcdefghi + klmnopqrs + tuvwxyz, PageWidth->w) // printSplit
+//      |abcdefghi + |
+//      |  klmnopqrs + |
+//      |  tuvwxyz|
+//  pmath> ToString({abcdefghi, klmnopqrs, tuvwxyz}, InputForm, PageWidth->w) // printSplit
+//      |{abcdefghi, |
+//      | klmnopqrs, |
+//      | tuvwxyz}|
+//
+// FIXME: Sums are kept together in InputForm:
+//  pmath> ToString(abcdefghi + klmnopqrs + tuvwxyz, InputForm, PageWidth->w) // printSplit
+//      |abcdefghi + klmnopqrs + tuvwxyz|
+//
+// The reason is that they look like long tokens:
+//  pmath> Internal`ToStringBoxes(abcdefghi + klmnopqrs + tuvwxyz)
+//         {{{abcdefghi}, { + , klmnopqrs}, { + , tuvwxyz}}}
+//
   int depth = get_expr_indention_depth(lw);
   int last  = lw->line_length - 1 - depth;
   int nl;
