@@ -3241,6 +3241,10 @@ static void division_writer(
   const uint16_t *data,
   int len
 ) {
+// pmath> Internal`ToStringBoxes( a/?b )          // InputForm
+//        {{{"a"}, " ", "/?", " ", {"b"}}}
+// pmath> Internal`ToStringBoxes( a/ ?b )         // InputForm
+//        {{{"a"}, {"/", {" ", "?", {"b"}}}}}
   struct _writer_hook_data_t *hook = user;
   if(len == 0)
     return;
@@ -3265,6 +3269,12 @@ static void product_writer(
   const uint16_t *data,
   int             len
 ) {
+// pmath> Internal`ToStringBoxes( a b )                       // InputForm
+//        {{{"a"}, {" ", "b"}}}
+// pmath> Internal`ToStringBoxes( a (b+c) )                   // InputForm
+//        {{{"a"}, {"*", "(", {"b"}, {" + ", "c"}, ")"}}}
+// pmath> Internal`ToStringBoxes( 2 * HoldForm(3+4) )         // InputForm
+//        {{{"2"}, {{"*", "(", {"3"}, {" + ", "4"}, ")"}}}}
   struct _writer_hook_data_t *hook = user;
   int i = 0;
 
@@ -3319,6 +3329,10 @@ static void sum_writer(
   const uint16_t *data,
   int             len
 ) {
+// pmath> Internal`ToStringBoxes( a + b )           // InputForm
+//        {{{"a"}, {" + ", "b"}}}
+// pmath> Internal`ToStringBoxes( a - 2 b )         // InputForm
+//        {{{"a"}, {{" - ", "2"}, {" ", "b"}}}}
   struct _writer_hook_data_t *hook = user;
 
   if(len == 0)
