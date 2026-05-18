@@ -530,15 +530,21 @@ static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t     
 static pmath_bool_t extract_pagewidth_option(int *page_width_or_negative, pmath_t options);
 
 PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
-  /*  ToString(object)
-      ToString(object, form)    InputForm | OutputForm | StandardForm
-  
-      options:
-        CharacterEncoding -> Automatic | "ASCII" | "Unicode"
-        PageWidth -> Infinity
-        Whitespace -> Automatic | True | False
-        ShowStringCharacters -> False | True | Automatic
-   */
+// ToString(object)
+// ToString(object, form)    InputForm | OutputForm | StandardForm
+//
+// Options:
+//   CharacterEncoding -> Automatic | "ASCII" | "Unicode"
+//   PageWidth -> Infinity
+//   Whitespace -> Automatic | True | False
+//   ShowStringCharacters -> False | True | Automatic
+//
+// Examples:
+//  pmath> ToString(f("abc", x))
+//         f(abc, x)
+//  pmath> ToString(f("abc", x), InputForm)
+//         f("abc", x)
+//
   struct pmath_line_writer_options_t lwo;
   pmath_string_t result;
   pmath_t        options;
@@ -619,7 +625,7 @@ static pmath_bool_t apply_format_type_and_free(pmath_write_options_t *flags, pma
   }
   
   pmath_unref(format_type);
-  return FALSE;
+  return TRUE;
 }
 
 static pmath_bool_t can_write_unicode_true(void *user, const uint16_t *str, int len) {
