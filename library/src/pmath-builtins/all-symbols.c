@@ -901,6 +901,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_Internal_StringPatternConvert,         builtin_internal_stringpatternconvert)
   BIND_DOWN(   pmath_Internal_SuppressDynamicTrackingBlock, builtin_internal_suppressdynamictrackingblock)
   BIND_DOWN(   pmath_Internal_ThreadIdle,                   builtin_internal_threadidle)
+  BIND_DOWN(   pmath_Internal_ToStringBoxes,                builtin_tostring)
   BIND_DOWN(   pmath_Internal_TryEvaluateSecured,           builtin_internal_tryevaluatesecured)
   BIND_DOWN(   pmath_Internal_WriteRealBall,                builtin_internal_writerealball)
   

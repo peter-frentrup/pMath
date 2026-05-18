@@ -1100,6 +1100,7 @@ PMATH_DECLARE_INTERNAL_SYMBOL( SignBit,                          0 )
 PMATH_DECLARE_INTERNAL_SYMBOL( StringPatternConvert,             0 )
 PMATH_DECLARE_INTERNAL_SYMBOL( SuppressDynamicTrackingBlock,     HOLDALLCOMPLETE )
 PMATH_DECLARE_INTERNAL_SYMBOL( ThreadIdle,                       0 )
+PMATH_DECLARE_INTERNAL_SYMBOL( ToStringBoxes,                    0 )
 PMATH_DECLARE_INTERNAL_SYMBOL( TryEvaluateSecured,               HOLDALLCOMPLETE )
 PMATH_DECLARE_INTERNAL_SYMBOL( WriteRealBall,                    0 )
 

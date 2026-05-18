@@ -6,6 +6,8 @@
 #include <pmath-language/charnames.h>
 
 #include <pmath-util/evaluation.h>
+#include <pmath-util/emit-and-gather.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/line-writer.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -33,6 +35,7 @@ extern pmath_symbol_t pmath_System_Skeleton;
 extern pmath_symbol_t pmath_System_StandardForm;
 extern pmath_symbol_t pmath_System_True;
 extern pmath_symbol_t pmath_System_Whitespace;
+extern pmath_symbol_t pmath_Internal_ToStringBoxes;
 
 
 struct write_short_span_t {
@@ -457,6 +460,19 @@ void _pmath_write_to_string(void *pointer_to_pmath_string, const uint16_t *data,
   *result = pmath_string_insert_ucs2(*result, pmath_string_length(*result), data, len);
 }
 
+static void write_to_emit(void *dummy, const uint16_t *data, int len) {
+  pmath_string_t str = pmath_string_insert_ucs2(PMATH_NULL, 0, data, len);
+  pmath_emit(str, PMATH_NULL);
+}
+static void pre_write_to_emit(void *dummy, pmath_t item, pmath_write_options_t options) {
+  pmath_gather_begin(PMATH_NULL);
+}
+
+static void post_write_to_emit(void *dummy, pmath_t item, pmath_write_options_t options) {
+  pmath_t row = pmath_gather_end();
+  pmath_emit(row, PMATH_NULL);
+}
+
 static void write_ascii_to_string(void *pointer_to_pmath_string, const uint16_t *data, int len) {
   pmath_string_t *result = pointer_to_pmath_string;
   while(len) {
@@ -545,6 +561,14 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
 //  pmath> ToString(f("abc", x), InputForm)
 //         f("abc", x)
 //
+// Reveal structure used for line breaking:
+//  pmath> Internal`ToStringBoxes(f(-123, -x))             // InputForm
+//         {{{"f"}, "(", {"-123"}, ",", " ", {"-", {"x"}}, ")"}}
+//  pmath> Internal`ToStringBoxes(abc + def - ghi)         // InputForm
+//         {{{"abc"}, {" + ", "def"}, {" - ", "", {"ghi"}}}}
+//  pmath> ToBoxes(               abc + def - ghi)         // InputForm
+//         {"abc", "+", "def", "-", "ghi"}
+//
   struct pmath_line_writer_options_t lwo;
   pmath_string_t result;
   pmath_t        options;
@@ -598,7 +622,21 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
   
   obj = pmath_expr_get_item(expr, 1);
   
-  pmath_write_with_pagewidth_ex(&lwo, obj);
+  if(pmath_is_expr_of(expr, pmath_Internal_ToStringBoxes)) {
+    pmath_gather_begin(PMATH_NULL);
+    
+    lwo.user = NULL;
+    lwo.write = write_to_emit;
+    lwo.pre_write = pre_write_to_emit;
+    lwo.post_write = post_write_to_emit;
+    
+    pmath_write_with_pagewidth_ex(&lwo, obj);
+    
+    result = pmath_gather_end();
+  }
+  else {
+    pmath_write_with_pagewidth_ex(&lwo, obj);
+  }
   
   pmath_unref(obj);
   pmath_unref(expr);

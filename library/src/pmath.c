@@ -1196,7 +1196,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(StringToStream):={"
           "PageWidth->Infinity}");
           
-      PMATH_RUN("Options(ToString):={"
+      PMATH_RUN("Options(ToString):=Options(Internal`ToStringBoxes):={"
           "CharacterEncoding->Automatic,"
           "PageWidth->Infinity,"
           "ShowStringCharacters->Automatic,"
