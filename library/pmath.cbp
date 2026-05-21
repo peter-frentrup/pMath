@@ -1073,9 +1073,6 @@
 		<Unit filename="src/pmath-builtins/control/flow/finally.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/control/flow/for.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/control/flow/function.c">
 			<Option compilerVar="CC" />
 		</Unit>
