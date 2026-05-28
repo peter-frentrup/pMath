@@ -340,6 +340,13 @@ static int find_best_linebreak(
 //  pmath> ToString("abcdefghiklmnopqrstuvwxyz", InputForm, PageWidth->w) // printSplit
 //      |"abcdefghiklmnopq\|
 //      |rstuvwxyz"|
+//  pmath> ToString("Some longer text breaks really fine.", PageWidth->19) // printSplit
+//      |Some longer text |
+//      |breaks really fine.|
+//  pmath> ToString("Some longer text breaks really fine.", InputForm, PageWidth->19) // printSplit
+//      |"Some longer text\|
+//      |\[U+0020]breaks \|
+//      |really fine."|
 //
 // Long symbols are broken, but not in InputForm:
 //  pmath> ToString(abcdefghiklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ, PageWidth->w) // printSplit
@@ -366,8 +373,10 @@ static int find_best_linebreak(
 //      | tuvwxyz|
 //
 // Internal form:
-//  pmath> Internal`ToStringBoxes(abcdefghi + klmnopqrs + tuvwxyz)
-//         {{{abcdefghi},  + , {klmnopqrs},  + , {tuvwxyz}}}
+//  pmath> Internal`ToStringBoxes(abcdefghi + klmnopqrs + tuvwxyz)               // InputForm
+//         {{{"abcdefghi"}, " + ", {"klmnopqrs"}, " + ", {"tuvwxyz"}}}
+//  pmath> Internal`ToStringBoxes(abcdefghi + klmnopqrs + tuvwxyz, PageWidth->w) // InputForm
+//         {{{"abcdefghi"}, " + ", "\n", " ", {"klmnopqrs"}, " + ", "\n", " ", {"tuvwxyz"}}}
 //
   int depth = get_expr_indention_depth(lw);
   int last  = lw->line_length - 1 - depth;
