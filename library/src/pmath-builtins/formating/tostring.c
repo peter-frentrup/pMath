@@ -565,7 +565,7 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
 //  pmath> Internal`ToStringBoxes(f(-123, -x))             // InputForm
 //         {{{"f"}, "(", {"-123"}, ",", " ", {"-", {"x"}}, ")"}}
 //  pmath> Internal`ToStringBoxes(abc + def - ghi)         // InputForm
-//         {{{"abc"}, {" + ", "def"}, {" - ", "", {"ghi"}}}}
+//         {{{"abc"}, " + ", {"def"}, " - ", {{"ghi"}}}}
 //  pmath> ToBoxes(               abc + def - ghi)         // InputForm
 //         {"abc", "+", "def", "-", "ghi"}
 //

@@ -3189,23 +3189,70 @@ static void write_ex(
     _pmath_write_impl(info, obj);
 }
 
-struct _writer_hook_data_t {
-  struct pmath_write_ex_t *next;
-  int                      prefix_status;
-  pmath_write_options_t    options;
-  pmath_bool_t             special_end; // for product_writer
+struct _writer_deferred_hook {
+  pmath_t               obj;
+  pmath_write_options_t options;
 };
+
+struct _writer_hook_data_t {
+  struct pmath_write_ex_t      *next;
+  struct _writer_deferred_hook *deferred_hooks;
+  int                           prefix_status;
+  pmath_write_options_t         options;
+  pmath_bool_t                  special_end; // for product_writer
+  pmath_bool_t                  defer_hooks;
+  uint8_t                       count_deferred_hooks;
+  uint8_t                       max_deferred_hooks;
+};
+
+static void hook_flush_deferred(struct _writer_hook_data_t *hook) {
+  if(hook->deferred_hooks && hook->next->pre_write) {
+    for(int i = hook->count_deferred_hooks; i > 0; --i) {
+      struct _writer_deferred_hook *deferred = &hook->deferred_hooks[i-1];
+      hook->next->pre_write(hook->next->user, deferred->obj, deferred->options);
+      pmath_unref(deferred->obj);
+    }
+    
+    hook->count_deferred_hooks = 0;
+  }
+}
 
 static void hook_pre_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct _writer_hook_data_t *hook = user;
 
   assert(hook->next->pre_write);
+  
+  if(hook->defer_hooks) {
+    if(!hook->deferred_hooks) {
+      uint8_t max_hooks = 8;
+      hook->deferred_hooks = pmath_mem_calloc(max_hooks, sizeof(struct _writer_deferred_hook));
+      if(hook->deferred_hooks) {
+        hook->max_deferred_hooks   = max_hooks;
+        hook->count_deferred_hooks = 0;
+      }
+      else {
+        hook->max_deferred_hooks   = 0;
+        hook->count_deferred_hooks = 0;
+      }
+    }
+    
+    if(hook->count_deferred_hooks < hook->max_deferred_hooks) {
+      int i = hook->count_deferred_hooks++;
+      hook->deferred_hooks[i].obj     = pmath_ref(obj);
+      hook->deferred_hooks[i].options = options;
+      return;
+    }
+  }
+  
+  hook_flush_deferred(hook);
   hook->next->pre_write(hook->next->user, obj, options);
 }
 
 static void hook_post_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct _writer_hook_data_t *hook = user;
 
+  hook_flush_deferred(hook);
+  
   assert(hook->next->post_write);
   hook->next->post_write(hook->next->user, obj, options);
 }
@@ -3229,6 +3276,14 @@ static void init_hook_info(struct pmath_write_ex_t *info, struct _writer_hook_da
   info->custom_writer = user->next->custom_writer ? hook_custom_writer: NULL;
 }
 
+static void hook_free_deferred(struct _writer_hook_data_t *hook) {
+  if(hook->deferred_hooks) {
+    for(int i = 0; i < hook->count_deferred_hooks; ++i) {
+      pmath_unref(hook->deferred_hooks[i].obj);
+    }
+    pmath_mem_free(hook->deferred_hooks);
+  }
+}
 /* Hook in the given writer function and insert a space before the first
    character if it is '?'.
 
@@ -3244,7 +3299,9 @@ static void division_writer(
 // pmath> Internal`ToStringBoxes( a/?b )          // InputForm
 //        {{{"a"}, " ", "/?", " ", {"b"}}}
 // pmath> Internal`ToStringBoxes( a/ ?b )         // InputForm
-//        {{{"a"}, {"/", {" ", "?", {"b"}}}}}
+//        {{{"a"}, "/", {" ", {"?", {"b"}}}}}
+// pmath> Internal`ToStringBoxes( a/b )           // InputForm
+//        {{{"a"}, "/", {{"b"}}}}
   struct _writer_hook_data_t *hook = user;
   if(len == 0)
     return;
@@ -3256,6 +3313,7 @@ static void division_writer(
       _pmath_write_cstr(" ", hook->next->write, hook->next->user);
   }
 
+  hook_flush_deferred(hook);
   hook->next->write(hook->next->user, data, len);
 }
 
@@ -3270,11 +3328,11 @@ static void product_writer(
   int             len
 ) {
 // pmath> Internal`ToStringBoxes( a b )                       // InputForm
-//        {{{"a"}, {" ", "b"}}}
+//        {{{"a"}, " ", {"b"}}}
 // pmath> Internal`ToStringBoxes( a (b+c) )                   // InputForm
-//        {{{"a"}, {"*", "(", {"b"}, {" + ", "c"}, ")"}}}
+//        {{{"a"}, "*", {"(", {"b"}, " + ", {"c"}, ")"}}}
 // pmath> Internal`ToStringBoxes( 2 * HoldForm(3+4) )         // InputForm
-//        {{{"2"}, {{"*", "(", {"3"}, {" + ", "4"}, ")"}}}}
+//        {{{"2"}, "*", {{"(", {"3"}, " + ", {"4"}, ")"}}}}
   struct _writer_hook_data_t *hook = user;
   int i = 0;
 
@@ -3305,19 +3363,33 @@ static void product_writer(
         _pmath_write_cstr("*", hook->next->write, hook->next->user);
     }
     else if(len >= 2 && data[0] == '1' && data[1] == '/') {
-      --len;
-      ++data;
+      _pmath_write_cstr("/", hook->next->write, hook->next->user);
+      len  -= 2;
+      data += 2;
     }
-    else if(i < len && data[i] != '/')
-      _pmath_write_cstr(" ", hook->next->write, hook->next->user);
+    else if(i < len) {
+      if(data[i] == '/') {
+        hook->next->write(hook->next->user, data, i + 1);
+        
+        len  -= i+1;
+        data += i+1;
+      }
+      else {
+        _pmath_write_cstr(" ", hook->next->write, hook->next->user);
+      }
+    }
   }
+  
   //hook->prefix_status = hook->prefix_status && i >= len;
   i = len;
   while(i > 0 && data[i - 1] <= ' ')
     i--;
   hook->special_end = i > 0 && data[i - 1] == '~';
 
-  hook->next->write(hook->next->user, data, len);
+  if(len > 0) {
+    hook_flush_deferred(hook);
+    hook->next->write(hook->next->user, data, len);
+  }
 }
 
 /* Hook in the given writer function and place plus or minus signs
@@ -3330,9 +3402,9 @@ static void sum_writer(
   int             len
 ) {
 // pmath> Internal`ToStringBoxes( a + b )           // InputForm
-//        {{{"a"}, {" + ", "b"}}}
+//        {{{"a"}, " + ", {"b"}}}
 // pmath> Internal`ToStringBoxes( a - 2 b )         // InputForm
-//        {{{"a"}, {{" - ", "2"}, {" ", "b"}}}}
+//        {{{"a"}, " - ", {{"2"}, " ", {"b"}}}}
   struct _writer_hook_data_t *hook = user;
 
   if(len == 0)
@@ -3363,7 +3435,10 @@ static void sum_writer(
     }
   }
 
-  hook->next->write(hook->next->user, data, len);
+  if(len > 0) {
+    hook_flush_deferred(hook);
+    hook->next->write(hook->next->user, data, len);
+  }
 }
 
 static void write_expr_ex(
@@ -4233,7 +4308,6 @@ static void write_expr_ex(
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, pmath_System_Plus)) {
-      struct _writer_hook_data_t sum_writer_data;
       struct pmath_write_ex_t    hook_info;
       size_t i;
 
@@ -4243,9 +4317,12 @@ static void write_expr_ex(
       if(priority > PMATH_PREC_ADD)
         WRITE_CSTR("(");
 
-      sum_writer_data.next          = info;
-      sum_writer_data.options       = info->options;
-      sum_writer_data.prefix_status = TRUE;
+      struct _writer_hook_data_t sum_writer_data = {
+        .next          = info,
+        .options       = info->options,
+        .prefix_status = TRUE,
+        .defer_hooks   = TRUE,
+      };
       init_hook_info(&hook_info, &sum_writer_data);
       hook_info.write = sum_writer;
 
@@ -4257,11 +4334,12 @@ static void write_expr_ex(
         pmath_unref(item);
       }
 
+      hook_free_deferred(&sum_writer_data);
+      
       if(priority > PMATH_PREC_ADD)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, pmath_System_Times)) {
-      struct _writer_hook_data_t  product_writer_data;
       struct pmath_write_ex_t     hook_info;
       pmath_t item;
       size_t i;
@@ -4273,10 +4351,13 @@ static void write_expr_ex(
       if(priority > PMATH_PREC_MUL)
         WRITE_CSTR("(");
 
-      product_writer_data.next          = info;
-      product_writer_data.options       = info->options;
-      product_writer_data.prefix_status = 1;
-      product_writer_data.special_end   = FALSE;
+      struct _writer_hook_data_t product_writer_data = {
+        .next          = info,
+        .options       = info->options,
+        .prefix_status = 1,
+        .special_end   = FALSE,
+        .defer_hooks   = TRUE,
+      };
       init_hook_info(&hook_info, &product_writer_data);
       hook_info.write = product_writer;
 
@@ -4311,11 +4392,12 @@ static void write_expr_ex(
         pmath_unref(item);
       }
 
+      hook_free_deferred(&product_writer_data);
+      
       if(priority > PMATH_PREC_MUL)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, pmath_System_Power)) {
-      struct _writer_hook_data_t  division_writer_data;
       struct pmath_write_ex_t     hook_info;
       pmath_t base, exponent;
 
@@ -4325,9 +4407,12 @@ static void write_expr_ex(
       exponent = pmath_expr_get_item(expr, 2);
       base = pmath_expr_get_item(expr, 1);
 
-      division_writer_data.next          = info;
-      division_writer_data.options       = info->options;
-      division_writer_data.prefix_status = 0;
+      struct _writer_hook_data_t division_writer_data = {
+        .next          = info,
+        .options       = info->options,
+        .prefix_status = 0,
+        .defer_hooks   = TRUE,
+      };
       init_hook_info(&hook_info, &division_writer_data);
       hook_info.write = division_writer;
 
@@ -4392,6 +4477,8 @@ static void write_expr_ex(
         pmath_unref(minus_one_half);
       }
 
+      hook_free_deferred(&division_writer_data);
+      
       pmath_unref(base);
       pmath_unref(exponent);
     }

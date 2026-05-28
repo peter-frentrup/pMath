@@ -351,20 +351,23 @@ static int find_best_linebreak(
 //
 //  pmath> ToString(abcdefghi + klmnopqrs + tuvwxyz, PageWidth->w) // printSplit
 //      |abcdefghi + |
-//      |  klmnopqrs + |
-//      |  tuvwxyz|
+//      | klmnopqrs + |
+//      | tuvwxyz|
 //  pmath> ToString({abcdefghi, klmnopqrs, tuvwxyz}, InputForm, PageWidth->w) // printSplit
 //      |{abcdefghi, |
 //      | klmnopqrs, |
 //      | tuvwxyz}|
 //
-// FIXME: Sums are kept together in InputForm:
+// Sums and products are special because writing the operator tokens is deferred internally.
+// Care is taken that they do not look like long tokens and thus line break normally even in InputForm:
 //  pmath> ToString(abcdefghi + klmnopqrs + tuvwxyz, InputForm, PageWidth->w) // printSplit
-//      |abcdefghi + klmnopqrs + tuvwxyz|
+//      |abcdefghi + |
+//      | klmnopqrs + |
+//      | tuvwxyz|
 //
-// The reason is that they look like long tokens:
+// Internal form:
 //  pmath> Internal`ToStringBoxes(abcdefghi + klmnopqrs + tuvwxyz)
-//         {{{abcdefghi}, { + , klmnopqrs}, { + , tuvwxyz}}}
+//         {{{abcdefghi},  + , {klmnopqrs},  + , {tuvwxyz}}}
 //
   int depth = get_expr_indention_depth(lw);
   int last  = lw->line_length - 1 - depth;
