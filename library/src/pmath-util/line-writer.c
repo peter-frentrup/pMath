@@ -347,6 +347,10 @@ static int find_best_linebreak(
 //      |"Some longer text\|
 //      |\[U+0020]breaks \|
 //      |really fine."|
+//  pmath> ToString("C:\\Program Files\\Some Long Path\\File name.txt", PageWidth->19) // printSplit
+//      |C:\Program |
+//      |Files\Some Long |
+//      |Path\File name.txt|
 //
 // Long symbols are broken, but not in InputForm:
 //  pmath> ToString(abcdefghiklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ, PageWidth->w) // printSplit
