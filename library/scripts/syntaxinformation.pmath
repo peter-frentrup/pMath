@@ -681,6 +681,7 @@
 {"MakeTrustedFunction", {"ArgumentCount" -> 2}}
 {"RealBallBounds", {"ArgumentCount" -> 1}}
 {"SignBit", {"ArgumentCount" -> 1}}
+{"ToStringBoxes", {"ArgumentCount" -> 1}}
 }}
 {"FE`",{
 {"AttachBoxes", {"ArgumentCount" -> 3}}
