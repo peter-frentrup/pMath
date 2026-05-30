@@ -232,7 +232,7 @@ static void mp_cache_clear(void) {
     if(f) {
       assert(f->inherited.refcount._data == 0);
       
-      arb_clear(f->value_new);
+      arb_clear(f->value);
       pmath_mem_free(f);
     }
   }
@@ -277,7 +277,7 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(slong precision) {
   if(!f)
     return PMATH_NULL;
     
-  arb_init(f->value_new);
+  arb_init(f->value);
   f->working_precision = (slong)precision;
   
   return PMATH_FROM_PTR(f);
@@ -1564,7 +1564,7 @@ static void destroy_mp_float(pmath_t f) {
   if(f_ptr) {
     assert(f_ptr->inherited.refcount._data == 0);
     
-    arb_clear(f_ptr->value_new);
+    arb_clear(f_ptr->value);
     pmath_mem_free(f_ptr);
   }
 }

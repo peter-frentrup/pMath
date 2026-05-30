@@ -100,12 +100,11 @@ struct _pmath_quotient_t {
   pmath_integer_t  denominator;
 };
 
-/* A number with absolute uncertainty "error". So this represents
-   value +/- 1/2 error
+/* A number with automtic precision and error tracking.
  */
 struct _pmath_mp_float_t {
   struct _pmath_t  inherited;
-  arb_t            value_new;
+  arb_t            value;
   slong            working_precision;        
 };
 
@@ -114,7 +113,7 @@ struct _pmath_mp_float_t {
 
 #define PMATH_AS_MPZ(obj)         (((struct _pmath_mp_int_t*)       PMATH_AS_PTR(obj))->value)
 
-#define PMATH_AS_ARB(obj)                (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value_new)
+#define PMATH_AS_ARB(obj)                (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value)
 #define PMATH_AS_ARB_WORKING_PREC(obj)   (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->working_precision)
 
 /** \brief Get the interval bounds of an Arb number.
