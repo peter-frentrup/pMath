@@ -382,6 +382,25 @@ static int find_best_linebreak(
 //  pmath> Internal`ToStringBoxes(abcdefghi + klmnopqrs + tuvwxyz, PageWidth->w) // InputForm
 //         {{{"abcdefghi"}, " + ", "\n", " ", {"klmnopqrs"}, " + ", "\n", " ", {"tuvwxyz"}}}
 //
+// Line breaking of boxes embedded inside strings is still problematic:
+//  pmath> ToString(ListLinePlot::usage, PageWidth->30) // printSplit
+//      |ListLinePlot({y_1, y_|
+//      |2, …}) plots a line through |
+//      |a list of values according |
+//      |to x coordinates 1, 2, ….|
+//      |ListLinePlot({{x_1, y_1}, {x_|
+//      |2, y_|
+//      |2}, …}) plots a line through |
+//      |the given x and y positions.|
+//      |ListLinePlot({list_1, list_|
+//      |2, …}) plots multiple lines.|
+//
+//  pmath> ToString(StringTake(ListLinePlot::usage, 80), InputForm, PageWidth->30) // printSplit
+//      |"ListLinePlot({\(StyleBox(\"\|
+//      |y\", \|
+//      |\"Arg\")\)\(SubscriptBox(\"1\|
+//      |\")\), \(StyleBox(\"y\", \|
+//      |\"Arg\")\)\("|
   int depth = get_expr_indention_depth(lw);
   int last  = lw->line_length - 1 - depth;
   int nl;
