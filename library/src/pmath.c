@@ -1030,7 +1030,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
         pmath_version_datetime(&year, &month, &day, &hour, &minute, &second);
         
         pmath_symbol_set_value(
-          pmath_System_DollarVersionList, 
+          pmath_System_DollarCreationDate, 
           pmath_build_value("(iiiiii)", year, month, day, hour, minute, second));
         
         pmath_symbol_set_value(
