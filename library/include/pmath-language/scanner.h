@@ -21,12 +21,12 @@
     <tt>{UnderoverscriptBox("\[Sum]", {"i", "=", "1"}, "n"), {"f", "(", "i", ")"}}</tt>
     \n or \n
     <tt>{{"\[Sum]", SubsuperscriptBox({"i", "=", "1"}, "n")}, {"f", "(", "i", ")"}}</tt>
-    \n (<tt>\[Sum]</tt> is the Unicode character U+2211: "N-ARY SUMMATION").
+    \n (<tt>"\[Sum]"</tt> is the Unicode character U+2211: "N-ARY SUMMATION").
 
     It will be translated to <tt>HoldComplete(Sum(f(i), i->1..n))</tt> by
     <tt>System`MakeExpression</tt>.
 
-    Front-ends have to convert their own representation of the (two-dimensional) code to
+    Front-ends may convert their own representation of the (two-dimensional) code to
     the boxed form by providing appropriate callback functions to pmath_boxes_from_spans_ex()
     and pmath_boxes_from_spans_ex().
 

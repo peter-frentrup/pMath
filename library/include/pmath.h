@@ -3,22 +3,22 @@
 
 /**\mainpage The pMath Computer Algebra System Library
    \author Peter Frentrup
-   \date 2005 \-- 2024
+   \date 2005 \-- 2026
 
    \par Introduction
 
-   pMath is a free CAS for Windows and Unix like systems. The whole CAS consists
+   pMath is a CAS for Windows and Unix like systems. The whole system consists
    of three projects:
     - The pMath library documented here, which implements the parser,
       interpreter, mathematical functionality and OS binding.
     - The RichMath graphical front-end.
-    - Addon libraries/modules for the pMath library and Language (e.g. a Java
+    - Addon libraries/modules for the pMath library and language (e.g. a Java
       binding).
 
-   This document does not cover the pMath \em Language itself, but the underlying
+   This document does not cover the pMath \em language itself, but the underlying
    C library.
 
-   You as a user (front-end or module programmer) of the pMath library just have
+   You as a user (front-end or module programmer) of the pMath library just need
    to \#include <pmath.h> and link with the appropriate library file.
    The main operations are \ref parsing_code and evaluating expressions via
    pmath_evaluate(), see \ref objects.
@@ -77,12 +77,22 @@
 
 
 /**\defgroup frontend Front-ends
-   \brief Functions for use front-ends.
+   \brief Functions for use by front-ends.
 
    A front-end to pMath is an executable that initializes and finalizes the
    library and handles user input and output or otherwise invokes expression
    evaluation with the library. That is, what pMath does: parse and evaluate
    pMath code.
+   
+   The pMath system comes with several front-ends:
+   - richmath.exe -- the graphical front-end for Windows and Linux
+   - pmathc.exe -- a command line front-end with readline/editline support
+   - console-win.exe -- a windows console front-end with advanced keyboard and 
+      mouse support based on the hyper-console library
+   - test.exe -- a *minimal* command line front-end
+   - test-runner.exe -- the front-end that runs inline tests (comment lines in *.c or 
+      *.pmath files which consist of "pmath>" prompts and their results)
+   - TestApp.java -- a minimal command line front-end written in Java
   @{
  */
 

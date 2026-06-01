@@ -49,13 +49,13 @@ static_assert(sizeof(char8_t) == sizeof(char), "");
 /**\defgroup cpp_binding C++ Binding
 
    There exists a thin layer to easily use pMath with C++. This is usably
-   prefreable over the C API because it handles reference counting/type checking
+   preferable over the C API because it handles reference counting/type checking
    automatically and leads to less "boilerplate code".
 
    To use it, simply <tt>\#include <pmath-cpp.h></tt>. The classes are in the
    \c pmath namespace.
 
-   This namespace also containts numerous helper functions to easily construct
+   This namespace also contains numerous helper functions to easily construct
    expression trees. None of the classes and functions generate C++ exceptions,
    they are all fault tolerant (in contrast to most of the plain C API).
 

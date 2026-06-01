@@ -13,14 +13,14 @@
    \extends pmath_t
    \brief The Symbol class.
 
-   The pMath language knows symbols as `named entities` that can hold any
+   The pMath language knows symbols as *named entities* that can hold any
    pMath object as a value and have some attributes. Those symbols are objects
-   themselves. A symbol name consists of alphanumerical characters (a-z,A-Z,0-9)
-   and apostrophes to seperate namespaces. All standard symbols are in the
-   "System" namespace (e.g. System`print). All user defined symbols go to
-   "Global". Every other module has its own namespace.
+   themselves. A symbol name consists of alphanumerical characters (a-z,A-Z,0-9,
+   many unicode letters) and backticks to seperate namespaces. All standard symbols 
+   are in the "System`" namespace (e.g. System`Print). User defined symbols go to
+   "Global`" by default. Every other module has its own namespace.
 
-   Because pmath_symbol_t is derived from pmath_t, you can use strings wherever
+   Because pmath_symbol_t is derived from pmath_t, you can use symbols wherever
    a pmath_t is accepted. E.g. you compare two symbols with pmath_compare() or
    pmath_equals().
 
@@ -330,7 +330,6 @@ void pmath_symbol_remove(pmath_symbol_t symbol);
 PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old);
 
 /** \brief Bind a symbol to a dynamic object, if applicable, or (partly) reset the binding.
-    \addtogroup dynamics
      
     Caution! This should never be called with id==0, because id==0 causes a hard reset of id 
     bindings without clearing the list of bound ids.
@@ -345,6 +344,7 @@ PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old);
     \param id      An opaque dynamic object id (should be non-zero, except when called from _pmath_dynamic_remove).
     
     \see pmath_dynamic_get_current_tracker_id()
+    \addtogroup dynamics
  */
 PMATH_API
 void pmath_symbol_track_dynamic(pmath_symbol_t symbol, intptr_t id);
