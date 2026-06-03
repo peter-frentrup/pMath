@@ -11,6 +11,7 @@
 /library/obj
 /library/tmp
 /library/Makefile
+/library/src/pmath-util/version.g.c
 /library/dependencies
 /library/console/bin
 /library/console/obj

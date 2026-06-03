@@ -63,6 +63,7 @@
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_32.bin);$(#flint_32.bin);$(#mpfr_32.bin);$(#gmp_32.bin);$(#iconv_32.bin);$(#pcre_32.bin);$(#zlib_32.bin);$(#pthreads_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
@@ -122,6 +123,7 @@
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_32.bin);$(#flint_32.bin);$(#mpfr_32.bin);$(#gmp_32.bin);$(#iconv_32.bin);$(#pcre_32.bin);$(#zlib_32.bin);$(#pthreads_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
@@ -179,6 +181,7 @@
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_64.bin);$(#flint_64.bin);$(#mpfr_64.bin);$(#gmp_64.bin);$(#iconv_64.bin);$(#pcre_64.bin);$(#zlib_64.bin);$(#pthreads_64.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
@@ -238,6 +241,7 @@
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_64.bin);$(#flint_64.bin);$(#mpfr_64.bin);$(#gmp_64.bin);$(#iconv_64.bin);$(#pcre_64.bin);$(#zlib_64.bin);$(#pthreads_64.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
@@ -298,6 +302,7 @@
 					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_32.bin);$(#flint_32.bin);$(#mpfr_32.bin);$(#gmp_32.bin);$(#iconv_32.bin);$(#pcre_32.bin);$(#zlib_32.bin);$(#pthreads_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
@@ -353,6 +358,7 @@
 					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_32.bin);$(#flint_32.bin);$(#mpfr_32.bin);$(#gmp_32.bin);$(#iconv_32.bin);$(#pcre_32.bin);$(#zlib_32.bin);$(#pthreads_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
@@ -413,6 +419,7 @@
 					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_64.bin);$(#flint_64.bin);$(#mpfr_64.bin);$(#gmp_64.bin);$(#iconv_64.bin);$(#pcre_64.bin);$(#zlib_64.bin);$(#pthreads_64.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
@@ -470,6 +477,7 @@
 					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_64.bin);$(#flint_64.bin);$(#mpfr_64.bin);$(#gmp_64.bin);$(#iconv_64.bin);$(#pcre_64.bin);$(#zlib_64.bin);$(#pthreads_64.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
@@ -600,8 +608,8 @@
 					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_32.bin);$(#flint_32.bin);$(#mpfr_32.bin);$(#gmp_32.bin);$(#iconv_32.bin);$(#pcre_32.bin);$(#zlib_32.bin);$(#pthreads_32.bin)&quot; -ErrorAction Stop -Verbose' />
-					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
+					<Add before="./pre-build-linux.sh" />
+					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -669,6 +677,7 @@
 					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="./pre-build-linux.sh" />
 					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -682,7 +691,6 @@
 				<Option host_application="test/bin/linux/debug/test" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
-					<Add option="-march=core2" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
@@ -690,6 +698,7 @@
 					<Add option="-std=c99" />
 					<Add option="-fPIC" />
 					<Add option="-g" />
+					<Add option="-march=core2" />
 					<Add option="-fno-stack-protector" />
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-local-typedefs" />
@@ -739,6 +748,7 @@
 					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="./pre-build-linux.sh" />
 					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -752,7 +762,6 @@
 				<Option host_application="test/bin/linux/debug/test" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
-					<Add option="-march=core2" />
 					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
@@ -761,6 +770,7 @@
 					<Add option="-std=c99" />
 					<Add option="-fPIC" />
 					<Add option="-g" />
+					<Add option="-march=core2" />
 					<Add option="-fno-stack-protector" />
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wno-unused-local-typedefs" />
@@ -807,6 +817,7 @@
 					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="./pre-build-linux.sh" />
 					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -919,7 +930,6 @@
 		<Unit filename="include/pmath-util/strtod.h" />
 		<Unit filename="include/pmath-util/symbol-values-private.h" />
 		<Unit filename="include/pmath-util/user-format-private.h" />
-		<Unit filename="include/pmath-util/version-private.h" />
 		<Unit filename="include/pmath-util/version.h" />
 		<Unit filename="include/pmath.h" />
 		<Unit filename="scripts/maininit.pmath" />
@@ -1792,15 +1802,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>
-			<AutoVersioning>
-				<Scheme minor_max="100" build_max="0" rev_max="0" rev_rand_max="1" build_times_to_increment_minor="999999999" />
-				<Settings autoincrement="0" date_declarations="1" use_define="0" update_manifest="1" do_auto_increment="1" ask_to_increment="0" language="C" svn="0" svn_directory=".." header_path="include/pmath-util/version-private.h" />
-				<Changes_Log show_changes_editor="0" app_title="released version %M.%m.%b of %p" changeslog_path="ChangesLog.txt" />
-				<Code header_guard="__PMATH_UTIL__VERSION_PRIVATE_H__" namespace="AutoVersion" prefix="_PMATH_VERSION" />
-			</AutoVersioning>
 			<DoxyBlocks>
 				<comment_style block="0" line="2" />
-				<doxyfile_project project_number="0.5.1010" use_auto_version="1" />
+				<doxyfile_project project_number="" use_auto_version="0" />
 				<doxyfile_build />
 				<doxyfile_warnings />
 				<doxyfile_output html_help="1" xml="1" />
