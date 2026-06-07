@@ -136,11 +136,25 @@ static void handle_tokens_option(
 }
 
 PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
-  /* StringToBoxes("code", [options])
-  
-     "Tokens" -> String       % return single tokens as a string instead of wrapped in an expression
-     Whitespace -> False
-   */
+// StringToBoxes("code", [options])
+//
+// Options:
+//  "Tokens" -> String       % return single tokens as a string instead of wrapped in an expression
+//   Whitespace -> False
+//
+// Examples:
+//  pmath> StringToBoxes("1 + 2")
+//         {1, +, 2}
+//  pmath> StringToBoxes("1 + 2", "Tokens" -> h)
+//         {h(1), h(+), h(2)}
+//  pmath> StringToBoxes("1 + 2", "Tokens" -> String)
+//         {1, +, 2}
+//
+//  pmath> StringToBoxes("1 + 2", Whitespace -> True)
+//         {1,  , +,  , 2}
+//  pmath> StringToBoxes("1 + 2", Whitespace -> True, "Tokens" -> h)
+//         {h(1), h( ), h(+), h( ), h(2)}
+//
   struct _pmath_string_to_boxes_data_t  data;
   pmath_string_t                        code;
   pmath_bool_t                          error_flag;
