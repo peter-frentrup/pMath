@@ -1,7 +1,7 @@
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
-#include <pmath-util/dispatch-tables.h>
+#include <pmath-util/data-types/dispatch-tables.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>

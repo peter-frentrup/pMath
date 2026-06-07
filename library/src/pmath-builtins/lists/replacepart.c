@@ -4,7 +4,7 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/threads.h>
-#include <pmath-util/dispatch-tables.h>
+#include <pmath-util/data-types/dispatch-tables.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/helpers.h>

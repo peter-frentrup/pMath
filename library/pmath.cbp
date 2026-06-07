@@ -875,8 +875,6 @@
 		<Unit filename="include/pmath-private.h" />
 		<Unit filename="include/pmath-types.h" />
 		<Unit filename="include/pmath-util/approximate.h" />
-		<Unit filename="include/pmath-util/association-lists-private.h" />
-		<Unit filename="include/pmath-util/association-lists.h" />
 		<Unit filename="include/pmath-util/compression.h" />
 		<Unit filename="include/pmath-util/concurrency/atomic-private.h" />
 		<Unit filename="include/pmath-util/concurrency/atomic.h" />
@@ -895,9 +893,11 @@
 		<Unit filename="include/pmath-util/concurrency/threadpool.h" />
 		<Unit filename="include/pmath-util/concurrency/threads-private.h" />
 		<Unit filename="include/pmath-util/concurrency/threads.h" />
+		<Unit filename="include/pmath-util/data-types/association-lists-private.h" />
+		<Unit filename="include/pmath-util/data-types/association-lists.h" />
+		<Unit filename="include/pmath-util/data-types/dispatch-tables-private.h" />
+		<Unit filename="include/pmath-util/data-types/dispatch-tables.h" />
 		<Unit filename="include/pmath-util/debug.h" />
-		<Unit filename="include/pmath-util/dispatch-tables-private.h" />
-		<Unit filename="include/pmath-util/dispatch-tables.h" />
 		<Unit filename="include/pmath-util/dlmalloc.h" />
 		<Unit filename="include/pmath-util/dynamic-private.h" />
 		<Unit filename="include/pmath-util/dynamic.h" />
@@ -1690,9 +1690,6 @@
 		<Unit filename="src/pmath-util/approximate.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-util/association-lists.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-util/compression.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -1711,10 +1708,13 @@
 		<Unit filename="src/pmath-util/concurrency/threads.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-util/debug.c">
+		<Unit filename="src/pmath-util/data-types/association-lists.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-util/dispatch-tables.c">
+		<Unit filename="src/pmath-util/data-types/dispatch-tables.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/debug.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/dlmalloc.c">

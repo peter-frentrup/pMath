@@ -7,7 +7,7 @@
 
 #include <pmath-core/objects-private.h>
 
-#include <pmath-util/dispatch-tables.h>
+#include <pmath-util/data-types/dispatch-tables.h>
 #include <pmath-util/hash/hashtables.h>
 
 

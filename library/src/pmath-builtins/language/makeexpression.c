@@ -8,8 +8,8 @@
 #include <pmath-language/patterns-private.h>
 #include <pmath-language/tokens.h>
 
-#include <pmath-util/association-lists.h>
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/data-types/association-lists.h>
 #include <pmath-util/compression.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>

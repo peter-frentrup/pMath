@@ -9,8 +9,8 @@
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/data-types/dispatch-tables-private.h>
 #include <pmath-util/debug.h>
-#include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/helpers.h>

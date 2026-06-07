@@ -6,7 +6,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 #include <pmath-util/concurrency/threadmsg.h>
-#include <pmath-util/dispatch-tables-private.h>
+#include <pmath-util/data-types/dispatch-tables-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/symbol-values-private.h>
 

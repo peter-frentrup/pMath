@@ -3,7 +3,7 @@
 #include <pmath-core/expressions-private.h> // for  _pmath_object_emptylist
 #include <pmath-language/regex-private.h>
 
-#include <pmath-util/association-lists.h>
+#include <pmath-util/data-types/association-lists.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>

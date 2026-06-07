@@ -1,7 +1,7 @@
 #include <pmath-language/patterns-private.h>
 
-#include <pmath-util/association-lists.h>
-#include <pmath-util/dispatch-tables.h>
+#include <pmath-util/data-types/association-lists.h>
+#include <pmath-util/data-types/dispatch-tables.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 

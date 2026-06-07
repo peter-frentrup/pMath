@@ -5,7 +5,7 @@
 #  error This header file is not part of the public pMath API
 #endif
 
-#include <pmath-util/association-lists.h>
+#include <pmath-util/data-types/association-lists.h>
 
 #include <pmath-core/expressions-private.h>
 

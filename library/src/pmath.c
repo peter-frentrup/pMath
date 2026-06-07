@@ -17,8 +17,8 @@
 #include <pmath-util/concurrency/threadmsg-private.h>
 #include <pmath-util/concurrency/threadpool-private.h>
 #include <pmath-util/concurrency/threads-private.h>
-#include <pmath-util/association-lists-private.h>
-#include <pmath-util/dispatch-tables-private.h>
+#include <pmath-util/data-types/association-lists-private.h>
+#include <pmath-util/data-types/dispatch-tables-private.h>
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/hash/sha1.h>
