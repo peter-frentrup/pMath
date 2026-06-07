@@ -432,8 +432,9 @@ pmath_t pmath_decompress_from_string_quiet(pmath_string_t str, enum pmath_serial
   buf = pmath_string_buffer(&str);
   len = pmath_string_length(str);
   if(len > 2 && buf[1] == ':' && buf[0] == '1') {
-    buf+= 2;
-    len-= 2;
+    len = 0;
+    buf = NULL;
+    str = pmath_string_part(str, 2, -1);
   }
   else {
     pmath_unref(str);
@@ -441,7 +442,7 @@ pmath_t pmath_decompress_from_string_quiet(pmath_string_t str, enum pmath_serial
   }
   
   pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
-  pmath_file_writetext(tfile, buf, len);
+  pmath_unref(pmath_file_mixed_buffer_swap_text(tfile, str));
   pmath_file_close(tfile);
   
   zfile = pmath_file_create_decompressor(pmath_ref(bfile), NULL);

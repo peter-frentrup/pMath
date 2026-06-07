@@ -11,19 +11,50 @@
 
 extern pmath_symbol_t pmath_System_DollarFailed;
 extern pmath_symbol_t pmath_System_InputStream;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_OutputStream;
 extern pmath_symbol_t pmath_System_PageWidth;
+extern pmath_symbol_t pmath_System_StringToStream;
+extern pmath_symbol_t pmath_System_StringToInputOutputStreams;
 
 PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
-  /* StringToStream(text)
-    
-      options:
-        PageWidth -> Infinity
-   */
+// StringToStream(text)
+// StringToInputOutputStreams(text)
+//
+// Options:
+//  PageWidth -> Infinity
+//
+// Examples:
+//  pmath> f:= StringToStream("abc\[Alpha]\[Beta]\nMore lines\nlast")
+//         InputStream(<<>>)
+//
+//  pmath> f.Read(String)          // InputForm
+//         "abc\[Alpha]\[Beta]"
+//  pmath> f.ReadList(String)      // InputForm
+//         {"More lines", "last"}
+//
+//  pmath> {fin, fout} := StringToInputOutputStreams("ABC")
+//         {InputStream(<<>>), OutputStream(<<>>)}
+//  pmath> fin.Read(Character)
+//         A
+//  pmath> fin.Read(String)
+//         BC
+//  pmath> fin.Read(String)
+//         
+//  pmath> fout.WriteString("xyz")
+//  pmath> fin.Read({Character, String})
+//         {x, yz}
+//
   pmath_expr_t options;
+  pmath_t head;
   pmath_string_t text;
   pmath_symbol_t text_stream;
   pmath_symbol_t bin_stream;
   pmath_t page_width = PMATH_NULL;
+  size_t last_nonoption = 1;
+  
+  head = pmath_expr_get_item(expr, 0);
+  pmath_unref(head);
   
   if(pmath_expr_length(expr) < 1) {
     pmath_message_argxxx(0, 1, 1);
@@ -56,11 +87,7 @@ PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
     return pmath_ref(pmath_System_DollarFailed);
   }
   
-  // TODO: do not copy content via write but reference text directly
-  // maybe pmath_file_set_textbuffer() suffices, because we threw away the binary file.
-  pmath_file_writetext(text_stream, pmath_string_buffer(&text), pmath_string_length(text));
-  pmath_unref(text);
-  
+  pmath_unref(pmath_file_mixed_buffer_swap_text(text_stream, text));
   
   PMATH_RUN_ARGS(
     "Unprotect(`1`);"
@@ -73,5 +100,15 @@ PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
     pmath_ref(page_width));
   
   pmath_unref(page_width);
-  return pmath_expr_new_extended(pmath_ref(pmath_System_InputStream), 1, text_stream);
+  
+  if(pmath_same(head, pmath_System_StringToStream)) {
+    return pmath_expr_new_extended(pmath_ref(pmath_System_InputStream), 1, text_stream);
+  }
+  else {
+    pmath_t copy_of_text_stream = pmath_ref(text_stream);
+    return pmath_expr_new_extended(
+      pmath_ref(pmath_System_List), 2,
+      pmath_expr_new_extended(pmath_ref(pmath_System_InputStream), 1, text_stream),
+      pmath_expr_new_extended(pmath_ref(pmath_System_OutputStream), 1, copy_of_text_stream));
+  }
 }

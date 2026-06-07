@@ -1193,7 +1193,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
       PMATH_RUN("Options(StringToBoxes):={\"IgnoreSyntaxErrors\"->False,\"Tokens\"->String,Whitespace->False}");
       
-      PMATH_RUN("Options(StringToStream):={"
+      PMATH_RUN("Options(StringToStream):=Options(StringToInputOutputStreams):={"
           "PageWidth->Infinity}");
           
       PMATH_RUN("Options(ToString):=Options(Internal`ToStringBoxes):={"

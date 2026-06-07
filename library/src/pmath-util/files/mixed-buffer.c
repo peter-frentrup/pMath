@@ -469,7 +469,7 @@ void pmath_file_create_mixed_buffer(
     return;
   }
   
-  tb->text   = pmath_string_new(16);
+  tb->text   = PMATH_NULL;
   tb->in     = tb->inbuffer + sizeof(tb->inbuffer);
   tb->out    = tb->outbuffer;
   tb->status = PMATH_FILE_OK;
@@ -490,4 +490,27 @@ void pmath_file_create_mixed_buffer(
                    PMATH_AS_PTR(custom),
                    textbuffer_destroy_custom,
                    &binapi);
+}
+
+struct textbuffer_swap_ctx_t {
+  pmath_string_t buffer;
+};
+
+static void textbuffer_swap_callback(void *extra, void *_ctx) {
+  struct textbuffer_t *tb = get_textbuffer(extra);
+  struct textbuffer_swap_ctx_t *ctx = _ctx;
+  
+  pmath_string_t old_buffer = tb->text;
+  tb->text = ctx->buffer;
+  ctx->buffer = old_buffer;
+}
+
+PMATH_API
+pmath_string_t pmath_file_mixed_buffer_swap_text(
+  pmath_symbol_t txtfile,
+  pmath_string_t new_text_buffer
+) {
+  struct textbuffer_swap_ctx_t ctx = { .buffer = new_text_buffer };
+  pmath_file_manipulate(txtfile, textbuffer_destroy_custom, textbuffer_swap_callback, &ctx);
+  return ctx.buffer;
 }

@@ -25,6 +25,11 @@ PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
 /// Uncompress("data", head)
 ///
 /// Examples:
+/// pmath> Compress(f(1234))
+///        1:c${Nm;A3K9;$dRp5OB[QPfE;5NE28h3;-N*1Rn~~
+/// pmath> Uncompress("1:c${Nm;A3K9;$dRp5OB[QPfE;5NE28h3;-N*1Rn~~")
+///        f(1234)
+///
 /// pmath> Uncompress @ Compress(-1337)
 ///        -1337
 /// pmath> Uncompress @ Compress(-2^100+5) - (-2^100+5)

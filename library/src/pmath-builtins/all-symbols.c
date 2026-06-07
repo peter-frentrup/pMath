@@ -1218,6 +1218,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_StringSplit,                  builtin_stringsplit)
   BIND_DOWN(   pmath_System_StringTake,                   builtin_stringtake)
   BIND_DOWN(   pmath_System_StringToBoxes,                builtin_stringtoboxes)
+  BIND_DOWN(   pmath_System_StringToInputOutputStreams,   builtin_stringtostream)
   BIND_DOWN(   pmath_System_StringToStream,               builtin_stringtostream)
   BIND_DOWN(   pmath_System_Sum,                          builtin_sum)
   BIND_DOWN(   pmath_System_SubRules,                     builtin_symbol_rules)
