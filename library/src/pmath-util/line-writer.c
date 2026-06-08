@@ -385,15 +385,15 @@ static int find_best_linebreak(
 // Line breaking of boxes embedded inside strings is still problematic:
 //  pmath> ToString(ListLinePlot::usage, PageWidth->30) // printSplit
 //      |ListLinePlot({y_1, y_|
-//      |2, …}) plots a line through |
+//      |2, â€¦}) plots a line through |
 //      |a list of values according |
-//      |to x coordinates 1, 2, ….|
+//      |to x coordinates 1, 2, â€¦.|
 //      |ListLinePlot({{x_1, y_1}, {x_|
 //      |2, y_|
-//      |2}, …}) plots a line through |
+//      |2}, â€¦}) plots a line through |
 //      |the given x and y positions.|
 //      |ListLinePlot({list_1, list_|
-//      |2, …}) plots multiple lines.|
+//      |2, â€¦}) plots multiple lines.|
 //
 //  pmath> ToString(StringTake(ListLinePlot::usage, 80), InputForm, PageWidth->30) // printSplit
 //      |"ListLinePlot({\(StyleBox(\"\|

@@ -137,7 +137,7 @@ PMATH_PRIVATE pmath_t builtin_stringdrop(pmath_expr_t expr) {
 //  pmath> StringDrop("𝒶𝒷𝒸", 6) // InputForm
 //         ""
 //  pmath> StringDrop("𝒶𝒷𝒸", 7) // InputForm
-//   ERR: StringDrop::drop: Cannot drop positions 1 through 7 in \[ScriptA]\[ScriptB]\[ScriptC]. [1]
+//   ERR: StringDrop::drop: Cannot drop positions 1 through 7 in 𝒶𝒷𝒸. [1]
 //         StringDrop("\[ScriptA]\[ScriptB]\[ScriptC]", 7)
 //
   pmath_t obj;

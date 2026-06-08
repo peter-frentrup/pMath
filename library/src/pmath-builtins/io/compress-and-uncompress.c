@@ -37,7 +37,7 @@ PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
 /// pmath> Uncompress @ Compress({1,2,3})
 ///        {1, 2, 3}
 /// pmath> Uncompress @ Compress("Hello\[Pi]")
-///        Hello\[Pi]
+///        Helloπ
 /// pmath> Uncompress @ Compress(1.5)
 ///        1.5
 /// 

@@ -530,7 +530,7 @@ static void write_output_locked_callback(void *_context) {
   pmath_write_with_pagewidth(
     context->object,
     0,
-    pmath_native_writer,
+    pmath_utf8_writer,
     &info,
     console_width - indent_length,
     indent_length);
