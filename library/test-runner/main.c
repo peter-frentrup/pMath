@@ -12,6 +12,20 @@
 #  define snprintf sprintf_s
 #endif
 
+#ifdef PMATH_OS_WIN32
+#  include <tchar.h>
+#  define pmath_string_from_TCHARs(buf, len)  pmath_string_insert_ucs2(PMATH_NULL, 0, (uint16_t*)buf, len)
+PMATH_STATIC_ASSERT(sizeof(TCHAR) == 2);
+#else
+  typedef char TCHAR;
+#  define _T(s)  s
+#  define _tmain    main
+#  define _tcscmp   strcmp
+#  define _tfopen   fopen
+#  define _ftprintf fprintf
+#  define pmath_string_from_TCHARs(buf, len)  pmath_string_from_native(buf, len)
+#endif
+
 typedef struct Str {
   const char *s;
   size_t len;
@@ -34,7 +48,7 @@ struct CritSect; // Non-reentrant critical sections
 
 static void os_init(void);
 
-static pmath_bool_t MappedFile_open(MappedFile *f, const char *path);
+static pmath_bool_t MappedFile_open(MappedFile *f, const TCHAR *path);
 static void MappedFile_close(MappedFile *f);
 
 static void CritSect_init(struct CritSect *cs);
@@ -82,12 +96,11 @@ static void CritSect_exit(struct CritSect *cs);
 
 //{ Memory mapped files ...
 
-static pmath_bool_t MappedFile_open(MappedFile *f, const char *path) {
+static pmath_bool_t MappedFile_open(MappedFile *f, const TCHAR *path) {
   f->all       = S("");
   f->remaining = S("");
   
-  // TODO: use CreateFileW
-  HANDLE hFile = CreateFileA(
+  HANDLE hFile = CreateFile(
                     path,
                     GENERIC_READ,
                     FILE_SHARE_READ,
@@ -274,7 +287,7 @@ static volatile pmath_bool_t quitting = FALSE;
 static volatile pmath_bool_t show_mem_stats = TRUE;
 
 static MappedFile input_file = { 0 };
-static const char *input_file_path = NULL;
+static const TCHAR *input_file_path = NULL;
 static pmath_t input_file_name = PMATH_STATIC_NULL;
 
 static struct {
@@ -777,7 +790,7 @@ static void run_all_input(void) {
   Str_write(ctx.remaining);
 }
 
-static pmath_bool_t handle_options(int argc, const char **argv) {
+static pmath_bool_t handle_options(int argc, const TCHAR **argv) {
   pmath_bool_t success = TRUE;
   pmath_bool_t show_help = FALSE;
   pmath_bool_t need_file = TRUE;
@@ -786,7 +799,7 @@ static pmath_bool_t handle_options(int argc, const char **argv) {
   ++argv;
   while(argc > 0) {
     if(**argv == '-') {
-      if((strcmp(*argv, "-x") == 0 || strcmp(*argv, "--exec") == 0) &&
+      if((_tcscmp(*argv, _T("-x")) == 0 || _tcscmp(*argv, _T("--exec")) == 0) &&
               argc > 1)
       {
         --argc;
@@ -795,12 +808,12 @@ static pmath_bool_t handle_options(int argc, const char **argv) {
         pmath_unref(
           pmath_evaluate(
             pmath_parse_string(
-              pmath_string_from_native(*argv, -1))));
+              pmath_string_from_TCHARs(*argv, -1))));
       }
       else {
-        if(strcmp(*argv, "--help") != 0) {
+        if(_tcscmp(*argv, _T("--help")) != 0) {
           success = FALSE;
-          fprintf(stderr, "Unknown option %s\n", *argv);
+          _ftprintf(stderr, _T("Unknown option %s\n"), *argv);
         }
         
         show_help = TRUE;
@@ -815,7 +828,7 @@ static pmath_bool_t handle_options(int argc, const char **argv) {
       input_file_path = *argv;
     }
     else {
-      fprintf(stderr, "Excessive parameter %s\n", *argv);
+      _ftprintf(stderr, _T("Excessive parameter %s\n"), *argv);
       quitting = TRUE;
       success = FALSE;
       show_mem_stats = FALSE;
@@ -953,7 +966,7 @@ static void done_pmath_bindings(void) {
 #undef X
 }
 
-int main(int argc, const char **argv) {
+int _tmain(int argc, const TCHAR **argv) {
   os_init();
   
   signal(SIGINT, signal_term);
@@ -980,10 +993,10 @@ int main(int argc, const char **argv) {
   int quit_result = 0;
   input_file_name = PMATH_NULL;
   if(input_file_path) {
-    input_file_name = pmath_string_from_native(input_file_path, -1);
+    input_file_name = pmath_string_from_TCHARs(input_file_path, -1);
     
     if(!MappedFile_open(&input_file, input_file_path)) {
-      fprintf(stderr, "Cannot read file %s\n", input_file_path);
+      _ftprintf(stderr, _T("Cannot read file %s\n"), input_file_path);
       quit_result = 1;
       quitting = TRUE;
     }
@@ -1044,13 +1057,13 @@ int main(int argc, const char **argv) {
     if(different && !quitting) {
       fprintf(stderr, "Different!\n");
       
-      FILE *f = fopen(input_file_path, "wb");
+      FILE *f = _tfopen(input_file_path, _T("wb"));
       if(f) {
         fwrite(all_output.s, 1, all_output.len, f);
         fclose(f);
       }
       else {
-        fprintf(stderr, "Failed to update %s\n", input_file_path);
+        _ftprintf(stderr, _T("Failed to update %s\n"), input_file_path);
       }
       
       quit_result = 1;

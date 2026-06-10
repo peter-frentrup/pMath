@@ -14,13 +14,15 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-march=i686" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-D_UNICODE" />
+					<Add option="-DUNICODE" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
@@ -36,14 +38,16 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
-					<Add option="-mthreads" />
-					<Add option="-mms-bitfields" />
-					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
+					<Add option="-D_UNICODE" />
+					<Add option="-DUNICODE" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -59,13 +63,15 @@
 				<Option compiler="gnu_gcc_x64_compiler" />
 				<Compiler>
 					<Add option="-march=core2" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
-					<Add option="-Wundef" />
-					<Add option="-Wall" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-D_UNICODE" />
+					<Add option="-DUNICODE" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
@@ -81,14 +87,16 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-O3" />
-					<Add option="-mthreads" />
-					<Add option="-mms-bitfields" />
-					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wall" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
+					<Add option="-D_UNICODE" />
+					<Add option="-DUNICODE" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -104,6 +112,7 @@
 				<Option compiler="msvc_2015" />
 				<Compiler>
 					<Add option="/MDd" />
+					<Add option="/D_UNICODE /DUNICODE" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
@@ -123,6 +132,7 @@
 				<Option compiler="msvc_2015" />
 				<Compiler>
 					<Add option="/MD" />
+					<Add option="/D_UNICODE /DUNICODE" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
@@ -144,6 +154,7 @@
 				<Option compiler="msvc_2015_x64" />
 				<Compiler>
 					<Add option="/MDd" />
+					<Add option="/D_UNICODE /DUNICODE" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
@@ -164,6 +175,7 @@
 				<Option parameters="main.c" />
 				<Compiler>
 					<Add option="/MD" />
+					<Add option="/D_UNICODE /DUNICODE" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
@@ -182,16 +194,18 @@
 				<Option type="1" />
 				<Option compiler="clang" />
 				<Compiler>
-					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-Wall" />
+					<Add option="-march=i686" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-fno-strict-aliasing" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
-					<Add option="-Wall" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
+					<Add option="-D_UNICODE" />
+					<Add option="-DUNICODE" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
