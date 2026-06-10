@@ -51,7 +51,6 @@ PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
   pmath_symbol_t text_stream;
   pmath_symbol_t bin_stream;
   pmath_t page_width = PMATH_NULL;
-  size_t last_nonoption = 1;
   
   head = pmath_expr_get_item(expr, 0);
   pmath_unref(head);
