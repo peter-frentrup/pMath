@@ -35,6 +35,8 @@ struct _pmath_custom_expr_data_t {
   const struct _pmath_custom_expr_api_t *api;
 };
 
+typedef struct _pmath_thread_t *pmath_thread_t;
+
 struct _pmath_custom_expr_api_t {
   void         (*destroy_data)(           struct _pmath_custom_expr_data_t *data); // disposes contents of data, but not data itself
   size_t       (*get_length)(             struct _pmath_custom_expr_t *e);                                                        // does not free e
@@ -54,6 +56,8 @@ struct _pmath_custom_expr_api_t {
   pmath_bool_t (*try_new_empty_like)(     struct _pmath_custom_expr_t *e, pmath_expr_t *result);                                  // does not free e
   pmath_bool_t (*try_write)(              struct _pmath_custom_expr_t *e, struct pmath_write_ex_t *info, int priority);           // does not free e
   pmath_bool_t (*try_convert_to_normal)(  struct _pmath_custom_expr_t *e, pmath_expr_t *result);                                  // frees e iff returing TRUE
+  pmath_bool_t (*try_format_fullform)(    struct _pmath_custom_expr_t *e, pmath_t *result);                                       // does not free e
+  pmath_bool_t (*try_make_boxes)(         struct _pmath_custom_expr_t *e, pmath_thread_t current_thread, pmath_expr_t *result);   // does not free e
   //pmath_bool_t (*try_compare)(         struct _pmath_custom_expr_t *e, pmath_t other, int          *result); // does not free e or other
   //pmath_bool_t (*try_get_hash)(        struct _pmath_custom_expr_t *e, int *result);                         // does not free e
 };

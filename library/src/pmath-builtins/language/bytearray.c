@@ -38,6 +38,13 @@ PMATH_PRIVATE pmath_t builtin_bytearray(pmath_expr_t expr) {
 // ByteArray({b1, b2, ...})
 // ByteArray({"latin1string"})
 // ByteArray({b1, b2, "latin1", b9, ...})
+//
+// Examples:
+//  pmath> ByteArray("")
+//         ByteArray(<< 0 bytes >>)
+//
+//  pmath> ByteArray({ByteArray("AQIDBAUGBwgJCgsMDQ4PEA=="), ByteArray("ERITFA==")}) |> Normal
+//         {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 
   if(pmath_is_byte_array(expr)) {
     return expr;

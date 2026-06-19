@@ -1,4 +1,5 @@
 #include <pmath-core/custom-private.h>
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays-private.h>
 #include <pmath-core/symbols-private.h>
@@ -2454,7 +2455,19 @@ static pmath_t grid_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr
 }
 
 static pmath_t fullform(pmath_thread_t thread, pmath_t obj) { // obj will be freed
+ RESTART_FULLFORM:
   if(pmath_is_expr(obj)) {
+    if(PMATH_UNLIKELY(PMATH_AS_PTR(obj)->type_shift == PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION)) {
+      struct _pmath_custom_expr_t      *_expr = (void*)PMATH_AS_PTR(obj);
+      struct _pmath_custom_expr_data_t *data  = PMATH_CUSTOM_EXPR_DATA(_expr);
+      pmath_t format;
+      if(data->api->try_format_fullform && data->api->try_format_fullform(_expr, &format)) {
+        pmath_unref(obj);
+        obj = format;
+        goto RESTART_FULLFORM;
+      }
+    }
+    
     pmath_expr_t result;
     size_t len;
     len = pmath_expr_length(obj);
@@ -3442,6 +3455,16 @@ static pmath_t placeholder_to_boxes(
 //} ... boxforms valid for StandardForm
 
 static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
+  if(PMATH_UNLIKELY(pmath_is_pointer_of(expr, PMATH_TYPE_CUSTOM_EXPRESSION))) {
+    struct _pmath_custom_expr_t      *_expr = (void*)PMATH_AS_PTR(expr);
+    struct _pmath_custom_expr_data_t *data  = PMATH_CUSTOM_EXPR_DATA(_expr);
+    pmath_t boxes;
+    if(data->api->try_make_boxes && data->api->try_make_boxes(_expr, thread, &boxes)) {
+      pmath_unref(expr);
+      return boxes;
+    }
+  }
+  
   pmath_t head = pmath_expr_get_item(expr, 0);
   size_t  len  = pmath_expr_length(expr);
   

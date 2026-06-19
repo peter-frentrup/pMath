@@ -5,7 +5,9 @@
 #include <pmath-core/packed-arrays.h>
 #include <pmath-core/strings-private.h>
 
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
@@ -29,7 +31,13 @@ struct _pmath_byte_array_extra_data_t {
 #define BYTE_ARRAY_EXTRA(EXPR_PTR)      ((struct _pmath_byte_array_extra_data_t*)PMATH_CUSTOM_EXPR_DATA(EXPR_PTR))
 
 extern pmath_symbol_t pmath_System_ByteArray;
+extern pmath_symbol_t pmath_System_HoldForm;
+extern pmath_symbol_t pmath_System_Interpretation;
 extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MakeBoxes;
+extern pmath_symbol_t pmath_System_Panel;
+extern pmath_symbol_t pmath_System_Skeleton;
+extern pmath_symbol_t pmath_System_StringForm;
 
 
 static const uint8_t *byte_array_read_data(struct _pmath_custom_expr_t *ba);
@@ -42,6 +50,8 @@ static const char    base64_padding;
 static const char    base64_alphabet[64];
 static const uint8_t base64_values[128];
 static struct base64_block base64_encode_block_be(uint32_t three_bytes);
+
+void base64_write_all(const uint8_t *p, size_t len, void (*write_ascii)(const char*, int, void*), void *ctx, int space_every_n_blocks);
 
 //{ custom expr API for byte arrays ...
 
@@ -59,6 +69,8 @@ static pmath_bool_t byte_array_try_copy_shallow(       struct _pmath_custom_expr
 static pmath_bool_t byte_array_try_compare_equal(      struct _pmath_custom_expr_t *e, pmath_t other, pmath_bool_t *result);                   // does not free e or other
 static pmath_bool_t byte_array_try_maybe_contains_item(struct _pmath_custom_expr_t *e, pmath_t item, pmath_bool_t *result);                    // does not free e or other
 static pmath_bool_t byte_array_try_write(              struct _pmath_custom_expr_t *e, struct pmath_write_ex_t *info, int priority);           // does not free e
+static pmath_bool_t byte_array_try_format_fullform(    struct _pmath_custom_expr_t *e, pmath_t *result);                                       // does not free e
+static pmath_bool_t byte_array_try_make_boxes(         struct _pmath_custom_expr_t *e, pmath_thread_t thread, pmath_expr_t *result);           // does not free e
 
 static const struct _pmath_custom_expr_api_t byte_array_expr_api = {
   .destroy_data            = byte_array_destroy_data,
@@ -75,6 +87,8 @@ static const struct _pmath_custom_expr_api_t byte_array_expr_api = {
   .try_compare_equal       = byte_array_try_compare_equal,
   .try_maybe_contains_item = byte_array_try_maybe_contains_item,
   .try_write               = byte_array_try_write,
+  .try_format_fullform     = byte_array_try_format_fullform,
+  .try_make_boxes          = byte_array_try_make_boxes,
 };
 
 //} ... custom expr API for byte arrays
@@ -538,6 +552,11 @@ static pmath_bool_t byte_array_try_maybe_contains_item( // excluding index 0
   }
 }
 
+static void write_ascii(const char *str, int len, void *ctx) {
+  struct pmath_write_ex_t *info = ctx;
+  _pmath_write_latin1(str, len, info->write, info->user);
+}
+
 static pmath_bool_t byte_array_try_write(
   struct _pmath_custom_expr_t *e,       // does not free e
   struct pmath_write_ex_t     *info,
@@ -549,6 +568,9 @@ static pmath_bool_t byte_array_try_write(
 //        ByteArray("AQIDBAUGBwgJAAkIBwYFBAMCAQ==")
 // pmath> ByteArray({1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1}) // FullForm
 //        ByteArray("AQIDBAUGBwgJAAkIBwYFBAMCAQ==")
+// pmath> ByteArray(Table(PowerMod(i, 2, 255), i -> 70)) // FullForm
+//        ByteArray("AQQJEBkkMUBRZHmQqcThASJFapG65RNCc6bb E0yHxARFiM0VXqn2RpfqQJfwTKkJas0zmgRv 
+//          3Ey9MaYelxOQEJEVmiKrNw==")
 
   struct _pmath_byte_array_extra_data_t *extra = BYTE_ARRAY_EXTRA(e);
   
@@ -562,24 +584,7 @@ static pmath_bool_t byte_array_try_write(
     
     const uint8_t *p = byte_array_read_data(e);
     size_t len = extra->length;
-    while(len >= 3) {
-      struct base64_block chars = base64_encode_block_be((p[0] << 16) | (p[1]<<8) | p[2]);
-      _pmath_write_latin1(chars.ch, 4, info->write, info->user);
-      p+= 3;
-      len -= 3;
-    }
-    
-    if(len == 2) {
-      struct base64_block chars = base64_encode_block_be((p[0] << 16) | (p[1]<<8));
-      chars.ch[3] = base64_padding;
-      _pmath_write_latin1(chars.ch, 4, info->write, info->user);
-    }
-    else if(len == 1) {
-      struct base64_block chars = base64_encode_block_be(p[0] << 16);
-      chars.ch[2] = base64_padding;
-      chars.ch[3] = base64_padding;
-      _pmath_write_latin1(chars.ch, 4, info->write, info->user);
-    }
+    base64_write_all(p, len, write_ascii, info, 8);
     
     WRITE_CSTR("\"");
   }
@@ -593,6 +598,119 @@ static pmath_bool_t byte_array_try_write(
   
   return TRUE;
 #undef WRITE_CSTR
+}
+
+static void write_ascii_to_string(const char *ins, int len, void *_str) {
+  pmath_string_t *s = _str;
+  *s = pmath_string_insert_latin1(*s, INT_MAX, ins, len);
+}
+
+static pmath_bool_t byte_array_try_format_fullform(
+  struct _pmath_custom_expr_t *e,      // does not free e
+  pmath_t                     *result
+) {
+  struct _pmath_byte_array_extra_data_t *extra = BYTE_ARRAY_EXTRA(e);
+  
+  const uint8_t *p = byte_array_read_data(e);
+  
+  size_t block_size = 1024 * 1024;
+  
+  pmath_t arg = PMATH_NULL;
+  if(extra->length <= block_size) {
+    int base64_len = (((int)extra->length + 2) / 3) * 4;
+    int spaces = ((int)extra->length + 3*8 - 1) / (3*8);
+    
+    arg = pmath_string_new(base64_len + spaces);
+    
+    base64_write_all(p, extra->length, write_ascii_to_string, &arg, 8);
+  }
+  if(pmath_is_null(arg)) {
+    size_t num_blocks = extra->length / block_size + (extra->length % block_size ? 1 : 0);
+    size_t len_remaining = extra->length;
+    const uint8_t *next = p;
+    
+    arg = pmath_expr_new(pmath_ref(pmath_System_List), num_blocks);
+    for(size_t i = 0; i < num_blocks; ++i) {
+      size_t block_len = len_remaining;
+      if(block_len > block_size)
+        block_len = block_size;
+      
+      int base64_len = (((int)block_len + 2) / 3) * 4;
+      int spaces = ((int)block_len + 3*8 - 1) / (3*8);
+      pmath_string_t str = pmath_string_new(base64_len + spaces);
+      
+      base64_write_all(next, block_len, write_ascii_to_string, &str, 8);
+      
+      pmath_t item = pmath_expr_new_extended(pmath_ref(pmath_System_ByteArray), 1, str);
+      arg = pmath_expr_set_item(arg, i + 1, item);
+      
+      next          += block_len;
+      len_remaining -= block_len;
+    }
+  }
+  
+  if(pmath_is_null(arg)) {
+    _pmath_incref_impl(&e->internals.inherited.inherited.inherited);
+    arg = _pmath_custom_expr_convert_to_normal(e);
+  }
+  
+  *result = pmath_expr_new_extended(pmath_ref(pmath_System_ByteArray), 1, arg);
+  return TRUE;
+}
+
+static pmath_bool_t byte_array_try_make_boxes(
+  struct _pmath_custom_expr_t *e, 
+  pmath_thread_t               thread, 
+  pmath_expr_t                *result
+) {
+// pmath> ToBoxes(ByteArray({1,2,3,4}) // FullForm) // InputForm
+//        StyleBox({"ByteArray", "(", {StringBox("\"AQIDBA==\"")}, ")"}, AutoDelete -> True, 
+//          ShowStringCharacters -> True)
+//
+// pmath> ToBoxes(ByteArray({1,2,3,4}) // InputForm) // InputForm
+//        StyleBox({"ByteArray", "(", {StringBox("\"AQIDBA==\"")}, ")"}, AutoDelete -> True, 
+//          AutoNumberFormating -> False, ShowStringCharacters -> True)
+//
+// pmath> ToBoxes(ByteArray({1,2,3,4}) // OutputForm) // InputForm
+//        InterpretationBox({"ByteArray", "(", {{"<<", StringBox("\"", {"4"}, " bytes\""), ">>"}}, 
+//           ")"}, OutputForm(ByteArray("AQIDBA==")))
+//
+// pmath> ToBoxes(ByteArray({1,2,3,4})) // InputForm
+//        InterpretationBox({"ByteArray", "(", {
+//            {"Panel", "(", {StringBox("\"", {"4"}, " bytes\"")}, ")"}}, ")"}, ByteArray("AQIDBA=="))
+//
+  struct _pmath_byte_array_extra_data_t *extra = BYTE_ARRAY_EXTRA(e);
+  
+  if(thread->boxform >= BOXFORM_INPUT) {
+    pmath_t format = PMATH_NULL;
+    byte_array_try_format_fullform(e, &format);
+    *result = pmath_evaluate(pmath_expr_new_extended(pmath_ref(pmath_System_MakeBoxes), 1, format));
+    return TRUE;
+  }
+  
+  pmath_t summary = pmath_expr_new_extended(
+    pmath_ref(pmath_System_StringForm), 2,
+    PMATH_C_STRING("`` bytes"),
+    pmath_integer_new_uiptr(extra->length));
+  
+  if(thread->boxform >= BOXFORM_OUTPUT) {
+    summary = pmath_expr_new_extended(pmath_ref(pmath_System_Skeleton), 1, summary);
+  }
+  else {
+    summary = pmath_expr_new_extended(pmath_ref(pmath_System_Panel), 1, summary);
+  }
+  
+  pmath_t head = pmath_expr_new_extended(pmath_ref(pmath_System_HoldForm), 1, pmath_ref(pmath_System_ByteArray));
+  
+  summary = pmath_expr_new_extended(head, 1, summary);
+  summary = pmath_expr_new_extended(
+    pmath_ref(pmath_System_Interpretation), 2,
+    summary,
+    pmath_ref(PMATH_FROM_PTR(&e->internals.inherited.inherited.inherited)));
+  
+  *result = pmath_evaluate(pmath_expr_new_extended(pmath_ref(pmath_System_MakeBoxes), 1, summary));
+  
+  return TRUE;
 }
 
 //} ... custom expr API for byte arrays
@@ -692,6 +810,39 @@ static struct base64_block base64_encode_block_be(uint32_t three_bytes) {
   ret.ch[2] = base64_alphabet[(three_bytes >> 6)  & 0x3F];
   ret.ch[3] = base64_alphabet[ three_bytes        & 0x3F];
   return ret;
+}
+
+void base64_write_all(
+  const uint8_t *p, 
+  size_t len, 
+  void (*put_ascii)(const char*, int, void*),
+  void *ctx,
+  int space_every_n_blocks
+) {
+  int next_space = space_every_n_blocks;
+  while(len >= 3) {
+    struct base64_block chars = base64_encode_block_be((p[0] << 16) | (p[1]<<8) | p[2]);
+    put_ascii(chars.ch, 4, ctx);
+    p+= 3;
+    len -= 3;
+    
+    if(space_every_n_blocks >= 0 && next_space-- == 0) {
+      next_space = space_every_n_blocks;
+      put_ascii(" ", 1, ctx);
+    }
+  }
+  
+  if(len == 2) {
+    struct base64_block chars = base64_encode_block_be((p[0] << 16) | (p[1]<<8));
+    chars.ch[3] = base64_padding;
+    put_ascii(chars.ch, 4, ctx);
+  }
+  else if(len == 1) {
+    struct base64_block chars = base64_encode_block_be(p[0] << 16);
+    chars.ch[2] = base64_padding;
+    chars.ch[3] = base64_padding;
+    put_ascii(chars.ch, 4, ctx);
+  }
 }
 
 //} ... Base64 encoding
