@@ -450,6 +450,5 @@ pmath_t pmath_decompress_from_string_quiet(pmath_string_t str, enum pmath_serial
   pmath_file_close(zfile);
   pmath_file_close(bfile);
   
-  pmath_unref(str);
   return result;
 }
