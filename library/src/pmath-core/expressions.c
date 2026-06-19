@@ -169,6 +169,7 @@ static pmath_t      custom_expr_expand_to_normal(struct _pmath_custom_expr_t *_e
 static size_t       custom_expr_length(          struct _pmath_custom_expr_t *_expr);
 static pmath_t      custom_expr_get_item(        struct _pmath_custom_expr_t *_expr, size_t index);
 static pmath_bool_t custom_expr_item_equals(     struct _pmath_custom_expr_t *_expr, size_t index, pmath_t expected_item);
+static pmath_expr_t custom_expr_new_empty_like(struct _pmath_custom_expr_t *_expr);
 static pmath_expr_t custom_expr_get_item_range(struct _pmath_custom_expr_t *_expr, size_t start, size_t length);
 static pmath_expr_t custom_expr_set_item(      struct _pmath_custom_expr_t *_expr, size_t index, pmath_t new_item);
 static pmath_expr_t custom_expr_shrink_associative(struct _pmath_custom_expr_t *_expr, pmath_t magic_rem);
@@ -990,8 +991,19 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
   if(start == 1 && length >= exprlen)
     return pmath_ref(expr);
 
-  if(start > exprlen || length == 0)
+  if(start > exprlen || length == 0) {
+    switch(PMATH_AS_PTR(expr)->type_shift) {
+      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+        return pmath_expr_new(pmath_expr_get_item(expr, 0), 0);
+
+      case PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION:
+        return custom_expr_new_empty_like((struct _pmath_custom_expr_t*)PMATH_AS_PTR(expr));
+    }
+    
+    assert("invalid expression type" && 0);
     return pmath_expr_new(pmath_expr_get_item(expr, 0), 0);
+  }
 
   if(length > exprlen || start + length > exprlen + 1)
     length = exprlen + 1 - start;
@@ -1548,9 +1560,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   else if(pmath_is_pointer_of(expr, PMATH_TYPE_CUSTOM_EXPRESSION)) {
     pmath_debug_print("[unpack custrom expr: _pmath_expr_sort_ex_context]\n");
     
-    pmath_t old = expr;
-    expr = custom_expr_expand_to_normal((struct _pmath_custom_expr_t*)PMATH_AS_PTR(expr));
-    pmath_unref(old);
+    expr = _pmath_custom_expr_convert_to_normal_fallback((struct _pmath_custom_expr_t*)PMATH_AS_PTR(expr));
   }
 
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
@@ -1820,9 +1830,7 @@ pmath_expr_t _pmath_expr_map(
   if(pmath_is_pointer_of(expr, PMATH_TYPE_CUSTOM_EXPRESSION)) {
     pmath_debug_print("[unpack custrom expr: _pmath_expr_map]\n");
     
-    pmath_t old = expr;
-    expr = custom_expr_expand_to_normal((struct _pmath_custom_expr_t*)PMATH_AS_PTR(expr));
-    pmath_unref(old);
+    expr = _pmath_custom_expr_convert_to_normal_fallback((struct _pmath_custom_expr_t*)PMATH_AS_PTR(expr));
   }
   
   old_expr = (void *)PMATH_AS_PTR(expr);
@@ -2399,9 +2407,7 @@ RESTART:
         }
         
         pmath_debug_print("[expensive try_set_debug_metadata(...) for custom expr with api=%p]\n", data->api);
-        copy = custom_expr_expand_to_normal(cust);
-        pmath_unref(expr);
-        expr = copy;
+        expr = _pmath_custom_expr_convert_to_normal_fallback(cust);
         goto RESTART;
       } break;
   }
@@ -2411,6 +2417,24 @@ RESTART:
 }
 
 /*----------------------------------------------------------------------------*/
+
+// e will be freed
+PMATH_PRIVATE pmath_t _pmath_custom_expr_convert_to_normal_fallback(struct _pmath_custom_expr_t *e) {
+  pmath_t normal = custom_expr_expand_to_normal(e);
+  pmath_unref(PMATH_FROM_PTR(&e->internals.inherited.inherited.inherited));
+  return normal;
+}
+
+// e will be freed
+PMATH_PRIVATE pmath_t _pmath_custom_expr_convert_to_normal(struct _pmath_custom_expr_t *e) {
+  struct _pmath_custom_expr_data_t *data = PMATH_CUSTOM_EXPR_DATA(e);
+  
+  pmath_expr_t result;
+  if(data->api->try_convert_to_normal && data->api->try_convert_to_normal(e, &result))
+    return result;
+  
+  return _pmath_custom_expr_convert_to_normal_fallback(e);
+}
 
 static pmath_t custom_expr_expand_to_normal(struct _pmath_custom_expr_t *_expr) {
   struct _pmath_custom_expr_data_t *data = PMATH_CUSTOM_EXPR_DATA(_expr);
@@ -2453,6 +2477,16 @@ static pmath_bool_t custom_expr_item_equals(struct _pmath_custom_expr_t *_expr, 
   pmath_bool_t eq = pmath_equals(item, expected_item);
   pmath_unref(item);
   return eq;
+}
+
+static pmath_expr_t custom_expr_new_empty_like(struct _pmath_custom_expr_t *_expr) {
+  struct _pmath_custom_expr_data_t *data = PMATH_CUSTOM_EXPR_DATA(_expr);
+  
+  pmath_expr_t result = PMATH_NULL;
+  if(data->api->try_new_empty_like && data->api->try_new_empty_like(_expr, &result))
+    return result;
+  
+  return pmath_expr_new(custom_expr_get_item(_expr, 0), 0);
 }
 
 static pmath_expr_t custom_expr_get_item_range(struct _pmath_custom_expr_t *_expr, size_t start, size_t length) {
@@ -2514,8 +2548,7 @@ static pmath_expr_t custom_expr_set_item(struct _pmath_custom_expr_t *_expr, siz
 #endif // PMATH_DEBUG_LOG
   
   assert(pmath_is_null(result));
-  result = custom_expr_expand_to_normal(_expr);
-  pmath_unref(PMATH_FROM_PTR(&_expr->internals.inherited.inherited.inherited));
+  result = _pmath_custom_expr_convert_to_normal_fallback(_expr);
   return pmath_expr_set_item(result, index, new_item);
 }
 
@@ -2535,8 +2568,7 @@ static pmath_expr_t custom_expr_shrink_associative(struct _pmath_custom_expr_t *
     pmath_t item = data->api->get_item(_expr, i);
     if(pmath_same(item, magic_rem)) {
       pmath_unref(item);
-      pmath_t normal = custom_expr_expand_to_normal(_expr);
-      pmath_unref(PMATH_FROM_PTR(&_expr->internals.inherited.inherited.inherited));
+      pmath_t normal = _pmath_custom_expr_convert_to_normal_fallback(_expr);
       return _pmath_expr_shrink_associative(normal, magic_rem);
     }
   }
@@ -3446,6 +3478,13 @@ static void write_expr_ex(
   int                       priority,
   pmath_expr_t              expr
 ) {
+  if(PMATH_UNLIKELY(PMATH_AS_PTR(expr)->type_shift == PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION)) {
+    struct _pmath_custom_expr_t      *_expr = (void*)PMATH_AS_PTR(expr);
+    struct _pmath_custom_expr_data_t *data  = PMATH_CUSTOM_EXPR_DATA(_expr);
+    if(data->api->try_write && data->api->try_write(_expr, info, priority))
+      return;
+  }
+  
   size_t exprlen = pmath_expr_length(expr);
   pmath_t head = pmath_expr_get_item(expr, 0);
 

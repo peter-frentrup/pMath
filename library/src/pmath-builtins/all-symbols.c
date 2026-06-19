@@ -300,6 +300,7 @@ PMATH_PRIVATE pmath_t builtin_developer_topackedarray(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespace(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr);
 
+PMATH_PRIVATE pmath_t builtin_bytearray(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isatom(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iscomplex(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iseven(           pmath_expr_t expr);
@@ -391,6 +392,7 @@ PMATH_PRIVATE pmath_t builtin_nest(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_nestlist(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_norm(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_normal(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_operate(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ordering(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_padleft_and_padright(         pmath_expr_t expr);
@@ -643,6 +645,7 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_developer_setdebugmetadataat, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_developer_topackedarray,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
  
+  CHECK( pmath_security_register_doorman(builtin_bytearray,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_isatom,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_iscomplex,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_iseven,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -739,6 +742,7 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_nestlist,                    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_nestwhile_and_nestwhilelist, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_norm,                        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_normal,                      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_operate,                     PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_ordering,                    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_padleft_and_padright,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -945,6 +949,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Boole,                        builtin_boole)
   BIND_DOWN(   pmath_System_Break,                        general_builtin_zeroonearg)
   BIND_DOWN(   pmath_System_Button,                       builtin_button)
+  BIND_DOWN(   pmath_System_ByteArray,                    builtin_bytearray)
   BIND_DOWN(   pmath_System_ByteCount,                    builtin_bytecount)
   BIND_DOWN(   pmath_System_Cases,                        builtin_cases)
   BIND_DOWN(   pmath_System_Catch,                        builtin_catch)
@@ -1127,6 +1132,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_NextPrime,                    builtin_nextprime)
   BIND_DOWN(   pmath_System_Not,                          builtin_not)
   BIND_DOWN(   pmath_System_Norm,                         builtin_norm)
+  BIND_DOWN(   pmath_System_Normal,                       builtin_normal)
   BIND_DOWN(   pmath_System_NRules,                       builtin_symbol_rules)
   BIND_DOWN(   pmath_System_Numerator,                    builtin_numerator)
   BIND_DOWN(   pmath_System_NumeratorDenominator,         builtin_numerator_denominator)

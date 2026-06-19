@@ -151,6 +151,12 @@ Internal`SuppressDynamicTrackingBlock::vsym:= "Variable specification `1` contai
 
 Break::nofwd:= Continue::nofwd:= "No surrounding For, While or Do found for `1`."
 
+ByteArray::base64:= "Cannot decode character `1` at Index `2` in `3` as Base64."
+ByteArray::nobyte:= "`1` must be an integer between 0 and 255."
+ByteArray::nobytes:= "`1` must be either an integer between 0 and 255, a byte array, an ASCII or Latin-1 string, or a List of those."
+ByteArray::head:= "Cannot change the Head of ByteArray to `1`."
+ByteArray::depth:= "Recursion depth limit exceeded while accumulating byte array contents."
+
 $Namespace::nsset:= "Cannot set $Namespace to `1`; value is not a parsable context name ending in `"
 $NamespacePath::nslist:= "Cannot set $NamespacePath to `1`; value must be a list of strings ending in `"
 

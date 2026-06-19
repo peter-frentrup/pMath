@@ -18,6 +18,7 @@
 #include <pmath-util/concurrency/threadpool-private.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/data-types/association-lists-private.h>
+#include <pmath-util/data-types/byte-arrays-private.h>
 #include <pmath-util/data-types/dispatch-tables-private.h>
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/hash/hashtables-private.h>
@@ -763,6 +764,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
     if(!_pmath_packed_arrays_init())          goto FAIL_PACKED_ARRAYS;
     if(!_pmath_symbols_init())                goto FAIL_SYMBOLS;
     if(!_pmath_dispatch_tables_init())        goto FAIL_DISPATCH_TABLES;
+    if(!_pmath_byte_arrays_init())            goto FAIL_BYTE_ARRAYS;
     if(!_pmath_association_lists_init())      goto FAIL_ASSOCIATION_LISTS;
     if(!_pmath_numeric_init())                goto FAIL_NUMERIC;
     if(!_pmath_symbol_values_init())          goto FAIL_SYMBOL_VALUES;
@@ -1290,7 +1292,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
   FAIL_SECURITY:          _pmath_symbol_values_done();
   FAIL_SYMBOL_VALUES:     _pmath_numeric_done();
   FAIL_NUMERIC:           _pmath_dispatch_tables_done();
-  FAIL_DISPATCH_TABLES:   _pmath_association_lists_done();
+  FAIL_DISPATCH_TABLES:   _pmath_byte_arrays_done();
+  FAIL_BYTE_ARRAYS:       _pmath_association_lists_done();
   FAIL_ASSOCIATION_LISTS: _pmath_symbols_done();
   FAIL_SYMBOLS:           _pmath_packed_arrays_done();
   FAIL_PACKED_ARRAYS:     _pmath_expressions_done();
@@ -1389,6 +1392,7 @@ PMATH_API void pmath_done(void) {
     _pmath_symbol_values_done();
     _pmath_numeric_done();
     _pmath_dispatch_tables_done();
+    _pmath_byte_arrays_done();
     _pmath_association_lists_done();
     _pmath_symbols_done();
     _pmath_packed_arrays_done();

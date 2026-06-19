@@ -51,6 +51,9 @@ struct _pmath_custom_expr_api_t {
   pmath_bool_t (*try_compare_equal)(      struct _pmath_custom_expr_t *e, pmath_t other, pmath_bool_t *result);                   // does not free e or other
   pmath_bool_t (*try_maybe_contains_item)(struct _pmath_custom_expr_t *e, pmath_t item, pmath_bool_t *result);                    // does not free e or other
   pmath_bool_t (*try_item_equals)(        struct _pmath_custom_expr_t *e, size_t i, pmath_t expected_item, pmath_bool_t *result); // does not free e or expected_item
+  pmath_bool_t (*try_new_empty_like)(     struct _pmath_custom_expr_t *e, pmath_expr_t *result);                                  // does not free e
+  pmath_bool_t (*try_write)(              struct _pmath_custom_expr_t *e, struct pmath_write_ex_t *info, int priority);           // does not free e
+  pmath_bool_t (*try_convert_to_normal)(  struct _pmath_custom_expr_t *e, pmath_expr_t *result);                                  // frees e iff returing TRUE
   //pmath_bool_t (*try_compare)(         struct _pmath_custom_expr_t *e, pmath_t other, int          *result); // does not free e or other
   //pmath_bool_t (*try_get_hash)(        struct _pmath_custom_expr_t *e, int *result);                         // does not free e
 };
@@ -68,6 +71,11 @@ struct _pmath_custom_expr_t *_pmath_as_custom_expr_by_api(pmath_t obj, const str
 
 PMATH_PRIVATE
 void _pmath_custom_expr_changed(struct _pmath_custom_expr_t *e);
+
+PMATH_PRIVATE
+pmath_t _pmath_custom_expr_convert_to_normal_fallback(struct _pmath_custom_expr_t *e); // e will be freed
+PMATH_PRIVATE
+pmath_t _pmath_custom_expr_convert_to_normal(struct _pmath_custom_expr_t *e); // e will be freed
 
 PMATH_PRIVATE
 size_t _pmath_expr_find_sorted(

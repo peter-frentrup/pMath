@@ -59,6 +59,7 @@
 {"Break", {"ArgumentCount" -> 0..1, "Category" -> "Keyword"}}
 {"Button", {"ArgumentCount" -> 1..2}}
 {"ButtonBox", {"ArgumentCount" -> 1}}
+{"ByteArray", {"ArgumentCount" -> 1}}
 {"ByteCount", {"ArgumentCount" -> 1}}
 {"CapForm", {"ArgumentCount" -> 1}}
 {"Cases", {"ArgumentCount" -> 1..4}}
@@ -371,6 +372,7 @@
 {"NewTask", {"ArgumentCount" -> 1}}
 {"NextPrime", {"ArgumentCount" -> 1}}
 {"Norm", {"ArgumentCount" -> 1..2}}
+{"Normal", {"ArgumentCount" -> 1}}
 {"Normalize", {"ArgumentCount" -> 1..2}}
 {"Not", {"ArgumentCount" -> 1}}
 {"NotCongruent", {"ArgumentCount" -> 2..}}

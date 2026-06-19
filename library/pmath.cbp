@@ -895,6 +895,8 @@
 		<Unit filename="include/pmath-util/concurrency/threads.h" />
 		<Unit filename="include/pmath-util/data-types/association-lists-private.h" />
 		<Unit filename="include/pmath-util/data-types/association-lists.h" />
+		<Unit filename="include/pmath-util/data-types/byte-arrays-private.h" />
+		<Unit filename="include/pmath-util/data-types/byte-arrays.h" />
 		<Unit filename="include/pmath-util/data-types/dispatch-tables-private.h" />
 		<Unit filename="include/pmath-util/data-types/dispatch-tables.h" />
 		<Unit filename="include/pmath-util/debug.h" />
@@ -1299,6 +1301,9 @@
 		<Unit filename="src/pmath-builtins/language/begin-and-end.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/language/bytearray.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/language/debugmetadata.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -1468,6 +1473,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/lists/norm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-builtins/lists/normal.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/lists/operate.c">
@@ -1709,6 +1717,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/data-types/association-lists.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/data-types/byte-arrays.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/data-types/dispatch-tables.c">
