@@ -357,39 +357,41 @@ void NumberBox::Impl::set_number(String n) {
         if(new_end <= parts.mid_decimal_dot + 1)
           new_end = parts.mid_decimal_dot + 2;
         
-        if(base == 10) {
-          if(buf[new_end] >= (uint16_t)'5') { // round upwards. TODO: round to even instead??
-            int pos_last_rounded = new_end - 1;
-            while(pos_last_rounded >= parts.mid_significant_range.from && (buf[pos_last_rounded] == '9' || buf[pos_last_rounded] == '.'))
-              --pos_last_rounded;
-            
-            if(parts.mid_significant_range.from <= pos_last_rounded) {
-              parts._number.edit([&](uint16_t *new_buf, int len) {
-                new_buf[pos_last_rounded] += 1;
-                for(int i = pos_last_rounded + 1; i < new_end; ++i) {
-                  if(new_buf[i] != '.')
+        if(new_end < parts.mid_significant_range.to) {
+          if(base == 10) {
+            if(buf[new_end] >= (uint16_t)'5') { // round upwards. TODO: round to even instead??
+              int pos_last_rounded = new_end - 1;
+              while(pos_last_rounded >= parts.mid_significant_range.from && (buf[pos_last_rounded] == '9' || buf[pos_last_rounded] == '.'))
+                --pos_last_rounded;
+              
+              if(parts.mid_significant_range.from <= pos_last_rounded) {
+                parts._number.edit([&](uint16_t *new_buf, int len) {
+                  new_buf[pos_last_rounded] += 1;
+                  for(int i = pos_last_rounded + 1; i < new_end; ++i) {
+                    if(new_buf[i] != '.')
+                      new_buf[i] = '0';
+                  }
+                });
+              }
+              else {
+                // All digits are '9'. Need to set those to '0' and prepend a '1'.
+                // But have an unused digit at new_end. So instead of prepending, set first digit to '1',
+                // set all other up to and including new_end to '0', shift new_end and decimal dot by one place  
+                parts._number.edit([&](uint16_t *new_buf, int len) {
+                  new_buf[parts.mid_significant_range.from] = '1';
+                  for(int i = parts.mid_significant_range.from + 1; i <= new_end; ++i) {
                     new_buf[i] = '0';
-                }
-              });
-            }
-            else {
-              // All digits are '9'. Need to set those to '0' and prepend a '1'.
-              // But have an unused digit at new_end. So instead of prepending, set first digit to '1',
-              // set all other up to and including new_end to '0', shift new_end and decimal dot by one place  
-              parts._number.edit([&](uint16_t *new_buf, int len) {
-                new_buf[parts.mid_significant_range.from] = '1';
-                for(int i = parts.mid_significant_range.from + 1; i <= new_end; ++i) {
-                  new_buf[i] = '0';
-                }
+                  }
 
-                new_end += 1;
-                parts.mid_decimal_dot+= 1;
-                new_buf[parts.mid_decimal_dot] = '.';
-              });
+                  new_end += 1;
+                  parts.mid_decimal_dot+= 1;
+                  new_buf[parts.mid_decimal_dot] = '.';
+                });
+              }
             }
+
+            parts.mid_significant_range.to = new_end;
           }
-
-          parts.mid_significant_range.to = new_end;
         }
       }
     }
