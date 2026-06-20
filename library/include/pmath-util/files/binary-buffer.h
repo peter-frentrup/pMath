@@ -44,6 +44,18 @@ void pmath_file_binary_buffer_manipulate(
   void    (*callback)(uint8_t *readable, uint8_t **writable, const uint8_t *end, void *closure),
   void     *closure);
 
+/**\brief Extract the unread part of a binary buffer into a byte array.
+   \param binfile A binary file created with pmath_file_create_binary_buffer().
+          It wont be freed.
+   \return A ByteArray object or PMATH_NULL on error.
+   
+   This function is essentially equivalent to calling pmath_file_binary_buffer_manipulate()
+   with a \a callback that copies all bytes between \a readable and \a *writable into a new byte buffer.
+   But it is more efficient by swapping underlying buffers instead of copying.
+ */
+PMATH_API
+pmath_t pmath_file_binary_buffer_extract_byte_array(pmath_t binfile);
+
 /** @} */
 
 #endif // __PMATH_UTIL__FILES__BINARY_BUFFER_H__

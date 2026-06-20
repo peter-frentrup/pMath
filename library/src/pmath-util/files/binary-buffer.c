@@ -1,4 +1,6 @@
 #include <pmath-util/files/binary-buffer.h>
+
+#include <pmath-util/data-types/byte-arrays.h>
 #include <pmath-util/memory.h>
 
 #include <string.h>
@@ -28,10 +30,15 @@ static struct binbuf_t *create_binbuf(size_t capacity) {
     
   bb->error    = FALSE;
   bb->capacity = capacity;
-  bb->data     = pmath_mem_alloc(capacity);
-  if(!bb->data) {
-    pmath_mem_free(bb);
-    return NULL;
+  if(capacity) {
+    bb->data = pmath_mem_alloc(capacity);
+    if(!bb->data) {
+      pmath_mem_free(bb);
+      return NULL;
+    }
+  }
+  else {
+    bb->data = NULL;
   }
   
   bb->read_ptr = bb->write_ptr = bb->data;
@@ -218,4 +225,39 @@ void pmath_file_binary_buffer_manipulate(
       binbuf_manipulate,
       &info);
   }
+}
+
+struct binbuf_extract_info_t {
+  pmath_byte_array_t result;
+};
+
+static void binbuf_extract_callback(void *p, void *extra) {
+  struct binbuf_t *bb = (struct binbuf_t *)p;
+  struct binbuf_extract_info_t *info = extra;
+  
+  void *data      = bb->data;
+  size_t capacity = bb->capacity;
+  size_t offset   = bb->read_ptr - bb->data;
+  size_t length   = bb->write_ptr - bb->read_ptr;
+  
+  bb->data = NULL;
+  bb->read_ptr = NULL;
+  bb->write_ptr = NULL;
+  bb->capacity = 0;
+  
+  pmath_blob_t blob = pmath_blob_new_with_data(capacity, data, pmath_mem_free, FALSE);
+  info->result = pmath_byte_array_new(blob, offset, length);
+}
+
+PMATH_API
+pmath_t pmath_file_binary_buffer_extract_byte_array(pmath_t binfile) {
+  struct binbuf_extract_info_t info = { .result = PMATH_NULL };
+  
+  pmath_file_manipulate(
+    binfile,
+    destroy_binbuf,
+    binbuf_extract_callback,
+    &info);
+  
+  return info.result;
 }
