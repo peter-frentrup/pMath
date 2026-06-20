@@ -1670,6 +1670,13 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
       base = 16;
     
     if((thread->base_flags & PMATH_BASE_FLAGS_AUTOMATIC) || (info->options & PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS)) {
+      //  pmath> 1.5`10      |> FullForm |> ToString |> Echo |> ToExpression
+      //   >> 16^^1.8`8.5
+      //         1.500000000000000000
+      //
+      //  pmath> 1.5`10          |> BaseForm(16)
+      //         16^^1.8000000000000000
+      //
       if(base & (base - 1)) // not a power of two => change base
         base = 16;
       

@@ -42,9 +42,9 @@ PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
 ///        1.5
 /// 
 /// pmath> Uncompress @ Compress(1.5`10)         |> FullForm
-///        16^^0.`8.5*^1
+///        16^^1.8`8.5
 /// pmath> 1.5`10                                |> FullForm
-///        16^^0.`8.5*^1
+///        16^^1.8`8.5
 /// pmath> Uncompress @ Compress(1.5[+/-0.5]`10) |> FullForm
 ///        16^^1.[8+/-8]`8.5
 /// pmath> 1.5[+/-0.5]`10                        |> FullForm

@@ -443,16 +443,33 @@ static void get_str_2exp_parts_new(
   fmpz_add_si_inline(out_parts->exponent, out_parts->exponent, midlen);
   
   /// Radius ...
-  {
-    arf_t tmp_rad;
-    arf_init_set_mag_shallow(tmp_rad, arb_radref(in_value));
-    arf_get_fmpz_2exp(mant, out_parts->rad_exponent_extra, tmp_rad);
+  if(mag_is_zero(arb_radref(in_value))) {
+    // Exact values:
+    //  pmath> 1.5`10      |> FullForm |> ToString |> Echo |> ToExpression
+    //   >> 16^^1.8`8.5
+    //         1.500000000000000000
+    //  pmath> 1.625`10      |> FullForm |> ToString |> Echo |> ToExpression
+    //   >> 16^^1.a`8.5
+    //         1.625000000000000000
+    fmpz_zero(mant);
+    fmpz_set_si(out_parts->rad_exponent_extra, -midlen);
   }
-  // Convert exponent from power of 2 to power of 2^n:
-  if(in_baselog > 1) {
-    ulong remainder = fmpz_fdiv_ui(out_parts->rad_exponent_extra, in_baselog);
-    fmpz_fdiv_q_ui(out_parts->rad_exponent_extra, out_parts->rad_exponent_extra, in_baselog);
-    fmpz_mul_2exp(mant, mant, remainder);
+  else {
+    // Inexact values:
+    //  pmath> 1.3`10      |> FullForm |> ToString |> Echo |> ToExpression
+    //   >> 16^^1.4ccccccc[8+/-8]`8.5
+    //         1.299999999[930+/-117]
+    {
+      arf_t tmp_rad;
+      arf_init_set_mag_shallow(tmp_rad, arb_radref(in_value));
+      arf_get_fmpz_2exp(mant, out_parts->rad_exponent_extra, tmp_rad);
+    }
+    // Convert exponent from power of 2 to power of 2^n:
+    if(in_baselog > 1) {
+      ulong remainder = fmpz_fdiv_ui(out_parts->rad_exponent_extra, in_baselog);
+      fmpz_fdiv_q_ui(out_parts->rad_exponent_extra, out_parts->rad_exponent_extra, in_baselog);
+      fmpz_mul_2exp(mant, mant, remainder);
+    }
   }
   
   out_parts->rad_digits = get_new_fmpz_str(mant, 1 << in_baselog);
@@ -465,7 +482,6 @@ static void get_str_2exp_parts_new(
   
   out_parts->total_insignificant = radlen;
   out_parts->total_significant = midlen;
-  
   /// Align digits ...
   if(fmpz_cmp_ui(out_parts->rad_exponent_extra, 0) < 0) {
     // 0.MMmmmm
