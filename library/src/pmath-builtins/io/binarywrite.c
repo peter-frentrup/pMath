@@ -1,5 +1,6 @@
-#include <pmath-util/evaluation.h>
 #include <pmath-util/approximate.h>
+#include <pmath-util/data-types/byte-arrays.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/files/abstract-file.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/io-varint-private.h>
@@ -46,6 +47,27 @@ static pmath_bool_t binary_write(
     _pmath_serialize_raw_integer(file, value);
     pmath_unref(type);
     return TRUE;
+  }
+  
+  if(pmath_is_byte_array(value)) {
+    const uint8_t *data =pmath_byte_array_read(value);
+    size_t length = pmath_expr_length(value);
+    
+    if(pmath_is_null(type)) {
+      pmath_file_write(file, data, length);
+      pmath_unref(value);
+      return TRUE;
+    }
+    
+    if(pmath_is_string(type)) {
+      if(pmath_string_equals_latin1(type, "Byte")
+      || pmath_string_equals_latin1(type, "UnsignedInteger8")) {
+        pmath_file_write(file, data, length);
+        pmath_unref(value);
+        pmath_unref(type);
+        return TRUE;
+      }
+    }
   }
   
   if(pmath_is_expr_of(value, pmath_System_List)) {
@@ -767,9 +789,30 @@ static pmath_bool_t binary_write(
 }
 
 PMATH_PRIVATE pmath_t builtin_binarywrite(pmath_expr_t expr) {
-  /* BinaryRead(file, value, type)
-     BinaryRead(file, value)        = BinaryRead(file, value, "Byte")
-   */
+// BinaryWrite(file, value, type)
+// BinaryWrite(file, value)        = BinaryWrite(file, value, "Byte")
+//
+// Options:
+//  ByteOrdering :> $ByteOrdering
+//
+// Examples:
+//  pmath> {fin, fout}:= ByteArrayToInputOutputStreams(ByteArray({}))
+//         {InputStream(<<>>), OutputStream(<<>>)}
+//
+//  pmath> fout.BinaryWrite(-5, "Integer8")
+//         OutputStream(<<>>)
+//  pmath> fout.BinaryWrite({99, 200})
+//         OutputStream(<<>>)
+//  pmath> fout.BinaryWrite(12345, "Integer16", ByteOrdering -> +1)
+//         OutputStream(<<>>)
+//  pmath> fout.BinaryWrite(ByteArray({1,2,3}))
+//         OutputStream(<<>>)
+//
+//  pmath> fin.BinaryReadList()
+//         {251, 99, 200, 48, 57, 1, 2, 3}
+//  pmath> 48 * 256 + 57
+//         12345
+//
   pmath_expr_t options;
   pmath_t file, value, type;
   size_t last_nonoption;
@@ -781,7 +824,7 @@ PMATH_PRIVATE pmath_t builtin_binarywrite(pmath_expr_t expr) {
   }
   
   type = pmath_expr_get_item(expr, 3);
-  if(pmath_is_null(type) ||pmath_is_set_of_options(type)) {
+  if(pmath_is_null(type) || pmath_is_set_of_options(type)) {
     pmath_unref(type);
     type = PMATH_NULL;
     last_nonoption = 2;
