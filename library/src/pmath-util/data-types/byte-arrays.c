@@ -30,6 +30,8 @@ struct _pmath_byte_array_extra_data_t {
 
 #define BYTE_ARRAY_EXTRA(EXPR_PTR)      ((struct _pmath_byte_array_extra_data_t*)PMATH_CUSTOM_EXPR_DATA(EXPR_PTR))
 
+#define BYTE_ARRAY_FORMAT_BLOCK_SIZE   (1024 * 1024)
+
 extern pmath_symbol_t pmath_System_ByteArray;
 extern pmath_symbol_t pmath_System_HoldForm;
 extern pmath_symbol_t pmath_System_Interpretation;
@@ -571,15 +573,25 @@ static pmath_bool_t byte_array_try_write_output(
 // pmath> ByteArray(Table(PowerMod(i, 2, 255), i -> 70)) // FullForm
 //        ByteArray("AQQJEBkkMUBRZHmQqcThASJFapG65RNCc6bb E0yHxARFiM0VXqn2RpfqQJfwTKkJas0zmgRv 
 //          3Ey9MaYelxOQEJEVmiKrNw==")
-
+  
   struct _pmath_byte_array_extra_data_t *extra = BYTE_ARRAY_EXTRA(e);
+  
+  pmath_bool_t use_summary = 0 == (info->options & (PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_INPUTEXPR));
+  
+  if(!use_summary && extra->length > BYTE_ARRAY_FORMAT_BLOCK_SIZE)
+    return FALSE;
   
 #define WRITE_CSTR(str) _pmath_write_cstr((str), info->write, info->user)
 
   pmath_write_ex(info, pmath_System_ByteArray);
   WRITE_CSTR("(");
   
-  if(info->options & (PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_INPUTEXPR)) {
+  if(use_summary) {
+    char summary_buf[40]; // "<< 18446744073709551615 bytes >>"
+    snprintf(summary_buf, sizeof(summary_buf), "<< %"PRIuPTR" bytes >>", (uintptr_t)extra->length);
+    _pmath_write_cstr(summary_buf, info->write, info->user);
+  }
+  else {
     WRITE_CSTR("\"");
     
     const uint8_t *p = byte_array_read_data(e);
@@ -587,11 +599,6 @@ static pmath_bool_t byte_array_try_write_output(
     base64_write_all(p, len, write_ascii, info, 8);
     
     WRITE_CSTR("\"");
-  }
-  else {
-    char summary_buf[40]; // "<< 18446744073709551615 bytes >>"
-    snprintf(summary_buf, sizeof(summary_buf), "<< %"PRIuPTR" bytes >>", (uintptr_t)extra->length);
-    _pmath_write_cstr(summary_buf, info->write, info->user);
   }
   
   WRITE_CSTR(")");
@@ -613,7 +620,7 @@ static pmath_bool_t byte_array_try_format_fullform(
   
   const uint8_t *p = byte_array_read_data(e);
   
-  size_t block_size = 1024 * 1024;
+  size_t block_size = BYTE_ARRAY_FORMAT_BLOCK_SIZE;
   
   pmath_t arg = PMATH_NULL;
   if(extra->length <= block_size) {

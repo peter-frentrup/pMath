@@ -3481,8 +3481,16 @@ static void write_expr_ex(
   if(PMATH_UNLIKELY(PMATH_AS_PTR(expr)->type_shift == PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION)) {
     struct _pmath_custom_expr_t      *_expr = (void*)PMATH_AS_PTR(expr);
     struct _pmath_custom_expr_data_t *data  = PMATH_CUSTOM_EXPR_DATA(_expr);
+    
     if(data->api->try_write_output && data->api->try_write_output(_expr, info, priority))
       return;
+    
+    pmath_t fullform;
+    if(data->api->try_format_fullform && data->api->try_format_fullform(_expr, &fullform)) {
+      _pmath_write_impl(info, fullform);
+      pmath_unref(fullform);
+      return;
+    }
   }
   
   size_t exprlen = pmath_expr_length(expr);
