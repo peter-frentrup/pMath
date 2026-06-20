@@ -92,6 +92,13 @@ static pmath_bool_t init_strategy(struct pmath_compressor_settings_t *settings, 
 }
 
 pmath_t builtin_compressstream(pmath_expr_t expr) {
+// CompressStream(ostream)
+//
+// Options:
+//  "WindowBits" -> Automatic           8 .. 15  or  Automatic
+//  "RawDeflate" -> False
+//  Level        -> Automatic           0 .. 9  or  Automatic
+//
   pmath_t stream;
   struct pmath_compressor_settings_t settings;
   pmath_expr_t options;
@@ -143,6 +150,12 @@ pmath_t builtin_compressstream(pmath_expr_t expr) {
 }
 
 pmath_t builtin_uncompressstream(pmath_expr_t expr) {
+// UncompressStream(istream)
+//
+// Options:
+//  "WindowBits" -> Automatic           8 .. 15  or  Automatic
+//  "RawInflate" -> False
+//
   pmath_t stream;
   struct pmath_decompressor_settings_t settings;
   pmath_expr_t options;

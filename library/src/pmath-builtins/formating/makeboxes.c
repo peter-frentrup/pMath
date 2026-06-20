@@ -3890,19 +3890,8 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
     return s;
   }
   
-  if(pmath_is_ministr(obj)) {
+  if(pmath_is_ministr(obj))
     return string_to_stringbox(thread, obj);
-//    pmath_string_t quote = PMATH_C_STRING("\"");
-//
-//    obj = _pmath_string_escape(
-//            pmath_ref(quote),
-//            obj,
-//            pmath_ref(quote),
-//            FALSE/*thread->boxform >= BOXFORM_INPUT*/);
-//
-//    pmath_unref(quote);
-//    return obj;
-  }
   
   if(pmath_is_pointer(obj)) {
     if(PMATH_AS_PTR(obj) == NULL)
@@ -4217,8 +4206,14 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes_or_format(pmath_expr_t expr) {
 }
 
 PMATH_PRIVATE pmath_t builtin_parenthesizeboxes(pmath_expr_t expr) {
-  /* ParenthesizeBoxes(obj, prec, pos)
-   */
+// ParenthesizeBoxes(obj, prec, pos)
+//
+// Examples:
+//  pmath> ParenthesizeBoxes(ToBoxes(f * g), Plus, "Infix")
+//         {f,  , g}
+//  pmath> ParenthesizeBoxes(ToBoxes(f * g), Power, "Infix")
+//         {(, {f,  , g}, )}
+//
   pmath_t box, precobj, posobj;
   int prec, pos;
   
