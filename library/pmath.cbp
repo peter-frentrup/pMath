@@ -1217,6 +1217,9 @@
 		<Unit filename="src/pmath-builtins/io/binarywrite.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/io/bytearraytostream.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/io/characters.c">
 			<Option compilerVar="CC" />
 		</Unit>

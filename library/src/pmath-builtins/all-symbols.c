@@ -250,6 +250,7 @@ PMATH_PRIVATE pmath_t builtin_internal_stringpatternconvert(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binaryread(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binaryreadlist(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binarywrite(                   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bytearraytostream(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_characters(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_close(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_compress(                      pmath_expr_t expr);
@@ -950,6 +951,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Break,                        general_builtin_zeroonearg)
   BIND_DOWN(   pmath_System_Button,                       builtin_button)
   BIND_DOWN(   pmath_System_ByteArray,                    builtin_bytearray)
+  BIND_DOWN(   pmath_System_ByteArrayToInputOutputStreams,builtin_bytearraytostream)
+  BIND_DOWN(   pmath_System_ByteArrayToStream,            builtin_bytearraytostream)
   BIND_DOWN(   pmath_System_ByteCount,                    builtin_bytecount)
   BIND_DOWN(   pmath_System_Cases,                        builtin_cases)
   BIND_DOWN(   pmath_System_Catch,                        builtin_catch)
