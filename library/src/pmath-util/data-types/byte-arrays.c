@@ -68,7 +68,7 @@ static pmath_bool_t byte_array_try_set_item_mutable(   struct _pmath_custom_expr
 static pmath_bool_t byte_array_try_copy_shallow(       struct _pmath_custom_expr_t *e, pmath_expr_t *result);                                  // does not free e
 static pmath_bool_t byte_array_try_compare_equal(      struct _pmath_custom_expr_t *e, pmath_t other, pmath_bool_t *result);                   // does not free e or other
 static pmath_bool_t byte_array_try_maybe_contains_item(struct _pmath_custom_expr_t *e, pmath_t item, pmath_bool_t *result);                    // does not free e or other
-static pmath_bool_t byte_array_try_write(              struct _pmath_custom_expr_t *e, struct pmath_write_ex_t *info, int priority);           // does not free e
+static pmath_bool_t byte_array_try_write_output(       struct _pmath_custom_expr_t *e, struct pmath_write_ex_t *info, int priority);           // does not free e
 static pmath_bool_t byte_array_try_format_fullform(    struct _pmath_custom_expr_t *e, pmath_t *result);                                       // does not free e
 static pmath_bool_t byte_array_try_make_boxes(         struct _pmath_custom_expr_t *e, pmath_thread_t thread, pmath_expr_t *result);           // does not free e
 
@@ -86,7 +86,7 @@ static const struct _pmath_custom_expr_api_t byte_array_expr_api = {
   .try_copy_shallow        = byte_array_try_copy_shallow,
   .try_compare_equal       = byte_array_try_compare_equal,
   .try_maybe_contains_item = byte_array_try_maybe_contains_item,
-  .try_write               = byte_array_try_write,
+  .try_write_output        = byte_array_try_write_output,
   .try_format_fullform     = byte_array_try_format_fullform,
   .try_make_boxes          = byte_array_try_make_boxes,
 };
@@ -557,7 +557,7 @@ static void write_ascii(const char *str, int len, void *ctx) {
   _pmath_write_latin1(str, len, info->write, info->user);
 }
 
-static pmath_bool_t byte_array_try_write(
+static pmath_bool_t byte_array_try_write_output(
   struct _pmath_custom_expr_t *e,       // does not free e
   struct pmath_write_ex_t     *info,
   int                          priority

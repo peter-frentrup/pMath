@@ -54,7 +54,7 @@ struct _pmath_custom_expr_api_t {
   pmath_bool_t (*try_maybe_contains_item)(struct _pmath_custom_expr_t *e, pmath_t item, pmath_bool_t *result);                    // does not free e or other
   pmath_bool_t (*try_item_equals)(        struct _pmath_custom_expr_t *e, size_t i, pmath_t expected_item, pmath_bool_t *result); // does not free e or expected_item
   pmath_bool_t (*try_new_empty_like)(     struct _pmath_custom_expr_t *e, pmath_expr_t *result);                                  // does not free e
-  pmath_bool_t (*try_write)(              struct _pmath_custom_expr_t *e, struct pmath_write_ex_t *info, int priority);           // does not free e
+  pmath_bool_t (*try_write_output)(       struct _pmath_custom_expr_t *e, struct pmath_write_ex_t *info, int priority);           // does not free e
   pmath_bool_t (*try_convert_to_normal)(  struct _pmath_custom_expr_t *e, pmath_expr_t *result);                                  // frees e iff returing TRUE
   pmath_bool_t (*try_format_fullform)(    struct _pmath_custom_expr_t *e, pmath_t *result);                                       // does not free e
   pmath_bool_t (*try_make_boxes)(         struct _pmath_custom_expr_t *e, pmath_thread_t current_thread, pmath_expr_t *result);   // does not free e
