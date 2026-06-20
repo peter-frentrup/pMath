@@ -629,19 +629,15 @@ static pmath_bool_t byte_array_try_format_fullform(
     size_t len_remaining = extra->length;
     const uint8_t *next = p;
     
+    pmath_t self = PMATH_FROM_PTR(&e->internals.inherited.inherited.inherited);
+    
     arg = pmath_expr_new(pmath_ref(pmath_System_List), num_blocks);
     for(size_t i = 0; i < num_blocks; ++i) {
       size_t block_len = len_remaining;
       if(block_len > block_size)
         block_len = block_size;
       
-      int base64_len = (((int)block_len + 2) / 3) * 4;
-      int spaces = ((int)block_len + 3*8 - 1) / (3*8);
-      pmath_string_t str = pmath_string_new(base64_len + spaces);
-      
-      base64_write_all(next, block_len, write_ascii_to_string, &str, 8);
-      
-      pmath_t item = pmath_expr_new_extended(pmath_ref(pmath_System_ByteArray), 1, str);
+      pmath_t item = pmath_expr_get_item_range(self, 1 + (size_t)(next - p), block_len);
       arg = pmath_expr_set_item(arg, i + 1, item);
       
       next          += block_len;

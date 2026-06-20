@@ -1,10 +1,11 @@
 #include <pmath-util/serialize.h>
 
-#include <pmath-core/expressions.h>
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays.h>
 #include <pmath-core/strings.h>
 
+#include <pmath-util/data-types/byte-arrays.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/files/abstract-file.h>
 #include <pmath-util/hash/hashtables-private.h>
@@ -72,6 +73,21 @@
                                                            \_____/ = size1*..*sizeN many values (double or int32_t: 8 or 4 bytes, little endian)
                                          \______________/ = depth many integers
  */
+
+static void serialize(struct serializer_t *info, pmath_t object); // object will be freed
+static void serialize_expr_custom(struct serializer_t *info, pmath_expr_t expr); // expr will be freed
+static void serialize_expr_general(struct serializer_t *info, pmath_expr_t expr); // expr will be freed
+static void serialize_mp_float(struct serializer_t *info, pmath_mpfloat_t value); // value will be freed
+static void serialize_mp_int(struct serializer_t *info, pmath_mpint_t value); // value will be freed
+static void serialize_old_mpfloat_from_mant_exp(struct serializer_t *info, slong prec, const fmpz_t mant, const fmpz_t exp);
+static void serialize_old_mpfloat_from_arf(struct serializer_t *info, slong prec, const arf_t x);
+static void serialize_packed_array(struct serializer_t *info, pmath_packed_array_t array); // array will be freed
+static void serialize_string_object(struct serializer_t *info, pmath_string_t str); // str will be freed
+static void serialize_symbol(struct serializer_t *info, pmath_symbol_t sym); // sym will be freed
+static void write_new_cache_entry(struct serializer_t *info, pmath_t object); // object wont be freed
+
+extern pmath_symbol_t pmath_System_ByteArray;
+extern pmath_symbol_t pmath_System_List;
 
 //{ hashtable_int_obj_class ...
 
@@ -238,8 +254,76 @@ static void serialize_string_object(struct serializer_t *info, pmath_string_t st
   pmath_unref(str);
 }
 
-// object will be freed
-static void serialize(struct serializer_t *info, pmath_t object);
+// sym will be freed
+static void serialize_symbol(struct serializer_t *info, pmath_symbol_t sym) {
+  write_tag(info->file, TAG_SYMBOL);
+  serialize(info, pmath_symbol_name(sym));
+  pmath_unref(sym);
+}
+
+// expr will be freed
+static void serialize_expr_custom(struct serializer_t *info, pmath_expr_t expr) {
+  struct _pmath_custom_expr_t      *_expr = (void*)PMATH_AS_PTR(expr);
+  struct _pmath_custom_expr_data_t *expr_data = PMATH_CUSTOM_EXPR_DATA(_expr);
+  
+  // special case for ByteArray to avoid creating (large) temporary string.
+  if(pmath_is_byte_array(expr)) {
+    //  pmath> {fin, fout}:= ByteArrayToInputOutputStreams(ByteArray({}))
+    //         {InputStream(<<>>), OutputStream(<<>>)}
+    //  pmath> fout.BinaryWrite(ByteArray({1,2,3,4,5,6,7}), Expression)
+    //         OutputStream(<<>>)
+    //  pmath> bytes:= fin.BinaryReadList
+    //         {2, 0, 14, 2, 12, 2, 2, 8, 32, 83, 121, 115, 116, 101, 109, 96, 66, 121, 116, 101, 65, 114, 
+    //          114, 97, 121, 14, 2, 12, 2, 4, 8, 22, 83, 121, 115, 116, 101, 109, 96, 76, 105, 115, 116, 
+    //          8, 14, 1, 2, 3, 4, 5, 6, 7}
+    //  pmath> bytes |> ByteArray |> ByteArrayToStream |> BinaryRead(Expression) |> Echo |> Normal
+    //   >> ByteArray(<< 7 bytes >>)
+    //         {1, 2, 3, 4, 5, 6, 7}
+    //
+    // Deserialization does not yet materialize ByteArrays until evaluation:
+    //  pmath> With({ba:= ByteArray({1,2,3,4,5})}, fout.BinaryWrite(Hold(ba), Expression))
+    //         OutputStream(<<>>)
+    //  pmath> bytes:= fin.BinaryReadList
+    //         {2, 0, 14, 2, 2, 2, 12, 2, 4, 8, 22, 83, 121, 115, 116, 101, 109, 96, 72, 111, 108, 100, 2, 
+    //          6, 14, 2, 12, 2, 8, 8, 32, 83, 121, 115, 116, 101, 109, 96, 66, 121, 116, 101, 65, 114, 
+    //          114, 97, 121, 14, 2, 12, 2, 10, 8, 22, 83, 121, 115, 116, 101, 109, 96, 76, 105, 115, 116, 
+    //          8, 10, 1, 2, 3, 4, 5}
+    //  pmath> bytes |> ByteArray |> ByteArrayToStream |> BinaryRead(Expression) |> InputForm
+    //         Hold(ByteArray({"\[U+0001]\[U+0002]\[U+0003]\[U+0004]\[U+0005]"}))
+    size_t length = pmath_expr_length(expr); 
+    if(length <= 1024 * 1024) {
+      const uint8_t *data = pmath_byte_array_read(expr);
+    
+      write_tag( info->file, TAG_EXPR);
+      write_size(info->file, 1);
+      
+      serialize_symbol(info, pmath_ref(pmath_System_ByteArray));
+      
+      write_tag( info->file, TAG_EXPR);
+      write_size(info->file, 1);
+      
+      serialize_symbol(info, pmath_ref(pmath_System_List));
+      
+      write_tag(info->file, TAG_STR8);
+      write_int(info->file, (int)length);
+      
+      pmath_file_write(info->file, data, length);
+      
+      pmath_unref(expr);
+      return;
+    } 
+    // else: larger byte arrays are cut into pieces by try_format_fullform()
+  }
+  
+  pmath_t fullform;
+  if(expr_data->api->try_format_fullform && expr_data->api->try_format_fullform(_expr, &fullform)) {
+    serialize(info, fullform);
+    pmath_unref(expr);
+    return;
+  }
+  
+  serialize_expr_general(info, expr);
+}
 
 // expr will be freed
 static void serialize_expr_general(struct serializer_t *info, pmath_expr_t expr) {
@@ -523,9 +607,7 @@ static void serialize(
       return;
       
     case PMATH_TYPE_SHIFT_SYMBOL:
-      write_tag(info->file, TAG_SYMBOL);
-      serialize(info, pmath_symbol_name(object));
-      pmath_unref(object);
+      serialize_symbol(info, object);
       return;
       
     case PMATH_TYPE_SHIFT_MP_INT:
@@ -545,6 +627,10 @@ static void serialize(
       
     case PMATH_TYPE_SHIFT_PACKED_ARRAY:
       serialize_packed_array(info, object);
+      return;
+      
+    case PMATH_TYPE_SHIFT_CUSTOM_EXPRESSION:
+      serialize_expr_custom(info, object);
       return;
   }
   
