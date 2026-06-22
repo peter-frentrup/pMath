@@ -26,20 +26,27 @@
 
 static void os_init(void);
 
+#define PMATH_SYSTEM_CON_SYMBOL_X( sym )     X( pmath_System_Con_ ## sym   , "System`Con`" #sym )
 #define PMATH_SYSTEM_SYMBOL_X( sym )         X( pmath_System_ ## sym       , "System`" #sym )
 #define PMATH_SYSTEM_DOLLAR_SYMBOL_X( sym )  X( pmath_System_Dollar ## sym , "System`$" #sym )
 #define PMATH_SYMBOLS_X                      \
   PMATH_SYSTEM_DOLLAR_SYMBOL_X( PageWidth ) \
+  PMATH_SYSTEM_SYMBOL_X( BaseStyle       ) \
+  PMATH_SYSTEM_SYMBOL_X( Bold            ) \
   PMATH_SYSTEM_SYMBOL_X( BoxData         ) \
   PMATH_SYSTEM_SYMBOL_X( Button          ) \
   PMATH_SYSTEM_SYMBOL_X( ButtonBox       ) \
   PMATH_SYSTEM_SYMBOL_X( ButtonFunction  ) \
   PMATH_SYSTEM_SYMBOL_X( Dialog          ) \
+  PMATH_SYSTEM_SYMBOL_X( FontSlant       ) \
+  PMATH_SYSTEM_SYMBOL_X( FontWeight      ) \
   PMATH_SYSTEM_SYMBOL_X( Function        ) \
   PMATH_SYSTEM_SYMBOL_X( HoldComplete    ) \
   PMATH_SYSTEM_SYMBOL_X( Interrupt       ) \
+  PMATH_SYSTEM_SYMBOL_X( Italic          ) \
   PMATH_SYSTEM_SYMBOL_X( List            ) \
   PMATH_SYSTEM_SYMBOL_X( MakeExpression  ) \
+  PMATH_SYSTEM_SYMBOL_X( Plain           ) \
   PMATH_SYSTEM_SYMBOL_X( Quit            ) \
   PMATH_SYSTEM_SYMBOL_X( RawBoxes        ) \
   PMATH_SYSTEM_SYMBOL_X( Return          ) \
@@ -48,8 +55,11 @@ static void os_init(void);
   PMATH_SYSTEM_SYMBOL_X( SectionPrint    ) \
   PMATH_SYSTEM_SYMBOL_X( Sequence        ) \
   PMATH_SYSTEM_SYMBOL_X( ShowDefinition  ) \
+  PMATH_SYSTEM_SYMBOL_X( Style           ) \
+  PMATH_SYSTEM_SYMBOL_X( StyleBox        ) \
   PMATH_SYSTEM_SYMBOL_X( Tooltip         ) \
-  PMATH_SYSTEM_SYMBOL_X( TooltipBox      )
+  PMATH_SYSTEM_SYMBOL_X( TooltipBox      ) \
+  PMATH_SYSTEM_CON_SYMBOL_X( KnownConsoleStyles )
 
 #define X( SYM, NAME )  static pmath_symbol_t SYM = PMATH_STATIC_NULL;
   PMATH_SYMBOLS_X
@@ -729,17 +739,68 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   return PMATH_NULL;
 }
 
+//{ Styled output ...
+
+struct style_context_t {
+  unsigned bold : 1;
+  unsigned italic : 1;
+};
+
+#define MAX_STYLE_DEPTH  16
+
 struct styled_writer_info_t {
   pmath_t  current_hyperlink_obj;
   HFONT    cached_console_font;
+  unsigned old_console_mode;
+  struct style_context_t current_style[MAX_STYLE_DEPTH];
+  unsigned style_depth;
   unsigned raw_boxes_write_depth;
   unsigned formatting_allow_raw_boxes : 1;
   unsigned formatting_is_inside_string : 1;
   unsigned no_font_available : 1;
+  unsigned support_ansi_escape_codes : 1;
 };
 
 static int bytes_since_last_abortcheck = 0;
 const int ABORT_CHECK_BYTE_COUNT = 100;
+
+
+static int get_default_output_color(void);
+static void set_output_color(int color);
+static void init_terminal_capabilities(struct styled_writer_info_t *sw);
+static void reset_terminal_capabilities(struct styled_writer_info_t *sw);
+static void write_style_changes(
+  struct styled_writer_info_t *sw, 
+  const struct style_context_t *old_style,
+  const struct style_context_t *new_style);
+static void concat_to_string(void *user, const uint16_t *data, int len);
+
+static pmath_bool_t is_helpline_token(pmath_string_t str);
+
+static pmath_string_t action_to_input_string(pmath_t action);
+static pmath_t find_button_function(pmath_expr_t expr, size_t first_option);
+static pmath_t button_function_to_action(pmath_t func);
+static void pre_write_button(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
+static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
+static void pre_write_stylebox_or_style(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
+static void post_write_stylebox_or_style(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
+static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t options);
+static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t options);
+static void styled_write(void *user, const uint16_t *data, int len);
+
+static pmath_bool_t button_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
+static pmath_bool_t buttonbox_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
+static pmath_bool_t stylebox_or_style_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
+static pmath_bool_t rawboxes_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
+static pmath_bool_t string_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
+static pmath_bool_t styled_formatter(void *user, pmath_t obj, struct pmath_write_ex_t *info);
+
+static void convert_style_directive(struct style_context_t *context, pmath_t directive, int max_depth);
+static void convert_style_directive_FontSlant(struct style_context_t *context, pmath_t slant);
+static void convert_style_directive_FontWeight(struct style_context_t *context, pmath_t weight);
+
+static pmath_bool_t styled_can_write_unicode(void *user, const uint16_t *str, int len);
+
 
 static void styled_write(void *user, const uint16_t *data, int len) {
   struct styled_writer_info_t *info = user;
@@ -768,7 +829,23 @@ static void styled_write(void *user, const uint16_t *data, int len) {
   /* fwrite works with MSVC, but not with Mingw */
   //fwrite(data, 2, len, stdout);
   
-  fwprintf(stdout, L"%.*s", len, data); // TODO: handle NUL chars
+  while(len > 0) {
+    int next = 0;
+    for(; next < len; ++next) {
+      uint16_t ch = data[next];
+      if(ch < ' ' && ch != '\t' && ch != '\r' && ch != '\n') {
+        break;
+      }
+    }
+    
+    fwprintf(stdout, L"%.*s", next, data);
+    
+    if(next < len)
+      ++next;
+    
+    data += next;
+    len  -= next;
+  }
   
   fflush(stdout);
   _setmode(_fileno(stdout), oldmode);
@@ -793,6 +870,85 @@ static void set_output_color(int color) {
     HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     fflush(stdout);
     SetConsoleTextAttribute(stdout_handle, (WORD)color);
+  }
+}
+
+static void init_terminal_capabilities(struct styled_writer_info_t *sw) {
+  HANDLE output_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+  if(output_handle == INVALID_HANDLE_VALUE) {
+    sw->support_ansi_escape_codes = 0;
+    return;
+  }
+  
+  DWORD mode;
+  if(GetConsoleMode(output_handle, &mode)) {
+    sw->old_console_mode = mode;
+    
+    DWORD new_mode = mode | (ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
+    if(SetConsoleMode(output_handle, new_mode)) {
+      sw->support_ansi_escape_codes = 1;
+    }
+    else {
+      sw->support_ansi_escape_codes = 0;
+    }
+  }
+  else {
+    sw->support_ansi_escape_codes = 0;
+  }
+}
+
+static void reset_terminal_capabilities(struct styled_writer_info_t *sw) {
+  HANDLE output_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+  if(output_handle == INVALID_HANDLE_VALUE)
+    return;
+  
+  SetConsoleMode(output_handle, sw->old_console_mode);
+}
+
+static void write_style_changes(
+  struct styled_writer_info_t *sw, 
+  const struct style_context_t *old_style,
+  const struct style_context_t *new_style
+) {
+  if(!sw->support_ansi_escape_codes)
+    return;
+  
+  char buf[20];
+  
+  char *s = buf;
+  *s++ = '\x1B';                             // 1
+  *s++ = '[';                                // 2
+  
+  if(new_style->bold != old_style->bold) {
+    if(new_style->bold) {
+      *s++ = '1';                            // 3
+      *s++ = ';';                            // 4
+    }
+    else {
+      *s++ = '2';                            // 3
+      *s++ = '2';                            // 4
+      *s++ = ';';                            // 5
+    }
+  }
+  
+  if(new_style->italic != old_style->italic) {
+    if(new_style->italic) {
+      *s++ = '3';                            // 6
+      *s++ = ';';                            // 7
+    }
+    else {
+      *s++ = '2';                            // 6
+      *s++ = '3';                            // 7
+      *s++ = ';';                            // 8
+    }
+  }
+  
+  if(s[-1] == ';') {
+    s[-1] = 'm';
+    *s = '\0';                               // 9
+    
+    fputs(buf, stdout);
+    fflush(stdout);
   }
 }
 
@@ -957,22 +1113,64 @@ static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj,
   pmath_unref(label_box);
 }
 
+static void pre_write_stylebox_or_style(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
+  info->style_depth++;
+  
+  int tos = info->style_depth;
+  
+  assert(tos > 0);
+  if(tos < MAX_STYLE_DEPTH && tos > 0) {
+    struct style_context_t *outer_style = &info->current_style[tos - 1];
+    struct style_context_t *inner_style = &info->current_style[tos];
+    
+    memcpy(inner_style, outer_style, sizeof(struct style_context_t));
+    
+    size_t exprlen = pmath_expr_length(obj);
+    for(size_t i = 2; i <= exprlen; ++i) {
+      convert_style_directive(inner_style, pmath_expr_get_item(obj, i), 4);
+    }
+    
+    write_style_changes(info, outer_style, inner_style);
+  }
+}
+
+static void post_write_stylebox_or_style(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
+  int tos = info->style_depth;
+
+  info->style_depth--;
+  
+  assert(tos > 0);
+  if(tos < MAX_STYLE_DEPTH && tos > 0) {
+    struct style_context_t *outer_style = &info->current_style[tos - 1];
+    struct style_context_t *inner_style = &info->current_style[tos];
+    
+    write_style_changes(info, inner_style, outer_style);
+  }
+}
+
 static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct styled_writer_info_t *info = user;
   
   if(bytes_since_last_abortcheck >= ABORT_CHECK_BYTE_COUNT && pmath_aborting())
     return;
     
-  if(0 == (options & (PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_INPUTEXPR))) {
+  if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
     if(pmath_same(info->current_hyperlink_obj, PMATH_UNDEFINED)) {
       if(pmath_is_expr_of(obj, pmath_System_Button) && pmath_expr_length(obj) >= 2) 
         pre_write_button(info, obj, options);
       if(pmath_is_expr_of(obj, pmath_System_ButtonBox) && pmath_expr_length(obj) >= 2) 
         pre_write_button_box(info, obj, options);
     }
-  }
-  
-  if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
+    
+    if(info->raw_boxes_write_depth == 0) {
+      if(pmath_is_expr_of(obj, pmath_System_Style))
+        pre_write_stylebox_or_style(info, obj, options);
+    }
+    else {
+      if(pmath_is_expr_of(obj, pmath_System_StyleBox))
+        pre_write_stylebox_or_style(info, obj, options);
+    }
+    
     if(pmath_is_expr_of_len(obj, pmath_System_RawBoxes, 1))
       info->raw_boxes_write_depth++;
   }
@@ -986,6 +1184,15 @@ static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t opt
   
   if(bytes_since_last_abortcheck >= ABORT_CHECK_BYTE_COUNT && pmath_aborting())
     return;
+  
+  if(info->raw_boxes_write_depth == 0) {
+    if(pmath_is_expr_of(obj, pmath_System_Style))
+      post_write_stylebox_or_style(info, obj, options);
+  }
+  else {
+    if(pmath_is_expr_of(obj, pmath_System_StyleBox))
+      post_write_stylebox_or_style(info, obj, options);
+  }
   
   if(pmath_is_string(obj))
     info->raw_boxes_write_depth--;
@@ -1029,6 +1236,13 @@ static pmath_bool_t buttonbox_formatter(struct styled_writer_info_t *sw, pmath_t
   
   pmath_write_ex(info, label);
   pmath_unref(label);
+  return TRUE;
+}
+
+static pmath_bool_t stylebox_or_style_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info) {
+  pmath_t arg = pmath_expr_get_item(obj, 1);
+  pmath_write_ex(info, arg);
+  pmath_unref(arg);
   return TRUE;
 }
 
@@ -1078,9 +1292,101 @@ static pmath_bool_t styled_formatter(void *user, pmath_t obj, struct pmath_write
   if(sw->formatting_allow_raw_boxes) {
     if(pmath_is_expr_of(obj, pmath_System_ButtonBox) && pmath_expr_length(obj) >= 2) 
       return buttonbox_formatter(sw, obj, info);
+    if(pmath_is_expr_of(obj, pmath_System_StyleBox) && pmath_expr_length(obj) >= 1) 
+      return stylebox_or_style_formatter(sw, obj, info);
+  }
+  else {
+    if(pmath_is_expr_of(obj, pmath_System_Style) && pmath_expr_length(obj) >= 1) 
+      return stylebox_or_style_formatter(sw, obj, info);
   }
   
   return FALSE;
+}
+
+static void convert_style_directive(struct style_context_t *context, pmath_t directive, int max_depth) {
+  if(max_depth-- <= 0)
+    return;
+  
+  if(pmath_is_rule(directive)) {
+    pmath_t lhs = pmath_expr_get_item(directive, 1);
+    pmath_t rhs = pmath_expr_get_item(directive, 2);
+    
+    if(pmath_same(lhs, pmath_System_FontSlant)) {
+      pmath_unref(lhs);
+      pmath_unref(directive);
+      convert_style_directive_FontSlant(context, rhs);
+      return;
+    }
+    
+    if(pmath_same(lhs, pmath_System_FontWeight)) {
+      pmath_unref(lhs);
+      pmath_unref(directive);
+      convert_style_directive_FontWeight(context, rhs);
+      return;
+    }
+    
+    if(pmath_same(lhs, pmath_System_BaseStyle)) {
+      pmath_unref(lhs);
+      pmath_unref(directive);
+      convert_style_directive(context, rhs, max_depth);
+      return;
+    }
+    
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+  }
+  else if(pmath_is_expr_of(directive, pmath_System_List)) {
+    size_t exprlen = pmath_expr_length(directive);
+    for(size_t i = 1; i <= exprlen; ++i) {
+      convert_style_directive(context, pmath_expr_get_item(directive, i), max_depth);
+    }
+  }
+  else if(pmath_is_symbol(directive)) {
+    if(pmath_same(directive, pmath_System_Bold)) {
+      convert_style_directive_FontWeight(context, directive);
+      return;
+    }
+    if(pmath_same(directive, pmath_System_Italic)) {
+      convert_style_directive_FontSlant(context, directive);
+      return;
+    }
+    if(pmath_same(directive, pmath_System_Plain)) {
+      convert_style_directive_FontSlant(context, pmath_ref(directive));
+      convert_style_directive_FontWeight(context, directive);
+      return;
+    }
+  }
+  else if(pmath_is_string(directive)) {
+    directive = pmath_expr_new_extended(pmath_ref(pmath_System_Con_KnownConsoleStyles), 1, directive);
+    directive = pmath_evaluate_secured(directive, PMATH_SECURITY_LEVEL_NON_DESTRUCTIVE_ALLOWED);
+    
+    convert_style_directive(context, directive, max_depth);
+    return;  
+  }
+  
+  pmath_unref(directive);
+}
+
+static void convert_style_directive_FontSlant(struct style_context_t *context, pmath_t slant) {
+  if(pmath_same(slant, pmath_System_Italic)) {
+    context->italic = 1;
+  }
+  else if(pmath_same(slant, pmath_System_Plain)) {
+    context->italic = 0;
+  }
+  
+  pmath_unref(slant);
+}
+
+static void convert_style_directive_FontWeight(struct style_context_t *context, pmath_t weight) {
+  if(pmath_same(weight, pmath_System_Bold)) {
+    context->bold = 1;
+  }
+  else if(pmath_same(weight, pmath_System_Plain)) {
+    context->bold = 0;
+  }
+  
+  pmath_unref(weight);
 }
 
 static pmath_bool_t styled_can_write_unicode(void *user, const uint16_t *str, int len) {
@@ -1167,6 +1473,8 @@ static pmath_bool_t styled_can_write_unicode(void *user, const uint16_t *str, in
   return FALSE;
 }
 
+//} ... Styled output
+
 static pmath_threadlock_t print_lock = NULL;
 
 struct write_output_t {
@@ -1182,6 +1490,7 @@ static void write_output_locked_callback(void *_context) {
   
   memset(&info, 0, sizeof(info));
   info.current_hyperlink_obj = PMATH_UNDEFINED;
+  init_terminal_capabilities(&info);
   
   indent_length = dialog_depth;
   while(indent_length-- > 0)
@@ -1217,6 +1526,8 @@ static void write_output_locked_callback(void *_context) {
   
   printf("\n");
   fflush(stdout);
+  
+  reset_terminal_capabilities(&info);
 }
 
 static void write_line_locked_callback(void *s) {
@@ -1758,7 +2069,7 @@ static pmath_t builtin_quit(pmath_expr_t expr) {
 }
 
 // style will be freed
-static void convert_style(pmath_t style, int default_color, const char **indent, int *color) {
+static void convert_section_style(pmath_t style, int default_color, const char **indent, int *color) {
   *color = default_color;
   *indent = "";
 
@@ -1808,7 +2119,7 @@ static void sectionprint_callback(void *arg) {
           item = pmath_expr_new_extended(pmath_ref(pmath_System_RawBoxes), 1, boxes);
       }
       
-      convert_style(style, default_color, &indent, &color);
+      convert_section_style(style, default_color, &indent, &color);
       style = PMATH_NULL;
       
       if(color != default_color)
@@ -1829,7 +2140,7 @@ static void sectionprint_callback(void *arg) {
     return;
   }
   
-  convert_style(pmath_expr_get_item(expr, 1), default_color, &indent, &color);
+  convert_section_style(pmath_expr_get_item(expr, 1), default_color, &indent, &color);
   
   if(color != default_color)
     set_output_color(color);
@@ -1897,7 +2208,7 @@ static void init_console_width(void) {
 }
 
 static pmath_bool_t init_pmath_bindings(void) {
-#define X( SYM, NAME )  SYM = pmath_symbol_get(PMATH_C_STRING( NAME ), FALSE);
+#define X( SYM, NAME )  SYM = pmath_symbol_get(PMATH_C_STRING( NAME ), TRUE);
   PMATH_SYMBOLS_X
 #undef X
   

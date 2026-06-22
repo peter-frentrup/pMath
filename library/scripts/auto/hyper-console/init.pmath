@@ -4,6 +4,8 @@ BeginPackage("System`Con`")
 PrintWelcomeMessage
 PrintHelpMessage
 
+KnownConsoleStyles
+
 Begin("System`Con`Private`")
 
 Unprotect($HyperlinksSupported)
@@ -36,6 +38,10 @@ Function PrintHelpMessage() {
 		Button("Quit()", Quit()),
 		"`.")
 }
+
+KnownConsoleStyles(~):= {}
+
+KnownConsoleStyles("Arg"):= { FontSlant -> Italic }
 
 End()
 
