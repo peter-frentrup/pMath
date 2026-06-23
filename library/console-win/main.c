@@ -48,6 +48,7 @@ static void os_init(void);
   PMATH_SYSTEM_SYMBOL_X( FontWeight      ) \
   PMATH_SYSTEM_SYMBOL_X( Function        ) \
   PMATH_SYSTEM_SYMBOL_X( GrayLevel       ) \
+  PMATH_SYSTEM_SYMBOL_X( Highlighted     ) \
   PMATH_SYSTEM_SYMBOL_X( HoldComplete    ) \
   PMATH_SYSTEM_SYMBOL_X( Interrupt       ) \
   PMATH_SYSTEM_SYMBOL_X( Italic          ) \
@@ -801,7 +802,9 @@ static pmath_t find_button_function(pmath_expr_t expr, size_t first_option);
 static pmath_t button_function_to_action(pmath_t func);
 static void pre_write_button(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
 static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
+static void pre_write_highlighted(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
 static void pre_write_stylebox_or_style(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
+static void post_write_highlighted(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
 static void post_write_stylebox_or_style(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options);
 static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t options);
 static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t options);
@@ -809,7 +812,7 @@ static void styled_write(void *user, const uint16_t *data, int len);
 
 static pmath_bool_t button_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
 static pmath_bool_t buttonbox_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
-static pmath_bool_t stylebox_or_style_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
+static pmath_bool_t style_wrapper_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
 static pmath_bool_t rawboxes_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
 static pmath_bool_t string_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info);
 static pmath_bool_t styled_formatter(void *user, pmath_t obj, struct pmath_write_ex_t *info);
@@ -1368,6 +1371,24 @@ static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj,
   pmath_unref(label_box);
 }
 
+static void pre_write_highlighted(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
+  info->style_depth++;
+  
+  int tos = info->style_depth;
+  
+  assert(tos > 0);
+  if(tos < MAX_STYLE_DEPTH && tos > 0) {
+    struct style_context_t *outer_style = &info->current_style[tos - 1];
+    struct style_context_t *inner_style = &info->current_style[tos];
+    
+    memcpy(inner_style, outer_style, sizeof(struct style_context_t));
+    
+    convert_style_directive(inner_style, PMATH_C_STRING("Highlighted"), 4);
+    
+    write_style_changes(info, outer_style, inner_style);
+  }
+}
+
 static void pre_write_stylebox_or_style(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
   info->style_depth++;
   
@@ -1387,6 +1408,10 @@ static void pre_write_stylebox_or_style(struct styled_writer_info_t *info, pmath
     
     write_style_changes(info, outer_style, inner_style);
   }
+}
+
+static void post_write_highlighted(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
+  post_write_stylebox_or_style(info, obj, options);
 }
 
 static void post_write_stylebox_or_style(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
@@ -1413,12 +1438,14 @@ static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t opti
     if(pmath_same(info->current_hyperlink_obj, PMATH_UNDEFINED)) {
       if(pmath_is_expr_of(obj, pmath_System_Button) && pmath_expr_length(obj) >= 2) 
         pre_write_button(info, obj, options);
-      if(pmath_is_expr_of(obj, pmath_System_ButtonBox) && pmath_expr_length(obj) >= 2) 
+      else if(pmath_is_expr_of(obj, pmath_System_ButtonBox) && pmath_expr_length(obj) >= 2) 
         pre_write_button_box(info, obj, options);
     }
     
     if(info->raw_boxes_write_depth == 0) {
-      if(pmath_is_expr_of(obj, pmath_System_Style))
+      if(pmath_is_expr_of(obj, pmath_System_Highlighted))
+        pre_write_highlighted(info, obj, options);
+      else if(pmath_is_expr_of(obj, pmath_System_Style))
         pre_write_stylebox_or_style(info, obj, options);
     }
     else {
@@ -1441,7 +1468,9 @@ static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t opt
     return;
   
   if(info->raw_boxes_write_depth == 0) {
-    if(pmath_is_expr_of(obj, pmath_System_Style))
+    if(pmath_is_expr_of(obj, pmath_System_Highlighted))
+      post_write_stylebox_or_style(info, obj, options);
+    else if(pmath_is_expr_of(obj, pmath_System_Style))
       post_write_stylebox_or_style(info, obj, options);
   }
   else {
@@ -1494,7 +1523,7 @@ static pmath_bool_t buttonbox_formatter(struct styled_writer_info_t *sw, pmath_t
   return TRUE;
 }
 
-static pmath_bool_t stylebox_or_style_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info) {
+static pmath_bool_t style_wrapper_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info) {
   pmath_t arg = pmath_expr_get_item(obj, 1);
   pmath_write_ex(info, arg);
   pmath_unref(arg);
@@ -1548,11 +1577,13 @@ static pmath_bool_t styled_formatter(void *user, pmath_t obj, struct pmath_write
     if(pmath_is_expr_of(obj, pmath_System_ButtonBox) && pmath_expr_length(obj) >= 2) 
       return buttonbox_formatter(sw, obj, info);
     if(pmath_is_expr_of(obj, pmath_System_StyleBox) && pmath_expr_length(obj) >= 1) 
-      return stylebox_or_style_formatter(sw, obj, info);
+      return style_wrapper_formatter(sw, obj, info);
   }
   else {
+    if(pmath_is_expr_of(obj, pmath_System_Highlighted) && pmath_expr_length(obj) >= 1) 
+      return style_wrapper_formatter(sw, obj, info);
     if(pmath_is_expr_of(obj, pmath_System_Style) && pmath_expr_length(obj) >= 1) 
-      return stylebox_or_style_formatter(sw, obj, info);
+      return style_wrapper_formatter(sw, obj, info);
   }
   
   return FALSE;
