@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
@@ -8,6 +10,8 @@
 
 #include <hyper-console.h>
 #include <pmath.h>
+
+#include <math.h>
 
 #ifdef pmath_debug_print_stack
 #  undef pmath_debug_print_stack
@@ -31,6 +35,7 @@ static void os_init(void);
 #define PMATH_SYSTEM_DOLLAR_SYMBOL_X( sym )  X( pmath_System_Dollar ## sym , "System`$" #sym )
 #define PMATH_SYMBOLS_X                      \
   PMATH_SYSTEM_DOLLAR_SYMBOL_X( PageWidth ) \
+  PMATH_SYSTEM_SYMBOL_X( Background      ) \
   PMATH_SYSTEM_SYMBOL_X( BaseStyle       ) \
   PMATH_SYSTEM_SYMBOL_X( Bold            ) \
   PMATH_SYSTEM_SYMBOL_X( BoxData         ) \
@@ -38,9 +43,11 @@ static void os_init(void);
   PMATH_SYSTEM_SYMBOL_X( ButtonBox       ) \
   PMATH_SYSTEM_SYMBOL_X( ButtonFunction  ) \
   PMATH_SYSTEM_SYMBOL_X( Dialog          ) \
+  PMATH_SYSTEM_SYMBOL_X( FontColor       ) \
   PMATH_SYSTEM_SYMBOL_X( FontSlant       ) \
   PMATH_SYSTEM_SYMBOL_X( FontWeight      ) \
   PMATH_SYSTEM_SYMBOL_X( Function        ) \
+  PMATH_SYSTEM_SYMBOL_X( GrayLevel       ) \
   PMATH_SYSTEM_SYMBOL_X( HoldComplete    ) \
   PMATH_SYSTEM_SYMBOL_X( Interrupt       ) \
   PMATH_SYSTEM_SYMBOL_X( Italic          ) \
@@ -49,6 +56,7 @@ static void os_init(void);
   PMATH_SYSTEM_SYMBOL_X( Plain           ) \
   PMATH_SYSTEM_SYMBOL_X( Quit            ) \
   PMATH_SYSTEM_SYMBOL_X( RawBoxes        ) \
+  PMATH_SYSTEM_SYMBOL_X( RGBColor        ) \
   PMATH_SYSTEM_SYMBOL_X( Return          ) \
   PMATH_SYSTEM_SYMBOL_X( Row             ) \
   PMATH_SYSTEM_SYMBOL_X( Section         ) \
@@ -741,9 +749,20 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
 
 //{ Styled output ...
 
+#define COLOR_MODE_MASK     0xFF000000u
+#define COLOR_VALUE_MASK    0x00FFFFFFu
+#define COLOR_UNDEFINED     0xFFFFFFFFu
+#define COLOR_MODE_DEFAULT  0x00000000u
+#define COLOR_MODE_8        0x01000000u
+#define COLOR_MODE_16       0x02000000u
+#define COLOR_MODE_256      0x03000000u
+#define COLOR_MODE_RGB24    0x04000000u
+
 struct style_context_t {
   unsigned bold : 1;
   unsigned italic : 1;
+  unsigned fg_color;
+  unsigned bg_color;
 };
 
 #define MAX_STYLE_DEPTH  16
@@ -796,6 +815,10 @@ static pmath_bool_t string_formatter(struct styled_writer_info_t *sw, pmath_t ob
 static pmath_bool_t styled_formatter(void *user, pmath_t obj, struct pmath_write_ex_t *info);
 
 static void convert_style_directive(struct style_context_t *context, pmath_t directive, int max_depth);
+static double convert_to_double(pmath_t obj, double def); // obj will be freed
+static unsigned decode_color(pmath_t color); // will be freed
+static void convert_style_directive_Background(struct style_context_t *context, pmath_t color);
+static void convert_style_directive_FontColor(struct style_context_t *context, pmath_t color);
 static void convert_style_directive_FontSlant(struct style_context_t *context, pmath_t slant);
 static void convert_style_directive_FontWeight(struct style_context_t *context, pmath_t weight);
 
@@ -895,6 +918,12 @@ static void init_terminal_capabilities(struct styled_writer_info_t *sw) {
   else {
     sw->support_ansi_escape_codes = 0;
   }
+  
+  int col = get_default_output_color();
+  if(col >= 0) {
+    sw->current_style[0].fg_color = COLOR_MODE_16 | (col & 0x0F);
+    sw->current_style[0].bg_color = COLOR_MODE_16 | ((col & 0xF0) >> 4);
+  }
 }
 
 static void reset_terminal_capabilities(struct styled_writer_info_t *sw) {
@@ -905,15 +934,157 @@ static void reset_terminal_capabilities(struct styled_writer_info_t *sw) {
   SetConsoleMode(output_handle, sw->old_console_mode);
 }
 
+static unsigned squared_color_distance(unsigned rgb1, unsigned rgb2) {
+  // https://www.compuphase.com/cmetric.htm
+  
+  int r1 =  rgb1        & 0xFF;
+  int g1 = (rgb1 >>  8) & 0xFF;
+  int b1 = (rgb1 >> 16) & 0xFF;
+  
+  int r2 =  rgb2        & 0xFF;
+  int g2 = (rgb2 >>  8) & 0xFF;
+  int b2 = (rgb2 >> 16) & 0xFF;
+  
+  int rmean = (r1 + r2) / 2; // no overlflow possible
+  int dr = r2 - r1;
+  int dg = g2 - g1;
+  int db = b2 - b1;
+  
+  return (((512 + rmean) * dr * dr) >> 8) + 4 * dg * dg + (((767 - rmean) * db * db) >> 8);
+}
+
+static int try_find_nearest_win32_color(unsigned color, COLORREF palette[16]) {
+  static const int8_t color_channel_reorder[8] = {
+    0              | 0                | 0              , // ANSI color 0 = Black
+    FOREGROUND_RED | 0                | 0              , // ANSI color 1 = Red
+    0              | FOREGROUND_GREEN | 0              , // ANSI color 2 = Green
+    FOREGROUND_RED | FOREGROUND_GREEN | 0              , // ANSI color 3 = Yellow
+    0              | 0                | FOREGROUND_BLUE, // ANSI color 4 = Blue
+    FOREGROUND_RED | 0                | FOREGROUND_BLUE, // ANSI color 5 = Magenta
+    0              | FOREGROUND_GREEN | FOREGROUND_BLUE, // ANSI color 6 = Cyan
+    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, // ANSI color 7 = White
+  };
+  unsigned color_value = color & COLOR_VALUE_MASK;
+  
+  COLORREF expected_color = 0;
+  
+  switch(color & COLOR_MODE_MASK) {
+    case COLOR_MODE_DEFAULT: return -1;
+    
+    case COLOR_MODE_8:
+      if(color_value < 8)
+        return color_channel_reorder[color_value];
+      else
+        return -1;
+        
+    case COLOR_MODE_16:
+      if(color_value < 8)
+        return color_channel_reorder[color_value];
+      else if(color_value < 16)
+        return FOREGROUND_INTENSITY | color_channel_reorder[color_value - 8];
+      else
+        return -1;
+    
+    case COLOR_MODE_256:
+      if(color_value < 8)
+        return color_channel_reorder[color_value];
+      else if(color_value < 16)
+        return FOREGROUND_INTENSITY | color_channel_reorder[color_value - 8];
+      
+      if(color_value < 232) {
+        unsigned blue6  =  (color_value - 16)        & 0x3F;
+        unsigned green6 = ((color_value - 16) >>  6) & 0x3F;
+        unsigned red6   = ((color_value - 16) >> 12) & 0x3F;
+        
+        //expected_color = RGB(
+        //  (red6   << 2) | (red6   >> 4), 
+        //  (green6 << 2) | (green6 >> 4),
+        //  (blue6  << 2) | (blue6  >> 4));
+        expected_color = RGB(
+          red6   ? red6   * 40 + 55 : 0,
+          green6 ? green6 * 40 + 55 : 0,
+          blue6  ? blue6  * 40 + 55 : 0);
+        break;
+      }
+      if(color_value < 256) {
+        unsigned gray = (color_value - 232) * 10 + 8;
+        expected_color = RGB(gray, gray, gray);
+        break;
+      }
+      
+      return -1;
+    
+    case COLOR_MODE_RGB24:
+      expected_color = color_value;
+      break;
+    
+    default: return -1;
+  }
+  
+  int best_dist = INT_MAX;
+  int nearest_index = 0;
+  for(int i = 0; i < 16; ++i) {
+    int dist = squared_color_distance(expected_color, palette[i]);
+    
+    if(dist < best_dist) {
+      best_dist = dist;
+      nearest_index = i;
+    }
+  }
+  
+  return nearest_index;
+}
+
 static void write_style_changes(
   struct styled_writer_info_t *sw, 
   const struct style_context_t *old_style,
   const struct style_context_t *new_style
 ) {
-  if(!sw->support_ansi_escape_codes)
-    return;
+  pmath_bool_t use_ansi_colors = sw->support_ansi_escape_codes;
   
-  char buf[20];
+  if(!use_ansi_colors) {
+    if(new_style->fg_color != old_style->fg_color || new_style->bg_color != old_style->bg_color) {
+      HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+      if(stdout_handle != INVALID_HANDLE_VALUE) {
+        CONSOLE_SCREEN_BUFFER_INFOEX infoex = { .cbSize = sizeof(infoex) };
+        if(GetConsoleScreenBufferInfoEx(stdout_handle, &infoex)) {
+          
+          WORD wAttributes = infoex.wAttributes;
+          
+          if(new_style->fg_color != old_style->fg_color) {
+            unsigned fg_color = new_style->fg_color;
+            if((fg_color & COLOR_MODE_MASK) == COLOR_MODE_DEFAULT)
+              fg_color = sw->current_style[0].fg_color;
+            
+            int col = try_find_nearest_win32_color(fg_color, infoex.ColorTable);
+            
+            if(col >= 0)
+              wAttributes = (wAttributes & 0xFFF0) | col;
+          }
+          
+          if(new_style->bg_color != old_style->bg_color) {
+            unsigned bg_color = new_style->bg_color;
+            if((bg_color & COLOR_MODE_MASK) == COLOR_MODE_DEFAULT)
+              bg_color = sw->current_style[0].bg_color;
+            
+            int col = try_find_nearest_win32_color(bg_color, infoex.ColorTable);
+            
+            if(col >= 0)
+              wAttributes = (wAttributes & 0xFF0F) | (col << 4);
+          }
+          
+          fflush(stdout);
+          SetConsoleTextAttribute(stdout_handle, wAttributes);
+        }
+      }
+    }
+  }
+  
+  if(!sw->support_ansi_escape_codes) {
+    return;
+  }
+  
+  char buf[50];
   
   char *s = buf;
   *s++ = '\x1B';                             // 1
@@ -943,9 +1114,93 @@ static void write_style_changes(
     }
   }
   
+  if(use_ansi_colors && new_style->fg_color != old_style->fg_color) {
+    unsigned fg_value = new_style->fg_color & COLOR_VALUE_MASK;
+    switch(new_style->fg_color & COLOR_MODE_MASK) {
+      case COLOR_MODE_DEFAULT: 
+        *s++ = '3';                                  // 9
+        *s++ = '9';                                  // 10
+        *s++ = ';';                                  // 11
+        break;
+      case COLOR_MODE_8: 
+        if(fg_value < 8) {
+          *s++ = '3';                                // 9
+          *s++ = '0' + fg_value;                     // 10
+          *s++ = ';';                                // 11
+        }
+        break;
+      case COLOR_MODE_16:
+        if(fg_value < 8) {
+          *s++ = '3';                                // 9
+          *s++ = '0' + fg_value;                     // 10
+          *s++ = ';';                                // 11
+        }
+        else if(fg_value < 16) {
+          *s++ = '9';                                // 9
+          *s++ = '0' + (fg_value - 8);               // 10
+          *s++ = ';';                                // 11
+        }
+        break;
+      case COLOR_MODE_256:
+        if(fg_value < 256) {
+          s+= sprintf(s, "38;5;%u;", fg_value);      // 9 - up to 17
+        }
+        break;
+      case COLOR_MODE_RGB24:
+        s+= sprintf(s, "38;2;%u;%u;%u;",             // 9 - up to 25
+          fg_value         & 0xFF,
+          (fg_value >>  8) & 0xFF,
+          (fg_value >> 16) & 0xFF); 
+        break;
+    }
+  }
+  
+  if(use_ansi_colors && new_style->bg_color != old_style->bg_color) {
+    unsigned bg_value = new_style->bg_color & COLOR_VALUE_MASK;
+    switch(new_style->bg_color & COLOR_MODE_MASK) {
+      case COLOR_MODE_DEFAULT: 
+        *s++ = '4';                                  // 26
+        *s++ = '9';                                  // 27
+        *s++ = ';';                                  // 28
+        break;
+      case COLOR_MODE_8: 
+        if(bg_value < 8) {
+          *s++ = '4';                                // 26
+          *s++ = '0' + bg_value;                     // 27
+          *s++ = ';';                                // 28
+        }
+        break;
+      case COLOR_MODE_16:
+        if(bg_value < 8) {
+          *s++ = '4';                                // 26
+          *s++ = '0' + bg_value;                     // 27
+          *s++ = ';';                                // 28
+        }
+        else if(bg_value < 16) {
+          *s++ = '1';                                // 26
+          *s++ = '0';                                // 27
+          *s++ = '0' + (bg_value - 8);               // 28
+          *s++ = ';';                                // 29
+        }
+        break;
+      case COLOR_MODE_256:
+        if(bg_value < 256) {
+          s+= sprintf(s, "48;5;%u;", bg_value);      // 26 - up to 34
+        }
+        break;
+      case COLOR_MODE_RGB24:
+        s+= sprintf(s, "48;2;%u;%u;%u;",             // 26 - up to 42
+          bg_value         & 0xFF,
+          (bg_value >>  8) & 0xFF,
+          (bg_value >> 16) & 0xFF); 
+        break;
+    }
+  }
+  
   if(s[-1] == ';') {
     s[-1] = 'm';
-    *s = '\0';                               // 9
+    *s = '\0';                               // 43
+    PMATH_STATIC_ASSERT(sizeof(buf) >=          44);
     
     fputs(buf, stdout);
     fflush(stdout);
@@ -1311,6 +1566,20 @@ static void convert_style_directive(struct style_context_t *context, pmath_t dir
     pmath_t lhs = pmath_expr_get_item(directive, 1);
     pmath_t rhs = pmath_expr_get_item(directive, 2);
     
+    if(pmath_same(lhs, pmath_System_Background)) {
+      pmath_unref(lhs);
+      pmath_unref(directive);
+      convert_style_directive_Background(context, rhs);
+      return;
+    }
+    
+    if(pmath_same(lhs, pmath_System_FontColor)) {
+      pmath_unref(lhs);
+      pmath_unref(directive);
+      convert_style_directive_FontColor(context, rhs);
+      return;
+    }
+    
     if(pmath_same(lhs, pmath_System_FontSlant)) {
       pmath_unref(lhs);
       pmath_unref(directive);
@@ -1341,6 +1610,14 @@ static void convert_style_directive(struct style_context_t *context, pmath_t dir
       convert_style_directive(context, pmath_expr_get_item(directive, i), max_depth);
     }
   }
+  else if(pmath_is_expr_of(directive, pmath_System_RGBColor)) {
+    convert_style_directive_FontColor(context, directive);
+    return;
+  }
+  else if(pmath_is_expr_of(directive, pmath_System_GrayLevel)) {
+    convert_style_directive_FontColor(context, directive);
+    return;
+  }
   else if(pmath_is_symbol(directive)) {
     if(pmath_same(directive, pmath_System_Bold)) {
       convert_style_directive_FontWeight(context, directive);
@@ -1365,6 +1642,72 @@ static void convert_style_directive(struct style_context_t *context, pmath_t dir
   }
   
   pmath_unref(directive);
+}
+
+static double convert_to_double(pmath_t obj, double def){ // obj will be freed
+  if(!pmath_is_number(obj)) {
+    obj = pmath_set_precision(obj, -HUGE_VAL);
+  }
+  
+  if(pmath_is_number(obj)) {
+    double value = pmath_number_get_d(obj);
+    pmath_unref(obj);
+    return value;
+  }
+  
+  pmath_unref(obj);
+  return def;
+}
+
+static unsigned decode_color(pmath_t color) { // will be freed
+  if(pmath_is_expr_of_len(color, pmath_System_RGBColor, 3)) {
+    double red   = convert_to_double(pmath_expr_get_item(color, 1), -1.0);
+    double green = convert_to_double(pmath_expr_get_item(color, 2), -1.0);
+    double blue  = convert_to_double(pmath_expr_get_item(color, 3), -1.0);
+    
+    pmath_unref(color);
+    if(0.0 <= red   && red   <= 1.0
+    && 0.0 <= green && green <= 1.0
+    && 0.0 <= blue  && blue  <= 1.0) {
+      int red_val   = (int)round(red * 255);
+      int green_val = (int)round(green * 255);
+      int blue_val  = (int)round(blue * 255);
+      
+      return COLOR_MODE_RGB24 | (red_val) | (green_val << 8) | (blue_val << 16);
+    }
+    
+    return COLOR_UNDEFINED;
+  }
+  
+  if(pmath_is_expr_of_len(color, pmath_System_GrayLevel, 1)) {
+    double level = convert_to_double(pmath_expr_get_item(color, 1), -1.0);
+    
+    pmath_unref(color);
+    
+    if(0.0 <= level && level <= 1.0) {
+      int gray_val = (int)round(level * 255);
+      
+      return COLOR_MODE_RGB24 | (gray_val) | (gray_val << 8) | (gray_val << 16);
+    }
+    
+    return COLOR_UNDEFINED;
+  }
+  
+  pmath_unref(color);
+  return COLOR_UNDEFINED;
+}
+
+static void convert_style_directive_Background(struct style_context_t *context, pmath_t color) {
+  unsigned bg_color = decode_color(color);
+  if(bg_color != COLOR_UNDEFINED) {
+    context->bg_color = bg_color;
+  }
+}
+static void convert_style_directive_FontColor(struct style_context_t *context, pmath_t color) {
+  unsigned fg_color = decode_color(color);
+  if(fg_color != COLOR_UNDEFINED) {
+    context->fg_color = fg_color;
+  }
 }
 
 static void convert_style_directive_FontSlant(struct style_context_t *context, pmath_t slant) {

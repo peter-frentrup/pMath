@@ -41,7 +41,9 @@ Function PrintHelpMessage() {
 
 KnownConsoleStyles(~):= {}
 
+KnownConsoleStyles("TI"):= { FontSlant -> Italic }
 KnownConsoleStyles("Arg"):= { FontSlant -> Italic }
+KnownConsoleStyles("Highlighted"):= { Background -> Yellow, FontColor -> Black }
 
 End()
 
