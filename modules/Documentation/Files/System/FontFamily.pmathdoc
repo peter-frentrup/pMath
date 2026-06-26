@@ -40,7 +40,7 @@ Document({
              SectionLabel -> "out [1]:")}, All)}, All)}, All), 
       SectionGroup({Section("Scope", "ExampleSection"), 
         Section(TextData({TemplateBox({"FontFamily"}, "ReferenceHyperlink"), 
-           " my specify a list containing ", 
+           " may specify a list containing ", 
            TemplateBox({"Inherited"}, "ReferenceHyperlink"), ":"}), 
          "ExampleText"), SectionGroup({
           Section(
