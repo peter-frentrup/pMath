@@ -62,11 +62,11 @@ Document({
       Section(StyleData("Edit"), AutoSpacing -> True, 
        LanguageCategory -> "pMath", ShowAutoStyles -> True), 
       Section(StyleData("Input"), AutoNumberFormating -> False, 
-       AutoSpacing -> True, Evaluatable -> True, FontSize -> 12, 
-       FontFamily -> MathFontFamily, LanguageCategory -> "pMath", 
-       MenuCommandKey -> "9", MenuSortingValue -> 1500, 
-       SectionMargins -> {{56, Inherited}, {10, 5}}, SectionLabel -> "in:", 
-       ShowAutoStyles -> True, ShowStringCharacters -> True), 
+       AutoSpacing -> True, Evaluatable -> True, FontFamily -> MathFontFamily, 
+       FontSize -> 12, LanguageCategory -> "pMath", MenuCommandKey -> "9", 
+       MenuSortingValue -> 1500, SectionMargins -> {{56, Inherited}, {10, 5}}, 
+       SectionLabel -> "in:", ShowAutoStyles -> True, 
+       ShowStringCharacters -> True), 
       SectionGroup({Section(StyleData("Code"), Background -> GrayLevel(0.804), 
          BaseStyle -> "Input", LineBreakWithin -> False, 
          MenuCommandKey -> "8", MenuSortingValue -> 1450, 
@@ -261,7 +261,8 @@ Document({
                     ButtonBox(#1, ButtonFunction -> 
                       Function(CurrentValue({TemplateSlot, 3}):= 
                         If(CurrentValue({TemplateSlot, 3}) === True, False, 
-                         True)), ButtonFrame -> None), "\[InvisibleSpace]"}}, {
+                         True)), BaseStyle -> "OpenerViewLabel"), 
+                    "\[InvisibleSpace]"}}, {
                    "", PaneSelectorBox({
                      True -> GridBox({{""}, {#2}}, GridBoxRowSpacing -> 0.2)}, 
                     #3, ImageSize -> Automatic)}}, BaselinePosition -> 1, 
@@ -269,6 +270,8 @@ Document({
              InterpretationFunction -> 
               Function({"OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
                  InterpretationBox("", #3)}, ")"})}), 
+          Section(StyleData("OpenerViewLabel"), 
+           ButtonBoxOptions -> {ButtonFrame -> None}), 
           Section(StyleData("Spacer"), TemplateBoxOptions -> {
              DisplayFunction -> Function(PaneBox("", ImageSize -> #1)), 
              InterpretationFunction -> 

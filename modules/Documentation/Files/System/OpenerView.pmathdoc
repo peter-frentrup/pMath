@@ -29,7 +29,7 @@ Document({
             Section(BoxData({"OpenerView", "(", {
                 {"{", {"a", ",", "b"}, "}"}, ",", "True"}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
-            Section(BoxData(TemplateBox({"a", "b", True}, "OpenerView")), 
+            Section(BoxData(TemplateBox({"a", "b", False}, "OpenerView")), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, All)}, All), 
       SectionGroup({Section("Scope", "ExampleSection"), 
@@ -178,9 +178,9 @@ Document({
                   "\n", {
                    {"Style", "(", {
                      {"Row", "(", {"{", {StringBox("\"   \""), ",", "label"}, 
-                       "}"}, ")"}, ",", StringBox("\"ControlStyle\"")}, ")"}, 
-                   "\n"}}, "}"}}}, "\n"}}, "}"}}), "Input", 
-         SectionLabel -> "in [1]:"), 
+                       "}"}, ")"}, ",", StringBox("\"OpenerViewLabel\"")}, 
+                    ")"}, "\n"}}, "}"}}}, "\n"}}, "}"}}), "Input", 
+         SectionLabel -> "in [2]:"), 
         SectionGroup({
           Section(BoxData({"fileTreeItem", "(", "$BaseDirectory", ")"}), 
            "Input", SectionLabel -> "in [2]:"), 
@@ -195,7 +195,7 @@ Document({
                     y\\scripts\\", "*")}, If($Context`entries$ === {}, 
                   Skeleton("empty"), 
                   Column(Map($Context`entries$, $Context`fileTreeItem)))))), 
-              False}, "OpenerView")), "Output", SectionGenerated -> True, 
+              True}, "OpenerView")), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [2]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
