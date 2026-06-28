@@ -276,7 +276,7 @@ tokenGuidePageTopic("|>") ::= "Syntax"
 tokenGuidePageTopic("@") ::= "Syntax"
 tokenGuidePageTopic(".") ::= "Syntax"
 tokenGuidePageTopic("//") ::= "Syntax"
-tokenGuidePageTopic(~tok:String) ::= Try(MakeExpression(Echo(tok), ParseSymbols -> False)) |> {
+tokenGuidePageTopic(~tok:String) ::= Try(MakeExpression(tok, ParseSymbols -> False)) |> {
     HoldComplete(~x:Real) :> "Syntax" % "SyntaxForNumbers" % If(IsMachineNumber(x), "MachinePrecisionReals", "ArbitraryPrecisionReals")
     HoldComplete(~:Integer) :> "Syntax" % "SyntaxForNumbers"
     HoldComplete(~:Rational) :> "Syntax" % "SyntaxForNumbers"
