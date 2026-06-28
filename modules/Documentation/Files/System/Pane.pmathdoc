@@ -18,6 +18,7 @@ Document({
            " has options ", TemplateBox({"Alignment"}, "ReferenceHyperlink"), 
            ", ", TemplateBox({"BaselinePosition"}, "ReferenceHyperlink"), 
            ", ", TemplateBox({"BaseStyle"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ", ", 
            TemplateBox({"ImageSize"}, "ReferenceHyperlink"), ", ", 
            TemplateBox({"ImageSizeAction"}, "ReferenceHyperlink"), ", and ", 
            TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink"), "."}), 
@@ -100,6 +101,23 @@ Document({
                  BaselinePosition -> Baseline), 
                 PaneBox("1307674368000", ImageSize -> 30, 
                  BaselinePosition -> Bottom)}, "RowWithSeparators")), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, 1), SectionGroup({
+          Section("FrameMargins", "ExampleSubsection"), 
+          Section(TextData({"Apply padding to the content area with ", 
+             TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "Pane", "(", {{"50", "!"}, ",", {
+                  "{", {"100", ",", "100"}, "}"}, ",", {
+                  "FrameMargins", "\[Rule]", "20"}}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              FrameBox(
+               PaneBox(
+                "3041409320171337804361260816606476884437764156896051200000000\
+                0000", FrameMargins -> 20, ImageSize -> {100, 100}))), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, 1), SectionGroup({
           Section("ImageSizeAction", "ExampleSubsection"), 
