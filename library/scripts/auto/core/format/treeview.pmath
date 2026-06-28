@@ -1,0 +1,165 @@
+﻿BeginPackage("System`")
+
+System`TreeView
+System`ExpressionTreeView
+
+Begin("System`TreeView`Private`")
+
+
+exprToLists
+MakeTreeView
+makeTreeViewLines
+
+
+% Prepare inline tests:
+% pmath> Get($Input); $Namespace:= "System`TreeView`Private`"
+%        System`TreeView`Private`
+
+Format(TreeView(~x)) ::=                         MakeTreeView(x)
+Format(TreeView(~x, n:(~:Integer|Infinity))) ::= MakeTreeView(x, n)
+
+MakeBoxes(TreeView(~x)) ::=                                        makeTreeViewOpenerViewBoxes(HoldComplete(x), Infinity, Infinity)
+MakeBoxes(TreeView(~x, n:(~:Integer|DirectedInfinity(1|1.0)))) ::= makeTreeViewOpenerViewBoxes(HoldComplete(x), n, n)
+
+
+Format(ExpressionTreeView(~x)) ::=                         MakeTreeView(exprToLists(HoldComplete(x)))
+Format(ExpressionTreeView(~x, n:(~:Integer|Infinity))) ::= MakeTreeView(exprToLists(HoldComplete(x)), n)
+
+Function MakeBoxes(ExpressionTreeView(~x)) {
+    With(lists:= exprToLists(HoldComplete(x)))
+    makeTreeViewOpenerViewBoxes(HoldComplete(lists), Infinity, Infinity)
+}
+Function MakeBoxes(ExpressionTreeView(~x, n:(~:Integer|DirectedInfinity(1|1.0)))) {
+    With(lists:= exprToLists(HoldComplete(x)))
+    makeTreeViewOpenerViewBoxes(HoldComplete(lists), n, n)
+}
+
+
+MakeTreeView(~x)::=     Row(Flatten({makeTreeViewLines(x, Infinity, "", "")}), "\n")
+MakeTreeView(~x, ~n)::= Row(Flatten({makeTreeViewLines(x, n,        "", "")}), "\n")
+
+
+makeTreeViewLines(~value, ~maxdepth, ~prefix, ~moreprefix) ::= Row({prefix, value})
+
+makeTreeViewLines(~name -> ~value:List, ~maxdepth, ~prefix, ~moreprefix) ::= {
+        Row({prefix, name})
+        makeTreeViewLines(value, maxdepth - 1, moreprefix, moreprefix)
+    }
+
+makeTreeViewLines({}, ~maxdepth, ~prefix, ~moreprefix) ::= Row({prefix, Skeleton("empty")})
+
+Function makeTreeViewLines(~values:List, ~maxdepth, ~prefix, ~moreprefix) {
+    If(maxdepth < 0) {
+         Row({prefix, values})
+    } Else {
+        With(firstPrefix:= prefix ++ "├───")
+        With(lastPrefix := prefix ++ "└───")
+        With(firstMorePrefix:= moreprefix ++ "│   ")
+        With(lastMorePrefix:=  moreprefix ++ "    ")
+
+        {
+            Most(values) |> Map(Function(makeTreeViewLines(#, maxdepth - 1, firstPrefix, firstMorePrefix)))
+            makeTreeViewLines(Last(values), maxdepth - 1, lastPrefix, lastMorePrefix)
+        }
+    }
+}
+
+% pmath> TreeView({a -> 1, b -> {x -> {y->3}, z->{}}, c -> 4, d -> {5,6}})
+%        ├───a -> 1
+%        ├───b
+%        │   ├───x
+%        │   │   └───y -> 3
+%        │   └───z
+%        │       <<empty>>
+%        ├───c -> 4
+%        └───d
+%            ├───5
+%            └───6
+%
+% pmath> TreeView({a -> 1, b -> {x -> {y->3}, z->{}}, c -> 4, d -> {5,6}}, 2)
+%        ├───a -> 1
+%        ├───b
+%        │   ├───x
+%        │   │   {y -> 3}
+%        │   └───z
+%        │       <<empty>>
+%        ├───c -> 4
+%        └───d
+%            ├───5
+%            └───6
+%
+% pmath> TreeView({a -> b} -> {c -> d})
+%        {a -> b}
+%        └───c -> d
+
+exprToLists(HoldComplete(~h(~~~args))) ::=
+    HoldForm(HoldForm(h)) -> Apply(
+        HoldComplete(args) |> Map(HoldComplete) |> Map(exprToLists), 
+        List)
+exprToLists(HoldComplete(~x)) ::= HoldForm(HoldForm(x))
+
+% pmath> ExpressionTreeView(a + b^2 + c^3 + d)
+%        Plus
+%        ├───a
+%        ├───d
+%        ├───Power
+%        │   ├───b
+%        │   └───2
+%        └───Power
+%            ├───c
+%            └───3
+
+
+wrapNoOpenerBox(~box)::= PaneBox(box, FrameMargins->{{Dynamic(CurrentValue(FontSize)), 0}, 0})
+makeTreeViewOpenerViewBoxes(HoldComplete(~value), ~, ~) ::= wrapNoOpenerBox(MakeBoxes(value))
+makeTreeViewOpenerViewBoxes(HoldComplete(~name -> ~value:List), ~maxdepth, ~maxopen) ::= 
+    TemplateBox({
+        MakeBoxes(name)
+        makeTreeViewOpenerViewBoxes(HoldComplete(value), maxdepth - 1, maxopen - 1)
+        maxopen > 0
+    }, "OpenerView")
+makeTreeViewOpenerViewBoxes(HoldComplete({}), ~, ~) ::=  wrapNoOpenerBox(MakeBoxes(Skeleton("empty")))
+
+Function makeTreeViewOpenerViewBoxes(HoldComplete({~~values}), ~maxdepth, ~maxopen) {
+    If(maxdepth < 0) {
+        wrapNoOpenerBox(MakeBoxes({values}))
+    } Else {
+        HoldComplete(values) |> 
+            Map(HoldComplete) |> 
+            Apply(List) |>
+            Map(Function({makeTreeViewOpenerViewBoxes(#, maxdepth - 1, maxopen - 1)})) |> 
+            GridBox
+    }
+}
+
+% pmath> TreeView({a -> {b, c->{d, e}}, f}, 2)
+%        ├───a
+%        │   ├───b
+%        │   └───c
+%        │       {d, e}
+%        └───f
+% pmath> TreeView({a -> {b, c->{d, e}}, f}, 2) // ToBoxes // InputForm
+%        GridBox({
+%           {TemplateBox({
+%              "a", 
+%              GridBox({{PaneBox("b", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+%                 TemplateBox({"c", PaneBox({"{", {"d", ",", "e"}, "}"}, 
+%                    FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0}), False}, 
+%                  "OpenerView")}}), True}, "OpenerView")}, {
+%            PaneBox("f", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}})
+% pmath> makeTreeViewOpenerViewBoxes(HoldComplete({a -> {b, c->{d, e}}, f}), Infinity, 2) // InputForm
+%        GridBox({
+%           {TemplateBox({
+%              "a", 
+%              GridBox({{PaneBox("b", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+%                 TemplateBox({
+%                   "c", 
+%                   GridBox({
+%                     {PaneBox("d", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+%                      PaneBox("e", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}}), 
+%                   False}, "OpenerView")}}), True}, "OpenerView")}, {
+%            PaneBox("f", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}})
+
+End()
+
+EndPackage()
