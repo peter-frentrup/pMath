@@ -5,6 +5,7 @@
 
 #include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/formating-private.h>
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
@@ -81,8 +82,12 @@ pmath_bool_t _pmath_write_user_format(struct pmath_write_ex_t *info, pmath_t obj
     
   if(me)
     me->evaldepth++;
-    
-  _pmath_write_impl(info, format);
+  
+  if(!PMATH_HAS_MEMBER(info, custom_user_format_writer)
+  || !info->custom_user_format_writer
+  || !info->custom_user_format_writer(info->user, format, obj, info)) {
+    _pmath_write_impl(info, format);
+  }
   
   if(me)
     me->evaldepth--;

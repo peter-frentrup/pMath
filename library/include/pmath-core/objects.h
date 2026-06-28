@@ -405,6 +405,8 @@ struct pmath_write_ex_t {
   /**\brief Optional. Called before an object is written to overwrite the default behavior.
      
      Return TRUE to suppress the default display and FALSE to continue with the default display for \a obj.
+   
+     Note that of \arg obj has Format rules, \c custom_user_format_writer is used instead.
    */
   pmath_bool_t (*custom_writer)(void *user, pmath_t obj, struct pmath_write_ex_t *info);
   
@@ -414,6 +416,12 @@ struct pmath_write_ex_t {
      This is currently used for Subscript and similar boxes that are embedded inside strings.
    */
   pmath_bool_t (*can_write_unicode)(void *user, const uint16_t *str, int len);
+  
+  /**\brief Optional. Called before an object Format rules is written to overwrite the default behavior.
+  
+     Return TRUE to suppress the default display (of \arg format) and FALSE to continue with the default display for \a format.
+   */
+  pmath_bool_t (*custom_user_format_writer)(void *user, pmath_t format, pmath_t orig, struct pmath_write_ex_t *info);
 };
 
 /*============================================================================*/
