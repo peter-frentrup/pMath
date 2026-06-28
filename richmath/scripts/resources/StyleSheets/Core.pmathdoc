@@ -261,8 +261,7 @@ Document({
                     ButtonBox(#1, ButtonFunction -> 
                       Function(CurrentValue({TemplateSlot, 3}):= 
                         If(CurrentValue({TemplateSlot, 3}) === True, False, 
-                         True)), BaseStyle -> "OpenerViewLabel"), 
-                    "\[InvisibleSpace]"}}, {
+                         True)), BaseStyle -> "OpenerViewLabel")}}, {
                    "", PaneSelectorBox({
                      True -> GridBox({{""}, {#2}}, GridBoxRowSpacing -> 0.2)}, 
                     #3, ImageSize -> Automatic)}}, BaselinePosition -> 1, 
@@ -271,7 +270,7 @@ Document({
               Function({"OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
                  InterpretationBox("", #3)}, ")"})}), 
           Section(StyleData("OpenerViewLabel"), 
-           ButtonBoxOptions -> {ButtonFrame -> None}), 
+           ButtonBoxOptions -> {ButtonFrame -> None, Alignment -> Left}), 
           Section(StyleData("Spacer"), TemplateBoxOptions -> {
              DisplayFunction -> Function(PaneBox("", ImageSize -> #1)), 
              InterpretationFunction -> 
