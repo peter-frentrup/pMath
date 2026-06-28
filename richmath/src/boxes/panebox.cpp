@@ -174,10 +174,10 @@ void PaneBox::resize_default_baseline(Context &context) {
   }
   
   if(!w.is_explicit_abs())
-    w = Length::Absolute(_extents.width);
+    w = Length::Absolute(_extents.width + padding.left + padding.right);
     
   if(!h.is_explicit_abs())
-    h = Length::Absolute(_extents.height());
+    h = Length::Absolute(_extents.height() + padding.top + padding.bottom);
   
   cx = 0;// Left aligned
   cy = 0;
