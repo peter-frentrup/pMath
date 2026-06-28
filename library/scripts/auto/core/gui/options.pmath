@@ -217,6 +217,7 @@ Options(Pane):= Options(PaneBox):= {
     BaselinePosition -> Automatic
     BaseStyle -> "Pane"
     BoxID -> None
+    FrameMargins -> Automatic
     ImageSize -> Automatic
     ImageSizeAction -> "ShrinkToFit"
     LineBreakWithin -> True}

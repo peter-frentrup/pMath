@@ -22,7 +22,7 @@ namespace richmath {
       
     protected:
       virtual void resize_default_baseline(Context &context) override;
-      virtual float allowed_content_width(const Context &context) { return Infinity; }
+      virtual float allowed_content_width(Context &context) { return Infinity; }
       virtual void adjust_baseline_after_resize(Context &context) override;
     
     protected:

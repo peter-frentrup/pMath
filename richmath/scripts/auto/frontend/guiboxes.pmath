@@ -131,7 +131,13 @@ MakeBoxes(~p:Pane)::= makePaneBox(p) /? allowGuiBoxes
 
 Attributes(makePaneBox):= {HoldAllComplete}
 makePaneBox(Pane(~expr))::= PaneBox(makeNullBoxes(expr))
-makePaneBox(Pane(~expr, ~size, options:OptionsPattern()))::= PaneBox(makeNullBoxes(expr), ImageSize->size, options)
+makePaneBox(Pane(~expr, ~size, options:OptionsPattern()))::= 
+	If(Match(HoldComplete(size), HoldComplete((Rule|RuleDaleyed)(~~~)))) {
+		PaneBox(makeNullBoxes(expr), size, options)
+	} Else {
+		PaneBox(makeNullBoxes(expr), ImageSize->size, options)
+	}
+
 makePaneBox(~x)::= makeCallBoxes(x)
 
 

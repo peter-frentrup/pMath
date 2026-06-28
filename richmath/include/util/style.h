@@ -337,6 +337,10 @@ namespace richmath {
     InputFieldBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::InputFieldBox,
     
+    PaneBoxDefaultFrameMarginLeft     = FrameMarginLeft     + (int)DefaultStyleOptionOffsets::PaneBox,
+    PaneBoxDefaultFrameMarginRight    = FrameMarginRight    + (int)DefaultStyleOptionOffsets::PaneBox,
+    PaneBoxDefaultFrameMarginTop      = FrameMarginTop      + (int)DefaultStyleOptionOffsets::PaneBox,
+    PaneBoxDefaultFrameMarginBottom   = FrameMarginBottom   + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::PaneBox,

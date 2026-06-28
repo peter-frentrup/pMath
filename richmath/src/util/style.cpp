@@ -3589,6 +3589,10 @@ void StyleInformation::add_style() {
     // InputFieldBoxDefaultSectionFrameMarginRight
     // InputFieldBoxDefaultSectionFrameMarginTop
     // InputFieldBoxDefaultSectionFrameMarginBottom
+    add(StyleType::Margin,          PaneBoxDefaultFrameMarginLeft,    List(Symbol(richmath_System_PaneBoxOptions), Symbol( richmath_System_FrameMargins)));
+    // PaneBoxDefaultSectionFrameMarginRight
+    // PaneBoxDefaultSectionFrameMarginTop
+    // PaneBoxDefaultSectionFrameMarginBottom
     add(StyleType::Margin,          PanelBoxDefaultFrameMarginLeft,   List(Symbol(richmath_System_PanelBoxOptions), Symbol( richmath_System_FrameMargins)));
     // PanelBoxDefaultSectionFrameMarginRight
     // PanelBoxDefaultSectionFrameMarginTop

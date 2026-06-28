@@ -24,7 +24,7 @@ namespace richmath {
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
       virtual void resize_default_baseline(Context &context) override;
-      virtual float allowed_content_width(const Context &context) override;
+      virtual float allowed_content_width(Context &context) override;
       
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::PaneBox; }
   };
