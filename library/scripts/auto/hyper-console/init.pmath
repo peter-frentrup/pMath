@@ -1,12 +1,12 @@
 
-BeginPackage("System`Con`")
+BeginPackage("System`Console`")
 
 PrintWelcomeMessage
 PrintHelpMessage
 
 KnownConsoleStyles
 
-Begin("System`Con`Private`")
+Begin("System`Console`Private`")
 
 Unprotect($HyperlinksSupported)
 $HyperlinksSupported:= True

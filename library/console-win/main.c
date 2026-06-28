@@ -30,9 +30,9 @@
 
 static void os_init(void);
 
-#define PMATH_SYSTEM_CON_SYMBOL_X( sym )     X( pmath_System_Con_ ## sym   , "System`Con`" #sym )
-#define PMATH_SYSTEM_SYMBOL_X( sym )         X( pmath_System_ ## sym       , "System`" #sym )
-#define PMATH_SYSTEM_DOLLAR_SYMBOL_X( sym )  X( pmath_System_Dollar ## sym , "System`$" #sym )
+#define PMATH_SYSTEM_CONSOLE_SYMBOL_X( sym ) X( pmath_System_Console_ ## sym, "System`Console`" #sym )
+#define PMATH_SYSTEM_SYMBOL_X( sym )         X( pmath_System_ ## sym        , "System`" #sym )
+#define PMATH_SYSTEM_DOLLAR_SYMBOL_X( sym )  X( pmath_System_Dollar ## sym  , "System`$" #sym )
 #define PMATH_SYMBOLS_X                      \
   PMATH_SYSTEM_DOLLAR_SYMBOL_X( PageWidth ) \
   PMATH_SYSTEM_SYMBOL_X( Background      ) \
@@ -68,7 +68,7 @@ static void os_init(void);
   PMATH_SYSTEM_SYMBOL_X( StyleBox        ) \
   PMATH_SYSTEM_SYMBOL_X( Tooltip         ) \
   PMATH_SYSTEM_SYMBOL_X( TooltipBox      ) \
-  PMATH_SYSTEM_CON_SYMBOL_X( KnownConsoleStyles )
+  PMATH_SYSTEM_CONSOLE_SYMBOL_X( KnownConsoleStyles )
 
 #define X( SYM, NAME )  static pmath_symbol_t SYM = PMATH_STATIC_NULL;
   PMATH_SYMBOLS_X
@@ -676,7 +676,7 @@ static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er
             PMATH_RUN_ARGS("System`ShowDefinition(`1`)", "(U#)", buffer + start, end - start);
           }
           else
-            PMATH_RUN("System`Con`PrintHelpMessage()");
+            PMATH_RUN("System`Console`PrintHelpMessage()");
         }
         return TRUE;
         
@@ -710,7 +710,7 @@ static BOOL mark_mode_key_event_filter_for_pmath(void *context, const KEY_EVENT_
               PMATH_RUN_ARGS("System`ShowDefinition(`1`)", "(U#)", mark_line + start, end - start);
             }
             else
-              PMATH_RUN("System`Con`PrintHelpMessage()");
+              PMATH_RUN("System`Console`PrintHelpMessage()");
             
             hyper_console_free_memory(mark_line);
           }
@@ -1665,7 +1665,7 @@ static void convert_style_directive(struct style_context_t *context, pmath_t dir
     }
   }
   else if(pmath_is_string(directive)) {
-    directive = pmath_expr_new_extended(pmath_ref(pmath_System_Con_KnownConsoleStyles), 1, directive);
+    directive = pmath_expr_new_extended(pmath_ref(pmath_System_Console_KnownConsoleStyles), 1, directive);
     directive = pmath_evaluate_secured(directive, PMATH_SECURITY_LEVEL_NON_DESTRUCTIVE_ALLOWED);
     
     convert_style_directive(context, directive, max_depth);
@@ -2648,7 +2648,7 @@ int main(int argc, const char **argv) {
   handle_options(argc, argv);
   
   if(!quitting) {
-    PMATH_RUN("System`Con`PrintWelcomeMessage()");
+    PMATH_RUN("System`Console`PrintWelcomeMessage()");
   }
   
   pmath_unref(dialog(PMATH_NULL));
