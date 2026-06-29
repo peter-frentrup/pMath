@@ -74,6 +74,8 @@
                                          \______________/ = depth many integers
  */
 
+struct serializer_t;
+
 static void serialize(struct serializer_t *info, pmath_t object); // object will be freed
 static void serialize_expr_custom(struct serializer_t *info, pmath_expr_t expr); // expr will be freed
 static void serialize_expr_general(struct serializer_t *info, pmath_expr_t expr); // expr will be freed

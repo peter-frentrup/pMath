@@ -111,7 +111,7 @@ static void count_bytes_and_free(pmath_t item, struct byte_array_size_accumulato
   }
   
   if(pmath_is_int32(item)) {
-    uint32_t val = PMATH_AS_INT32(item);
+    int32_t val = PMATH_AS_INT32(item);
     if(0 <= val && val <= 255) {
       acc->total_bytes = _pmath_add_size(acc->total_bytes, 1, &acc->error);
     }
@@ -249,7 +249,7 @@ static void write_raw_bytes_from_i32_lower(const int32_t *data, size_t len, stru
 // item will be freed
 static void write_bytes_and_free(pmath_t item, struct byte_array_output_accumulator *out) {
   if(pmath_is_int32(item)) {
-    uint32_t val = PMATH_AS_INT32(item);
+    int32_t val  = PMATH_AS_INT32(item);
     uint8_t byte = (uint8_t)val;
     write_raw_bytes(&byte, 1, out);
   }
