@@ -675,12 +675,12 @@ static pmath_bool_t byte_array_try_make_boxes(
 //          AutoNumberFormating -> False, ShowStringCharacters -> True)
 //
 // pmath> ToBoxes(ByteArray({1,2,3,4}) // OutputForm) // InputForm
-//        InterpretationBox({"ByteArray", "(", {{"<<", StringBox("\"", {"4"}, " bytes\""), ">>"}}, 
-//           ")"}, OutputForm(ByteArray("AQIDBA==")))
+//        InterpretationBox({"ByteArray", "(", {{"<<", StringBox("\"", {"4"}, " bytes\""), ">>"}}, ")"}, 
+//          OutputForm(ByteArray("AQIDBA==")))
 //
 // pmath> ToBoxes(ByteArray({1,2,3,4})) // InputForm
-//        InterpretationBox({"ByteArray", "(", {
-//            {"Panel", "(", {StringBox("\"", {"4"}, " bytes\"")}, ")"}}, ")"}, ByteArray("AQIDBA=="))
+//        InterpretationBox({"ByteArray", "(", {{"Panel", "(", {StringBox("\"", {"4"}, " bytes\"")}, ")"}}, 
+//           ")"}, ByteArray("AQIDBA=="))
 //
   struct _pmath_byte_array_extra_data_t *extra = BYTE_ARRAY_EXTRA(e);
   

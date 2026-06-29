@@ -5,6 +5,7 @@
 // pmath> primes(~n)::= Gather(Do(If(k.IsPrime, Emit(k)), k->n))[2]
 
 PMATH_PRIVATE const uint16_t _pmath_primes16bit[] = /*
+pmath> $PageWidth:= 96;
 pmath> Print("*" ++ "/\n", primes(2^16), ";")
     */
     {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 

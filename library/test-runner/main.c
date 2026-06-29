@@ -282,7 +282,6 @@ static void os_init(void) {
 //} ... Unix like
 #endif
 
-static int console_width = 100;
 static volatile pmath_bool_t quitting = FALSE;
 static volatile pmath_bool_t show_mem_stats = TRUE;
 
@@ -533,20 +532,13 @@ static void write_output_locked_callback(void *_context) {
   Str_write(context->indent_prefix);
   Str_write(context->indent_more);
   
-  int indent_length = (context->indent_more.len < (size_t)console_width / 2)
-    ? (int)context->indent_more.len
-    : console_width / 2;
-  
-  if(indent_length > console_width / 2)
-    indent_length = console_width / 2;
-  
   pmath_write_with_pagewidth(
     context->object,
     0,
     pmath_utf8_writer,
     &info,
-    console_width - indent_length,
-    indent_length);
+    -1,
+    (int)context->indent_more.len);
   
   Str_write(context->nl);
 }
@@ -1002,6 +994,7 @@ int _tmain(int argc, const TCHAR **argv) {
     }
   }
   
+  PMATH_RUN("$PageWidth:= 100");
   PMATH_RUN_ARGS("$Input:=`1`", "(o)", pmath_ref(input_file_name));
   
 #ifdef PMATH_OS_WIN32
@@ -1077,7 +1070,6 @@ int _tmain(int argc, const TCHAR **argv) {
   
   StringBuffer_free(output.content);
   CritSect_destroy(output.critical_section);
-  
   // Self test:
   // pmath> 1+1
   //        2

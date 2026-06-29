@@ -273,9 +273,9 @@ static void serialize_expr_custom(struct serializer_t *info, pmath_expr_t expr) 
     //  pmath> fout.BinaryWrite(ByteArray({1,2,3,4,5,6,7}), Expression)
     //         OutputStream(<<>>)
     //  pmath> bytes:= fin.BinaryReadList
-    //         {2, 0, 14, 2, 2, 2, 12, 2, 4, 8, 32, 83, 121, 115, 116, 101, 109, 96, 66, 121, 116, 101, 
-    //          65, 114, 114, 97, 121, 14, 2, 2, 6, 12, 2, 8, 8, 22, 83, 121, 115, 116, 101, 109, 96, 76, 
-    //          105, 115, 116, 8, 14, 1, 2, 3, 4, 5, 6, 7}
+    //         {2, 0, 14, 2, 2, 2, 12, 2, 4, 8, 32, 83, 121, 115, 116, 101, 109, 96, 66, 121, 116, 101, 65, 114, 
+    //          114, 97, 121, 14, 2, 2, 6, 12, 2, 8, 8, 22, 83, 121, 115, 116, 101, 109, 96, 76, 105, 115, 116, 
+    //          8, 14, 1, 2, 3, 4, 5, 6, 7}
     //  pmath> bytes |> ByteArray |> ByteArrayToStream |> BinaryRead(Expression) |> Echo |> Normal
     //   >> ByteArray(<< 7 bytes >>)
     //         {1, 2, 3, 4, 5, 6, 7}
@@ -284,10 +284,10 @@ static void serialize_expr_custom(struct serializer_t *info, pmath_expr_t expr) 
     //  pmath> With({ba:= ByteArray({1,2,3,4,5})}, fout.BinaryWrite(Hold(ba), Expression))
     //         OutputStream(<<>>)
     //  pmath> bytes:= fin.BinaryReadList
-    //         {2, 0, 14, 2, 2, 2, 12, 2, 4, 8, 22, 83, 121, 115, 116, 101, 109, 96, 72, 111, 108, 100, 2, 
-    //          6, 14, 2, 2, 8, 12, 2, 10, 8, 32, 83, 121, 115, 116, 101, 109, 96, 66, 121, 116, 101, 65, 
-    //          114, 114, 97, 121, 14, 2, 2, 12, 12, 2, 14, 8, 22, 83, 121, 115, 116, 101, 109, 96, 76, 
-    //          105, 115, 116, 8, 10, 1, 2, 3, 4, 5}
+    //         {2, 0, 14, 2, 2, 2, 12, 2, 4, 8, 22, 83, 121, 115, 116, 101, 109, 96, 72, 111, 108, 100, 2, 6, 14, 
+    //          2, 2, 8, 12, 2, 10, 8, 32, 83, 121, 115, 116, 101, 109, 96, 66, 121, 116, 101, 65, 114, 114, 97, 
+    //          121, 14, 2, 2, 12, 12, 2, 14, 8, 22, 83, 121, 115, 116, 101, 109, 96, 76, 105, 115, 116, 8, 10, 
+    //          1, 2, 3, 4, 5}
     //  pmath> bytes |> ByteArray |> ByteArrayToStream |> BinaryRead(Expression) |> InputForm
     //         Hold(ByteArray({"\[U+0001]\[U+0002]\[U+0003]\[U+0004]\[U+0005]"}))
     size_t length = pmath_expr_length(expr); 

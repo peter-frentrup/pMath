@@ -168,23 +168,20 @@ Function makeTreeViewOpenerViewBoxes(HoldComplete({~~values}), ~maxdepth, ~maxop
 % pmath> TreeView({a -> {b, c->{d, e}}, f}, 2) // ToBoxes // InputForm
 %        GridBox({
 %           {TemplateBox({
-%              "a", 
-%              GridBox({{PaneBox("b", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+%              "a", GridBox({{PaneBox("b", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
 %                 TemplateBox({"c", PaneBox({"{", {"d", ",", "e"}, "}"}, 
-%                    FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0}), True}, 
-%                  "OpenerView")}}), True}, "OpenerView")}, {
+%                    FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0}), True}, "OpenerView")}}), 
+%              True}, "OpenerView")}, {
 %            PaneBox("f", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}})
 % pmath> makeTreeViewOpenerViewBoxes(HoldComplete({a -> {b, c->{d, e}}, f}), Infinity, 2) // InputForm
 %        GridBox({
 %           {TemplateBox({
-%              "a", 
-%              GridBox({{PaneBox("b", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+%              "a", GridBox({{PaneBox("b", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
 %                 TemplateBox({
 %                   "c", 
-%                   GridBox({
-%                     {PaneBox("d", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
-%                      PaneBox("e", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}}), 
-%                   True}, "OpenerView")}}), True}, "OpenerView")}, {
+%                   GridBox({{PaneBox("d", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+%                      PaneBox("e", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}}), True}, 
+%                  "OpenerView")}}), True}, "OpenerView")}, {
 %            PaneBox("f", FrameMargins -> {{Dynamic(CurrentValue(FontSize)), 0}, 0})}})
 
 End()
