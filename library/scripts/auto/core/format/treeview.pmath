@@ -23,7 +23,7 @@ MakeBoxes(TreeView(~x, n:(~:Integer|DirectedInfinity(1|1.0)))) ::= makeTreeViewO
 
 
 Format(ExpressionTreeView(~x)) ::=                         MakeTreeView(exprToLists(HoldComplete(x), Infinity))
-Format(ExpressionTreeView(~x, n:(~:Integer|Infinity))) ::= MakeTreeView(exprToLists(HoldComplete(x), n), n)
+Format(ExpressionTreeView(~x, n:(~:Integer|Infinity))) ::= MakeTreeView(exprToLists(HoldComplete(x), n), n+1)
 
 Function MakeBoxes(ExpressionTreeView(~x)) {
     With(lists:= exprToLists(HoldComplete(x), Infinity))
@@ -31,7 +31,7 @@ Function MakeBoxes(ExpressionTreeView(~x)) {
 }
 Function MakeBoxes(ExpressionTreeView(~x, n:(~:Integer|DirectedInfinity(1|1.0)))) {
     With(lists:= exprToLists(HoldComplete(x), n))
-    makeTreeViewOpenerViewBoxes(HoldComplete(lists), n, n)
+    makeTreeViewOpenerViewBoxes(HoldComplete(lists), n+1, n+1)
 }
 
 
@@ -122,22 +122,19 @@ exprToLists(HoldComplete(~x), ~) ::= HoldForm(HoldForm(x))
 %            ├───c
 %            └───3
 %
-% pmath> ExpressionTreeView(Nest(Function(f(#, g(#, h(#)))), x, 2), 4)
+% pmath> ExpressionTreeView(Nest(Function(f(#, g(#, h(#)))), x, 2), 3)
 %        f
 %        ├───f
 %        │   ├───x
 %        │   └───g
 %        │       ├───x
-%        │       └───h
-%        │           {x}
+%        │       └───h(x)
 %        └───g
 %            ├───f
 %            │   ├───x
-%            │   └───g
-%            │       {x, h(x)}
+%            │   └───g(x, h(x))
 %            └───h
-%                └───f
-%                    {x, g(x, h(x))}
+%                └───f(x, g(x, h(x)))
 
 
 wrapNoOpenerBox(~box)::= PaneBox(box, FrameMargins->{{Dynamic(CurrentValue(FontSize)), 0}, 0})

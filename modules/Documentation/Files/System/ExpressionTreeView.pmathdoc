@@ -46,13 +46,62 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section("A graphic object, up to depth 4:", "ExampleText"), 
+          Section("Limit the levels shown:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"ExpressionTreeView", "(", {
+                {"Nest", "(", {
+                  {"Function", "(", {
+                    "f", "(", {"#", ",", {
+                      "g", "(", {"#", ",", {"h", "(", "#", ")"}}, ")"}}, ")"}, 
+                   ")"}, ",", "x", ",", "2"}, ")"}, ",", "3"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                "f", 
+                GridBox({
+                  {TemplateBox({
+                     "f", GridBox({
+                       {PaneBox("x", FrameMargins -> {
+                           {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                        TemplateBox({
+                          "g", GridBox({
+                            {PaneBox("x", FrameMargins -> {
+                                {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                             PaneBox({"h", "(", {"x"}, ")"}, 
+                              FrameMargins -> {
+                                {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), 
+                          True}, "OpenerView")}}), True}, "OpenerView")}, {
+                   TemplateBox({
+                     "g", GridBox({
+                       {TemplateBox({
+                          "f", GridBox({
+                            {PaneBox("x", FrameMargins -> {
+                                {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                             PaneBox({"g", "(", {
+                                "x", ",", {"h", "(", {"x"}, ")"}}, ")"}, 
+                              FrameMargins -> {
+                                {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), 
+                          True}, "OpenerView")}, {
+                        TemplateBox({
+                          "h", GridBox({
+                            {PaneBox({"f", "(", {
+                                "x", ",", {"g", "(", {
+                                  "x", ",", {"h", "(", {"x"}, ")"}}, ")"}}, 
+                               ")"}, FrameMargins -> {
+                                {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), 
+                          True}, "OpenerView")}}), True}, "OpenerView")}}), 
+                True}, "OpenerView")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("A graphic object, up to depth 3:", "ExampleText"), 
           SectionGroup({
             Section(
              BoxData({
                GraphicsBox({{RGBColor(1, 0, 0), DiskBox()}, {
                   RGBColor(0, 0, 1), LineBox({{-1, -1}, {0, 1}, {1, -1}})}}), 
-               "|>", {"ExpressionTreeView", "(", "4", ")"}}), "Input", 
+               "|>", {"ExpressionTreeView", "(", "3", ")"}}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(TemplateBox({
@@ -63,37 +112,28 @@ Document({
                      GridBox({
                        {TemplateBox({
                           "List", GridBox({
-                            {TemplateBox({"RGBColor", 
-                               PaneBox({"{", {"1", ",", "0", ",", "0"}, "}"}, 
-                                FrameMargins -> {
-                                  {Dynamic(CurrentValue(FontSize)), 0}, 0}), 
-                               True}, "OpenerView")}, {
-                             TemplateBox({
-                               "Disk", PaneBox({"\[LeftGuillemet]", 
-                                 "\[NonBreakingSpace]", 
-                                 StringBox("\"empty\""), 
-                                 "\[NonBreakingSpace]", "\[RightGuillemet]"}, 
-                                FrameMargins -> {
-                                  {Dynamic(CurrentValue(FontSize)), 0}, 0}), 
-                               True}, "OpenerView")}}), True}, "OpenerView")}, 
-                       {TemplateBox({
+                            {PaneBox({"RGBColor", "(", {
+                                "1", ",", "0", ",", "0"}, ")"}, 
+                              FrameMargins -> {
+                                {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                             PaneBox({"Disk", "(", ")"}, 
+                              FrameMargins -> {
+                                {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), 
+                          True}, "OpenerView")}, {
+                        TemplateBox({
                           "List", GridBox({
-                            {TemplateBox({"RGBColor", 
-                               PaneBox({"{", {"0", ",", "0", ",", "1"}, "}"}, 
-                                FrameMargins -> {
-                                  {Dynamic(CurrentValue(FontSize)), 0}, 0}), 
-                               True}, "OpenerView")}, {
-                             TemplateBox({
-                               "Line", PaneBox({
-                                 "{", {
-                                  {"{", {{"{", {{"-", "1"}, ",", {"-", "1"}}, 
-                                     "}"}, ",", {"{", {"0", ",", "1"}, "}"}, 
-                                    ",", {"{", {"1", ",", {"-", "1"}}, "}"}}, 
-                                   "}"}}, "}"}, FrameMargins -> {
-                                  {Dynamic(CurrentValue(FontSize)), 0}, 0}), 
-                               True}, "OpenerView")}}), True}, 
-                         "OpenerView")}}), True}, "OpenerView")}}), True}, 
-               "OpenerView")), "Output", SectionGenerated -> True, 
+                            {PaneBox({"RGBColor", "(", {
+                                "0", ",", "0", ",", "1"}, ")"}, 
+                              FrameMargins -> {
+                                {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                             PaneBox({"Line", "(", {
+                                {"{", {{"{", {{"-", "1"}, ",", {"-", "1"}}, 
+                                   "}"}, ",", {"{", {"0", ",", "1"}, "}"}, 
+                                  ",", {"{", {"1", ",", {"-", "1"}}, "}"}}, 
+                                 "}"}}, ")"}, FrameMargins -> {
+                                {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), 
+                          True}, "OpenerView")}}), True}, "OpenerView")}}), 
+                True}, "OpenerView")), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All)}, All), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
         Section(
