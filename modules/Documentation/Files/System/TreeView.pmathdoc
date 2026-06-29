@@ -1,0 +1,106 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("TreeView", "ObjectName"), 
+      Section(BoxData(TemplateBox({"TreeView"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"In a graphical front-end, ", 
+           TemplateBox({"TreeView"}, "ReferenceHyperlink"), 
+           " displays as a dynamic control using ", 
+           TemplateBox({"OpenerView"}, "ReferenceHyperlink"), "."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        SectionGroup({
+          Section(BoxData({"TreeView", "(", {
+              "{", {
+               {"a", "\[Rule]", {
+                 "{", {"b", ",", {"c", "\[Rule]", {
+                    "{", {{"d", "\[Rule]", {"{", "e", "}"}}, ",", "f"}, 
+                    "}"}}}, "}"}}, ",", {"g", "\[Rule]", {"{", "h", "}"}}}, 
+              "}"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            GridBox({
+              {TemplateBox({
+                 "a", 
+                 GridBox({
+                   {PaneBox("b", FrameMargins -> {
+                       {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                    TemplateBox({
+                      "c", GridBox({
+                        {TemplateBox({
+                           "d", GridBox({
+                             {PaneBox("e", FrameMargins -> {
+                                 {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), 
+                           True}, "OpenerView")}, {
+                         PaneBox("f", FrameMargins -> {
+                            {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), 
+                      True}, "OpenerView")}}), True}, "OpenerView")}, {
+               TemplateBox({
+                 "g", 
+                 GridBox({
+                   {PaneBox("h", FrameMargins -> {
+                       {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), True}, 
+                "OpenerView")}})), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Expand only two levels:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"TreeView", "(", {
+                {"{", {
+                  {"a", "\[Rule]", {
+                    "{", {"b", ",", {"c", "\[Rule]", {
+                       "{", {{"d", "\[Rule]", {"{", "e", "}"}}, ",", "f"}, 
+                       "}"}}}, "}"}}, ",", {"g", "\[Rule]", {"{", "h", "}"}}}, 
+                 "}"}, ",", "2"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              GridBox({
+                {TemplateBox({
+                   "a", GridBox({
+                     {PaneBox("b", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                      TemplateBox({
+                        "c", PaneBox({
+                          "{", {{"d", "\[Rule]", {"{", {"e"}, "}"}}, ",", 
+                           "f"}, "}"}, FrameMargins -> {
+                           {Dynamic(CurrentValue(FontSize)), 0}, 0}), True}, 
+                       "OpenerView")}}), True}, "OpenerView")}, {
+                 TemplateBox({
+                   "g", GridBox({
+                     {PaneBox("h", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), True}, 
+                  "OpenerView")}})), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(
+         "Left-hand sides that are themselves lists of rules are not \
+         expanded:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"TreeView", "(", {
+              {"{", {"a", "\[Rule]", {"{", "b", "}"}}, "}"}, "\[Rule]", {
+               "{", {"c", "\[Rule]", {"{", "d", "}"}}, "}"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(TemplateBox({
+              {"{", {{"a", "\[Rule]", {"{", {"b"}, "}"}}}, "}"}, 
+              GridBox({
+                {TemplateBox({
+                   "c", GridBox({
+                     {PaneBox("d", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), True}, 
+                  "OpenerView")}}), True}, "OpenerView")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"ExpressionTreeView"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"OpenerView"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Opener"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

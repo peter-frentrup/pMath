@@ -1,0 +1,156 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ExpressionTreeView", "ObjectName"), 
+      Section(BoxData(TemplateBox({"ExpressionTreeView"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"In a graphical front-end, ", 
+           TemplateBox({"ExpressionTreeView"}, "ReferenceHyperlink"), 
+           " displays as a dynamic control using ", 
+           TemplateBox({"OpenerView"}, "ReferenceHyperlink"), "."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A symbolic expression:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"ExpressionTreeView", "(", {
+              "a", "+", "b", "+", {"c", "^", "2"}, "+", {"d", "^", "3"}}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(TemplateBox({
+              "Plus", 
+              GridBox({
+                {PaneBox("a", FrameMargins -> {
+                    {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                 PaneBox("b", FrameMargins -> {
+                    {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                 TemplateBox({
+                   "Power", 
+                   GridBox({
+                     {PaneBox("c", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                      PaneBox("2", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), True}, 
+                  "OpenerView")}, {
+                 TemplateBox({
+                   "Power", 
+                   GridBox({
+                     {PaneBox("d", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                      PaneBox("3", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), True}, 
+                  "OpenerView")}}), True}, "OpenerView")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("A graphic object, up to depth 4:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               GraphicsBox({{RGBColor(1, 0, 0), DiskBox()}, {
+                  RGBColor(0, 0, 1), LineBox({{-1, -1}, {0, 1}, {1, -1}})}}), 
+               "|>", {"ExpressionTreeView", "(", "4", ")"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                "Graphics", 
+                GridBox({
+                  {TemplateBox({
+                     "List", 
+                     GridBox({
+                       {TemplateBox({
+                          "List", GridBox({
+                            {TemplateBox({"RGBColor", 
+                               PaneBox({"{", {"1", ",", "0", ",", "0"}, "}"}, 
+                                FrameMargins -> {
+                                  {Dynamic(CurrentValue(FontSize)), 0}, 0}), 
+                               True}, "OpenerView")}, {
+                             TemplateBox({
+                               "Disk", PaneBox({"\[LeftGuillemet]", 
+                                 "\[NonBreakingSpace]", 
+                                 StringBox("\"empty\""), 
+                                 "\[NonBreakingSpace]", "\[RightGuillemet]"}, 
+                                FrameMargins -> {
+                                  {Dynamic(CurrentValue(FontSize)), 0}, 0}), 
+                               True}, "OpenerView")}}), True}, "OpenerView")}, 
+                       {TemplateBox({
+                          "List", GridBox({
+                            {TemplateBox({"RGBColor", 
+                               PaneBox({"{", {"0", ",", "0", ",", "1"}, "}"}, 
+                                FrameMargins -> {
+                                  {Dynamic(CurrentValue(FontSize)), 0}, 0}), 
+                               True}, "OpenerView")}, {
+                             TemplateBox({
+                               "Line", PaneBox({
+                                 "{", {
+                                  {"{", {{"{", {{"-", "1"}, ",", {"-", "1"}}, 
+                                     "}"}, ",", {"{", {"0", ",", "1"}, "}"}, 
+                                    ",", {"{", {"1", ",", {"-", "1"}}, "}"}}, 
+                                   "}"}}, "}"}, FrameMargins -> {
+                                  {Dynamic(CurrentValue(FontSize)), 0}, 0}), 
+                               True}, "OpenerView")}}), True}, 
+                         "OpenerView")}}), True}, "OpenerView")}}), True}, 
+               "OpenerView")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         TextData({TemplateBox({"ExpressionTreeView"}, "ReferenceHyperlink"), 
+           " gives an outline of ", TemplateBox({"FullForm"}, 
+            "ReferenceHyperlink"), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"FullForm", "(", {
+              {"x", SubscriptBox("1")}, "+", {"x", SubscriptBox("2")}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            StyleBox({"Plus", "(", {{"Subscript", "(", {"x", ",", "1"}, ")"}, 
+               ",", {"Subscript", "(", {"x", ",", "2"}, ")"}}, ")"}, 
+             AutoDelete -> True, ShowStringCharacters -> True)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"ExpressionTreeView", "(", {
+              {"x", SubscriptBox("1")}, "+", {"x", SubscriptBox("2")}}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData(TemplateBox({
+              "Plus", 
+              GridBox({
+                {TemplateBox({"Subscript", 
+                   GridBox({
+                     {PaneBox("x", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                      PaneBox("1", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), True}, 
+                  "OpenerView")}, {
+                 TemplateBox({"Subscript", 
+                   GridBox({
+                     {PaneBox("x", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                      PaneBox("2", FrameMargins -> {
+                         {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), True}, 
+                  "OpenerView")}}), True}, "OpenerView")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section("Compound heads are not laid out as trees:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"ExpressionTreeView", "(", {
+              {"h", "(", {"a", ",", "b"}, ")"}, "(", {"x", ",", "y"}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(TemplateBox({{"h", "(", {"a", ",", "b"}, ")"}, 
+              GridBox({
+                {PaneBox("x", FrameMargins -> {
+                    {Dynamic(CurrentValue(FontSize)), 0}, 0})}, {
+                 PaneBox("y", FrameMargins -> {
+                    {Dynamic(CurrentValue(FontSize)), 0}, 0})}}), True}, 
+             "OpenerView")), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"TreeView"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"FullForm"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Shallow"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
