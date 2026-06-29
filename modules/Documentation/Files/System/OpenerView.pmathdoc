@@ -176,11 +176,11 @@ Document({
                 "Else", {
                  "{", {
                   "\n", {
-                   {"Style", "(", {
-                     {"Row", "(", {"{", {StringBox("\"   \""), ",", "label"}, 
-                       "}"}, ")"}, ",", StringBox("\"OpenerViewLabel\"")}, 
+                   {"Pane", "(", {"label", ",", {
+                      "FrameMargins", "\[Rule]", {
+                       "{", {{"{", {"12", ",", "0"}, "}"}, ",", "0"}, "}"}}}, 
                     ")"}, "\n"}}, "}"}}}, "\n"}}, "}"}}), "Input", 
-         SectionLabel -> "in [2]:"), 
+         SectionLabel -> "in [1]:"), 
         SectionGroup({
           Section(BoxData({"fileTreeItem", "(", "$BaseDirectory", ")"}), 
            "Input", SectionLabel -> "in [2]:"), 
@@ -200,6 +200,7 @@ Document({
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Opener"}, "ReferenceHyperlink"), 
-         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"TabView"}, 
-          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"TreeView"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"TabView"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
