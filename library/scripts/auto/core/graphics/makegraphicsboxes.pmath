@@ -6,6 +6,9 @@ MakeGraphicsBoxesOptions
 
 Begin("System`Graphics`Private`")
 
+% Prepare inline tests:
+% pmath> Get("System`Graphics`"); MakeGraphicsBoxes; $Namespace:= "System`Graphics`Private`";
+
 
 MakeGraphicsBoxes(~x)            ::= HoldComplete(x);
 
@@ -16,6 +19,19 @@ MakeGraphicsBoxes(Disk(~~~args))       ::= HoldComplete(DiskBox(args))
 MakeGraphicsBoxes(Line(~~~args))       ::= HoldComplete(LineBox(args))
 MakeGraphicsBoxes(Point(~~~args) )     ::= HoldComplete(PointBox(args))
 
+Function MakeGraphicsBoxes(Style(~x, ~~~opts)) {
+	With(inner:=   MakeGraphicsBoxes(x))
+	With(boxopts:= MakeGraphicsBoxesOptions(opts))
+
+	HoldComplete(inner, boxopts) |> Flatten(1) |> Replace(HoldComplete(~~~args) :> HoldComplete(StyleBox(args)), 0)
+}
+
+% pmath> With(inner:= Style(Line({{0,0}, {1,1}}), "Tag", Red, Thickness->Pi)) {
+%      >    MakeGraphicsBoxes(inner)
+%      > }
+%        HoldComplete(StyleBox(LineBox({{0, 0}, {1, 1}}), Tag, RGBColor(1, 0, 0), 
+%          Thickness -> NCache(Pi, 3.141592653589793`)))
+
 
 Attributes(isNumericCachableOption):= {HoldAllComplete}
 isNumericCachableOption(~):= False
@@ -23,6 +39,10 @@ isNumericCachableOption(AspectRatio):= True
 isNumericCachableOption(ImageSize):= True
 isNumericCachableOption(PlotRange):= True
 isNumericCachableOption(AxesOrigin):= True
+
+% Treat graphics directives like options:
+isNumericCachableOption(PointSize):= True
+isNumericCachableOption(Thickness):= True
 
 
 Attributes(isHeldNumericList):= {HoldAllComplete}
@@ -83,6 +103,8 @@ MakeGraphicsBoxesOptions(~~~opts)::= Join @@ HoldComplete(opts).Map(makeHeldGrap
 MakeGraphicsBoxesOptions({})::= HoldComplete({})
 MakeGraphicsBoxesOptions()::= HoldComplete()
 
+% pmath> MakeGraphicsBoxesOptions(a -> 1+1, b->Pi, AspectRatio->Pi)
+%        HoldComplete(a -> 1 + 1, b -> Pi, AspectRatio -> NCache(Pi, 3.141592653589793`))
 
 End()
 

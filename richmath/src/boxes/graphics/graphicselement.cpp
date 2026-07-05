@@ -2,6 +2,7 @@
 
 #include <boxes/graphics/graphicsdirective.h>
 #include <boxes/graphics/graphicsdrawingcontext.h>
+#include <boxes/graphics/graphicsstylebox.h>
 #include <boxes/graphics/beziercurvebox.h>
 #include <boxes/graphics/circleordiskbox.h>
 #include <boxes/graphics/linebox.h>
@@ -29,6 +30,7 @@ extern pmath_symbol_t richmath_System_DiskBox;
 extern pmath_symbol_t richmath_System_LineBox;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_PointBox;
+extern pmath_symbol_t richmath_System_StyleBox;
 
 namespace {
   class DummyGraphicsElement: public GraphicsElement {
@@ -135,6 +137,11 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
       return ge;
   }
   
+  if(head == richmath_System_StyleBox) {
+    if(auto ge = GraphicsStyleBox::try_create(expr, opts))
+      return ge;
+  }
+  
   if(auto dir = GraphicsDirective::try_create(expr, opts)) 
     return dir;
   
@@ -208,7 +215,7 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags op
     if(!elem->try_load_from_object(elem_expr, opts)) {
       delete_owned(elem);
       elem = GraphicsElement::create(elem_expr, opts);
-      elem->style_parent(sty_par);
+      set_style_parent_of_child(elem, sty_par);
       _items.set(i, elem);
     }
     
@@ -224,7 +231,7 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags op
   for(int i = oldlen; i < newlen; ++i) {
     Expr             elem_expr = expr[i + 1];
     GraphicsElement *elem      = GraphicsElement::create(elem_expr, opts);
-    elem->style_parent(sty_par);
+    set_style_parent_of_child(elem, sty_par);
     _items.set(i, elem);
     
     if(dynamic_cast<GraphicsDirectiveBase*>(elem))
@@ -254,7 +261,7 @@ void GraphicsElementCollection::add(GraphicsElement *g) {
   else
     sty_par = this;
   
-  g->style_parent(sty_par);
+  set_style_parent_of_child(g, sty_par);
   _items.add(g);
 }
 
@@ -272,12 +279,12 @@ void GraphicsElementCollection::insert(int i, GraphicsElement *g) {
   else
     sty_par = this;
   
-  g->style_parent(sty_par);
+  set_style_parent_of_child(g, sty_par);
   _items.insert(i, 1, &g);
   
   if(i + 1 < _items.length()) {
     if(dynamic_cast<GraphicsDirectiveBase*>(g))
-      _items[i + 1]->style_parent(g);
+      set_style_parent_of_child(_items[i + 1], g);
   }
 }
 
@@ -290,7 +297,7 @@ void GraphicsElementCollection::remove(int i) {
     auto next_elem = _items[i+1];
     
     if(next_elem->style_parent() == elem)
-      next_elem->style_parent(elem->style_parent());
+      set_style_parent_of_child(next_elem, elem->style_parent());
   }
   
   delete_owned(elem);

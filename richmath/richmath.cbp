@@ -875,6 +875,7 @@
 		<Unit filename="include/boxes/graphics/graphicsdirective.h" />
 		<Unit filename="include/boxes/graphics/graphicsdrawingcontext.h" />
 		<Unit filename="include/boxes/graphics/graphicselement.h" />
+		<Unit filename="include/boxes/graphics/graphicsstylebox.h" />
 		<Unit filename="include/boxes/graphics/linebox.h" />
 		<Unit filename="include/boxes/graphics/pointbox.h" />
 		<Unit filename="include/boxes/gridbox.h" />
@@ -1640,6 +1641,7 @@
 		<Unit filename="src/boxes/graphics/graphicsdirective.cpp" />
 		<Unit filename="src/boxes/graphics/graphicsdrawingcontext.cpp" />
 		<Unit filename="src/boxes/graphics/graphicselement.cpp" />
+		<Unit filename="src/boxes/graphics/graphicsstylebox.cpp" />
 		<Unit filename="src/boxes/graphics/linebox.cpp" />
 		<Unit filename="src/boxes/graphics/pointbox.cpp" />
 		<Unit filename="src/boxes/gridbox.cpp" />

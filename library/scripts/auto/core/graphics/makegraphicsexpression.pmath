@@ -6,6 +6,10 @@ MakeGraphicsExpressionOptions
 
 Begin("System`Graphics`Private`")
 
+% Prepare inline tests:
+% pmath> Get("System`Graphics`"); MakeGraphicsExpression; $Namespace:= "System`Graphics`Private`";
+
+
 MakeGraphicsExpression(~x)               ::= HoldComplete(x)
 
 MakeGraphicsExpression(~z:CompressedData)          ::= MakeExpression(z)
@@ -20,6 +24,17 @@ MakeGraphicsExpression(PointBox(~z:CompressedData))::= MakeExpression({"Point", 
 MakeGraphicsExpression(~c: RGBColor)               ::= HoldComplete(c)
 MakeGraphicsExpression(~c: Hue)                    ::= HoldComplete(c)
 MakeGraphicsExpression(~c: GrayLevel)              ::= HoldComplete(c)
+
+Function MakeGraphicsExpression(StyleBox(~inner, ~~~boxopts)) {
+	With(innerExpr:= MakeGraphicsExpression(inner))
+	With(opts:=      MakeGraphicsExpressionOptions(boxopts))
+
+	HoldComplete(innerExpr, opts) |> Flatten(1) |> Replace(HoldComplete(~~~args) :> HoldComplete(Style(args)), 0)
+}
+
+% pmath> MakeGraphicsExpression(  StyleBox(LineBox({{0, 0}, {1, 1}}), Tag, Thickness->NCache(Pi, 3.14), BoxID -> 5)  )
+%        HoldComplete(Style(Line({{0, 0}, {1, 1}}), Tag, Thickness -> Pi, BoxID -> 5))
+
 
 moveHold(~f(args: HoldComplete(~~~)***))::=
 	(HoldComplete @@ {Join(args)}).Replace(HoldComplete(HoldComplete(~~~a)) :> HoldComplete(f(a)), 0)
@@ -56,6 +71,9 @@ MakeGraphicsExpressionOptions({~~~opts})::= ComposeHeldExpr(List, MakeGraphicsEx
 MakeGraphicsExpressionOptions(~~~opts)::= Join @@ HoldComplete(opts).Map(makeHeldGraphicsOption)
 MakeGraphicsExpressionOptions({})::= HoldComplete({})
 MakeGraphicsExpressionOptions()::= HoldComplete()
+
+% pmath> MakeGraphicsExpressionOptions(a -> 1 + 1, b -> NCache(Pi, 3.141592653589793`))
+%        HoldComplete(a -> 1 + 1, b -> Pi)
 
 
 End()

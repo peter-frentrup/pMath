@@ -33,13 +33,15 @@ namespace richmath {
   };
   
   class GraphicsElement: public StyledObject {
-      friend class GraphicsElementCollection;
     public:
       virtual StyledObject *style_parent() final override { return _style_parent_or_limbo_next.as_normal(); }
       
       static GraphicsElement *create(Expr expr, BoxInputFlags opts);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) = 0;
+      
+      virtual int              count() {     return 0; }
+      virtual GraphicsElement *item(int i) { return nullptr; }
       
       virtual void find_extends(GraphicsBounds &bounds) = 0;
       virtual void paint(GraphicsDrawingContext &gc) = 0;
@@ -61,6 +63,7 @@ namespace richmath {
       
       virtual Expr to_pmath_impl(BoxOutputFlags flags) = 0;
       
+      static void set_style_parent_of_child(GraphicsElement *ch, StyledObject *sp) { if(ch) ch->style_parent(sp); }
       void style_parent(StyledObject *sp) { if(_style_parent_or_limbo_next.is_normal()) _style_parent_or_limbo_next.set_to_normal(sp); }
       virtual ObjectWithLimbo *next_in_limbo() final override { return _style_parent_or_limbo_next.as_tinted(); }
       virtual void next_in_limbo(ObjectWithLimbo *next) final override;
@@ -82,8 +85,8 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       void load_from_object(Expr expr, BoxInputFlags opts);
       
-      int              count() {     return _items.length(); }
-      GraphicsElement *item(int i) { return _items[i]; }
+      int              count() override {     return _items.length(); }
+      GraphicsElement *item(int i) override { return _items[i]; }
       
       void add(GraphicsElement *g);
       void insert(int i, GraphicsElement *g);

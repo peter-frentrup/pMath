@@ -136,7 +136,11 @@ void GraphicsDirective::paint(GraphicsDrawingContext &gc) {
 }
 
 void GraphicsDirective::apply(Expr directive, GraphicsDrawingContext &gc) {
-  Impl::apply_to_context(directive, gc);
+  Impl::apply_to_context(PMATH_CPP_MOVE(directive), gc);
+}
+
+void GraphicsDirective::apply_to_style(Expr directive, Style &style) {
+  Impl::apply_to_style(PMATH_CPP_MOVE(directive), style);
 }
 
 void GraphicsDirective::dynamic_updated() {

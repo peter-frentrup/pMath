@@ -14,6 +14,7 @@ namespace richmath {
     public:
       static bool is_graphics_directive(Expr expr);
       static void apply(Expr directive, GraphicsDrawingContext &gc);
+      static void apply_to_style(Expr directive, Style &style);
       
       static GraphicsDirective *try_create(Expr expr, BoxInputFlags opts);
       static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;
@@ -40,7 +41,7 @@ namespace richmath {
       GraphicsDirective();
       GraphicsDirective(Expr expr);
     
-    private:
+    protected:
       enum {
         MustUpdateBit = base::NumFlagsBits,
         
