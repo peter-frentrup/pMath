@@ -9,20 +9,34 @@ Document({
         Section(TextData({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
            " by default displays ", StyleBox("expr", "Arg"), 
            " in \"Pane\" style."}), "Notes"), 
+        Section("The following options can be given:", "Notes"), 
+        Section(
+         TextData({
+           GridBox({{{TemplateBox({"Alignment"}, "ReferenceHyperlink")}, {
+               TemplateBox({"Automatic"}, "ReferenceHyperlink")}, 
+              "how to align objects in the display area"}, {
+              {TemplateBox({"BaselinePosition"}, "ReferenceHyperlink")}, {
+               TemplateBox({"Automatic"}, "ReferenceHyperlink")}, 
+              "what to align with the surrounding text baseline"}, {
+              {TemplateBox({"FrameMargins"}, "ReferenceHyperlink")}, {
+               TemplateBox({"Automatic"}, "ReferenceHyperlink")}, 
+              "padding to reserve inside the displa area"}, {
+              {TemplateBox({"ImageSize"}, "ReferenceHyperlink")}, {
+               TemplateBox({"Automatic"}, "ReferenceHyperlink")}, 
+              "the overall size of the displayed pane"}, {
+              {TemplateBox({"ImageSizeAction"}, "ReferenceHyperlink")}, 
+              "\"ShrinkToFit\"", 
+              "what to do if the content size does not match the image size"}, 
+             {{TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink")}, {
+               TemplateBox({"True"}, "ReferenceHyperlink")}, 
+              "whether to allow automatic line breaks"}})}), 
+         "3ColumnTableNotes"), 
         Section(TextData({"With a typical default stylesheet, ", 
            TemplateBox({"Pane"}, "ReferenceHyperlink"), "(", 
            StyleBox("expr", "Arg"), 
            ") without options displays exactly like ", 
-           StyleBox("expr", "Arg"), "."}), "Notes"), 
-        Section(TextData({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
-           " has options ", TemplateBox({"Alignment"}, "ReferenceHyperlink"), 
-           ", ", TemplateBox({"BaselinePosition"}, "ReferenceHyperlink"), 
-           ", ", TemplateBox({"BaseStyle"}, "ReferenceHyperlink"), ", ", 
-           TemplateBox({"FrameMargins"}, "ReferenceHyperlink"), ", ", 
-           TemplateBox({"ImageSize"}, "ReferenceHyperlink"), ", ", 
-           TemplateBox({"ImageSizeAction"}, "ReferenceHyperlink"), ", and ", 
-           TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink"), "."}), 
-         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+           StyleBox("expr", "Arg"), "."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Restrict output to a given width:", "ExampleText"), 

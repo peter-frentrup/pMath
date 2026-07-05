@@ -76,6 +76,9 @@ Document({
           Section(StyleData("2ColumnTableNotes"), BaseStyle -> "Text", 
            MenuSortingValue -> 1650, SectionMargins -> {
              {35, Inherited}, {5, 5}}, ShowSectionBracket -> Automatic), 
+          Section(StyleData("3ColumnTableNotes"), BaseStyle -> "Text", 
+           MenuSortingValue -> 1650, SectionMargins -> {
+             {35, Inherited}, {5, 5}}, ShowSectionBracket -> Automatic), 
           Section(StyleData("PrimaryExamplesSection"), 
            BaseStyle -> "CollapseSection", DefaultNewSectionStyle -> 
             "ExampleSection", DefaultReturnCreatedSectionStyle -> 

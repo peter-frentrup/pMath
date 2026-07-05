@@ -15,6 +15,9 @@ PrepareUsageSection
 
 Begin("Documentation`Private`")
 
+% Prepare inline tests:
+% pmath> Get($Input); $Namespace:= "Documentation`Private`";
+
 
 $DocumentationPath:= {ToFileName(DirectoryName($Input), "Files")}
 
@@ -547,7 +550,8 @@ Function CreateHelpDocument(~name:String) {
     With(attr:= Attributes(name))
     With(ns:=        name.StringCases(  StartOfString ++ Longest(~~~) ++ "`", 1))
     With(shortName:= name.StringReplace(StartOfString ++ Longest(~~~) ++ "`" -> ""))
-    With(optionNames:= Options(name).Map({~(~opt:Symbol, ~) :> SymbolName(opt), ~ -> Nothing}).Sort)
+    With(publicOptions:= Options(name) |> FilterRules(Except({BoxID, BaseStyle})) |> SortBy(Function(ToString(First(#)))))
+    With(optionNames:= publicOptions.Map({~(~opt:Symbol, ~) :> SymbolName(opt), ~ -> Nothing}))
 
     doc:= CreateDocument({
             Section(
@@ -559,20 +563,26 @@ Function CreateHelpDocument(~name:String) {
                 "ObjectName"),
             Section(BoxData(TemplateBox({name}, "UsageReference")), "Usage"),
             SectionGroup({Section("Details", "NotesSection"),
-                SectionGroup({
-                    Section("", "NotesSectionHeaderSpacer"),
+                SectionGroup(Flatten @ {
+                    Section("", "NotesSectionHeaderSpacer")
                     If(Position(attr, NumericFunction) === {},
-                        Nothing,
+                        {},
                         Section("Mathematical function suitable for numeric and symbolic computations.", "Notes")
-                    ),
-                    genericAttributesNoteSection(name, Complement(attr, {Protected, ReadProtected, DefiniteFunction, NumericFunction, Listable})),
-                    Section("XXX", "Notes"), 
+                    )
+                    genericAttributesNoteSection(name, Complement(attr, {Protected, ReadProtected, DefiniteFunction, NumericFunction, Listable}))
+                    Section("XXX", "Notes"),
                     If(Position(attr, Listable) === {},
-                        Nothing,
+                        {},
                         Section(TextData({
                             MakeReferenceHyperlink(name, ns), 
                             " automatically threads over lists."}), "Notes")
-                    ),
+                    )
+                    If(Length(publicOptions) <= 4, {
+                        genericOptionNamesNoteSection(name, optionNames)
+                    }, {
+                        Section("The following options can be given:", "Notes")
+                        detailedOptionsTableNoteSection(publicOptions |> SortBy(Function(ToString(First(#)))))
+                    })
                     Section("", "SectionFooterSpacer")
                 }, All)
             }, All),
@@ -632,6 +642,55 @@ Function genericAttributesNoteSection(~name, {~~mostAttrs, ~lastAttr}) {
         "."
     }), "Notes")
 }
+
+detailedOptionsTableNoteSection(~)::= Nothing
+Function detailedOptionsTableNoteSection(~opts:List) {
+    Section(TextData({GridBox(opts.Map(detailedOptionsTableRow))}), "3ColumnTableNotes")
+}
+
+detailedOptionsTableRow(~)::= {"XXX", "XXX", "XXX"}
+detailedOptionsTableRow((Rule|RuleDelayed)(~lhs, ~rhs)) ::= 
+    {
+        linkifyBoxes(MakeBoxes(InputForm(lhs)))
+        linkifyBoxes(MakeBoxes(InputForm(rhs)))
+        "XXX"
+    }
+
+genericOptionNamesNoteSection(~, ~)::= Nothing
+Function genericOptionNamesNoteSection(~name, {~optName}) {
+    Section(TextData({
+        MakeReferenceHyperlink(name), 
+        " has option ",
+        TemplateBox({optName}, "ReferenceHyperlink"),
+        "."
+    }), "Notes")
+}
+Function genericOptionNamesNoteSection(~name, {~~mostOptNames, ~lastOptName}) {
+    Section(TextData({
+        MakeReferenceHyperlink(name), 
+        " has options ",
+        Sequence @@ {mostOptNames}.Map(Function(TemplateBox({#}, "ReferenceHyperlink"))).Riffle(", "),
+        " and ",
+        TemplateBox({lastOptName}, "ReferenceHyperlink"),
+        "."
+    }), "Notes")
+}
+
+linkifyBoxes(~b)::= b
+Function linkifyBoxes(~s:String) {
+    If(Names(s) =!= {}) {
+        MakeReferenceHyperlink(s)
+    } Else {
+        s
+    }
+}
+linkifyBoxes(~l:List)::= l.Map(linkifyBoxes)
+linkifyBoxes(StyleBox(~b, ~~~))::= linkifyBoxes(b)
+linkifyBoxes(StringBox(~s:String))::= s
+% pmath> linkifyBoxes(ToBoxes(InputForm({Left,Center, "Other"})))      // InputForm
+%        {"{", {TemplateBox({"Left"}, "ReferenceHyperlink"), ",", 
+%           TemplateBox({"Center"}, "ReferenceHyperlink"), ",", "\"Other\""}, "}"}
+
 
 Function simpleExampleHeadingWithText(~heading, ?count:1, ?headingStyle:"ExampleSection") {
     SectionGroup(Join({

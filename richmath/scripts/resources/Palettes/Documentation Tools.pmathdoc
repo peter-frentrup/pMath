@@ -81,6 +81,14 @@ Document({
                 GridBox({{"XXX", "XXX"}, {"XXX", "XXX"}, {"XXX", "XXX"}})}), 
               "2ColumnTableNotes")))), "Text"), 
         Section(
+         BoxData(FillBox(ButtonBox(StringBox("\"3 Column Table Notes\""), 
+            BaseStyle -> "Paste", 
+            ButtonData :> 
+             Section(
+              TextData({
+                GridBox({{"XXX", "XXX", "XXX"}, {"XXX", "XXX", "XXX"}, {
+                   "XXX", "XXX", "XXX"}})}), "3ColumnTableNotes")))), "Text"), 
+        Section(
          BoxData(FillBox(ButtonBox(StyleBox(StringBox("\"Scope\""), 
              "ExampleSection"), BaseStyle -> "Paste", 
             ButtonData :> SectionGroup({Section("Scope", "ExampleSection"), 
