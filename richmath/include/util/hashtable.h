@@ -214,11 +214,12 @@ namespace richmath {
             return **_entries;
           }
           const Iterator &operator++() {
-            while(_unused_count > 0) {
+            if(_unused_count > 0) {
               ++_entries;
-              if(is_used(*_entries)) {
-                --_unused_count;
-                break;
+              --_unused_count;
+              if(_unused_count > 0) {
+                while(!is_used(*_entries))
+                  ++_entries;
               }
             }
             return *this;
@@ -278,11 +279,12 @@ namespace richmath {
             return DeletableEntry{ *this, **_entries };
           }
           const MutableIterator &operator++() {
-            while(_unused_count > 0) {
+            if(_unused_count > 0) {
               ++_entries;
-              if(is_used(*_entries)) {
-                --_unused_count;
-                break;
+              --_unused_count;
+              if(_unused_count > 0) {
+                while(!is_used(*_entries))
+                  ++_entries;
               }
             }
             return *this;
