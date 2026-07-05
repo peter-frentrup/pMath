@@ -9,8 +9,18 @@ AutoCompletion`AutoCompleteFullFilename
 
 Begin("AutoCompletion`Private`")
 
+% Prepare inline tests:
+% pmath> Get($Input); $Namespace:= "AutoCompletion`Private`";
+
 joinLists():= {}
 joinLists(~~ls)::= Join(ls)
+
+% pmath> AutoCompleteName(Names(), "sin")
+%        {Sin, SinIntegral, Sinc, SingleLetterItalics, SingleMatch, Sinh, SinhIntegral, 
+%         StringToInputOutputStreams, StripOnInput, SyntaxInformation}
+%
+% pmath> AutoCompleteName(Names(), "sIn")
+%        {SinIntegral, SinhIntegral, StringToInputOutputStreams, StripOnInput, SyntaxInformation}
 
 Function AutoCompleteName(~fullnames:List, ~part:String) {
 	With(np:= namespacePattern(part))
@@ -68,9 +78,8 @@ Function namespacePattern(~part:String) {
 
 Function selectByPrefix(~list, ~np, ~part) {
 	Return(list.StringCases(
-		np ++ part ++ Except("`")*** ++ EndOfString, 
-		1, 
-		IgnoreCase -> True).Apply(joinLists))
+		np ++ makePrefixPattern(part) ++ Except("`")*** ++ EndOfString, 
+		1).Apply(joinLists))
 }
 
 Function selectByCamelCase(~list, ~np, ~part) {
@@ -96,8 +105,16 @@ Function allNamespacesFromPath() {
 			.Apply(joinLists)
 		))
 }
-	
+
 % stringLength(~str:String)::= str.StringPosition(EndOfString)[1,-1]
+
+% pmath> makePrefixPattern("aBcπ𝔼d")
+%        a | A ++ B ++ c | C ++ π𝔼 ++ d | D
+% pmath> a | A ++ B ++ c | C // FullForm
+%        StringExpression(Alternatives(a, A), B, Alternatives(c, C))
+Function makePrefixPattern(~str:String) {
+	StringExpression @@ Characters(str).Map(charOrUpper)
+}
 
 Function makeCamelCaseNamePattern(~str:String) {
 	With(interWordPattern:= Shortest(Except("`")***))
@@ -147,6 +164,9 @@ upperCaseChar(~c)::= c
 
 containsSubstring(~str:String, ~sub:String)::= str.StringPosition(sub, 1).Length > 0
 
+% pmath> makeShortName("foo`Sin")
+%        {Sin, foo`Sin}
+
 Function makeShortNameList(~list:List, ~part:String) {
 	If(StringPosition(part, "`", 1).Length > 0) {
 		Return(list.Map({#,#}&))
@@ -158,7 +178,7 @@ Function makeShortName(~fullname:String) {
 	Return(fullname.StringReplace({
 			long: (~~~ ++ "`" ++ (short: Except("`")**)) :> 
 				{short, 
-					If(Names(short).Length===1) { 
+					If(Names(short) === {long}) { 
 						short
 					} Else {
 						long

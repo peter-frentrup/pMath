@@ -769,7 +769,7 @@ Expr AutoCompletion::Private::search_semantic_completion(SpanExpr *&span, Volati
         pmath_debug_print_object(" of call to ", name.get(), "]\n");
         
         // TODO: >= info.minargs, but then maybe not an option unless also >= info.maxargs
-        if(num_args_before >= info.maxargs) {
+        if(num_args_before >= info.minargs) {
           Expr options = Application::interrupt_wait_cached(
                            Call(Symbol(richmath_System_Options), name));
           
@@ -817,6 +817,14 @@ Expr AutoCompletion::Private::search_semantic_completion(SpanExpr *&span, Volati
               body = Call(Symbol(richmath_System_Join), PMATH_CPP_MOVE(body_syms), PMATH_CPP_MOVE(body_strings));
             else
               body = body_syms ? body_syms : body_strings;
+            
+            if(num_args_before < info.maxargs && kind == CompletionLocation::Symbol) {
+              body = Parse("With({FE`Private`x:= `1`},"
+                "If(FE`Private`x === {},"
+                  "FE`AutoCompleteName(#)," // TODO: only give all symbols when explicitly asked for more (via double Ctrl+Space e.g.)
+                  "FE`Private`x))",
+                PMATH_CPP_MOVE(body));
+            } 
             
             return Call(Symbol(richmath_System_Function), PMATH_CPP_MOVE(body));
           }
