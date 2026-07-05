@@ -204,11 +204,16 @@ namespace richmath { namespace strings {
   extern String Color;
   extern String CommentStyle;
   extern String ContainingCallHighlightStyle;
+  extern String DashingCapForm;
+  extern String DashingOffset;
   extern String Delete;
   extern String DragDropContextMenu;
   extern String DrawEdges;
   extern String EdgeColor;
   extern String EdgeDashing;
+  extern String EdgeDashing;
+  extern String EdgeDashingCapForm;
+  extern String EdgeDashingOffset;
   extern String EdgeJoinForm;
   extern String EdgeThickness;
   extern String ExcessOrMissingArgumentStyle;
@@ -2655,6 +2660,8 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ContextMenu);
   impl.emit_definition(ContinuousAction);
   impl.emit_definition(Dashing);
+  impl.emit_definition(DashingCapForm);
+  impl.emit_definition(DashingOffset);
   impl.emit_definition(DefaultDuplicateSectionStyle);
   impl.emit_definition(DefaultNewSectionStyle);
   impl.emit_definition(DefaultReturnCreatedSectionStyle);
@@ -2669,6 +2676,8 @@ void StyleData::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(DynamicLocalValues);
   impl.emit_definition(EdgeColor);
   impl.emit_definition(EdgeDashing);
+  impl.emit_definition(EdgeDashingCapForm);
+  impl.emit_definition(EdgeDashingOffset);
   impl.emit_definition(EdgeJoinForm);
   impl.emit_definition(EdgeThickness);
   impl.emit_definition(Editable);
@@ -3386,7 +3395,9 @@ void StyleInformation::add_style() {
     
     {
       SharedPtr<EnumStyleConverter> converter{new CapFormStyleConverter};
-      add_enum(CapForm, Symbol(richmath_System_CapForm), converter);
+      add_enum(CapForm,            Symbol(richmath_System_CapForm), converter);
+      add_enum(DashingCapForm,     strings::DashingCapForm,         converter);
+      add_enum(EdgeDashingCapForm, strings::EdgeDashingCapForm,     converter);
     }
     
     {
@@ -3656,6 +3667,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
     add(StyleType::Any,             CachedValue,                      Symbol( richmath_System_CachedValue));
     add(StyleType::Any,             Dashing,                          Symbol( richmath_System_Dashing));
+    add(StyleType::Any,             DashingOffset,                    strings::DashingOffset);
     add(StyleType::Any,             DefaultDuplicateSectionStyle,     Symbol( richmath_System_DefaultDuplicateSectionStyle));
     add(StyleType::Any,             DefaultNewSectionStyle,           Symbol( richmath_System_DefaultNewSectionStyle));
     add(StyleType::Any,             DefaultReturnCreatedSectionStyle, Symbol( richmath_System_DefaultReturnCreatedSectionStyle));
@@ -3664,6 +3676,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             DynamicLocalValues,               Symbol( richmath_System_DynamicLocalValues));
     add(StyleType::Any,             EdgeJoinForm,                     strings::EdgeJoinForm);
     add(StyleType::Any,             EdgeDashing,                      strings::EdgeDashing);
+    add(StyleType::Any,             EdgeDashingOffset,                strings::EdgeDashingOffset);
     add(StyleType::Any,             EvaluationContext,                Symbol( richmath_System_EvaluationContext));
     add(StyleType::Any,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
     add(StyleType::Any,             Frame,                            Symbol( richmath_System_Frame));

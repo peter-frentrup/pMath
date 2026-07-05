@@ -123,15 +123,17 @@ namespace richmath {
     AutoDelete,
     AutoNumberFormating,
     AutoSpacing,
-    CapForm,       // CapFormXXX
+    CapForm, // CapFormXXX
     ClosingAction, // ClosingActionXXX
     ContentPadding,
     ContinuousAction,
     ControlPlacement, // ControlPlacementKindXXX
+    DashingCapForm, // CapFormXXX
     DebugColorizeChanges, // bool
     DebugFollowMouse,     // bool
     DebugSelectionBounds, // bool
     DrawEdges,            // bool
+    EdgeDashingCapForm, // CapFormXXX
     Editable,
     Enabled, // AutoBoolXXX
     Evaluatable,
@@ -495,7 +497,9 @@ namespace richmath {
     UnknownOptionStyle,
     
     Dashing,
+    DashingOffset,
     EdgeDashing,
+    EdgeDashingOffset,
     JoinForm,
     EdgeJoinForm,
     

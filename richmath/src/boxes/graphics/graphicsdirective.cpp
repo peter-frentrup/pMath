@@ -314,8 +314,16 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
   }
   
   if(directive.item_equals(0, richmath_System_Dashing)) {
-    // TODO: support Dashing(dashes, offset, capform)
     style.set_pmath(Dashing, directive[1]);
+    
+    if(directive.expr_length() >= 2)
+      style.set(DashingOffset, directive[2]);
+    else
+      style.set(DashingOffset, 0.0);
+    
+    if(directive.expr_length() >= 3)
+      style.set_pmath(DashingCapForm, directive[3]);
+    
     return;
   }
   
@@ -349,8 +357,16 @@ void GraphicsDirective::Impl::apply_edgeform_to_style(Expr directive, Style &sty
   }
   
   if(directive.item_equals(0, richmath_System_Dashing)) {
-    // TODO: support Dashing(dashes, offset, capform)
     style.set_pmath(EdgeDashing, directive[1]);
+    
+    if(directive.expr_length() >= 2)
+      style.set(EdgeDashingOffset, directive[2]);
+    else
+      style.set(EdgeDashingOffset, 0.0);
+    
+    if(directive.expr_length() >= 3)
+      style.set_pmath(EdgeDashingCapForm, directive[3]);
+    
     return;
   }
   
