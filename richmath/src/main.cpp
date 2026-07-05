@@ -16,8 +16,10 @@
 #include <util/rle-array.h>
 #include <boxes/graphics/axisticks.h>
 #include <boxes/graphics/beziercurvebox.h>
+#include <boxes/graphics/circleordiskbox.h>
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/graphics/graphicsdirective.h>
+#include <boxes/graphics/graphicsstylebox.h>
 #include <boxes/graphics/linebox.h>
 #include <boxes/graphics/pointbox.h>
 #include <boxes/box-factory.h>
@@ -212,6 +214,8 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(DoubleMatrix)              ==  40, ""); // 8 + 3*8 + 8
     static_assert(sizeof(PointBox)                  ==  72, ""); // (24) + 8 + 40
     static_assert(sizeof(BezierCurveBox)            ==  80, ""); // (24) + 8 + 40 + 8
+    static_assert(sizeof(CircleOrDiskBox)           ==  80, ""); // (24) + 7 * 8
+    static_assert(sizeof(GraphicsStyleBox)          ==  72, ""); // (24) + 8 + 8 + 24 + 8
 #  elif defined(PMATH_32BIT)
     static_assert(sizeof(Array<void*>)              ==  4,  "");
     static_assert(sizeof(Array<bool>)               ==  4,  "");
@@ -286,6 +290,8 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(DoubleMatrix)              ==  24, ""); // 8 + 3*4 + 4
     static_assert(sizeof(PointBox)                  ==  48, ""); // (16) + 8 + 24
     static_assert(sizeof(BezierCurveBox)            ==  56, ""); // (16) + 8 + 24 + 4 + 4 UNUSED PADDING BYTES
+    static_assert(sizeof(CircleOrDiskBox)           ==  72, ""); // (16) + 7 * 8
+    static_assert(sizeof(GraphicsStyleBox)          ==  56, ""); // (16) + 4 + 4 + 24 + 8
 #  endif
 #endif
 

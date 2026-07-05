@@ -71,10 +71,10 @@ bool GraphicsStyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 GraphicsStyleBox *GraphicsStyleBox::try_create(Expr expr, BoxInputFlags opts) {
   if(!expr.item_equals(0, richmath_System_StyleBox))
-    return false;
+    return nullptr;
     
   if(expr.expr_length() < 1)
-    return false;
+    return nullptr;
     
   GraphicsStyleBox *box = new GraphicsStyleBox();
   if(!box->try_load_from_object(PMATH_CPP_MOVE(expr), opts)) {
