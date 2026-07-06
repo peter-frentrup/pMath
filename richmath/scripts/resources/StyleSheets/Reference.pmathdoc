@@ -21,8 +21,10 @@ Document({
            "keyctrlshift" -> TemplateBox({"\[SelectionPlaceholder]"}, 
              "ControlShiftKeyEvent"), Inherited}, Saveable -> False, 
          WindowTitle -> 
-          Dynamic(StringReplace(CurrentValue("DocumentFileName"), 
-            ".pmathdoc" -> " \[Dash] Documentation")))}, All), 
+          Dynamic(ToString(StringForm("`1` \[Dash] Documentation", 
+             {~FE`Private`s:String :> StringReplace(FE`Private`s, 
+                 ".pmathdoc" -> ""), ~FE`Private`x :> FE`Private`x}(
+              CurrentValue("DocumentFileName"))))))}, All), 
       SectionGroup({Section("Section styles for symbol documentation", 
          "Section"), Section(StyleData("Input"), 
          EvaluationContext -> SectionGroup), 
