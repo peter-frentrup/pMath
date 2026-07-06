@@ -42,7 +42,7 @@ namespace richmath {
     public:
       TemplateBoxImpl(TemplateBox &_self);
       
-      void ensure_content_loaded();
+      void ensure_content_loaded(DisplayStage stage);
       
       void load_content(Expr dispfun);
       static bool is_valid_display_function(Expr dispfun);
@@ -63,7 +63,7 @@ namespace richmath {
       static TemplateBox *find_owner_or_self(Box *box, bool same_document_only = false);
       
       void is_content_loaded(bool value) { self.is_content_loaded(value); }
-      void ensure_content_loaded();
+      void ensure_content_loaded(DisplayStage stage);
       void reload_content();
       Expr get_content();
       
@@ -353,6 +353,8 @@ Box *TemplateBox::move_vertical(
 } 
 
 void TemplateBox::resize_default_baseline(Context &context) {
+  Impl(*this).ensure_content_loaded(DisplayStage::Layout);
+  
   base::resize_default_baseline(context);
   
   if(_extents.width <= 0)
@@ -365,7 +367,7 @@ void TemplateBox::resize_default_baseline(Context &context) {
 }
 
 void TemplateBox::after_paint_inline(Context &context) {
-  Impl(*this).ensure_content_loaded();
+  Impl(*this).ensure_content_loaded(DisplayStage::Paint);
   base::after_paint_inline(context);
 }
 
@@ -379,7 +381,7 @@ void TemplateBox::paint_content(Context &context) {
 
   base::paint_content(context);
   
-  Impl(*this).ensure_content_loaded();
+  Impl(*this).ensure_content_loaded(DisplayStage::Paint);
 }
 
 void TemplateBox::after_insertion() {
@@ -646,6 +648,8 @@ void TemplateBoxSlot::invalidate() {
 }
 
 void TemplateBoxSlot::resize_default_baseline(Context &context) {
+  Impl(*this).ensure_content_loaded(DisplayStage::Layout);
+  
   base::resize_default_baseline(context);
   
   if(_extents.width <= 0)
@@ -658,13 +662,13 @@ void TemplateBoxSlot::resize_default_baseline(Context &context) {
 }
 
 void TemplateBoxSlot::after_paint_inline(Context &context) {
-  Impl(*this).ensure_content_loaded();
+  Impl(*this).ensure_content_loaded(DisplayStage::Paint);
   base::after_paint_inline(context);
 }
 
 void TemplateBoxSlot::paint_content(Context &context) {
   base::paint_content(context);
-  Impl(*this).ensure_content_loaded();
+  Impl(*this).ensure_content_loaded(DisplayStage::Paint);
 }
 
 void TemplateBoxSlot::after_insertion() {
@@ -786,15 +790,16 @@ TemplateBoxImpl::TemplateBoxImpl(TemplateBox &_self)
 {
 }
 
-void TemplateBoxImpl::ensure_content_loaded() {
+void TemplateBoxImpl::ensure_content_loaded(DisplayStage stage) {
   Expr dispfun = self.get_own_style(DisplayFunction);
   if(!self.is_content_loaded() || dispfun != self._cached_display_function) {
     load_content(dispfun);
     self.is_content_loaded(true);
     if(self.find_parent<Document>(false))
       self.base_after_insertion();
-      
-    self.invalidate();
+    
+    if(stage == DisplayStage::Paint)
+      self.invalidate();
   }
 }
 
@@ -901,9 +906,11 @@ TemplateBox *TemplateBoxSlotImpl::find_owner_or_self(Box *box, bool same_documen
   return nullptr;
 }
 
-void TemplateBoxSlotImpl::ensure_content_loaded() {
+void TemplateBoxSlotImpl::ensure_content_loaded(DisplayStage stage) {
   if(!self.is_content_loaded()) {
-    self.invalidate();
+    if(stage == DisplayStage::Paint)
+      self.invalidate();
+    
     reload_content();
     if(self.find_parent<Document>(false))
       self.base_after_insertion();
