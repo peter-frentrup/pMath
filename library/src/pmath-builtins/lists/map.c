@@ -1,9 +1,12 @@
 #include <pmath-core/expressions-private.h>
 
+#include <pmath-core/symbols-private.h>
+
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
+#include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
@@ -67,7 +70,7 @@ struct map_impl_callback_t {
   
   long         next_level;
   pmath_bool_t next_eval_imm;
-  pmath_bool_t has_sequence;
+  pmath_bool_t needs_reevaluation;
 };
 
 static pmath_t map_impl_callback(pmath_t obj, size_t i, void *data) {
@@ -75,9 +78,29 @@ static pmath_t map_impl_callback(pmath_t obj, size_t i, void *data) {
   
   obj = map_impl(context->info, obj, context->next_level, context->next_eval_imm);
   
-  if(!context->has_sequence) {
-    if(pmath_is_expr_of(obj, pmath_System_Sequence))
-      context->has_sequence = TRUE;
+  if(!context->needs_reevaluation) {
+    if(pmath_is_expr_of(obj, pmath_System_Sequence)) {
+      context->needs_reevaluation = TRUE;
+    }
+    else {
+      pmath_symbol_t sym = _pmath_topmost_symbol(obj);
+      if(!pmath_is_null(sym)) {
+        struct _pmath_symbol_rules_t *rules;
+          
+        rules = _pmath_symbol_get_rules(sym, RULES_READ);
+        if(rules) {
+          pmath_builtin_func_t func = (void*)pmath_atomic_read_aquire(&rules->up_call);
+          if(func) {
+            context->needs_reevaluation = TRUE;
+          }
+          else if(!_pmath_rulecache_is_empty(&rules->up_rules)) {
+            context->needs_reevaluation = TRUE;
+          }  
+        }
+        
+        pmath_unref(sym);
+      }
+    }
   }
   
   return obj;
@@ -97,10 +120,10 @@ static pmath_t map_impl(
   if(reldepth > 0)
     return obj;
     
-  context.info          = info;
-  context.next_level    = level + 1;
-  context.next_eval_imm = evaluate_immediately;
-  context.has_sequence  = FALSE;
+  context.info               = info;
+  context.next_level         = level + 1;
+  context.next_eval_imm      = evaluate_immediately;
+  context.needs_reevaluation = FALSE;
   
   if(reldepth == 0 && info->function_holds_args)
     context.next_eval_imm = FALSE;
@@ -134,7 +157,11 @@ static pmath_t map_impl(
               &context);
               
       if(context.next_eval_imm) {
-        if(!context.has_sequence && update_only_result)
+        // Intermediate results with UpRules or 'up_call' code trigger a reevaluation of the whole list:
+        //  pmath> {1, x, 2, x, 3}.Map({~i:Integer :> i, ~ :> Nothing})
+        //         {1, 2, 3}
+
+        if(!context.needs_reevaluation && update_only_result)
           _pmath_expr_update(obj);
         else
           obj = pmath_evaluate(obj);
