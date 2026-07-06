@@ -82,6 +82,10 @@ static void os_init(void);
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
 
+#ifndef  ENABLE_VIRTUAL_TERMINAL_PROCESSING
+# define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
+
 typedef HANDLE sem_t;
 
 static int sem_init(sem_t *sem, int pshared, unsigned int value) {
@@ -1469,7 +1473,7 @@ static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t opt
   
   if(info->raw_boxes_write_depth == 0) {
     if(pmath_is_expr_of(obj, pmath_System_Highlighted))
-      post_write_stylebox_or_style(info, obj, options);
+      post_write_highlighted(info, obj, options);
     else if(pmath_is_expr_of(obj, pmath_System_Style))
       post_write_stylebox_or_style(info, obj, options);
   }
@@ -1765,7 +1769,6 @@ static void convert_style_directive_FontWeight(struct style_context_t *context, 
 
 static pmath_bool_t styled_can_write_unicode(void *user, const uint16_t *str, int len) {
   struct styled_writer_info_t *sw = user;
-  UINT cp;
   
   if(!sw->cached_console_font && !sw->no_font_available) {
     CONSOLE_FONT_INFOEX cfi = {sizeof(CONSOLE_FONT_INFOEX)};
@@ -1781,8 +1784,8 @@ static pmath_bool_t styled_can_write_unicode(void *user, const uint16_t *str, in
   }
   
   if(sw->cached_console_font) {
-    HDC dc;
-    if(dc = GetDC(NULL)) {
+    HDC dc = GetDC(NULL);
+    if(dc) {
       HGDIOBJ oldfont = SelectObject(dc, sw->cached_console_font);
       pmath_bool_t success = TRUE;
 #define GLYPH_BUF_SIZE  8
@@ -1820,7 +1823,8 @@ static pmath_bool_t styled_can_write_unicode(void *user, const uint16_t *str, in
   }
   
   // TODO: check current code page instead
-  if(cp = GetConsoleOutputCP()) {
+  UINT cp = GetConsoleOutputCP();
+  if(cp) {
     int conv;
     BOOL used_def;
     
