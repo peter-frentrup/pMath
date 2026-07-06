@@ -7,6 +7,7 @@
 #include <boxes/graphics/circleordiskbox.h>
 #include <boxes/graphics/linebox.h>
 #include <boxes/graphics/pointbox.h>
+#include <boxes/graphics/rectanglebox.h>
 #include <boxes/box.h>
 
 #include <graphics/canvas.h>
@@ -30,6 +31,7 @@ extern pmath_symbol_t richmath_System_DiskBox;
 extern pmath_symbol_t richmath_System_LineBox;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_PointBox;
+extern pmath_symbol_t richmath_System_RectangleBox;
 extern pmath_symbol_t richmath_System_StyleBox;
 
 namespace {
@@ -134,6 +136,11 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
   
   if(head == richmath_System_PointBox) {
     if(auto ge = PointBox::try_create(expr, opts))
+      return ge;
+  }
+  
+  if(head == richmath_System_RectangleBox) {
+    if(auto ge = RectangleBox::try_create(expr, opts))
       return ge;
   }
   

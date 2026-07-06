@@ -18,6 +18,7 @@ MakeGraphicsBoxes(Circle(~~~args))     ::= HoldComplete(CircleBox(args))
 MakeGraphicsBoxes(Disk(~~~args))       ::= HoldComplete(DiskBox(args))
 MakeGraphicsBoxes(Line(~~~args))       ::= HoldComplete(LineBox(args))
 MakeGraphicsBoxes(Point(~~~args) )     ::= HoldComplete(PointBox(args))
+MakeGraphicsBoxes(Rectangle(~~~args) ) ::= HoldComplete(RectangleBox(args))
 
 Function MakeGraphicsBoxes(Style(~x, ~~~opts)) {
 	With(inner:=   MakeGraphicsBoxes(x))

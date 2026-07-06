@@ -1,0 +1,383 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Rectangle", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Rectangle"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Rectangle"}, "ReferenceHyperlink"), 
+           "() is equivalent to ", 
+           BoxData({TemplateBox({"Rectangle"}, "ReferenceHyperlink"), "(", {
+              "{", {"0", ",", "0"}, "}"}, ")"}), "."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A unit square:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Graphics", "(", {"Rectangle", "(", ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(GraphicsBox({RectangleBox()})), "Output", 
+           GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Two squares:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "{", {"Red", ",", {"Rectangle", "(", {
+                   "{", {"0", ",", "0"}, "}"}, ")"}, ",", "Blue", ",", {
+                  "Rectangle", "(", {
+                   "{", {{"1", "/", "2"}, ",", {"1", "/", "2"}}, "}"}, ")"}}, 
+                "}"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({RGBColor(1, 0, 0), RectangleBox({0, 0}), 
+                RGBColor(0, 0, 1), RectangleBox({1/2, 1/2})})), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {150, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Different rectangles:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "{", {"Red", ",", {"Rectangle", "(", {
+                   {"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"1", ",", "3"}, "}"}}, ")"}, ",", "Blue", ",", {
+                  "Rectangle", "(", {{"{", {"2", ",", "1"}, "}"}, ",", {
+                    "{", {"5", ",", "2"}, "}"}}, ")"}}, "}"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({RGBColor(1, 0, 0), 
+                RectangleBox({0, 0}, {1, 3}), RGBColor(0, 0, 1), 
+                RectangleBox({2, 1}, {5, 2})})), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {150, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Rectangles in different styles:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {
+                {"Graphics", "(", {
+                  "{", {"Green", ",", {"Rectangle", "(", ")"}}, "}"}, ")"}, 
+                ",", {"Graphics", "(", {
+                  "{", {{"EdgeForm", "(", "Dashed", ")"}, ",", "Green", ",", {
+                    "Rectangle", "(", ")"}}, "}"}, ")"}, ",", {
+                 "Graphics", "(", {"{", {{"EdgeForm", "(", "Thick", ")"}, ",", 
+                   "Green", ",", {"Rectangle", "(", ")"}}, "}"}, ")"}, ",", {
+                 "Graphics", "(", {
+                  "{", {
+                   {"EdgeForm", "(", {"Directive", "(", {
+                      "Red", ",", "Thick", ",", "Dashed"}, ")"}, ")"}, ",", 
+                   "Green", ",", {"Rectangle", "(", ")"}}, "}"}, ")"}}, "}"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {GraphicsBox({RGBColor(0, 1, 0), RectangleBox()}), 
+                ",", GraphicsBox({EdgeForm(Dashing({Small, Small})), 
+                  RGBColor(0, 1, 0), RectangleBox()}), ",", 
+                GraphicsBox({EdgeForm(Thickness(Large)), RGBColor(0, 1, 0), 
+                  RectangleBox()}), ",", 
+                GraphicsBox({
+                  EdgeForm(Directive(RGBColor(1, 0, 0), Thickness(Large), 
+                    Dashing({Small, Small}))), RGBColor(0, 1, 0), 
+                  RectangleBox()})}, "}"}), "Output", 
+             GraphicsBoxOptions -> {ImageSize -> {100, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Short form for a unit square with corner at the origin:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Graphics", "(", {
+              {"Rectangle", "(", ")"}, ",", {"Frame", "\[Rule]", "True"}}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(GraphicsBox({RectangleBox()}, Frame -> True)), 
+           "Output", GraphicsBoxOptions -> {ImageSize -> {150, Automatic}}, 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+        Section("A basic bar chart:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {"With", "(", {"data", "\[Assign]", {
+                "RandomReal", "(", {{"3", "..", "10"}, ",", {
+                  "{", {"10", ",", "2"}, "}"}}, ")"}}, ")"}, {
+              "{", {
+               "\n", {
+                {"Graphics", "(", {
+                  {"{", {
+                    {"EdgeForm", "(", {"Directive", "(", {
+                       "Thin", ",", "Gray"}, ")"}, ")"}, ",", {
+                     "Table", "(", {
+                      {"{", {"Red", ",", {"Rectangle", "(", {
+                          {"{", {{"i", "-", "0.4"}, ",", "0"}, "}"}, ",", {
+                           "{", {"i", ",", {"data", "[", {"i", ",", "1"}, 
+                             "]"}}, "}"}}, ")"}, ",", "Blue", ",", {
+                         "Rectangle", "(", {
+                          {"{", {{"i", "+", "0.4"}, ",", "0"}, "}"}, ",", {
+                           "{", {"i", ",", {"data", "[", {"i", ",", "2"}, 
+                             "]"}}, "}"}}, ")"}}, "}"}, ",", {
+                       "i", "\[Rule]", "10"}}, ")"}}, "}"}, ",", {
+                   "Frame", "\[Rule]", "True"}, ",", {
+                   "AspectRatio", "\[Rule]", {"1", "/", "GoldenRatio"}}}, 
+                 ")"}, "\n"}}, "}"}}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({
+              EdgeForm(Directive(Thickness(Tiny), GrayLevel(0.5))), {
+               {RGBColor(1, 0, 0), RectangleBox({0.6, 0}, {
+                  1, 3.004016859240812`}), RGBColor(0, 0, 1), 
+                RectangleBox({1.4, 0}, {1, 8.914632205828166`})}, {
+                RGBColor(1, 0, 0), RectangleBox({1.6, 0}, {
+                  2, 4.255148217504315`}), RGBColor(0, 0, 1), 
+                RectangleBox({2.4, 0}, {2, 6.481972012467287`})}, {
+                RGBColor(1, 0, 0), RectangleBox({2.6, 0}, {
+                  3, 7.190123198145293`}), RGBColor(0, 0, 1), 
+                RectangleBox({3.4, 0}, {3, 9.784806078302486`})}, {
+                RGBColor(1, 0, 0), RectangleBox({3.6, 0}, {
+                  4, 9.198555767392278`}), RGBColor(0, 0, 1), 
+                RectangleBox({4.4, 0}, {4, 8.480624130029938`})}, {
+                RGBColor(1, 0, 0), RectangleBox({4.6, 0}, {
+                  5, 4.257832654486739`}), RGBColor(0, 0, 1), 
+                RectangleBox({5.4, 0}, {5, 6.10564475769441})}, {
+                RGBColor(1, 0, 0), RectangleBox({5.6, 0}, {
+                  6, 5.591407655142107`}), RGBColor(0, 0, 1), 
+                RectangleBox({6.4, 0}, {6, 8.183247046577758`})}, {
+                RGBColor(1, 0, 0), RectangleBox({6.6, 0}, {
+                  7, 9.514491222547193`}), RGBColor(0, 0, 1), 
+                RectangleBox({7.4, 0}, {7, 4.458310497492263`})}, {
+                RGBColor(1, 0, 0), RectangleBox({7.6, 0}, {
+                  8, 4.130737528788224`}), RGBColor(0, 0, 1), 
+                RectangleBox({8.4, 0}, {8, 5.56453500098199})}, {
+                RGBColor(1, 0, 0), RectangleBox({8.6, 0}, {
+                  9, 9.659637380907533`}), RGBColor(0, 0, 1), 
+                RectangleBox({9.4, 0}, {9, 9.49438288240929})}, {
+                RGBColor(1, 0, 0), RectangleBox({9.6, 0}, {
+                  10, 9.155374973017661`}), RGBColor(0, 0, 1), 
+                RectangleBox({10.4, 0}, {10, 8.776742922668307`})}}}, 
+             AspectRatio -> NCache(1/GoldenRatio, 0.6180339887498948`), 
+             Frame -> True)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Random axis-aligned rectangles:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "Table", "(", {
+                 {"{", {{"EdgeForm", "(", "Black", ")"}, ",", {
+                    "Hue", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
+                    "Rectangle", "(", {
+                     {"RandomReal", "(", {"4", ",", "2"}, ")"}, ",", {
+                      "RandomReal", "(", ")"}}, ")"}}, "}"}, ",", "40"}, ")"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                {EdgeForm(GrayLevel(0)), Hue(0.030333651507809756`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCNjfn>R4)IMy#aG=;1tup_5eEJ2D$~~"), 
+                  0.22126959244343003`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.42206668664298086`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC344]pa&*QA,xA0Gd9Uu@w+8@9;}Tr~"), 
+                  0.7271191058823494`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.5487692176262684`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCS)lHp{%qD]dncQtv&{bdv<Co3LI}A~"), 
+                  0.5441794812542803`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.7005736741613581`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC;TOs=muF{jXcj*+O+Jd-0RSK=1Qh~~"), 
+                  0.19099899133096399`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.08968991440851704`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCiTuGMSSHEp5R-6z)#sb<?EyE+2bc~~"), 
+                  0.4808541012387244`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.21962150649677759`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCQIj?5;4R^DU{F4@>v,oSdjKf>1?d~~"), 
+                  0.45035191367891925`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.7547228813566197`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCk@$R4p!yKI!-Z-a<HM^S*aHAUcn8%~"), 
+                  0.3715878612108334`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.547040479230949), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCiHTHYJ)-]2KC*p!qKFQY0{[Co1$Y~~"), 
+                  0.23112806091125304`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.2201382229666038`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCNt^MqMf&x3,?)U_7XK^easU8P&j,{~"), 
+                  0.2309288429340418`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.7349978488275599`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCap)+L3zIxyZ#Iuny>Qi6djK+$20#~~"), 
+                  0.6025802673087063`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.8205644396300598`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC*?%#Zt?nD2!}Y?8CZh2?4gf+D25<~~"), 
+                  0.6107386059503228`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.9208710134155162`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC(VOkt5T(KDpkG?ILokca0RS%}1t$~~"), 
+                  0.23813583608203082`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.04397714583160006`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC+2Fc+htx54hsj[qDSkH@8]{M92D<~~"), 
+                  0.789817266818451)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.6220961990119291`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCc^9@+<6gvH,v>W%HofUQ4ggJE2hs~~"), 
+                  0.8853226649621536`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.6192157117347767`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCX*l@d<y+^!_BwXj-JEit?EzBA2qp~~"), 
+                  0.06846571613828134`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.17293420659144143`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCS@dkd<{Hkg_Hqku@;1--V-EmN9}*M~"), 
+                  0.7534969217367271`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.1446002906978886`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCInY<]ms@R{y(jk)xgZ}]2LL]71^@~~"), 
+                  0.33939888970134413`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.20245010060592483`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCxwl_,;euQahX;8UMH]1p*aHAZ=LfF~"), 
+                  0.6827645393620432`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.45816770955474273`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCS)m,3IIr%vz5VCvFBe0Z9RNq!2pa~~"), 
+                  0.8733923359220365`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.5106780912745338`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCIcKgZ6R*nWAhnCtw{h)%djKtG1=R~~"), 
+                  0.7300907332540453`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.93355279125834), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCQQ]-TscFJT,yUg<vL_sSW)A>KS_sM~"), 
+                  0.122296856885039)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.3119312995183695`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCsgU?y7P9)9eZt=beX9=gIRF4k{0Mv~"), 
+                  0.8276280391903156`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.1327910278766663`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCnO<)ptCP&^u)_8J7p93{>;X0$2I>~~"), 
+                  0.599208202251861)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.8519127950318957`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC*)G08wR{JQLw1_Qq2pdW4gfm524w~~"), 
+                  0.47984302446753846`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.5460154356401853`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC=_&dU;UE0newEE4_ssK*4gg1<2aN~~"), 
+                  0.8688642967304991`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.6126702564958635`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC@k]xq@4w0H@HOCG_2&v^2LL_>2U7~~"), 
+                  0.08429564918436738`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.987403276034232), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCxvI<;>&C<5;NaG2%(rB@Jpd{$1p)~~"), 
+                  0.9967176692956399`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.8566289721131887`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCN#S,^sy3h1p=Z^)LSCEC_5eAo2FL~~"), 
+                  0.9448449955795074`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.8021603162674237`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCx%RtV}L&9j_6nxUw#Ws1u?GNFnF##~"), 
+                  0.6377697449406241`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.07867794432917097`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCIp8j9#OuG(UVVbt>VJ)V4gfOs1_l~~"), 
+                  0.40660259449431235`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.1298801640920465`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC5!(7wO!X(PgO^Jq8?VlPdjK[=1@r~~"), 
+                  0.42052714778302414`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.36096593732872617`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC,MrPI%GRHp4qus%9QVA&<^TXzT?o$~"), 
+                  0.3232688891144837`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.3228432656931366`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCxmOgmiv1d^!{QwRv+w7#I{*MfvIjT~"), 
+                  0.0170846272049614)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.43911387278490943`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCDbjOEGh[9SC^&tjM?2w,JpeAj1{w~~"), 
+                  0.5316932554681286`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.9575161687502484`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC3F=(Lu(OicL3Qee>1n%J8]{0=27d~~"), 
+                  0.11678580101795943`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.6784688841219801`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC*]DLAbo}(NdxpZvkCP<W8]{S%2K)~~"), 
+                  0.7202368139023042`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.7238780583481617`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCd2?@GT9*#DL&b?3PQ8gw>;X)U2w?~~"), 
+                  0.6763950021758256`)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.38475736335257926`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC$&K)dz1hI;FppEnM#_[W0RS?E1kV~~"), 
+                  0.348635588521801)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.9540016654485672`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqC*(@nCo2i1!;g$HpQygXd4gfL>1)l~~"), 
+                  0.179944477547204)}, {EdgeForm(GrayLevel(0)), 
+                 Hue(0.3187602799455619`), 
+                 RectangleBox(
+                  CompressedData(
+                    "1:c${NmkYQqCdBd[YVV&a#,%,5C%FjzU8]{Q,2LA~~"), 
+                  0.8267612763804141`)}})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"EdgeForm"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Graphics"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

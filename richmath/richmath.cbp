@@ -878,6 +878,7 @@
 		<Unit filename="include/boxes/graphics/graphicsstylebox.h" />
 		<Unit filename="include/boxes/graphics/linebox.h" />
 		<Unit filename="include/boxes/graphics/pointbox.h" />
+		<Unit filename="include/boxes/graphics/rectanglebox.h" />
 		<Unit filename="include/boxes/gridbox.h" />
 		<Unit filename="include/boxes/inputfieldbox.h" />
 		<Unit filename="include/boxes/interpretationbox.h" />
@@ -1644,6 +1645,7 @@
 		<Unit filename="src/boxes/graphics/graphicsstylebox.cpp" />
 		<Unit filename="src/boxes/graphics/linebox.cpp" />
 		<Unit filename="src/boxes/graphics/pointbox.cpp" />
+		<Unit filename="src/boxes/graphics/rectanglebox.cpp" />
 		<Unit filename="src/boxes/gridbox.cpp" />
 		<Unit filename="src/boxes/inputfieldbox.cpp" />
 		<Unit filename="src/boxes/interpretationbox.cpp" />
