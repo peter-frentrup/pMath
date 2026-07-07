@@ -22,6 +22,8 @@ namespace richmath {
       bool get_value(Expr *result, Expr job_info);
       Expr finish_dynamic(Expr dyn_eval_result);
       
+      bool has_dynamic() { return _dyn_eval_template.is_valid(); }
+      
     private:
       Expr _dyn_eval_template;
       Expr _held_expr;

@@ -2,10 +2,12 @@
 #define RICHMATH__BOXES__GRAPHICS__RECTANGLEBOX_H__INCLUDED
 
 #include <boxes/graphics/graphicselement.h>
+#include <eval/partial-dynamic.h>
 #include <util/double-point.h>
 
 namespace richmath {
   class RectangleBox final : public GraphicsElement {
+      using base = GraphicsElement;
       class Impl;
     protected:
       virtual ~RectangleBox();
@@ -18,10 +20,26 @@ namespace richmath {
       virtual void find_extends(GraphicsBounds &bounds) override;
       virtual void paint(GraphicsDrawingContext &gc) override;
     
+      virtual Style own_style() final override { return _style; };
+      virtual void dynamic_updated() override;
+      virtual void dynamic_finished(Expr info, Expr result) override;
+      
     protected:
-      Expr _expr;
-      DoublePoint p0;
-      DoublePoint p1;
+      enum {
+        MustUpdateBit = base::NumFlagsBits,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+    
+      bool must_update() {       return get_flag(MustUpdateBit); }
+      void must_update(bool value) { change_flag(MustUpdateBit, value); }
+      
+    protected:
+      DoublePoint    p0;
+      DoublePoint    p1;
+      PartialDynamic _dynamic_args;
+      Style          _style;
       
     protected:
       RectangleBox();

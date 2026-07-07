@@ -9,7 +9,10 @@ Document({
         Section(TextData({TemplateBox({"Rectangle"}, "ReferenceHyperlink"), 
            "() is equivalent to ", 
            BoxData({TemplateBox({"Rectangle"}, "ReferenceHyperlink"), "(", {
-              "{", {"0", ",", "0"}, "}"}, ")"}), "."}), "Notes")}, All), 
+              "{", {"0", ",", "0"}, "}"}, ")"}), "."}), "Notes"), 
+        Section(TextData({"The option ", TemplateBox({"BorderRadius"}, 
+            "ReferenceHyperlink"), " \[Rule] ", StyleBox("r", "Arg"), 
+           " can be used to specify rounded corners."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -23,17 +26,20 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section("Two squares:", "ExampleText"), 
+          Section("Two rounded squares:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Graphics", "(", {
                 "{", {"Red", ",", {"Rectangle", "(", {
-                   "{", {"0", ",", "0"}, "}"}, ")"}, ",", "Blue", ",", {
-                  "Rectangle", "(", {
-                   "{", {{"1", "/", "2"}, ",", {"1", "/", "2"}}, "}"}, ")"}}, 
-                "}"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+                   {"{", {"0", ",", "0"}, "}"}, ",", {
+                    "BorderRadius", "\[Rule]", "0.1"}}, ")"}, ",", "Blue", 
+                 ",", {"Rectangle", "(", {
+                   {"{", {{"1", "/", "2"}, ",", {"1", "/", "2"}}, "}"}, ",", {
+                    "BorderRadius", "\[Rule]", "0.2"}}, ")"}}, "}"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
             Section(
-             BoxData(GraphicsBox({RGBColor(1, 0, 0), RectangleBox({0, 0}), 
-                RGBColor(0, 0, 1), RectangleBox({1/2, 1/2})})), "Output", 
+             BoxData(GraphicsBox({RGBColor(1, 0, 0), 
+                RectangleBox({0, 0}, BorderRadius -> 0.1), RGBColor(0, 0, 1), 
+                RectangleBox({1/2, 1/2}, BorderRadius -> 0.2)})), "Output", 
              GraphicsBoxOptions -> {ImageSize -> {150, Automatic}}, 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All), SectionGroup({
@@ -96,7 +102,39 @@ Document({
           Section(BoxData(GraphicsBox({RectangleBox()}, Frame -> True)), 
            "Output", GraphicsBoxOptions -> {ImageSize -> {150, Automatic}}, 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
-      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+      SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("BorderRadius", "ExampleSubsection"), 
+          Section("Use rounded corners:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Graphics", "(", {
+                "Rectangle", "(", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                  "{", {"2", ",", "1"}, "}"}, ",", {
+                  "BorderRadius", "\[Rule]", "0.3"}}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                RectangleBox({0, 0}, {2, 1}, BorderRadius -> 0.3)})), 
+             "Output", GraphicsBoxOptions -> {ImageSize -> {150, Automatic}}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Use different radii for each edge:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Graphics", "(", {
+                  "Rectangle", "(", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                    "{", {"2", ",", "1"}, "}"}, ",", {
+                    "BorderRadius", "\[Rule]", {
+                     "{", {"0", ",", "0.8", ",", "0", ",", "0.5"}, "}"}}}, 
+                  ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(GraphicsBox({
+                  RectangleBox({0, 0}, {2, 1}, 
+                   BorderRadius -> {0, 0.8, 0, 0.5})})), "Output", 
+               GraphicsBoxOptions -> {ImageSize -> {150, Automatic}}, 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1)}, 1), SectionGroup({
+        Section("Neat Examples", "ExampleSection"), 
         Section("A basic bar chart:", "ExampleText"), 
         SectionGroup({
           Section(
@@ -162,7 +200,7 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section("Random axis-aligned rectangles:", "ExampleText"), 
+          Section("Random axis-aligned rounded squares:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Graphics", "(", {
                 "Table", "(", {
@@ -170,210 +208,211 @@ Document({
                     "Hue", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
                     "Rectangle", "(", {
                      {"RandomReal", "(", {"4", ",", "2"}, ")"}, ",", {
-                      "RandomReal", "(", ")"}}, ")"}}, "}"}, ",", "40"}, ")"}, 
-               ")"}), "Input", SectionLabel -> "in [1]:"), 
+                      "BorderRadius", "\[Rule]", {"RandomReal", "(", "0.4", 
+                       ")"}}}, ")"}}, "}"}, ",", "40"}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {EdgeForm(GrayLevel(0)), Hue(0.030333651507809756`), 
+                {EdgeForm(GrayLevel(0)), Hue(0.14586043545134697`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCNjfn>R4)IMy#aG=;1tup_5eEJ2D$~~"), 
-                  0.22126959244343003`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.42206668664298086`), 
+                    "1:c${NmkYQqC*=A9*xAPE[gGArDhqAwK+XDba<OoU~"), 
+                  BorderRadius -> 0.11487215080119412`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.09566874844446938`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC344]pa&*QA,xA0Gd9Uu@w+8@9;}Tr~"), 
-                  0.7271191058823494`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.5487692176262684`), 
+                    "1:c${NmkYQqC,MB8r<8B*v2On!s<ArjM?Eyr;2Mq~~"), 
+                  BorderRadius -> 0.36959373494565234`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.42125830219893556`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCS)lHp{%qD]dncQtv&{bdv<Co3LI}A~"), 
-                  0.5441794812542803`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.7005736741613581`), 
+                    "1:c${NmkYQqCnZXjYaAo{U,(-DYKAErlZVv!OFbH1~"), 
+                  BorderRadius -> 0.36148819156704226`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.3357787506993334`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC;TOs=muF{jXcj*+O+Jd-0RSK=1Qh~~"), 
-                  0.19099899133096399`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.08968991440851704`), 
+                    "1:c${NmkYQqC>Df_c_NMv0{ho(MZpBW2Vh;dT843m~"), 
+                  BorderRadius -> 0.2679349528046638`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.8568160723688709`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCiTuGMSSHEp5R-6z)#sb<?EyE+2bc~~"), 
-                  0.4808541012387244`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.21962150649677759`), 
+                    "1:c${NmkYQqCX^YBFy0,YL{iaJ>o^IX5>Hq*zg$ZB~"), 
+                  BorderRadius -> 0.00825885061427858)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.6231145860547282`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCQIj?5;4R^DU{F4@>v,oSdjKf>1?d~~"), 
-                  0.45035191367891925`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.7547228813566197`), 
+                    "1:c${NmkYQqC$@unV%eOgP4&AwmMj=LA4ggM*2P6~~"), 
+                  BorderRadius -> 0.23346461853408287`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.2715452056821519`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCk@$R4p!yKI!-Z-a<HM^S*aHAUcn8%~"), 
-                  0.3715878612108334`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.547040479230949), 
+                    "1:c${NmkYQqC+060m$-_=2hb>EjixZW;*#iJe^$0E~"), 
+                  BorderRadius -> 0.3622145322559358`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.010524237531952862`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCiHTHYJ)-]2KC*p!qKFQY0{[Co1$Y~~"), 
-                  0.23112806091125304`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.2201382229666038`), 
+                    "1:c${NmkYQqC*-*sx{@tEm_N-Q_Ua[#a4gf}h28j~~"), 
+                  BorderRadius -> 0.023568470321768897`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.5926402557224639`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCNt^MqMf&x3,?)U_7XK^easU8P&j,{~"), 
-                  0.2309288429340418`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.7349978488275599`), 
+                    "1:c${NmkYQqCS${C?yz&cfhoypiGpqmcIRF4f(g#K~"), 
+                  BorderRadius -> 0.2427403197745596`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.2708350327154885`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCap)+L3zIxyZ#Iuny>Qi6djK+$20#~~"), 
-                  0.6025802673087063`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.8205644396300598`), 
+                    "1:c${NmkYQqCS!c5B)[9;=hXSUEZ@2zEu?GN0>j<;~"), 
+                  BorderRadius -> 0.15945764664794343`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.064897759115359), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC*?%#Zt?nD2!}Y?8CZh2?4gf+D25<~~"), 
-                  0.6107386059503228`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.9208710134155162`), 
+                    "1:c${NmkYQqCx#N7eF;w=q{kg4EQ)&<KH];,liwHd~"), 
+                  BorderRadius -> 0.367899923186639)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.48459149691034076`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC(VOkt5T(KDpkG?ILokca0RS%}1t$~~"), 
-                  0.23813583608203082`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.04397714583160006`), 
+                    "1:c${NmkYQqCDL5Ry&9U;Sec$_LH-=w-?Ey<=2*C~~"), 
+                  BorderRadius -> 0.3460810993238783`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.6553895801357492`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC+2Fc+htx54hsj[qDSkH@8]{M92D<~~"), 
-                  0.789817266818451)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.6220961990119291`), 
+                    "1:c${NmkYQqCxtcwF)7vyIhl$(]Uv3w$IsgDlvIoT~"), 
+                  BorderRadius -> 0.3934116569218673`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.9332187139645979`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCc^9@+<6gvH,v>W%HofUQ4ggJE2hs~~"), 
-                  0.8853226649621536`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.6192157117347767`), 
+                    "1:c${NmkYQqCsh%tS!f_6-!_(7-)6Mmn8]{Kf28;~~"), 
+                  BorderRadius -> 0.186355300297872)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.556011664806404), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCX*l@d<y+^!_BwXj-JEit?EzBA2qp~~"), 
-                  0.06846571613828134`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.17293420659144143`), 
+                    "1:c${NmkYQqC>05ZyD<$Tmy;H&I%Id?v?Ey>O2-g~~"), 
+                  BorderRadius -> 0.38810068557128585`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.4870118285790894`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCS@dkd<{Hkg_Hqku@;1--V-EmN9}*M~"), 
-                  0.7534969217367271`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.1446002906978886`), 
+                    "1:c${NmkYQqC,MNE@t)_;@;lriw6LXBu+5-Sg4hWn~"), 
+                  BorderRadius -> 0.060922811605345656`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.6544486536912677`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCInY<]ms@R{y(jk)xgZ}]2LL]71^@~~"), 
-                  0.33939888970134413`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.20245010060592483`), 
+                    "1:c${NmkYQqCDVV^)xndrZgA2o*Y?EbN4gfI71#b~~"), 
+                  BorderRadius -> 0.18904529566852332`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.6762489368734859`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCxwl_,;euQahX;8UMH]1p*aHAZ=LfF~"), 
-                  0.6827645393620432`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.45816770955474273`), 
+                    "1:c${NmkYQqCVfbsgIQ!Zu,&c78zS?z+4gf#N29W~~"), 
+                  BorderRadius -> 0.012859192932837972`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.08319266888243282`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCS)m,3IIr%vz5VCvFBe0Z9RNq!2pa~~"), 
-                  0.8733923359220365`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.5106780912745338`), 
+                    "1:c${NmkYQqCd99izYW$GX;qLMNA4S)=9RNa92h9~~"), 
+                  BorderRadius -> 0.39419742326786145`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.5542070077966088`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCIcKgZ6R*nWAhnCtw{h)%djKtG1=R~~"), 
-                  0.7300907332540453`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.93355279125834), 
+                    "1:c${NmkYQqCF<4nT<#y#Q,(x^1NBnnwu?GN3stC9~"), 
+                  BorderRadius -> 0.04756226442610663`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.655366386715847), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCQQ]-TscFJT,yUg<vL_sSW)A>KS_sM~"), 
-                  0.122296856885039)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.3119312995183695`), 
+                    "1:c${NmkYQqCS-Z<gXxTS@hgIDhLVJ8a+5-SaiU<$~"), 
+                  BorderRadius -> 0.025478703665947268`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.9851265722261107`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCsgU?y7P9)9eZt=beX9=gIRF4k{0Mv~"), 
-                  0.8276280391903156`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.1327910278766663`), 
+                    "1:c${NmkYQqCDVn!fU}AM[!+}?drMb&**aHATvj@-~"), 
+                  BorderRadius -> 0.16192667735551455`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.3328132290950522`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCnO<)ptCP&^u)_8J7p93{>;X0$2I>~~"), 
-                  0.599208202251861)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.8519127950318957`), 
+                    "1:c${NmkYQqCxnQ@;<gnIP,#%]UFJ69OaR2]KB?!3~"), 
+                  BorderRadius -> 0.1701733338598723`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.9128677097524599`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC*)G08wR{JQLw1_Qq2pdW4gfm524w~~"), 
-                  0.47984302446753846`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.5460154356401853`), 
+                    "1:c${NmkYQqCaaWl!N$3ZM!wjaG=XTgXum=D+Tn8l~"), 
+                  BorderRadius -> 0.026114932943070813`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.5295769914790419`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC=_&dU;UE0newEE4_ssK*4gg1<2aN~~"), 
-                  0.8688642967304991`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.6126702564958635`), 
+                    "1:c${NmkYQqCc_O>D;cwGBdsh!{4_0qp2LMRt2F3~~"), 
+                  BorderRadius -> 0.3806164029343502`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.43315763111760386`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC@k]xq@4w0H@HOCG_2&v^2LL_>2U7~~"), 
-                  0.08429564918436738`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.987403276034232), 
+                    "1:c${NmkYQqC,DN6+<gOW]L;2}ku{oF78]{ll2ig~~"), 
+                  BorderRadius -> 0.3181486979031406`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.14877927353869425`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCxvI<;>&C<5;NaG2%(rB@Jpd{$1p)~~"), 
-                  0.9967176692956399`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.8566289721131887`), 
+                    "1:c${NmkYQqCG4n]0xZ?fAe$wN!9jofT*#iJV^a!2~"), 
+                  BorderRadius -> 0.22949103643715124`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.2825145617664153`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCN#S,^sy3h1p=Z^)LSCEC_5eAo2FL~~"), 
-                  0.9448449955795074`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.8021603162674237`), 
+                    "1:c${NmkYQqCVfnjYbyo2w,yjdcrjj[A4gf{&2T1~~"), 
+                  BorderRadius -> 0.31557147945571007`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.9950650924837711`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCx%RtV}L&9j_6nxUw#Ws1u?GNFnF##~"), 
-                  0.6377697449406241`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.07867794432917097`), 
+                    "1:c${NmkYQqCdGaf=O}t8ay}ujJ?$2L28]{u-2p9~~"), 
+                  BorderRadius -> 0.14546916808493662`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.6050003428986697`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCIp8j9#OuG(UVVbt>VJ)V4gfOs1_l~~"), 
-                  0.40660259449431235`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.1298801640920465`), 
+                    "1:c${NmkYQqCSy1Jd*Uz%u{$l&ICE4%!8]{WE2fz~~"), 
+                  BorderRadius -> 0.015902056651278862`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.7429505846029492`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC5!(7wO!X(PgO^Jq8?VlPdjK[=1@r~~"), 
-                  0.42052714778302414`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.36096593732872617`), 
+                    "1:c${NmkYQqC>04NHNrjcmp+S;oFMHA)djK[A1-$~~"), 
+                  BorderRadius -> 0.2465777122326266`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.3561282655124757`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC,MrPI%GRHp4qus%9QVA&<^TXzT?o$~"), 
-                  0.3232688891144837`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.3228432656931366`), 
+                    "1:c${NmkYQqCDKp>7vg!br!<zfgN([bAw+8@1!3aP~"), 
+                  BorderRadius -> 0.25570563499150073`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.21673994876061486`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCxmOgmiv1d^!{QwRv+w7#I{*MfvIjT~"), 
-                  0.0170846272049614)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.43911387278490943`), 
+                    "1:c${NmkYQqCiD*2@*xdfX-hy-c}Mt39_5eeV2q*~~"), 
+                  BorderRadius -> 0.04217897674196269`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.16637156326158742`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCDbjOEGh[9SC^&tjM?2w,JpeAj1{w~~"), 
-                  0.5316932554681286`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.9575161687502484`), 
+                    "1:c${NmkYQqCdEjm5rB[,4FgdvX+xK(a4gfp#2RZ~~"), 
+                  BorderRadius -> 0.014493630257603175`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.2823346309505844`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC3F=(Lu(OicL3Qee>1n%J8]{0=27d~~"), 
-                  0.11678580101795943`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.6784688841219801`), 
+                    "1:c${NmkYQqC5f(o3*^!UUVeO{bF;hkP8],;T1?K~~"), 
+                  BorderRadius -> 0.008821258331451665`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.9280890509740372`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC*]DLAbo}(NdxpZvkCP<W8]{S%2K)~~"), 
-                  0.7202368139023042`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.7238780583481617`), 
+                    "1:c${NmkYQqCF%o%v^RMeq,%m%H#n<=nH];,lT?i=~"), 
+                  BorderRadius -> 0.3402315401213607`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.5370611378869747`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCd2?@GT9*#DL&b?3PQ8gw>;X)U2w?~~"), 
-                  0.6763950021758256`)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.38475736335257926`), 
+                    "1:c${NmkYQqCIbBqgF2K(0aOcBnm-jCJ>;XQ>2f_~~"), 
+                  BorderRadius -> 0.303261849953152)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.14965754984504798`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC$&K)dz1hI;FppEnM#_[W0RS?E1kV~~"), 
-                  0.348635588521801)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.9540016654485672`), 
+                    "1:c${NmkYQqC,4Qc__[Gj]_7QVV&GJ0;-5vl}ehIn~"), 
+                  BorderRadius -> 0.15620290585943342`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.6434745364552569`), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqC*(@nCo2i1!;g$HpQygXd4gfL>1)l~~"), 
-                  0.179944477547204)}, {EdgeForm(GrayLevel(0)), 
-                 Hue(0.3187602799455619`), 
+                    "1:c${NmkYQqCIc?R[pZA8<!RN04*A>[k_5ecq2U!~~"), 
+                  BorderRadius -> 0.0017689642749401102`)}, {
+                 EdgeForm(GrayLevel(0)), Hue(0.643583132438573), 
                  RectangleBox(
                   CompressedData(
-                    "1:c${NmkYQqCdBd[YVV&a#,%,5C%FjzU8]{Q,2LA~~"), 
-                  0.8267612763804141`)}})), "Output", 
+                    "1:c${NmkYQqCS-!nXXZB}<ha]}#?wdD!u?GM]NC)r~"), 
+                  BorderRadius -> 0.20398813944019045`)}})), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 

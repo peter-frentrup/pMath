@@ -254,6 +254,11 @@ Options(RadioButtonBar):= {
     BoxID -> None
     Enabled -> Automatic }
 
+Options(Rectangle):= Options(RectangleBox):= {
+    BoxID -> None
+    BorderRadius -> 0
+}
+
 Options(Style):= Options(StyleBox):= {
     Antialiasing -> Inherited
     AutoDelete -> False
