@@ -28,7 +28,8 @@ namespace richmath {
 GraphicsStyleBox::GraphicsStyleBox()
   : base(),
     _content(nullptr),
-    _style(new StyleData())
+    _style(new StyleData()),
+    _dynamic_directives(this, Expr())
 {
 }
 
