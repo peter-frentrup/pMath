@@ -125,12 +125,15 @@ Document({
                   "Rectangle", "(", {{"{", {"0", ",", "0"}, "}"}, ",", {
                     "{", {"2", ",", "1"}, "}"}, ",", {
                     "BorderRadius", "\[Rule]", {
-                     "{", {"0", ",", "0.8", ",", "0", ",", "0.5"}, "}"}}}, 
-                  ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+                     "{", {{{"{", {"Left", ",", "Bottom"}, "}"}, "\[Rule]", 
+                       "0.5"}, ",", {{"{", {"Right", ",", "Top"}, "}"}, 
+                       "\[Rule]", "0.8"}}, "}"}}}, ")"}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
               Section(
                BoxData(GraphicsBox({
                   RectangleBox({0, 0}, {2, 1}, 
-                   BorderRadius -> {0, 0.8, 0, 0.5})})), "Output", 
+                   BorderRadius -> {{Left, Bottom} -> 0.5, {
+                       Right, Top} -> 0.8})})), "Output", 
                GraphicsBoxOptions -> {ImageSize -> {150, Automatic}}, 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1)}, 1), SectionGroup({

@@ -190,6 +190,7 @@ namespace richmath {
   
   /// A CSS3 Border Radius
   class BoxRadius final {
+      class Impl;
     public:
       BoxRadius(float all = 0);
       BoxRadius(float all_x, float all_y);

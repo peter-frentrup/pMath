@@ -125,12 +125,15 @@ Document({
             SectionGroup({
               Section(BoxData({"Framed", "(", {
                   "123", ",", {"BorderRadius", "\[Rule]", {
-                    "{", {"0", ",", "5", ",", "0", ",", "10"}, "}"}}}, ")"}), 
-               "Input", SectionLabel -> "in [1]:"), 
-              Section(BoxData(FrameBox("123", BorderRadius -> {0, 5, 0, 10})), 
-               "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All), 
-          SectionGroup({
+                    "{", {"5", ",", {{"{", {"Left", ",", "Top"}, "}"}, 
+                      "\[Rule]", "15"}, ",", {
+                      {"{", {"Right", ",", "Bottom"}, "}"}, "\[Rule]", "15"}}, 
+                    "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(FrameBox("123", 
+                 BorderRadius -> {5, {Left, Top} -> 15, {
+                     Right, Bottom} -> 15})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section("An elliptical border:", "ExampleText"), 
@@ -149,11 +152,23 @@ Document({
             SectionGroup({
               Section(BoxData({"Framed", "(", {
                   "123", ",", {"BorderRadius", "\[Rule]", {
-                    "{", {{"{", {"10", ",", "20"}, "}"}, ",", "0", ",", "0", 
-                     ",", "0"}, "}"}}}, ")"}), "Input", 
+                    "{", {{"{", {"Left", ",", "Top"}, "}"}, "\[Rule]", {
+                      "{", {"10", ",", "20"}, "}"}}, "}"}}}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(BoxData(FrameBox("123", 
-                 BorderRadius -> {{10, 20}, 0, 0, 0})), "Output", 
+                 BorderRadius -> {{Left, Top} -> {10, 20}})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Specify both corners on a side:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Framed", "(", {
+                  "123", ",", {"BorderRadius", "\[Rule]", {
+                    "{", {"Top", "\[Rule]", {"{", {"10", ",", "20"}, "}"}}, 
+                    "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(FrameBox("123", 
+                 BorderRadius -> {Top -> {10, 20}})), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1), SectionGroup({
           Section("ContentPadding", "ExampleSubsection"), 

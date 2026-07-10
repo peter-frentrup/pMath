@@ -9,7 +9,31 @@
 #endif
 
 
+namespace richmath {
+  class BoxRadius::Impl {
+    public:
+      explicit Impl(BoxRadius &self): self{self} {}
+
+      void set(Expr spec);
+
+    private:
+      void set_all_corners_simple(Expr spec);
+      static bool is_simple(Expr spec);
+      static void set_corner(float *rx, float *ry, Expr spec);
+      
+      void apply_rules(Expr rules);
+      void apply_rule(Expr rule);
+
+    private:
+      BoxRadius &self;
+  }; 
+}
+
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Bottom;
+extern pmath_symbol_t richmath_System_Left;
+extern pmath_symbol_t richmath_System_Right;
+extern pmath_symbol_t richmath_System_Top;
 
 using namespace richmath;
 
@@ -279,7 +303,7 @@ void RectangleF::add_rect_path(Canvas &canvas, bool negative) const {
 
 //} ... class RectangleF
 
-//{ class BorderRadius ...
+//{ class BoxRadius ...
 
 BoxRadius::BoxRadius(float all)
   : top_left_x(    all),
@@ -339,63 +363,7 @@ BoxRadius::BoxRadius(const Expr &expr)
     bottom_left_x( 0),
     bottom_left_y( 0)
 {
-  if(expr.is_number()) {
-    *this = BoxRadius(expr.to_double(0));
-    return;
-  }
-  
-  if(!expr.item_equals(0, richmath_System_List))
-    return;
-    
-  if(expr.expr_length() == 1) { // {all}
-    *this = BoxRadius(expr[1].to_double(0));
-    return;
-  }
-  
-  if(expr.expr_length() == 2) { // {allx, ally}
-    *this = BoxRadius(expr[1].to_double(0), expr[2].to_double(0));
-    return;
-  }
-  
-  if(expr.expr_length() == 4) { // {tl, tr, br, bl} or {{tlx, tly}, ...}
-  
-    Expr tmp = expr[1];
-    if(tmp.is_number()) {
-      top_left_x = top_left_y = tmp.to_double(0);
-    }
-    else if(tmp.expr_length() == 2 && tmp.item_equals(0, richmath_System_List)) {
-      top_left_x = tmp[1].to_double(0);
-      top_left_y = tmp[2].to_double(0);
-    }
-    
-    tmp = expr[2];
-    if(tmp.is_number()) {
-      top_right_x = top_right_y = tmp.to_double(0);
-    }
-    else if(tmp.expr_length() == 2 && tmp.item_equals(0, richmath_System_List)) {
-      top_right_x = tmp[1].to_double(0);
-      top_right_y = tmp[2].to_double(0);
-    }
-    
-    tmp = expr[3];
-    if(tmp.is_number()) {
-      bottom_right_x = bottom_right_y = tmp.to_double(0);
-    }
-    else if(tmp.expr_length() == 2 && tmp.item_equals(0, richmath_System_List)) {
-      bottom_right_x = tmp[1].to_double(0);
-      bottom_right_y = tmp[2].to_double(0);
-    }
-    
-    tmp = expr[4];
-    if(tmp.is_number()) {
-      bottom_left_x = bottom_left_y = tmp.to_double(0);
-    }
-    else if(tmp.expr_length() == 2 && tmp.item_equals(0, richmath_System_List)) {
-      bottom_left_x = tmp[1].to_double(0);
-      bottom_left_y = tmp[2].to_double(0);
-    }
-    
-  }
+  Impl(*this).set(expr);
 }
 
 BoxRadius &BoxRadius::operator+=(const BoxRadius &other) {
@@ -446,4 +414,145 @@ void BoxRadius::normalize(float max_width, float max_height) {
   }
 }
 
-//} ... class BorderRadius
+//} ... class BoxRadius
+
+//{ class BoxRadius::Impl ...
+
+void BoxRadius::Impl::set(Expr spec) {
+  if(is_simple(spec)) {
+    set_all_corners_simple(spec);
+    return;
+  }
+
+  if(spec.item_equals(0, richmath_System_List)) {
+    if(spec.expr_length() == 4 && is_simple(spec[1]) && is_simple(spec[2]) && is_simple(spec[3]) && is_simple(spec[4])) {
+      // {tl, tr, br, bl} or {{tlx, tly}, ...}
+      set_corner(&self.top_left_x,     &self.top_left_y,     spec[1]);
+      set_corner(&self.top_right_x,    &self.top_right_y,    spec[2]);
+      set_corner(&self.bottom_right_x, &self.bottom_right_y, spec[3]);
+      set_corner(&self.bottom_left_x,  &self.bottom_left_y,  spec[4]);
+      return;
+    }
+    
+    if(!spec[1].is_rule()) {
+      set_all_corners_simple(spec[1]);
+    }
+    else {
+      set_all_corners_simple(0);
+    }
+
+    apply_rules(spec);
+    return;
+  }
+
+  set_all_corners_simple(0);
+}
+
+void BoxRadius::Impl::set_all_corners_simple(Expr spec) {
+  set_corner(&self.top_left_x, &self.top_left_y, spec);
+  self.top_right_x    = self.top_left_x;
+  self.top_right_y    = self.top_left_y;
+  self.bottom_left_x  = self.top_left_x;
+  self.bottom_left_y  = self.top_left_y;
+  self.bottom_right_x = self.top_left_x;
+  self.bottom_right_y = self.top_left_y;
+}
+
+bool BoxRadius::Impl::is_simple(Expr spec) {
+  if(spec.is_number())
+    return true;
+
+  if(spec.item_equals(0, richmath_System_List)) {
+    if(spec.expr_length() == 2)
+      return spec[1].is_number() && spec[2].is_number();
+  }
+
+  return false;
+}
+
+void BoxRadius::Impl::set_corner(float *rx, float *ry, Expr spec) {
+  if(spec.is_number()) {
+    *rx = *ry = spec.to_double(0);
+    return;
+  }
+
+  if(spec.item_equals(0, richmath_System_List)) {
+    if(spec.expr_length() == 1) {
+      *rx = *ry = spec[1].to_double(0);
+      return;
+    }
+
+    if(spec.expr_length() == 2) {
+      *rx = spec[1].to_double(0);
+      *ry = spec[2].to_double(0);
+      return;
+    }
+  }
+
+  *rx = *ry = 0;
+}
+
+void BoxRadius::Impl::apply_rules(Expr rules) {
+  if(!rules.item_equals(0, richmath_System_List))
+    return;
+  
+  size_t len = rules.expr_length();
+  for(size_t i = 1; i <= len; ++i)
+    apply_rule(rules[i]);
+}
+
+void BoxRadius::Impl::apply_rule(Expr rule) {
+  if(!rule.is_rule())
+    return;
+  
+  Expr lhs = rule[1];
+  if(lhs.is_symbol()) {
+    if(lhs == richmath_System_Left) {
+      set_corner(&self.top_left_x, &self.top_left_y, rule[2]);
+      self.bottom_left_x = self.top_left_x;
+      self.bottom_left_y = self.top_left_y;
+      return;
+    }
+
+    if(lhs == richmath_System_Right) {
+      set_corner(&self.top_right_x, &self.top_right_y, rule[2]);
+      self.bottom_right_x = self.top_right_x;
+      self.bottom_right_y = self.top_right_y;
+      return;
+    }
+
+    if(lhs == richmath_System_Top) {
+      set_corner(&self.top_left_x, &self.top_left_y, rule[2]);
+      self.top_right_x = self.top_left_x;
+      self.top_right_y = self.top_left_y;
+      return;
+    }
+    
+    if(lhs == richmath_System_Bottom) {
+      set_corner(&self.bottom_left_x, &self.bottom_left_y, rule[2]);
+      self.bottom_right_x = self.bottom_left_x;
+      self.bottom_right_y = self.bottom_left_y;
+      return;
+    }
+  }
+  else if(lhs.item_equals(0, richmath_System_List) && lhs.expr_length() == 2) {
+    if(lhs.item_equals(1, richmath_System_Left)) {
+      if(lhs.item_equals(2, richmath_System_Top)) {
+        set_corner(&self.top_left_x, &self.top_left_y, rule[2]);
+      }
+      else if(lhs.item_equals(2, richmath_System_Bottom)) {
+        set_corner(&self.bottom_left_x, &self.bottom_left_y, rule[2]);
+      }
+    }
+    else if(lhs.item_equals(1, richmath_System_Right)) {
+      if(lhs.item_equals(2, richmath_System_Top)) {
+        set_corner(&self.top_right_x, &self.top_right_y, rule[2]);
+      }
+      else if(lhs.item_equals(2, richmath_System_Bottom)) {
+        set_corner(&self.bottom_right_x, &self.bottom_right_y, rule[2]);
+      }
+    }
+  }
+}
+
+//} ... class BoxRadius::Impl
