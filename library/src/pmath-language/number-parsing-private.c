@@ -121,12 +121,29 @@ static const uint16_t *parse_simple_float(
     
     *out_frac_digits = frac_end - (int_end + 1);
     
-    *out_significant_digits += *out_frac_digits;
-    if(*str == '0') // leading 0
-      --*out_significant_digits;
-    else if(*out_frac_digits == 1 && int_end[1] == '0') // trailing .0
-      --*out_significant_digits;
+    ulong significant_digits = (int_end - str) + (frac_end - (int_end + 1));
+    
+    if(*str == '0') { // leading 0
+      const uint16_t *s = str;
+      while(s < int_end && *s == '0') {
+        ++s;
+        --significant_digits;
+      }
+      if(s == int_end) {
+        ++s;
+        while(s < frac_end && *s == '0') {
+          ++s;
+          --significant_digits;
+        }
+      }
       
+      if(significant_digits <= 0)
+        significant_digits = 1;
+    }
+    else if(*out_frac_digits == 1 && int_end[1] == '0') // trailing ".0"
+      --significant_digits;
+      
+    *out_significant_digits = significant_digits;
     return frac_end;
   }
   

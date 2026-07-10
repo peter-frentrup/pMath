@@ -44,6 +44,17 @@ pmath_t builtin_internal_parserealball(pmath_expr_t expr) {
 //         Midpoint -> {Mantissa -> 123456, Exponent -> -5, Value -> 1.23455999[978+/-187]}, 
 //         Radius -> {Mantissa -> 78, Exponent -> -5, Value -> 0.000779999999[395+/-910]}, 
 //         SignificantDigits -> 9.0}
+//
+// pmath> 0.00825885061427858` // InputForm
+//        0.00825885061427858
+// pmath> 0.00825885061427858
+//        0.00825885061427858
+//
+// pmath> Internal`ParseRealBall("0.00825885061427858")
+//        {Value -> 0.00825885061427858, Base -> 10, 
+//         Midpoint -> {Mantissa -> 825885061427858, Exponent -> -17, Value -> 0.00825885061427858}, 
+//         Radius -> {Mantissa -> 0, Exponent -> 0, Value -> 0.0}, SignificantDigits -> MachinePrecision}
+
   pmath_string_t str;
   pmath_t min_prec_obj;
   pmath_t options;
