@@ -6,8 +6,14 @@
 #include <gui/win32/win32-recent-documents.h>
 #include <gui/recent-documents.h>
 
+#include <gui/common-document-windows.h>
+#include <gui/document.h>
+#include <gui/native-widget.h>
 #include <gui/win32/ole/combase.h>
 #include <gui/win32/ole/propvar.h>
+
+#include <util/hashtable.h>
+
 #include <propkey.h>
 #include <shlwapi.h>
 #include <shlobj.h>
@@ -81,6 +87,20 @@ namespace {
       HKEY _key;
       bool _owned;
   };
+  
+  class ShellItemMenus {
+    public:
+      Hashset<String> ignore_files;
+      
+      HRESULT jump_list_to_menu_list(Expr *result);
+      
+      static HRESULT jump_list_remove(String path);
+    
+    private:
+      Expr indexed_open_document_menu_item(int index, String label, String path);
+      HRESULT shell_item_to_menu_item(ComBase<IShellItem> shell_item, Expr *menu_item, int index);
+      HRESULT shell_link_to_menu_item(ComBase<IShellLinkW> shell_link, Expr *menu_item, int index);
+  };
 }
 
 
@@ -96,135 +116,25 @@ void Win32RecentDocuments::add(String path) {
   SHAddToRecentDocs(SHARD_PATHW, str);
 }
 
-static Expr indexed_open_document_menu_item(int index, String label, String path) {
-  label = String("&") + Expr(index + 1).to_string() + " " + label;
-  
-  return RecentDocuments::open_document_menu_item(PMATH_CPP_MOVE(label), PMATH_CPP_MOVE(path));
-}
-
-static HRESULT shell_item_to_menu_item(ComBase<IShellItem> shell_item, Expr *menu_item, int index) {
-  wchar_t *str = nullptr;
-  
-  HR(shell_item->GetDisplayName(SIGDN_FILESYSPATH, &str));
-  if(!PathFileExistsW(str)) {
-    CoTaskMemFree(str);
-    return E_FAIL;
-  }
-  String path = String::FromUcs2((const uint16_t*)str);
-  CoTaskMemFree(str);
-  
-  HR(shell_item->GetDisplayName(SIGDN_NORMALDISPLAY, &str));
-  String label = String::FromUcs2((const uint16_t*)str);
-  CoTaskMemFree(str);
-  
-  *menu_item = indexed_open_document_menu_item(index, PMATH_CPP_MOVE(label), PMATH_CPP_MOVE(path));
-  return S_OK;
-}
-
-static HRESULT shell_link_to_menu_item(ComBase<IShellLinkW> shell_link, Expr *menu_item, int index) {
-  wchar_t target[MAX_PATH];
-  
-  HR(shell_link->GetPath(target, ARRAYSIZE(target), nullptr, 0));
-  target[ARRAYSIZE(target) - 1] = L'\0';
-  
-  if(!PathFileExistsW(target))
-    return E_FAIL;
-  
-  String path = String::FromUcs2((const uint16_t*)target);
-  if(path.length() == 0)
-    return E_FAIL;
-  
-  const uint16_t *buf = path.buffer();
-  int i = path.length();
-  while(i > 0 && buf[i - 1] != '\\')
-    --i;
-  
-  *menu_item = indexed_open_document_menu_item(index, path.part(i), PMATH_CPP_MOVE(path));
-  return S_OK;
-}
-
-// From Microsoft's AutomaticJumpList example:
-// > For a document to appear in Jump Lists, the associated application must be registered to
-// > handle the document's file type (extension).
-static HRESULT jump_list_to_menu_list(Expr *result) {
-  ComBase<IApplicationDocumentLists> app_doc_lists;
-  
-  HR(CoCreateInstance(
-       CLSID_ApplicationDocumentLists, nullptr, CLSCTX_INPROC_SERVER,
-       app_doc_lists.iid(),
-       (void**)app_doc_lists.get_address_of()));
-  
-  HRreport(app_doc_lists->SetAppID(FileAssociationRegistry::app_user_model_id));
-  
-  ComBase<IObjectArray> items;
-  HR(app_doc_lists->GetList(ADLT_RECENT, 0, items.iid(), (void**)items.get_address_of()));
-  
-  unsigned count;
-  HR(items->GetCount(&count));
-  
-  Gather g;
-  for(size_t i = 0, found = 0; i < count && found < 9; ++i) {
-    ComBase<IUnknown> obj;
-    HR(items->GetAt(i, obj.iid(), (void**)obj.get_address_of()));
-    
-    if(auto shell_item = obj.as<IShellItem>()) {
-      Expr menu_item;
-      if(HRbool(shell_item_to_menu_item(PMATH_CPP_MOVE(shell_item), &menu_item, found))) {
-        ++found;
-        Gather::emit(PMATH_CPP_MOVE(menu_item));
-        continue;
-      }
-    }
-    
-    if(auto shell_link = obj.as<IShellLinkW>()) {
-      Expr menu_item;
-      if(HRbool(shell_link_to_menu_item(PMATH_CPP_MOVE(shell_link), &menu_item, found))) {
-        ++found;
-        Gather::emit(PMATH_CPP_MOVE(menu_item));
-        continue;
-      }
-    }
-  }
-  *result = g.end();
-  
-  return S_OK;
-}
-
 Expr Win32RecentDocuments::as_menu_list() {
-  Expr result;
+  ShellItemMenus m;
+  for(auto win : CommonDocumentWindow::All) {
+    Document *doc = win->content();
+    
+    String path = doc->native()->full_filename();
+    if(path.length() > 0)
+      m.ignore_files.add(path);
+  }
   
-  if(SUCCEEDED(jump_list_to_menu_list(&result)))
+  Expr result;
+  if(SUCCEEDED(m.jump_list_to_menu_list(&result)))
     return result;
   
   return List();
 }
 
-static HRESULT jump_list_remove(String path) {
-  //pmath_debug_print_object("[remove recent ", path.get(), "]\n");
-  
-  ComBase<IApplicationDestinations> app_dest;
-  HR(CoCreateInstance(
-       CLSID_ApplicationDestinations, nullptr, CLSCTX_INPROC_SERVER,
-       app_dest.iid(),
-       (void**)app_dest.get_address_of()));
-  
-  path += String::FromChar(0);
-  const wchar_t *buf = path.buffer_wchar();
-  if(!buf)
-    return E_OUTOFMEMORY;
-  
-  ComBase<IShellItem> item;
-  HR(SHCreateItemFromParsingName(buf, nullptr, item.iid(), (void**)item.get_address_of()));
-  
-  HR(app_dest->SetAppID(FileAssociationRegistry::app_user_model_id));
-  
-  HR(app_dest->RemoveDestination(item.get()));
-  
-  return S_OK;
-}
-
 bool Win32RecentDocuments::remove(String path) {
-  HRESULT hr = jump_list_remove(PMATH_CPP_MOVE(path));
+  HRESULT hr = ShellItemMenus::jump_list_remove(PMATH_CPP_MOVE(path));
   if(HRbool(hr)) {
     if(hr == S_FALSE)
       return false;
@@ -466,3 +376,130 @@ HRESULT RegistryKey::set_string_value(const wchar_t *name, String s) {
 
 //} ... class RegistryKey
 
+//{ ShellMenuItems ...
+
+Expr ShellItemMenus::indexed_open_document_menu_item(int index, String label, String path) {
+  label = String("&") + Expr(index + 1).to_string() + " " + label;
+  
+  return RecentDocuments::open_document_menu_item(PMATH_CPP_MOVE(label), PMATH_CPP_MOVE(path));
+}
+
+HRESULT ShellItemMenus::shell_item_to_menu_item(ComBase<IShellItem> shell_item, Expr *menu_item, int index) {
+  wchar_t *str = nullptr;
+  
+  HR(shell_item->GetDisplayName(SIGDN_FILESYSPATH, &str));
+  if(!PathFileExistsW(str)) {
+    CoTaskMemFree(str);
+    return E_FAIL;
+  }
+  String path = String::FromUcs2((const uint16_t*)str);
+  CoTaskMemFree(str);
+  
+  if(ignore_files.contains(path))
+    return S_FALSE;
+    
+  HR(shell_item->GetDisplayName(SIGDN_NORMALDISPLAY, &str));
+  String label = String::FromUcs2((const uint16_t*)str);
+  CoTaskMemFree(str);
+  
+  *menu_item = indexed_open_document_menu_item(index, PMATH_CPP_MOVE(label), PMATH_CPP_MOVE(path));
+  return S_OK;
+}
+
+HRESULT ShellItemMenus::shell_link_to_menu_item(ComBase<IShellLinkW> shell_link, Expr *menu_item, int index) {
+  wchar_t target[MAX_PATH];
+  
+  HR(shell_link->GetPath(target, ARRAYSIZE(target), nullptr, 0));
+  target[ARRAYSIZE(target) - 1] = L'\0';
+  
+  if(!PathFileExistsW(target))
+    return E_FAIL;
+  
+  String path = String::FromUcs2((const uint16_t*)target);
+  if(path.length() == 0)
+    return E_FAIL;
+  
+  const uint16_t *buf = path.buffer();
+  int i = path.length();
+  while(i > 0 && buf[i - 1] != '\\')
+    --i;
+  
+  if(ignore_files.contains(path))
+    return S_FALSE;
+  
+  *menu_item = indexed_open_document_menu_item(index, path.part(i), PMATH_CPP_MOVE(path));
+  return S_OK;
+}
+
+// From Microsoft's AutomaticJumpList example:
+// > For a document to appear in Jump Lists, the associated application must be registered to
+// > handle the document's file type (extension).
+HRESULT ShellItemMenus::jump_list_to_menu_list(Expr *result) {
+  ComBase<IApplicationDocumentLists> app_doc_lists;
+  
+  HR(CoCreateInstance(
+       CLSID_ApplicationDocumentLists, nullptr, CLSCTX_INPROC_SERVER,
+       app_doc_lists.iid(),
+       (void**)app_doc_lists.get_address_of()));
+  
+  HRreport(app_doc_lists->SetAppID(FileAssociationRegistry::app_user_model_id));
+  
+  ComBase<IObjectArray> items;
+  HR(app_doc_lists->GetList(ADLT_RECENT, 0, items.iid(), (void**)items.get_address_of()));
+  
+  unsigned count;
+  HR(items->GetCount(&count));
+  
+  Gather g;
+  for(size_t i = 0, found = 0; i < count && found < 9; ++i) {
+    ComBase<IUnknown> obj;
+    HR(items->GetAt(i, obj.iid(), (void**)obj.get_address_of()));
+    
+    if(auto shell_item = obj.as<IShellItem>()) {
+      Expr menu_item;
+      if(S_OK == HRreport(shell_item_to_menu_item(PMATH_CPP_MOVE(shell_item), &menu_item, found))) {
+        ++found;
+        Gather::emit(PMATH_CPP_MOVE(menu_item));
+        continue;
+      }
+    }
+    
+    if(auto shell_link = obj.as<IShellLinkW>()) {
+      Expr menu_item;
+      if(S_OK == HRreport(shell_link_to_menu_item(PMATH_CPP_MOVE(shell_link), &menu_item, found))) {
+        ++found;
+        Gather::emit(PMATH_CPP_MOVE(menu_item));
+        continue;
+      }
+    }
+  }
+  *result = g.end();
+  
+  return S_OK;
+}
+
+HRESULT ShellItemMenus::jump_list_remove(String path) {
+  //pmath_debug_print_object("[remove recent ", path.get(), "]\n");
+  
+  ComBase<IApplicationDestinations> app_dest;
+  HR(CoCreateInstance(
+       CLSID_ApplicationDestinations, nullptr, CLSCTX_INPROC_SERVER,
+       app_dest.iid(),
+       (void**)app_dest.get_address_of()));
+  
+  path += String::FromChar(0);
+  const wchar_t *buf = path.buffer_wchar();
+  if(!buf)
+    return E_OUTOFMEMORY;
+  
+  ComBase<IShellItem> item;
+  HR(SHCreateItemFromParsingName(buf, nullptr, item.iid(), (void**)item.get_address_of()));
+  
+  HR(app_dest->SetAppID(FileAssociationRegistry::app_user_model_id));
+  
+  HR(app_dest->RemoveDestination(item.get()));
+  
+  return S_OK;
+}
+
+//} ... ShellMenuItems

@@ -162,7 +162,6 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr);
 
 extern pmath_symbol_t richmath_Documentation_OpenDocumentationForSelection;
-extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_FE_ScopedCommand;
 extern pmath_symbol_t richmath_FrontEnd_FindStyleDefinition;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
@@ -181,6 +180,7 @@ extern pmath_symbol_t richmath_System_FileNames;
 extern pmath_symbol_t richmath_System_Infinity;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_MakeBoxes;
+extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
