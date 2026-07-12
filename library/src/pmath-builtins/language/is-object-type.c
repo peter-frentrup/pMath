@@ -1,5 +1,6 @@
 #include <pmath-core/packed-arrays-private.h>
 
+#include <pmath-util/data-types/byte-arrays.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -29,6 +30,10 @@ PMATH_PRIVATE pmath_t builtin_isheld(pmath_expr_t expr) {
 }
 
 PMATH_PRIVATE pmath_t builtin_call_isheld(pmath_expr_t expr) {
+// pmath> IsAtom(1+1)
+//        True
+// pmath> IsHeld(IsAtom)(1+1)
+//        False
   pmath_t obj;
   
   if(pmath_expr_length(expr) != 1) {
@@ -85,7 +90,41 @@ PMATH_PRIVATE pmath_t builtin_isatom(pmath_expr_t expr) {
   return pmath_ref(pmath_System_True);
 }
 
+PMATH_PRIVATE pmath_t builtin_isbytearray(pmath_expr_t expr) {
+// pmath> ByteArray({1,2,3})
+//        ByteArray(<< 3 bytes >>)
+//
+// pmath> IsByteArray(ByteArray({1,2,3}))
+//        True
+// pmath> IsAtom(ByteArray({1,2,3}))
+//        False
+  pmath_t obj;
+  
+  if(pmath_expr_length(expr) != 1) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  obj = pmath_expr_get_item(expr, 1);
+  pmath_unref(expr);
+  
+  if(pmath_is_byte_array(obj)) {
+    pmath_unref(obj);
+    return pmath_ref(pmath_System_True);
+  }
+  pmath_unref(obj);
+  return pmath_ref(pmath_System_False);
+}
+
 PMATH_PRIVATE pmath_t builtin_iscomplex(pmath_expr_t expr) {
+// pmath> IsComplex(ImaginaryI)
+//        True
+// pmath> IsComplex(x)
+//        IsComplex(x)
+// pmath> IsComplex(Pi)
+//        True
+// pmath> IsComplex({5})
+//        IsComplex({5})
   pmath_t obj;
   int clazz;
   

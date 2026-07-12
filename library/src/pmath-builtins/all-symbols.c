@@ -303,6 +303,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_bytearray(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isatom(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_isbytearray(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iscomplex(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iseven(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isexactnumber(    pmath_expr_t expr);
@@ -648,6 +649,7 @@ static pmath_bool_t init_builtin_security_doormen(void) {
  
   CHECK( pmath_security_register_doorman(builtin_bytearray,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_isatom,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_isbytearray,     PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_iscomplex,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_iseven,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_isexactnumber,   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -1057,6 +1059,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Intersection,                 builtin_intersection)
   BIND_DOWN(   pmath_System_IsArray,                      builtin_isarray)
   BIND_DOWN(   pmath_System_IsAtom,                       builtin_isatom)
+  BIND_DOWN(   pmath_System_IsByteArray,                  builtin_isbytearray)
   BIND_DOWN(   pmath_System_IsComplex,                    builtin_iscomplex)
   BIND_DOWN(   pmath_System_IsEven,                       builtin_iseven)
   BIND_DOWN(   pmath_System_IsExactNumber,                builtin_isexactnumber)

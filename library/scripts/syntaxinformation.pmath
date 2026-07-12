@@ -274,6 +274,7 @@
 {"Interval", {"ArgumentCount" -> 0..}}
 {"IsArray", {"ArgumentCount" -> 1..3}}
 {"IsAtom", {"ArgumentCount" -> 1}}
+{"IsByteArray", {"ArgumentCount" -> 1}}
 {"IsComplex", {"ArgumentCount" -> 1}}
 {"IsEven", {"ArgumentCount" -> 1}}
 {"IsExactNumber", {"ArgumentCount" -> 1}}

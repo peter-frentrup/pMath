@@ -481,6 +481,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( InverseWeierstrassP,                DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( Invisible,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( IsArray,                            0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( IsAtom,                             0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( IsByteArray,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( IsComplex,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( IsEven,                             LISTABLE )
 PMATH_DECLARE_SYSTEM_SYMBOL( IsExactNumber,                      0 )
