@@ -8,8 +8,12 @@ static pmath_bool_t sorted_contains(pmath_expr_t list, pmath_t item);
 
 
 PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr) {
-  /* Intersection(list1, list2, ...)
-   */
+// Intersection(list1, list2, ...)
+//
+// Examples:
+// pmath> Intersection({e,a,c,b}, {d,b,e})
+//        {b, e}
+//
   pmath_expr_t list;
   pmath_t item;
   size_t i, j, exprlen;
@@ -128,7 +132,9 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr) {
   pmath_unref(expr);
   
   // TODO: maybe use new expression instead of expr-part if much shorter than original length ?
-  return pmath_expr_get_item_range(list, 1, outlen);
+  expr = pmath_expr_get_item_range(list, 1, outlen);
+  pmath_unref(list);
+  return expr;
 }
 
 
