@@ -1,6 +1,7 @@
 #include <gui/document.h>
 
 #include <boxes/graphics/graphicsbox.h>
+#include <boxes/box-factory.h>
 #include <boxes/buttonbox.h>
 #include <boxes/fractionbox.h>
 #include <boxes/gridbox.h>
@@ -205,7 +206,7 @@ namespace richmath {
       
       Section *auto_make_text_or_math(Section *sect);
       
-      void paste_into_grid(GridBox *grid, GridIndexRect rect, MathSequence *seq); // will destroy seq
+      void paste_into_grid(GridBox *grid, GridIndexRect rect, AbstractSequence *seq); // will destroy seq
       
       static bool needs_sub_suberscript_parentheses(MathSequence *seq, int start, int end);
       
@@ -1922,7 +1923,7 @@ void Document::paste_from_boxes(Expr boxes) {
       if(grid->get_style(AutoNumberFormating))
         options |= BoxInputFlags::FormatNumbers;
         
-      MathSequence *tmp = new MathSequence;
+      AbstractSequence *tmp = BoxFactory::create_sequence(grid->layout_kind());
       tmp->load_from_object(boxes, options);
       
       Impl(*this).paste_into_grid(grid, rect, tmp); tmp = nullptr;
@@ -4476,7 +4477,7 @@ Section *Document::Impl::convert_content(Section *sect) {
   return new_sect;
 }
 
-void Document::Impl::paste_into_grid(GridBox *grid, GridIndexRect rect, MathSequence *seq){ // will destroy seq
+void Document::Impl::paste_into_grid(GridBox *grid, GridIndexRect rect, AbstractSequence *seq){ // will destroy seq
   if(seq->length() == 1 && seq->count() == 1) {
     if(GridBox *inner_grid = dynamic_cast<GridBox *>(seq->item(0))) {
       int ins_cols = inner_grid->cols();
