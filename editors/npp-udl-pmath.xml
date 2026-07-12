@@ -26,7 +26,103 @@
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
             <Keywords name="Keywords1">Case Do Else Function If Switch Where While</Keywords>
-            <Keywords name="Keywords2">$Canceled $Failed All Automatic Bottom Center EulerGamma ExponentialE False ImaginaryI Left None Pi Right Top True Undefined</Keywords>
+<!--  (evaluation as inline tests disabled, because collecting  allOptions  and  allWithUsage  is slow)
+pmat h> all:=              Sort(Names("System`*"));
+pmat h> allFunc:=          all.Select(Function(Developer`HasBuiltinCode(#, {DownRules, SubRules}) || DownRules(#)=!={} || SubRules(#)=!={}));
+pmat h> allRest:=          Complement(all, allFunc);
+pmat h> allUnknown:=       allRest.Select(Function(OwnRules(#).Match({(Rule|RuleDelayed)(~, ~:System`Private`AutoLoadStart)})));
+pmat h> allRest:=          Complement(allRest, allUnknown);
+pmat h> allValues:=        allRest.Select(Function(OwnRules(#) =!= {}));
+pmat h> allRest:=          Complement(allRest, allValues);
+pmat h> allOptions:=       Union @@ (Complement(all, allValues) |> Map(Function(Options(#)[All, 1] |> Map(Function(ToString(LongForm(#)))))));
+pmat h> allRest:=          Complement(allRest, allOptions);
+pmat h> allWithUsage:=     all.Select(Function(ToExpression({#, "::", "usage"}).IsString));
+pmat h> allConstSymbolic:= allRest.Select(Function(Attributes(#) === {Protected} && SyntaxInformation(#) === /\/));
+-->
+<Keywords name='Keywords2' gen='
+pmat h> Print("\[RawQuote]>"); Do(Print(StringReplace(s, StartOfString ++ "System`" -> "")), s->Intersection(allConstSymbolic, allWithUsage))
+    '>
+    $Aborted
+    $Canceled
+    $Failed
+    All
+    Associative
+    Automatic
+    Axis
+    Baseline
+    Bold
+    Bottom
+    Center
+    Character
+    DataRange
+    DeepHoldAll
+    DefiniteFunction
+    DigitCharacter
+    Directive
+    Directory
+    EndOfFile
+    EndOfLine
+    EndOfString
+    EulerGamma
+    ExponentialE
+    Expression
+    False
+    File
+    General
+    GoldenRatio
+    HoldAll
+    HoldAllComplete
+    HoldFirst
+    HoldRest
+    Inherited
+    Integer
+    InterceptKeyEvents
+    Invisible
+    Italic
+    Large
+    Left
+    LetterCharacter
+    Listable
+    MachinePrecision
+    MaxRecursion
+    Medium
+    NHoldAll
+    NHoldFirst
+    NHoldRest
+    None
+    Number
+    NumberString
+    NumericFunction
+    OneIdentity
+    Pi
+    Plain
+    PlotPoints
+    PlotStyle
+    Protected
+    Rational
+    ReadProtected
+    Real
+    Removed
+    Right
+    SequenceHold
+    Small
+    Special
+    StartOfLine
+    StartOfString
+    String
+    Symmetric
+    Syntax
+    Temporary
+    ThreadLocal
+    Tiny
+    Top
+    True
+    Undefined
+    WhitespaceCharacter
+    Word
+    WordBoundary
+    WordCharacter
+</Keywords>
             <Keywords name="Keywords3"></Keywords>
             <Keywords name="Keywords4"></Keywords>
             <Keywords name="Keywords5"></Keywords>
