@@ -14,33 +14,34 @@
             <Keywords name="Numbers, suffix1"></Keywords>
             <Keywords name="Numbers, suffix2"></Keywords>
             <Keywords name="Numbers, range"></Keywords>
-            <Keywords name="Operators1">( ) != += -= *= /= /: [ ] { }  ~~~ ~~ ~ ++ + -&gt; :&gt; || |&gt; | &amp;&amp; &amp; &lt;= &lt; &gt;= &gt; -- - *** ** * //= // /? / @ ::= :: := : === =  ! , ; .. ## #</Keywords>
+            <Keywords name="Operators1">( ) != += -= *= /= /: [ ] ~~~ ~~ ~ ++ + -&gt; :&gt; || |&gt; | &amp;&amp; &amp; &lt;= &lt; &gt;= &gt; -- - *** ** * //= // /? / @ ::= :: := : === =  ! , ; .. ## #</Keywords>
             <Keywords name="Operators2"></Keywords>
-            <Keywords name="Folders in code1, open">Begin</Keywords>
+            <Keywords name="Folders in code1, open">{</Keywords>
             <Keywords name="Folders in code1, middle"></Keywords>
-            <Keywords name="Folders in code1, close">End</Keywords>
-            <Keywords name="Folders in code2, open"></Keywords>
+            <Keywords name="Folders in code1, close">}</Keywords>
+            <Keywords name="Folders in code2, open">BeginPackage Begin</Keywords>
             <Keywords name="Folders in code2, middle"></Keywords>
-            <Keywords name="Folders in code2, close"></Keywords>
+            <Keywords name="Folders in code2, close">EndPackage End</Keywords>
             <Keywords name="Folders in comment, open"></Keywords>
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
-            <Keywords name="Keywords1">Case Do Else Function If Switch Where While</Keywords>
+            <Keywords name="Keywords1">Block Case Do Else Finally Function If Local Switch Try Where While With</Keywords>
 <!--  (evaluation as inline tests disabled, because collecting  allOptions  and  allWithUsage  is slow)
-pmat h> all:=              Sort(Names("System`*"));
-pmat h> allFunc:=          all.Select(Function(Developer`HasBuiltinCode(#, {DownRules, SubRules}) || DownRules(#)=!={} || SubRules(#)=!={}));
-pmat h> allRest:=          Complement(all, allFunc);
-pmat h> allUnknown:=       allRest.Select(Function(OwnRules(#).Match({(Rule|RuleDelayed)(~, ~:System`Private`AutoLoadStart)})));
-pmat h> allRest:=          Complement(allRest, allUnknown);
-pmat h> allValues:=        allRest.Select(Function(OwnRules(#) =!= {}));
-pmat h> allRest:=          Complement(allRest, allValues);
-pmat h> allOptions:=       Union @@ (Complement(all, allValues) |> Map(Function(Options(#)[All, 1] |> Map(Function(ToString(LongForm(#)))))));
-pmat h> allRest:=          Complement(allRest, allOptions);
-pmat h> allWithUsage:=     all.Select(Function(ToExpression({#, "::", "usage"}).IsString));
-pmat h> allConstSymbolic:= allRest.Select(Function(Attributes(#) === {Protected} && SyntaxInformation(#) === /\/));
+pma th> all:=              Sort(Names("System`*"));
+pma th> allFunc:=          all.Select(Function(Developer`HasBuiltinCode(#, {DownRules, SubRules}) || DownRules(#)=!={} || SubRules(#)=!={}));
+pma th> allRest:=          Complement(all, allFunc);
+pma th> allUnknown:=       allRest.Select(Function(OwnRules(#).Match({(Rule|RuleDelayed)(~, ~:System`Private`AutoLoadStart)})));
+pma th> allRest:=          Complement(allRest, allUnknown);
+pma th> allValues:=        allRest.Select(Function(OwnRules(#) =!= {}));
+pma th> allRest:=          Complement(allRest, allValues);
+pma th> allOptions:=       Union @@ (Complement(all, allValues) |> Map(Function(Options(#)[All, 1] |> Map(Function(ToString(LongForm(#)))))));
+pma th> allRest:=          Complement(allRest, allOptions);
+pma th> allFuncLike:=      all.Select(Function(Intersection({Protected}, Attributes(#)) === {Protected} && SyntaxInformation(#) =!= /\/));
+pma th> allWithUsage:=     all.Select(Function(ToExpression({#, "::", "usage"}).IsString));
+pma th> allConstSymbolic:= allRest.Select(Function(Attributes(#) === {Protected} && SyntaxInformation(#) === /\/));
 -->
 <Keywords name='Keywords2' gen='
-pmat h> Print("\[RawQuote]>"); Do(Print(StringReplace(s, StartOfString ++ "System`" -> "")), s->Intersection(allConstSymbolic, allWithUsage))
+pma th> Print("\[RawQuote]>"); Do(Print(StringReplace(s, StartOfString ++ "System`" -> "")), s->Intersection(allConstSymbolic, allWithUsage))
     '>
     $Aborted
     $Canceled
@@ -123,7 +124,679 @@ pmat h> Print("\[RawQuote]>"); Do(Print(StringReplace(s, StartOfString ++ "Syste
     WordBoundary
     WordCharacter
 </Keywords>
-            <Keywords name="Keywords3"></Keywords>
+<Keywords name='Keywords3' gen='
+pma th> Print("\[RawQuote]>"); Do(Print(StringReplace(s, StartOfString ++ "System`" -> "")), s->allFuncLike)
+    '>
+    Abort
+    Abs
+    AbsArg
+    AffineTransform
+    AiryAi
+    AiryAiPrime
+    AiryBi
+    AiryBiPrime
+    Alternatives
+    And
+    Append
+    Apply
+    ArcCos
+    ArcCosh
+    ArcCot
+    ArcCoth
+    ArcCsc
+    ArcCsch
+    ArcSec
+    ArcSech
+    ArcSin
+    ArcSinh
+    ArcTan
+    ArcTanh
+    Arg
+    ArithmeticGeometricMean
+    Array
+    Assign
+    AssignDelayed
+    AssignWith
+    BaseForm
+    Begin
+    BeginPackage
+    BernoulliB
+    BesselI
+    BesselJ
+    BesselK
+    BesselY
+    BezierCurve
+    BezierCurveBox
+    BinaryRead
+    BinaryReadList
+    BinaryWrite
+    Binomial
+    BitAnd
+    BitClear
+    BitGet
+    BitLength
+    BitNot
+    BitOr
+    BitSet
+    BitShiftLeft
+    BitShiftRight
+    BitXor
+    Block
+    Boole
+    BoxData
+    Break
+    Button
+    ButtonBox
+    ByteArray
+    ByteArrayToInputOutputStreams
+    ByteArrayToStream
+    ByteCount
+    CapForm
+    Cases
+    Catch
+    Ceiling
+    Characters
+    ChebyshevT
+    ChebyshevU
+    Checkbox
+    CheckboxBox
+    Chop
+    Circle
+    CircleBox
+    CirclePlus
+    CircleTimes
+    Clear
+    ClearAll
+    ClearAttributes
+    Clip
+    Clock
+    Close
+    Colon
+    ColonForm
+    Column
+    Complement
+    Complex
+    Compress
+    CompressStream
+    CompressedData
+    Condition
+    ConditionalExpression
+    Congruent
+    Conjugate
+    Continue
+    ControlActive
+    CopyDirectory
+    CopyFile
+    Cos
+    CosIntegral
+    Cosh
+    CoshIntegral
+    Cot
+    Coth
+    Count
+    CreateDirectory
+    CreateDocument
+    Cross
+    Csc
+    Csch
+    CupCap
+    CurrentValue
+    Dashing
+    DateList
+    Decrement
+    Default
+    DefaultRules
+    DeleteDirectory
+    DeleteFile
+    Depth
+    Det
+    Dialog
+    Dimensions
+    DirectedInfinity
+    DirectoryName
+    Disk
+    DiskBox
+    Divide
+    DivideBy
+    Do
+    Document
+    DocumentApply
+    DocumentClose
+    DocumentDelete
+    DocumentGet
+    DocumentObject
+    DocumentRead
+    DocumentSave
+    DocumentWrite
+    Documents
+    Dot
+    DotEqual
+    DoubleDownArrow
+    DoubleLeftArrow
+    DoubleLeftRightArrow
+    DoubleLowerLeftArrow
+    DoubleLowerRightArrow
+    DoubleRightArrow
+    DoubleUpArrow
+    DoubleUpDownArrow
+    DoubleUpperLeftArrow
+    DoubleUpperRightArrow
+    DownArrow
+    DownRules
+    Drop
+    Dynamic
+    DynamicBox
+    DynamicLocal
+    DynamicLocalBox
+    DynamicSetting
+    EdgeForm
+    Element
+    Emit
+    End
+    EndPackage
+    Environment
+    Equal
+    Erf
+    Erfc
+    Erfi
+    ErrorBox
+    Evaluate
+    EvaluateDelayed
+    EvaluationBox
+    EvaluationDocument
+    EvaluationSequence
+    Except
+    Exp
+    ExpIntegralEi
+    Expand
+    ExpandAll
+    ExtendedGCD
+    Extract
+    Factorial
+    FileByteCount
+    FileInformation
+    FileNames
+    FileType
+    FillBox
+    Filler
+    FilterRules
+    Finally
+    Find
+    FindList
+    First
+    FixedPoint
+    FixedPointList
+    Flatten
+    Floor
+    Fold
+    FoldList
+    Format
+    FormatRules
+    FractionBox
+    FractionalPart
+    FrameBox
+    Framed
+    FresnelC
+    FresnelS
+    FromCharacterCode
+    FrontEndObject
+    FrontEndTokenExecute
+    FullForm
+    Function
+    GCD
+    Gamma
+    Gather
+    Get
+    Goto
+    Graphics
+    GrayLevel
+    Greater
+    GreaterEqual
+    GreaterEqualLess
+    GreaterFullEqual
+    GreaterGreater
+    GreaterLess
+    GreaterTilde
+    Grid
+    GridBox
+    HankelH1
+    HankelH2
+    Hash
+    Head
+    HermiteH
+    Highlighted
+    Hold
+    HoldComplete
+    HoldForm
+    HoldPattern
+    HorizontalForm
+    Hue
+    HumpDownHump
+    HumpEqual
+    Hypergeometric0F1
+    Hypergeometric0F1Regularized
+    Hypergeometric1F1
+    Hypergeometric1F1Regularized
+    Hypergeometric2F1
+    Hypergeometric2F1Regularized
+    HypergeometricPFQ
+    HypergeometricPFQRegularized
+    Identical
+    Identity
+    If
+    Im
+    Increment
+    Inequation
+    Inner
+    InputField
+    InputFieldBox
+    InputForm
+    IntegerPart
+    Interpretation
+    InterpretationBox
+    Interrupt
+    Intersection
+    Interval
+    IsArray
+    IsAtom
+    IsByteArray
+    IsComplex
+    IsEven
+    IsExactNumber
+    IsFloat
+    IsFreeOf
+    IsHeld
+    IsImaginary
+    IsInexactNumber
+    IsInteger
+    IsKnownUnit
+    IsMachineNumber
+    IsMatrix
+    IsNegative
+    IsNonNegative
+    IsNonPositive
+    IsNumber
+    IsNumeric
+    IsOdd
+    IsOption
+    IsOrdered
+    IsPositive
+    IsPrime
+    IsQuotient
+    IsRational
+    IsReal
+    IsString
+    IsSymbol
+    IsValidArgumentCount
+    IsVector
+    JacobiSymbol
+    Join
+    JoinForm
+    Key
+    KeyValuePattern
+    Keys
+    KroneckerSymbol
+    LCM
+    LUDecomposition
+    Label
+    Last
+    LeafCount
+    LeftArrow
+    LeftRightArrow
+    LeftTriangle
+    LeftTriangleEqual
+    Length
+    LengthWhile
+    Less
+    LessEqual
+    LessFullEqual
+    LessGreater
+    LessLess
+    LessTilde
+    Level
+    Line
+    LinearFractionalTransform
+    LinearSolve
+    ListConvolve
+    ListLinePlot
+    Literal
+    LoadLibrary
+    Local
+    Log
+    LogGamma
+    LogIntegral
+    LongForm
+    Longest
+    Lookup
+    LowerLeftArrow
+    LowerRightArrow
+    MakeBoxes
+    MakeExpression
+    Map
+    MapIndexed
+    MapThread
+    Match
+    MatrixForm
+    Max
+    Mean
+    MemoryUsage
+    Menu
+    Message
+    MessageName
+    Messages
+    Min
+    MinMax
+    Minus
+    MinusPlus
+    Missing
+    Mod
+    Most
+    NRules
+    Names
+    Namespace
+    Nest
+    NestList
+    NestWhile
+    NestWhileList
+    NewTask
+    NextPrime
+    Norm
+    Normal
+    Normalize
+    Not
+    NotCongruent
+    NotCupCap
+    NotElement
+    NotGreater
+    NotGreaterEqual
+    NotGreaterLess
+    NotGreaterTilde
+    NotLeftTriangle
+    NotLeftTriangleEqual
+    NotLess
+    NotLessEqual
+    NotLessGreater
+    NotLessTilde
+    NotPrecedes
+    NotPrecedesEqual
+    NotReverseElement
+    NotRightTriangle
+    NotRightTriangleEqual
+    NotSubset
+    NotSubsetEqual
+    NotSucceeds
+    NotSucceedsEqual
+    NotSuperset
+    NotSupersetEqual
+    Numericalize
+    Off
+    On
+    OpenAppend
+    OpenRead
+    OpenWrite
+    Opener
+    OpenerBox
+    OpenerView
+    Operate
+    OptionValue
+    Optional
+    Options
+    OptionsPattern
+    Or
+    Ordering
+    OutputForm
+    Overflow
+    Overscript
+    OverscriptBox
+    OwnRules
+    PadLeft
+    PadRight
+    Pane
+    PaneBox
+    PaneSelector
+    PaneSelectorBox
+    Panel
+    PanelBox
+    ParallelMap
+    ParallelMapIndexed
+    ParallelScan
+    ParallelTry
+    ParametricPlot
+    ParentDirectory
+    ParenthesizeBoxes
+    Part
+    Partition
+    Pattern
+    PatternSequence
+    Pause
+    Piecewise
+    Placeholder
+    Plot
+    Plus
+    PlusMinus
+    Point
+    PointSize
+    PolyGamma
+    Position
+    PostDecrement
+    PostIncrement
+    Power
+    Precedes
+    PrecedesEqual
+    PrecedesTilde
+    Precision
+    Prepend
+    Print
+    Product
+    ProgressIndicator
+    ProgressIndicatorBox
+    Protect
+    PureArgument
+    QRDecomposition
+    Quantile
+    Quantity
+    QuantityMagnitude
+    QuantityUnit
+    Quit
+    Quotient
+    RGBColor
+    RadicalBox
+    RadioButton
+    RadioButtonBar
+    RadioButtonBox
+    RandomInteger
+    RandomReal
+    Range
+    RawBoxes
+    Re
+    ReGather
+    ReIm
+    Read
+    ReadList
+    Rectangle
+    RectangleBox
+    ReflectionMatrix
+    ReflectionTransform
+    RegularExpression
+    ReleaseHold
+    Remove
+    RenameDirectory
+    RenameFile
+    Repeated
+    Replace
+    ReplaceList
+    ReplacePart
+    ReplaceRepeated
+    Rescale
+    ResetDirectory
+    Rest
+    Return
+    Reverse
+    ReverseElement
+    Riffle
+    RightTriangle
+    RightTriangleEqual
+    Rotate
+    RotationBox
+    RotationMatrix
+    RotationTransform
+    Round
+    Row
+    Rule
+    RuleDelayed
+    Scaled
+    ScalingMatrix
+    ScalingTransform
+    Scan
+    Sec
+    Sech
+    Section
+    SectionGroup
+    SectionPrint
+    Select
+    SelectedDocument
+    Sequence
+    SetAttributes
+    SetDirectory
+    SetOptions
+    SetPrecision
+    Setter
+    SetterBar
+    SetterBox
+    Setting
+    Shallow
+    ShearingMatrix
+    ShearingTransform
+    Short
+    Shortest
+    ShowDefinition
+    Sign
+    Sin
+    SinIntegral
+    Sinc
+    SingleMatch
+    Sinh
+    SinhIntegral
+    Skeleton
+    Slider
+    SliderBox
+    Sort
+    SortBy
+    Spacer
+    Split
+    Sqrt
+    SqrtBox
+    Stack
+    StandardForm
+    StringCases
+    StringCount
+    StringDrop
+    StringExpression
+    StringForm
+    StringMatch
+    StringPosition
+    StringReplace
+    StringSplit
+    StringTake
+    StringToBoxes
+    StringToInputOutputStreams
+    StringToStream
+    Style
+    StyleBox
+    StyleData
+    SubRules
+    SubscriptBox
+    Subset
+    SubsetEqual
+    SubsuperscriptBox
+    Succeeds
+    SucceedsEqual
+    SucceedsTilde
+    Sum
+    SuperscriptBox
+    Superset
+    SupersetEqual
+    Switch
+    Symbol
+    SymbolName
+    Synchronize
+    SyntaxInformation
+    SystemException
+    SystemOpen
+    TabView
+    Table
+    TagAssign
+    TagAssignDelayed
+    TagBox
+    TagUnassign
+    Take
+    TakeDrop
+    TakeWhile
+    Tan
+    Tanh
+    TemplateBox
+    TemplateSlot
+    TemplateSlotSequence
+    TestPattern
+    Text
+    TextData
+    Thickness
+    Thread
+    Through
+    Throw
+    TimeConstrained
+    Times
+    TimesBy
+    Timing
+    ToBoxes
+    ToCharacterCode
+    ToExpression
+    ToFileName
+    ToString
+    ToggleSwitch
+    Tooltip
+    TooltipBox
+    Total
+    TransformationBox
+    TransformationFunction
+    TransformationMatrix
+    Transpose
+    TrustedFunction
+    Try
+    Unassign
+    Uncompress
+    UncompressStream
+    Underflow
+    Underoverscript
+    UnderoverscriptBox
+    Underscript
+    UnderscriptBox
+    Unequal
+    Unevaluated
+    Unidentical
+    Union
+    UnitConvert
+    UnitDimensions
+    UnitKind
+    UnitKindObject
+    UnitVector
+    UnixTime
+    Unprotect
+    UpArrow
+    UpDownArrow
+    UpRules
+    UpTo
+    UpperLeftArrow
+    UpperRightArrow
+    Wait
+    Which
+    While
+    With
+    Write
+    WriteString
+    Xor
+    Zeta
+</Keywords>
             <Keywords name="Keywords4"></Keywords>
             <Keywords name="Keywords5"></Keywords>
             <Keywords name="Keywords6"></Keywords>
@@ -138,15 +811,15 @@ pmat h> Print("\[RawQuote]>"); Do(Print(StringReplace(s, StartOfString ++ "Syste
             <WordsStyle name="NUMBERS" fgColor="FF8000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS1" fgColor="800000" bgColor="FFFFFF" fontStyle="1" nesting="0" />
             <WordsStyle name="KEYWORDS2" fgColor="000000" bgColor="FFFFFF" fontStyle="1" nesting="0" />
-            <WordsStyle name="KEYWORDS3" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS3" fgColor="804040" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS4" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS5" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS6" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS7" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="KEYWORDS8" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="OPERATORS" fgColor="000000" bgColor="FFFFFF" fontStyle="1" nesting="0" />
-            <WordsStyle name="FOLDER IN CODE1" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
-            <WordsStyle name="FOLDER IN CODE2" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE1" fgColor="000000" bgColor="FFFFFF" fontStyle="1" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE2" fgColor="800000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="FOLDER IN COMMENT" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="DELIMITERS1" fgColor="FF00FF" bgColor="FFFFFF" fontStyle="0" nesting="0" />
             <WordsStyle name="DELIMITERS2" fgColor="000000" bgColor="FFFFFF" fontStyle="0" nesting="0" />
