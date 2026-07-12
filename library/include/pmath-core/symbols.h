@@ -78,13 +78,13 @@ enum {
   
   /**\hideinitializer
      The first argument (a) of `sym(a,b,...)` will not be affected by
-     `Approximate(sym(a,b,...))`.
+     `Numericalize(sym(a,b,...))`.
    */
   PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST = 1 << 5,
   
   /**\hideinitializer
      All the arguments b,... in `sym(a,b,...)` will not be affected by
-     `Approximate(sym(a,b,...))`.
+     `Numericalize(sym(a,b,...))`.
    */
   PMATH_SYMBOL_ATTRIBUTE_NHOLDREST = 1 << 6,
   
