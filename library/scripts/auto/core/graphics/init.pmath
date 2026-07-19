@@ -6,6 +6,7 @@ System`Graphics`MakeGraphicsBoxes
 System`Graphics`MakeGraphicsBoxesOptions
 System`Graphics`MakeGraphicsExpression
 System`Graphics`MakeGraphicsExpressionOptions
+System`Graphics`ToGraphicsBoxes
 
 System`CombineGraphics
 System`ListLinePlot
@@ -42,6 +43,7 @@ Attributes(MakeGraphicsBoxes):=             {HoldAllComplete, Protected}
 Attributes(MakeGraphicsBoxesOptions):=      {HoldAllComplete, Protected}
 Attributes(MakeGraphicsExpression):=        {HoldAllComplete, Protected}
 Attributes(MakeGraphicsExpressionOptions):= {HoldAllComplete, Protected}
+Attributes(ToGraphicsBoxes):=               {Protected}
 
 Attributes(Plot):= {HoldAll, Protected}
 
@@ -49,7 +51,7 @@ Unprotect(BezierCurve, BezierCurveBox)
 Options(BezierCurve):= Options(BezierCurveBox):= {SplineClosed -> False, SplineDegree -> 3}
 Protect(BezierCurve, BezierCurveBox)
 
-AutoLoad(Hold(MakeGraphicsBoxes, MakeGraphicsBoxesOptions), 
+AutoLoad(Hold(MakeGraphicsBoxes, MakeGraphicsBoxesOptions, ToGraphicsBoxes), 
 	ToFileName(DirectoryName($Input), "makegraphicsboxes.pmath"))
 
 AutoLoad(Hold(MakeGraphicsExpression, MakeGraphicsExpressionOptions),

@@ -3,12 +3,15 @@ BeginPackage("System`Graphics`")
 
 MakeGraphicsBoxes
 MakeGraphicsBoxesOptions
+ToGraphicsBoxes
 
 Begin("System`Graphics`Private`")
 
 % Prepare inline tests:
 % pmath> Get("System`Graphics`"); MakeGraphicsBoxes; $Namespace:= "System`Graphics`Private`";
 
+
+ToGraphicsBoxes(~x)::= ReleaseHold(MakeGraphicsBoxes(x))
 
 MakeGraphicsBoxes(~x)            ::= HoldComplete(x);
 
@@ -19,6 +22,9 @@ MakeGraphicsBoxes(Disk(~~~args))       ::= HoldComplete(DiskBox(args))
 MakeGraphicsBoxes(Line(~~~args))       ::= HoldComplete(LineBox(args))
 MakeGraphicsBoxes(Point(~~~args) )     ::= HoldComplete(PointBox(args))
 MakeGraphicsBoxes(Rectangle(~~~args) ) ::= HoldComplete(RectangleBox(args))
+
+
+MakeGraphicsBoxes(Dynamic(~var, ~~~opts)) ::= HoldComplete(DynamicBox(var // ToGraphicsBoxes, opts))
 
 Function MakeGraphicsBoxes(Style(~x, ~~~opts)) {
 	With(inner:=   MakeGraphicsBoxes(x))

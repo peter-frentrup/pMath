@@ -871,6 +871,7 @@
 		<Unit filename="include/boxes/graphics/axisticks.h" />
 		<Unit filename="include/boxes/graphics/beziercurvebox.h" />
 		<Unit filename="include/boxes/graphics/circleordiskbox.h" />
+		<Unit filename="include/boxes/graphics/dynamicgraphicsbox.h" />
 		<Unit filename="include/boxes/graphics/graphicsbox.h" />
 		<Unit filename="include/boxes/graphics/graphicsdirective.h" />
 		<Unit filename="include/boxes/graphics/graphicsdrawingcontext.h" />
@@ -1639,6 +1640,7 @@
 		<Unit filename="src/boxes/graphics/axisticks.cpp" />
 		<Unit filename="src/boxes/graphics/beziercurvebox.cpp" />
 		<Unit filename="src/boxes/graphics/circleordiskbox.cpp" />
+		<Unit filename="src/boxes/graphics/dynamicgraphicsbox.cpp" />
 		<Unit filename="src/boxes/graphics/graphicsbox.cpp" />
 		<Unit filename="src/boxes/graphics/graphicsdirective.cpp" />
 		<Unit filename="src/boxes/graphics/graphicsdrawingcontext.cpp" />

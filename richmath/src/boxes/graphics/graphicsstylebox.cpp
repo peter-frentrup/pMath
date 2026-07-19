@@ -103,6 +103,9 @@ void GraphicsStyleBox::find_extends(GraphicsBounds &bounds) {
 }
 
 void GraphicsStyleBox::dynamic_updated() {
+  if(must_update())
+    return;
+    
   must_update(true);
   base::dynamic_updated();
 }

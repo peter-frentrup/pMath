@@ -3,6 +3,7 @@ BeginPackage("System`Graphics`")
 
 MakeGraphicsExpression
 MakeGraphicsExpressionOptions
+ToGraphicsBoxes
 
 Begin("System`Graphics`Private`")
 
@@ -25,6 +26,8 @@ MakeGraphicsExpression(RectangleBox(~~~args))      ::= HoldComplete(Rectangle(ar
 MakeGraphicsExpression(~c: RGBColor)               ::= HoldComplete(c)
 MakeGraphicsExpression(~c: Hue)                    ::= HoldComplete(c)
 MakeGraphicsExpression(~c: GrayLevel)              ::= HoldComplete(c)
+
+MakeGraphicsExpression(DynamicBox(ToGraphicsBoxes(~var), ~~~boxopts))::= HoldComplete(Dynamic(var, boxopts))
 
 Function MakeGraphicsExpression(StyleBox(~inner, ~~~boxopts)) {
 	With(innerExpr:= MakeGraphicsExpression(inner))
