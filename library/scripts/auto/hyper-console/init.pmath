@@ -21,7 +21,7 @@ Protect(ShowDefinition)
 
 
 Function PrintWelcomeMessage() {
-    Print("Welcome to pMath.");
+    Print("Welcome to ", Style("pMath", Italic), ".");
 
 	PrintHelpMessage();
 }
