@@ -18,6 +18,7 @@ RICHMATH_DECLARE_STRING( ShowHideMenu_label,           "&Menu bar" )
 RICHMATH_DECLARE_STRING( SearchMenuNoMatch_label,      "(no match)" )
 RICHMATH_DECLARE_STRING( linebreak_cr_nl,              "\r\n" )
 RICHMATH_DECLARE_STRING( linebreak_nl,                 "\n" )
+RICHMATH_DECLARE_STRING( Error_BadGraphicsElement,     "`` is not a valid Graphics directive or primitive." )
 
 RICHMATH_DECLARE_NAME_STRING( AddressBand )
 RICHMATH_DECLARE_NAME_STRING( AttachedPopupWindow )

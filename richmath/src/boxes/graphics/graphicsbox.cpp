@@ -12,6 +12,8 @@
 #include <boxes/section.h>
 #include <boxes/stylebox.h>
 
+#include <eval/eval-contexts.h>
+
 #include <graphics/context.h>
 
 #include <gui/document.h>
@@ -49,9 +51,11 @@ extern pmath_symbol_t richmath_System_Center;
 extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_GraphicsBox;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_MakeBoxes;
 extern pmath_symbol_t richmath_System_NCache;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Range;
+extern pmath_symbol_t richmath_System_Row;
 extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Top;
 extern pmath_symbol_t richmath_System_True;
@@ -273,7 +277,7 @@ void GraphicsBox::resize(Context &context) {
 }
 
 void GraphicsBox::paint(Context &context) {
-  error_boxes_expr = Expr();
+  bool had_errors = errors_expr.is_valid();
   
   update_dynamic_styles_on_paint(context);
   
@@ -305,8 +309,12 @@ void GraphicsBox::paint(Context &context) {
         p0.y -= _extents.ascent;
         p0 = context.canvas().align_point(p0, false);
         
-        if(error_boxes_expr.is_valid())
-          context.draw_error_rect({p0, Vector2F{w, h}});
+        if(had_errors)
+          context.draw_error_rect(
+            p0.x + 0.75f, 
+            p0.y + 0.75f,
+            p0.x + w,
+            p0.y + h);
           
         context.canvas().save();
         {
@@ -342,6 +350,11 @@ void GraphicsBox::paint(Context &context) {
           elements.paint(gc);
           
           context.canvas().set_color(old_color);
+          
+          errors_expr = gc.error_list;
+          bool has_errors_now = errors_expr.is_valid();
+          if(has_errors_now != had_errors)
+            request_repaint_all();
         }
         context.canvas().restore();
         
@@ -534,14 +547,26 @@ Box *GraphicsBox::mouse_sensitive() {
 }
 
 void GraphicsBox::on_mouse_enter() {
-  if(error_boxes_expr.is_valid()) {
-    if(auto doc = find_parent<Document>(false))
-      doc->native()->show_tooltip(this, error_boxes_expr);
+  if(errors_expr.is_valid()) {
+    if(auto doc = find_parent<Document>(false)) {
+      Expr boxes = Call(Symbol(richmath_System_MakeBoxes),
+          Call(Symbol(richmath_System_Row),
+            errors_expr,
+            String("\n")));
+      
+      boxes = EvaluationContexts::prepare_namespace_for(PMATH_CPP_MOVE(boxes), this);
+      
+      boxes = Application::interrupt_wait_cached(boxes);
+      
+      toolip_visible(true);
+      doc->native()->show_tooltip(this, boxes);
+    }
   }
 }
 
 void GraphicsBox::on_mouse_exit() {
-  if(error_boxes_expr.is_valid()) {
+  if(toolip_visible()) {
+    toolip_visible(false);
     if(auto doc = find_parent<Document>(false))
       doc->native()->hide_tooltip();
   }

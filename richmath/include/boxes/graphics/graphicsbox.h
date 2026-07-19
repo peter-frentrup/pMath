@@ -69,7 +69,7 @@ namespace richmath {
       virtual void on_mouse_down(MouseEvent &event) override;
       virtual void on_mouse_move(MouseEvent &event) override;
       virtual void on_mouse_up(MouseEvent &event) override;
-    
+      
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
@@ -79,6 +79,7 @@ namespace richmath {
       enum {
         UserHasChangedSizeBit = base::NumFlagsBits,
         IsCurrentlyResizingBit,
+        TooltipVisibleBit,
         
         NumFlagsBits
       };
@@ -89,7 +90,9 @@ namespace richmath {
       void user_has_changed_size(bool value) {   change_flag(UserHasChangedSizeBit, value); }
       bool is_currently_resizing() {       return get_flag(IsCurrentlyResizingBit); }
       void is_currently_resizing(bool value) { change_flag(IsCurrentlyResizingBit, value); }
-    
+      bool toolip_visible() {       return get_flag(TooltipVisibleBit); }
+      void toolip_visible(bool value) { change_flag(TooltipVisibleBit, value); }
+      
     private:
       int   mouse_over_part; // GraphicsPartXXX
       float mouse_down_x;
@@ -105,7 +108,7 @@ namespace richmath {
       
       SharedPtr<Buffer>         cached_bitmap;
       GraphicsElementCollection elements;
-      Expr                      error_boxes_expr;
+      Expr                      errors_expr;
   };
 }
 

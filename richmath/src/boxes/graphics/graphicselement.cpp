@@ -22,6 +22,10 @@
 #endif
 
 
+namespace richmath { namespace strings {
+  extern String Error_BadGraphicsElement;
+}}
+
 using namespace richmath;
 using namespace std;
 
@@ -32,6 +36,7 @@ extern pmath_symbol_t richmath_System_LineBox;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_PointBox;
 extern pmath_symbol_t richmath_System_RectangleBox;
+extern pmath_symbol_t richmath_System_StringForm;
 extern pmath_symbol_t richmath_System_StyleBox;
 
 namespace {
@@ -41,6 +46,9 @@ namespace {
         : GraphicsElement(),
           _expr(expr)
       {
+        _error_message = Call(Symbol(richmath_System_StringForm), 
+          strings::Error_BadGraphicsElement, 
+          _expr.is_expr() ? _expr[0] : _expr);
       }
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override {
@@ -51,6 +59,7 @@ namespace {
       }
       
       virtual void paint(GraphicsDrawingContext &gc) override {
+        gc.add_paint_error(_error_message);
       }
       
     protected:
@@ -58,6 +67,7 @@ namespace {
       
     private:
       Expr _expr;
+      Expr _error_message;
   };
 }
 

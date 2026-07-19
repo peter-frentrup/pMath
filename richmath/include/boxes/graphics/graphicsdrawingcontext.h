@@ -19,7 +19,10 @@ namespace richmath {
       void apply_thickness(Length thickness);
       void fill_with_edgeform();
       
+      void add_paint_error(Expr error); 
+      
     public:
+      Expr          error_list;
       Array<double> edge_dash_array;
       double        edge_dash_offset;
       enum CapForm  edge_capform;

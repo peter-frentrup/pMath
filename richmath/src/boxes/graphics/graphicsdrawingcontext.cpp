@@ -6,6 +6,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_List;
+
 //{ class GraphicsDrawingContext ...
 
 GraphicsDrawingContext::GraphicsDrawingContext(Box &owner, Context &context)
@@ -66,6 +68,20 @@ void GraphicsDrawingContext::fill_with_edgeform() {
   canvas().stroke();
   canvas().set_color(c);
   canvas().restore();
+}
+
+void GraphicsDrawingContext::add_paint_error(Expr error) {
+  if(error_list.item_equals(0, richmath_System_List)) {
+    size_t num_errors = error_list.expr_length();
+    if(num_errors < 10) {
+      error_list.append(error);
+    } else if(num_errors == 10) {
+      uint16_t ellipsis = 0x2026;
+      error_list.append(String::FromUcs2(&ellipsis, 1));
+    }
+  } else {
+    error_list = List(error);
+  }
 }
 
 //} ... class GraphicsDrawingContext
