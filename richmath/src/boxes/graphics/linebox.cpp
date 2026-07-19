@@ -1,6 +1,7 @@
 #include <boxes/graphics/linebox.h>
 
 #include <boxes/graphics/graphicsdrawingcontext.h>
+#include <boxes/graphics/graphicserrorbox.h>
 #include <graphics/canvas.h>
 #include <util/double-point.h>
 
@@ -55,6 +56,16 @@ LineBox *LineBox::try_create(Expr expr, BoxInputFlags opts) {
   }
   
   return box;
+}
+
+GraphicsElement *LineBox::create_or_error(Expr expr, BoxInputFlags opts) {
+  if(LineBox *box = try_create(expr, opts))
+    return box;
+  
+  if(expr.expr_length() < 1)
+    return new GraphicsErrorBox(expr, GraphicsErrorBox::message_argxxx(expr, 1, 1));
+  
+  return new GraphicsErrorBox(expr, GraphicsErrorBox::message_badarg(expr));
 }
 
 void LineBox::find_extends(GraphicsBounds &bounds) {

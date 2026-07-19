@@ -1,5 +1,6 @@
 #include <boxes/graphics/graphicsdirective.h>
 #include <boxes/graphics/graphicsdrawingcontext.h>
+#include <boxes/graphics/graphicserrorbox.h>
 
 #include <graphics/canvas.h>
 #include <graphics/context.h>
@@ -121,6 +122,13 @@ GraphicsDirective *GraphicsDirective::try_create(Expr expr, BoxInputFlags opts) 
   }
   
   return box;
+}
+
+GraphicsElement *GraphicsDirective::create_or_error(Expr expr, BoxInputFlags opts) {
+  if(GraphicsDirective *box = try_create(expr, opts))
+    return box;
+  
+  return new GraphicsErrorBox(expr, GraphicsErrorBox::message_badhead(expr));
 }
 
 void GraphicsDirective::paint(GraphicsDrawingContext &gc) {

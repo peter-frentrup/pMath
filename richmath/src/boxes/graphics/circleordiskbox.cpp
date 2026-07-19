@@ -1,6 +1,7 @@
 #include <boxes/graphics/circleordiskbox.h>
 
 #include <boxes/graphics/graphicsdrawingcontext.h>
+#include <boxes/graphics/graphicserrorbox.h>
 #include <graphics/canvas.h>
 #include <util/double-point.h>
 
@@ -131,6 +132,16 @@ CircleOrDiskBox *CircleOrDiskBox::try_create(Expr expr, BoxInputFlags opts) {
   }
   
   return box;
+}
+
+GraphicsElement *CircleOrDiskBox::create_or_error(Expr expr, BoxInputFlags opts) {
+  if(CircleOrDiskBox *box = try_create(expr, opts))
+    return box;
+  
+  if(expr.expr_length() > 3)
+    return new GraphicsErrorBox(expr, GraphicsErrorBox::message_argxxx(expr, 0, 3));
+  
+  return new GraphicsErrorBox(expr, GraphicsErrorBox::message_badarg(expr));
 }
 
 void CircleOrDiskBox::find_extends(GraphicsBounds &bounds) {

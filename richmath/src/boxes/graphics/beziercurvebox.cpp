@@ -1,6 +1,7 @@
 #include <boxes/graphics/beziercurvebox.h>
 
 #include <boxes/graphics/graphicsdrawingcontext.h>
+#include <boxes/graphics/graphicserrorbox.h>
 #include <graphics/canvas.h>
 #include <util/double-point.h>
 #include <eval/application.h>
@@ -57,6 +58,17 @@ bool BezierCurveBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   finish_load_from_object(PMATH_CPP_MOVE(expr));
   return true;
+}
+
+GraphicsElement *BezierCurveBox::create_or_error(Expr expr, BoxInputFlags opts) {
+  if(BezierCurveBox *box = try_create(expr, opts))
+    return box;
+  
+  // better would be to catch Message(...)
+  if(expr.expr_length() < 1)
+    return new GraphicsErrorBox(expr, GraphicsErrorBox::message_argxxx(expr, 1, 1));
+  
+  return new GraphicsErrorBox(expr, GraphicsErrorBox::message_badarg(expr));
 }
 
 BezierCurveBox *BezierCurveBox::try_create(Expr expr, BoxInputFlags opts) {

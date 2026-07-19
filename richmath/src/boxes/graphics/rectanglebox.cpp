@@ -1,6 +1,7 @@
 #include <boxes/graphics/rectanglebox.h>
 
 #include <boxes/graphics/graphicsdrawingcontext.h>
+#include <boxes/graphics/graphicserrorbox.h>
 #include <graphics/canvas.h>
 
 #include <algorithm>
@@ -87,6 +88,13 @@ RectangleBox *RectangleBox::try_create(Expr expr, BoxInputFlags opts) {
   }
   
   return box;
+}
+
+GraphicsElement *RectangleBox::create_or_error(Expr expr, BoxInputFlags opts) {
+  if(RectangleBox *box = try_create(expr, opts))
+    return box;
+  
+  return new GraphicsErrorBox(expr, GraphicsErrorBox::message_badarg(expr));
 }
 
 void RectangleBox::find_extends(GraphicsBounds &bounds) {

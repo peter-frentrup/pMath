@@ -16,8 +16,9 @@ namespace richmath {
       static void apply(Expr directive, GraphicsDrawingContext &gc);
       static void apply_to_style(Expr directive, Style &style);
       
-      static GraphicsDirective *try_create(Expr expr, BoxInputFlags opts);
       static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;
+      static GraphicsElement *create_or_error(Expr expr, BoxInputFlags opts);
+      static GraphicsDirective *try_create(Expr expr, BoxInputFlags opts);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

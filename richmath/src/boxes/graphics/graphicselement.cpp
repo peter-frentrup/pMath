@@ -2,6 +2,7 @@
 
 #include <boxes/graphics/graphicsdirective.h>
 #include <boxes/graphics/graphicsdrawingcontext.h>
+#include <boxes/graphics/graphicserrorbox.h>
 #include <boxes/graphics/graphicsstylebox.h>
 #include <boxes/graphics/beziercurvebox.h>
 #include <boxes/graphics/circleordiskbox.h>
@@ -22,10 +23,6 @@
 #endif
 
 
-namespace richmath { namespace strings {
-  extern String Error_BadGraphicsElement;
-}}
-
 using namespace richmath;
 using namespace std;
 
@@ -36,40 +33,7 @@ extern pmath_symbol_t richmath_System_LineBox;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_PointBox;
 extern pmath_symbol_t richmath_System_RectangleBox;
-extern pmath_symbol_t richmath_System_StringForm;
 extern pmath_symbol_t richmath_System_StyleBox;
-
-namespace {
-  class DummyGraphicsElement: public GraphicsElement {
-    public:
-      DummyGraphicsElement(Expr expr)
-        : GraphicsElement(),
-          _expr(expr)
-      {
-        _error_message = Call(Symbol(richmath_System_StringForm), 
-          strings::Error_BadGraphicsElement, 
-          _expr.is_expr() ? _expr[0] : _expr);
-      }
-      
-      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override {
-        return false;
-      }
-      
-      virtual void find_extends(GraphicsBounds &bounds) override {
-      }
-      
-      virtual void paint(GraphicsDrawingContext &gc) override {
-        gc.add_paint_error(_error_message);
-      }
-      
-    protected:
-      virtual Expr to_pmath_impl(BoxOutputFlags flags) override { return _expr; }
-      
-    private:
-      Expr _expr;
-      Expr _error_message;
-  };
-}
 
 //{ class GraphicsBounds ...
 
@@ -124,19 +88,14 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
   Expr head = expr[0];
   
   if(head == richmath_System_BezierCurveBox) {
-    if(auto ge = BezierCurveBox::try_create(expr, opts))
-      return ge;
+    return BezierCurveBox::create_or_error(PMATH_CPP_MOVE(expr), opts);
   }
   
-  if(head == richmath_System_CircleBox || head == richmath_System_DiskBox) {
-    if(auto ge = CircleOrDiskBox::try_create(expr, opts))
-      return ge;
-  }
+  if(head == richmath_System_CircleBox || head == richmath_System_DiskBox)
+    return CircleOrDiskBox::create_or_error(PMATH_CPP_MOVE(expr), opts);
   
-  if(head == richmath_System_LineBox) {
-    if(auto ge = LineBox::try_create(expr, opts))
-      return ge;
-  }
+  if(head == richmath_System_LineBox)
+    return LineBox::create_or_error(PMATH_CPP_MOVE(expr), opts);
   
   if(head == richmath_System_List) {
     auto coll = new GraphicsElementCollection(nullptr);
@@ -144,25 +103,19 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
     return coll;
   }
   
-  if(head == richmath_System_PointBox) {
-    if(auto ge = PointBox::try_create(expr, opts))
-      return ge;
-  }
+  if(head == richmath_System_PointBox)
+    return PointBox::create_or_error(PMATH_CPP_MOVE(expr), opts);
   
-  if(head == richmath_System_RectangleBox) {
-    if(auto ge = RectangleBox::try_create(expr, opts))
-      return ge;
-  }
+  if(head == richmath_System_RectangleBox)
+    return RectangleBox::create_or_error(PMATH_CPP_MOVE(expr), opts);
   
-  if(head == richmath_System_StyleBox) {
-    if(auto ge = GraphicsStyleBox::try_create(expr, opts))
-      return ge;
-  }
+  if(head == richmath_System_StyleBox) 
+    return GraphicsStyleBox::create_or_error(PMATH_CPP_MOVE(expr), opts);
   
   if(auto dir = GraphicsDirective::try_create(expr, opts)) 
     return dir;
   
-  return new DummyGraphicsElement(expr);
+  return new GraphicsErrorBox(expr, GraphicsErrorBox::message_badhead(expr));
 }
 
 Expr GraphicsElement::to_pmath(BoxOutputFlags flags) {

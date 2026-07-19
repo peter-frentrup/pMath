@@ -10,6 +10,7 @@ namespace richmath {
       class Impl;
     public:
       static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;
+      static GraphicsElement *create_or_error(Expr expr, BoxInputFlags opts);
       static BezierCurveBox *try_create(Expr expr, BoxInputFlags opts);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

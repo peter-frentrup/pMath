@@ -2,6 +2,7 @@
 
 #include <boxes/graphics/graphicsdrawingcontext.h>
 #include <boxes/graphics/graphicsdirective.h>
+#include <boxes/graphics/graphicserrorbox.h>
 
 
 using namespace richmath;
@@ -84,6 +85,16 @@ GraphicsStyleBox *GraphicsStyleBox::try_create(Expr expr, BoxInputFlags opts) {
   }
   
   return box;
+}
+
+GraphicsElement *GraphicsStyleBox::create_or_error(Expr expr, BoxInputFlags opts) {
+  if(GraphicsStyleBox *box = try_create(expr, opts))
+    return box;
+  
+  if(expr.expr_length() < 1)
+    return new GraphicsErrorBox(expr, GraphicsErrorBox::message_argxxx(expr, 1, SIZE_MAX));
+  
+  return new GraphicsErrorBox(expr, GraphicsErrorBox::message_badarg(expr));
 }
 
 void GraphicsStyleBox::find_extends(GraphicsBounds &bounds) {
