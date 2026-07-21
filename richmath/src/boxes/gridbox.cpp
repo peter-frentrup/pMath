@@ -264,6 +264,15 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+VolatileSelection GridBox::dynamic_to_literal(int start, int end) {
+  GridIndexRect rect = get_enclosing_range(start, end);
+  for(GridYIndex y : rect.y)
+    for(GridXIndex x : rect.x)
+      item(y, x)->all_dynamic_to_literal();
+  
+  return {this, start, end};
+}
+
 void GridBox::insert_rows(int yindex, int count) {
   if(count <= 0)
     return;
@@ -1091,7 +1100,7 @@ GridIndexRect GridBox::get_enclosing_range(int start, int end) {
   index_to_yx(start, &ay, &ax);
   index_to_yx(end,   &by, &bx); 
   
-  if(start < items.length())
+  if(end <= items.length())
     return GridIndexRect::FromYX(GridYRange::InclusiveHull(ay, by), GridXRange::InclusiveHull(ax, bx));
   else
     return GridIndexRect::FromYX(GridYRange::Hull(ay, by), GridXRange::Hull(ax, bx));

@@ -214,6 +214,8 @@ namespace richmath {
       // Box::try_create<GridBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
+      virtual VolatileSelection dynamic_to_literal(int start, int end) override;
+      
       const Array<float> &xpos_array() { need_pos_vectors(); return xpos; }
       const Array<float> &ypos_array() { need_pos_vectors(); return ypos; }
       
