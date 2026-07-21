@@ -60,6 +60,8 @@ namespace richmath {
         
       virtual VolatileSelection normalize_selection(int start, int end) override;
       
+      virtual VolatileSelection dynamic_to_literal(int start, int end) override;
+      
       int calc_mouse_over_part(float x, float y);
       void transform_inner_to_outer(cairo_matrix_t *mat);
       

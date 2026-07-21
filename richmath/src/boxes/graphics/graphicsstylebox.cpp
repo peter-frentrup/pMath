@@ -97,6 +97,26 @@ GraphicsElement *GraphicsStyleBox::create_or_error(Expr expr, BoxInputFlags opts
   return new GraphicsErrorBox(expr, GraphicsErrorBox::message_badarg(expr));
 }
 
+GraphicsElement *GraphicsStyleBox::convert_to_literal() {
+  if(_content) {
+    GraphicsElement *new_content = _content->convert_to_literal();
+    if(new_content != _content) {
+      _content = new_content;
+      set_style_parent_of_child(_content, this);
+    }
+  }
+  
+  if(_dynamic_directives.has_dynamic()) {
+    if(_latest_directives.is_valid() || !must_update()) {
+      _dynamic_directives = _latest_directives;
+      _style.reset();
+      GraphicsDirective::apply_to_style(_latest_directives, _style);
+    }
+  }
+  
+  return this;
+}
+      
 void GraphicsStyleBox::find_extends(GraphicsBounds &bounds) {
   if(_content)
     _content->find_extends(bounds);

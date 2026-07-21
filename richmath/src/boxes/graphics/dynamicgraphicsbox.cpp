@@ -58,6 +58,20 @@ DynamicGraphicsBox::~DynamicGraphicsBox() {
   Observable::unregister_oberserver(id());
 }
 
+GraphicsElement *DynamicGraphicsBox::convert_to_literal() {
+  if(GraphicsElement *child = _content) {
+    _content = nullptr;
+    set_style_parent_of_child(child, style_parent());
+    safe_destroy();
+    return child->convert_to_literal();
+  }
+  else {
+    GraphicsElementCollection *res = new GraphicsElementCollection(style_parent());
+    safe_destroy();
+    return res;
+  }
+}
+
 bool DynamicGraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(!expr.item_equals(0, richmath_System_DynamicBox))
     return false;
@@ -227,6 +241,7 @@ void DynamicGraphicsBox::Impl::load_content(Expr expr, BoxInputFlags opts) {
     if(self._content) self._content->safe_destroy();
     
     self._content = GraphicsElement::create(expr, opts);
+    self.set_style_parent_of_child(self._content, &self);
   }
 }
 

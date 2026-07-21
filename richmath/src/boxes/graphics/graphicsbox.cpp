@@ -536,6 +536,12 @@ VolatileSelection GraphicsBox::normalize_selection(int start, int end) {
   return {this, 0, 0};
 }
 
+VolatileSelection GraphicsBox::dynamic_to_literal(int start, int end) {
+  GraphicsElement *new_elems = elements.convert_to_literal();
+  ARRAY_ASSERT(new_elems == &elements);
+  return base::dynamic_to_literal(start, end);
+}
+
 Box *GraphicsBox::mouse_sensitive() {
   Box *box = Box::mouse_sensitive();
   if(!box)

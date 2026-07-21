@@ -136,6 +136,10 @@ Expr GraphicsElement::to_pmath(BoxOutputFlags flags) {
   return to_pmath_impl(flags);
 }
 
+GraphicsElement *GraphicsElement::convert_to_literal() {
+  return this;
+}
+
 void GraphicsElement::request_repaint_all() {
   if(Box *owner = Box::find_nearest_box(this)) {
     owner->request_repaint_all();
@@ -277,6 +281,16 @@ void GraphicsElementCollection::remove(int i) {
   
   delete_owned(elem);
   _items.remove(i, 1);
+}
+
+GraphicsElement *GraphicsElementCollection::convert_to_literal() {
+  for(int i = 0; i < _items.length(); ++i) {
+    GraphicsElement *new_item = _items[i]->convert_to_literal();
+    ARRAY_ASSERT(new_item);
+    _items.set(i, new_item);
+  }
+  
+  return this;
 }
 
 void GraphicsElementCollection::find_extends(GraphicsBounds &bounds) {

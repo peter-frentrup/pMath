@@ -20,6 +20,8 @@ namespace richmath {
       int              count() override {     return _content ? 1 : 0; }
       GraphicsElement *item(int i) override { return _content; }
       
+      virtual GraphicsElement *convert_to_literal() override;
+      
       virtual void find_extends(GraphicsBounds &bounds) override;
       virtual void paint(GraphicsDrawingContext &gc) override;
     

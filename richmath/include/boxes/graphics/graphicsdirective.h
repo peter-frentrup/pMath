@@ -22,6 +22,8 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
+      virtual GraphicsElement *convert_to_literal() override;
+      
       virtual void find_extends(GraphicsBounds &bounds) override {}
       virtual void paint(GraphicsDrawingContext &gc) override;
       

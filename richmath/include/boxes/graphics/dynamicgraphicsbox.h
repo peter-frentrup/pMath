@@ -13,7 +13,8 @@ namespace richmath {
       static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;
       static GraphicsElement *create_or_error(Expr expr, BoxInputFlags opts);
       static DynamicGraphicsBox *try_create(Expr expr, BoxInputFlags opts);
-    
+      
+      virtual GraphicsElement *convert_to_literal() override;
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       int              count() override {     return _content ? 1 : 0; }

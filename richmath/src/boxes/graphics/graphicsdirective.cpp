@@ -124,6 +124,18 @@ GraphicsDirective *GraphicsDirective::try_create(Expr expr, BoxInputFlags opts) 
   return box;
 }
 
+GraphicsElement *GraphicsDirective::convert_to_literal() {
+  if(_dynamic.has_dynamic()) {
+    if(_latest_directives.is_valid() || !must_update()) {
+      _dynamic = _latest_directives;
+      
+      _style.reset();
+      apply_to_style(_latest_directives, _style);
+    }
+  }
+  return this;
+}
+
 GraphicsElement *GraphicsDirective::create_or_error(Expr expr, BoxInputFlags opts) {
   if(GraphicsDirective *box = try_create(expr, opts))
     return box;

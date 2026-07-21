@@ -47,6 +47,8 @@ namespace richmath {
       virtual void paint(GraphicsDrawingContext &gc) = 0;
       Expr to_pmath(BoxOutputFlags flags);
       
+      virtual GraphicsElement *convert_to_literal(); // may destroy this
+      
       void request_repaint_all();
       virtual void dynamic_updated() override { request_repaint_all(); }
       virtual Expr prepare_dynamic(Expr expr) override;
@@ -80,7 +82,7 @@ namespace richmath {
     protected:
       virtual ~GraphicsElementCollection();
     public:
-      GraphicsElementCollection(StyledObject *owner);
+      explicit GraphicsElementCollection(StyledObject *owner);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       void load_from_object(Expr expr, BoxInputFlags opts);
@@ -91,6 +93,8 @@ namespace richmath {
       void add(GraphicsElement *g);
       void insert(int i, GraphicsElement *g);
       void remove(int i);
+      
+      virtual GraphicsElement *convert_to_literal() override;
       
       virtual void find_extends(GraphicsBounds &bounds) override;
       virtual void paint(GraphicsDrawingContext &gc) override;
