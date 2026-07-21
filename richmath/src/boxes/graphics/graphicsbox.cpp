@@ -295,12 +295,16 @@ void GraphicsBox::paint(Context &context) {
     context.canvas().move_to(p);
   }
   
-  if(!cached_bitmap.is_valid() || !cached_bitmap->is_compatible(context.canvas())) {
-    cached_bitmap = new Buffer(context.canvas(), CAIRO_FORMAT_ARGB32, _extents);
-    if(!cached_bitmap->canvas()) 
-      cached_bitmap = nullptr;
+  // inc. refcount to that the bitmap is not destroyed while we paint to it
+  SharedPtr<Buffer> current_buf = cached_bitmap;
+  
+  if(!current_buf.is_valid() || !current_buf->is_compatible(context.canvas())) {
+    current_buf = new Buffer(context.canvas(), CAIRO_FORMAT_ARGB32, _extents);
+    if(!current_buf->canvas()) 
+      current_buf = nullptr;
     
-    context.with_canvas(cached_bitmap ? *cached_bitmap->canvas() : context.canvas(), [&]() {
+    cached_bitmap = current_buf;
+    context.with_canvas(current_buf ? *current_buf->canvas() : context.canvas(), [&]() {
     
       ContextState cc(context);
       cc.begin(style);
@@ -393,8 +397,8 @@ void GraphicsBox::paint(Context &context) {
     });
   }
   
-  if(cached_bitmap.is_valid())
-    cached_bitmap->paint(context.canvas());
+  if(current_buf.is_valid())
+    current_buf->paint(context.canvas());
   
   p.y -= _extents.ascent;
   
