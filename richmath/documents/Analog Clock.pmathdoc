@@ -1,0 +1,324 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Analog Clock", "Title"), 
+    SectionGroup({Section("Dynamic inside Graphics", "Subsection"), 
+      SectionGroup({
+        Section(
+         BoxData({"Panel", "(", {"DynamicLocal", "(", {
+             {"{", {"dyn", "\[Assign]", "False"}, "}"}, ",", {
+              "\n", {"Column", "(", {
+                "{", {
+                 "\n", {
+                  {{"Graphics", "(", {
+                     {"{", {
+                       "\n", {{{"Circle", "(", ")"}, "\n", {
+                          "Line", "(", {"Developer`ToPackedArray", "@", {
+                            "Table", "(", {
+                             {"With", "(", {
+                               {"{", {{"s", "\[Assign]", {
+                                   "Sin", "(", {"h", "*", "2", {
+                                     "\[Pi]", "/", "60.0"}}, ")"}}, ",", {
+                                  "c", "\[Assign]", {"Cos", "(", {
+                                    "h", "*", "2", {"\[Pi]", "/", "60.0"}}, 
+                                   ")"}}}, "}"}, ",", {
+                                "{", {
+                                 {{"If", "(", {
+                                    {{"Mod", "(", {"h", ",", "5"}, ")"}, 
+                                     "===", "0"}, ",", "0.93", ",", "0.97"}, 
+                                   ")"}, "*", {"{", {"s", ",", "c"}, "}"}}, 
+                                 ",", {"{", {"s", ",", "c"}, "}"}}, "}"}}, 
+                              ")"}, ",", {"h", "\[Rule]", "60"}}, ")"}}, ")"}, 
+                         "\n", {"Dynamic", "(", {
+                           {"If", "(", {"dyn", ",", {"Clock", "(", ")"}}, 
+                            ")"}, ";", {"Refresh", "(", {
+                             {"Block", {
+                               "{", {
+                                "\n", {
+                                 {{"With", "(", {"dl", "\[Assign]", {
+                                     "Numericalize", "(", {
+                                      "DateList", "(", ")"}, ")"}}, ")"}, 
+                                  "\n", {"With", "(", {
+                                    "fracseconds", "\[Assign]", {
+                                     {"dl", "[", "6", "]"}, "/", "60"}}, ")"}, 
+                                  "\n", {"With", "(", {
+                                    "fracminutes", "\[Assign]", {
+                                     {"(", {{"dl", "[", "5", "]"}, "+", 
+                                       "fracseconds"}, ")"}, "/", "60"}}, 
+                                   ")"}, "\n", {"With", "(", {
+                                    "frachours", "\[Assign]", {
+                                     {"(", {{"dl", "[", "4", "]"}, "+", 
+                                       "fracminutes"}, ")"}, "/", "12"}}, 
+                                   ")"}, "\n", {
+                                   "{", {
+                                    "\n", {
+                                     {{{"With", "(", {
+                                        {"s", "\[Assign]", {
+                                        "Sin", "(", {"frachours", "*", "2", 
+                                        "\[Pi]"}, ")"}}, ",", {
+                                        "c", "\[Assign]", {
+                                        "Cos", "(", {"frachours", "*", "2", 
+                                        "\[Pi]"}, ")"}}}, ")"}, {
+                                        "{", {"\n", {
+                                        {"{", {{"Thickness", "(", "6", ")"}, 
+                                        "\n", {"Line", "(", {
+                                        "{", {{{"-", "0.05"}, "*", {
+                                        "{", {"s", ",", "c"}, "}"}}, ",", {
+                                        "0.6", "*", {"{", {"s", ",", "c"}, 
+                                        "}"}}}, "}"}, ")"}}, "}"}, "\n"}}, 
+                                        "}"}}, "\n", {
+                                       {"With", "(", {
+                                        {"s", "\[Assign]", {
+                                        "Sin", "(", {"fracminutes", "*", "2", 
+                                        "\[Pi]"}, ")"}}, ",", {
+                                        "c", "\[Assign]", {
+                                        "Cos", "(", {"fracminutes", "*", "2", 
+                                        "\[Pi]"}, ")"}}}, ")"}, {
+                                        "{", {"\n", {
+                                        {"{", {{"Thickness", "(", "2", ")"}, 
+                                        "\n", {"Line", "(", {
+                                        "{", {{{"-", "0.1"}, "*", {
+                                        "{", {"s", ",", "c"}, "}"}}, ",", {
+                                        "0.85", "*", {"{", {"s", ",", "c"}, 
+                                        "}"}}}, "}"}, ")"}}, "}"}, "\n"}}, 
+                                        "}"}}, "\n", {
+                                       {"With", "(", {
+                                        {"s", "\[Assign]", {
+                                        "Sin", "(", {"fracseconds", "*", "2", 
+                                        "\[Pi]"}, ")"}}, ",", {
+                                        "c", "\[Assign]", {
+                                        "Cos", "(", {"fracseconds", "*", "2", 
+                                        "\[Pi]"}, ")"}}}, ")"}, {
+                                        "{", {"\n", {
+                                        {"{", {"Red", ",", "Thin", ",", {
+                                        "\n", {"Line", "(", {
+                                        "{", {{{"-", "0.1"}, "*", {
+                                        "{", {"s", ",", "c"}, "}"}}, ",", {
+                                        "0.95", "*", {"{", {"s", ",", "c"}, 
+                                        "}"}}}, "}"}, ")"}}}, "}"}, "\n"}}, 
+                                        "}"}}}, "\n"}}, "}"}}, "\n"}}, "}"}}, 
+                             ",", "None"}, ")"}}, ")"}}, "\n"}}, "}"}, ",", {
+                      "ImageSize", "\[Rule]", "Medium"}}, ")"}, "\n", {
+                    "Button", "(", {
+                     {"Row", "@", {
+                       "{", {{"Checkbox", "(", {"Dynamic", "(", "dyn", ")"}, 
+                         ")"}, ",", StringBox("\" Update dynamically\"")}, 
+                       "}"}}, ",", {"dyn", "\[Assign]", {
+                       "If", "(", {"dyn", ",", "False", ",", "True", ",", 
+                        "True"}, ")"}}, ",", {"BaseStyle", "\[Rule]", 
+                      StringBox("\"\"")}, ",", {"ButtonFrame", "\[Rule]", 
+                      "None"}, ",", {"Alignment", "\[Rule]", "Left"}}, ")"}}, 
+                  "\n"}}, "}"}, ")"}}}, ")"}, ")"}), "Input", 
+         SectionLabel -> "in [1]:"), 
+        Section(
+         BoxData(PanelBox(DynamicLocalBox({$Context`dyn}, 
+            TagBox(
+             GridBox({
+               {GraphicsBox({CircleBox(), 
+                  LineBox(
+                   CompressedData(
+                     "1:c$,(#Ye<t[6bJBSV?}<+,6-MDA?*ToA^OnhNK_WgE>p<+EkeYgAS#)\
+                     V6$X8?#5Ay=P;[]A^[!<1otn;DH))C&nB_EV*tRGKm9hnU{^!HHkK=vbb\
+                     I$*Fo;OC97-Oi^>uWBXx;#s->F3dQTh]m0D$W}4ik;mwQ1+*Oi#tgEV}B\
+                     }{M]6vwp{4Rcet<&Rhiy}2N2pq7*[Gy2Qs<ty+1OM!&DGAi%(wk?%9nZ}\
+                     IN+v8){%}tF9s;fY#WVBo1%B}w]Es8e$eP9!,8oRrs;ll#NKz%PtH(Eey\
+                     !6(C85w]kIP4q=<f@4n6kfHUM}u=VrIYnke706Cao=rJ[St)qEGtdrM9K\
+                     UrfYLP+Tq@OC*CzrDdDhT}Aqyci1jwqlz$_qW1n?maDkHX}4uyj7XMG;I\
+                     eG6O>d1QwQKuMv^,Xyp^regbzS0Qh%Ep[am[?AkN-j3!B)ObMPLk^{<Se\
+                     =VL(bw-2Pbi{z)9ujr>X>d,fS-<qslL+,fIsol=D^UJj?k]b)KdEf]wC_\
+                     KcMQf^xvWSXX*c>>Yv5ctmbEN{ix>WQsl=fKkh_+E6SPkkUyN+iu]cs+u\
+                     @g@{J0-[<I0bB!F8K@j;G-IMm@)a+Wp[}?f&pET#Hnnyc(,n)hFk,70x^\
+                     kS2*)i?f&x_?f&x$Tq70HoLQfvT(7H]xlw!nxLSMvc-=(vrQY(#MmTe{z\
+                     1An<%w=$u^BHiJ^Yd_BrJQ*Yt]XG>9j?-U23)2847k3>{KIf<!2Axl!kL\
+                     %h3TJk]70#RwS2%MrT;a@PaD_9AE1X$e;mkRB?-1&=;=M(vBd%][afLGv\
+                     VXk7#S%<kinA3}]?8qsMT+EUaT*Js&Tn);ZgK+7FlM61*a1z(!vz7$=BW\
+                     sViM%%0G=n>a*+WXHZuqQEabz{$NqW(0#AL44&et+16J^g_BP1y5B%s+%\
+                     ZKac!g;hxx$-*0@U#TCvZu5c!Cg)@mOoM}^)lW@;HaP7rC7gsowxWbu6;\
+                     0kBb!xhd{0#,WG3}!$%&)^DY%7iPNNtdo%;Y@4c3TJY_70%QKS2&Zpzt4\
+                     N*JFV{T3vs6Z)PFtO")), 
+                  DynamicBox(System`Graphics`ToGraphicsBoxes(
+                    If($Context`dyn, Clock()); 
+                     Refresh(With({$Context`dl:= Numericalize(DateList())}, 
+                       With({$Context`fracseconds:= $Context`dl[6]*1/60}, 
+                        With({$Context`fracminutes:= (
+                             $Context`dl[5] + $Context`fracseconds)*1/60}, 
+                         With({$Context`frachours:= (
+                              $Context`dl[4] + $Context`fracminutes)*1/12}, {
+                           With({$Context`s:= Sin($Context`frachours*2*Pi), 
+                             $Context`c:= Cos($Context`frachours*2*Pi)}, {
+                             Thickness(6), 
+                             Line({-0.05*{$Context`s, $Context`c}, 
+                               0.6*{$Context`s, $Context`c}})}), 
+                           With({$Context`s:= Sin($Context`fracminutes*2*Pi), 
+                             $Context`c:= Cos($Context`fracminutes*2*Pi)}, {
+                             Thickness(2), 
+                             Line({-0.1*{$Context`s, $Context`c}, 
+                               0.85*{$Context`s, $Context`c}})}), 
+                           With({$Context`s:= Sin($Context`fracseconds*2*Pi), 
+                             $Context`c:= Cos($Context`fracseconds*2*Pi)}, {
+                             Red, Thin, Line({-0.1*{$Context`s, $Context`c}, 
+                               0.95*{$Context`s, $Context`c}})})})))), 
+                      None)))}, ImageSize -> {Medium, Automatic})}, {
+                ButtonBox(TemplateBox({CheckboxBox(Dynamic($Context`dyn)), 
+                   StringBox("\" Update dynamically\"")}, "RowDefault"), 
+                 Alignment -> Left, BaseStyle -> "", ButtonFrame -> None, 
+                 ButtonFunction -> 
+                  Function($Context`dyn:= If($Context`dyn, False, True, 
+                     True)))}}), "Column"), DynamicLocalValues :> {
+              {OwnRules($Context`dyn):= {
+                 HoldPattern($Context`dyn) :> False}}}))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [1]:")}, 2)}, All), 
+    SectionGroup({Section("Slow - Dynamic around Graphics", "Subsection"), 
+      SectionGroup({
+        Section(
+         BoxData({"Panel", "(", {"DynamicLocal", "(", {
+             {"{", {"dyn", "\[Assign]", "False"}, "}"}, ",", {
+              "\n", {"Column", "(", {
+                "{", {
+                 "\n", {
+                  {{"Dynamic", "(", {
+                     {"If", "(", {"dyn", ",", {"Clock", "(", ")"}}, ")"}, ";", 
+                     {"Refresh", "(", {
+                       {"Graphics", "(", {
+                         {"{", {
+                           "\n", {{{"Circle", "(", ")"}, "\n", {
+                              "Line", "(", {"Developer`ToPackedArray", "@", {
+                                "Table", "(", {
+                                 {"With", "(", {
+                                   {"{", {{"s", "\[Assign]", {
+                                       "Sin", "(", {"h", "*", "2", {
+                                        "\[Pi]", "/", "60.0"}}, ")"}}, ",", {
+                                      "c", "\[Assign]", {
+                                       "Cos", "(", {"h", "*", "2", {
+                                        "\[Pi]", "/", "60.0"}}, ")"}}}, "}"}, 
+                                   ",", {
+                                    "{", {
+                                     {{"If", "(", {
+                                        {{"Mod", "(", {"h", ",", "5"}, ")"}, 
+                                        "===", "0"}, ",", "0.93", ",", 
+                                        "0.97"}, ")"}, "*", {
+                                       "{", {"s", ",", "c"}, "}"}}, ",", {
+                                      "{", {"s", ",", "c"}, "}"}}, "}"}}, 
+                                  ")"}, ",", {"h", "\[Rule]", "60"}}, ")"}}, 
+                              ")"}, "\n", {"Block", {
+                               "{", {
+                                "\n", {
+                                 {{"With", "(", {"dl", "\[Assign]", {
+                                     "Numericalize", "(", {
+                                      "DateList", "(", ")"}, ")"}}, ")"}, 
+                                  "\n", {"With", "(", {
+                                    "fracseconds", "\[Assign]", {
+                                     {"dl", "[", "6", "]"}, "/", "60"}}, ")"}, 
+                                  "\n", {"With", "(", {
+                                    "fracminutes", "\[Assign]", {
+                                     {"(", {{"dl", "[", "5", "]"}, "+", 
+                                       "fracseconds"}, ")"}, "/", "60"}}, 
+                                   ")"}, "\n", {"With", "(", {
+                                    "frachours", "\[Assign]", {
+                                     {"(", {{"dl", "[", "4", "]"}, "+", 
+                                       "fracminutes"}, ")"}, "/", "12"}}, 
+                                   ")"}, "\n", {
+                                   "{", {
+                                    "\n", {
+                                     {{{"With", "(", {
+                                        {"s", "\[Assign]", {
+                                        "Sin", "(", {"frachours", "*", "2", 
+                                        "\[Pi]"}, ")"}}, ",", {
+                                        "c", "\[Assign]", {
+                                        "Cos", "(", {"frachours", "*", "2", 
+                                        "\[Pi]"}, ")"}}}, ")"}, {
+                                        "{", {"\n", {
+                                        {"{", {{"Thickness", "(", "6", ")"}, 
+                                        "\n", {"Line", "(", {
+                                        "{", {{{"-", "0.05"}, "*", {
+                                        "{", {"s", ",", "c"}, "}"}}, ",", {
+                                        "0.6", "*", {"{", {"s", ",", "c"}, 
+                                        "}"}}}, "}"}, ")"}}, "}"}, "\n"}}, 
+                                        "}"}}, "\n", {
+                                       {"With", "(", {
+                                        {"s", "\[Assign]", {
+                                        "Sin", "(", {"fracminutes", "*", "2", 
+                                        "\[Pi]"}, ")"}}, ",", {
+                                        "c", "\[Assign]", {
+                                        "Cos", "(", {"fracminutes", "*", "2", 
+                                        "\[Pi]"}, ")"}}}, ")"}, {
+                                        "{", {"\n", {
+                                        {"{", {{"Thickness", "(", "2", ")"}, 
+                                        "\n", {"Line", "(", {
+                                        "{", {{{"-", "0.1"}, "*", {
+                                        "{", {"s", ",", "c"}, "}"}}, ",", {
+                                        "0.85", "*", {"{", {"s", ",", "c"}, 
+                                        "}"}}}, "}"}, ")"}}, "}"}, "\n"}}, 
+                                        "}"}}, "\n", {
+                                       {"With", "(", {
+                                        {"s", "\[Assign]", {
+                                        "Sin", "(", {"fracseconds", "*", "2", 
+                                        "\[Pi]"}, ")"}}, ",", {
+                                        "c", "\[Assign]", {
+                                        "Cos", "(", {"fracseconds", "*", "2", 
+                                        "\[Pi]"}, ")"}}}, ")"}, {
+                                        "{", {"\n", {
+                                        {"{", {"Red", ",", "Thin", ",", {
+                                        "\n", {"Line", "(", {
+                                        "{", {{{"-", "0.1"}, "*", {
+                                        "{", {"s", ",", "c"}, "}"}}, ",", {
+                                        "0.95", "*", {"{", {"s", ",", "c"}, 
+                                        "}"}}}, "}"}, ")"}}}, "}"}, "\n"}}, 
+                                        "}"}}}, "\n"}}, "}"}}, "\n"}}, "}"}}}, 
+                            "\n"}}, "}"}, ",", {"ImageSize", "\[Rule]", 
+                          "Medium"}}, ")"}, ",", "None"}, ")"}}, ")"}, "\n", {
+                    "Button", "(", {
+                     {"Row", "@", {
+                       "{", {{"Checkbox", "(", {"Dynamic", "(", "dyn", ")"}, 
+                         ")"}, ",", StringBox("\" Update dynamically\"")}, 
+                       "}"}}, ",", {"dyn", "\[Assign]", {
+                       "If", "(", {"dyn", ",", "False", ",", "True", ",", 
+                        "True"}, ")"}}, ",", {"BaseStyle", "\[Rule]", 
+                      StringBox("\"\"")}, ",", {"ButtonFrame", "\[Rule]", 
+                      "None"}, ",", {"Alignment", "\[Rule]", "Left"}}, ")"}}, 
+                  "\n"}}, "}"}, ")"}}}, ")"}, ")"}), "Input", 
+         SectionLabel -> "in [2]:"), 
+        Section(
+         BoxData(PanelBox(DynamicLocalBox({$Context`dyn}, 
+            TagBox(
+             GridBox({
+               {DynamicBox(ToBoxes(If($Context`dyn, Clock()); 
+                   Refresh(Graphics({
+                      Circle(), Line(Developer`ToPackedArray(
+                        Table(
+                         With({$Context`s:= Sin($Context`h*2*(Pi*1/60.0)), 
+                           $Context`c:= Cos($Context`h*2*(Pi*1/60.0))}, {
+                           If(Mod($Context`h, 5) === 0, 0.93, 0.97)*{
+                             $Context`s, $Context`c}, {
+                            $Context`s, $Context`c}}), $Context`h -> 60))), 
+                      With({$Context`dl:= Numericalize(DateList())}, 
+                       With({$Context`fracseconds:= $Context`dl[6]*1/60}, 
+                        With({$Context`fracminutes:= (
+                             $Context`dl[5] + $Context`fracseconds)*1/60}, 
+                         With({$Context`frachours:= (
+                              $Context`dl[4] + $Context`fracminutes)*1/12}, {
+                           With({$Context`s:= Sin($Context`frachours*2*Pi), 
+                             $Context`c:= Cos($Context`frachours*2*Pi)}, {
+                             Thickness(6), 
+                             Line({-0.05*{$Context`s, $Context`c}, 
+                               0.6*{$Context`s, $Context`c}})}), 
+                           With({$Context`s:= Sin($Context`fracminutes*2*Pi), 
+                             $Context`c:= Cos($Context`fracminutes*2*Pi)}, {
+                             Thickness(2), 
+                             Line({-0.1*{$Context`s, $Context`c}, 
+                               0.85*{$Context`s, $Context`c}})}), 
+                           With({$Context`s:= Sin($Context`fracseconds*2*Pi), 
+                             $Context`c:= Cos($Context`fracseconds*2*Pi)}, {
+                             Red, Thin, Line({-0.1*{$Context`s, $Context`c}, 
+                               0.95*{$Context`s, $Context`c}})})}))))}, 
+                     ImageSize -> Medium), None)))}, {
+                ButtonBox(TemplateBox({CheckboxBox(Dynamic($Context`dyn)), 
+                   StringBox("\" Update dynamically\"")}, "RowDefault"), 
+                 Alignment -> Left, BaseStyle -> "", ButtonFrame -> None, 
+                 ButtonFunction -> 
+                  Function($Context`dyn:= If($Context`dyn, False, True, 
+                     True)))}}), "Column"), DynamicLocalValues :> {
+              {OwnRules($Context`dyn):= {
+                 HoldPattern($Context`dyn) :> False}}}))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [2]:")}, 2)}, All)}, 
+   All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)
