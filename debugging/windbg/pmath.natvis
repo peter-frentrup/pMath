@@ -568,6 +568,29 @@
 	<Type Name="_pmath_object_entry_t">
 		<DisplayString>{value}</DisplayString>
 	</Type>
+
+	<Type Name="_pmath_id_list_t">
+		<DisplayString>{id}</DisplayString>
+		<Expand>
+			<LinkedListItems ExcludeView="simple">
+				<HeadPointer>this</HeadPointer>
+				<NextPointer>next</NextPointer>
+				<!--<ValueNode>this,view(simple)</ValueNode>-->
+				<ValueNode>id</ValueNode>
+			</LinkedListItems>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_symbol_list_t">
+		<DisplayString>{symbol}</DisplayString>
+		<Expand>
+			<LinkedListItems ExcludeView="simple">
+				<HeadPointer>this</HeadPointer>
+				<NextPointer>next</NextPointer>
+				<!--<ValueNode>this,view(simple)</ValueNode>-->
+				<ValueNode>symbol</ValueNode>
+			</LinkedListItems>
+		</Expand>
+	</Type>
 	
 	<Type Name="_pmath_span_array_t">
 		<DisplayString>{{ length={length} }}</DisplayString>
