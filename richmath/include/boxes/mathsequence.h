@@ -106,7 +106,9 @@ namespace richmath {
       enum {
         AutoIndentBit = base::NumFlagsBits,
         InlineSpanBit,
-        HasTextShadowSpan,
+        HasTextShadowSpanBit,
+        CurrentlyPaintingBit,
+        MustClearGlyphsBit,
         
         NumFlagsBits
       };
@@ -115,8 +117,12 @@ namespace richmath {
       bool auto_indent() {                return get_flag(AutoIndentBit); }
       void auto_indent(bool value) {          change_flag(AutoIndentBit, value); }
       void inline_span(bool value) {          change_flag(InlineSpanBit, value); }
-      bool has_text_shadow_span() {       return get_flag(HasTextShadowSpan);}
-      void has_text_shadow_span(bool value) { change_flag(HasTextShadowSpan, value); }
+      bool has_text_shadow_span() {       return get_flag(HasTextShadowSpanBit);}
+      void has_text_shadow_span(bool value) { change_flag(HasTextShadowSpanBit, value); }
+      bool currently_painting() {         return get_flag(CurrentlyPaintingBit); }
+      void currently_painting(bool value) {   change_flag(CurrentlyPaintingBit, value); }
+      bool must_clear_glyphs() {          return get_flag(MustClearGlyphsBit); }
+      void must_clear_glyphs(bool value) {    change_flag(MustClearGlyphsBit, value); }
       
       virtual void on_text_changed() override;
       

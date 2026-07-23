@@ -89,7 +89,7 @@ namespace richmath {
     protected:
       enum {
         BoxesInvalidBit = base::NumFlagsBits,
-        TextChangedBit, // TODO: text_changed must be propagated to outer sequence
+        TextChangedBit,
         
         NumFlagsBits
       };
@@ -99,7 +99,7 @@ namespace richmath {
       void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
       void text_changed(bool value);
       
-      virtual void on_text_changed() {}
+      virtual void on_text_changed() = 0; // text_changed() bit must be propagated to outer sequence
       
     protected:
       String                 str;

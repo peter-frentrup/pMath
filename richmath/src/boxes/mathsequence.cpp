@@ -331,6 +331,8 @@ namespace richmath {
       void calculate_line_heights(Context &context, InlineSpanPainting &isp);
       void calculate_total_extents_from_lines();
       
+      void deferred_clear_glyphs();
+      
       void paint(Context &context);
       
       Vector2F total_offest_to_index(int index);
@@ -644,11 +646,7 @@ void MathSequence::selection_path(Context &context, int start, int end) {
 }
 
 void MathSequence::on_text_changed() {
-  // glyph_to_inline_sequence might now contain invalid references
-  glyph_to_inline_sequence.clear();
-  glyph_to_text.clear();
-  glyphs.length(0);
-  lines.length(0);
+  Impl(*this).deferred_clear_glyphs();
   
   MathSequence &outer = Impl(*this).outermost_span();
   outer.text_changed(true);
@@ -3678,7 +3676,28 @@ pmath_token_t MathSequence::Impl::EnlargeSpace::get_box_start_token(Box *box) {
 
 //} ... class MathSequence::Impl::EnlargeSpace
 
+void MathSequence::Impl::deferred_clear_glyphs() {
+  // If this happens during paint(), we must keep these array until after the paint() call
+  // otherwise we will get stuck in an infinite loop or crash with assertion failure.
+  
+  if(self.currently_painting()) {
+    self.must_clear_glyphs(true);
+    return;
+  }
+  
+  self.must_clear_glyphs(false);
+  
+  // glyph_to_inline_sequence might now contain invalid references
+  self.glyph_to_inline_sequence.clear();
+  self.glyph_to_text.clear();
+  self.glyphs.length(0);
+  self.lines.length(0);
+}
+
 void MathSequence::Impl::paint(Context &context) {
+  bool already_painting = self.currently_painting();
+  self.currently_painting(true);
+  
   Point p0 = context.canvas().current_pos();
   
   Color default_color = context.canvas().get_color();
@@ -3850,6 +3869,13 @@ void MathSequence::Impl::paint(Context &context) {
   }
   
   context.math_shaper = default_math_shaper;
+  
+  if(!already_painting) {
+    self.currently_painting(false);
+    if(self.must_clear_glyphs()) {
+      deferred_clear_glyphs();
+    }
+  }
 }
 
 Vector2F MathSequence::Impl::total_offest_to_index(int index) {
