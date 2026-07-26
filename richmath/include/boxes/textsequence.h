@@ -74,12 +74,18 @@ namespace richmath {
     private:
       enum {
         InlineSpanBit = base::NumFlagsBits,
+        CurrentlyPaintingBit,
+        ChangedDuringPaintBit,
         
         NumFlagsBits
       };
       static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
       void inline_span(bool value) { change_flag(InlineSpanBit, value); }
+      bool currently_painting() {         return get_flag(CurrentlyPaintingBit); }
+      void currently_painting(bool value) {   change_flag(CurrentlyPaintingBit, value); }
+      bool changed_during_paint() {       return get_flag(ChangedDuringPaintBit); }
+      void changed_during_paint(bool value) { change_flag(ChangedDuringPaintBit, value); }
       
       virtual void on_text_changed() override;
       

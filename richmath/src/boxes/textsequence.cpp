@@ -300,6 +300,9 @@ void TextSequence::resize(Context &context) {
 }
 
 void TextSequence::paint(Context &context) {
+  bool already_painting = currently_painting();
+  currently_painting(true);
+  
   float x0, y0;
   context.canvas().current_pos(&x0, &y0);
   
@@ -351,10 +354,10 @@ void TextSequence::paint(Context &context) {
     }
     
     ++line;
-  } while(pango_layout_iter_next_line(iter));
+  } while(!changed_during_paint() && pango_layout_iter_next_line(iter));
   pango_layout_iter_free(iter);
   
-  if(!context.canvas().show_only_text) {
+  if(!changed_during_paint() && !context.canvas().show_only_text) {
     context.for_each_selection_inside(this, [&](const VolatileSelection &sel) {
       if(TextSequence *seq = dynamic_cast<TextSequence*>(sel.box)) {
         if(&Impl(*seq).outermost_span() == this) {
@@ -369,6 +372,17 @@ void TextSequence::paint(Context &context) {
         }
       }
     });
+  }
+  
+  if(!already_painting) {
+    currently_painting(false);
+    
+    if(changed_during_paint()) {
+      changed_during_paint(false);
+      
+      _buffer_size = 0;
+      pango_layout_set_text(_layout, "", 0);
+    }
   }
 }
 
@@ -434,9 +448,16 @@ void TextSequence::on_text_changed() {
   // buffer_to_inline_sequence might now contain invalid references
   buffer_to_inline_sequence.clear();
   buffer_to_text.clear();
-  _buffer_size = 0;
-  if(_layout) {
-    pango_layout_set_text(_layout, "", 0);
+  
+  if(currently_painting()) {
+    // Defer clearing layout while it is in use.
+    changed_during_paint(true);
+  }
+  else {
+    _buffer_size = 0;
+    if(_layout) {
+      pango_layout_set_text(_layout, "", 0);
+    }
   }
   
   TextSequence &outer = Impl(*this).outermost_span();
