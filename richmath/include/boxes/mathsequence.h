@@ -108,7 +108,7 @@ namespace richmath {
         InlineSpanBit,
         HasTextShadowSpanBit,
         CurrentlyPaintingBit,
-        MustClearGlyphsBit,
+        ChangedDuringPaintBit,
         
         NumFlagsBits
       };
@@ -121,8 +121,8 @@ namespace richmath {
       void has_text_shadow_span(bool value) { change_flag(HasTextShadowSpanBit, value); }
       bool currently_painting() {         return get_flag(CurrentlyPaintingBit); }
       void currently_painting(bool value) {   change_flag(CurrentlyPaintingBit, value); }
-      bool must_clear_glyphs() {          return get_flag(MustClearGlyphsBit); }
-      void must_clear_glyphs(bool value) {    change_flag(MustClearGlyphsBit, value); }
+      bool changed_during_paint() {       return get_flag(ChangedDuringPaintBit); }
+      void changed_during_paint(bool value) { change_flag(ChangedDuringPaintBit, value); }
       
       virtual void on_text_changed() override;
       

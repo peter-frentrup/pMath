@@ -331,8 +331,6 @@ namespace richmath {
       void calculate_line_heights(Context &context, InlineSpanPainting &isp);
       void calculate_total_extents_from_lines();
       
-      void deferred_clear_glyphs();
-      
       void paint(Context &context);
       
       Vector2F total_offest_to_index(int index);
@@ -646,7 +644,19 @@ void MathSequence::selection_path(Context &context, int start, int end) {
 }
 
 void MathSequence::on_text_changed() {
-  Impl(*this).deferred_clear_glyphs();
+  // If this happens during paint(), we must manually stop any loop in the paint() call
+  // that accesses glyphs or lines,
+  // otherwise we will get stuck in an infinite loop or crash with assertion failure.
+  
+  if(currently_painting()) {
+    changed_during_paint(true);
+  }
+  
+  // glyph_to_inline_sequence might now contain invalid references
+  glyph_to_inline_sequence.clear();
+  glyph_to_text.clear();
+  glyphs.length(0);
+  lines.length(0);
   
   MathSequence &outer = Impl(*this).outermost_span();
   outer.text_changed(true);
@@ -3676,24 +3686,6 @@ pmath_token_t MathSequence::Impl::EnlargeSpace::get_box_start_token(Box *box) {
 
 //} ... class MathSequence::Impl::EnlargeSpace
 
-void MathSequence::Impl::deferred_clear_glyphs() {
-  // If this happens during paint(), we must keep these array until after the paint() call
-  // otherwise we will get stuck in an infinite loop or crash with assertion failure.
-  
-  if(self.currently_painting()) {
-    self.must_clear_glyphs(true);
-    return;
-  }
-  
-  self.must_clear_glyphs(false);
-  
-  // glyph_to_inline_sequence might now contain invalid references
-  self.glyph_to_inline_sequence.clear();
-  self.glyph_to_text.clear();
-  self.glyphs.length(0);
-  self.lines.length(0);
-}
-
 void MathSequence::Impl::paint(Context &context) {
   bool already_painting = self.currently_painting();
   self.currently_painting(true);
@@ -3723,6 +3715,7 @@ void MathSequence::Impl::paint(Context &context) {
     ++line;
   }
   
+  bool aborted = false;
   if(line < self.lines.length()) {
     float glyph_left = 0;
     InlineSpanPainting inline_span_painting{&self};
@@ -3736,7 +3729,7 @@ void MathSequence::Impl::paint(Context &context) {
       
     bool have_style = false;
     bool have_slant = false;
-    for(; line < self.lines.length() && y < clip_y2; ++line) {
+    for(; !aborted && line < self.lines.length() && y < clip_y2; ++line) {
       float x_extra = p0.x + self.indention_width(self.lines[line].indent);
       
       if(iter.glyph_index() > 0)
@@ -3744,7 +3737,7 @@ void MathSequence::Impl::paint(Context &context) {
       
       y += self.lines[line].ascent;
       
-      for(; iter.glyph_index() < self.lines[line].end; iter.move_next_glyph()) {
+      for(; !aborted && iter.glyph_index() < self.lines[line].end; iter.move_next_glyph()) {
         inline_span_painting.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Paint);
         
         if(is_line_break(iter.current_char())) {
@@ -3780,6 +3773,10 @@ void MathSequence::Impl::paint(Context &context) {
           context.canvas().move_to(glyph_left + x_extra + iter.current_glyph().x_offset, y);
           
           box->paint(context);
+          if(self.changed_during_paint()) {
+            aborted = true;
+            break;
+          }
           
           context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
         }
@@ -3800,7 +3797,7 @@ void MathSequence::Impl::paint(Context &context) {
           }
         }
         
-        if(iter.semantic_style().is_missing_after()) {
+        if(!aborted && iter.semantic_style().is_missing_after()) {
           float d = self.em * RefErrorIndictorHeight * 2 / 3.0f;
           float dd = d / 4;
           
@@ -3826,6 +3823,9 @@ void MathSequence::Impl::paint(Context &context) {
         glyph_left = iter.current_glyph().right;
       }
       
+      if(aborted)
+        break;
+      
       if(self.lines[line].continuation) {
         GlyphInfo gi;
         memset(&gi, 0, sizeof(GlyphInfo));
@@ -3849,7 +3849,7 @@ void MathSequence::Impl::paint(Context &context) {
     inline_span_painting.switch_to_sequence(context, &self, DisplayStage::Paint);
   }
   
-  if(!context.canvas().show_only_text) {
+  if(!aborted && !context.canvas().show_only_text) {
     InlineSpanPainting inline_span_painting{&self};
     
     context.for_each_selection_inside(&self, [&](const VolatileSelection &sel) {
@@ -3872,9 +3872,7 @@ void MathSequence::Impl::paint(Context &context) {
   
   if(!already_painting) {
     self.currently_painting(false);
-    if(self.must_clear_glyphs()) {
-      deferred_clear_glyphs();
-    }
+    self.changed_during_paint(false);
   }
 }
 
