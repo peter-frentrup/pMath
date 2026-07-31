@@ -790,6 +790,7 @@ SectionEvaluationFunction::usage:= "SectionEvaluationFunction is an option for S
 SectionFrame::usage:= "SectionFrame is an option for Section which specifies whether a frame should draw around a section."
 SectionFrameColor::usage:= "SectionFrameColor is an option for Section which specifies the color of the frame around a section."
 SectionFrameMargins::usage:= "SectionFrameMargins is an option for Section which specifies the margins in points to leave inside a frame that is drawn around a section."
+SectionFrameLabelMargins::usage:= "SectionFrameLabelMargins is an is an option for Section which specifies the distance in points between section labels and section content."
 SectionGenerated::usage:= "SectionGenerated is an option for Section which specifies whether the section should be removed when output is produced there during an evaluation."
 SectionGroup::usage:= "SectionGroup({\(StyleBox(\"section\", \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"section\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]}, All) represents an open group of sections in a \(StyleBox(\"pMath\", \"TI\")\) document.\nSectionGroup({\(StyleBox(\"section\", \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"section\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]}, \(StyleBox(\"i\", \"Arg\")\)) represents a group of sections in which only the \(StyleBox(\"i\", \"Arg\")\)\(SuperscriptBox(\"th\")\) one is open."
 SectionGroupPrecedence::usage:= "SectionGroupPrecedence is an option for Section which controls automatic section grouping."
