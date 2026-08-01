@@ -7,6 +7,8 @@ Unprotect(System`Private`MakeScriptsExpression)
 
 System`Private`MakeScriptsExpression({~x, SuperscriptBox("\[DownTee]")})::= 
     MakeExpression({"System`Transpose", "(", x, ")"})
+System`Private`MakeScriptsExpression({~x, SuperscriptBox("\[Intercalate]")})::= 
+    MakeExpression({"System`Transpose", "(", x, ")"})
 
 Protect(System`Private`MakeScriptsExpression)
 
@@ -14,7 +16,7 @@ Protect(System`Private`MakeScriptsExpression)
 Unprotect(Transpose)
 
 /* this is also defined/redefined in linalg.pmath */
-MakeBoxes(Transpose(~x))::= {ParenthesizeBoxes(MakeBoxes(x), Power, "Postfix"), SuperscriptBox("\[DownTee]")}
+MakeBoxes(Transpose(~x))::= {ParenthesizeBoxes(MakeBoxes(x), Power, "Postfix"), SuperscriptBox("\[Intercalate]")}
 
 SetAttributes(Transpose, {Protected, ReadProtected});
 

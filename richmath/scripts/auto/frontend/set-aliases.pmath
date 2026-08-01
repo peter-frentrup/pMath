@@ -687,9 +687,11 @@
 		
 		"rT" -> "\[RightTee]"
 		"lT" -> "\[LeftTee]"
-		"tr" -> "\[DownTee]"
 		"dT" -> "\[DownTee]"
 		"uT" -> "\[UpTee]"
+
+		"intercal" -> "\[Intercalate]"
+		"tr"       -> "\[Intercalate]"
 		
 		"dia" -> "\[Diamond]"
 		"star" -> "\[Star]"

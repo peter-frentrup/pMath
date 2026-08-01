@@ -676,6 +676,7 @@ static const struct pmath_named_char_t named_char_array[] = {
   { 0x22B4, "LeftTriangleEqual"},
   { 0x22B5, "RightTriangleEqual"},
   
+  { 0x22BA, "Intercalate"},
   { 0x22BB, "Xor"},
   { 0x22BC, "Nand"},
   { 0x22BD, "Nor"},

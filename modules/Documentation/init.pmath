@@ -262,7 +262,6 @@ tokenHelp("\[Times]")::=                    "System`Times"
 tokenHelp("/")::=                           "System`Divide"
 tokenHelp("\[Divide]")::=                   "System`Divide"
 tokenHelp("*=")::=                          "System`TimesBy"
-tokenHelp("\[DownTee]")::=                  "System`Transpose"
 tokenHelp("!=")::=                          "System`Unequal"
 tokenHelp("\[NotEqual]")::=                 "System`Unequal"
 tokenHelp("=!=")::=                         "System`Unidentical"
@@ -387,6 +386,7 @@ OpenDocumentationForSuperscript(~, ~)::= $Failed
 OpenDocumentationForSuperscript(~expfeo:FrontEndObject, ~src)::= OpenDocumentationForSuperscript(DocumentGet(expfeo, 1), src)
 
 OpenDocumentationForSuperscript("\[DownTee]",     ~src)::= OpenDocumentationForSelection("System`Transpose", src)
+OpenDocumentationForSuperscript("\[Intercalate]", ~src)::= OpenDocumentationForSelection("System`Transpose", src)
 OpenDocumentationForSuperscript("\[Prime]",       ~src)::= OpenDocumentationForSelection("System`Derivative", src)
 OpenDocumentationForSuperscript("\[DoublePrime]", ~src)::= OpenDocumentationForSelection("System`Derivative", src)
 OpenDocumentationForSuperscript("\[TriplePrime]", ~src)::= OpenDocumentationForSelection("System`Derivative", src)
