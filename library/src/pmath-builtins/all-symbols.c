@@ -90,6 +90,7 @@ PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_setprecision(     pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_internal_copysign(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_getmachinerealsettings(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_nexttoward(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_realballfrommidpointradius(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr);
@@ -610,6 +611,7 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_approximate_power,            PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
 
   CHECK( pmath_security_register_doorman(builtin_internal_copysign,                   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_internal_getmachinerealsettings,     PMATH_SECURITY_LEVEL_NON_DESTRUCTIVE_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_internal_nexttoward,                 PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_internal_realballfrommidpointradius, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_internal_realballbounds,             PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -896,6 +898,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_Internal_DynamicRemove,                builtin_internal_dynamicremove)
   BIND_DOWN(   pmath_Internal_GetCurrentDirectory,          builtin_internal_getcurrentdirectory)
   BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,          builtin_internal_getcurrentdynamicid)
+  BIND_DOWN(   pmath_Internal_GetMachineRealSettings,       builtin_internal_getmachinerealsettings)
   BIND_DOWN(   pmath_Internal_GetTrackedSymbols,            builtin_internal_gettrackedsymbols)
   BIND_DOWN(   pmath_Internal_GetThreadID,                  builtin_getthreadid)
   BIND_DOWN(   pmath_Internal_MakeTrustedFunction,          builtin_internal_maketrustedfunction)
