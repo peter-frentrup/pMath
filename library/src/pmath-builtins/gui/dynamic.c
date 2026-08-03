@@ -29,7 +29,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr) {
 //  pmath> Unprotect(Internal`DynamicUpdated); Internal`DynamicUpdated(~~~ids)::= Print("Updated: ", {ids})
 //
 //  pmath> x:= 7;
-//      Updated: {222, 111}
+//      Updated: {111, 222}
   pmath_t id_obj, dyn_expr;
   pmath_thread_t thread = pmath_thread_get_current();
   
@@ -103,7 +103,7 @@ PMATH_PRIVATE pmath_t builtin_internal_gettrackedsymbols(pmath_expr_t expr) {
 //  pmath> Internal`GetTrackedSymbols(111)
 //         HoldComplete(x, Plus)
 //  pmath> Internal`GetTrackedSymbols(222)
-//         HoldComplete(y, x, Times)
+//         HoldComplete(x, y, Times)
 //  
 //  pmath> y:= 2
 //      Updated: {222}
@@ -116,7 +116,7 @@ PMATH_PRIVATE pmath_t builtin_internal_gettrackedsymbols(pmath_expr_t expr) {
 //  pmath> Internal`DynamicEvaluate(x * y, 222)
 //         14
 //  pmath> Internal`GetTrackedSymbols(222)
-//         HoldComplete(y, x, Times)
+//         HoldComplete(x, y, Times)
 //
   if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
@@ -127,6 +127,8 @@ PMATH_PRIVATE pmath_t builtin_internal_gettrackedsymbols(pmath_expr_t expr) {
   if(pmath_is_int32(id_obj)) {
     pmath_unref(expr);
     expr = _pmath_dynamic_get_tracked_symbols(PMATH_AS_INT32(id_obj));
+    // tracked symbols are sorted by address; ensure deterministic ordering instead:
+    expr = pmath_expr_sort(expr);
     return expr;
   }
   
