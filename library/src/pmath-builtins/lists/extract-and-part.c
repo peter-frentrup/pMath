@@ -266,13 +266,16 @@ static pmath_t assign_part(
   
   index = pmath_expr_get_item(position, position_start);
   if(index_as_key(&index, pmath_System_PatternSequence)) {
-    struct assign_part_context_t context;
-    
+    // pmath> l:= {}; l["a"]:= {11,22}; l
+    //        {a -> {11, 22}}
+    // pmath> l["a", -1]:= 999; l
+    //        {a -> {11, 999}}
     if(!check_list_of_rules(list)) {
       *error = TRUE;
       return list;
     }
     
+    struct assign_part_context_t context;
     context.position = position;
     context.position_start = position_start;
     context.new_value = new_value;
@@ -314,55 +317,84 @@ static pmath_t assign_part(
     size_t i;
     size_t indexlen = pmath_expr_length(index);
     
+    pmath_bool_t did_check_rules = FALSE;
+    
     for(i = 1; i <= indexlen; ++i) {
       pmath_t subindex = pmath_expr_get_item(index, i);
-      size_t list_i = SIZE_MAX;
       
-      if(!extract_number(subindex, listlen, &list_i)) {
-        // pmath> l:= {1,2,3,4,5,6,7}; l[{5,3}]:= {x,y}; l
-        //        {1, 2, y, 4, x, 6, 7}
-        // pmath> l:= {1,2,3,4,5,6,7}; l[{5,5}]:= {x,y}; l
-        //        {1, 2, 3, 4, y, 6, 7}
-        // TODO: allow lists of keys:  list[{"key1", "key2"}]:= {val1, val2}
-        if(*error)
-          pmath_unref(subindex);
-        else
-          pmath_message(PMATH_NULL, "pspec", 1, subindex);
-        *error = TRUE;
-        pmath_unref(index);
-        return list;
-      }
-      
-      if(list_i > listlen) {
-        if(*error)
-          pmath_unref(subindex);
-        else
-          pmath_message(PMATH_NULL, "partw", 2,
-                        pmath_ref(list),
-                        subindex);
-        *error = TRUE;
-        pmath_unref(index);
-        return list;
-      }
-      
-      pmath_unref(subindex);
-      
+      pmath_t new_item;
       if(pmath_is_expr_of_len(new_value, pmath_System_List, indexlen)) {
-        pmath_t item     = pmath_expr_get_item(list,      list_i);
-        pmath_t new_item = pmath_expr_get_item(new_value, i);
+        new_item = pmath_expr_get_item(new_value, i);
+      }
+      else {
+        new_item = pmath_ref(new_value);
+      }
+      
+      if(index_as_key(&subindex, pmath_System_PatternSequence)) {
+        // pmath> l:= {}; l[{"a", "b"}]:= {}; l
+        //        {a -> {}, b -> {}}
+        // pmath> l[{"a", "b"}, "x"]:= {1, 2}; l
+        //        {a -> {x -> 1}, b -> {x -> 2}}
+        // pmath> l[{"a", "b"}, {"x", "y", "z"}]:= {{11,22,33}, {44,55,66}}; l
+        //        {a -> {x -> 11, y -> 22, z -> 33}, b -> {x -> 44, y -> 55, z -> 66}}
+        
+        if(!did_check_rules) {
+          did_check_rules = TRUE;
+          if(!check_list_of_rules(list)) {
+            pmath_unref(subindex);
+            pmath_unref(index);
+            pmath_unref(new_item);
+            *error = TRUE;
+            return list;
+          }
+        }
+        
+        struct assign_part_context_t context;
+        context.position = position;
+        context.position_start = position_start;
+        context.new_value = new_item;
+        context.error = error;
+        list = pmath_rules_modify(list, subindex, modify_rule_rhs, &context);
+        pmath_unref(new_item);
+      }
+      else {
+        size_t list_i = SIZE_MAX;
+        if(!extract_number(subindex, listlen, &list_i)) {
+          // pmath> l:= {1,2,3,4,5,6,7}; l[{5,3}]:= {x,y}; l
+          //        {1, 2, y, 4, x, 6, 7}
+          // pmath> l:= {1,2,3,4,5,6,7}; l[{5,5}]:= {x,y}; l
+          //        {1, 2, 3, 4, y, 6, 7}
+          if(*error)
+            pmath_unref(subindex);
+          else
+            pmath_message(PMATH_NULL, "pspec", 1, subindex);
+          *error = TRUE;
+          pmath_unref(index);
+          pmath_unref(new_item);
+          return list;
+        }
+        
+        if(list_i > listlen) {
+          if(*error)
+            pmath_unref(subindex);
+          else
+            pmath_message(PMATH_NULL, "partw", 2,
+                          pmath_ref(list),
+                          subindex);
+          *error = TRUE;
+          pmath_unref(index);
+          pmath_unref(new_item);
+          return list;
+        }
+        
+        pmath_t item = pmath_expr_get_item(list, list_i);
+        pmath_unref(subindex);
         
         list = pmath_expr_set_item(list, list_i, PMATH_NULL);
         list = pmath_expr_set_item(list, list_i,
                                    assign_part(item, position, position_start + 1, new_item, error));
-                                   
+                                     
         pmath_unref(new_item);
-      }
-      else {
-        pmath_t item = pmath_expr_get_item(list, list_i);
-        
-        list = pmath_expr_set_item(list, list_i, PMATH_NULL);
-        list = pmath_expr_set_item(list, list_i,
-                                   assign_part(item, position, position_start + 1, new_value, error));
       }
     }
     
