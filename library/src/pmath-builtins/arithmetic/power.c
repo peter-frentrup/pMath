@@ -18,6 +18,7 @@ extern pmath_symbol_t pmath_System_Complex;
 extern pmath_symbol_t pmath_System_DirectedInfinity;
 extern pmath_symbol_t pmath_System_ExponentialE;
 extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_Pi;
 extern pmath_symbol_t pmath_System_Power;
 extern pmath_symbol_t pmath_System_Sign;
 extern pmath_symbol_t pmath_System_Times;
@@ -517,10 +518,12 @@ static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
       if(factor_class & PMATH_CLASS_NEG)
         factor = NEG(factor);
         
-      factor = POW(factor, pmath_expr_get_item(power, 2));
+      factor = POW(factor, pmath_ref(exponent));
       factor = pmath_evaluate(factor);
       
       if(!pmath_is_expr_of(factor, pmath_System_Power)) {
+        pmath_unref(exponent);
+        
         if(factor_class & PMATH_CLASS_NEG)
           product = pmath_expr_set_item(product, i, INT(-1));
         else
@@ -1265,6 +1268,138 @@ static pmath_bool_t try_power_of_rational(pmath_t *expr, pmath_quotient_t base, 
   return FALSE;
 }
 
+/** \brief Try to simplify a symbolic power of ExponentialE.
+    \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
+    \param exponent A pMath object. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+static pmath_bool_t try_simplify_exp(pmath_t *expr, pmath_t exponent) {
+  // ExponentialE^(ImaginaryI q Pi) for integer or half-integer q
+  // ExponentialE^(ImaginaryI q Pi + r) for integer or half-integer q and real r
+  //
+  //  pmath> Exp(ImaginaryI Pi)
+  //         -1
+  //  pmath> Exp(-1/2 ImaginaryI Pi)
+  //         -ImaginaryI
+  //  pmath> Exp({-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5} * ImaginaryI Pi)
+  //         {-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1}
+  //  pmath> Exp({-4, -3, -2, -1, 0, 1, 2, 3, 4}/2 * ImaginaryI Pi)
+  //         {1, ImaginaryI, -1, -ImaginaryI, 1, ImaginaryI, -1, -ImaginaryI, 1}
+  //  pmath> Exp(-(10^1000+1)/2 ImaginaryI Pi)
+  //         -ImaginaryI
+  //
+  //  pmath> Exp(ImaginaryI Pi + 3)
+  //         -ExponentialE^3
+  //
+  // Products of ExponentialE in the base will be simplified by other functions:
+  //  pmath> (2 ExponentialE)^(ImaginaryI Pi + 3)
+  //         -2^(3 + ImaginaryI Pi) ExponentialE^3
+  //  pmath> (2 ExponentialE)^(ImaginaryI Pi + 3 x)
+  //         (2 ExponentialE)^(3 x + ImaginaryI Pi)
+  pmath_t re = PMATH_NULL;
+  pmath_t im = PMATH_NULL;
+  if(_pmath_re_im(pmath_ref(exponent), &re, &im)) {
+    re = pmath_evaluate(re);
+    im = pmath_evaluate(im);
+    if(pmath_same(im, pmath_System_Pi)) {
+      pmath_unref(*expr);
+      pmath_unref(im);
+      
+      // ExponentialE^(ImaginaryI Pi + r) = ExponentialE^(ImaginaryI Pi) * ExponentialE^r = -1 * ExponentialE^r
+      if(pmath_is_int32(re) && PMATH_AS_INT32(re) == 0) {
+        *expr = INT(-1);
+      }
+      else {
+        *expr = TIMES(INT(-1), POW(pmath_ref(pmath_System_ExponentialE), re));
+      }
+      return TRUE;
+    }
+    
+    if(pmath_is_expr_of_len(im, pmath_System_Times, 2) && pmath_expr_item_equals(im, 2, pmath_System_Pi)) {
+      pmath_t im_factor = pmath_expr_get_item(im, 1);
+      pmath_t out_factor = PMATH_NULL;
+      if(pmath_is_int32(im_factor)) {
+        // ExponentialE^(ImaginaryI n Pi) = (-1)^n for integer n
+        out_factor = INT((PMATH_AS_INT32(im_factor) & 1) ? -1 : 1);
+      }
+      else if(pmath_is_mpint(im_factor)) {
+        // ExponentialE^(ImaginaryI Pi n) = (-1)^n for integer n
+        out_factor = INT(mpz_odd_p(PMATH_AS_MPZ(im_factor)) ? -1 : 1);
+      }
+      else if(pmath_is_quotient(im_factor)) {
+        if(pmath_is_int32(PMATH_QUOT_DEN(im_factor)) && PMATH_AS_INT32(PMATH_QUOT_DEN(im_factor)) == 2) {
+          // ExponentialE^(ImaginaryI Pi n/2) = ImaginaryI (-1)^((n-1)/2) for positive odd integer n
+          pmath_integer_t num = PMATH_QUOT_NUM(im_factor);
+          
+          if(pmath_is_int32(num)) {
+            int32_t num_val = PMATH_AS_INT32(num);
+            if(num_val < 0) {
+              uint32_t abs_num_val = -(uint32_t)num_val;
+              num_val = 4 - (int32_t)(abs_num_val & (uint32_t)3);
+            }
+            else {
+              num_val = num_val & 3;
+            }
+            
+            if(num_val == 1)
+              out_factor = COMPLEX(INT(0), INT(1));
+            else if(num_val == 3)
+              out_factor = COMPLEX(INT(0), INT(-1));
+          }
+          else if(pmath_is_mpint(num)) {
+            fmpz_t tmp;
+            fmpz_init(tmp);
+            
+            _pmath_integer_get_fmpz(tmp, num);
+            ulong mod4 = fmpz_mod_ui(tmp, tmp, 4);
+            
+            fmpz_clear(tmp);
+            
+            if(mod4 == 1)
+              out_factor = COMPLEX(INT(0), INT(1));
+            else if(mod4 == 3)
+              out_factor = COMPLEX(INT(0), INT(-1));
+          }
+        }
+      }
+      
+      pmath_unref(im_factor);
+      if(!pmath_is_null(out_factor)) {
+        pmath_unref(*expr);
+        pmath_unref(im);
+        
+        // ExponentialE^(ImaginaryI q Pi + r) = ExponentialE^(ImaginaryI Pi) * ExponentialE^r = out_factor * ExponentialE^r
+        if(pmath_is_int32(re) && PMATH_AS_INT32(re) == 0) {
+          *expr = out_factor;
+        }
+        else {
+          *expr = TIMES(out_factor, POW(pmath_ref(pmath_System_ExponentialE), re));
+        }
+        return TRUE;
+      }
+    }
+    
+    pmath_unref(re);
+    pmath_unref(im);
+  }
+  if(pmath_is_expr_of(exponent, pmath_System_Times)) {
+    
+    size_t index_of_pi = 0;
+    size_t explen = pmath_expr_length(exponent);
+    for(size_t i = explen; i > 0; --i) {
+      if(pmath_expr_item_equals(exponent, i, pmath_System_Pi)) {
+        index_of_pi = i;
+        break;
+      }
+    }
+    
+    if(index_of_pi) {
+    }
+  } 
+  return FALSE;
+}
+
 PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
   pmath_t base;
   pmath_t exponent;
@@ -1311,6 +1446,12 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
   }
   
   if(pmath_is_quotient(base) && try_power_of_rational(&expr, base, exponent)) {
+    pmath_unref(base);
+    pmath_unref(exponent);
+    return expr;
+  }
+  
+  if(pmath_same(base, pmath_System_ExponentialE) && try_simplify_exp(&expr, exponent)) {
     pmath_unref(base);
     pmath_unref(exponent);
     return expr;
@@ -1590,6 +1731,13 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
 }
 
 PMATH_PRIVATE pmath_t builtin_exp(pmath_expr_t expr) {
+// Exp(z) = ExponentialE^z
+//
+// Examples:
+//  pmath> Exp(z)
+//         ExponentialE^z
+//  pmath> Exp(ImaginaryI Pi)
+//         -1
   pmath_t x;
   
   if(pmath_expr_length(expr) != 1) {

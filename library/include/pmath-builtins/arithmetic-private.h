@@ -47,10 +47,10 @@ pmath_t _pmath_directed_infinity_direction(
   pmath_t obj); // wont be freed
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_re_im( // whether operation succeded
+pmath_bool_t _pmath_re_im( // whether operation succeeded
   pmath_t  z,   // will be freed
-  pmath_t *re,  // optional output
-  pmath_t *im); // optional output
+  pmath_t *re,  // optional output, receives PMATH_NULL on failure
+  pmath_t *im); // optional output, receives PMATH_NULL on failure
 
 /**\brief Check if z = Complex(a, b) with numbers a, b
    \param z A pMath expression. It won't be freed.
