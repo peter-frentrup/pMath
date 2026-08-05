@@ -83,16 +83,16 @@ Document({
         SectionGroup({
           Section(BoxData({"24", "^", {"(", {"1", "/", "3"}, ")"}}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData({"2", {"3", SuperscriptBox({"1", "/", "3"})}}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-         All), SectionGroup({
+          Section(BoxData({"23", SuperscriptBox({"1", "/", "3"})}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section("Get a numerical approximation:", "ExampleText"), 
           SectionGroup({
-            Section(
-             BoxData({"Numericalize", "(", {"24", "^", {"(", {"1", "/", "3"}, ")"}}, 
-               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"Numericalize", "(", {
+                "24", "^", {"(", {"1", "/", "3"}, ")"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
             Section(BoxData("2.8844991406148166`"), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
           Section("24.0 is treated immediately as an approximate number:", 
@@ -149,8 +149,28 @@ Document({
             Section(BoxData({{"(", {"-", "1"}, ")"}, 
                SuperscriptBox({"1", "/", "3"})}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
-         All)}, 1), SectionGroup({
-        Section("Possible Issues", "ExampleSection"), 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Some complex powers of ", 
+             TemplateBox({"ExponentialE"}, "ReferenceHyperlink"), 
+             " are automatically simplified:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"\[ExponentialE]", SuperscriptBox({
+                  "\[ImaginaryI]", " ", "\[Pi]"})}, "+", "1"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("0"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section("The same in long form:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"ExponentialE", "^", {"(", {"ImaginaryI", "*", "Pi"}, ")"}}, 
+               "+", "1"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData("0"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
         Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
            " computes principal roots:"}), "ExampleText"), 
         SectionGroup({
@@ -161,8 +181,9 @@ Document({
              SuperscriptBox({"1", "/", "3"})}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
-          Section(BoxData({"Numericalize", "(", {"$History", "(", {"-", "1"}, ")"}, 
-             ")"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"Numericalize", "(", {
+              "$History", "(", {"-", "1"}, ")"}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
           Section(BoxData({"0.5`", "+", {"0.86602540378443849`", " ", 
               "\[ImaginaryI]"}}), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [2]:")}, All), 
