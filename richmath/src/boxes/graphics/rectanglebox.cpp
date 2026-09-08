@@ -60,7 +60,7 @@ bool RectangleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(options_expr.is_null())
     return false;
     
-  Expr args = Expr(pmath_expr_get_item_range(pmath_ref(expr.get()), 1, last_nonopt));
+  Expr args = Expr(pmath_expr_get_item_range(expr.get(), 1, last_nonopt));
   
   reset_style();
   _style.add_pmath(options_expr);
