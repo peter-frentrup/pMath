@@ -11,6 +11,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
+#include <limits.h>
 #include <stdio.h>
 
 
