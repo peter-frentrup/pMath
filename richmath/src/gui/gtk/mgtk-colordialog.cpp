@@ -2,10 +2,13 @@
 
 #include <eval/application.h>
 #include <eval/binding.h>
+
 #include <gui/documents.h>
 
 #include <gui/gtk/mgtk-widget.h>
 #include <gui/gtk/mgtk-messagebox.h>
+
+#include <util/autovaluereset.h>
 
 
 using namespace richmath;
@@ -13,11 +16,92 @@ using namespace pmath;
 
 extern pmath_symbol_t richmath_System_DollarCanceled;
 
+namespace {
+  struct MathGtkColorDialogHook {
+    static MathGtkColorDialogHook *current_hook;
+  public:
+    MathGtkColorDialog *dialog;
+    Color prev_color;
+    
+  public:
+    Expr show_color_selection_dialog(Color initialcolor);
+    static Color color_from_selection_widget(GtkColorSelection *widget);
+  
+  private:
+    static void color_selection_changed_cb(GtkColorSelection *sender, void *user_data);
+    
+    void on_color_selection_changed(GtkColorSelection *sender);
+    
+    void update_color(Color current_color);
+    
+#if GTK_MAJOR_VERSION >= 3
+  public:
+    Expr show_color_chooser_dialog(Color initialcolor);
+    static Color color_from_chooser_widget(GtkColorChooser *widget);
+    
+  private:
+    static void color_activated_cb(GtkColorChooser *sender, GdkRGBA *color, void *user_data);
+    
+    void on_color_activated(GtkColorChooser *sender, const GdkRGBA &color);
+#endif
+  };
+}
+
 //{ class MathGtkColorDialog ...
+
+Expr MathGtkColorDialog::show_impl(Color initialcolor) {
+  MathGtkColorDialogHook hook;
+  hook.dialog = this;
+  hook.prev_color = Color::None;
+  
+  AutoValueReset<MathGtkColorDialogHook*> auto_hook(MathGtkColorDialogHook::current_hook);
+  MathGtkColorDialogHook::current_hook = &hook;
+  
+#if GTK_MAJOR_VERSION >= 3
+  return hook.show_color_chooser_dialog(initialcolor);
+#endif
+  return hook.show_color_selection_dialog(initialcolor);
+}
+
+//} ... class MathGtkColorDialog
+
+//{ class MathGtkColorDialogHook ...
+
+MathGtkColorDialogHook *MathGtkColorDialogHook::current_hook = nullptr;
+
+Color MathGtkColorDialogHook::color_from_selection_widget(GtkColorSelection *widget) {
+#if GTK_MAJOR_VERSION >= 3
+  {
+    GdkRGBA color;
+
+    gtk_color_selection_get_current_rgba(widget, &color);
+
+    // ignoring alpha
+    return Color::from_rgb(color.red, color.green, color.blue);
+  }
+#else
+  {
+    GdkColor color;
+
+    gtk_color_selection_get_current_color(widget, &color);
+    
+    return Color::from_rgb(color.red / (double)0xffff, color.green / (double)0xffff, color.blue / (double)0xffff);
+  }
+#endif
+}
 
 #if GTK_MAJOR_VERSION >= 3
 
-static Expr color_chooser_dialog_show(Color initialcolor) {
+Color MathGtkColorDialogHook::color_from_chooser_widget(GtkColorChooser *widget) {
+  GdkRGBA color;
+  
+  gtk_color_chooser_get_rgba(widget, &color);
+  
+  // ignoring alpha
+  return Color::from_rgb(color.red, color.green, color.blue);
+}
+
+Expr MathGtkColorDialogHook::show_color_chooser_dialog(Color initialcolor) {
   GtkColorChooserDialog *dialog;
   GtkColorChooser       *chooser;
   
@@ -38,6 +122,8 @@ static Expr color_chooser_dialog_show(Color initialcolor) {
   
   gtk_color_chooser_set_use_alpha(chooser, FALSE);
   
+  g_signal_connect(chooser, "color-activated", G_CALLBACK(color_activated_cb), this);
+  
   if(initialcolor.is_valid()) {
     GdkRGBA color;
     
@@ -54,14 +140,9 @@ static Expr color_chooser_dialog_show(Color initialcolor) {
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {
-        GdkRGBA color;
-        
-        gtk_color_chooser_get_rgba(chooser, &color);
-        
+        Color col = color_from_chooser_widget(chooser);
         gtk_widget_destroy(GTK_WIDGET(dialog));
-        
-        // ignoring alpha
-        return Color::from_rgb(color.red, color.green, color.blue).to_pmath();
+        return col.to_pmath();
       }
   }
   
@@ -70,9 +151,18 @@ static Expr color_chooser_dialog_show(Color initialcolor) {
   return Symbol(richmath_System_DollarCanceled);
 }
 
-#endif
+void MathGtkColorDialogHook::color_activated_cb(GtkColorChooser *sender, GdkRGBA *color, void *user_data) {
+  ((MathGtkColorDialogHook*)user_data)->on_color_activated(sender, *color);
+}
 
-static Expr color_selection_dialog_show(Color initialcolor) {
+void MathGtkColorDialogHook::on_color_activated(GtkColorChooser *sender, const GdkRGBA &color) {
+  // ignoring alpha
+  update_color(Color::from_rgb(color.red, color.green, color.blue));
+}
+
+#endif // GTK_MAJOR_VERSION >= 3
+
+Expr MathGtkColorDialogHook::show_color_selection_dialog(Color initialcolor) {
   GtkColorSelectionDialog *dialog;
   GtkColorSelection       *widget;
 
@@ -81,6 +171,8 @@ static Expr color_selection_dialog_show(Color initialcolor) {
 
   gtk_color_selection_set_has_opacity_control(widget, FALSE);
 
+  g_signal_connect(widget, "color-changed", G_CALLBACK(color_selection_changed_cb), this);
+  
   if(initialcolor.is_valid()) {
 #if GTK_MAJOR_VERSION >= 3
     {
@@ -112,27 +204,8 @@ static Expr color_selection_dialog_show(Color initialcolor) {
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {
-        Color col;
-
-#if GTK_MAJOR_VERSION >= 3
-        {
-          GdkRGBA color;
-
-          gtk_color_selection_get_current_rgba(widget, &color);
-
-          // ignoring alpha
-          col = Color::from_rgb(color.red, color.green, color.blue);
-        }
-#else
-        {
-          GdkColor color;
-
-          gtk_color_selection_get_current_color(widget, &color);
-          
-          col = Color::from_rgb(color.red / (double)0xffff, color.green / (double)0xffff, color.blue / (double)0xffff);
-        }
-#endif
-
+        Color col = color_from_selection_widget(widget);
+        
         gtk_widget_destroy(GTK_WIDGET(dialog));
 
         return col.to_pmath();
@@ -144,11 +217,19 @@ static Expr color_selection_dialog_show(Color initialcolor) {
   return Symbol(richmath_System_DollarCanceled);
 }
 
-Expr MathGtkColorDialog::show(Color initialcolor) {
-#if GTK_MAJOR_VERSION >= 3
-  return color_chooser_dialog_show(initialcolor);
-#endif
-  return color_selection_dialog_show(initialcolor);
+void MathGtkColorDialogHook::color_selection_changed_cb(GtkColorSelection *sender, void *user_data) {
+  ((MathGtkColorDialogHook*)user_data)->on_color_selection_changed(sender);
 }
 
-//} ... class MathGtkColorDialog
+void MathGtkColorDialogHook::on_color_selection_changed(GtkColorSelection *sender) {
+  update_color(color_from_selection_widget(sender));
+}
+
+void MathGtkColorDialogHook::update_color(Color current_color) {
+  if(current_color != prev_color) {
+    prev_color = current_color;
+    dialog->set_color(current_color);
+  }
+}
+
+//} ... class MathGtkColorDialogHook

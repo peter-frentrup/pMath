@@ -10,10 +10,12 @@
 
 namespace richmath {
   class MathGtkColorDialog {
+    protected:
+      MathGtkColorDialog() {}
+      Expr show_impl(Color initialcolor);
+    
     public:
-      MathGtkColorDialog() = delete;
-
-      static pmath::Expr show(Color initialcolor);
+      virtual void set_color(Color current) = 0;
   };
 }
 

@@ -18,10 +18,12 @@ using namespace pmath;
 extern pmath_symbol_t richmath_System_DollarCanceled;
 
 namespace {
-  struct ColorDialogHook {
-    static ColorDialogHook *current_hook;
+  struct Win32ColorDialogHook {
+    static Win32ColorDialogHook *current_hook;
     static UINT_PTR CALLBACK static_hook_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
   public:
+    Win32ColorDialog *dialog;
+    COLORREF prev_color;
     bool dark_mode;
     
   private:
@@ -35,18 +37,20 @@ namespace {
 static COLORREF default_init_color = 0;
 static COLORREF custom_colors[16] = {0};
 
-Expr Win32ColorDialog::show(Color initialcolor) {
+Expr Win32ColorDialog::show_impl(Color initialcolor) {
   CHOOSECOLORW data;
-  ColorDialogHook hook {};
+  Win32ColorDialogHook hook {};
+  hook.dialog = this;
+  hook.prev_color = 0xFFFFFFFF;
   
-  AutoValueReset<ColorDialogHook*> auto_hook(ColorDialogHook::current_hook);
-  ColorDialogHook::current_hook = &hook;
+  AutoValueReset<Win32ColorDialogHook*> auto_hook(Win32ColorDialogHook::current_hook);
+  Win32ColorDialogHook::current_hook = &hook;
   
   memset(&data, 0, sizeof(data));
   data.lStructSize = sizeof(data);
   
   data.Flags = CC_ANYCOLOR | CC_RGBINIT | CC_FULLOPEN | CC_ENABLEHOOK;
-  data.lpfnHook = ColorDialogHook::static_hook_proc;
+  data.lpfnHook = Win32ColorDialogHook::static_hook_proc;
   
   if(initialcolor.is_valid()) 
     data.rgbResult = initialcolor.to_bgr24();
@@ -82,17 +86,17 @@ Expr Win32ColorDialog::show(Color initialcolor) {
 
 //} ... class Win32ColorDialog
 
-//{ class ColorDialogHook ...
+//{ class Win32ColorDialogHook ...
 
-ColorDialogHook *ColorDialogHook::current_hook = nullptr;
+Win32ColorDialogHook *Win32ColorDialogHook::current_hook = nullptr;
 
-UINT_PTR CALLBACK ColorDialogHook::static_hook_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+UINT_PTR CALLBACK Win32ColorDialogHook::static_hook_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   if(current_hook)
     return current_hook->hook_proc(hwnd, msg, wParam, lParam);
   return 0;
 }
 
-UINT_PTR ColorDialogHook::hook_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+UINT_PTR Win32ColorDialogHook::hook_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   switch(msg) {
     case WM_INITDIALOG: {
       Win32Themes::try_set_dark_mode_frame(hwnd, dark_mode);
@@ -115,6 +119,16 @@ UINT_PTR ColorDialogHook::hook_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
     case WM_CTLCOLORBTN:
     case WM_CTLCOLORSTATIC: {
       HDC hdc = (HDC)wParam;
+      
+      if(msg == WM_CTLCOLORSTATIC && (HWND)lParam == GetDlgItem(hwnd, 709 /* 709 = COLOR_CURRENT static control from ColorDlg.h / Color.dlg */)) {
+        COLORREF current_color = GetPixel(hdc, 0, 0);
+        //pmath_debug_print("[ColorDialog: %p current color = 0x%06x]\n", dialog, current_color);
+        if(current_color != prev_color) {
+          prev_color = current_color;
+          dialog->set_color(Color::from_bgr24(current_color));
+        }
+      }
+      
       COLORREF bg = Win32ControlPainter::win32_painter.win32_button_face_color(dark_mode).to_bgr24();
       SetTextColor(hdc, dark_mode ? RGB(255, 255, 255) : GetSysColor(COLOR_BTNTEXT));
       SetBkColor(hdc, bg);
@@ -129,4 +143,4 @@ UINT_PTR ColorDialogHook::hook_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
   return 0;
 }
 
-//} ... class ColorDialogHook
+//} ... class Win32ColorDialogHook

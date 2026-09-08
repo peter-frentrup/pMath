@@ -10,10 +10,12 @@
 
 namespace richmath {
   class Win32ColorDialog {
+    protected:
+      Win32ColorDialog() {}
+      Expr show_impl(Color initialcolor);
+    
     public:
-      Win32ColorDialog() = delete;
-
-      static Expr show(Color initialcolor);
+      virtual void set_color(Color current) = 0;
   };
 }
 

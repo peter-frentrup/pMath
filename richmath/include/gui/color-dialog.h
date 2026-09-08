@@ -14,14 +14,20 @@
 
 
 namespace richmath {
-  struct ColorDialog :
+  class ColorDialog :
   #if RICHMATH_USE_GTK_GUI
     private MathGtkColorDialog
   #elif RICHMATH_USE_WIN32_GUI
     private Win32ColorDialog
   #endif
   {
-    static Expr run(Expr expr);
+      class Impl;
+      Impl &impl;
+      ColorDialog(Impl &impl) : impl{impl} {}
+    protected:
+      virtual void set_color(Color current) override;
+    public:
+      static Expr run(Expr expr);
   };
 }
 
