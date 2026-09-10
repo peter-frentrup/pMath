@@ -37,8 +37,17 @@ void ColorDialog::set_color(Color current) {
 }
 
 Expr ColorDialog::run(Expr expr) {
+  AutoMemorySuspension ams{}; // Ensure that owner stays alive while in use by Dynamic current_color
   ColorDialog::Impl impl;
-  impl.current_color.init(Application::front_end_session, Expr());
+  
+  StyledObject *owner = Application::front_end_session;
+  
+  FrontEndObject *feo = Application::get_evaluation_object();
+  if(auto styled = dynamic_cast<StyledObject*>(feo)) {
+    owner = styled;
+  }
+  
+  impl.current_color.init(owner, Expr());
   impl.initcolor = Color::None;
   impl.initialized = false;
   
