@@ -87,26 +87,55 @@ makePropertyGridSeparator(Rule):=        "\[Rule]"
 makePropertyGridSeparator(RuleDelayed):= "\[RuleDelayed]"
 
 makePropertyGridValue(~parts, ~x)::= Short(x)
-makePropertyGridValue(~parts, d:Dynamic(~~~args))::= Grid({
+makePropertyGridValue(~parts, d: Dynamic(~~~args))::= Grid({
         {Short(HoldForm(HoldForm(Dynamic)(args)))}, 
         {Short(d)}}, BaselinePosition -> 1)
-makePropertyGridValue(~parts, True)::=  makePropertyGridBooleanValue(parts, True)
-makePropertyGridValue(~parts, False)::= makePropertyGridBooleanValue(parts, False)
+makePropertyGridValue(~parts, True)::=      makePropertyGridBooleanValue(parts, True)
+makePropertyGridValue(~parts, False)::=     makePropertyGridBooleanValue(parts, False)
+makePropertyGridValue(~parts, Automatic)::= makePropertyGridAutomaticValue(parts)
+makePropertyGridValue(~parts, Plain)::= makePropertyGridPlainValue(parts)
+makePropertyGridValue(~parts, Italic)::= makePropertyGridSetterBarValue(parts, Italic, {Italic, Plain})
+makePropertyGridValue(~parts, Bold)::= makePropertyGridSetterBarValue(parts, Bold, {Bold, Plain})
 makePropertyGridValue(~parts, col: RGBColor(~,~,~))::= makePropertyGridColorValue(parts, col)
 makePropertyGridValue(~parts, col: GrayLevel(~))::=    makePropertyGridColorValue(parts, col)
 
+% Even better would be to ask the front end
+isAutoBool(~):= False
+isAutoBool({}):= False
+isAutoBool(~parts:List)::= isAutoBool(Last(parts))
+isAutoBool(Antialiasing):= True
+isAutoBool(ContentPadding):= True
+isAutoBool(Enabled):= True
+isAutoBool(LimitsPositioning):= True
+isAutoBool(Selectable):= True
+isAutoBool(ShowSectionBracket):= True
+isAutoBool(SynchronousUpdating):= True
+
 Function makePropertyGridBooleanValue(~parts, ~val) {
-    Row({
-        Checkbox(Dynamic(;val, Function(CurrentValue(parts):= #))),
-        " ", 
-        Short(val)})
+    If(isAutoBool(parts)) {
+        makePropertyGridSetterBarValue(parts, val, {True, False, Automatic})
+    } Else {
+        makePropertyGridSetterBarValue(parts, val, {True, False})
+        % Pane(Button(Row({Checkbox(Dynamic(CurrentValue(parts))), " (", Short(val), ")"}),
+        %     CurrentValue(parts):= val |> {True -> False, ~ -> True},
+        %     ButtonFrame -> None))
+    }
 }
+
+makePropertyGridAutomaticValue(~parts ? isAutoBool) ::= makePropertyGridSetterBarValue(parts, Automatic, {True, False, Automatic})
+makePropertyGridAutomaticValue(~)::= Automatic
+
+makePropertyGridPlainValue(parts: {~~~, FontSlant})::= makePropertyGridSetterBarValue(parts, Plain, {Italic, Plain})
+makePropertyGridPlainValue(parts: {~~~, FontWeight})::= makePropertyGridSetterBarValue(parts, Plain, {Bold, Plain})
+makePropertyGridPlainValue(~)::= Plain
+
+makePropertyGridSetterBarValue(~parts, ~val, ~alternatives) ::= SetterBar(Dynamic(CurrentValue(parts)), alternatives)
 
 Function makePropertyGridColorValue(~parts, ~col) {
     Row({
         Button(
-            Framed("    ", Background -> col),
-            With(newcol:= FE`ColorDialog(col)) {
+            Framed("    ", Background -> Dynamic(CurrentValue(parts))),
+            With(newcol:= FE`ColorDialog(Dynamic(CurrentValue(parts)))) {
                 If(newcol =!= $Canceled && newcol =!= $Failed) {
                     CurrentValue(parts):= newcol
                 }
