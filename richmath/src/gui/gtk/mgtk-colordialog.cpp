@@ -15,6 +15,8 @@ using namespace richmath;
 using namespace pmath;
 
 extern pmath_symbol_t richmath_System_DollarCanceled;
+extern pmath_symbol_t richmath_System_False;
+extern pmath_symbol_t richmath_System_True;
 
 namespace {
   struct MathGtkColorDialogHook {
@@ -58,7 +60,12 @@ Expr MathGtkColorDialog::show_impl(Color initialcolor) {
   MathGtkColorDialogHook::current_hook = &hook;
   
 #if GTK_MAJOR_VERSION >= 3
-  return hook.show_color_chooser_dialog(initialcolor);
+  {
+    Expr useColorChooser = Evaluate(Parse("FE`Private`$UseNewGtk3ColorDialog"));
+    
+    if(useColorChooser != richmath_System_False)
+      return hook.show_color_chooser_dialog(initialcolor);
+  }
 #endif
   return hook.show_color_selection_dialog(initialcolor);
 }

@@ -684,6 +684,14 @@ int main(int argc, char **argv) {
 #endif
     
 #ifdef RICHMATH_USE_GTK_GUI
+    PMATH_RUN(
+      "FE`Private`$UseNewGtk3ColorDialog:="
+      "FE`Private`$UseNewGtk3ColorDialog |> {"
+        "True -> True,"
+        "False -> False,"
+        "~ -> Environment(\"PMATH_USE_NEW_GTK3_COLOR_DIALOG\") |> {"
+          "\"1\" -> True,"
+          "~ -> False}}");
     MathGtkCss::init();
     Clipboard::std = &MathGtkClipboard::obj;
     MathGtkAccelerators::load(Evaluate(Parse(SHORTCUTS_CMD)));
