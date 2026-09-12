@@ -436,7 +436,7 @@ Expr CurrentValueImpl::get_DynamicUpdateCauseLocation(FrontEndObject *obj, Expr 
 
 Expr CurrentValueImpl::get_Editable(FrontEndObject *obj, Expr item) {
   if(Box *box = dynamic_cast<Box*>(obj)) {
-    return box->editable();
+    return Symbol(box->editable() ? richmath_System_True : richmath_System_False);
   } 
   
   return StyleData::get_current_style_value(obj, PMATH_CPP_MOVE(item));
