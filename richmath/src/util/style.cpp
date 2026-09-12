@@ -422,6 +422,9 @@ namespace {
       static Expr get_current_style_value(FrontEndObject *obj, Expr item);
       static bool put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs);
       
+      static Expr get_current_StyleData(FrontEndObject *obj, Expr item);
+      static bool put_current_StyleData(FrontEndObject *obj, Expr item, Expr rhs);
+      
       static bool is_list_with_inherited(Expr expr);
       static bool needs_ruledelayed(Expr expr);
       
@@ -3323,6 +3326,8 @@ void StyleInformation::add_style() {
     _name_to_key.default_value = StyleOptionName{ -1};
     _key_to_type.default_value = StyleType::None;
     
+    CurrentValue::register_provider(Symbol(richmath_System_StyleData), get_current_StyleData, put_current_StyleData);
+    
     add_ruleset_head(BezierCurveBoxOptions,         Symbol( richmath_System_BezierCurveBoxOptions));
     add_ruleset_head(ButtonBoxOptions,              Symbol( richmath_System_ButtonBoxOptions));
     add_ruleset_head(CharacterNameStyle,            strings::CharacterNameStyle);
@@ -3953,6 +3958,30 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
     styled_obj->on_style_changed(StyleData::modifies_size(key));
   
   return true;
+}
+
+Expr StyleInformation::get_current_StyleData(FrontEndObject *obj, Expr item) {
+  // CurrentValue(obj, {StyleData, style...})
+  
+  if(item.item_equals(0, richmath_System_List) 
+  && item.item_equals(1, richmath_System_StyleData)
+  && item.expr_length() >= 2) {
+    return get_current_style_value(obj, item.rest());
+  }
+  
+  return Symbol(richmath_System_DollarFailed);
+}
+
+bool StyleInformation::put_current_StyleData(FrontEndObject *obj, Expr item, Expr rhs) {
+  // CurrentValue(obj, {StyleData, style...}):= ...
+    
+  if(item.item_equals(0, richmath_System_List) 
+  && item.item_equals(1, richmath_System_StyleData)
+  && item.expr_length() >= 2) {
+    return put_current_style_value(obj, item.rest(), rhs);
+  }
+  
+  return false;
 }
 
 bool StyleInformation::is_list_with_inherited(Expr expr) {

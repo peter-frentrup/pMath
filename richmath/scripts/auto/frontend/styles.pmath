@@ -56,7 +56,7 @@ Function asStyleDataExampleBox(~labelTextBox, ~exampleBox) {
                                         Section(~,~~~rest):>{rest}
                                     }, 0).Replace(
                                         {{}->{"(nothing)"}
-                                    }, 0).Map(Function(makePropertyGridEntries("", {Section}, #))).Flatten(1)
+                                    }, 0).Map(Function(makePropertyGridEntries("", {Section, StyleData}, #))).Flatten(1)
                             )))}, {"", ""}}, GridBoxRowSpacing -> 0.2)
                     }, #1,
                     ImageSize->Automatic)},
