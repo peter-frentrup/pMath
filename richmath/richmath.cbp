@@ -490,6 +490,76 @@
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
+			<Target title="Windows-MSVC-Debug-x64-FLTK">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-debug-x64/richmath-fltk" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-debug-x64-fltk" />
+				<Option external_deps="../library/pmath.cbp;" />
+				<Option type="1" />
+				<Option compiler="msvc_2015_x64" />
+				<Compiler>
+					<Add option="/MDd" />
+					<Add option="/Gd" />
+					<Add option="/GF" />
+					<Add option="/Zi" />
+					<Add option='/Fd&quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot;' />
+					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
+					<Add option="/wd4263 /wd4264 /wd4266 /wd4577" />
+					<Add option="/DPMATH_DEBUG_LOG" />
+					<Add option="/D_HAS_EXCEPTIONS=0" />
+					<Add option="/D_USE_MATH_DEFINES" />
+					<Add option="/DRICHMATH_USE_WIN32_FONT" />
+					<Add option="/DRICHMATH_USE_FLTK_GUI" />
+					<Add option="/DRICHMATH_USE_WIN32_GUI" />
+					<Add option="/D_WIN32_WINNT=0x600" />
+					<Add option="/DFLTK_HAVE_CAIRO=1" />
+					<Add option="/DFLTK_HAVE_PEN_SUPPORT=1" />
+					<Add directory="include" />
+					<Add directory="resources" />
+					<Add directory="../library/include" />
+					<Add directory="$(#cairo_64.include)" />
+					<Add directory="$(#glib_64.include)" />
+					<Add directory="$(#glib_64.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_64.include)" />
+					<Add directory="dependencies/source/configs" />
+					<Add directory="dependencies/source/fltk" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\richmath.natvis" />
+					<Add library="pmath" />
+					<Add library="cairo" />
+					<Add library="glib-2.0" />
+					<Add library="gobject-2.0" />
+					<Add library="pango-1.0" />
+					<Add library="pangocairo-1.0" />
+					<Add library="pangowin32-1.0" />
+					<Add library="comctl32" />
+					<Add library="comdlg32" />
+					<Add library="gdi32" />
+					<Add library="ole32" />
+					<Add library="oleaut32" />
+					<Add library="user32" />
+					<Add library="uuid" />
+					<Add library="usp10" />
+					<Add library="advapi32" />
+					<Add library="shell32" />
+					<Add library="shlwapi" />
+					<Add library="propsys" />
+					<Add library="uiautomationcore" />
+					<Add library="winspool" />
+					<Add library="ws2_32" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
+					<Add directory="$(#cairo_64.lib)" />
+					<Add directory="$(#glib_64.lib)" />
+					<Add directory="$(#pango_64.lib)" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_64.bin);$(#pango_64.bin);$(#glib_64.bin);$(#gtk_64.bin)&quot; -ErrorAction Stop -Verbose' />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
 			<Target title="Windows-MSVC-Debug-x64">
 				<Option platforms="Windows;" />
 				<Option output="bin/windows/msvc-debug-x64/richmath" prefix_auto="1" extension_auto="1" />
@@ -855,6 +925,391 @@
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<Unit filename="dependencies/source/configs/FL/fl_config.h">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/configs/config.h" />
+		<Unit filename="dependencies/source/fltk/src/Fl.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Bitmap.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Box.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Browser.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Browser_.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Button.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Copy_Surface.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Device.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Graphics_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Group.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Image.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Image_Surface.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Input.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Input_.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Menu.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Menu_.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Menu_Bar.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Menu_Button.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Menu_Window.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Menu_add.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Menu_global.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Message.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Native_File_Chooser.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Native_File_Chooser_WIN32.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Paged_Device.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Pixmap.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Preferences.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Printer.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Return_Button.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Screen_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Scrollbar.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Shared_Image.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Single_Window.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Slider.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_System_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Text_Buffer.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Text_Display.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Text_Editor.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Tiled_Image.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Timeout.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Tooltip.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Tree_Prefs.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Valuator.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Widget.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Widget_Surface.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Window.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Window_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Window_fullscreen.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Window_hotspot.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_XBM_Image.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_XPM_Image.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_abort.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_arg.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_compose.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_get_key_win32.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_get_system_colors.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_grab.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_lock.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_win32.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/Base/Fl_Base_Pen_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/Cairo/Fl_Cairo_Graphics_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Copy_Surface_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Graphics_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Graphics_Driver_arci.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Graphics_Driver_color.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Graphics_Driver_font.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Graphics_Driver_image.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Graphics_Driver_line_style.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Graphics_Driver_rect.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Graphics_Driver_vertex.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/GDI/Fl_GDI_Image_Surface_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/WinAPI/Fl_WinAPI_Pen_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/WinAPI/Fl_WinAPI_Printer_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/WinAPI/Fl_WinAPI_Screen_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/WinAPI/Fl_WinAPI_System_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/WinAPI/Fl_WinAPI_Window_Driver.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/drivers/WinAPI/fl_WinAPI_platform_init.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/filename_absolute.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/filename_expand.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/filename_ext.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/filename_isdir.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/filename_list.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/filename_match.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/filename_setext.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_arc.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_ask.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_boxtype.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_color.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_contrast.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_cursor.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_curve.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_diamond_box.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_dnd_win32.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_draw.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_draw_arrow.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_draw_pixmap.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_encoding_latin1.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_encoding_mac_roman.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_engraved_label.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_font.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_gleam.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_gtk.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_labeltype.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_oval_box.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_oxy.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_plastic.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_read_image.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_rect.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_round_box.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_rounded_box.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_set_font.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_shadow_box.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_shortcut.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_string_functions.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_symbols.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_utf8.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_vertex.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/flstring.c">
+			<Option compilerVar="CC" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/numericsort.c">
+			<Option compilerVar="CC" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/print_button.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/scandir_win32.c">
+			<Option compilerVar="CC" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/screen_xywh.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/vsnprintf.c">
+			<Option compilerVar="CC" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/xutf8/case.c">
+			<Option compilerVar="CC" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/xutf8/is_spacing.c">
+			<Option compilerVar="CC" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
 		<Unit filename="include/boxes/abstractsequence.h" />
 		<Unit filename="include/boxes/box-factory.h" />
 		<Unit filename="include/boxes/box.h" />
@@ -950,6 +1405,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/clipboard.h" />
 		<Unit filename="include/gui/color-dialog.h" />
@@ -1139,6 +1595,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/a11y/win32-uia-grid-item-provider.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1148,6 +1605,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/a11y/win32-uia-grid-provider.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1157,6 +1615,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/a11y/win32-uia-invoke-provider.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1166,6 +1625,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/a11y/win32-uia-multibox-provider.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1175,6 +1635,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/a11y/win32-uia-range-value-provider.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1184,6 +1645,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/a11y/win32-uia-selection-item-provider.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1193,6 +1655,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/a11y/win32-uia-text-range-provider.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1202,6 +1665,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/a11y/win32-uia-toggle-provider.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1211,6 +1675,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/api/stylusutil.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1220,6 +1685,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/api/win32-hd-trackpad.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1229,6 +1695,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/api/win32-highdpi.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1238,6 +1705,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/api/win32-themes.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1247,6 +1715,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/api/win32-touch.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1256,6 +1725,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/api/win32-version.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1265,6 +1735,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/basic-win32-widget.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1274,6 +1745,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/basic-win32-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1283,6 +1755,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-automenuhook.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1292,6 +1765,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-custom-menu-overlay.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1301,6 +1775,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-menu-gutter-slider.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1310,6 +1785,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-menu-item-overlays.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1319,6 +1795,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-menu-search-overlay.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1328,6 +1805,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-menu-table-wizard.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1338,6 +1816,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-menu.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1347,6 +1826,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-menubar.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1356,6 +1836,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/com-safe-arrays.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1365,6 +1846,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/combase.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1374,6 +1856,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/comsidechannel.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1383,6 +1866,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/dataobject.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1392,6 +1876,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/dropsource.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1401,6 +1886,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/droptarget.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1410,6 +1896,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/enumformatetc.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1419,6 +1906,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/filesystembinddata.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1428,6 +1916,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/propvar.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1437,6 +1926,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/virtual-desktops.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1446,6 +1936,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-attached-popup-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1455,6 +1946,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-clipboard.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1464,6 +1956,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-colordialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1473,6 +1966,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-control-painter.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1482,6 +1976,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-document-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1491,6 +1986,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-dragdrophandler.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1500,6 +1996,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-filedialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1509,6 +2006,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-fontdialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1518,6 +2016,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-messagebox.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1527,6 +2026,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-recent-documents.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1536,6 +2036,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-scrollbar-overlay.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1545,6 +2046,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-tooltip-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1554,6 +2056,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-widget.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1563,6 +2066,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/syntax/autocompletion.h" />
 		<Unit filename="include/syntax/scope-colorizer.h" />
@@ -1603,6 +2107,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="resources/resources.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1612,6 +2117,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="resources/richmath.rc">
 			<Option compilerVar="WINDRES" />
@@ -1622,6 +2128,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="scripts/frontinit.pmath" />
 		<Unit filename="src/boxes/abstractsequence.cpp" />
@@ -1722,6 +2229,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/clipboard.cpp" />
 		<Unit filename="src/gui/color-dialog.cpp" />
@@ -1930,6 +2438,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/a11y/win32-uia-grid-item-provider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1939,6 +2448,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/a11y/win32-uia-grid-provider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1948,6 +2458,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/a11y/win32-uia-invoke-provider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1957,6 +2468,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/a11y/win32-uia-multibox-provider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1966,6 +2478,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/a11y/win32-uia-range-value-provider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1975,6 +2488,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/a11y/win32-uia-selection-item-provider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1984,6 +2498,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/a11y/win32-uia-text-range-provider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1993,6 +2508,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/a11y/win32-uia-toggle-provider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2002,6 +2518,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/api/stylusutil.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2011,6 +2528,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/api/win32-hd-trackpad.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2020,6 +2538,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/api/win32-highdpi.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2029,6 +2548,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/api/win32-themes.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2038,6 +2558,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/api/win32-touch.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2047,6 +2568,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/api/win32-version.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2056,6 +2578,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/basic-win32-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2065,6 +2588,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/basic-win32-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2074,6 +2598,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-automenuhook.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2083,6 +2608,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-custom-menu-overlay.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2092,6 +2618,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-menu-gutter-slider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2101,6 +2628,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-menu-item-overlays.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2110,6 +2638,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-menu-search-overlay.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2119,6 +2648,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-menu-table-wizard.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2128,6 +2658,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-menu.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2137,6 +2668,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-menubar.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2146,6 +2678,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/combase.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2155,6 +2688,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/comsidechannel.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2164,6 +2698,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/dataobject.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2173,6 +2708,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/dropsource.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2182,6 +2718,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/droptarget.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2191,6 +2728,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/enumformatetc.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2200,6 +2738,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/filesystembinddata.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2209,6 +2748,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/virtual-desktops.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2218,6 +2758,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-attached-popup-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2227,6 +2768,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-clipboard.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2236,6 +2778,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-colordialog.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2245,6 +2788,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-control-painter.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2254,6 +2798,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-document-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2263,6 +2808,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-dragdrophandler.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2272,6 +2818,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-filedialog.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2281,6 +2828,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-fontdialog.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2290,6 +2838,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-messagebox.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2299,6 +2848,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-recent-documents.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2308,6 +2858,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-scrollbar-overlay.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2317,6 +2868,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-tooltip-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2326,6 +2878,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -2335,6 +2888,7 @@
 			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/syntax/autocompletion.cpp" />

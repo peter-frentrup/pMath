@@ -1,0 +1,3 @@
+[submodule "richmath/dependencies/source/fltk"]
+	path = richmath/dependencies/source/fltk
+	url = https://github.com/fltk/fltk.git

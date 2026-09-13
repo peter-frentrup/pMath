@@ -105,6 +105,10 @@
 #  include <gtk/gtk.h>
 #endif
 
+#ifdef RICHMATH_USE_FLTK_GUI
+#  include <FL/Fl.H>
+#endif
+
 #ifdef _MSC_VER
 #  define snprintf sprintf_s
 #endif
