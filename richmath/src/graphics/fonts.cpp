@@ -1,8 +1,8 @@
 #include <graphics/fonts.h>
 
 #ifdef RICHMATH_USE_WIN32_FONT
-#  include <gui/win32/api/win32-themes.h>
 #  include <cairo-win32.h>
+#  include <usp10.h>
 #elif defined(RICHMATH_USE_FT_FONT)
 #  include <pango/pangocairo.h>
 #  define PANGO_ENABLE_ENGINE
