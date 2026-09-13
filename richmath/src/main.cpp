@@ -107,6 +107,7 @@
 
 #ifdef RICHMATH_USE_FLTK_GUI
 #  include <FL/Fl.H>
+#  include <FL/fl_ask.H>
 #endif
 
 #ifdef _MSC_VER
@@ -356,6 +357,10 @@ static void os_init() {
 }
 
 static void message_dialog(const char *title, const char *content) {
+#ifdef RICHMATH_USE_FLTK_GUI
+  fl_alert("%s\n\n%s", title, content);
+#endif
+
 #ifdef RICHMATH_USE_WIN32_GUI
   MessageBoxA(
     0,
@@ -644,6 +649,10 @@ int main(int argc, char **argv) {
   
 #  ifdef RICHMATH_USE_GTK_GUI
   printf("gtk version: %d.%d.%d\n", gtk_major_version, gtk_minor_version, gtk_micro_version);
+#  endif
+  
+#  ifdef RICHMATH_USE_FLTK_GUI
+  printf("FLTK version %d, ABI: %d\n", Fl::api_version(), Fl::abi_version());
 #  endif
 #endif
   
