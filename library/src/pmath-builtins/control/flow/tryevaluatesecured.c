@@ -8,8 +8,49 @@
 extern pmath_symbol_t pmath_System_HoldComplete;
 
 PMATH_PRIVATE pmath_t builtin_internal_tryevaluatesecured(pmath_expr_t expr) {
-  /* Internal`TryEvaluateSecured(expr, level)
-   */
+// Internal`TryEvaluateSecured(expr, level)
+//
+// Examples:
+//  Preparing the tests:
+//  pmath> x:= 10; SeedRandom(1234);
+//
+//  pmath> Internal`TryEvaluateSecured(123, "NothingAllowed")
+//         HoldComplete(123)
+//  pmath> Internal`TryEvaluateSecured(x, "NothingAllowed")
+//         HoldComplete(10)
+//  pmath> Internal`TryEvaluateSecured(y, "NothingAllowed")
+//         HoldComplete(y)
+//  pmath> Internal`TryEvaluateSecured(1 + 1, "NothingAllowed")
+//   ERR: Throw::nocatch: 
+//         Uncaught exception SecurityException(PureDeterministicAllowed, 
+//             HoldComplete(Plus, DownRules, 1 + 1)). [1]
+//         $Aborted
+//
+//  pmath> Internal`TryEvaluateSecured(1 + 1, "PureDeterministicAllowed")
+//         HoldComplete(2)
+//  pmath> Internal`TryEvaluateSecured(x * 3, "PureDeterministicAllowed")
+//         HoldComplete(30)
+//  pmath> Internal`TryEvaluateSecured(RandomReal(), "PureDeterministicAllowed")
+//   ERR: Throw::nocatch: 
+//         Uncaught exception SecurityException(NonDestructiveAllowed, 
+//             HoldComplete(RandomReal, DownRules, RandomReal())). [2]
+//         $Aborted
+//
+//  pmath> Internal`TryEvaluateSecured(RandomReal(), "NonDestructiveAllowed")
+//         HoldComplete(0.9708211914308248`)
+//  pmath> Internal`TryEvaluateSecured(x:= 55, "NonDestructiveAllowed")
+//   ERR: Throw::nocatch: 
+//         Uncaught exception SecurityException(EverythingAllowed, 
+//             HoldComplete(Assign, DownRules, x:= 55)). [3]
+//         $Aborted
+//  pmath> x
+//         10
+//
+//  pmath> Internal`TryEvaluateSecured(x:= 55, "EverythingAllowed")
+//         HoldComplete(55)
+//  pmath> x
+//         55
+//
   pmath_t obj;
   pmath_security_level_t level;
   
