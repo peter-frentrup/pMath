@@ -61,7 +61,9 @@ Expr MathGtkColorDialog::show_impl(Color initialcolor) {
   
 #if GTK_MAJOR_VERSION >= 3
   {
-    Expr useColorChooser = Evaluate(Parse("FE`Private`$UseNewGtk3ColorDialog"));
+    Expr useColorChooser = EvaluateSecuredAndCatch(
+      Parse("FE`Private`$UseNewGtk3ColorDialog"), 
+      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED);
     
     if(useColorChooser != richmath_System_False)
       return hook.show_color_chooser_dialog(initialcolor);

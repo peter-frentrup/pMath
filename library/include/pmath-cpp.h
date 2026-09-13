@@ -1262,6 +1262,20 @@ namespace pmath {
    */
   inline Expr Evaluate(Expr x) noexcept { return Expr(pmath_evaluate(x.release())); }
   
+  inline Expr EvaluateSecuredAndCatch(Expr x, pmath_security_level_t max_allowed_level) noexcept {
+    if(pmath_aborting())
+      return Expr(PMATH_UNDEFINED);
+    
+    pmath_t result = pmath_evaluate_secured(x.release(), max_allowed_level);
+    pmath_t ex = pmath_catch();
+    if(!pmath_same(ex, PMATH_UNDEFINED)) {
+      pmath_unref(result);
+      pmath_unref(ex);
+      return Expr(PMATH_UNDEFINED);
+    }
+    return Expr(result);
+  }
+  
   /**\brief Parse a pMath expression without evaluating it.
      \param code     A string containg valid pMath syntax with optional `` `1` ``, `` `2` ``, ... insertion points.
      \param arglist  A pMath List of objects to insert in place of the `` `1` ``, `` `2` ``, ... insertion points in \a code.
