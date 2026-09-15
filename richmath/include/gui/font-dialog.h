@@ -2,6 +2,10 @@
 #define RICHMATH__GUI__FONT_DIALOG_H__INCLUDED
 
 
+#ifdef RICHMATH_USE_FLTK_GUI
+#  include <gui/fltk/mfltk-fontdialog.h>
+#endif
+
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-fontdialog.h>
 #endif
@@ -13,7 +17,9 @@
 
 namespace richmath {
   struct FontDialog :
-  #if RICHMATH_USE_GTK_GUI
+  #if RICHMATH_USE_FLTK_GUI
+    private MathFltkFontDialog
+  #elif RICHMATH_USE_GTK_GUI
     private MathGtkFontDialog
   #elif RICHMATH_USE_WIN32_GUI
     private Win32FontDialog

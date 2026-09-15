@@ -2,6 +2,10 @@
 #define RICHMATH__GUI__COLOR_DIALOG_H__INCLUDED
 
 
+#ifdef RICHMATH_USE_FLTK_GUI
+#  include <gui/fltk/mfltk-colordialog.h>
+#endif
+
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-colordialog.h>
 #endif
@@ -15,7 +19,9 @@
 
 namespace richmath {
   class ColorDialog :
-  #if RICHMATH_USE_GTK_GUI
+  #if RICHMATH_USE_FLTK_GUI
+    private MathFltkColorDialog
+  #elif RICHMATH_USE_GTK_GUI
     private MathGtkColorDialog
   #elif RICHMATH_USE_WIN32_GUI
     private Win32ColorDialog

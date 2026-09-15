@@ -2,6 +2,10 @@
 #define RICHMATH__GUI__RECENT_DOCUMENTS_H__INCLUDED
 
 
+#ifdef RICHMATH_USE_FLTK_GUI
+#  include <gui/fltk/mfltk-recent-documents.h>
+#endif
+
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-recent-documents.h>
 #endif
@@ -13,7 +17,9 @@
 
 namespace richmath {
   struct RecentDocuments :
-  #if defined(RICHMATH_USE_GTK_GUI)
+  #if defined(RICHMATH_USE_FLTK_GUI)
+    public MathFltkRecentDocuments
+  #elif defined(RICHMATH_USE_GTK_GUI)
     public MathGtkRecentDocuments
   #elif defined(RICHMATH_USE_WIN32_GUI)
     public Win32RecentDocuments

@@ -30,8 +30,15 @@
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
-#  include <gui/gtk/mgtk-filedialog.h>
 #  include <gui/gtk/mgtk-document-window.h>
+#  include <gui/gtk/mgtk-filedialog.h>
+#endif
+
+#ifdef RICHMATH_USE_FLTK_GUI
+#  include <FL/Fl.H>
+#  include <FL/fl_ask.H>
+#  include <gui/fltk/mfltk-document-window.h>
+#  include <gui/fltk/mfltk-filedialog.h>
 #endif
 
 
@@ -721,6 +728,10 @@ int Application::run() {
   gtk_main();
 #endif
   
+#ifdef RICHMATH_USE_FLTK_GUI
+  Fl::run();
+#endif
+  
   pmath_atomic_write_release(&state, Quitting);
   return result;
 }
@@ -1139,6 +1150,8 @@ Expr Application::run_filedialog(Expr data) {
   Win32FileDialog
 #elif RICHMATH_USE_GTK_GUI
   MathGtkFileDialog
+#elif RICHMATH_USE_FLTK_GUI
+  MathFltkFileDialog
 #else
 #  error "No GUI"
 #endif
@@ -1267,6 +1280,10 @@ Expr Application::interrupt_wait_cached(Expr expr, double seconds) {
     
 #ifdef RICHMATH_USE_GTK_GUI
     gdk_beep();
+#endif
+    
+#ifdef RICHMATH_USE_FLTK_GUI
+    fl_beep();
 #endif
   }
   

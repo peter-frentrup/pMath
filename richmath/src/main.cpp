@@ -2,8 +2,8 @@
 #  error either RICHMATH_USE_WIN32_FONT or RICHMATH_USE_FT_FONT must be defined
 #endif
 
-#if defined( RICHMATH_USE_WIN32_GUI ) + defined( RICHMATH_USE_GTK_GUI ) != 1
-#  error either RICHMATH_USE_WIN32_GUI or RICHMATH_USE_GTK_GUI must be defined
+#if defined( RICHMATH_USE_WIN32_GUI ) + defined( RICHMATH_USE_GTK_GUI ) + defined( RICHMATH_USE_FLTK_GUI ) != 1
+#  error either RICHMATH_USE_WIN32_GUI or RICHMATH_USE_GTK_GUI or RICHMATH_USE_FLTK_GUI must be defined
 #endif
 
 
@@ -82,6 +82,10 @@
 #  include <gui/gtk/mgtk-document-window.h>
 #  include <gui/gtk/mgtk-menu-builder.h>
 #  include <gui/gtk/mgtk-tooltip-window.h>
+#endif
+
+#ifdef RICHMATH_USE_FLTK_GUI
+#  include <gui/fltk/mfltk-document-window.h>
 #endif
 
 #ifdef RICHMATH_USE_FT_FONT
