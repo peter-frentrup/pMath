@@ -946,10 +946,16 @@
 		<Unit filename="dependencies/source/fltk/src/Fl_Button.cxx">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Cairo.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
 		<Unit filename="dependencies/source/fltk/src/Fl_Copy_Surface.cxx">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="dependencies/source/fltk/src/Fl_Device.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Double_Window.cxx">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="dependencies/source/fltk/src/Fl_Graphics_Driver.cxx">
@@ -1237,6 +1243,9 @@
 		<Unit filename="dependencies/source/fltk/src/fl_labeltype.cxx">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
+		<Unit filename="dependencies/source/fltk/src/fl_open_uri.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
 		<Unit filename="dependencies/source/fltk/src/fl_oval_box.cxx">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
@@ -1417,6 +1426,9 @@
 		<Unit filename="include/gui/dragdrophandler.h" />
 		<Unit filename="include/gui/edit-helper.h" />
 		<Unit filename="include/gui/event-handlers.h" />
+		<Unit filename="include/gui/fltk/basic-fltk-widget.h">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
 		<Unit filename="include/gui/fltk/mfltk-colordialog.h">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
@@ -1430,6 +1442,9 @@
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/fltk/mfltk-recent-documents.h">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="include/gui/fltk/mfltk-widget.h">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="include/gui/font-dialog.h" />
@@ -2208,6 +2223,9 @@
 		<Unit filename="src/gui/dragdrophandler.cpp" />
 		<Unit filename="src/gui/edit-helper.cpp" />
 		<Unit filename="src/gui/event-handlers.cpp" />
+		<Unit filename="src/gui/fltk/basic-fltk-widget.cpp">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
 		<Unit filename="src/gui/fltk/mfltk-colordialog.cpp">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
@@ -2221,6 +2239,9 @@
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/fltk/mfltk-recent-documents.cpp">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="src/gui/fltk/mfltk-widget.cpp">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/font-dialog.cpp" />

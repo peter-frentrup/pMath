@@ -620,6 +620,8 @@ int main(int argc, char **argv) {
   gtk_init(&argc, &argv);
 #endif
   
+  //message_dialog("pMath", "You can attach a debugger now ...");
+  
   if(cairo_version() < CAIRO_VERSION_ENCODE(1, 10, 0)) {
     char str[200];
     snprintf(str, sizeof(str),

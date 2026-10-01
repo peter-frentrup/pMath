@@ -12,6 +12,11 @@
 #  include <gtk/gtk.h>
 #endif
 
+#ifdef RICHMATH_USE_FLTK_GUI
+#  include <FL/filename.H>
+#endif
+
+
 using namespace richmath;
 
 namespace richmath { namespace strings {
@@ -210,6 +215,42 @@ String FileSystem::get_local_path_from_uri(String uri) {
       }
       
       pmath_mem_free(uri_ascii);
+      return path;
+    }
+  }
+#elif defined(RICHMATH_USE_FLTK_GUI)
+  {
+    if(char *uri_utf8 = pmath_string_to_utf8(uri.get(), nullptr)) {
+      String path;
+      
+      fl_decode_uri(uri_utf8);
+      if(memcmp(uri_utf8, "file:/", 6) == 0) {
+        const char *local_path = nullptr;
+        
+#ifdef WIN32
+        if(memcmp(uri_utf8 + 5, "////", 4) == 0) {
+          // file:////server/share/path
+          local_path = uri_utf8 + 7;
+        }
+        else if(memcmp(uri_utf8 + 5, "///", 3) == 0 && uri_utf8[8] && uri_utf8[9] == ':' && uri_utf8[10] == '/') {
+          // file:///C:/path
+          local_path = uri_utf8 + 8;
+        }
+        if(uri_utf8[6] == '/' && uri_utf8[7] && uri_utf8[7] != '/') {
+          // file://server/share/path
+          local_path = uri_utf8 + 5;
+        }
+#else
+        if(memcmp(uri_utf8 + 5, "///", 3)) { // only support implicit localhost  file:///some/path
+          local_path = uri_utf8 + 7;
+        }
+#endif
+        
+        if(local_path)
+          path = String(pmath_string_from_utf8(local_path, -1));
+      }
+    
+      pmath_mem_free(uri_utf8);
       return path;
     }
   }

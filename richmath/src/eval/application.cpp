@@ -37,6 +37,7 @@
 #ifdef RICHMATH_USE_FLTK_GUI
 #  include <FL/Fl.H>
 #  include <FL/fl_ask.H>
+#  include <FL/Fl_Window.H>
 #  include <gui/fltk/mfltk-document-window.h>
 #  include <gui/fltk/mfltk-filedialog.h>
 #endif
@@ -1001,6 +1002,16 @@ Document *Application::try_create_document() {
   {
     MathGtkDocumentWindow *wnd = new MathGtkDocumentWindow();
     wnd->init();
+    
+    doc = wnd->document();
+  }
+#endif
+
+#ifdef RICHMATH_USE_FLTK_GUI
+  {
+    MathFltkDocumentWindow *wnd = new MathFltkDocumentWindow();
+    wnd->init();
+    wnd->window()->show();
     
     doc = wnd->document();
   }
