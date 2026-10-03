@@ -264,7 +264,8 @@ void MathFltkWorkingArea::paint_canvas(Canvas &canvas, bool resize_only) {
   if(best_width < 1)
     best_width = 1;
   
-  if(old_bw != best_width || old_bh != best_height || old_ow != outer_width || old_oh != outer_height) {
+  if(_did_scroll || old_bw != best_width || old_bh != best_height || old_ow != outer_width || old_oh != outer_height) {
+    _did_scroll = false;
     adjust_scollbars();
   }
 }
@@ -277,7 +278,7 @@ void MathFltkWorkingArea::adjust_scollbars() {
   if(!autohide_vertical_scrollbar())
     v_range.max += (outer_height * 4) / 5;
   
-  pmath_debug_print("[vscroll %d @ 0 .. %d, page %d ]\n", v_range.pos, v_range.max, v_range.page);
+//  pmath_debug_print("[vscroll %d @ 0 .. %d, page %d ]", v_range.pos, v_range.max, v_range.page);
   
   h_range.pos  = _hscroll ? _hscroll->value() : 0;
   h_range.page = outer_width;
@@ -303,6 +304,8 @@ void MathFltkWorkingArea::adjust_scollbars() {
   if(h_range.pos  < 0)           h_range.pos  = 0;
   if(h_range.pos  > h_range.max) h_range.pos  = h_range.max;
   
+//  pmath_debug_print("[vscroll %d @ 0 .. %d, page %d ]\n", v_range.pos, v_range.max, v_range.page);
+  
   _widget->size(
     outer_width  - (show_vscroll ? Fl::scrollbar_size() : 0),
     outer_height - (show_hscroll ? Fl::scrollbar_size() : 0));
@@ -316,6 +319,7 @@ void MathFltkWorkingArea::adjust_scollbars() {
         Fl::scrollbar_size(),
         _widget->h());
       _vscroll->show();
+      _vscroll->redraw();
     }
     else {
       _vscroll->hide();
@@ -331,6 +335,7 @@ void MathFltkWorkingArea::adjust_scollbars() {
         _widget->w(),
         Fl::scrollbar_size());
       _hscroll->show();
+      _hscroll->redraw();
     }
     else {
       _hscroll->hide();

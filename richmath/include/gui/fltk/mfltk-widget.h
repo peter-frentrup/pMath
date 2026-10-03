@@ -83,7 +83,8 @@ namespace richmath {
       virtual void do_set_selected_document() {}
       
     protected:
-      bool _autohide_vertical_scrollbar;
+      bool _autohide_vertical_scrollbar : 1;
+      bool _did_scroll : 1;
       
       CursorType cursor;
       int last_width;

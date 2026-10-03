@@ -27,6 +27,8 @@ namespace richmath {
       int handle_keydown();
       int handle_keyup();
       
+      int handle_mousewheel();
+      
       static SpecialKey as_special_key(int key);
       
     public:
@@ -35,6 +37,8 @@ namespace richmath {
     public:
       static Fl_Timestamp last_event_timestamp;
       static double last_event_time;
+      static bool currently_drawing;
+      static bool need_redraw;
       
       static void update_event_time();
   };
@@ -48,6 +52,7 @@ MathFltkWidget::MathFltkWidget(Document *doc)
 : NativeWidget(doc),
   BasicFltkWidget(),
   _autohide_vertical_scrollbar(false),
+  _did_scroll(false),
   cursor(CursorType::Default),
   last_width(0)
 {
@@ -105,22 +110,27 @@ Point MathFltkWidget::scroll_pos() {
 bool MathFltkWidget::scroll_to(Point pos) {
   float scale = scale_factor();
   
-  bool done = false;
+  bool did_scroll = false;
   
   if(Fl_Scrollbar *v_scrollbar = vscroll()) {
     int sb_pos = round(pos.y * scale);
     if(sb_pos < 0) sb_pos = 0;
-    v_scrollbar->value(sb_pos);
-    done = true;
+    if(sb_pos > v_scrollbar->maximum())  sb_pos = (int)v_scrollbar->maximum();
+    did_scroll |= !!v_scrollbar->value(sb_pos);
+//    pmath_debug_print("[scroll_to v sb_pos= %d did_scroll:%d]\n", sb_pos, did_scroll);
   }
   if(Fl_Scrollbar *h_scrollbar = hscroll()) {
     int sb_pos = round(pos.x * scale);
     if(sb_pos < 0) sb_pos = 0;
-    h_scrollbar->value(sb_pos);
-    done = true;
+    if(sb_pos > h_scrollbar->maximum())  sb_pos = (int)h_scrollbar->maximum();
+    did_scroll |= !!h_scrollbar->value(sb_pos);
   }
   
-  return done;
+  if(did_scroll) {
+    _did_scroll = true;
+    document()->invalidate();
+  }
+  return did_scroll;
 }
 
 void MathFltkWidget::show_tooltip(Box *source, Expr boxes) {
@@ -168,6 +178,7 @@ void MathFltkWidget::bring_to_front() {
 }
 
 void MathFltkWidget::invalidate() {
+  Impl::need_redraw = true;
   if(_widget)
     _widget->damage(FL_DAMAGE_ALL);
 }
@@ -178,6 +189,7 @@ void MathFltkWidget::invalidate_options() {
 }
 
 void MathFltkWidget::invalidate_rect(const RectangleF &rect) {
+  Impl::need_redraw = true;
   if(_widget) {
     float scale = scale_factor();
     
@@ -324,6 +336,8 @@ bool MathFltkWidget::is_focused_widget() {
 
 Fl_Timestamp MathFltkWidget::Impl::last_event_timestamp {};
 double MathFltkWidget::Impl::last_event_time = 0.0;
+bool MathFltkWidget::Impl::currently_drawing = false;
+bool MathFltkWidget::Impl::need_redraw = false;
 
 MathFltkWidget::Impl::Impl()
 : base(0,0, nullptr)
@@ -335,14 +349,7 @@ int MathFltkWidget::Impl::handle(int event) {
   update_event_time();
   
   switch(event) {
-//    case FL_MOUSEWHEEL:
-//      pmath_debug_print("[handle FL_MOUSEWHEEL (%s) dx %d (%f) dy %d (%f)]\n",
-//        Fl::event_ctrl() ? "ctrl" : "",
-//        Fl::event_dx(), Fl::event_dx_f(), 
-//        Fl::event_dy(), Fl::event_dy_f());
-//      break;
-    
-    case FL_FOCUS:
+    case FL_FOCUS: 
       return 1;
     
     case FL_UNFOCUS:
@@ -350,11 +357,10 @@ int MathFltkWidget::Impl::handle(int event) {
       fl_reset_spot();
       return 1;
     
-    case FL_KEYDOWN:
-      return handle_keydown();
+    case FL_KEYDOWN: return handle_keydown();
+    case FL_KEYUP:   return handle_keyup();
     
-    case FL_KEYUP:
-      return handle_keyup();
+    case FL_MOUSEWHEEL: return handle_mousewheel();
     
 //    default:
 //      pmath_debug_print("[handle %s]\n", fl_eventname_str(event).c_str());
@@ -379,10 +385,10 @@ int MathFltkWidget::Impl::handle_keydown() {
     owner->document()->key_down(event);
   }
   
-  pmath_debug_print("[handle_keydown key %d %d %s", Fl::event_key(), Fl::event_length(), Fl::event_text());
+//  pmath_debug_print("[handle_keydown key %d %d %s]\n", Fl::event_key(), Fl::event_length(), Fl::event_text());
   int del = 0;
   if(Fl::compose(del)) {
-    pmath_debug_print(" compose => del %d ins %d %s", del, Fl::event_length(), Fl::event_text());
+//    pmath_debug_print("[compose => del %d ins %d %s]\n", del, Fl::event_length(), Fl::event_text());
     
     // TODO: replace `del` UTF8 bytes to the left.
     // TODO: mark
@@ -405,15 +411,11 @@ int MathFltkWidget::Impl::handle_keydown() {
     //return 1;
   }
   else {
-    pmath_debug_print(" no ins");
-    
     switch(event.key) {
       case SpecialKey::Return: owner->document()->key_press('\r'); break;
       case SpecialKey::Tab:    owner->document()->key_press('\t'); break;
     }
   }
-  
-  pmath_debug_print("]\n");
   
   return 1;
 }
@@ -466,16 +468,77 @@ SpecialKey MathFltkWidget::Impl::as_special_key(int key) {
   return SpecialKey::Unknown;
 }
 
+int MathFltkWidget::Impl::handle_mousewheel() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return 0;
+  
+  if(!owner->is_scrollable())
+    return 0;
+  
+//  pmath_debug_print("[handle FL_MOUSEWHEEL (%s) dx %d (%f) dy %d (%f)]\n",
+//    Fl::event_ctrl() ? "ctrl" : "",
+//    Fl::event_dx(), Fl::event_dx_f(), 
+//    Fl::event_dy(), Fl::event_dy_f());
+    
+  float dx = Fl::event_dx_f(); // Fl::event_dx();
+  float dy = Fl::event_dy_f(); // Fl::event_dy();
+  
+  if(Fl::event_ctrl()) {
+    if(!owner->is_scaleable())
+      return 0;
+    
+    owner->scale_by(pow(2, -0.5 * dy));
+    return 1;
+  }
+  
+  if(Fl::event_shift() && dx == 0) {
+    dy = dx; dy = 0;
+  }
+  
+  dy *= 20 * 3; // 20 px per line, 3 lines by default on Win32, see SPI_GETWHEELSCROLLLINES
+  dx *= 10 * 3; // 10 px per char, 3 chars by default on Win32, see SPI_GETWHEELSCROLLCHARS
+  
+  owner->scroll_by(dx, dy);
+  
+  return 1;
+}
+
 void MathFltkWidget::Impl::static_cairo_draw_cb(Fl_Cairo_Window *window, cairo_t *cr) {
   MathFltkWidget *owner = dynamic_cast<MathFltkWidget*>(BasicFltkWidget::from_widget(window));
   if(!owner)
     return;
   
+  AutoMemorySuspension ams;
+  
+  bool old_currently_drawing = currently_drawing;
+  currently_drawing = true;
+  
+  need_redraw = false;
+  
   {
     Canvas canvas(cr);
     
+    canvas.save();
     owner->paint_canvas(canvas, false);
+    canvas.restore();
+    
+    while(need_redraw) {
+      need_redraw = false;
+      pmath_debug_print("[redraw]");
+      
+      cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_CLEAR);
+      canvas.set_color(Color::Black, 0.0);
+      canvas.paint();
+      cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
+      
+      canvas.save();
+      owner->paint_canvas(canvas, false);
+      canvas.restore();
+    }
   }
+  
+  currently_drawing = old_currently_drawing;
   
   cairo_surface_flush(cairo_get_target(cr));
 }
