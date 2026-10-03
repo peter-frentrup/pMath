@@ -70,6 +70,7 @@ namespace richmath {
       
       virtual void on_saved() override {}
       
+      virtual bool is_focused_widget() override;
       virtual bool is_using_dark_mode() override { return false; }
       
     protected:

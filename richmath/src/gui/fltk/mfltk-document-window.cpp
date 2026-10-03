@@ -277,7 +277,7 @@ void MathFltkWorkingArea::adjust_scollbars() {
   if(!autohide_vertical_scrollbar())
     v_range.max += (outer_height * 4) / 5;
   
-  pmath_debug_print("[vscroll 0 .. %d, page %d ]\n", v_range.max, v_range.page);
+  pmath_debug_print("[vscroll %d @ 0 .. %d, page %d ]\n", v_range.pos, v_range.max, v_range.page);
   
   h_range.pos  = _hscroll ? _hscroll->value() : 0;
   h_range.page = outer_width;
@@ -293,12 +293,14 @@ void MathFltkWorkingArea::adjust_scollbars() {
     v_range.page -= Fl::scrollbar_size();
   }
   
-  if(v_range.max  < 0)           v_range.max = 0;
+  if(v_range.max  < 0)           v_range.max  = 0;
   if(v_range.page > v_range.max) v_range.page = v_range.max;
+  if(v_range.pos  < 0)           v_range.pos  = 0;
   if(v_range.pos  > v_range.max) v_range.pos  = v_range.max;
   
-  if(h_range.max  < 0)           h_range.max = 0;
+  if(h_range.max  < 0)           h_range.max  = 0;
   if(h_range.page > h_range.max) h_range.page = h_range.max;
+  if(h_range.pos  < 0)           h_range.pos  = 0;
   if(h_range.pos  > h_range.max) h_range.pos  = h_range.max;
   
   _widget->size(

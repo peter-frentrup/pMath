@@ -1,8 +1,13 @@
 #include <gui/fltk/mfltk-widget.h>
 
 #include <Fl/fl_ask.H>
+#include <Fl/fl_draw.H>
 #include <Fl/Fl_Cairo_Window.H>
 #include <Fl/Fl_Scrollbar.H>
+
+#ifdef PMATH_DEBUG_LOG
+#  include <Fl/names.H>
+#endif
 
 #include <gui/document.h>
 #include <math.h>
@@ -14,9 +19,19 @@ namespace richmath {
     public:
       Impl();
       
+      virtual int handle(int event) override;
+    
+      MathFltkWidget *find_owner() { return dynamic_cast<MathFltkWidget*>(BasicFltkWidget::from_widget(this)); }
+    
+    protected:
+      int handle_keydown();
+      int handle_keyup();
+      
+      static SpecialKey as_special_key(int key);
+      
     public:
       static void static_cairo_draw_cb(Fl_Cairo_Window *window, cairo_t *cr);
-    
+      
     public:
       static Fl_Timestamp last_event_timestamp;
       static double last_event_time;
@@ -93,11 +108,15 @@ bool MathFltkWidget::scroll_to(Point pos) {
   bool done = false;
   
   if(Fl_Scrollbar *v_scrollbar = vscroll()) {
-    v_scrollbar->value(round(pos.y * scale));
+    int sb_pos = round(pos.y * scale);
+    if(sb_pos < 0) sb_pos = 0;
+    v_scrollbar->value(sb_pos);
     done = true;
   }
   if(Fl_Scrollbar *h_scrollbar = hscroll()) {
-    h_scrollbar->value(round(pos.x * scale));
+    int sb_pos = round(pos.x * scale);
+    if(sb_pos < 0) sb_pos = 0;
+    h_scrollbar->value(sb_pos);
     done = true;
   }
   
@@ -273,8 +292,32 @@ void MathFltkWidget::paint_canvas(Canvas &canvas, bool resize_only) {
   }
   
   document()->paint_resize(canvas, resize_only);
+  
+  if(is_focused_widget()) {
+    RectangleF last_cursor_rect {
+      document_context()->last_cursor_pos[0], 
+      document_context()->last_cursor_pos[1] }; 
+    
+    last_cursor_rect.normalize();
+    
+    Point offset = scroll_pos();
+    float scale  = scale_factor();
+    
+    fl_set_spot(
+      _widget->labelfont(), 
+      _widget->labelsize(), 
+      (int)((last_cursor_rect.x - offset.x) * scale),
+      (int)((last_cursor_rect.y - offset.y) * scale),
+      (int)ceilf(last_cursor_rect.width  * scale),
+      (int)ceilf(last_cursor_rect.height * scale),
+      static_cast<Impl*>(_widget));
+  }
 }
 
+bool MathFltkWidget::is_focused_widget() {
+  return Fl::focus() == _widget;
+}
+      
 //} ... class MathFltkWidget
 
 //{ class MathFltkWidget::Impl ...
@@ -286,6 +329,141 @@ MathFltkWidget::Impl::Impl()
 : base(0,0, nullptr)
 {
   set_draw_cb(Impl::static_cairo_draw_cb);
+}
+
+int MathFltkWidget::Impl::handle(int event) {
+  update_event_time();
+  
+  switch(event) {
+//    case FL_MOUSEWHEEL:
+//      pmath_debug_print("[handle FL_MOUSEWHEEL (%s) dx %d (%f) dy %d (%f)]\n",
+//        Fl::event_ctrl() ? "ctrl" : "",
+//        Fl::event_dx(), Fl::event_dx_f(), 
+//        Fl::event_dy(), Fl::event_dy_f());
+//      break;
+    
+    case FL_FOCUS:
+      return 1;
+    
+    case FL_UNFOCUS:
+      Fl::compose_reset();
+      fl_reset_spot();
+      return 1;
+    
+    case FL_KEYDOWN:
+      return handle_keydown();
+    
+    case FL_KEYUP:
+      return handle_keyup();
+    
+//    default:
+//      pmath_debug_print("[handle %s]\n", fl_eventname_str(event).c_str());
+//      break;
+  }
+  return base::handle(event);
+}
+
+int MathFltkWidget::Impl::handle_keydown() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return 0;
+  
+  SpecialKeyEvent event {};
+  event.key = as_special_key(Fl::event_key());
+  
+  owner->document()->ignores_next_key_press(false);
+  if(event.key != SpecialKey::Unknown) {
+    event.ctrl  = Fl::event_ctrl();
+    event.alt   = Fl::event_alt();
+    event.shift = Fl::event_shift();
+    owner->document()->key_down(event);
+  }
+  
+  pmath_debug_print("[handle_keydown key %d %d %s", Fl::event_key(), Fl::event_length(), Fl::event_text());
+  int del = 0;
+  if(Fl::compose(del)) {
+    pmath_debug_print(" compose => del %d ins %d %s", del, Fl::event_length(), Fl::event_text());
+    
+    // TODO: replace `del` UTF8 bytes to the left.
+    // TODO: mark
+    Fl::compose_reset(); // TODO: only after moving cursor position via mouse/arrow keys; respect 'del'
+    
+    String ins = String::FromUtf8(Fl::event_text(), Fl::event_length());
+    while(ins.length() > 0) {
+      uint32_t ch = ins[0];
+      ins = ins.part(1);
+      if(is_utf16_high(ch) && ins.length() > 0) {
+        uint16_t lo = ins[0];
+        if(is_utf16_low(lo)) {
+          ins = ins.part(1);
+          ch = 0x10000 + (((ch & 0x03FF) << 10) | (lo & 0x03FF));
+        }
+      }
+      owner->document()->key_press(ch);
+    }
+    
+    //return 1;
+  }
+  else {
+    pmath_debug_print(" no ins");
+    
+    switch(event.key) {
+      case SpecialKey::Return: owner->document()->key_press('\r'); break;
+      case SpecialKey::Tab:    owner->document()->key_press('\t'); break;
+    }
+  }
+  
+  pmath_debug_print("]\n");
+  
+  return 1;
+}
+
+int MathFltkWidget::Impl::handle_keyup() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return 0;
+  
+  SpecialKeyEvent event {};
+  event.key = as_special_key(Fl::event_key());
+  if(event.key != SpecialKey::Unknown) {
+    event.ctrl  = Fl::event_ctrl();
+    event.alt   = Fl::event_alt();
+    event.shift = Fl::event_shift();
+    owner->document()->key_up(event);
+  }
+  
+  return 1;
+}
+
+SpecialKey MathFltkWidget::Impl::as_special_key(int key) {
+  switch(key) {
+    case FL_Left:      return SpecialKey::Left;
+    case FL_Right:     return SpecialKey::Right;
+    case FL_Up:        return SpecialKey::Up;
+    case FL_Down:      return SpecialKey::Down;
+    case FL_Home:      return SpecialKey::Home;
+    case FL_End:       return SpecialKey::End;
+    case FL_Page_Up:   return SpecialKey::PageUp;
+    case FL_Page_Down: return SpecialKey::PageDown;
+    case FL_BackSpace: return SpecialKey::Backspace;
+    case FL_Delete:    return SpecialKey::Delete;
+    case FL_Enter:     return SpecialKey::Return;
+    case FL_Tab:       return SpecialKey::Tab;
+    case FL_Escape:    return SpecialKey::Escape;
+    case FL_F + 1:     return SpecialKey::F1;
+    case FL_F + 2:     return SpecialKey::F2;
+    case FL_F + 3:     return SpecialKey::F3;
+    case FL_F + 4:     return SpecialKey::F4;
+    case FL_F + 5:     return SpecialKey::F5;
+    case FL_F + 6:     return SpecialKey::F6;
+    case FL_F + 7:     return SpecialKey::F7;
+    case FL_F + 8:     return SpecialKey::F8;
+    case FL_F + 9:     return SpecialKey::F9;
+    case FL_F + 10:    return SpecialKey::F10;
+    case FL_F + 11:    return SpecialKey::F11;
+    case FL_F + 12:    return SpecialKey::F12;
+  }
+  return SpecialKey::Unknown;
 }
 
 void MathFltkWidget::Impl::static_cairo_draw_cb(Fl_Cairo_Window *window, cairo_t *cr) {
