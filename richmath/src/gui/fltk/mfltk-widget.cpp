@@ -1,7 +1,8 @@
 #include <gui/fltk/mfltk-widget.h>
 
-#include <Fl/Fl_Cairo_Window.H>
 #include <Fl/fl_ask.H>
+#include <Fl/Fl_Cairo_Window.H>
+#include <Fl/Fl_Scrollbar.H>
 
 #include <gui/document.h>
 #include <math.h>
@@ -73,13 +74,34 @@ Vector2F MathFltkWidget::monitor_size() {
 }
 
 Point MathFltkWidget::scroll_pos() {
-  // TODO Fl_Scroll
-  return Point(0, 0);
+  int sx = 0;
+  int sy = 0; 
+  
+  if(Fl_Scrollbar *v_scrollbar = vscroll()) {
+    sy = v_scrollbar->value();
+  }
+  if(Fl_Scrollbar *h_scrollbar = hscroll()) {
+    sx = h_scrollbar->value();
+  }
+  
+  return Point(Vector2F(sx, sy) / scale_factor());
 }
 
 bool MathFltkWidget::scroll_to(Point pos) {
-  // TODO Fl_Scroll
-  return false;
+  float scale = scale_factor();
+  
+  bool done = false;
+  
+  if(Fl_Scrollbar *v_scrollbar = vscroll()) {
+    v_scrollbar->value(round(pos.y * scale));
+    done = true;
+  }
+  if(Fl_Scrollbar *h_scrollbar = hscroll()) {
+    h_scrollbar->value(round(pos.x * scale));
+    done = true;
+  }
+  
+  return done;
 }
 
 void MathFltkWidget::show_tooltip(Box *source, Expr boxes) {

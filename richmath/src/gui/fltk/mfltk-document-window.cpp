@@ -1,6 +1,7 @@
 #include <gui/fltk/mfltk-document-window.h>
 
 #include <FL/FL.H>
+#include <FL/FL_Scrollbar.H>
 #include <FL/FL_Window.H>
 
 #include <gui/document.h>
@@ -50,6 +51,29 @@ namespace richmath {
     public:
       explicit MathFltkWorkingArea(MathFltkDocumentWindow *parent);
       virtual ~MathFltkWorkingArea();
+    
+    public:
+      virtual Fl_Scrollbar *vscroll() override { return _vscroll; }
+      virtual Fl_Scrollbar *hscroll() override { return _hscroll; }
+      void vscroll(Fl_Scrollbar *sb) { _vscroll = sb; }
+      void hscroll(Fl_Scrollbar *sb) { _hscroll = sb; }
+      
+      static void static_scrolled_cb(Fl_Widget *sender, void *_self);
+      
+    protected:
+      virtual void paint_canvas(Canvas &canvas, bool resize_only) override;
+      
+      void adjust_scollbars();
+    
+    protected:
+      int best_width  = 1;
+      int best_height = 1;
+      int outer_width  = 1;
+      int outer_height = 1;
+      
+    private:
+      Fl_Scrollbar *_vscroll = nullptr;
+      Fl_Scrollbar *_hscroll = nullptr;
   };
 }
 
@@ -69,19 +93,30 @@ MathFltkDocumentWindow::MathFltkDocumentWindow()
 }
 
 void MathFltkDocumentWindow::after_construction() {
+  Fl_Window *win;
   if(!_widget) {
-    Fl_Window *win = new Fl_Window(500, 530, nullptr);
+    win = new Fl_Window(500, 530, nullptr);
     win->end();
     _widget = win;
     win->box(FL_NO_BOX);
   }
+  else {
+    win = window();
+  }
   
   BasicFltkWidget::after_construction();
   
-  working_area()->init();
-  working_area()->widget()->resize(0, 0, 500, 530);
+  _working_area->init(); // calls win->add(_widget)
   
-  window()->resizable(working_area()->widget());
+  int SW = Fl::scrollbar_size();
+  Fl_Scrollbar *vscroll = new Fl_Scrollbar(win->w() - SW, 0, SW, win->h());
+  win->add(vscroll);
+  
+  vscroll->callback(MathFltkWorkingArea::static_scrolled_cb, _working_area);
+  
+  _working_area->vscroll(vscroll);
+  _working_area->widget()->resize(0, 0, win->w() - SW, win->h());
+  win->resizable(_working_area->widget());
   
   title(String());
   
@@ -199,6 +234,106 @@ MathFltkWorkingArea::MathFltkWorkingArea(MathFltkDocumentWindow *parent)
 }
 
 MathFltkWorkingArea::~MathFltkWorkingArea() {
+}
+
+void MathFltkWorkingArea::static_scrolled_cb(Fl_Widget *sender, void *_self) {
+  MathFltkWorkingArea *self = (MathFltkWorkingArea*)_self;
+  self->invalidate();
+}
+
+void MathFltkWorkingArea::paint_canvas(Canvas &canvas, bool resize_only) {
+  base::paint_canvas(canvas, resize_only);
+  
+  int old_bh = best_height;
+  int old_bw = best_width;
+  
+  int old_ow = outer_width;
+  int old_oh = outer_height;
+  
+  if(_widget->parent()) {
+    outer_width  = _widget->parent()->w();
+    outer_height = _widget->parent()->h();
+  }
+  
+  best_height = (int)ceilf(document()->extents().height() * scale_factor());
+  best_width  = (int)ceilf(document()->unfilled_width     * scale_factor());
+  
+  if(best_height < 1)
+    best_height = 1;
+    
+  if(best_width < 1)
+    best_width = 1;
+  
+  if(old_bw != best_width || old_bh != best_height || old_ow != outer_width || old_oh != outer_height) {
+    adjust_scollbars();
+  }
+}
+
+void MathFltkWorkingArea::adjust_scollbars() {
+  struct { int pos, page, max; } v_range, h_range;
+  v_range.pos  = _vscroll ? _vscroll->value() : 0;
+  v_range.page = outer_height;
+  v_range.max  = best_height;
+  if(!autohide_vertical_scrollbar())
+    v_range.max += (outer_height * 4) / 5;
+  
+  pmath_debug_print("[vscroll 0 .. %d, page %d ]\n", v_range.max, v_range.page);
+  
+  h_range.pos  = _hscroll ? _hscroll->value() : 0;
+  h_range.page = outer_width;
+  h_range.max  = best_width;
+  
+  bool show_vscroll = _vscroll && v_range.max > 0;
+  if(show_vscroll) {
+    h_range.page -= Fl::scrollbar_size();
+  }
+  
+  bool show_hscroll = _hscroll && v_range.max > 0;
+  if(show_hscroll) {
+    v_range.page -= Fl::scrollbar_size();
+  }
+  
+  if(v_range.max  < 0)           v_range.max = 0;
+  if(v_range.page > v_range.max) v_range.page = v_range.max;
+  if(v_range.pos  > v_range.max) v_range.pos  = v_range.max;
+  
+  if(h_range.max  < 0)           h_range.max = 0;
+  if(h_range.page > h_range.max) h_range.page = h_range.max;
+  if(h_range.pos  > h_range.max) h_range.pos  = h_range.max;
+  
+  _widget->size(
+    outer_width  - (show_vscroll ? Fl::scrollbar_size() : 0),
+    outer_height - (show_hscroll ? Fl::scrollbar_size() : 0));
+  
+  if(_vscroll) {
+    _vscroll->value(v_range.pos, v_range.page, 0, v_range.max);
+    if(show_vscroll) {
+      _vscroll->resize(
+        _widget->x() + _widget->w(),
+        _widget->y(),
+        Fl::scrollbar_size(),
+        _widget->h());
+      _vscroll->show();
+    }
+    else {
+      _vscroll->hide();
+    }
+  }
+  
+  if(_hscroll) {
+    _hscroll->value(h_range.pos, h_range.page, 0, h_range.max);
+    if(show_hscroll) {
+      _vscroll->resize(
+        _widget->x(),
+        _widget->y() + _widget->h(),
+        _widget->w(),
+        Fl::scrollbar_size());
+      _hscroll->show();
+    }
+    else {
+      _hscroll->hide();
+    }
+  }
 }
 
 //} ... class MathFltkWorkingArea

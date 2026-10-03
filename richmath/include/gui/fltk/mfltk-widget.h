@@ -9,6 +9,8 @@
 
 #include <gui/native-widget.h>
 
+class Fl_Scrollbar;
+
 namespace richmath {
   // Must call init() immediately after the construction of a derived object!
   class MathFltkWidget: public NativeWidget, public BasicFltkWidget {
@@ -71,6 +73,9 @@ namespace richmath {
       virtual bool is_using_dark_mode() override { return false; }
       
     protected:
+      virtual Fl_Scrollbar *vscroll() { return nullptr; }
+      virtual Fl_Scrollbar *hscroll() { return nullptr; }
+      
       virtual void paint_background(Canvas &canvas);
       virtual void paint_canvas(Canvas &canvas, bool resize_only);
       
