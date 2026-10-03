@@ -112,6 +112,7 @@
 #ifdef RICHMATH_USE_FLTK_GUI
 #  include <FL/Fl.H>
 #  include <FL/fl_ask.H>
+#  include <FL/Fl_Window.H>
 #endif
 
 #ifdef _MSC_VER
@@ -605,6 +606,10 @@ static bool have_visible_documents() {
 }
 
 int main(int argc, char **argv) {
+#ifdef RICHMATH_USE_FLTK_GUI
+  Fl::args_to_utf8(argc, argv);
+#endif
+
   auto leak_detection_start = Base::debug_alloc_clock();
   
   debug_test_rle_array();
@@ -716,7 +721,7 @@ int main(int argc, char **argv) {
     MathGtkAccelerators::load(Evaluate(Parse(SHORTCUTS_CMD)));
     MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
 #endif
-
+    
     double end = pmath_tickcount();
     
     pmath_debug_print("[%f sec reading menus]\n", end - start);
@@ -768,6 +773,18 @@ int main(int argc, char **argv) {
       main_doc->native()->bring_to_front();
     }
   }
+  
+#ifdef RICHMATH_USE_FLTK_GUI
+  // FLTK: first/main window should be shown by Fl_Window::show(argc, argv)
+  for(auto win : CommonDocumentWindow::All) {
+    if(win->content()->get_style(Visible, true)) {
+      if(MathFltkDocumentWindow *flwin = dynamic_cast<MathFltkDocumentWindow*>(win)) {
+        flwin->window()->show(argc, argv);
+        break;
+      }
+    }
+  }
+#endif
   
   if(!have_visible_documents()) {
     message_dialog("pMath Error",
