@@ -24,6 +24,9 @@ namespace richmath {
       MathFltkWidget *find_owner() { return dynamic_cast<MathFltkWidget*>(BasicFltkWidget::from_widget(this)); }
     
     protected:
+      int handle_focus();
+      int handle_unfocus();
+      
       int handle_keydown();
       int handle_keyup();
       
@@ -356,13 +359,8 @@ int MathFltkWidget::Impl::handle(int event) {
   update_event_time();
   
   switch(event) {
-    case FL_FOCUS: 
-      return 1;
-    
-    case FL_UNFOCUS:
-      Fl::compose_reset();
-      fl_reset_spot();
-      return 1;
+    case FL_FOCUS:   return handle_focus();
+    case FL_UNFOCUS: return handle_unfocus();
     
     case FL_KEYDOWN: return handle_keydown();
     case FL_KEYUP:   return handle_keyup();
@@ -383,10 +381,32 @@ int MathFltkWidget::Impl::handle(int event) {
   return base::handle(event);
 }
 
+int MathFltkWidget::Impl::handle_focus() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return 0;
+  
+  owner->invalidate();
+  return 1;
+}
+
+int MathFltkWidget::Impl::handle_unfocus() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return 0;
+
+  owner->invalidate();
+  Fl::compose_reset();
+  fl_reset_spot();
+  return 1;
+}
+
 int MathFltkWidget::Impl::handle_keydown() {
   MathFltkWidget *owner = find_owner();
   if(!owner)
     return 0;
+  
+  bool handled = false;
   
   SpecialKeyEvent event {};
   event.key = as_special_key(Fl::event_key());
@@ -397,6 +417,9 @@ int MathFltkWidget::Impl::handle_keydown() {
     event.alt   = Fl::event_alt();
     event.shift = Fl::event_shift();
     owner->document()->key_down(event);
+    
+    if(event.key == SpecialKey::Unknown)
+      handled = true;
   }
   
 //  pmath_debug_print("[handle_keydown key %d %d %s]\n", Fl::event_key(), Fl::event_length(), Fl::event_text());
@@ -422,16 +445,16 @@ int MathFltkWidget::Impl::handle_keydown() {
       owner->document()->key_press(ch);
     }
     
-    //return 1;
+    handled = true;
   }
   else {
     switch(event.key) {
-      case SpecialKey::Return: owner->document()->key_press('\r'); break;
-      case SpecialKey::Tab:    owner->document()->key_press('\t'); break;
+      case SpecialKey::Return: owner->document()->key_press('\r'); handled = true; break;
+      case SpecialKey::Tab:    owner->document()->key_press('\t'); handled = true; break;
     }
   }
   
-  return 1;
+  return handled ? 1 : 0;
 }
 
 int MathFltkWidget::Impl::handle_keyup() {
