@@ -28,7 +28,12 @@ namespace richmath {
       int handle_keyup();
       
       int handle_mousewheel();
+      int handle_mouse_down();
+      int handle_mouse_move();
+      int handle_mouse_up();
+      int handle_mouse_leave();
       
+      MouseEvent prepare_mouse_event();
       static SpecialKey as_special_key(int key);
       
     public:
@@ -53,6 +58,7 @@ MathFltkWidget::MathFltkWidget(Document *doc)
   BasicFltkWidget(),
   _autohide_vertical_scrollbar(false),
   _did_scroll(false),
+  _mouse_moving(false),
   cursor(CursorType::Default),
   last_width(0)
 {
@@ -214,10 +220,9 @@ void MathFltkWidget::set_cursor(CursorType type) {
   if(!win)
     return;
   
-  if(cursor == type)
-    return;
-  
   cursor = type;
+  if(_mouse_moving)
+    return;
   
   switch(type) {
     case CursorType::Current: break;
@@ -346,6 +351,8 @@ MathFltkWidget::Impl::Impl()
 }
 
 int MathFltkWidget::Impl::handle(int event) {
+  AutoMemorySuspension ams;
+  
   update_event_time();
   
   switch(event) {
@@ -361,6 +368,13 @@ int MathFltkWidget::Impl::handle(int event) {
     case FL_KEYUP:   return handle_keyup();
     
     case FL_MOUSEWHEEL: return handle_mousewheel();
+    
+    case FL_ENTER:   return 1;
+    case FL_PUSH:    return handle_mouse_down();
+    case FL_DRAG:
+    case FL_MOVE:    return handle_mouse_move();
+    case FL_RELEASE: return handle_mouse_up();
+    case FL_LEAVE:   return handle_mouse_leave();
     
 //    default:
 //      pmath_debug_print("[handle %s]\n", fl_eventname_str(event).c_str());
@@ -502,6 +516,79 @@ int MathFltkWidget::Impl::handle_mousewheel() {
   owner->scroll_by(dx, dy);
   
   return 1;
+}
+
+int MathFltkWidget::Impl::handle_mouse_down() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return 0;
+  
+  MouseEvent event = prepare_mouse_event();
+  
+  owner->document()->mouse_down(event);
+  
+  return 1;
+}
+
+int MathFltkWidget::Impl::handle_mouse_up() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return 0;
+  
+  MouseEvent event = prepare_mouse_event();
+  
+  owner->document()->mouse_up(event);
+  
+  return 1;
+}
+
+int MathFltkWidget::Impl::handle_mouse_move() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return 0;
+  
+  MouseEvent event = prepare_mouse_event();
+  
+  owner->_mouse_moving = true;
+  owner->cursor = CursorType::Default;
+  
+  owner->document()->mouse_move(event);
+  
+  owner->_mouse_moving = false;
+  owner->set_cursor(owner->cursor);
+  
+  return 1;
+}
+
+int MathFltkWidget::Impl::handle_mouse_leave() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return 0;
+  
+  owner->document()->mouse_exit();
+  return 1;
+}
+
+MouseEvent MathFltkWidget::Impl::prepare_mouse_event() {
+  MathFltkWidget *owner = find_owner();
+  if(!owner)
+    return {};
+  
+  MouseEvent event {};
+  
+  event.device = DeviceKind::Mouse;
+  
+  event.left      = Fl::event_button1(); // = false: FL_DRAG would be sent if there is a button pressed
+  event.middle    = Fl::event_button2();
+  event.right     = Fl::event_button3();
+  event.ctrl_key  = Fl::event_ctrl();
+  event.shift_key = Fl::event_shift();
+  event.alt_key   = Fl::event_alt();
+  
+  float scale = owner->scale_factor();
+  event.position = owner->scroll_pos() + Vector2F(Fl::event_x() - x(), Fl::event_y() - y()) / scale;
+  
+  return event;
 }
 
 void MathFltkWidget::Impl::static_cairo_draw_cb(Fl_Cairo_Window *window, cairo_t *cr) {
