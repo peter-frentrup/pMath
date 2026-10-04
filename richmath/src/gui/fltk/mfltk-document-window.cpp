@@ -1,6 +1,7 @@
 #include <gui/fltk/mfltk-document-window.h>
 
 #include <FL/FL.H>
+#include <FL/FL_Menu_Bar.H>
 #include <FL/FL_Scrollbar.H>
 #include <FL/FL_Window.H>
 
@@ -108,15 +109,32 @@ void MathFltkDocumentWindow::after_construction() {
   
   _working_area->init(); // calls win->add(_widget)
   
-  int SW = Fl::scrollbar_size();
-  Fl_Scrollbar *vscroll = new Fl_Scrollbar(win->w() - SW, 0, SW, win->h());
-  win->add(vscroll);
+  Fl_Menu_Bar *menu_bar = new Fl_Menu_Bar(0, 0, win->w(), 30);
+  win->add(menu_bar);
   
-  vscroll->callback(MathFltkWorkingArea::static_scrolled_cb, _working_area);
+  static Fl_Menu_Item menutable[] = {
+    {"&File",0,0,0, FL_SUBMENU},
+      {"&Open", FL_ALT+'o'},
+      {0},
+    {0}
+  };
+  menu_bar->menu(menutable);
   
-  _working_area->vscroll(vscroll);
-  _working_area->widget()->resize(0, 0, win->w() - SW, win->h());
-  win->resizable(_working_area->widget());
+  {
+    Fl_Group *group = new Fl_Group(0, 30, win->w(), win->h() - 30);
+    group->add_resizable(*_working_area->widget());
+    
+    int SW = Fl::scrollbar_size();
+    Fl_Scrollbar *vscroll = new Fl_Scrollbar(group->w() + group->w() - SW, group->y(), SW, group->h());
+    group->add(vscroll);
+    
+    vscroll->callback(MathFltkWorkingArea::static_scrolled_cb, _working_area);
+    
+    _working_area->vscroll(vscroll);
+    _working_area->widget()->resize(group->x(), group->y(), group->w() - SW, group->h());
+    group->end();
+    win->add_resizable(*group);
+  }
   
   title(String());
   

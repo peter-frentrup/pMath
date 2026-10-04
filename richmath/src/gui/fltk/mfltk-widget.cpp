@@ -589,6 +589,7 @@ int MathFltkWidget::Impl::handle_mouse_leave() {
     return 0;
   
   owner->document()->mouse_exit();
+  cursor(FL_CURSOR_DEFAULT);
   return 1;
 }
 
@@ -609,7 +610,7 @@ MouseEvent MathFltkWidget::Impl::prepare_mouse_event() {
   event.alt_key   = Fl::event_alt();
   
   float scale = owner->scale_factor();
-  event.position = owner->scroll_pos() + Vector2F(Fl::event_x() - x(), Fl::event_y() - y()) / scale;
+  event.position = owner->scroll_pos() + Vector2F(Fl::event_x(), Fl::event_y()) / scale;
   
   return event;
 }
