@@ -50,7 +50,6 @@ namespace richmath {
       static void deactivated_all_controls();
       
       static void init();
-      static void doevents();
       static int run();
       static void done();
       

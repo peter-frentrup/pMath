@@ -664,37 +664,6 @@ void Application::init() {
   total_time_waited_for_gui = 0.0;
 }
 
-void Application::doevents() {
-  // ClientState
-  intptr_t old_state = pmath_atomic_fetch_set(&state, Running);
-  
-#ifdef RICHMATH_USE_WIN32_GUI
-  {
-    MSG msg;
-    while(PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
-      if(msg.message == WM_QUIT) {
-        PostQuitMessage(0);
-        break;
-      }
-      
-      if(Win32AcceleratorTable::main_table.is_valid()) {
-        if(!Win32AcceleratorTable::main_table->translate_accelerator(GetFocus(), &msg)) {
-          TranslateMessage(&msg);
-          DispatchMessageW(&msg);
-        }
-      }
-    }
-  }
-#endif
-  
-#ifdef RICHMATH_USE_GTK_GUI
-  while(gtk_events_pending())
-    gtk_main_iteration();
-#endif
-    
-  pmath_atomic_write_release(&state, old_state);
-}
-
 int Application::run() {
   int result = 0;
   
