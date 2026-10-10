@@ -34,6 +34,10 @@ namespace richmath {
       virtual bool is_using_dark_mode() override { return false; }
       virtual int dpi() override;
       
+      bool can_toggle_menubar();
+      bool has_menubar();
+      bool try_set_menubar(bool visible);
+      
       void invalidate_options();
       virtual void reset_title() override;
       

@@ -4,8 +4,14 @@
 #include <FL/Fl_Menu_.H>
 #include <FL/Fl_Menu_Item.H>
 
+#ifdef PMATH_DEBUG_LOG
+#  include <Fl/names.H>
+#endif
+
 #include <gui/document.h>
 #include <gui/menus.h>
+
+#include <eval/observable.h>
 
 #include <util/autovaluereset.h>
 #include <util/hashtable.h>
@@ -40,8 +46,10 @@ namespace richmath {
       static int need_command_id(Expr expr);
       static Expr find_command(int id);
       
+    public:
       static Array<Expr> commands;
       static Hashtable<Expr, int> command_ids;
+      static ObservableValue<int> selected_menu_command_id;
       
     private:
       MathFltkMenuItems &self;
@@ -76,6 +84,10 @@ void MathFltkMenuItems::reload(Expr expr) {
   Impl(*this).load(PMATH_CPP_MOVE(expr));
 }
 
+Expr MathFltkMenuItems::selected_item_command() {
+  return Impl::find_command(Impl::selected_menu_command_id);
+}
+
 void MathFltkMenuItems::update_states(Fl_Menu_Item *menu, FrontEndReference id) {
   AutoValueReset<Document*> auto_menu_redirect{ Menus::current_document_redirect };
   
@@ -104,6 +116,7 @@ Fl_Menu_Item *MathFltkMenuItems::menutable() {
 
 Array<Expr> MathFltkMenuItems::Impl::commands;
 Hashtable<Expr, int> MathFltkMenuItems::Impl::command_ids;
+ObservableValue<int> MathFltkMenuItems::Impl::selected_menu_command_id;
 
 void MathFltkMenuItems::Impl::load(Expr expr) {
   if(!expr.item_equals(0, richmath_System_Menu) || expr.expr_length() != 2)
@@ -218,7 +231,7 @@ void MathFltkMenuItems::Impl::clear() {
 }
 
 void MathFltkMenuItems::Impl::init_simple(Fl_Menu_Item *mi, MenuItemType type, Expr item) {
-  mi->flags = 0;
+  mi->flags = FL_MENU_CHATTY;
   
   set_label(mi, item[1]);
   
@@ -395,16 +408,33 @@ void MathFltkMenuItems::Impl::free_item_label(Fl_Menu_Item *item) {
   item->label(FL_NO_LABEL, Label_empty);
 }
 
-void MathFltkMenuItems::Impl::menu_item_callback(Fl_Widget *sender, void *command_id) {
-  Fl_Menu_ *menu = static_cast<Fl_Menu_*>(sender);
-  const Fl_Menu_Item *mi = menu->mvalue();
+void MathFltkMenuItems::Impl::menu_item_callback(Fl_Widget *sender, void *_command_id) {
+//  Fl_Menu_ *menu = static_cast<Fl_Menu_*>(sender);
+//  const Fl_Menu_Item *mi = menu->mvalue();
   
-  if(Expr cmd = find_command((int)(intptr_t)command_id)) {
-    pmath_debug_print("[menu_item_callback on %p reason %d: ", sender, Fl::callback_reason());
-    pmath_debug_print_object("", cmd.get(), "]\n");
+  int command_id = (int)(intptr_t)_command_id;
+  if(Expr cmd = find_command(command_id)) {
+    switch(Fl::callback_reason()) {
+      case FL_REASON_GOT_FOCUS:
+        selected_menu_command_id = command_id;
+        break;
+      
+      case FL_REASON_LOST_FOCUS:
+        if(selected_menu_command_id.unobserved_equals(command_id)) {
+          selected_menu_command_id = 0;
+        }
+        break;
+      
+      case FL_REASON_SELECTED:
+        pmath_debug_print("[menu_item_callback on %p reason %s: ", sender, fl_callback_reason_str(Fl::callback_reason()).c_str());
+        pmath_debug_print_object("", cmd.get(), "]\n");
+
+        Menus::run_command_now(cmd);
+        break;
+    }
   }
    else {
-    pmath_debug_print("[menu_item_callback(%p, %p) reason=%d]\n", sender, command_id, Fl::callback_reason());
+    pmath_debug_print("[menu_item_callback(%p, %p) reason=%d]\n", sender, command_id, fl_callback_reason_str(Fl::callback_reason()).c_str());
   }
 }
 

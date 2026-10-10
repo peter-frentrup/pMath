@@ -98,7 +98,7 @@ namespace richmath {
         Expr                submenu_cmd, 
         bool              (*func)(Expr submenu_cmd, Expr item_cmd),
         MenuCommandStatus (*test)(Expr submenu_cmd, Expr item_cmd) = nullptr);
-      static bool              has_submenu_item_locator(Expr submenu_cmd);
+      static bool has_submenu_item_locator(Expr submenu_cmd);
       
       static MenuItemType menu_item_type(Expr item);
       static MenuItemType command_type(Expr cmd);

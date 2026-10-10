@@ -5,10 +5,16 @@
 #include <gui/document.h>
 #include <gui/documents.h>
 
+#include <util/autovaluereset.h>
+
 #include <FL/FL.H>
 #include <FL/FL_Menu_Bar.H>
 #include <FL/FL_Scrollbar.H>
 #include <FL/FL_Window.H>
+
+#ifdef PMATH_DEBUG_LOG
+#  include <Fl/names.H>
+#endif
 
 
 namespace richmath {
@@ -33,12 +39,23 @@ namespace richmath {
       virtual String full_filename() override { return _parent->full_filename(); }
       virtual void full_filename(String new_full_filename) override { _parent->full_filename(new_full_filename); }
       
+      virtual bool can_toggle_menubar() override {          return _parent->can_toggle_menubar(); }
+      virtual bool has_menubar() override {                 return _parent->has_menubar(); }
+      virtual bool try_set_menubar(bool visible) override { return _parent->try_set_menubar(visible); }
+      
       virtual String window_title() override { return _parent->title(); }
+      
+      virtual void on_idle_after_edit() override { 
+        base::on_idle_after_edit();
+        _parent->on_idle_after_edit(); 
+      }
+      virtual void on_saved() override { _parent->on_saved(); }
       
       virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
       virtual bool is_focused_widget() override { return _parent->is_foreground_window() && base::is_focused_widget(); }
       virtual bool is_using_dark_mode() override { return _parent->is_using_dark_mode(); }
       
+      virtual void close() override;
       virtual void invalidate_options() override;
       
     protected:
@@ -173,6 +190,18 @@ int MathFltkDocumentWindow::dpi() {
   return 96;
 }
 
+bool MathFltkDocumentWindow::can_toggle_menubar() {
+  return false;
+}
+
+bool MathFltkDocumentWindow::has_menubar() {
+  return _menu && _menu->visible() && _menu->h() > 0 && _menu->w() > 0;
+}
+
+bool MathFltkDocumentWindow::try_set_menubar(bool visible) {
+  return false;
+}
+
 void MathFltkDocumentWindow::invalidate_options() {
   Document *doc = document();
   
@@ -238,6 +267,11 @@ void MathFltkDocumentChildWidget::after_construction() {
   
   parent()->window()->add(_widget);
   _widget->show();
+}
+
+void MathFltkDocumentChildWidget::close() {
+  if(_parent && _parent->window())
+    Fl::handle(FL_CLOSE, _parent->window());
 }
 
 void MathFltkDocumentChildWidget::invalidate_options() {
@@ -383,11 +417,15 @@ MathFltkMenu::MathFltkMenu(MathFltkDocumentWindow *parent, int X, int Y, int W, 
 int MathFltkMenu::handle(int event) {
   switch(event) {
     case FL_BEFORE_MENU:
-      pmath_debug_print("[FL_BEFORE_MENU %d]\n", parent()->document()->id());
+      //pmath_debug_print("[FL_BEFORE_MENU %d]\n", parent()->document()->id());
       MathFltkMenuItems::update_states(const_cast<Fl_Menu_Item*>(menu()), parent()->document()->id());
-      break;
+      return base::handle(event);
   }
   
+  //pmath_debug_print("[MathFltkMenu::handle %s]\n", fl_eventname_str(event).c_str());
+  
+  AutoValueReset<Document*> auto_menu_redirect{ Menus::current_document_redirect };
+  Menus::current_document_redirect = parent()->document();
   return base::handle(event);
 }
 

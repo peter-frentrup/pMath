@@ -12,6 +12,10 @@
 #  include <gui/gtk/mgtk-document-window.h>
 #endif
 
+#ifdef RICHMATH_USE_FLTK_GUI
+#  include <gui/fltk/mfltk-menu-items.h>
+#endif
+
 #include <gui/document.h>
 #include <gui/documents.h>
 
@@ -141,6 +145,9 @@ bool Menus::run_command_now(Expr cmd) {
 }
 
 Expr Menus::selected_item_command() {
+#ifdef RICHMATH_USE_FLTK_GUI
+  return MathFltkMenuItems::selected_item_command();
+#endif
 #ifdef RICHMATH_USE_GTK_GUI
   return MathGtkMenuBuilder::selected_item_command();
 #endif

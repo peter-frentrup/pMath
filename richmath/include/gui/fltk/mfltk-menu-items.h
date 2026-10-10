@@ -25,6 +25,8 @@ namespace richmath {
       void reload(Expr expr);
       Fl_Menu_Item *menutable();
       
+      static Expr selected_item_command();
+      
       static void update_states(Fl_Menu_Item *menu, FrontEndReference id);
       static void done();
       
