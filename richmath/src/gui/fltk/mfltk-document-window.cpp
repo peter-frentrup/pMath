@@ -1,12 +1,14 @@
 #include <gui/fltk/mfltk-document-window.h>
 
+#include <gui/fltk/mfltk-menu-items.h>
+
+#include <gui/document.h>
+#include <gui/documents.h>
+
 #include <FL/FL.H>
 #include <FL/FL_Menu_Bar.H>
 #include <FL/FL_Scrollbar.H>
 #include <FL/FL_Window.H>
-
-#include <gui/document.h>
-#include <gui/documents.h>
 
 
 namespace richmath {
@@ -76,6 +78,19 @@ namespace richmath {
       Fl_Scrollbar *_vscroll = nullptr;
       Fl_Scrollbar *_hscroll = nullptr;
   };
+  
+  class MathFltkMenu: public Fl_Menu_Bar {
+      using base = Fl_Menu_Bar;
+    public:
+      MathFltkMenu(MathFltkDocumentWindow *parent, int X, int Y, int W, int H);
+      
+      virtual int handle(int) override;
+      
+      MathFltkDocumentWindow *parent() { return _parent; }
+    
+    private:
+      MathFltkDocumentWindow *_parent;
+  };
 }
 
 using namespace richmath;
@@ -88,6 +103,7 @@ MathFltkDocumentWindow::MathFltkDocumentWindow()
   SET_EXPLICIT_BASE_DEBUG_TAG(CommonDocumentWindow, typeid(*this).name());
   SET_EXPLICIT_BASE_DEBUG_TAG(BasicFltkWidget,      typeid(*this).name());
   
+  _menu = nullptr;
   _working_area = new MathFltkWorkingArea(this);
   
   _content = _working_area->document();
@@ -109,16 +125,9 @@ void MathFltkDocumentWindow::after_construction() {
   
   _working_area->init(); // calls win->add(_widget)
   
-  Fl_Menu_Bar *menu_bar = new Fl_Menu_Bar(0, 0, win->w(), 30);
-  win->add(menu_bar);
-  
-  static Fl_Menu_Item menutable[] = {
-    {"&File",0,0,0, FL_SUBMENU},
-      {"&Open", FL_ALT+'o'},
-      {0},
-    {0}
-  };
-  menu_bar->menu(menutable);
+  _menu = new MathFltkMenu(this, 0, 0, win->w(), 30);
+  win->add(_menu);
+  _menu->menu(MathFltkMenuItems::main_menu.menutable());
   
   {
     Fl_Group *group = new Fl_Group(0, 30, win->w(), win->h() - 30);
@@ -362,3 +371,24 @@ void MathFltkWorkingArea::adjust_scollbars() {
 }
 
 //} ... class MathFltkWorkingArea
+
+//{ class MathFltkMenu ...
+
+MathFltkMenu::MathFltkMenu(MathFltkDocumentWindow *parent, int X, int Y, int W, int H)
+: base(X, Y, W, H),
+  _parent(parent)
+{
+}
+
+int MathFltkMenu::handle(int event) {
+  switch(event) {
+    case FL_BEFORE_MENU:
+      pmath_debug_print("[FL_BEFORE_MENU %d]\n", parent()->document()->id());
+      MathFltkMenuItems::update_states(const_cast<Fl_Menu_Item*>(menu()), parent()->document()->id());
+      break;
+  }
+  
+  return base::handle(event);
+}
+
+//} ... class MathFltkMenu

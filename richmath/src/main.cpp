@@ -86,6 +86,7 @@
 
 #ifdef RICHMATH_USE_FLTK_GUI
 #  include <gui/fltk/mfltk-document-window.h>
+#  include <gui/fltk/mfltk-menu-items.h>
 #endif
 
 #ifdef RICHMATH_USE_FT_FONT
@@ -722,6 +723,10 @@ int main(int argc, char **argv) {
     MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
 #endif
     
+#ifdef RICHMATH_USE_FLTK_GUI
+    MathFltkMenuItems::main_menu.reload(Evaluate(Parse(MAIN_MENU_CMD)));
+#endif
+    
     double end = pmath_tickcount();
     
     pmath_debug_print("[%f sec reading menus]\n", end - start);
@@ -832,6 +837,10 @@ QUIT:
   MathGtkAccelerators::done();
   MathGtkControlPainter::done();
   MathGtkCss::done();
+#endif
+  
+#ifdef RICHMATH_USE_FLTK_GUI
+  MathFltkMenuItems::done();
 #endif
   
   // needed to clear the message_queue member:

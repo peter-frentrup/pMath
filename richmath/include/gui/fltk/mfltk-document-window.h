@@ -10,6 +10,7 @@
 #include <eval/observable.h>
 
 class Fl_Window;
+class Fl_Menu_Bar;
 
 namespace richmath {
   class MathFltkWorkingArea;
@@ -42,6 +43,7 @@ namespace richmath {
       virtual void on_callback(Fl_Widget *sender) override;
       
     private:
+      Fl_Menu_Bar         *_menu;
       MathFltkWorkingArea *_working_area;
       ObservableValue<bool> _active;
   };
