@@ -10,6 +10,7 @@
 #endif
 
 #include <gui/document.h>
+#include <gui/documents.h>
 #include <math.h>
 
 
@@ -182,8 +183,11 @@ void MathFltkWidget::do_drag_drop(const VolatileSelection &src, MouseEvent &even
 }
 
 void MathFltkWidget::bring_to_front() {
-  if(_widget)
+  if(_widget) {
     _widget->take_focus();
+    if(Fl_Window *win = _widget->top_window())
+      win->show();
+  }
 }
 
 void MathFltkWidget::invalidate() {
@@ -207,7 +211,18 @@ void MathFltkWidget::invalidate_rect(const RectangleF &rect) {
     int y1 = (int)floorf(rect.top() * scale);
     int y2 = (int)ceilf(rect.bottom() * scale);
     x1-= 4; x2+= 4; y1-= 4; y2 += 4;
-    _widget->damage(FL_DAMAGE_ALL, x1, y1, x2 - x1, y2 - y1);
+    
+    int sx = 0;
+    int sy = 0; 
+    
+    if(Fl_Scrollbar *v_scrollbar = vscroll()) {
+      sy = v_scrollbar->value();
+    }
+    if(Fl_Scrollbar *h_scrollbar = hscroll()) {
+      sx = h_scrollbar->value();
+    }
+    
+    _widget->damage(FL_DAMAGE_ALL, x1 - sx, y1 - sy, x2 - x1, y2 - y1);
   }
 }
 
@@ -359,6 +374,7 @@ int MathFltkWidget::Impl::handle(int event) {
   update_event_time();
   
   switch(event) {
+    // TODO: global FL_APP_ACTIVATE, FL_APP_DEACTIVATE
     case FL_FOCUS:   return handle_focus();
     case FL_UNFOCUS: return handle_unfocus();
     
@@ -386,7 +402,22 @@ int MathFltkWidget::Impl::handle_focus() {
   if(!owner)
     return 0;
   
-  owner->invalidate();
+  if(Document *doc = owner->document()) {
+    Documents::focus_gained(doc);
+    
+    if(doc->selectable())
+      owner->do_set_selected_document();
+    
+    Box *sel_box = doc->selection_box();
+    if(sel_box && doc->selection_length() == 0) {
+      auto ctx = owner->document_context();
+      ctx->old_selection.id = FrontEndReference::None;
+      
+      //caret_blink_begin_location = SelectionReference();
+      sel_box->request_repaint_range(ctx->selection.start, ctx->selection.end);
+    }
+  }
+  
   return 1;
 }
 
@@ -394,8 +425,15 @@ int MathFltkWidget::Impl::handle_unfocus() {
   MathFltkWidget *owner = find_owner();
   if(!owner)
     return 0;
-
-  owner->invalidate();
+  
+  if(Document *doc = owner->document()) {
+    Documents::focus_lost(doc);
+    
+    // TODO: defer until we have a newly focussed document to know whether focus was transferred 
+    // to an attached popup. 
+    doc->focus_killed(Documents::focused_document());
+  }
+  
   Fl::compose_reset();
   fl_reset_spot();
   return 1;
@@ -558,7 +596,7 @@ int MathFltkWidget::Impl::handle_mouse_up() {
   if(!owner)
     return 0;
   
-  MouseEvent event = prepare_mouse_event();
+  MouseEvent event = prepare_mouse_event(); // TODO: depressed button
   
   owner->document()->mouse_up(event);
   
@@ -602,9 +640,9 @@ MouseEvent MathFltkWidget::Impl::prepare_mouse_event() {
   
   event.device = DeviceKind::Mouse;
   
-  event.left      = Fl::event_button1(); // = false: FL_DRAG would be sent if there is a button pressed
-  event.middle    = Fl::event_button2();
-  event.right     = Fl::event_button3();
+  event.left      = Fl::event_button1() || Fl::event_button() == FL_LEFT_MOUSE;
+  event.middle    = Fl::event_button2() || Fl::event_button() == FL_MIDDLE_MOUSE;
+  event.right     = Fl::event_button3() || Fl::event_button() == FL_RIGHT_MOUSE;
   event.ctrl_key  = Fl::event_ctrl();
   event.shift_key = Fl::event_shift();
   event.alt_key   = Fl::event_alt();
