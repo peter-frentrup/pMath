@@ -201,18 +201,22 @@ AutoGuiWait::~AutoGuiWait() {
   }
 }
 
-// also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
-static int on_client_notify(void *data) {
+// Also a Fl_Awake_Handler
+static void on_client_notify_void(void *unused) {
   ClientNotificationData cn;
   
   if(notifications.get(&cn) && session)
     execute(cn);
-    
+}
+
+// Also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
+static int on_client_notify_int(void *unused) {
+  on_client_notify_void(unused);
   return 0;
 }
 
-// also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
-static int on_add_job(void *data) {
+// Also a Fl_Awake_Handler
+static void on_add_job_void(void *unused) {
   if(session && !session->current_job) {
     while(session->jobs.get(&session->current_job)) {
       if(session->current_job) {
@@ -242,22 +246,26 @@ static int on_add_job(void *data) {
       session->current_job = nullptr;
     }
   }
+}
   
+// also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
+static int on_add_job_int(void *unused) {
+  on_add_job_void(unused);
   return 0;
 }
 
-// also a GSourceFunc, must return G_SOURCE_REMOVE (=0).  data = FrontEndReference cast to pointer
-static int on_invokebutton(void *data) {
+// Also a Fl_Awake_Handler.  data = FrontEndReference cast to pointer
+static void on_invokebutton_void(void *data) {
   Box *box = FrontEndObject::find_cast<Box>(FrontEndReference::unsafe_cast_from_pointer(data));
   if(!box)
-    return 0;
+    return;
   
   if(auto button = dynamic_cast<AbstractButtonBox*>(box))
     button->click();
   else if(auto emptywidget = dynamic_cast<EmptyWidgetBox*>(box))
     emptywidget->click();
   else
-    return 0;
+    return;
   
 #ifdef RICHMATH_USE_WIN32_GUI
   if(UiaClientsAreListening()) {
@@ -281,16 +289,25 @@ static int on_invokebutton(void *data) {
     }
   }
 #endif
+}
+
+// Also a GSourceFunc, must return G_SOURCE_REMOVE (=0).  data = FrontEndReference cast to pointer
+static int on_invokebutton_int(void *data) {
+  on_invokebutton_void(data);
   return 0;
 }
 
-// also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
-static int on_dynamic_update_delay_timeout(void *data) {
+// Also a Fl_Timeout_Handler
+static void on_dynamic_update_delay_timeout_void(void *unused) {
   dynamic_update_delay_timer_active = false;
   
   if(!dynamic_update_delay)
     Application::delay_dynamic_updates(false);
-    
+}
+
+// also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
+static int on_dynamic_update_delay_timeout_int(void *unused) {
+  on_dynamic_update_delay_timeout_void(unused);
   return 0;
 }
 
@@ -313,12 +330,12 @@ class ClientInfoWindow final: public BasicWin32Widget {
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       if(!initializing() && !destroying()) {
         switch(message) {
-          case WM_CLIENTNOTIFY: on_client_notify(nullptr); return 0;
-          case WM_ADDJOB:       on_add_job(nullptr); return 0;
-          case WM_INVOKEBUTTON: on_invokebutton((void*)lParam); return 0;
+          case WM_CLIENTNOTIFY: on_client_notify_void(nullptr); return 0;
+          case WM_ADDJOB:       on_add_job_void(nullptr); return 0;
+          case WM_INVOKEBUTTON: on_invokebutton_void((void*)lParam); return 0;
           
           case WM_TIMER:
-            on_dynamic_update_delay_timeout(nullptr);
+            on_dynamic_update_delay_timeout_void(nullptr);
             KillTimer(_hwnd, TID_DYNAMIC_UPDATE);
             return 0;
         }
@@ -368,7 +385,7 @@ bool Application::is_running_on_gui_thread() {
 void Application::notify(ClientNotification type, Expr data) {
   if(pmath_atomic_read_aquire(&state) == Quitting)
     return;
-    
+  
   ClientNotificationData cn;
   cn.type = type;
   cn.data = PMATH_CPP_MOVE(data);
@@ -381,7 +398,11 @@ void Application::notify(ClientNotification type, Expr data) {
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, nullptr, nullptr);
+  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify_int, nullptr, nullptr);
+#endif
+
+#ifdef RICHMATH_USE_FLTK_GUI
+  Fl::awake_once(on_client_notify_void, nullptr);
 #endif
 }
 
@@ -411,7 +432,11 @@ Expr Application::notify_wait(ClientNotification type, Expr data) {
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, nullptr, nullptr);
+  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify_int, nullptr, nullptr);
+#endif
+  
+#ifdef RICHMATH_USE_FLTK_GUI
+  Fl::awake_once(on_client_notify_void, nullptr);
 #endif
   
   while(!pmath_atomic_read_aquire(&finished)) {
@@ -756,7 +781,11 @@ void Application::click_button_async(FrontEndReference button_id) { // callable 
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
-  g_idle_add_full(G_PRIORITY_DEFAULT, on_invokebutton, FrontEndReference::unsafe_cast_to_pointer(button_id), nullptr);
+  g_idle_add_full(G_PRIORITY_DEFAULT, on_invokebutton_int, FrontEndReference::unsafe_cast_to_pointer(button_id), nullptr);
+#endif
+
+#ifdef RICHMATH_USE_FLTK_GUI
+  Fl::awake(on_invokebutton_void, FrontEndReference::unsafe_cast_to_pointer(button_id));
 #endif
 }
 
@@ -770,7 +799,11 @@ void Application::add_job(SharedPtr<Job> job) {
 #endif
     
 #ifdef RICHMATH_USE_GTK_GUI
-    g_idle_add_full(G_PRIORITY_DEFAULT, on_add_job, nullptr, nullptr);
+    g_idle_add_full(G_PRIORITY_DEFAULT, on_add_job_int, nullptr, nullptr);
+#endif
+    
+#ifdef RICHMATH_USE_FLTK_GUI
+    Fl::awake_once(on_add_job_void, nullptr);
 #endif
   }
 }
@@ -1538,9 +1571,15 @@ static void cnt_dynamicupdate(Expr data) {
 #endif
         
 #ifdef RICHMATH_USE_GTK_GUI
-      if(g_timeout_add_full(G_PRIORITY_DEFAULT, milliseconds, on_dynamic_update_delay_timeout, nullptr, nullptr))
+      if(g_timeout_add_full(G_PRIORITY_DEFAULT, milliseconds, on_dynamic_update_delay_timeout_int, nullptr, nullptr))
         dynamic_update_delay_timer_active = true;
 #endif
+
+#ifdef RICHMATH_USE_FLTK_GUI
+      Fl::add_timeout(milliseconds / 1000.0, on_dynamic_update_delay_timeout_void, nullptr);
+      dynamic_update_delay_timer_active = true;
+#endif
+
     }
     
     return;

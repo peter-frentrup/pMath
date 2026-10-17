@@ -598,11 +598,11 @@ static MenuCommandStatus can_document_write(Expr cmd) {
     
   Box *sel = doc->selection_box();
   
-  pmath_debug_print_object("[can ", cmd.get(), " ");
-  Expr tmp = doc->to_pmath_id();
-  pmath_debug_print_object("on ", tmp.get(), ", ");
-  tmp = sel ? sel->to_pmath_id() : Expr();
-  pmath_debug_print_object("sel ", tmp.get(), " ?]\n");
+//  pmath_debug_print_object("[can ", cmd.get(), " ");
+//  Expr tmp = doc->to_pmath_id();
+//  pmath_debug_print_object("on ", tmp.get(), ", ");
+//  tmp = sel ? sel->to_pmath_id() : Expr();
+//  pmath_debug_print_object("sel ", tmp.get(), " ?]\n");
   
   return MenuCommandStatus(sel && sel->editable());
 }
