@@ -949,6 +949,12 @@
 		<Unit filename="dependencies/source/fltk/src/Fl_Cairo.cxx">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Choice.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Color_Chooser.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
 		<Unit filename="dependencies/source/fltk/src/Fl_Copy_Surface.cxx">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
@@ -1061,6 +1067,9 @@
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="dependencies/source/fltk/src/Fl_Valuator.cxx">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="dependencies/source/fltk/src/Fl_Value_Input.cxx">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="dependencies/source/fltk/src/Fl_Widget.cxx">
