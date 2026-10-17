@@ -345,7 +345,7 @@ static void os_init() {
   {
     HMODULE kernel32;
     
-    // do not show message boxes on LoadLibrary errors:
+    // do not show message boxes on LoadLibrary errors:s
     SetErrorMode(SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS);
     
     // remove current directory from dll search path:
@@ -724,6 +724,7 @@ int main(int argc, char **argv) {
 #endif
     
 #ifdef RICHMATH_USE_FLTK_GUI
+    MathFltkMenuItems::main_menu.load_accelerators(Evaluate(Parse(SHORTCUTS_CMD)));
     MathFltkMenuItems::main_menu.reload(Evaluate(Parse(MAIN_MENU_CMD)));
 #endif
     

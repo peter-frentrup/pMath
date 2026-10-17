@@ -46,10 +46,15 @@ namespace richmath {
       static int need_command_id(Expr expr);
       static Expr find_command(int id);
       
+      static int decode_shortcut_key(Expr expr);
+      
     public:
       static Array<Expr> commands;
       static Hashtable<Expr, int> command_ids;
       static ObservableValue<int> selected_menu_command_id;
+      
+      static Hashtable<int, int> shortcut_by_command;
+      static Hashtable<int, int> command_by_shortcut;
       
     private:
       MathFltkMenuItems &self;
@@ -63,7 +68,12 @@ static const char Label_inline_menu_end[]   = "[inline menu end]";
 static const char Label_empty[]             = "(empty)";
 
 extern pmath_symbol_t richmath_System_Menu;
+extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_FE_KeyAlt;
+extern pmath_symbol_t richmath_FE_KeyControl;
+extern pmath_symbol_t richmath_FE_KeyEvent;
+extern pmath_symbol_t richmath_FE_KeyShift;
 
 //{ class MathFltkMenuItems ...
 
@@ -86,6 +96,34 @@ void MathFltkMenuItems::reload(Expr expr) {
 
 Expr MathFltkMenuItems::selected_item_command() {
   return Impl::find_command(Impl::selected_menu_command_id);
+}
+
+void MathFltkMenuItems::load_accelerators(Expr expr) {
+  Impl::shortcut_by_command.default_value = 0;
+  Impl::command_by_shortcut.default_value = 0;
+  
+  if(!expr.item_equals(0, richmath_System_List))
+    return;
+  
+  for(Expr item: expr.items()) {
+    if(item.item_equals(0, richmath_System_MenuItem) && item.expr_length() == 2) {
+      int shortcut = Impl::decode_shortcut_key(item[1]);
+      if(!shortcut)
+        continue;
+      
+      int cmd_id = Impl::need_command_id(item[2]);
+      if(!cmd_id)
+        continue;
+      
+      //pmath_debug_print("[new shortcut 0x%x for cmd %d]\n", shortcut, cmd_id);
+      if(!Impl::shortcut_by_command.search(cmd_id))
+        Impl::shortcut_by_command.set(cmd_id, shortcut);
+      
+      Impl::command_by_shortcut.set(shortcut, cmd_id);
+    }
+  }
+  
+  pmath_debug_print("[have %d shortcuts for %d commands]\n", Impl::command_by_shortcut.size(), Impl::shortcut_by_command.size());
 }
 
 void MathFltkMenuItems::update_states(Fl_Menu_Item *menu, FrontEndReference id) {
@@ -117,6 +155,9 @@ Fl_Menu_Item *MathFltkMenuItems::menutable() {
 Array<Expr> MathFltkMenuItems::Impl::commands;
 Hashtable<Expr, int> MathFltkMenuItems::Impl::command_ids;
 ObservableValue<int> MathFltkMenuItems::Impl::selected_menu_command_id;
+
+Hashtable<int, int> MathFltkMenuItems::Impl::shortcut_by_command;
+Hashtable<int, int> MathFltkMenuItems::Impl::command_by_shortcut;
 
 void MathFltkMenuItems::Impl::load(Expr expr) {
   if(!expr.item_equals(0, richmath_System_Menu) || expr.expr_length() != 2)
@@ -240,7 +281,9 @@ void MathFltkMenuItems::Impl::init_simple(Fl_Menu_Item *mi, MenuItemType type, E
     case MenuItemType::RadioButton: mi->flags |= FL_MENU_RADIO;  break;
   }
   
-  mi->callback(menu_item_callback, (void*)(intptr_t)need_command_id(item[2]));
+  int cmd_id = need_command_id(item[2]);
+  mi->shortcut(shortcut_by_command[cmd_id]);
+  mi->callback(menu_item_callback, (void*)(intptr_t)cmd_id);
 }
 
 void MathFltkMenuItems::Impl::update_simple_state(Fl_Menu_Item *mi) {
@@ -443,7 +486,9 @@ int MathFltkMenuItems::Impl::need_command_id(Expr expr) {
     return *cmd_id;
   
   commands.add(expr);
-  return commands.length();
+  int id = commands.length();
+  command_ids.set(expr, id);
+  return id;
 }
 
 Expr MathFltkMenuItems::Impl::find_command(int id) {
@@ -451,6 +496,98 @@ Expr MathFltkMenuItems::Impl::find_command(int id) {
     return commands[id - 1];
   else
     return Expr();
+}
+
+int MathFltkMenuItems::Impl::decode_shortcut_key(Expr expr) {
+  if(!expr.item_equals(0, richmath_FE_KeyEvent) || expr.expr_length() != 2)
+    return 0;
+  
+  Expr modifiers = expr[2];
+  if(!modifiers.item_equals(0, richmath_System_List))
+    return 0;
+  
+  int mods = 0;
+  for(Expr item : modifiers.items()) {
+    if(item == richmath_FE_KeyAlt)
+      mods |= FL_ALT;
+    else if(item == richmath_FE_KeyControl)
+      mods |= FL_CTRL;
+    else if(item == richmath_FE_KeyShift)
+      mods |= FL_SHIFT;
+    else
+      return 0;
+  }
+  
+  String key(expr[1]);
+  if(key.length() == 0)
+    return 0;
+  
+  if(key.length() == 1) {
+    uint16_t ch = key.buffer()[0];
+    
+    if(ch >= 'A' && ch <= 'Z')
+      ch -= 'A' - 'a';
+    
+    return mods + ch;
+  }
+  
+  if(key.equals("F1"))            return mods + (FL_F + 1);
+  if(key.equals("F2"))            return mods + (FL_F + 2);
+  if(key.equals("F3"))            return mods + (FL_F + 3);
+  if(key.equals("F4"))            return mods + (FL_F + 4);
+  if(key.equals("F5"))            return mods + (FL_F + 5);
+  if(key.equals("F6"))            return mods + (FL_F + 6);
+  if(key.equals("F7"))            return mods + (FL_F + 7);
+  if(key.equals("F8"))            return mods + (FL_F + 8);
+  if(key.equals("F9"))            return mods + (FL_F + 9);
+  if(key.equals("F10"))           return mods + (FL_F + 10);
+  if(key.equals("F11"))           return mods + (FL_F + 11);
+  if(key.equals("F12"))           return mods + (FL_F + 12);
+  if(key.equals("F13"))           return mods + (FL_F + 13);
+  if(key.equals("F14"))           return mods + (FL_F + 14);
+  if(key.equals("F15"))           return mods + (FL_F + 15);
+  if(key.equals("F16"))           return mods + (FL_F + 16);
+  if(key.equals("F17"))           return mods + (FL_F + 17);
+  if(key.equals("F18"))           return mods + (FL_F + 18);
+  if(key.equals("F19"))           return mods + (FL_F + 19);
+  if(key.equals("F20"))           return mods + (FL_F + 20);
+  if(key.equals("F21"))           return mods + (FL_F + 21);
+  if(key.equals("F22"))           return mods + (FL_F + 22);
+  if(key.equals("F23"))           return mods + (FL_F + 23); static_assert(FL_F + 23 <= FL_F_Last, "");
+  if(key.equals("Enter"))         return mods + FL_Enter;
+  if(key.equals("Tab"))           return mods + FL_Tab;
+  if(key.equals("Esc"))           return mods + FL_Escape;
+  if(key.equals("Pause"))         return mods + FL_Pause;
+  if(key.equals("PageUp"))        return mods + FL_Page_Up;
+  if(key.equals("PageDown"))      return mods + FL_Page_Down;
+  if(key.equals("End"))           return mods + FL_End;
+  if(key.equals("Home"))          return mods + FL_Home;
+  if(key.equals("LeftArrow"))     return mods + FL_Left;
+  if(key.equals("UpArrow"))       return mods + FL_Up;
+  if(key.equals("RightArrow"))    return mods + FL_Right;
+  if(key.equals("DownArrow"))     return mods + FL_Down;
+  if(key.equals("Insert"))        return mods + FL_Insert;
+  if(key.equals("Delete"))        return mods + FL_Delete;
+  if(key.equals("Numpad0"))       return mods + FL_KP + '0';
+  if(key.equals("Numpad1"))       return mods + FL_KP + '1';
+  if(key.equals("Numpad2"))       return mods + FL_KP + '2';
+  if(key.equals("Numpad3"))       return mods + FL_KP + '3';
+  if(key.equals("Numpad4"))       return mods + FL_KP + '4';
+  if(key.equals("Numpad5"))       return mods + FL_KP + '5';
+  if(key.equals("Numpad6"))       return mods + FL_KP + '6';
+  if(key.equals("Numpad7"))       return mods + FL_KP + '7';
+  if(key.equals("Numpad8"))       return mods + FL_KP + '8';
+  if(key.equals("Numpad9"))       return mods + FL_KP + '9';
+  if(key.equals("Numpad+"))       return mods + FL_KP + '+';
+  if(key.equals("Numpad-"))       return mods + FL_KP + '-';
+  if(key.equals("Numpad*"))       return mods + FL_KP + '*';
+  if(key.equals("Numpad/"))       return mods + FL_KP + '/';
+  if(key.equals("NumpadDecimal")) return mods + FL_KP + '.';
+  if(key.equals("NumpadEnter"))   return mods + FL_KP_Enter;
+  if(key.equals("Play"))          return mods + FL_Media_Play;
+  //if(key.equals("Zoom"))          return mods + ???;
+  
+  return 0;
 }
 
 //} ... class MathFltkMenuItems::Impl
