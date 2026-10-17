@@ -43,6 +43,8 @@ namespace richmath {
     public:
       static void static_cairo_draw_cb(Fl_Cairo_Window *window, cairo_t *cr);
       
+      static void static_animation_timeout(void *_id);
+      
     public:
       static Fl_Timestamp last_event_timestamp;
       static double last_event_time;
@@ -63,6 +65,7 @@ MathFltkWidget::MathFltkWidget(Document *doc)
   _autohide_vertical_scrollbar(false),
   _did_scroll(false),
   _mouse_moving(false),
+  _animation_running(false),
   cursor(CursorType::Default),
   last_width(0)
 {
@@ -298,8 +301,20 @@ void MathFltkWidget::beep() {
 }
 
 bool MathFltkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
-  // TODO
-  return false;
+  if(!_widget)
+    return false;
+  
+  Document *doc = document();
+  if(!doc)
+    return false;
+  
+  animations.add(event);
+  if(!_animation_running) {
+    _animation_running = true;
+    Fl::add_timeout(1.0 / 60, Impl::static_animation_timeout, FrontEndReference::unsafe_cast_to_pointer(doc->id()));
+  }
+  
+  return true;
 }
 
 void MathFltkWidget::paint_canvas(Canvas &canvas, bool resize_only) {
@@ -365,6 +380,7 @@ bool MathFltkWidget::Impl::need_redraw = false;
 MathFltkWidget::Impl::Impl()
 : base(0,0, nullptr)
 {
+  labelsize(10);
   set_draw_cb(Impl::static_cairo_draw_cb);
 }
 
@@ -690,6 +706,29 @@ void MathFltkWidget::Impl::static_cairo_draw_cb(Fl_Cairo_Window *window, cairo_t
   currently_drawing = old_currently_drawing;
   
   cairo_surface_flush(cairo_get_target(cr));
+}
+
+void MathFltkWidget::Impl::static_animation_timeout(void *_id) {
+  Document *doc = FrontEndObject::find_cast<Document>(FrontEndReference::unsafe_cast_from_pointer(_id));
+  if(!doc)
+    return;
+  
+  MathFltkWidget *wid = dynamic_cast<MathFltkWidget*>(doc->native());
+  if(!wid)
+    return;
+  
+  wid->_animation_running = false;
+  for(auto e : wid->animations.deletable_entries()) {
+    if(e.key->min_wait_seconds <= e.key->timer()) {
+      auto anim = e.key;
+      e.delete_self();
+      anim->execute_event();
+    }
+    else if(!wid->_animation_running) {
+      wid->_animation_running = true;
+      Fl::repeat_timeout(1.0 / 60, static_animation_timeout, _id);
+    }
+  }
 }
 
 void MathFltkWidget::Impl::update_event_time() {

@@ -86,9 +86,12 @@ namespace richmath {
       bool _autohide_vertical_scrollbar : 1;
       bool _did_scroll : 1;
       bool _mouse_moving : 1;
+      bool _animation_running : 1;
       
       CursorType cursor;
       int last_width;
+      
+      Hashset<SharedPtr<TimedEvent>> animations;
   };
 }
 

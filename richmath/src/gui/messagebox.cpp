@@ -3,6 +3,9 @@
 #include <gui/native-widget.h>
 
 
+#ifdef RICHMATH_USE_FLTK_GUI
+#  include <gui/fltk/mfltk-messagebox.h>
+#endif
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-messagebox.h>
 #endif
@@ -26,6 +29,9 @@ YesNoCancel richmath::ask_save(Document *doc) {
   else
     text = "Do you want to save changes?";
   
+#ifdef RICHMATH_USE_FLTK_GUI
+  return mfltk_ask_save(doc, PMATH_CPP_MOVE(text));
+#endif
 #ifdef RICHMATH_USE_GTK_GUI
   return mgtk_ask_save(doc, PMATH_CPP_MOVE(text));
 #endif
@@ -37,6 +43,9 @@ YesNoCancel richmath::ask_save(Document *doc) {
 }
 
 YesNoCancel richmath::ask_remove_private_style_definitions(Document *doc) {
+#ifdef RICHMATH_USE_FLTK_GUI
+  return mfltk_ask_remove_private_style_definitions(doc);
+#endif
 #ifdef RICHMATH_USE_GTK_GUI
   return mgtk_ask_remove_private_style_definitions(doc);
 #endif
@@ -47,6 +56,9 @@ YesNoCancel richmath::ask_remove_private_style_definitions(Document *doc) {
 }
 
 bool richmath::ask_open_suspicious_system_file(String path) {
+#ifdef RICHMATH_USE_FLTK_GUI
+  return mfltk_ask_open_suspicious_system_file(path);
+#endif
 #ifdef RICHMATH_USE_GTK_GUI
   return mgtk_ask_open_suspicious_system_file(path);
 #endif
@@ -57,6 +69,9 @@ bool richmath::ask_open_suspicious_system_file(String path) {
 }
 
 Expr richmath::ask_interrupt(Expr stack) {
+#ifdef RICHMATH_USE_FLTK_GUI
+  return mfltk_ask_interrupt(PMATH_CPP_MOVE(stack));
+#endif
 #ifdef RICHMATH_USE_GTK_GUI
   return mgtk_ask_interrupt(PMATH_CPP_MOVE(stack));
 #endif

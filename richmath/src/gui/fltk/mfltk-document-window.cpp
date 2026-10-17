@@ -4,6 +4,7 @@
 
 #include <gui/document.h>
 #include <gui/documents.h>
+#include <gui/messagebox.h>
 
 #include <util/autovaluereset.h>
 
@@ -111,6 +112,8 @@ namespace richmath {
 }
 
 using namespace richmath;
+
+extern pmath_symbol_t richmath_System_DollarFailed;
 
 //{ class MathFltkDocumentWindow ...
 
@@ -243,9 +246,64 @@ void MathFltkDocumentWindow::finish_apply_title(String displayed_title) {
 
 void MathFltkDocumentWindow::on_callback(Fl_Widget *sender) {
   if(Fl::callback_reason() == FL_REASON_CLOSED) {
+    on_close();
+    return;
+  }
+}
+
+void MathFltkDocumentWindow::on_close() {
+  Document *doc = document();
+  if(!doc) {
     destroy();
     return;
   }
+  
+  switch(doc->get_style(ClosingAction)) {
+    case ClosingActionHide: {
+        bool all_closed = true;
+        for(auto other : CommonDocumentWindow::All) {
+          if(auto other_win = dynamic_cast<MathFltkDocumentWindow*>(other)) {
+            if(other_win != this && other_win->widget() && other_win->widget()->visible()) {
+              all_closed = false;
+              break;
+            }
+          }
+        }
+        
+        if(all_closed)
+          break;
+        
+        doc->style.set(Visible, false);
+        invalidate_options();
+      }
+      return;
+    
+    case ClosingActionDelete:
+    default:
+      break;
+  }
+  
+  if(_has_unsaved_changes && doc->get_style(Saveable)) {
+    YesNoCancel answer = ask_save(doc);
+    
+    switch(answer) {
+      case YesNoCancel::Yes:
+        if(Application::save(doc) == richmath_System_DollarFailed)
+          return;
+        break;
+      
+      case YesNoCancel::No:
+        break;
+        
+      case YesNoCancel::Cancel:
+        return;
+    }
+  }
+  
+  if(auto styles = _working_area->stylesheet_document())
+    styles->native()->close();
+  
+  destroy();
 }
 
 //} ... class MathFltkDocumentWindow

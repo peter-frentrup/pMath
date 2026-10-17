@@ -1444,6 +1444,9 @@
 		<Unit filename="include/gui/fltk/mfltk-menu-items.h">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
+		<Unit filename="include/gui/fltk/mfltk-messagebox.h">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
 		<Unit filename="include/gui/fltk/mfltk-recent-documents.h">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
@@ -2242,6 +2245,9 @@
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/fltk/mfltk-menu-items.cpp">
+			<Option target="Windows-MSVC-Debug-x64-FLTK" />
+		</Unit>
+		<Unit filename="src/gui/fltk/mfltk-messagebox.cpp">
 			<Option target="Windows-MSVC-Debug-x64-FLTK" />
 		</Unit>
 		<Unit filename="src/gui/fltk/mfltk-recent-documents.cpp">

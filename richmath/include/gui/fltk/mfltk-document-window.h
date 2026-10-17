@@ -45,6 +45,7 @@ namespace richmath {
       virtual void finish_apply_title(String displayed_title) override;
       
       virtual void on_callback(Fl_Widget *sender) override;
+      virtual void on_close();
       
     private:
       Fl_Menu_Bar         *_menu;
