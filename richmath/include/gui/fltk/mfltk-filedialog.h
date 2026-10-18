@@ -10,19 +10,24 @@
 
 
 namespace richmath {
+  using namespace pmath; // bad style!!!
+  
   class MathFltkFileDialog: public Base {
       class Impl;
     public:
       MathFltkFileDialog(bool to_save);
       ~MathFltkFileDialog();
       
-      void set_title(pmath::String title);
-      void set_filter(pmath::Expr filter);
-      void set_initial_file(pmath::String initialfile);
+      void set_title(String title) { _title = title; }
+      void set_filter(Expr filter) { _filter = filter; }
+      void set_initial_file(String initialfile) { _initialfile = initialfile; }
       
-      pmath::Expr show_dialog();
+      Expr show_dialog();
       
     private:
+      String _title;
+      Expr _filter;
+      String _initialfile;
       bool _to_save;
   };
 }

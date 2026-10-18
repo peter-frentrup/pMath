@@ -79,28 +79,62 @@ namespace richmath {
       
       T *items() { return _items; }
       
+      template<class S>
+      bool operator==(ArrayView<S> other) {
+        if(_length != other.length())
+          return false;
+        
+        for(int i = 0; i < _length; ++i) {
+          if(_items[i] != other.items()[i])
+            return false;
+        }
+        
+        return true;
+      }
+      
+      template<class S>
+      bool operator!=(ArrayView<S> other) { return !(left == right); }
+      
       ArrayView<T> part(int start) {
         ARRAY_ASSERT(start >= 0);
         ARRAY_ASSERT(start < _length);
         return ArrayView<T>(_length - start, _items + start);
       }
 
-      ArrayView<T> take(int index) {
-        if(index < 0)
-          index = 0;
-        else if(index > _length)
-          index = _length;
+      ArrayView<T> take(int count) {
+        if(count < 0)
+          count = 0;
+        else if(count > _length)
+          count = _length;
         
-        return ArrayView<T>(index, _items);
+        return ArrayView<T>(count, _items);
+      }
+      
+      ArrayView<T> take_last(int count) {
+        if(count < 0)
+          count = 0;
+        else if(count > _length)
+          count = _length;
+          
+        return ArrayView<T>(count, _items + _length - count);
       }
 
-      ArrayView<T> drop(int index) {
-        if(index < 0)
-          index = 0;
-        else if(index > _length)
-          index = _length;
+      ArrayView<T> drop(int count) {
+        if(count < 0)
+          count = 0;
+        else if(count > _length)
+          count = _length;
         
-        return ArrayView<T>(_length - index, _items + index);
+        return ArrayView<T>(_length - count, _items + count);
+      }
+
+      ArrayView<T> drop_last(int count) {
+        if(count < 0)
+          count = 0;
+        else if(count > _length)
+          count = _length;
+        
+        return ArrayView<T>(_length - count, _items);
       }
       
     private:
@@ -110,7 +144,10 @@ namespace richmath {
   
   template<typename T, int N>
   ArrayView<T> array_view(T (&items)[N]) { return ArrayView<T>(N, items); } 
-  
+
+  template<int N>
+  ArrayView<const char> string_view(const char (&items)[N]) { return ArrayView<const char>(N - 1, items); } 
+
   template<typename T> class Array {
     private:
       struct DataHeader {
