@@ -5,12 +5,17 @@
 #  error This header is FLTK specific.
 #endif
 
-#include <gui/fltk/mfltk-widget.h>
-#include <gui/common-document-windows.h>
 #include <eval/observable.h>
 
-class Fl_Window;
+#include <gui/fltk/mfltk-widget.h>
+#include <gui/common-document-windows.h>
+
+#include <util/style.h>
+
+
+class Fl_Group;
 class Fl_Menu_Bar;
+class Fl_Window;
 
 namespace richmath {
   class MathFltkWorkingArea;
@@ -38,19 +43,27 @@ namespace richmath {
       bool has_menubar();
       bool try_set_menubar(bool visible);
       
+      bool            is_palette() {   return _window_frame == WindowFramePalette; }
+      WindowFrameType window_frame() { return _window_frame; }
+      
       void invalidate_options();
+      void rearrange();
       virtual void reset_title() override;
       
     protected:
       virtual void finish_apply_title(String displayed_title) override;
       
+      void window_frame(WindowFrameType type);
+      
       virtual void on_callback(Fl_Widget *sender) override;
       virtual void on_close();
       
     private:
-      Fl_Menu_Bar         *_menu;
-      MathFltkWorkingArea *_working_area;
-      ObservableValue<bool> _active;
+      Fl_Menu_Bar           *_menu;
+      Fl_Group              *_working_area_group;
+      MathFltkWorkingArea   *_working_area;
+      ObservableValue<bool>  _active;
+      WindowFrameType        _window_frame;
   };
 }
 

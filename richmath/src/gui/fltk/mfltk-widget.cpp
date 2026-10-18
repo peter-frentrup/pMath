@@ -171,6 +171,15 @@ Vector2F MathFltkWidget::double_click_dist() {
 }
 
 void MathFltkWidget::paint_background(Canvas &canvas) {
+  if(_widget) {
+    uchar r, g, b;
+    Fl::get_color(_widget->color(), r, g, b);
+    canvas.set_color(Color::from_rgb(r / 255.0, g / 255.0, b/ 255.0));
+    canvas.paint();
+    
+    Fl::get_color(_widget->labelcolor(), r, g, b);
+    canvas.set_color(Color::from_rgb(r / 255.0, g / 255.0, b/ 255.0));
+  }
 //  cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_CLEAR);
 //  canvas.set_color(Color::Black, 0.0);
 //  canvas.paint();
@@ -320,7 +329,7 @@ bool MathFltkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
 void MathFltkWidget::paint_canvas(Canvas &canvas, bool resize_only) {
   canvas.line_width(1);
   cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
-  canvas.set_font_size(_widget->labelsize()); // * 0.75 to convert from pixels?
+  canvas.set_font_size(10);// 10 * 4/3.
   
   if(!resize_only) {
     Color color = document()->get_style(Background);

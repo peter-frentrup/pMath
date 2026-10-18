@@ -21,6 +21,7 @@
 namespace richmath {
   class MathFltkDocumentChildWidget: public MathFltkWidget {
       using base = MathFltkWidget;
+      friend class MathFltkDocumentWindow;
     protected:
       virtual void after_construction() override;
     public:
@@ -86,7 +87,8 @@ namespace richmath {
       
       void adjust_scollbars();
     
-    protected:
+    public:
+      bool auto_size : 1;
       int best_width  = 1;
       int best_height = 1;
       int outer_width  = 1;
@@ -118,12 +120,14 @@ extern pmath_symbol_t richmath_System_DollarFailed;
 //{ class MathFltkDocumentWindow ...
 
 MathFltkDocumentWindow::MathFltkDocumentWindow()
-: BasicFltkWidget()
+: BasicFltkWidget(),
+  _window_frame(WindowFrameNormal)
 {
   SET_EXPLICIT_BASE_DEBUG_TAG(CommonDocumentWindow, typeid(*this).name());
   SET_EXPLICIT_BASE_DEBUG_TAG(BasicFltkWidget,      typeid(*this).name());
   
   _menu = nullptr;
+  _working_area_group = nullptr;
   _working_area = new MathFltkWorkingArea(this);
   
   _content = _working_area->document();
@@ -150,19 +154,20 @@ void MathFltkDocumentWindow::after_construction() {
   _menu->menu(MathFltkMenuItems::main_menu.menutable());
   
   {
-    Fl_Group *group = new Fl_Group(0, 30, win->w(), win->h() - 30);
-    group->add_resizable(*_working_area->widget());
+    _working_area_group = new Fl_Group(0, 30, win->w(), win->h() - 30);
+    _working_area_group->add_resizable(*_working_area->widget());
     
     int SW = Fl::scrollbar_size();
-    Fl_Scrollbar *vscroll = new Fl_Scrollbar(group->w() + group->w() - SW, group->y(), SW, group->h());
-    group->add(vscroll);
+    Fl_Scrollbar *vscroll = new Fl_Scrollbar(
+      _working_area_group->w() + _working_area_group->w() - SW, _working_area_group->y(), SW, _working_area_group->h());
+    _working_area_group->add(vscroll);
     
     vscroll->callback(MathFltkWorkingArea::static_scrolled_cb, _working_area);
     
     _working_area->vscroll(vscroll);
-    _working_area->widget()->resize(group->x(), group->y(), group->w() - SW, group->h());
-    group->end();
-    win->add_resizable(*group);
+    _working_area->widget()->resize(_working_area_group->x(), _working_area_group->y(), _working_area_group->w() - SW, _working_area_group->h());
+    _working_area_group->end();
+    win->add_resizable(*_working_area_group);
   }
   
   title(String());
@@ -208,13 +213,21 @@ bool MathFltkDocumentWindow::try_set_menubar(bool visible) {
 void MathFltkDocumentWindow::invalidate_options() {
   Document *doc = document();
   
-  if(doc->load_stylesheet()) {
-    // TODO invalidate top docked areas
-  }
+  bool change = false;
+  if(doc->load_stylesheet())
+    change = true;
   
   String s = doc->get_style(WindowTitle, _default_title);
   if(!_title.unobserved_equals(s))
     title(s);
+  
+  if(change) {
+    rearrange();
+  }
+  
+  WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
+  if(_window_frame != f)
+    window_frame(f);
   
   if(Fl_Window *win = window()) {
     if(doc->get_style(Visible, true)) {
@@ -225,6 +238,48 @@ void MathFltkDocumentWindow::invalidate_options() {
       if(win->shown())
         win->hide();
     }
+  }
+}
+
+void MathFltkDocumentWindow::rearrange() {
+  if(initializing())
+    return;
+  
+  Fl_Window *win = window();
+  if(!win)
+    return;
+  
+  if(_working_area->auto_size) {
+    int ww = _working_area->best_width  > 1 ? _working_area->best_width  : 1;
+    int wh = _working_area->best_height > 1 ? _working_area->best_height : 1;
+    
+    win->size(
+      ww + Fl::box_dw(_working_area_group->box()) + Fl::box_dw(win->box()),
+      wh + Fl::box_dh(_working_area_group->box()) + Fl::box_dh(win->box())
+        + (_menu->visible() ? _menu->h() : 0));
+    
+    win->size_range(ww, wh, ww, wh);
+    
+    _working_area_group->resize(
+      Fl::box_dx(win->box()),
+      Fl::box_dy(win->box()) + (_menu->visible() ? _menu->h() : 0),
+      ww + Fl::box_dw(_working_area_group->box()),
+      wh + Fl::box_dh(_working_area_group->box()));
+    
+    _working_area->widget()->resize(
+      Fl::box_dx(_working_area_group->box()),
+      Fl::box_dy(_working_area_group->box()),
+      ww,
+      wh);
+    
+    _working_area->invalidate();
+  }
+  else {
+    _working_area_group->resize(
+      Fl::box_dx(win->box()),
+      Fl::box_dy(win->box()) + (_menu->visible() ? _menu->h() : 0),
+      win->w() - Fl::box_dw(win->box()),
+      win->h() - Fl::box_dh(win->box()) - (_menu->visible() ? _menu->h() : 0));
   }
 }
 
@@ -242,6 +297,86 @@ void MathFltkDocumentWindow::finish_apply_title(String displayed_title) {
     window()->copy_label(str);
     
   pmath_mem_free(str);
+}
+
+void MathFltkDocumentWindow::window_frame(WindowFrameType type) {
+  _window_frame = type;
+  
+  Fl_Window *win = window();
+  if(!win)
+    return;
+  
+  bool was_visible = win->visible();
+  if(was_visible)
+    win->hide();
+  
+  switch(_window_frame) {
+    case WindowFrameNormal: {
+      win->clear_modal_states();
+      win->border(1);
+      win->box(FL_NO_BOX);
+      _menu->show();
+      _working_area->_autohide_vertical_scrollbar = false;
+      _working_area->auto_size = false;
+      win->size_range(1, 1);
+      _working_area_group->box(FL_DOWN_BOX);
+    } break;
+    
+    case WindowFramePalette: {
+      win->clear_modal_states();
+      win->set_non_modal();
+      win->border(1);
+      win->box(FL_NO_BOX);
+      _menu->hide();
+      _working_area->_autohide_vertical_scrollbar = true;
+      _working_area->auto_size = true;
+      _working_area_group->box(FL_FLAT_BOX);
+    } break;
+    
+    case WindowFrameDialog: {
+      win->clear_modal_states();
+      win->border(1);
+      win->box(FL_NO_BOX);
+      _menu->hide();
+      _working_area->_autohide_vertical_scrollbar = true;
+      _working_area->auto_size = true;
+      _working_area_group->box(FL_FLAT_BOX);
+    } break;
+    
+    case WindowFrameNone: {
+      win->clear_modal_states();
+      win->border(0);
+      win->box(FL_NO_BOX);
+      _menu->hide();
+      _working_area->_autohide_vertical_scrollbar = true;
+      _working_area->auto_size = true;
+      _working_area_group->box(FL_FLAT_BOX);
+    } break;
+    
+    case WindowFrameThin:  {
+      win->clear_modal_states();
+      win->border(0);
+      win->box(FL_BORDER_BOX);
+      _menu->hide();
+      _working_area->_autohide_vertical_scrollbar = true;
+      _working_area->auto_size = true;
+      _working_area_group->box(FL_FLAT_BOX);
+    } break;
+    
+    case WindowFrameThinCallout:  {
+      win->clear_modal_states();
+      win->border(0);
+      _menu->hide();
+      _working_area->_autohide_vertical_scrollbar = true;
+      _working_area->auto_size = true;
+      _working_area_group->box(FL_FLAT_BOX);
+    } break;
+  }
+  
+  rearrange();
+  
+  if(was_visible)
+    win->show();
 }
 
 void MathFltkDocumentWindow::on_callback(Fl_Widget *sender) {
@@ -347,7 +482,8 @@ void MathFltkDocumentChildWidget::do_set_selected_document() {
 //{ class MathFltkWorkingArea ...
 
 MathFltkWorkingArea::MathFltkWorkingArea(MathFltkDocumentWindow *parent)
-: base(parent)
+: base(parent),
+  auto_size(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
@@ -369,9 +505,9 @@ void MathFltkWorkingArea::paint_canvas(Canvas &canvas, bool resize_only) {
   int old_ow = outer_width;
   int old_oh = outer_height;
   
-  if(_widget->parent()) {
-    outer_width  = _widget->parent()->w();
-    outer_height = _widget->parent()->h();
+  if(Fl_Group *group = _widget->parent()) {
+    outer_width  = group->w() - Fl::box_dw(group->box());
+    outer_height = group->h() - Fl::box_dh(group->box());
   }
   
   best_height = (int)ceilf(document()->extents().height() * scale_factor());
@@ -386,6 +522,8 @@ void MathFltkWorkingArea::paint_canvas(Canvas &canvas, bool resize_only) {
   if(_did_scroll || old_bw != best_width || old_bh != best_height || old_ow != outer_width || old_oh != outer_height) {
     _did_scroll = false;
     adjust_scollbars();
+    if(auto_size)
+      parent()->rearrange();
   }
 }
 
@@ -403,12 +541,12 @@ void MathFltkWorkingArea::adjust_scollbars() {
   h_range.page = outer_width;
   h_range.max  = best_width;
   
-  bool show_vscroll = _vscroll && v_range.max > 0;
+  bool show_vscroll = _vscroll && v_range.max > outer_height;
   if(show_vscroll) {
     h_range.page -= Fl::scrollbar_size();
   }
   
-  bool show_hscroll = _hscroll && v_range.max > 0;
+  bool show_hscroll = _hscroll && h_range.max > outer_width;
   if(show_hscroll) {
     v_range.page -= Fl::scrollbar_size();
   }
@@ -425,7 +563,14 @@ void MathFltkWorkingArea::adjust_scollbars() {
   
 //  pmath_debug_print("[vscroll %d @ 0 .. %d, page %d ]\n", v_range.pos, v_range.max, v_range.page);
   
-  _widget->size(
+  int x = _widget->x();
+  int y = _widget->y();
+  if(Fl_Group *group = _widget->parent()) {
+    x = group->x() + Fl::box_dx(group->box());
+    y = group->y() + Fl::box_dy(group->box());
+  }
+  
+  _widget->resize(x, y,
     outer_width  - (show_vscroll ? Fl::scrollbar_size() : 0),
     outer_height - (show_hscroll ? Fl::scrollbar_size() : 0));
   
