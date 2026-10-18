@@ -84,11 +84,14 @@ namespace richmath {
       virtual void safe_destroy();
       
     protected:
+      virtual void destroy_this();
+      
       virtual ObjectWithLimbo *next_in_limbo() = 0;
       virtual void next_in_limbo(ObjectWithLimbo *next) = 0;
   };
 
   class FrontEndObject: public ObjectWithLimbo {
+      using base = ObjectWithLimbo;
     public:
       FrontEndObject();
       virtual ~FrontEndObject();
@@ -132,7 +135,10 @@ namespace richmath {
 
       unsigned get_flags_part(unsigned i, unsigned len) { return (_flags >> i) & ((1u << len) - 1); }
       void set_flags_part(unsigned i, unsigned len, unsigned value) { _flags = (_flags & ~(((1u << len) - 1) << i)) | ((value & ((1u << len) - 1)) << i); }
-
+      
+      void prepare_destruction();
+      virtual void destroy_this() override;
+      
     private:
       FrontEndReference _id;
       unsigned          _flags;

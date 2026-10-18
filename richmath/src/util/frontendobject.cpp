@@ -187,6 +187,11 @@ void ObjectWithLimbo::safe_destroy() {
     fprintf(stderr, "[error: duplicate safe_destroy() for %p, without memory suspensions now]\n", this);
     return;
   }
+  
+  destroy_this();
+}
+
+void ObjectWithLimbo::destroy_this() {
   delete this;
 }
 
@@ -195,7 +200,7 @@ void ObjectWithLimbo::safe_destroy() {
 //{ class FrontEndObject ...
 
 FrontEndObject::FrontEndObject()
-  : ObjectWithLimbo(),
+  : base(),
     _id{ TheCache.generate_next_id() },
     _flags{ 0 }
 {
@@ -206,6 +211,15 @@ FrontEndObject::FrontEndObject()
 
 FrontEndObject::~FrontEndObject() {
   TheCache.table.remove(_id);
+}
+
+void FrontEndObject::prepare_destruction() {
+  TheCache.table.remove(_id);
+}
+
+void FrontEndObject::destroy_this() {
+  prepare_destruction();
+  base::destroy_this();
 }
 
 FrontEndObject *FrontEndObject::find(FrontEndReference id) {
