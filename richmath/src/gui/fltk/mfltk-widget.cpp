@@ -3,6 +3,7 @@
 #include <Fl/fl_ask.H>
 #include <Fl/fl_draw.H>
 #include <Fl/Fl_Cairo_Window.H>
+#include <Fl/Fl_Menu_Item.H>
 #include <Fl/Fl_Scrollbar.H>
 
 #ifdef PMATH_DEBUG_LOG
@@ -11,6 +12,7 @@
 
 #include <gui/document.h>
 #include <gui/documents.h>
+#include <gui/fltk/mfltk-menu-items.h>
 #include <math.h>
 
 
@@ -56,6 +58,13 @@ namespace richmath {
 }
 
 using namespace richmath;
+
+namespace richmath { namespace strings {
+  extern String Popup;
+}}
+
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Menu;
 
 //{ class MathFltkWidget ...
 
@@ -623,7 +632,29 @@ int MathFltkWidget::Impl::handle_mouse_up() {
   
   MouseEvent event = prepare_mouse_event(); // TODO: depressed button
   
-  owner->document()->mouse_up(event);
+  Document *doc = owner->document();
+  doc->mouse_up(event);
+  
+  if(event.right) {
+    bool dummy;
+    auto src = doc->mouse_selection(event.position, &dummy);
+    if(!src.box)
+      src = VolatileSelection(doc, 0);
+    
+    Expr menu_expr = src.box->get_finished_flatlist_style(ContextMenu);
+    if(menu_expr.item_equals(0, richmath_System_List) && menu_expr.expr_length() > 0) {
+      menu_expr = Call(Symbol(richmath_System_Menu), strings::Popup, PMATH_CPP_MOVE(menu_expr));
+      
+      MathFltkMenuItems menu;
+      menu.reload(menu_expr);
+      MathFltkMenuItems::update_states(menu.menutable(), src.box->id());
+      
+      const Fl_Menu_Item *picked = menu.menutable()->popup(Fl::event_x(), Fl::event_y());
+      if(picked) {
+        picked->do_callback(this, FL_REASON_SELECTED);
+      }
+    }
+  }
   
   return 1;
 }
