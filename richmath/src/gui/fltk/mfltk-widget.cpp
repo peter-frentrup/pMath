@@ -474,6 +474,9 @@ int MathFltkWidget::Impl::handle_unfocus() {
 }
 
 int MathFltkWidget::Impl::handle_keydown() {
+  if(MathFltkMenuItems::handle_shortcut())
+    return 1;
+  
   MathFltkWidget *owner = find_owner();
   if(!owner)
     return 0;

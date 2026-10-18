@@ -98,6 +98,22 @@ Expr MathFltkMenuItems::selected_item_command() {
   return Impl::find_command(Impl::selected_menu_command_id);
 }
 
+Expr MathFltkMenuItems::test_shortcut() {
+  for(const auto &entry : Impl::command_by_shortcut.entries()) {
+    if(Fl::test_shortcut(entry.key))
+      return Impl::find_command(entry.value);
+  }
+  return Expr();
+}
+
+bool MathFltkMenuItems::handle_shortcut() {
+  if(Expr cmd = test_shortcut()) {
+    Menus::run_command_now(cmd);
+    return true;
+  }
+  return false;
+}
+
 void MathFltkMenuItems::load_accelerators(Expr expr) {
   Impl::shortcut_by_command.default_value = 0;
   Impl::command_by_shortcut.default_value = 0;
